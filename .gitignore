@@ -1,0 +1,58 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+.direnv/
+*.key
+*.pem
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+
+# Node.js
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/cache/
+.nyc_output/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Rust
+target/
+
+# Local caches, logs, and temporary files
+.cache/
+.tmp/
+tmp/
+*.log
+*.tmp
+
+# Never ignore a skill directory, whatever its name (coverage, tmp, target...).
+!**/skills/*/
+
+# Keep client manifests, lockfiles, fixtures, assets, and distributable build
+# output tracked unless a particular plugin documents that it is generated.

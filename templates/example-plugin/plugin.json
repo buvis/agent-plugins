@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "example-plugin",
+  "version": "0.1.0",
+  "description": "A copyable starter package for a portable Agent Plugin.",
+  "author": {
+    "name": "buvis",
+    "url": "https://github.com/buvis"
+  },
+  "license": "MIT",
+  "keywords": [
+    "agent-plugin",
+    "example"
+  ]
+}
