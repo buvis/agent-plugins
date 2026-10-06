@@ -34,7 +34,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - `python3 scripts/validate.py` passes with the package and the shell skill present; that validator is this repository's Agent Plugins v1 check.
   - Outcome: `python3 scripts/validate.py` printed `Validated 2 plugin package(s) and 2 skill(s).` (template and specflow); `scripts` tests 9 OK; release tests 1 OK. Manifest and shell skill match the design verbatim; no `mcp.json`; root README plugin table unchanged.
 
-- [ ] T-003 Add the Claude compatibility manifest
+- [x] T-003 Add the Claude compatibility manifest
   - Requirements: PKG-001, PKG-003
   - Depends on: T-001, T-002
   - Location: `plugins/specflow/.claude-plugin/plugin.json`
@@ -46,6 +46,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - `claude plugin validate --strict plugins/specflow` passes, and `python3 scripts/validate.py` still passes. The skill's name under Claude Code is checked on the probe (T-006) and on the real package in T-043 (00008).
     - File check: the keys of the compatibility manifest are keys of the root manifest other than `$schema`, and each value equals the root's.
+  - Outcome: `claude plugin validate --strict plugins/specflow` printed `✔ Validation passed`; `python3 scripts/validate.py` printed `Validated 2 plugin package(s) and 2 skill(s).`; a `jq` diff of the two manifests (differing values, extra keys, `$schema` in the compat file) returned `[]`. No component path in the compat manifest.
 
 - [ ] T-004 Implement release verification
   - Requirements: PKG-002, PKG-003, REL-001

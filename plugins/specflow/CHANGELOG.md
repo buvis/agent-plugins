@@ -9,3 +9,4 @@ All notable changes to this plugin are documented here. The format follows
 ### Added
 
 - **specflow**: package manifest and a placeholder `spec-workflow` skill.
+- **specflow**: Claude Code compatibility manifest.
