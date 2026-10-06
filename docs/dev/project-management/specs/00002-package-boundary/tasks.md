@@ -48,7 +48,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - File check: the keys of the compatibility manifest are keys of the root manifest other than `$schema`, and each value equals the root's.
   - Outcome: `claude plugin validate --strict plugins/specflow` printed `✔ Validation passed`; `python3 scripts/validate.py` printed `Validated 2 plugin package(s) and 2 skill(s).`; a `jq` diff of the two manifests (differing values, extra keys, `$schema` in the compat file) returned `[]`. No component path in the compat manifest.
 
-- [ ] T-004 Implement release verification
+- [x] T-004 Implement release verification
   - Requirements: PKG-002, PKG-003, REL-001
   - Depends on: T-001
   - Location: `tools/specflow/verify_release.py`, `tests/specflow/release/test_verify_release.py`
@@ -62,6 +62,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - a clean fixture passes; each seeded defect fails with a targeted message.
     - The T-004 tests the design lists in `tests/specflow/release/test_verify_release.py` pass, on fixtures built by `make_package` and never on the real package; every git call in the tests ignores the developer's git settings.
+  - Outcome: release tests ran 15, OK, on Python 3.14 and 3.10. Two mutations were each caught: dropping `--untracked-files=all` (1 failure) and inverting the compat comparison (8 failures). On the real package the tool printed `Verified plugins/specflow.`. Deviation: the two `ls-files` calls add `--full-name`, so every `check_clean` error names a repository-relative path; git errors exit 2 through a `GitError`.
 
 - [ ] T-005 Add forbidden-content release checks
   - Requirements: PKG-002
