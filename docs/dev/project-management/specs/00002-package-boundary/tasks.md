@@ -18,7 +18,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - File check: `AGENTS.md` names the six paths, and `README.md` states the rule.
   - Outcome: `python3 -m unittest discover -s tests/specflow/release` ran 1 test, OK; with a tracked `tools/probe-fail/plugin.json` named `specflow` (intent-to-add, then removed) it failed on that path. `python3 scripts/validate.py` passes. `AGENTS.md` lists the six paths; `README.md` layout gains `tools/`, `tests/`, `.agents/skills/` and states the rule.
 
-- [ ] T-002 Define the portable root manifest
+- [x] T-002 Define the portable root manifest
   - Requirements: PKG-001
   - Depends on: T-001
   - Location: `plugins/specflow/plugin.json`, `plugins/specflow/README.md`, `plugins/specflow/CHANGELOG.md`, `plugins/specflow/skills/spec-workflow/SKILL.md`
@@ -32,6 +32,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Acceptance criteria: PKG-001 criteria 1, 3, 4
   - Verify:
     - `python3 scripts/validate.py` passes with the package and the shell skill present; that validator is this repository's Agent Plugins v1 check.
+  - Outcome: `python3 scripts/validate.py` printed `Validated 2 plugin package(s) and 2 skill(s).` (template and specflow); `scripts` tests 9 OK; release tests 1 OK. Manifest and shell skill match the design verbatim; no `mcp.json`; root README plugin table unchanged.
 
 - [ ] T-003 Add the Claude compatibility manifest
   - Requirements: PKG-001, PKG-003
