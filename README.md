@@ -48,6 +48,11 @@ client-only fields directly to the closed portable `plugin.json` schema.
 ├── scripts/
 │   ├── validate.py
 │   └── test_validate.py
+├── tools/
+│   └── <plugin-name>/             # maintainer tools, never shipped
+├── tests/
+│   └── <plugin-name>/             # maintainer tests, never shipped
+├── .agents/skills/                # maintainer-only skills, never shipped
 └── .github/
     ├── workflows/validate.yml
     └── dependabot.yml
@@ -56,6 +61,10 @@ client-only fields directly to the closed portable `plugin.json` schema.
 Every plugin must be usable as though its directory were distributed alone.
 Do not reference files above the plugin root or use symlinks that resolve
 outside it.
+
+`plugins/specflow/` is specflow's only distributable root. Its maintainer
+tools, tests, skills, and scratch files stay outside it, in `tools/specflow/`,
+`tests/specflow/`, `.agents/skills/`, and `docs/dev/tmp/specflow/`.
 
 ## Add a plugin
 

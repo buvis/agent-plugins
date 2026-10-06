@@ -18,6 +18,15 @@ plugin package.
 - `scripts/validate.py` — repository and portable-format validation.
 - `.github/workflows/validate.yml` — CI entry point.
 
+specflow boundaries (only `plugins/specflow/` ships):
+
+- `plugins/specflow/` — specflow's only distributable root.
+- `.agents/skills/` — maintainer-only skills, such as the catch-up skill.
+- `tools/specflow/` — maintainer tools, such as release verification.
+- `tools/specflow/upstream/` — upstream source cursors and catch-up reports.
+- `tests/specflow/` — specflow tests.
+- `docs/dev/tmp/specflow/` — untracked scratch, such as the host probe.
+
 ## Invariants
 
 - Keep every `plugins/<name>` package independently distributable.

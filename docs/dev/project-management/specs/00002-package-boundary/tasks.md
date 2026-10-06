@@ -2,7 +2,7 @@
 
 The first sub-bullets of `Details:` and `Verify:` are carried from the source plan in intake item 00001. In them, `design §n` means the source design, `.kiro/specs` means the specs folder, and a task ID may belong to another spec; `docs/dev/project-management/reviews/2026-10-04-specflow-split-map.md` names the spec that now holds each section and each task. Lines written for this plan name a task of another spec with its spec, as in `T-030 (00006)`.
 
-- [ ] T-001 Create the repository skeleton
+- [x] T-001 Create the repository skeleton
   - Requirements: PKG-002
   - Depends on: none
   - Location: `README.md`, `AGENTS.md`, `tests/specflow/release/test_boundary.py`
@@ -16,6 +16,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - a tree assertion test identifies `plugins/specflow/` as specflow's only distributable root.
     - `python3 -m unittest discover -s tests/specflow/release` passes with `test_no_specflow_manifest_outside_the_package`, which passes while no manifest exists.
     - File check: `AGENTS.md` names the six paths, and `README.md` states the rule.
+  - Outcome: `python3 -m unittest discover -s tests/specflow/release` ran 1 test, OK; with a tracked `tools/probe-fail/plugin.json` named `specflow` (intent-to-add, then removed) it failed on that path. `python3 scripts/validate.py` passes. `AGENTS.md` lists the six paths; `README.md` layout gains `tools/`, `tests/`, `.agents/skills/` and states the rule.
 
 - [ ] T-002 Define the portable root manifest
   - Requirements: PKG-001
