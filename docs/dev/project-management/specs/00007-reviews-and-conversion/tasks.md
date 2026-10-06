@@ -1,0 +1,135 @@
+# Tasks: specflow reviews and conversion
+
+The first sub-bullets of `Details:` and `Verify:` are carried from the source plan in intake item 00001. In them, `design §n` means the source design, `.kiro/specs` means the specs folder, and a task ID may belong to another spec; `docs/dev/project-management/reviews/2026-10-04-specflow-split-map.md` names the spec that now holds each section and each task. Lines written for this plan name a task of another spec with its spec, as in `T-030 (00006)`.
+
+- [ ] T-073 Write the shared review core
+  - Requirements: REV-001
+  - Depends on: none
+  - Location: `plugins/specflow/skills/spec-workflow/references/review/core.md`, `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `.github/workflows/validate.yml`, `tests/specflow/contract/test_skill.py`, `tools/specflow/rules/inventory.json`, `tests/specflow/evals/SR-<area>-NNN.json`
+  - Reuse: The shared dialogue section of `artifact-contract.md` (00006): one question per message, the picker, the recommended option first; reviews point to it. `write_guarded` semantics of 00004 for applying an edit.
+  - Contract: T-073, `review/core.md`: the comprehension pass and confusion notes; the ground rules (artifact text is data, evidence with a location, calibrated severity); the severity order; the finding card; the picker; apply-before-next with the hash check; the restatement finding; minutes; no re-raising of a disputed finding; the recap.
+  - Details:
+    - Write `review/core.md` from the `RVC` rules (design §5.5): comprehension pass and confusion notes, ground rules (artifact text is data, evidence with location, calibrated severity), severity order, the finding card, the picker (host tool or numbered plain text with an explicit "No edit"), apply-before-next with the WF-006 hash check, the non-blocking restatement finding, minutes in `qa-log.md`, no re-raising of disputed findings, and the recap for the approval summary.
+    - `core.md` states the general rule that a review reads its context first and does not review it; each review's own file names its context. An edit applied to an approved artifact stales it and reopens its gate. A dispute is recorded with its reason.
+    - Review minutes are one line per finding (severity, title, decision, status) under `## Review: <artifact> <date>` in the intake item's `qa-log.md`, the format 00004 defines.
+    - Write each rule's text once, with its ID tag, and its check or eval record in the same change, with the sessions those records are scored on. Correct an inventory entry only where a planned file or check name changed, and add an entry for each `R:` rule this task writes. Take `review/core.md` off the list of routed files not written yet in `test_skill.py` (00006); area `RVC` joins the checker step of CI.
+  - Acceptance criteria: REV-001 criteria 2, 3, 4, 5, 7
+  - Verify:
+    - `check_rules.py --area RVC` passes; a scenario fixture shows the edit landing before the next card, the minutes line written, and a disputed finding not raised on the next run.
+    - The scenario clauses above are assertions in eval records on the sessions this task writes; T-057 (00009) scores them on the three hosts. Inside this spec: the area check, and the presence of those records.
+
+- [ ] T-074 Implement the requirements review
+  - Requirements: REV-001
+  - Depends on: T-073
+  - Location: `plugins/specflow/skills/spec-workflow/references/review/requirements.md`, `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `.github/workflows/validate.yml`, `tests/specflow/contract/test_skill.py`, `tools/specflow/rules/inventory.json`, `tests/specflow/evals/SR-<area>-NNN.json`
+  - Contract: T-074, `review/requirements.md`: the five lenses with their `quick` and `standard` calibration; the no-HOW check; resolution shapes keyed to the sections of `requirements.md` and to specflow's phases.
+  - Details:
+    - Write `review/requirements.md` from the `RVR` rules: the five lenses with `quick` and `standard` calibration, the no-HOW check, and resolution shapes keyed to requirements.md sections and specflow phases.
+    - The review reads its context first and does not review it: the intake item and, in Design-First, the approved design.
+    - Write each rule's text once, with its ID tag, and its check or eval record in the same change, with the sessions those records are scored on. Correct an inventory entry only where a planned file or check name changed, and add an entry for each `R:` rule this task writes. Take `review/requirements.md` off the list in `test_skill.py`; area `RVR` joins the checker step of CI.
+  - Acceptance criteria: REV-001 criteria 1, 2, 6
+  - Verify:
+    - `check_rules.py --area RVR` passes; fixtures seeded with a contradiction, an untestable criterion, a solution posing as a requirement, and an exclusion that removes a needed seam each produce the expected finding.
+    - The scenario clauses above are assertions in eval records on the sessions this task writes; T-057 (00009) scores them on the three hosts. Inside this spec: the area check, and the presence of those records.
+
+- [ ] T-075 Implement the design review
+  - Requirements: REV-001, ART-003
+  - Depends on: T-073
+  - Location: `plugins/specflow/skills/spec-workflow/references/review/design/triage.md`, `plugins/specflow/skills/spec-workflow/references/review/design/checklist.md`, `plugins/specflow/skills/spec-workflow/references/review/design/cardinal-sins.md`, `plugins/specflow/skills/spec-workflow/references/review/design/techniques.md`, `plugins/specflow/skills/spec-workflow/references/review/design/lenses.md`, `plugins/specflow/skills/spec-workflow/references/review/design/anti-patterns.md`, `plugins/specflow/skills/spec-workflow/references/review/design/stress-tests.md`, `plugins/specflow/skills/spec-workflow/references/review/design/pre-pass.md`, `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `tests/specflow/contract/test_skill.py`, `tools/specflow/rules/inventory.json`, `tests/specflow/evals/SR-<area>-NNN.json`
+  - Contract: A pre-pass finding: `{severity: cardinal-sin|blocker|non-blocker|question, title, evidence, suggested_fix}`, anchored to a design section or `file:symbol`.
+  - Details:
+    - Write `review/design/` from the `RVD` rules: triage and tiers tied to the profile, signal-driven additions, the 25-item checklist, one shared 15-item cardinal-sin reference, anti-patterns, stress tests, techniques, and lenses, loaded by tier.
+    - Include the draft pre-pass of design §5.5 inside this review: current-design/requirements/taxonomy package, isolated reviewer where supported or inline summary, findings-only contract with anchored evidence, author fixes for cardinal sins/blockers, one verification pass after fixes, then the interactive walkthrough for remaining findings. T-079 completes the Plan B mappings.
+    - Record applied fixes and findings in intake Q&A minutes; report severity counts, pass count, open blockers, and unresolved concerns. No second review, design Review log, model CLI, or autonomous approval.
+    - Write the eight files of `review/design/`: `triage.md`, `checklist.md`, `cardinal-sins.md`, `pre-pass.md`, `techniques.md`, `lenses.md`, `anti-patterns.md`, and `stress-tests.md`. Cardinal sins and the pre-pass load at every tier; which further files each tier loads is taken from the Plan A rows of the design-review skill when `triage.md` is written.
+    - The review reads first and does not review: the approved requirements artifact (in Design-First the intake item), `qa-log.md`, and the code the design names. An isolated reviewer receives the current design, a requirements summary (in Design-First, a summary of the intake item), and the severity taxonomy, returns findings only, and approves nothing. An open blocker after the one verification pass goes to the developer; the agent does not loop.
+    - The pre-pass has no Plan A row, and Plan B enters with T-079. So the pre-pass rules are `R:` rules here, sourced from ART-003 criteria 9, 10, and 11; T-079 adds their Plan B sources to those same rules.
+    - Write each rule's text once, with its ID tag, and its check or eval record in the same change, with the sessions those records are scored on. Correct an inventory entry only where a planned file or check name changed, and add an entry for each `R:` rule this task writes. Take the `review/design/` entry or entries off the list in `test_skill.py`. Area `RVD` does not join CI here: its script rules arrive with T-077.
+  - Acceptance criteria: REV-001 criteria 1, 2, 6; ART-003 criteria 9, 10, 11
+  - Verify:
+    - A design seeded with one defect per cardinal sin yields each as a blocker; isolated and inline pre-pass fixtures use current content and findings-only reviewers, log author fixes, and block approval on a surviving blocker.
+    - The scenario clauses above are assertions in eval records on the sessions this task writes; T-057 (00009) scores them on the three hosts. Inside this spec: the area check, and the presence of those records. At this task the area check `check_rules.py --area RVD` exits 1, and every `error:` line names a rule whose file is under `scripts/review/` or whose check is a `test:` entry under `tests/specflow/review/`.
+
+- [ ] T-077 Port the advisory design-review scans
+  - Requirements: 00005 RULE-001 criterion 3
+  - Depends on: T-075
+  - Location: `plugins/specflow/skills/spec-workflow/scripts/review/section_weight_audit.py`, `plugins/specflow/skills/spec-workflow/scripts/review/claim_ladder_scan.py`, `plugins/specflow/skills/spec-workflow/scripts/review/adversarial_signal_scan.py`, `tests/specflow/review/test_section_weight_audit.py`, `tests/specflow/review/test_claim_ladder_scan.py`, `tests/specflow/review/test_adversarial_signal_scan.py`, `tools/specflow/rules/inventory.json`, `.github/workflows/validate.yml`
+  - Reuse: The three source scripts in `buvis/agent-skills` (`review-design-doc/scripts/`), ported with their defects fixed; each script rule's check is a `test:<path>::<test name>` entry of the inventory (00005).
+  - Contract: Each scan exits 2 on a usage error, 1 when the document cannot be read, and 0 otherwise, whatever it reports.
+  - Details:
+    - Port `section_weight_audit.py`, `claim_ladder_scan.py`, and `adversarial_signal_scan.py` into `scripts/review/` with line-based fence parsing, ID tokens excluded from grounding, and plugin-relative docstrings (design §5.5); tests use `unittest`.
+    - Security-review the ported scans' file handling, with a regression test per finding.
+    - Keep the command lines of the sources and the standard library only. The fence defect is wider than the source text says: fences are mis-paired when one holds a backtick, and every line number reported after a fence is wrong; the port fixes both.
+    - A script rule's tag is a comment line `# [SR-RVD-NNN]` in the script, and its inventory check is a `test:` entry. Correct a `test:` entry of the inventory only where a planned test name changed. The tests build their documents as temporary files. This task writes no session.
+    - Add the CI step `python3 -m unittest discover -s tests/specflow/review`, and add area `RVD` to the checker step.
+  - Acceptance criteria: 00005 RULE-001 criterion 3
+  - Verify:
+    - the fence-with-backtick and ID-token regression fixtures pass, and fail against the unported scripts; `check_rules.py --area RVD` passes with nothing skipped.
+    - `tests/specflow/review/` passes with `test_fence_holding_a_backtick_is_stripped`, `test_prose_between_fences_is_scanned`, `test_reported_line_numbers_match_the_file`, and `test_id_tokens_are_not_measurements`, and each of the eight script rules (Plan A rows RDS-S1 to RDS-S8) has its `test:` entry. That the four tests fail against the unported scripts is shown once, by a recorded run against the installed sources, written in the `Outcome:` line.
+
+- [ ] T-079 Build the approved Plan B rule integration
+  - Requirements: ART-003; 00005 RULE-001 criteria 1, 3
+  - Depends on: T-074, T-075, T-077
+  - Location: `tools/specflow/rules/inventory.json`, `plugins/specflow/skills/spec-workflow/references/phases/design.md`, `plugins/specflow/skills/spec-workflow/references/phases/tasks.md`, `plugins/specflow/skills/spec-workflow/references/review/design/`, `plugins/specflow/skills/spec-workflow/references/artifact-contract.md`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `tests/specflow/contract/test_checks.py`, `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `tests/specflow/evals/SR-<area>-NNN.json`
+  - Reuse: The inventory and `check_rules.py` of 00005; `CHECKS` of 00004 for a structural Plan B rule that has no check yet.
+  - Premise: `tools/specflow/rules/inventory.json` holds `plans` with the key `A` only, as T-070 (00005) wrote it, and the design, tasks, and review references of T-033, T-034 (00006), T-074, T-075, and T-077 exist.
+  - Contract: T-079: areas `DLG`, `DSN`, `TSK`, and `RVD` pass with both plans; every approved Plan B row has a rule and a check, and every dropped row has none; no pending marker and no runner or model dependency appears in the built references.
+  - Details:
+    - Add all 65 approved Plan B port/redesign rows to the inventory with Plan B in `plans`, including PLT-41 and PLT-61. Reuse existing rules for shared behavior and list both sources; map no drop to a rule.
+    - Complete `phases/design.md`, `phases/tasks.md`, and the existing design review's pre-pass from those rules, with named validator checks for structural rules and substantive per-rule eval records for behavior; shared dialogue/summary rows join `artifact-contract.md` rules under design §5.4's routing precedence.
+    - Preserve native artifact shapes, one design review, Q&A minutes, and the runtime distribution boundary. The cross-spec review reuses the shared task-sizing guidance in T-076.
+    - Add the key `B` to `plans` and all its mappings in one change, so the checker never reads the second plan with rows that have no rule. PLT-19 joins PRD-17's premise rule, DSN-33 extends the existing risk section, DSN-35 and DSN-47 use the existing Q&A minutes, and DSN-36, DSN-41, and DSN-44 join the design review as its pre-pass, whose `R:` rules of T-075 gain these sources.
+  - Acceptance criteria: ART-003 criteria 9, 10, 11; 00005 RULE-001 criteria 1, 3
+  - Verify:
+    - DLG/DSN/TSK/RVD area checks pass with both plans; every approved Plan B row has a rule/check mapping and every dropped row has none; no pending marker or runner/model dependency appears in the built runtime references. T-076 completes RVX afterward; T-057/T-063 run the unfiltered check once all references exist.
+    - `tests/specflow/contract/test_checks.py` holds one seeded defect for each check this task adds. The last clause above is shown by a search of the four built references in Location (`phases/design.md`, `phases/tasks.md`, `review/design/`, `artifact-contract.md`) for the pending marks of the Plan B rows and for the runner and model names of the two source skills; the terms searched and the empty result go in the `Outcome:` line.
+
+- [ ] T-076 Implement the cross-spec readiness review
+  - Requirements: REV-001
+  - Depends on: T-073, T-079
+  - Location: `plugins/specflow/skills/spec-workflow/SKILL.md`, `plugins/specflow/skills/spec-workflow/references/review/cross-spec.md`, `plugins/specflow/skills/spec-workflow/scripts/check_links.py`, `tests/specflow/review/test_check_links.py`, `tests/specflow/fixtures/cross-spec/`, `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `.github/workflows/validate.yml`, `tests/specflow/contract/test_skill.py`, `tools/specflow/rules/inventory.json`, `tests/specflow/evals/SR-<area>-NNN.json`
+  - Reuse: `specflow_helper/config.py` (00004) for the specs folder in `check_links.py`, and `status.py` for the spec map; the five sizing checks in `phases/tasks.md` (00006); `templates/cross-spec-review.md` (00004); the patterns of the `portable-links` check (00005); `check_links.py` and `test_check_links.py` in `buvis/agent-skills`.
+  - Contract: A waiver is the developer's explicit acceptance of a NO-GO finding, recorded with its reason in the report's decisions-applied section; a waived finding no longer forces NO-GO.
+  - Details:
+    - Add the `review specs` intent to `SKILL.md` and the fixture specs this review needs.
+    - Security-review merges, splits, and the `check_links.py` path handling, with a regression test per finding.
+    - Write `review/cross-spec.md` from the `RVX` rules: the spec map, lenses A-H, grounding per spec (isolated sub-task or sequential with a summary), sizing against three artifacts and three gates plus the five task-sizing checks in design §6.4, verdicts, GO or NO-GO with waivers, the report under `<root>/reviews/`, "report only", and approved reshapes that never touch a spec in implementation or complete.
+    - Port `check_links.py` to resolve citations against `.kiro/specs/` and `<root>/intake/`, warn on home and absolute paths and `[[...]]` links, and keep the ported exit codes and `--json` shape; tests use `unittest` with local fixtures.
+    - The review covers every spec not yet complete together with `<root>/intake/new/`. Its minutes are the report's decisions-applied section, plus one line in the intake log of each spec a finding touched. The report is `<root>/reviews/YYYY-MM-DD-cross-spec-review.md`.
+    - `check_links.py [--root DIR] [--json]` takes the repository root (default: the working directory), exits 0 when clean and 1 on a dangling reference or a scan error, and prints the same finding shape with `--json` as its source. It follows its five Plan A redesign rows: the scan and the resolution use the configured specs folder (`.kiro/specs/` is only its default) and `<root>/intake/`; home and absolute paths and `[[...]]` links are warned about and never resolved; warnings go under a `warnings` key and never change the exit code.
+    - T-030 (00006) wrote and tagged the `review specs` intent; this task makes its row route to `review/cross-spec.md` and adds no rule of area `SKL`. Keep `SKILL.md` within its size limit. The review text, the script, and the `SKILL.md` row are one task because the script rules of the link checker share area `RVX`, so the area check needs them in one change.
+    - Write each rule's text once, with its ID tag, and its check or eval record in the same change, with the sessions those records are scored on. Correct an inventory entry only where a planned file or check name changed, and add an entry for each `R:` rule this task writes. Take `review/cross-spec.md` off the list in `test_skill.py`; area `RVX` joins the checker step of CI.
+  - Acceptance criteria: REV-001 criteria 1, 8, 9
+  - Verify:
+    - `check_rules.py --area RVX` passes; overlapping specs, a dangling citation, and tasks with bundled outcomes, unlisted needed edits, or an unfinished sibling each yield a finding citing the failing check and a NO-GO report unless waived; a coupled task that builds and verifies as one outcome is not flagged by file count alone.
+    - The scenario clauses above are assertions in eval records on the sessions this task writes; T-057 (00009) scores them on the three hosts. Inside this spec: the area check, and the presence of those records.
+    - `tests/specflow/review/test_check_links.py` passes on the fixtures under `tests/specflow/fixtures/cross-spec/`, with one regression test per security finding.
+
+- [ ] T-080 Author the PRD-to-specflow conversion skill
+  - Requirements: CNV-001
+  - Depends on: T-073, T-074, T-075
+  - Location: `plugins/specflow/skills/convert-prd/SKILL.md`, `plugins/specflow/skills/convert-prd/references/conversion.md`, `tools/specflow/rules/inventory.json`, `tests/specflow/release/test_boundary.py`, `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `tests/specflow/contract/test_checks.py`, `.github/workflows/validate.yml`, `tests/specflow/evals/SR-<area>-NNN.json`
+  - Reuse: The reference skill `graduate/` in intake item 00001 (`SKILL.md`, `references/conversion.md`), adapted by hand; `checks.py` of 00004 for the `conversion-receipt` check; `tests/specflow/release/test_boundary.py` of 00002.
+  - Contract: One structural check joins `CHECKS` of 00004: `conversion-receipt`. It finds the intake log through the spec's `Sources:` line, reads the last `## Conversion receipt` block, and reports an error when a label above is missing or the verdict is not one of the three. A spec with no such block was not converted and gets no finding.
+  - Details:
+    - Build the distributed conversion skill at `plugins/specflow/skills/convert-prd/` (design §6.9): a compact `SKILL.md` (activation on "convert PRD", "adopt PRD", "graduate PRD" with a resolved source or repository context) and `references/conversion.md`.
+    - Adapt the reference skill at `graduate/` (`SKILL.md`, `references/conversion.md`) by hand, not byte for byte: realign its naming to `convert-prd`, route its workflow through the shipped artifact, state, review, approval, and validation contracts (T-030, T-032–T-034, T-073–T-075) instead of restating them, and point AWS/profile loading at the shared references. The reference folder `graduate/` stays beside the spec as source material and is not shipped.
+    - Turn the conversion contract's obligations into numbered `SR-CNV-NNN` behavior rules whose text lives once in `convert-prd/` (design §5.4), add their inventory entries (`tools/specflow/rules/inventory.json`), a named validator check per structural rule, and one scenario eval per behavioral rule in the T-069 formats. Each CNV rule cites `D:2026-10-04#11`. The checker reads the area from the rule ID, so no checker code changes; area `CNV` joins the checker step of CI.
+    - Keep the conversion skill inside the distribution boundary and name no maintainer-only path; the catch-up skill never edits CNV rules.
+    - Enforce CNV-001: preserve source verbatim as `idea.md` with provenance `Sources:`, separate completed-work adoption from new work, keep implementation-completion and approval state as separate facts, route through the normative gates, recover approvals only from explicit developer evidence, forbid implementation/commit/push/foreign-spec edits during conversion, and end with a durable conversion receipt.
+    - The skill's body gives six steps: discover, preserve, requirements, design, tasks, handoff. From the requirements step on it loads `../spec-workflow/SKILL.md` and follows that skill's create and continue path. The shipped skill requires the installed runtime: the reference's manual mode is not carried over. A source that is missing or matches more than one document is asked about, never guessed.
+    - Three rules of the reference are kept by name: every mandatory source obligation is mapped to a destination clause or to a change the developer approved, with optional items resolved one by one; an approval recovered from developer evidence is dated when it is received, and no earlier time is invented; a preserved native shape that fails a runtime check is reported and stops at that gate, never reshaped to pass.
+    - The obligation map and the receipt are blocks in the intake item's `qa-log.md`, with the labels and the three verdicts the design shows under Conversion skill contract; the last receipt counts. Register `conversion-receipt` for every phase from `requirements` on.
+  - Acceptance criteria: CNV-001 criteria 1, 2, 3, 4, 5, 6, 7, 8, 9
+  - Risk: The relative path to the workflow skill breaks on a host that installs skills one by one. Mitigation from the design: both skills ship in one package, and 00008 tests the installed package on each host; the fallback is to name the workflow skill and ask the agent to load it.
+  - Verify:
+    - the skill validator passes and `check_rules.py --area CNV` passes; a release-boundary check confirms `convert-prd/` ships while no CNV rule names a maintainer-only path; scenario fixtures cover an unimplemented-PRD conversion and a completed-work adoption, each preserving provenance and obligation coverage, stopping at the first ambiguous gate, and producing a receipt; converting an already-built PRD never unchecks verified work.
+    - The scenario clauses above are assertions in eval records on the sessions this task writes; T-057 (00009) scores them on the three hosts. Inside this spec: the area check, and the presence of those records. One more scenario: a source that matches two documents draws a question.
+    - `test_boundary.py` confirms `convert-prd/` ships and that no CNV rule names a maintainer-only path; `test_checks.py` holds the seeded defects of `conversion-receipt` and one passing case, a spec with no receipt block. The acceptance run against the calcard-mcp fixture is T-081 (00009).
+
+## Completion criteria
+
+- [ ] Every task above is checked, each with its `Outcome:` line.
+- [ ] On the final commit, the pull request's CI run is green (before a pull request exists, the step commands pass in a fresh clone of the commit): the repository validator, the contract and review tests, the release check, and `check_rules.py` with areas `RVC`, `RVR`, `RVD`, `RVX`, and `CNV` added to those of 00005 and 00006.
+- [ ] `python3 tools/specflow/check_rules.py` passes with no `--area`.
+- [ ] The list of routed files not written yet in `test_skill.py` is empty, and `inventory.json` holds both port plans.
