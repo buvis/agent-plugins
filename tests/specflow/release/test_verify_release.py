@@ -179,12 +179,77 @@ class CheckManifestsTest(VerifyReleaseTest):
 
     def test_reports_failures_from_every_check(self) -> None:
         self.init_repo()
-        (self.plugin / "notes.md").write_text("x")
+        (self.plugin / "notes.md").write_text("see tools/specflow")
         self.compat_path().unlink()
         code, _, err = self.run_main()
         self.assertEqual(code, 1)
         self.assertIn("untracked file", err)
         self.assertIn("missing Claude compatibility manifest", err)
+        self.assertIn("contains marker tools/specflow", err)
+
+
+class CheckForbiddenTest(VerifyReleaseTest):
+    def fresh_plugin(self, case: str) -> Path:
+        return make_package(self.tmp / case)
+
+    def assert_forbidden(self, plugin: Path, relative: str, *fragments: str) -> None:
+        errors = verify_release.check_forbidden(plugin)
+        self.assert_error(errors, str(plugin / relative), *fragments)
+
+    def test_clean_package_has_no_forbidden_content(self) -> None:
+        self.assertEqual(verify_release.check_forbidden(self.plugin), [])
+
+    def test_rejects_each_forbidden_path_part(self) -> None:
+        for part in verify_release.FORBIDDEN_PATH_PARTS:
+            with self.subTest(part=part):
+                plugin = self.fresh_plugin(f"part{part}")
+                (plugin / "skills" / part).mkdir(parents=True)
+                (plugin / "skills" / part / "notes.md").write_text("x")
+                self.assert_forbidden(plugin, f"skills/{part}",
+                                      f"forbidden path part {part}")
+
+    def test_rejects_each_forbidden_file_name(self) -> None:
+        for name in verify_release.FORBIDDEN_FILE_NAMES:
+            with self.subTest(name=name):
+                plugin = self.fresh_plugin(f"name{name}")
+                (plugin / name).write_text("x")
+                self.assert_forbidden(plugin, name, "forbidden file name")
+
+    def test_rejects_each_forbidden_name_pattern(self) -> None:
+        for pattern in verify_release.FORBIDDEN_NAME_PATTERNS:
+            with self.subTest(pattern=pattern):
+                name = pattern.replace("*", "x")
+                plugin = self.fresh_plugin(f"pattern{name}")
+                (plugin / name).write_text("x")
+                self.assert_forbidden(plugin, name,
+                                      f"matches forbidden pattern {pattern}")
+
+    def test_rejects_marker_in_a_folder_name(self) -> None:
+        folder = self.plugin / "skills" / "catchup-specflow-upstream"
+        folder.mkdir(parents=True)
+        self.assert_forbidden(self.plugin, "skills/catchup-specflow-upstream",
+                              "name contains marker catchup-specflow-upstream")
+
+    def test_rejects_each_marker_in_file_content(self) -> None:
+        for marker in verify_release.FORBIDDEN_MARKERS:
+            with self.subTest(marker=marker):
+                plugin = self.fresh_plugin(f"marker{marker.replace('/', '-')}")
+                (plugin / "README.md").write_text(f"Run {marker} first.\n")
+                self.assert_forbidden(plugin, "README.md", f"contains marker {marker}")
+
+    def test_reports_unreadable_file(self) -> None:
+        path = self.plugin / "locked.md"
+        path.write_text("x")
+        path.chmod(0)
+        self.addCleanup(path.chmod, 0o644)
+        self.assert_forbidden(self.plugin, "locked.md", "cannot read file")
+
+    def test_error_names_path_and_marker(self) -> None:
+        (self.plugin / "README.md").write_text("see tests/specflow\n")
+        self.assertEqual(
+            verify_release.check_forbidden(self.plugin),
+            [f"{self.plugin / 'README.md'}: contains marker tests/specflow"],
+        )
 
 
 if __name__ == "__main__":

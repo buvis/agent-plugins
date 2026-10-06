@@ -7,8 +7,10 @@ Exit codes: 0 pass, 1 one or more failures, 2 git missing or failing.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
+from fnmatch import fnmatch
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -26,6 +28,14 @@ from validate import (
 
 COMPAT_FIELDS = {"name", "version", "description", "author", "homepage",
                  "repository", "license", "keywords"}
+
+FORBIDDEN_PATH_PARTS = (".agents", ".git", "tests", "evals", "parity", "upstream")
+FORBIDDEN_FILE_NAMES = ("sources.md", "inventory.json", "criteria.json",
+                        "check_rules.py", "verify_release.py")
+FORBIDDEN_NAME_PATTERNS = ("test_*.py", "*_test.py", "*-specflow-upstream-catchup.md")
+FORBIDDEN_MARKERS = ("catchup-specflow-upstream", "check_rules.py",
+                     "verify_release.py", "tools/specflow", "tests/specflow",
+                     "docs/dev/tmp/specflow")
 
 
 class GitError(Exception):
@@ -92,9 +102,43 @@ def check_manifests(plugin: Path) -> list[str]:
     return errors
 
 
+def check_name(path: Path) -> list[str]:
+    name = path.name
+    errors = [f"{path}: forbidden path part {name}"] if name in FORBIDDEN_PATH_PARTS else []
+    errors += [f"{path}: name contains marker {m}" for m in FORBIDDEN_MARKERS if m in name]
+    return errors
+
+
+def check_forbidden(plugin: Path) -> list[str]:
+    errors: list[str] = []
+    # Every entry's own name is tested, so each part of every path is covered once.
+    for folder, dirs, files in os.walk(plugin):
+        base = Path(folder)
+        for name in dirs:
+            errors += check_name(base / name)
+        for name in files:
+            path = base / name
+            errors += check_name(path)
+            if name in FORBIDDEN_FILE_NAMES:
+                errors.append(f"{path}: forbidden file name")
+            errors += [f"{path}: name matches forbidden pattern {p}"
+                       for p in FORBIDDEN_NAME_PATTERNS if fnmatch(name, p)]
+            if path.is_symlink():
+                continue
+            try:
+                content = path.read_bytes()
+            except OSError as error:
+                errors.append(f"{path}: cannot read file: {error}")
+                continue
+            errors += [f"{path}: contains marker {m}"
+                       for m in FORBIDDEN_MARKERS if m.encode() in content]
+    return errors
+
+
 def main() -> int:
     try:
-        errors = check_clean(PLUGIN) + check_manifests(PLUGIN)
+        errors = (check_clean(PLUGIN) + check_manifests(PLUGIN)
+                  + check_forbidden(PLUGIN))
     except GitError as error:
         print(f"error: {PLUGIN}: {error}", file=sys.stderr)
         return 2
