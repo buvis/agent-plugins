@@ -64,7 +64,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - The T-004 tests the design lists in `tests/specflow/release/test_verify_release.py` pass, on fixtures built by `make_package` and never on the real package; every git call in the tests ignores the developer's git settings.
   - Outcome: release tests ran 15, OK, on Python 3.14 and 3.10. Two mutations were each caught: dropping `--untracked-files=all` (1 failure) and inverting the compat comparison (8 failures). On the real package the tool printed `Verified plugins/specflow.`. Deviation: the two `ls-files` calls add `--full-name`, so every `check_clean` error names a repository-relative path; git errors exit 2 through a `GitError`.
 
-- [ ] T-005 Add forbidden-content release checks
+- [x] T-005 Add forbidden-content release checks
   - Requirements: PKG-002
   - Depends on: T-002, T-003, T-004
   - Location: `tools/specflow/verify_release.py`, `tests/specflow/release/test_verify_release.py`, `.github/workflows/validate.yml`
@@ -77,6 +77,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - seeded forbidden fixtures each fail with a targeted message.
     - The T-005 tests the design lists pass; for the two new steps, the pull request's CI run is green; before a pull request exists, the step commands pass in a fresh clone of the commit.
+  - Outcome: in a fresh clone of the T-005 commit, with `PYTHONDONTWRITEBYTECODE=1` on Python 3.10.22: `scripts` tests ran 9, OK; the validator printed `Validated 2 plugin package(s) and 2 skill(s).`; release tests ran 23, OK; the tool printed `Verified plugins/specflow.`; and `git status --porcelain --ignored` was empty afterwards. Dropping the last marker from the content scan failed `test_rejects_each_marker_in_file_content`. No pull request exists yet, so CI has not run. `check_forbidden` tests each entry's own name, which covers every part of every path once.
 
 - [ ] T-006 Probe host loading
   - Requirements: PKG-003
