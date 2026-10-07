@@ -26,16 +26,34 @@ from validate import (
     validate_skills,
 )
 
-COMPAT_FIELDS = {"name", "version", "description", "author", "homepage",
-                 "repository", "license", "keywords"}
+COMPAT_FIELDS = {
+    "name",
+    "version",
+    "description",
+    "author",
+    "homepage",
+    "repository",
+    "license",
+    "keywords",
+}
 
 FORBIDDEN_PATH_PARTS = (".agents", ".git", "tests", "evals", "parity", "upstream")
-FORBIDDEN_FILE_NAMES = ("sources.md", "inventory.json", "criteria.json",
-                        "check_rules.py", "verify_release.py")
+FORBIDDEN_FILE_NAMES = (
+    "sources.md",
+    "inventory.json",
+    "criteria.json",
+    "check_rules.py",
+    "verify_release.py",
+)
 FORBIDDEN_NAME_PATTERNS = ("test_*.py", "*_test.py", "*-specflow-upstream-catchup.md")
-FORBIDDEN_MARKERS = ("catchup-specflow-upstream", "check_rules.py",
-                     "verify_release.py", "tools/specflow", "tests/specflow",
-                     "docs/dev/tmp/specflow")
+FORBIDDEN_MARKERS = (
+    "catchup-specflow-upstream",
+    "check_rules.py",
+    "verify_release.py",
+    "tools/specflow",
+    "tests/specflow",
+    "docs/dev/tmp/specflow",
+)
 
 
 class GitError(Exception):
@@ -45,7 +63,9 @@ class GitError(Exception):
 def git(plugin: Path, *args: str) -> list[str]:
     try:
         result = subprocess.run(
-            ["git", "-C", str(plugin), *args], capture_output=True, text=True
+            ["git", "-C", str(plugin), *args],
+            capture_output=True,
+            text=True,
         )
     except FileNotFoundError as error:
         raise GitError("git is not installed") from error
@@ -58,13 +78,27 @@ def check_clean(plugin: Path) -> list[str]:
     kinds = {"??": "untracked file", "!!": "ignored generated file"}
     errors = [
         f"{line[3:]}: {kinds.get(line[:2], 'modified tracked file')} in the package"
-        for line in git(plugin, "status", "--porcelain", "--ignored",
-                        "--untracked-files=all", "--", ".")
+        for line in git(
+            plugin,
+            "status",
+            "--porcelain",
+            "--ignored",
+            "--untracked-files=all",
+            "--",
+            ".",
+        )
     ]
     errors += [
         f"{line}: committed file matches an ignore rule"
-        for line in git(plugin, "ls-files", "--full-name", "-ci",
-                        "--exclude-per-directory=.gitignore", "--", ".")
+        for line in git(
+            plugin,
+            "ls-files",
+            "--full-name",
+            "-ci",
+            "--exclude-per-directory=.gitignore",
+            "--",
+            ".",
+        )
     ]
     errors += [
         f"{line.split(chr(9), 1)[1]}: embedded repository"
@@ -77,8 +111,12 @@ def check_clean(plugin: Path) -> list[str]:
 def check_manifests(plugin: Path) -> list[str]:
     errors: list[str] = []
     root: dict[str, object] = {}
-    for check in (validate_manifest, validate_containment, validate_skills,
-                  validate_mcp):
+    for check in (
+        validate_manifest,
+        validate_containment,
+        validate_skills,
+        validate_mcp,
+    ):
         try:
             result = check(plugin)
         except ValidationError as error:
@@ -104,8 +142,12 @@ def check_manifests(plugin: Path) -> list[str]:
 
 def check_name(path: Path) -> list[str]:
     name = path.name
-    errors = [f"{path}: forbidden path part {name}"] if name in FORBIDDEN_PATH_PARTS else []
-    errors += [f"{path}: name contains marker {m}" for m in FORBIDDEN_MARKERS if m in name]
+    errors = (
+        [f"{path}: forbidden path part {name}"] if name in FORBIDDEN_PATH_PARTS else []
+    )
+    errors += [
+        f"{path}: name contains marker {m}" for m in FORBIDDEN_MARKERS if m in name
+    ]
     return errors
 
 
@@ -121,8 +163,11 @@ def check_forbidden(plugin: Path) -> list[str]:
             errors += check_name(path)
             if name in FORBIDDEN_FILE_NAMES:
                 errors.append(f"{path}: forbidden file name")
-            errors += [f"{path}: name matches forbidden pattern {p}"
-                       for p in FORBIDDEN_NAME_PATTERNS if fnmatch(name, p)]
+            errors += [
+                f"{path}: name matches forbidden pattern {p}"
+                for p in FORBIDDEN_NAME_PATTERNS
+                if fnmatch(name, p)
+            ]
             if path.is_symlink():
                 continue
             try:
@@ -130,15 +175,17 @@ def check_forbidden(plugin: Path) -> list[str]:
             except OSError as error:
                 errors.append(f"{path}: cannot read file: {error}")
                 continue
-            errors += [f"{path}: contains marker {m}"
-                       for m in FORBIDDEN_MARKERS if m.encode() in content]
+            errors += [
+                f"{path}: contains marker {m}"
+                for m in FORBIDDEN_MARKERS
+                if m.encode() in content
+            ]
     return errors
 
 
 def main() -> int:
     try:
-        errors = (check_clean(PLUGIN) + check_manifests(PLUGIN)
-                  + check_forbidden(PLUGIN))
+        errors = check_clean(PLUGIN) + check_manifests(PLUGIN) + check_forbidden(PLUGIN)
     except GitError as error:
         print(f"error: {PLUGIN}: {error}", file=sys.stderr)
         return 2

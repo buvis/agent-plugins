@@ -40,10 +40,20 @@ def make_package(root: Path) -> Path:
 
 def git(repo: Path, *args: str) -> None:
     subprocess.run(
-        ["git", "-C", str(repo), "-c", "user.name=test",
-         "-c", "user.email=test@example.invalid", "-c", "commit.gpgsign=false",
-         *args],
-        check=True, capture_output=True,
+        [
+            "git",
+            "-C",
+            str(repo),
+            "-c",
+            "user.name=test",
+            "-c",
+            "user.email=test@example.invalid",
+            "-c",
+            "commit.gpgsign=false",
+            *args,
+        ],
+        check=True,
+        capture_output=True,
     )
 
 
@@ -70,8 +80,11 @@ class VerifyReleaseTest(unittest.TestCase):
 
     def run_main(self) -> tuple[int, str, str]:
         out, err = io.StringIO(), io.StringIO()
-        with mock.patch.object(verify_release, "PLUGIN", self.plugin), \
-                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+        with (
+            mock.patch.object(verify_release, "PLUGIN", self.plugin),
+            contextlib.redirect_stdout(out),
+            contextlib.redirect_stderr(err),
+        ):
             code = verify_release.main()
         return code, out.getvalue(), err.getvalue()
 
@@ -90,21 +103,30 @@ class CheckCleanTest(VerifyReleaseTest):
     def test_rejects_modified_tracked_file(self) -> None:
         self.init_repo()
         (self.plugin / "plugin.json").write_text("{}")
-        self.assert_error(verify_release.check_clean(self.plugin),
-                          "plugins/specflow/plugin.json", "modified tracked file")
+        self.assert_error(
+            verify_release.check_clean(self.plugin),
+            "plugins/specflow/plugin.json",
+            "modified tracked file",
+        )
 
     def test_rejects_untracked_file_in_plugin(self) -> None:
         self.init_repo()
         (self.plugin / "notes.md").write_text("x")
-        self.assert_error(verify_release.check_clean(self.plugin),
-                          "plugins/specflow/notes.md", "untracked file")
+        self.assert_error(
+            verify_release.check_clean(self.plugin),
+            "plugins/specflow/notes.md",
+            "untracked file",
+        )
 
     def test_rejects_untracked_file_when_git_hides_untracked_files(self) -> None:
         self.init_repo()
         git(self.repo, "config", "status.showUntrackedFiles", "no")
         (self.plugin / "notes.md").write_text("x")
-        self.assert_error(verify_release.check_clean(self.plugin),
-                          "plugins/specflow/notes.md", "untracked file")
+        self.assert_error(
+            verify_release.check_clean(self.plugin),
+            "plugins/specflow/notes.md",
+            "untracked file",
+        )
 
     def test_rejects_ignored_generated_file_in_plugin(self) -> None:
         (self.repo / ".gitignore").write_text("__pycache__/\n")
@@ -112,8 +134,11 @@ class CheckCleanTest(VerifyReleaseTest):
         cache = self.plugin / "__pycache__"
         cache.mkdir()
         (cache / "mod.pyc").write_bytes(b"x")
-        self.assert_error(verify_release.check_clean(self.plugin),
-                          "plugins/specflow/__pycache__", "ignored generated file")
+        self.assert_error(
+            verify_release.check_clean(self.plugin),
+            "plugins/specflow/__pycache__",
+            "ignored generated file",
+        )
 
     def test_rejects_committed_file_matching_an_ignore_rule(self) -> None:
         (self.repo / ".gitignore").write_text("*.pyc\n")
@@ -121,8 +146,11 @@ class CheckCleanTest(VerifyReleaseTest):
         git(self.repo, "init", "-q")
         git(self.repo, "add", "-f", "-A")
         git(self.repo, "commit", "-q", "-m", "fixture")
-        self.assert_error(verify_release.check_clean(self.plugin),
-                          "plugins/specflow/mod.pyc", "matches an ignore rule")
+        self.assert_error(
+            verify_release.check_clean(self.plugin),
+            "plugins/specflow/mod.pyc",
+            "matches an ignore rule",
+        )
 
     def test_rejects_embedded_repository(self) -> None:
         clone = self.plugin / "upstream-clone"
@@ -131,8 +159,11 @@ class CheckCleanTest(VerifyReleaseTest):
         git(clone, "init", "-q")
         commit_all(clone)
         self.init_repo()
-        self.assert_error(verify_release.check_clean(self.plugin),
-                          "plugins/specflow/upstream-clone", "embedded repository")
+        self.assert_error(
+            verify_release.check_clean(self.plugin),
+            "plugins/specflow/upstream-clone",
+            "embedded repository",
+        )
 
     def test_exits_2_outside_a_git_checkout(self) -> None:
         code, _, err = self.run_main()
@@ -149,33 +180,47 @@ class CheckManifestsTest(VerifyReleaseTest):
 
     def test_rejects_symlink_escaping_plugin_root(self) -> None:
         (self.plugin / "escape").symlink_to(self.tmp)
-        self.assert_error(verify_release.check_manifests(self.plugin),
-                          "escape", "symlink resolves outside plugin root")
+        self.assert_error(
+            verify_release.check_manifests(self.plugin),
+            "escape",
+            "symlink resolves outside plugin root",
+        )
 
     def test_rejects_missing_compat_manifest(self) -> None:
         self.compat_path().unlink()
-        self.assert_error(verify_release.check_manifests(self.plugin),
-                          ".claude-plugin/plugin.json", "missing")
+        self.assert_error(
+            verify_release.check_manifests(self.plugin),
+            ".claude-plugin/plugin.json",
+            "missing",
+        )
 
     def test_rejects_compat_manifest_that_is_not_an_object(self) -> None:
         self.write_compat(["specflow"])
-        self.assert_error(verify_release.check_manifests(self.plugin),
-                          ".claude-plugin/plugin.json", "must contain a JSON object")
+        self.assert_error(
+            verify_release.check_manifests(self.plugin),
+            ".claude-plugin/plugin.json",
+            "must contain a JSON object",
+        )
 
     def test_rejects_compat_manifest_with_component_path(self) -> None:
         compat = json.loads(self.compat_path().read_text())
         self.write_compat({**compat, "skills": "./skills/"})
-        self.assert_error(verify_release.check_manifests(self.plugin),
-                          ".claude-plugin/plugin.json", "field skills")
+        self.assert_error(
+            verify_release.check_manifests(self.plugin),
+            ".claude-plugin/plugin.json",
+            "field skills",
+        )
 
     def test_rejects_compat_value_differing_from_root(self) -> None:
         compat = json.loads(self.compat_path().read_text())
         for field in sorted(compat):
             with self.subTest(field=field):
                 self.write_compat({**compat, field: "changed"})
-                self.assert_error(verify_release.check_manifests(self.plugin),
-                                  ".claude-plugin/plugin.json",
-                                  f"{field} differs from the root manifest")
+                self.assert_error(
+                    verify_release.check_manifests(self.plugin),
+                    ".claude-plugin/plugin.json",
+                    f"{field} differs from the root manifest",
+                )
 
     def test_reports_failures_from_every_check(self) -> None:
         self.init_repo()
@@ -205,8 +250,9 @@ class CheckForbiddenTest(VerifyReleaseTest):
                 plugin = self.fresh_plugin(f"part{part}")
                 (plugin / "skills" / part).mkdir(parents=True)
                 (plugin / "skills" / part / "notes.md").write_text("x")
-                self.assert_forbidden(plugin, f"skills/{part}",
-                                      f"forbidden path part {part}")
+                self.assert_forbidden(
+                    plugin, f"skills/{part}", f"forbidden path part {part}"
+                )
 
     def test_rejects_each_forbidden_file_name(self) -> None:
         for name in verify_release.FORBIDDEN_FILE_NAMES:
@@ -221,14 +267,18 @@ class CheckForbiddenTest(VerifyReleaseTest):
                 name = pattern.replace("*", "x")
                 plugin = self.fresh_plugin(f"pattern{name}")
                 (plugin / name).write_text("x")
-                self.assert_forbidden(plugin, name,
-                                      f"matches forbidden pattern {pattern}")
+                self.assert_forbidden(
+                    plugin, name, f"matches forbidden pattern {pattern}"
+                )
 
     def test_rejects_marker_in_a_folder_name(self) -> None:
         folder = self.plugin / "skills" / "catchup-specflow-upstream"
         folder.mkdir(parents=True)
-        self.assert_forbidden(self.plugin, "skills/catchup-specflow-upstream",
-                              "name contains marker catchup-specflow-upstream")
+        self.assert_forbidden(
+            self.plugin,
+            "skills/catchup-specflow-upstream",
+            "name contains marker catchup-specflow-upstream",
+        )
 
     def test_rejects_each_marker_in_file_content(self) -> None:
         for marker in verify_release.FORBIDDEN_MARKERS:
