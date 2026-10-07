@@ -14,7 +14,7 @@ Before the runs, `python3 scripts/validate.py docs/dev/tmp/specflow/probe/specfl
 - Read the reference: yes.
 - Ran the bundled script: yes. Output: `python 3.14.6 at <CODEX_HOME>/plugins/cache/specflow-probe-local/specflow-probe/0.0.1/skills/probe-fixture/scripts/probe.py`.
 - Wrote the fixture: yes, it created `.kiro/specs/00000-probe/requirements.md` (it ran first).
-- Resumed another host's fixture: not yet; Kiro IDE runs after it.
+- Resumed another host's fixture: not run; Codex ran first. The order of the probe runs differs from the 00008 order (Kiro, Codex, Claude Code), and resuming is shown by Claude Code and Kiro IDE.
 - Limit: a local install needs a marketplace file around the plugin. For specflow that is the monorepo's `.agents/plugins/marketplace.json` or `.claude-plugin/marketplace.json` (Codex reads both), so the 00008 Codex line "local folder" is wrong as written.
 
 ## Claude Code
@@ -42,12 +42,25 @@ First run, 2026-10-07, by hand. It did not finish.
 - Resumed another host's fixture: not reached.
 - Limits found: (1) Kiro gives the agent no skill-folder path, so it had to search for `references/` and `scripts/`. (2) Kiro asks for approval before it activates a Power; the first attempt was rejected at that prompt. (3) The script step stays unproven until the terminal works.
 
+Second run, 2026-10-07, after the developer fixed the Kiro terminal (what fixed it is not recorded). It finished.
+
+- Ran the bundled script: yes. Output: `python 3.14.6 at /Users/bob/.kiro/powers/installed/specflow-probe/skills/probe-fixture/scripts/probe.py`.
+- Wrote the fixture: yes, by appending its line.
+- Resumed another host's fixture: yes, the one Codex and Claude Code wrote; both lines kept.
+- Listed name: `probe-fixture`, unprefixed, unlike Codex and Claude Code.
+- Limit: Kiro's agent runs the script in Kiro's terminal, so a broken terminal blocks every approval record. The host documentation (T-045 of 00008) should tell the user to check that a trivial command runs in Kiro's terminal.
+
 ## Fixture after the runs
 
 ```text
 - Codex: note="The probe reference was read."; script="python 3.14.6 at /private/tmp/claude-501/-Users-bob-git-src-github-com-buvis-agent-plugins/f1c3a2cf-12b9-4020-bd18-8ee28897670d/scratchpad/codex-home/plugins/cache/specflow-probe-local/specflow-probe/0.0.1/skills/probe-fixture/scripts/probe.py"
 - Claude Code: note="The probe reference was read."; script="python 3.14.6 at /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/specflow/probe/specflow-probe/skills/probe-fixture/scripts/probe.py"
+- Kiro IDE: note="The probe reference was read."; script="python 3.14.6 at /Users/bob/.kiro/powers/installed/specflow-probe/skills/probe-fixture/scripts/probe.py"
 ```
+
+## Result
+
+All three supported hosts load the probe, read its reference, run its bundled script, and write the fixture, and two of them resume a fixture another host wrote. No host needs `plugin.json` at a repository root, so PKG-002 criterion 6 stays dormant. The host lines of the 00008 design were corrected to match.
 
 ## Probe files
 

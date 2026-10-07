@@ -79,7 +79,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - The T-005 tests the design lists pass; for the two new steps, the pull request's CI run is green; before a pull request exists, the step commands pass in a fresh clone of the commit.
   - Outcome: in a fresh clone of the T-005 commit, with `PYTHONDONTWRITEBYTECODE=1` on Python 3.10.22: `scripts` tests ran 9, OK; the validator printed `Validated 2 plugin package(s) and 2 skill(s).`; release tests ran 23, OK; the tool printed `Verified plugins/specflow.`; and `git status --porcelain --ignored` was empty afterwards. Dropping the last marker from the content scan failed `test_rejects_each_marker_in_file_content`. No pull request exists yet, so CI has not run. `check_forbidden` tests each entry's own name, which covers every part of every path once.
 
-- [ ] T-006 Probe host loading
+- [x] T-006 Probe host loading
   - Requirements: PKG-003
   - Depends on: T-002, T-003
   - Location: `docs/dev/tmp/specflow/probe/specflow-probe/`, `docs/dev/tmp/specflow/probe/workspace/`, `docs/dev/project-management/intake/processed/specflow/00002-package-boundary/host-loading-probe.md`, `docs/dev/project-management/specs/00008-host-integration/design.md`
@@ -97,6 +97,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - Each supported host loads the skill, reads the reference, runs the script, and writes the fixture, and one other host resumes it; a host that fails is reported with the failing step before any task of 00004 starts.
     - The evidence is `host-loading-probe.md`, with the fields of the contract above for each host.
+  - Outcome: Codex 0.160.1 and Claude Code 2.1.292 (both headless) and Kiro IDE (by hand) each loaded the probe, read the reference, ran `probe.py`, and wrote the fixture. Claude Code and Kiro each resumed the earlier hosts' fixture, which ends with three lines. Kiro's first run stopped because its terminal froze; it passed after the developer fixed the terminal. No host needs `plugin.json` at a repository root. Codex installs only through a marketplace, so the 00008 host lines were corrected; that edit stales the 00008 design.
 
 ## Completion criteria
 

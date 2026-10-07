@@ -55,7 +55,7 @@ Kiro IDE, Codex, and Claude Code are the supported hosts of the first release (P
 
 ### Kiro IDE
 
-- Install: `plugins/specflow/` as a custom Power from a local folder. Installing from the repository subdirectory URL is to be verified.
+- Install: `plugins/specflow/` as a custom Power from a local folder; confirmed by the probe (T-006 of 00002): Kiro copies the folder to `~/.kiro/powers/installed/<name>/` and lists the skill unprefixed. It asks for approval before it activates a Power, and runs bundled scripts in its own terminal, which must work. Installing from the repository subdirectory URL is to be verified.
 - Keywords in the portable manifest support contextual activation.
 - The runtime skill writes Kiro-native artifact paths.
 - Kiro's native Spec agent may edit the same Markdown files; the next plugin resume reconciles hashes.
@@ -63,14 +63,14 @@ Kiro IDE, Codex, and Claude Code are the supported hosts of the first release (P
 
 ### Codex
 
-- Install: local folder `plugins/specflow/`. A marketplace or repository-subdirectory install is to be verified.
+- Install: Codex installs plugins only from a marketplace, never from a bare folder (probe, T-006 of 00002). A local install adds the monorepo checkout as a marketplace (`codex plugin marketplace add <checkout>`), which Codex reads from `.agents/plugins/marketplace.json` or `.claude-plugin/marketplace.json`, then runs `codex plugin add specflow@<marketplace>`. Codex copies the plugin into `$CODEX_HOME/plugins/cache/` and lists the skill as `specflow:<skill>`. Whether it accepts the monorepo's `.claude-plugin/marketplace.json` entry as written, and a Git marketplace install, is to be verified.
 - Load the root Agent Plugins v1 manifest directly.
 - Skills are discovered from `plugins/specflow/skills/`.
 - OpenAI-specific metadata, if later needed, goes under `extensions.com.openai`; no OpenAI-specific workflow copy is introduced.
 
 ### Claude Code
 
-- Install: through an entry for `plugins/specflow` in a root `.claude-plugin/marketplace.json`, generated from `plugins/*/plugin.json` and added to the monorepo when the first plugin ships; `--plugin-dir plugins/specflow` for local testing.
+- Install: through an entry for `plugins/specflow` in a root `.claude-plugin/marketplace.json`, generated from `plugins/*/plugin.json` and added to the monorepo when the first plugin ships; `--plugin-dir plugins/specflow` for local testing, confirmed by the probe (T-006 of 00002): it loads the folder in place and lists the skill as `<plugin>:<skill>`.
 - Load the package using `.claude-plugin/plugin.json`.
 - The compatibility manifest points to the same root `skills/` content.
 - Claude-only invocation metadata may be added, but workflow and artifact semantics remain in the canonical skill.
