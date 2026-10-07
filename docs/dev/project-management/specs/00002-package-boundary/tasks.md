@@ -97,10 +97,10 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - Each supported host loads the skill, reads the reference, runs the script, and writes the fixture, and one other host resumes it; a host that fails is reported with the failing step before any task of 00004 starts.
     - The evidence is `host-loading-probe.md`, with the fields of the contract above for each host.
-  - Outcome: Codex 0.160.1 and Claude Code 2.1.292 (both headless) and Kiro IDE (by hand) each loaded the probe, read the reference, ran `probe.py`, and wrote the fixture. Claude Code and Kiro each resumed the earlier hosts' fixture, which ends with three lines. Kiro's first run stopped because its terminal froze; it passed after the developer fixed the terminal. No host needs `plugin.json` at a repository root. Codex installs only through a marketplace, so the 00008 host lines were corrected; that edit stales the 00008 design.
+  - Outcome: Codex 0.160.1 and Claude Code 2.1.292 (both headless) and Kiro IDE (by hand) each loaded the probe, read the reference, ran `probe.py`, and wrote the fixture. Claude Code, Kiro, and a second Codex run each resumed the earlier hosts' fixture, which ends with four lines. Kiro's first run stopped because its terminal froze; it passed after the developer fixed the terminal. No host needs `plugin.json` at a repository root. Codex installs only through a marketplace, so the 00008 host lines were corrected; that edit stales the 00008 design.
 
 ## Completion criteria
 
-- [ ] Every task above is checked, each with its `Outcome:` line.
-- [ ] On the final commit, the pull request's CI run is green; before a pull request exists, the step commands pass in a fresh clone of the commit: the repository validator, the release tests, and `python3 tools/specflow/verify_release.py`.
-- [ ] `host-loading-probe.md` shows each supported host loading the probe, running its script, and resuming another host's fixture, or names the host that left the supported list.
+- [x] Every task above is checked, each with its `Outcome:` line.
+- [x] On the final commit, the pull request's CI run is green; before a pull request exists, the step commands pass in a fresh clone of the commit: the repository validator, the release tests, and `python3 tools/specflow/verify_release.py`.
+- [x] `host-loading-probe.md` shows each supported host loading the probe, running its script, and resuming another host's fixture, or names the host that left the supported list.
