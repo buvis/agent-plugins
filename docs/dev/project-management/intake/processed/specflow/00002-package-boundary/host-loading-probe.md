@@ -31,7 +31,16 @@ Before the runs, `python3 scripts/validate.py docs/dev/tmp/specflow/probe/specfl
 
 ## Kiro IDE
 
-Open: this host runs by hand. It records the install surface used, whether it needed `plugin.json` at a repository root, the five checks, the name the skill appeared under, and any limit.
+First run, 2026-10-07, by hand. It did not finish.
+
+- Install surface: Power added from the local folder `docs/dev/tmp/specflow/probe/specflow-probe/`. Kiro copied it to `~/.kiro/powers/installed/specflow-probe/` and recorded it in `~/.kiro/powers/installed.json` as `{"name": "specflow-probe", "registryId": "user-added"}`. The copy holds `plugin.json`, `.claude-plugin/`, and `skills/`.
+- Required `plugin.json` at a repository root: no; the folder's own root `plugin.json` was enough.
+- Loaded the skill: yes, through the "Kiro Powers" tool (`Activated Kiro power specflow-probe`). Listed as `probe-fixture`, with no plugin prefix.
+- Read the reference: yes, after the agent located the installed folder with its directory-listing tool. The skill does not tell it the folder, and the agent's first `find ~/.kiro` searches timed out.
+- Ran the bundled script: no. Every shell command in that session timed out with no output, including `echo hi` (15 s timeout) and `python3 ~/.kiro/powers/installed/specflow-probe/skills/probe-fixture/scripts/probe.py` (30 s). This is a fault of that session's terminal, not of the package: the same script runs elsewhere (see the Codex and Claude Code sections).
+- Wrote the fixture: no. The agent stopped at step 2, as the skill says.
+- Resumed another host's fixture: not reached.
+- Limits found: (1) Kiro gives the agent no skill-folder path, so it had to search for `references/` and `scripts/`. (2) Kiro asks for approval before it activates a Power; the first attempt was rejected at that prompt. (3) The script step stays unproven until the terminal works.
 
 ## Fixture after the runs
 
