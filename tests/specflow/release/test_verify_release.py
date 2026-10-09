@@ -64,6 +64,11 @@ RECORD_ROWS = {
 }
 SKILL = "---\nname: spec-workflow\ndescription: Fixture skill.\n---\n\nFixture body.\n"
 LICENSE = "Copied from awslabs/aidlc-workflows (A1).\n\nMIT No Attribution\n"
+REFERENCE = (
+    "# Fixture reference\n\n"
+    "> Source: A1 `core/x.md` > Steps @ v1.2.3 (1111111) [both]\n\n"
+    "Adopted text.\n\nAdaptation: local text.\n"
+)
 
 
 def write_record(plugin: Path, rows: dict[str, str]) -> None:
@@ -83,6 +88,8 @@ def make_package(root: Path) -> Path:
     (aws.parents[1] / "SKILL.md").write_text(SKILL)
     write_record(plugin, RECORD_ROWS)
     (aws / "LICENSE").write_text(LICENSE)
+    for name in verify_release.AWS_REFERENCES:
+        (aws / name).write_text(REFERENCE)
     return plugin
 
 
@@ -370,6 +377,82 @@ class CheckSourcesTest(VerifyReleaseTest):
             "aws/LICENSE",
             "no attribution line for awslabs/aidlc-workflows",
         )
+
+    def source_errors_with(self, line: str) -> list[str]:
+        """check_sources with `line` added to the requirements reference."""
+        (self.aws() / "requirements.md").write_text(f"{REFERENCE}\n{line}\n")
+        return verify_release.check_sources(self.plugin)
+
+    def test_rejects_missing_reference(self) -> None:
+        for name in verify_release.AWS_REFERENCES:
+            with self.subTest(name=name):
+                plugin = make_package(self.tmp / f"missing-{name}")
+                (plugin / verify_release.AWS_DIR / name).unlink()
+                self.assert_error(
+                    verify_release.check_sources(plugin),
+                    f"aws/{name}",
+                    "missing AWS reference",
+                )
+
+    def test_rejects_reference_without_a_source_line(self) -> None:
+        (self.aws() / "design.md").write_text(
+            "# Design\n\nAdaptation: only local text.\n"
+        )
+        self.assert_error(
+            verify_release.check_sources(self.plugin), "aws/design.md", "no source line"
+        )
+
+    def test_rejects_mistyped_source_line(self) -> None:
+        for line in (
+            "> source: A1 `core/x.md` > Steps @ v1.2.3 [both]",
+            "> Source: A1 core/x.md > Steps @ v1.2.3 [both]",
+            "**Source:** A1 `core/x.md`",
+        ):
+            with self.subTest(line=line):
+                self.assert_error(self.source_errors_with(line), "mistyped source line")
+
+    def test_rejects_source_line_naming_an_unrecorded_ref(self) -> None:
+        for line in (
+            "> Source: A1 `core/x.md` > Steps @ v9.9.9 [both]",
+            "> Source: A1 `core/x.md` > Steps @ v1.2.3 (abcdef1) [both]",
+            "> Source: A1 `core/x.md` > Steps @ 1111111 [both]",
+        ):
+            with self.subTest(line=line):
+                self.assert_error(
+                    self.source_errors_with(line), "is not the recorded A1 ref"
+                )
+
+    def test_rejects_source_line_citing_another_sources_commit(self) -> None:
+        line = "> Source: A2 `all-phases/x.md` > Steps @ 1111111 [standard]"
+        self.assert_error(
+            self.source_errors_with(line), "ref 1111111 is not the recorded A2 commit"
+        )
+
+    def test_accepts_commit_prefix_of_seven_characters(self) -> None:
+        line = "> Source: A3 `aidlc-discovery-rules/x.md` > Rules @ 3333333 [quick]"
+        attribution = "Copied from aws-samples/sample-aidlc-discovery (A3).\n"
+        (self.aws() / "LICENSE").write_text(LICENSE + attribution)
+        self.assertEqual(self.source_errors_with(line), [])
+        short = line.replace("3333333", "333333")
+        self.assert_error(self.source_errors_with(short), "mistyped source line")
+
+    def test_rejects_parenthesised_commit_on_a_commit_only_source(self) -> None:
+        line = "> Source: A2 `all-phases/x.md` > Steps @ 2222222 (2222222) [both]"
+        self.assert_error(self.source_errors_with(line), "A2, which has no tag")
+
+    def test_accepts_prose_line_that_starts_with_the_word_source(self) -> None:
+        for line in ("Source control keeps the history.", "Sources: see above."):
+            with self.subTest(line=line):
+                self.assertEqual(self.source_errors_with(line), [])
+
+    def test_rejects_engine_plumbing_in_a_reference(self) -> None:
+        for plumbing in verify_release.ENGINE_PLUMBING:
+            with self.subTest(plumbing=plumbing):
+                self.assert_error(
+                    self.source_errors_with(f"Run {plumbing} here."),
+                    "aws/requirements.md",
+                    f"contains engine plumbing {plumbing}",
+                )
 
 
 class CheckForbiddenTest(VerifyReleaseTest):

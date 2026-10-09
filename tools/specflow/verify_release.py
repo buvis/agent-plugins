@@ -79,6 +79,8 @@ SOURCES = {
 RECORD_ROW = re.compile(
     r"^\| (A[123]) `([^`]+)` \| ([^|]*?) \| ([^|]*?) \| ([^|]*?) \|$", re.MULTILINE
 )
+LOOKS_LIKE_SOURCE = re.compile(r"(?i)^\s*>?\s*\**\s*source\**\s*:")
+ENGINE_PLUMBING = ("{{HARNESS_DIR}}", "{{INVOKE}}", "aidlc engine", "[Answer]:")
 A1_ADOPTED = re.compile(r"^`(\S+)` `([0-9a-f]{40})`$")
 COMMIT_ADOPTED = re.compile(r"^`([0-9a-f]{40})`$")
 
@@ -256,14 +258,63 @@ def read_record(path: Path, text: str) -> tuple[dict[str, tuple], list[str]]:
     return rows, errors
 
 
+def is_prefix(ref: str | None, commit: str) -> bool:
+    return ref is not None and len(ref) >= 7 and commit.startswith(ref)
+
+
+def check_source_line(
+    path: Path, match: re.Match, rows: dict[str, tuple]
+) -> str | None:
+    """Why a well-formed source line names no recorded ref, or None."""
+    source, ref, commit = match[1], match[2], match[3]
+    if source not in rows:
+        return f"{path}: source line names {source}, which the record lacks"
+    tag, recorded = rows[source]
+    if source == "A1":
+        if ref != tag or (commit is not None and not is_prefix(commit, recorded)):
+            return f"{path}: source line ref {ref} is not the recorded A1 ref"
+        return None
+    if commit is not None:
+        return f"{path}: source line gives a tag commit for {source}, which has no tag"
+    if not is_prefix(ref, recorded):
+        return f"{path}: source line ref {ref} is not the recorded {source} commit"
+    return None
+
+
+def check_reference(path: Path, rows: dict[str, tuple]) -> tuple[list[str], set[str]]:
+    """Errors in one AWS reference, and the sources its source lines cite."""
+    errors: list[str] = []
+    if not path.is_file():
+        return [f"{path}: missing AWS reference"], set()
+    text = read_text(path, errors)
+    if text is None:
+        return errors, set()
+    cited: set[str] = set()
+    for line in text.splitlines():
+        if match := SOURCE_LINE.match(line):
+            cited.add(match[1])
+            if error := check_source_line(path, match, rows):
+                errors.append(error)
+        elif LOOKS_LIKE_SOURCE.match(line):
+            errors.append(f"{path}: mistyped source line: {line.strip()}")
+    if not cited:
+        errors.append(f"{path}: no source line")
+    errors += [
+        f"{path}: contains engine plumbing {p}" for p in ENGINE_PLUMBING if p in text
+    ]
+    return errors, cited
+
+
 def check_sources(plugin: Path) -> list[str]:
     errors: list[str] = []
     aws = plugin / AWS_DIR
     record = aws / "adaptation.md"
+    rows: dict[str, tuple] = {}
     if not record.is_file():
         errors.append(f"{record}: missing source record")
     elif (text := read_text(record, errors)) is not None:
-        errors += read_record(record, text)[1]
+        rows, record_errors = read_record(record, text)
+        errors += record_errors
 
     license_path = aws / "LICENSE"
     license_text = (
@@ -271,13 +322,11 @@ def check_sources(plugin: Path) -> list[str]:
     ) or ""
     if not license_text.strip():
         errors.append(f"{license_path}: missing or empty license")
-    cited = {
-        match[1]
-        for name in AWS_REFERENCES
-        if (aws / name).is_file()
-        for line in (read_text(aws / name, errors) or "").splitlines()
-        if (match := SOURCE_LINE.match(line))
-    }
+    cited: set[str] = set()
+    for name in AWS_REFERENCES:
+        reference_errors, reference_cited = check_reference(aws / name, rows)
+        errors += reference_errors
+        cited |= reference_cited
     # ponytail: the repository named anywhere in LICENSE counts as its attribution line.
     errors += [
         f"{license_path}: no attribution line for {SOURCES[source]}"

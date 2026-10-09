@@ -12,3 +12,4 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: Claude Code compatibility manifest.
 - **specflow**: AWS AI-DLC source record and profile mapping (`references/aws/adaptation.md`).
 - **specflow**: license and attribution of the AWS sources, and a provenance section in the README.
+- **specflow**: four AWS AI-DLC references, for requirements, design, implementation, and verification, adapted by hand from `awslabs/aidlc-workflows` `v2.11.0`.
