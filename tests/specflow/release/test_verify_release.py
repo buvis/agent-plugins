@@ -49,12 +49,40 @@ REQUIRED_MARKERS = (
 )
 
 
+A1_COMMIT = "1" * 40
+A2_COMMIT = "2" * 40
+A3_COMMIT = "3" * 40
+RECORD_ROWS = {
+    "A1": f"| A1 `awslabs/aidlc-workflows` | primary method | `v1.2.3` `{A1_COMMIT}` | MIT-0 |",
+    "A2": (
+        "| A2 `aws-samples/sample-ai-powered-sdlc-patterns-with-aws` | patterns"
+        f" | `{A2_COMMIT}` | MIT-0 |"
+    ),
+    "A3": (
+        f"| A3 `aws-samples/sample-aidlc-discovery` | discovery | `{A3_COMMIT}` | MIT-0 |"
+    ),
+}
+SKILL = "---\nname: spec-workflow\ndescription: Fixture skill.\n---\n\nFixture body.\n"
+LICENSE = "Copied from awslabs/aidlc-workflows (A1).\n\nMIT No Attribution\n"
+
+
+def write_record(plugin: Path, rows: dict[str, str]) -> None:
+    table = "| Source | Role | Adopted from | License |\n|---|---|---|---|\n"
+    text = "# Record\n\n" + table + "\n".join(rows.values()) + "\n"
+    (plugin / verify_release.AWS_DIR / "adaptation.md").write_text(text)
+
+
 def make_package(root: Path) -> Path:
     plugin = root / "plugins" / "specflow"
     (plugin / ".claude-plugin").mkdir(parents=True)
     (plugin / "plugin.json").write_text(json.dumps(ROOT_MANIFEST))
     compat = {k: v for k, v in ROOT_MANIFEST.items() if k != "$schema"}
     (plugin / ".claude-plugin" / "plugin.json").write_text(json.dumps(compat))
+    aws = plugin / verify_release.AWS_DIR
+    aws.mkdir(parents=True)
+    (aws.parents[1] / "SKILL.md").write_text(SKILL)
+    write_record(plugin, RECORD_ROWS)
+    (aws / "LICENSE").write_text(LICENSE)
     return plugin
 
 
@@ -263,11 +291,13 @@ class CheckManifestsTest(VerifyReleaseTest):
         self.init_repo()
         (self.plugin / "notes.md").write_text("see tools/specflow")
         self.compat_path().unlink()
+        (self.plugin / verify_release.AWS_DIR / "LICENSE").unlink()
         code, _, err = self.run_main()
         self.assertEqual(code, 1)
         self.assertIn("untracked file", err)
         self.assertIn("missing Claude compatibility manifest", err)
         self.assertIn("contains marker tools/specflow", err)
+        self.assertIn("missing or empty license", err)
 
     def test_main_prints_repository_relative_paths(self) -> None:
         self.init_repo()
@@ -280,6 +310,66 @@ class CheckManifestsTest(VerifyReleaseTest):
             err,
         )
         self.assertNotIn(str(self.repo), err)
+
+
+class CheckSourcesTest(VerifyReleaseTest):
+    def aws(self) -> Path:
+        return self.plugin / verify_release.AWS_DIR
+
+    def test_clean_fixture_has_no_source_errors(self) -> None:
+        self.assertEqual(verify_release.check_sources(self.plugin), [])
+
+    def test_rejects_missing_source_record(self) -> None:
+        (self.aws() / "adaptation.md").unlink()
+        self.assert_error(
+            verify_release.check_sources(self.plugin),
+            "aws/adaptation.md",
+            "missing source record",
+        )
+
+    def test_rejects_source_record_without_a_source_row(self) -> None:
+        for source in RECORD_ROWS:
+            with self.subTest(source=source):
+                write_record(
+                    self.plugin, {k: v for k, v in RECORD_ROWS.items() if k != source}
+                )
+                self.assert_error(
+                    verify_release.check_sources(self.plugin),
+                    f"source record has no valid row for {source}",
+                )
+
+    def test_rejects_preview_tag_in_source_record(self) -> None:
+        preview = RECORD_ROWS["A1"].replace("v1.2.3", "v1.2.4-preview.20261003.1")
+        write_record(self.plugin, {**RECORD_ROWS, "A1": preview})
+        self.assert_error(
+            verify_release.check_sources(self.plugin),
+            "A1 tag v1.2.4-preview.20261003.1 is not a release tag",
+        )
+
+    def test_rejects_missing_license(self) -> None:
+        for content in (None, " \n"):
+            with self.subTest(content=content):
+                path = self.aws() / "LICENSE"
+                if content is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    path.write_text(content)
+                self.assert_error(
+                    verify_release.check_sources(self.plugin),
+                    "aws/LICENSE",
+                    "missing or empty license",
+                )
+
+    def test_rejects_missing_attribution(self) -> None:
+        (self.aws() / "requirements.md").write_text(
+            "> Source: A1 `core/x.md` > Steps @ v1.2.3 [both]\n\nText.\n"
+        )
+        (self.aws() / "LICENSE").write_text("MIT No Attribution\n")
+        self.assert_error(
+            verify_release.check_sources(self.plugin),
+            "aws/LICENSE",
+            "no attribution line for awslabs/aidlc-workflows",
+        )
 
 
 class CheckForbiddenTest(VerifyReleaseTest):

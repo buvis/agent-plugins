@@ -8,6 +8,7 @@ Exit codes: 0 pass, 1 one or more failures, 2 git missing or failing.
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from fnmatch import fnmatch
@@ -55,6 +56,31 @@ FORBIDDEN_MARKERS = (
     "tests/specflow",
     "docs/dev/tmp/specflow",
 )
+
+
+AWS_DIR = Path("skills/spec-workflow/references/aws")
+AWS_REFERENCES = (
+    "requirements.md",
+    "design.md",
+    "implementation.md",
+    "verification.md",
+)
+RELEASE_TAG = re.compile(r"^v\d+\.\d+\.\d+$")
+SOURCE_LINE = re.compile(
+    r"^> Source: (A[123]) `[^`]+` > \S.* @ (v\d+\.\d+\.\d+|[0-9a-f]{7,40})"
+    r"(?: \(([0-9a-f]{7,40})\))? \[(standard|quick|both)\]$"
+)
+SOURCES = {
+    "A1": "awslabs/aidlc-workflows",
+    "A2": "aws-samples/sample-ai-powered-sdlc-patterns-with-aws",
+    "A3": "aws-samples/sample-aidlc-discovery",
+}
+# A record row: source, repository, role, adopted-from cell, license.
+RECORD_ROW = re.compile(
+    r"^\| (A[123]) `([^`]+)` \| ([^|]*?) \| ([^|]*?) \| ([^|]*?) \|$", re.MULTILINE
+)
+A1_ADOPTED = re.compile(r"^`(\S+)` `([0-9a-f]{40})`$")
+COMMIT_ADOPTED = re.compile(r"^`([0-9a-f]{40})`$")
 
 
 class GitError(Exception):
@@ -200,9 +226,75 @@ def check_forbidden(plugin: Path) -> list[str]:
     return errors
 
 
+def read_text(path: Path, errors: list[str]) -> str | None:
+    """The file's text, or None after recording why it could not be read."""
+    try:
+        return path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as error:
+        errors.append(f"{path}: cannot read file: {error}")
+        return None
+
+
+def read_record(path: Path, text: str) -> tuple[dict[str, tuple], list[str]]:
+    """Source ID -> (tag or None, commit) for each well-formed record row."""
+    rows: dict[str, tuple] = {}
+    errors: list[str] = []
+    for source, repo, role, adopted, license_name in RECORD_ROW.findall(text):
+        form = A1_ADOPTED if source == "A1" else COMMIT_ADOPTED
+        match = form.match(adopted)
+        if repo != SOURCES[source] or not role or not license_name or not match:
+            continue
+        tag, commit = match.groups() if source == "A1" else (None, match[1])
+        if tag is not None and not RELEASE_TAG.match(tag):
+            errors.append(f"{path}: A1 tag {tag} is not a release tag")
+        rows[source] = (tag, commit)
+    errors += [
+        f"{path}: source record has no valid row for {source}"
+        for source in SOURCES
+        if source not in rows
+    ]
+    return rows, errors
+
+
+def check_sources(plugin: Path) -> list[str]:
+    errors: list[str] = []
+    aws = plugin / AWS_DIR
+    record = aws / "adaptation.md"
+    if not record.is_file():
+        errors.append(f"{record}: missing source record")
+    elif (text := read_text(record, errors)) is not None:
+        errors += read_record(record, text)[1]
+
+    license_path = aws / "LICENSE"
+    license_text = (
+        read_text(license_path, errors) if license_path.is_file() else None
+    ) or ""
+    if not license_text.strip():
+        errors.append(f"{license_path}: missing or empty license")
+    cited = {
+        match[1]
+        for name in AWS_REFERENCES
+        if (aws / name).is_file()
+        for line in (read_text(aws / name, errors) or "").splitlines()
+        if (match := SOURCE_LINE.match(line))
+    }
+    # ponytail: the repository named anywhere in LICENSE counts as its attribution line.
+    errors += [
+        f"{license_path}: no attribution line for {SOURCES[source]}"
+        for source in sorted(cited)
+        if SOURCES[source] not in license_text
+    ]
+    return errors
+
+
 def main() -> int:
     try:
-        errors = check_clean(PLUGIN) + check_manifests(PLUGIN) + check_forbidden(PLUGIN)
+        errors = (
+            check_clean(PLUGIN)
+            + check_manifests(PLUGIN)
+            + check_forbidden(PLUGIN)
+            + check_sources(PLUGIN)
+        )
     except GitError as error:
         print(f"error: {PLUGIN}: {error}", file=sys.stderr)
         return 2
