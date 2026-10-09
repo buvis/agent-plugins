@@ -15,7 +15,7 @@ Before the runs, `python3 scripts/validate.py docs/dev/tmp/specflow/probe/specfl
 - Ran the bundled script: yes. Output: `python 3.14.6 at <CODEX_HOME>/plugins/cache/specflow-probe-local/specflow-probe/0.0.1/skills/probe-fixture/scripts/probe.py`.
 - Wrote the fixture: yes, it created `.kiro/specs/00000-probe/requirements.md` (it ran first).
 - Resumed another host's fixture: yes, in a second headless run after Kiro IDE, with a fresh throwaway `CODEX_HOME` and the same install steps. It kept the Codex, Claude Code, and Kiro IDE lines and appended its own, with the same script output as its first run.
-- Limit: a local install needs a marketplace file around the plugin. For specflow that is the monorepo's `.agents/plugins/marketplace.json` or `.claude-plugin/marketplace.json` (Codex reads both), so the 00008 Codex line "local folder" is wrong as written.
+- Limit: a local install needs a marketplace file around the plugin. For specflow that is the monorepo's `.agents/plugins/marketplace.json`, the only marketplace path the probe tried (whether Codex also reads `.claude-plugin/marketplace.json` is not tested), so the 00008 Codex line "local folder" is wrong as written.
 
 ## Claude Code
 

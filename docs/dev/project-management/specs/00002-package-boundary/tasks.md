@@ -103,4 +103,5 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 
 - [x] Every task above is checked, each with its `Outcome:` line.
 - [x] On the final commit, the pull request's CI run is green; before a pull request exists, the step commands pass in a fresh clone of the commit: the repository validator, the release tests, and `python3 tools/specflow/verify_release.py`.
+  - Outcome: the completion review (`docs/dev/project-management/reviews/00002-package-boundary-review-01.md`) ran the step commands in a fresh clone of 5135c98 with `python3 -B`: `scripts` tests 9 OK, `Validated 2 plugin package(s) and 2 skill(s).`, release tests 23 OK, `Verified plugins/specflow.`.
 - [x] `host-loading-probe.md` shows each supported host loading the probe, running its script, and resuming another host's fixture, or names the host that left the supported list.

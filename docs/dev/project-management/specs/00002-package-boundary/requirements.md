@@ -46,7 +46,7 @@ Source: the idea (`requirements.md` in intake item 00001)
 #### Acceptance criteria
 
 1. THE REPOSITORY SHALL place the complete distributable package under the single `plugins/specflow/` directory.
-2. THE RELEASE PROCESS SHALL treat the tagged `plugins/specflow/` subdirectory as the release; nothing outside it is installable.
+2. THE RELEASE PROCESS SHALL treat the tagged `plugins/specflow/` subdirectory as the release; nothing outside it is installable. (Verified here by `tools/specflow/verify_release.py`; the release itself is built by T-065 of 00001.)
 3. THE REPOSITORY SHALL place the catch-up skill, the source cursors, catch-up reports, tests, and release tooling outside `plugins/specflow/`.
 4. WHEN the released `plugins/specflow/` is inspected, IT SHALL NOT contain the catch-up skill or its name, source cursors, catch-up reports, maintainer prompts, upstream clones, the behavior rule inventory, scenario evals, parity reports, or repository-only host launchers.
 5. CI SHALL fail if a forbidden maintainer-only path or marker appears in `plugins/specflow/`.
@@ -78,7 +78,7 @@ Source: the idea (`requirements.md` in intake item 00001)
 
 #### Acceptance criteria
 
-1. THE RELEASE BUILD SHALL package only `plugins/specflow/`.
+1. THE RELEASE BUILD SHALL package only `plugins/specflow/`. (Verified here by `tools/specflow/verify_release.py`; the release build is T-065 of 00001.)
 2. THE RELEASE BUILD SHALL validate root manifest schemas and compatibility manifests.
 
 Criterion 3: see 00003.
