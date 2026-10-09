@@ -2,7 +2,7 @@
 
 The first sub-bullets of `Details:` and `Verify:` are carried from the source plan in intake item 00001. In them, `design §n` means the source design, `.kiro/specs` means the specs folder, and a task ID may belong to another spec; `docs/dev/project-management/reviews/2026-10-04-specflow-split-map.md` names the spec that now holds each section and each task. Lines written for this plan name a task of another spec with its spec, as in `T-030 (00006)`.
 
-- [ ] T-010 Record the AWS sources
+- [x] T-010 Record the AWS sources
   - Requirements: AWS-001, AWS-002, UPD-002, SEC-001
   - Depends on: none
   - Location: `plugins/specflow/skills/spec-workflow/references/aws/adaptation.md`, `tools/specflow/upstream/sources.md`, `tests/specflow/release/test_sources.py`
@@ -21,6 +21,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - the A1 tag resolves to the recorded commit; the A2 and A3 commits exist upstream; every source in the record has a cursor row.
     - `tests/specflow/release/test_sources.py` passes: `test_every_recorded_source_has_a_cursor_row`, `test_cursor_rows_carry_an_https_url`. The tag and commit lookups run once against the network, and their result goes in the `Outcome:` line.
     - File check: `adaptation.md` holds, per source, what was adopted, adapted, and not adopted, and maps `standard` and `quick` to the AWS depths Standard and Minimal.
+  - Outcome: on 2026-10-09 `git ls-remote` gave A1's latest release tag as `v2.11.0` (annotated, tag object `4079edb`), peeling to `6a378b53c0a4fe0641ed7d8de8dfff94264d5b6a`; newer preview tags exist and were skipped. A2 HEAD is still `3e7c0f0aa2a1a084c94631edb709deae5fe0ae4f` and A3 HEAD (and `v2.0.1`) still `a84b2899d0dd518081a4764b42fde4c6dbf3cc9a`, so both recorded commits exist upstream. `v2.11.0` is newer than `v2.10.0`: A1's only license file, `LICENSE`, is the same blob (`09951d9`, MIT-0) at both tags, so no license change blocks adoption; A2 and A3 are MIT-0 as well. Every adoption-set path still exists at `v2.11.0` and none was renamed, but those files changed by about 1,800 lines since `v2.10.0`; the first catch-up (T-018) reviews that range. Cursors seeded at the last full reads: A1 `v2.10.0` on 2026-10-03, A2 on 2026-09-28 (the discovery read, which covered `all-phases/all-phases-aidlc-mcp/` only), A3 on 2026-10-03. Release tests ran 30, OK, including `test_every_recorded_source_has_a_cursor_row` and `test_cursor_rows_carry_an_https_url`; `scripts/validate.py` passes; no forbidden marker or design section number in the package.
 
 - [ ] T-011 Add license and attribution
   - Requirements: AWS-001, REL-001
