@@ -583,3 +583,7 @@ item, receipts, and approved requirements, design, and task plan; each source
 criterion is held by exactly one spec, and every source line of the design and
 the task plan is carried once or retired with a reason. The source files stay
 here unchanged as the record. Implementation starts with 00002 (T-001).
+
+## Deferred to T-065 (2026-10-09)
+
+- When T-065 (the release) runs, reopen findings R6 and R18 of `reviews/00002-package-boundary-review-01.md`: the release check matches forbidden names exactly (`parity-report.md` and `evals.json` pass) and markers case-sensitively (`catch-up` passes). They were deferred because broader matching risks refusing innocent files.

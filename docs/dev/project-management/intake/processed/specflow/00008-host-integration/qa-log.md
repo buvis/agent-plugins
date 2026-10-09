@@ -189,3 +189,7 @@ each landing exactly once.
 - This is a receipt, since no runtime exists: no canonical hash, no code
   baseline, and no `.specflow.json`. The tasks approval of 2026-10-06 stands:
   `tasks.md` is unchanged (blob `59664a60f1246cb04261e5daf73c163e044125c6`).
+
+## Deferred to the host tests (2026-10-09)
+
+- When this spec runs Kiro IDE on the real package, reopen finding R17 of `reviews/00002-package-boundary-review-01.md`: the probe's first Kiro run passed only on a second attempt, after a terminal fix the record does not describe (`00002-package-boundary/host-loading-probe.md`). Record what the fix was, so the run can be repeated.

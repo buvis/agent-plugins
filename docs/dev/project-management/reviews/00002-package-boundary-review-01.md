@@ -81,12 +81,12 @@ Overlap: R3, R6, and R18 are all about how the forbidden-name matching works and
 - R13: applied. Change "(Codex reads both)" to say only `.agents/plugins/marketplace.json` was tested.
 - R14: applied. Record this review's fresh-clone run at 5135c98 under completion criterion 2.
 - R16: applied. Pushed `feature/specflow` (and `master` as the PR base), opened draft PR https://github.com/buvis/agent-plugins/pull/1; CI `plugins` job passed (run 37981347770).
-- R6: deferred. Broader forbidden-name patterns risk refusing innocent files. Home: this file; reopen at the 00001 release (T-065) review.
+- R6: deferred. Broader forbidden-name patterns risk refusing innocent files. Home: this file, with a pointer in the 00001 qa-log (Deferred to T-065).
 - R10: rejected. The early-return copies don't mutate anything, which matches the immutability rule.
 - R12: deferred. Only fails when the suite runs as root; CI is not root. Home: this file.
 - R15: rejected. Escaping links are already caught by `validate_containment`.
-- R17: deferred. Needs the developer to say what the Kiro terminal fix was. Home: this file; reopen if T-006 is rerun in 00008.
-- R18: deferred. Case-insensitive matching risks refusing innocent files. Home: this file, together with R6.
+- R17: deferred. Needs the developer to say what the Kiro terminal fix was. Home: this file, with a pointer in the 00008 qa-log (Deferred to the host tests).
+- R18: deferred. Case-insensitive matching risks refusing innocent files. Home: this file, with R6 in the 00001 qa-log pointer.
 - R19: resolved. The lead's fresh-clone run at 5135c98 passed all four commands.
 - R20: settled. The placeholder skill belongs to 00006 (ruling D1).
 
