@@ -74,7 +74,7 @@ class ValidatePlugin(unittest.TestCase):
 
     def test_rejects_env_overriding_reserved_variables(self) -> None:
         self.write_mcp(
-            {"type": "stdio", "command": "node", "env": {"PLUGIN_DATA": "/"}}
+            {"type": "stdio", "command": "node", "env": {"PLUGIN_DATA": "/"}},
         )
         self.assert_rejected("reserved variables")
 
@@ -93,7 +93,7 @@ class ValidateMaintainerSkills(unittest.TestCase):
         skill = self.tmp / ".agents" / "skills" / folder
         skill.mkdir(parents=True)
         (skill / "SKILL.md").write_text(
-            f"---\nname: {name}\ndescription: Maintainer skill.\n---\n\nBody.\n"
+            f"---\nname: {name}\ndescription: Maintainer skill.\n---\n\nBody.\n",
         )
 
     def run_main(self, *paths: str) -> tuple[int, str, str]:

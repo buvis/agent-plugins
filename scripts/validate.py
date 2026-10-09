@@ -20,7 +20,7 @@ SKILL_NAME = re.compile(r"^(?!.*--)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 SEMVER = re.compile(
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
     r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
-    r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
+    r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$",
 )
 MANIFEST_FIELDS = {
     "$schema",
@@ -71,12 +71,14 @@ def validate_manifest(plugin: Path) -> dict[str, object]:
     unknown = sorted(set(manifest) - MANIFEST_FIELDS)
     require(not unknown, path, f"unknown top-level fields: {', '.join(unknown)}")
     require(
-        manifest.get("$schema") == PLUGIN_SCHEMA, path, "unsupported or missing $schema"
+        manifest.get("$schema") == PLUGIN_SCHEMA,
+        path,
+        "unsupported or missing $schema",
     )
 
     name = manifest.get("name")
     require(is_string(name, nonempty=True), path, "name must be a non-empty string")
-    name = cast(str, name)
+    name = cast("str", name)
     require(
         len(name) <= 64 and PLUGIN_NAME.fullmatch(name) is not None,
         path,
@@ -90,9 +92,11 @@ def validate_manifest(plugin: Path) -> dict[str, object]:
 
     version = manifest.get("version")
     require(
-        is_string(version, nonempty=True), path, "repository policy requires a version"
+        is_string(version, nonempty=True),
+        path,
+        "repository policy requires a version",
     )
-    version = cast(str, version)
+    version = cast("str", version)
     require(
         SEMVER.fullmatch(version) is not None,
         path,
@@ -111,16 +115,20 @@ def validate_manifest(plugin: Path) -> dict[str, object]:
 
     author = manifest.get("author")
     require(
-        isinstance(author, dict), path, "repository policy requires an author object"
+        isinstance(author, dict),
+        path,
+        "repository policy requires an author object",
     )
-    author = cast(dict[str, object], author)
+    author = cast("dict[str, object]", author)
     require(
         not set(author) - {"name", "email", "url"},
         path,
         "author contains unknown fields",
     )
     require(
-        is_string(author.get("name"), nonempty=True), path, "author.name is required"
+        is_string(author.get("name"), nonempty=True),
+        path,
+        "author.name is required",
     )
     for field, value in author.items():
         require(is_string(value), path, f"author.{field} must be a string")
@@ -128,7 +136,7 @@ def validate_manifest(plugin: Path) -> dict[str, object]:
     if "keywords" in manifest:
         keywords = manifest["keywords"]
         require(isinstance(keywords, list), path, "keywords must be an array")
-        keywords = cast(list[object], keywords)
+        keywords = cast("list[object]", keywords)
         require(
             all(is_string(item) for item in keywords),
             path,
@@ -138,7 +146,7 @@ def validate_manifest(plugin: Path) -> dict[str, object]:
     if "extensions" in manifest:
         extensions = manifest["extensions"]
         require(isinstance(extensions, dict), path, "extensions must be an object")
-        extensions = cast(dict[str, object], extensions)
+        extensions = cast("dict[str, object]", extensions)
         require(
             all(isinstance(value, dict) for value in extensions.values()),
             path,
@@ -172,7 +180,7 @@ def frontmatter(path: Path) -> dict[str, str]:
         )
     except StopIteration as error:
         raise ValidationError(
-            f"{path}: frontmatter has no closing delimiter"
+            f"{path}: frontmatter has no closing delimiter",
         ) from error
 
     fields: dict[str, str] = {}
@@ -227,7 +235,9 @@ def validate_skills(plugin: Path) -> int:
             "invalid skill name",
         )
         require(
-            name == skill.name, path, "frontmatter name must match the skill directory"
+            name == skill.name,
+            path,
+            "frontmatter name must match the skill directory",
         )
         require(
             1 <= len(description) <= 1024,
@@ -264,7 +274,7 @@ def validate_url(path: Path, value: object) -> None:
         path,
         "remote server URL must be a non-empty string",
     )
-    value = cast(str, value)
+    value = cast("str", value)
     parsed = urlsplit(value)
     require(
         parsed.scheme in {"http", "https"} and bool(parsed.hostname),
@@ -309,7 +319,7 @@ def validate_mcp(plugin: Path) -> None:
     require(config.get("$schema") == MCP_SCHEMA, path, "unsupported or missing $schema")
     servers = config.get("mcpServers")
     require(isinstance(servers, dict), path, "mcpServers must be an object")
-    servers = cast(dict[str, object], servers)
+    servers = cast("dict[str, object]", servers)
 
     for name, server in servers.items():
         server_path = Path(f"{path}#{name}")
@@ -319,7 +329,7 @@ def validate_mcp(plugin: Path) -> None:
             "server name must be non-empty",
         )
         require(isinstance(server, dict), server_path, "server must be an object")
-        server = cast(dict[str, object], server)
+        server = cast("dict[str, object]", server)
         transport = server.get("type")
         if transport == "stdio":
             allowed = {"type", "command", "args", "env", "cwd"}
@@ -334,7 +344,7 @@ def validate_mcp(plugin: Path) -> None:
                 server_path,
                 "stdio server requires command",
             )
-            command = cast(str, command)
+            command = cast("str", command)
             if command.startswith("./"):
                 require(
                     contained_suffix(command[2:]),
@@ -357,7 +367,7 @@ def validate_mcp(plugin: Path) -> None:
             if "env" in server:
                 env = server["env"]
                 require(isinstance(env, dict), server_path, "env must be an object")
-                env = cast(dict[str, object], env)
+                env = cast("dict[str, object]", env)
                 require(
                     not {"PLUGIN_ROOT", "PLUGIN_DATA"} & set(env),
                     server_path,
@@ -374,7 +384,7 @@ def validate_mcp(plugin: Path) -> None:
             if "cwd" in server:
                 cwd = server["cwd"]
                 require(is_string(cwd), server_path, "cwd must be a string")
-                cwd = cast(str, cwd)
+                cwd = cast("str", cwd)
                 if cwd.startswith("./"):
                     suffix = cwd[2:]
                 elif cwd in {"${PLUGIN_ROOT}", "${PLUGIN_DATA}"}:
@@ -405,9 +415,11 @@ def validate_mcp(plugin: Path) -> None:
             if "headers" in server:
                 headers = server["headers"]
                 require(
-                    isinstance(headers, dict), server_path, "headers must be an object"
+                    isinstance(headers, dict),
+                    server_path,
+                    "headers must be an object",
                 )
-                headers = cast(dict[str, object], headers)
+                headers = cast("dict[str, object]", headers)
                 require(
                     all(
                         is_string(key) and is_string(value)

@@ -338,7 +338,8 @@ class CheckSourcesTest(VerifyReleaseTest):
         for source in RECORD_ROWS:
             with self.subTest(source=source):
                 write_record(
-                    self.plugin, {k: v for k, v in RECORD_ROWS.items() if k != source}
+                    self.plugin,
+                    {k: v for k, v in RECORD_ROWS.items() if k != source},
                 )
                 self.assert_error(
                     verify_release.check_sources(self.plugin),
@@ -369,7 +370,7 @@ class CheckSourcesTest(VerifyReleaseTest):
 
     def test_rejects_missing_attribution(self) -> None:
         (self.aws() / "requirements.md").write_text(
-            "> Source: A1 `core/x.md` > Steps @ v1.2.3 [both]\n\nText.\n"
+            "> Source: A1 `core/x.md` > Steps @ v1.2.3 [both]\n\nText.\n",
         )
         (self.aws() / "LICENSE").write_text("MIT No Attribution\n")
         self.assert_error(
@@ -396,10 +397,12 @@ class CheckSourcesTest(VerifyReleaseTest):
 
     def test_rejects_reference_without_a_source_line(self) -> None:
         (self.aws() / "design.md").write_text(
-            "# Design\n\nAdaptation: only local text.\n"
+            "# Design\n\nAdaptation: only local text.\n",
         )
         self.assert_error(
-            verify_release.check_sources(self.plugin), "aws/design.md", "no source line"
+            verify_release.check_sources(self.plugin),
+            "aws/design.md",
+            "no source line",
         )
 
     def test_rejects_mistyped_source_line(self) -> None:
@@ -419,13 +422,15 @@ class CheckSourcesTest(VerifyReleaseTest):
         ):
             with self.subTest(line=line):
                 self.assert_error(
-                    self.source_errors_with(line), "is not the recorded A1 ref"
+                    self.source_errors_with(line),
+                    "is not the recorded A1 ref",
                 )
 
     def test_rejects_source_line_citing_another_sources_commit(self) -> None:
         line = "> Source: A2 `all-phases/x.md` > Steps @ 1111111 [standard]"
         self.assert_error(
-            self.source_errors_with(line), "ref 1111111 is not the recorded A2 commit"
+            self.source_errors_with(line),
+            "ref 1111111 is not the recorded A2 commit",
         )
 
     def test_accepts_commit_prefix_of_seven_characters(self) -> None:

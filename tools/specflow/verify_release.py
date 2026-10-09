@@ -68,7 +68,7 @@ AWS_REFERENCES = (
 RELEASE_TAG = re.compile(r"^v\d+\.\d+\.\d+$")
 SOURCE_LINE = re.compile(
     r"^> Source: (A[123]) `[^`]+` > \S.* @ (v\d+\.\d+\.\d+|[0-9a-f]{7,40})"
-    r"(?: \(([0-9a-f]{7,40})\))? \[(standard|quick|both)\]$"
+    r"(?: \(([0-9a-f]{7,40})\))? \[(standard|quick|both)\]$",
 )
 SOURCES = {
     "A1": "awslabs/aidlc-workflows",
@@ -77,7 +77,8 @@ SOURCES = {
 }
 # A record row: source, repository, role, adopted-from cell, license.
 RECORD_ROW = re.compile(
-    r"^\| (A[123]) `([^`]+)` \| ([^|]*?) \| ([^|]*?) \| ([^|]*?) \|$", re.MULTILINE
+    r"^\| (A[123]) `([^`]+)` \| ([^|]*?) \| ([^|]*?) \| ([^|]*?) \|$",
+    re.MULTILINE,
 )
 LOOKS_LIKE_SOURCE = re.compile(r"(?i)^\s*>?\s*\**\s*source\**\s*:")
 ENGINE_PLUMBING = ("{{HARNESS_DIR}}", "{{INVOKE}}", "aidlc engine", "[Answer]:")
@@ -263,7 +264,9 @@ def is_prefix(ref: str | None, commit: str) -> bool:
 
 
 def check_source_line(
-    path: Path, match: re.Match, rows: dict[str, tuple]
+    path: Path,
+    match: re.Match,
+    rows: dict[str, tuple],
 ) -> str | None:
     """Why a well-formed source line names no recorded ref, or None."""
     source, ref, commit = match[1], match[2], match[3]
