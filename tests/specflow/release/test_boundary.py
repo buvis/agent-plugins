@@ -19,8 +19,14 @@ class BoundaryTests(unittest.TestCase):
             path = Path(name)
             if path.name != "plugin.json" or path.parent.is_relative_to(PACKAGE):
                 continue
+            # A tracked file deleted from the working tree has nothing to check.
+            if not (ROOT / path).is_file():
+                continue
             with self.subTest(path=name):
-                manifest = json.loads((ROOT / path).read_text(encoding="utf-8"))
+                try:
+                    manifest = json.loads((ROOT / path).read_text(encoding="utf-8"))
+                except json.JSONDecodeError as error:
+                    self.fail(f"{name}: not valid JSON: {error}")
                 self.assertNotEqual(manifest.get("name"), "specflow")
 
 

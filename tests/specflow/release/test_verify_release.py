@@ -28,6 +28,26 @@ ROOT_MANIFEST = {
 }
 GIT_ENV = {"GIT_CONFIG_GLOBAL": "/dev/null", "GIT_CONFIG_NOSYSTEM": "1"}
 
+# Copied from PKG-002.4 and T-005, not read from the tool, so dropping an entry
+# from a tool denylist fails a test instead of deleting it.
+REQUIRED_PATH_PARTS = (".agents", ".git", "tests", "evals", "parity", "upstream")
+REQUIRED_FILE_NAMES = (
+    "sources.md",
+    "inventory.json",
+    "criteria.json",
+    "check_rules.py",
+    "verify_release.py",
+)
+REQUIRED_NAME_PATTERNS = ("test_*.py", "*_test.py", "*-specflow-upstream-catchup.md")
+REQUIRED_MARKERS = (
+    "catchup-specflow-upstream",
+    "check_rules.py",
+    "verify_release.py",
+    "tools/specflow",
+    "tests/specflow",
+    "docs/dev/tmp/specflow",
+)
+
 
 def make_package(root: Path) -> Path:
     plugin = root / "plugins" / "specflow"
@@ -222,6 +242,23 @@ class CheckManifestsTest(VerifyReleaseTest):
                     f"{field} differs from the root manifest",
                 )
 
+    def test_rejects_compat_manifest_missing_a_required_field(self) -> None:
+        compat = json.loads(self.compat_path().read_text())
+        for field in ("name", "version"):
+            with self.subTest(field=field):
+                self.write_compat({k: v for k, v in compat.items() if k != field})
+                self.assert_error(
+                    verify_release.check_manifests(self.plugin),
+                    ".claude-plugin/plugin.json",
+                    f"missing required field {field}",
+                )
+
+    def test_rejects_empty_compat_manifest(self) -> None:
+        self.write_compat({})
+        errors = verify_release.check_manifests(self.plugin)
+        self.assert_error(errors, "missing required field name")
+        self.assert_error(errors, "missing required field version")
+
     def test_reports_failures_from_every_check(self) -> None:
         self.init_repo()
         (self.plugin / "notes.md").write_text("see tools/specflow")
@@ -231,6 +268,17 @@ class CheckManifestsTest(VerifyReleaseTest):
         self.assertIn("untracked file", err)
         self.assertIn("missing Claude compatibility manifest", err)
         self.assertIn("contains marker tools/specflow", err)
+
+    def test_main_prints_repository_relative_paths(self) -> None:
+        self.init_repo()
+        (self.plugin / "README.md").write_text("see tests/specflow\n")
+        self.compat_path().unlink()
+        _, _, err = self.run_main()
+        self.assertIn("error: plugins/specflow/README.md: contains marker", err)
+        self.assertIn(
+            "error: plugins/specflow/.claude-plugin/plugin.json: missing", err
+        )
+        self.assertNotIn(str(self.repo), err)
 
 
 class CheckForbiddenTest(VerifyReleaseTest):
@@ -244,8 +292,18 @@ class CheckForbiddenTest(VerifyReleaseTest):
     def test_clean_package_has_no_forbidden_content(self) -> None:
         self.assertEqual(verify_release.check_forbidden(self.plugin), [])
 
+    def test_denylists_hold_every_required_entry(self) -> None:
+        for required, constant in (
+            (REQUIRED_PATH_PARTS, verify_release.FORBIDDEN_PATH_PARTS),
+            (REQUIRED_FILE_NAMES, verify_release.FORBIDDEN_FILE_NAMES),
+            (REQUIRED_NAME_PATTERNS, verify_release.FORBIDDEN_NAME_PATTERNS),
+            (REQUIRED_MARKERS, verify_release.FORBIDDEN_MARKERS),
+        ):
+            with self.subTest(first=required[0]):
+                self.assertEqual(set(required) - set(constant), set())
+
     def test_rejects_each_forbidden_path_part(self) -> None:
-        for part in verify_release.FORBIDDEN_PATH_PARTS:
+        for part in REQUIRED_PATH_PARTS:
             with self.subTest(part=part):
                 plugin = self.fresh_plugin(f"part{part}")
                 (plugin / "skills" / part).mkdir(parents=True)
@@ -255,14 +313,14 @@ class CheckForbiddenTest(VerifyReleaseTest):
                 )
 
     def test_rejects_each_forbidden_file_name(self) -> None:
-        for name in verify_release.FORBIDDEN_FILE_NAMES:
+        for name in REQUIRED_FILE_NAMES:
             with self.subTest(name=name):
                 plugin = self.fresh_plugin(f"name{name}")
                 (plugin / name).write_text("x")
                 self.assert_forbidden(plugin, name, "forbidden file name")
 
     def test_rejects_each_forbidden_name_pattern(self) -> None:
-        for pattern in verify_release.FORBIDDEN_NAME_PATTERNS:
+        for pattern in REQUIRED_NAME_PATTERNS:
             with self.subTest(pattern=pattern):
                 name = pattern.replace("*", "x")
                 plugin = self.fresh_plugin(f"pattern{name}")
@@ -272,16 +330,15 @@ class CheckForbiddenTest(VerifyReleaseTest):
                 )
 
     def test_rejects_marker_in_a_folder_name(self) -> None:
-        folder = self.plugin / "skills" / "catchup-specflow-upstream"
-        folder.mkdir(parents=True)
-        self.assert_forbidden(
-            self.plugin,
-            "skills/catchup-specflow-upstream",
-            "name contains marker catchup-specflow-upstream",
-        )
+        # A marker with a slash is a folder path, such as skills/tools/specflow.
+        for marker in REQUIRED_MARKERS:
+            with self.subTest(marker=marker):
+                plugin = self.fresh_plugin(f"folder{marker.replace('/', '-')}")
+                (plugin / "skills" / marker).mkdir(parents=True)
+                self.assert_forbidden(plugin, f"skills/{marker}", f"marker {marker}")
 
     def test_rejects_each_marker_in_file_content(self) -> None:
-        for marker in verify_release.FORBIDDEN_MARKERS:
+        for marker in REQUIRED_MARKERS:
             with self.subTest(marker=marker):
                 plugin = self.fresh_plugin(f"marker{marker.replace('/', '-')}")
                 (plugin / "README.md").write_text(f"Run {marker} first.\n")
@@ -293,6 +350,13 @@ class CheckForbiddenTest(VerifyReleaseTest):
         path.chmod(0)
         self.addCleanup(path.chmod, 0o644)
         self.assert_forbidden(self.plugin, "locked.md", "cannot read file")
+
+    def test_reports_unreadable_folder(self) -> None:
+        folder = self.plugin / "locked"
+        folder.mkdir()
+        folder.chmod(0)
+        self.addCleanup(folder.chmod, 0o755)
+        self.assert_forbidden(self.plugin, "locked", "cannot read folder")
 
     def test_error_names_path_and_marker(self) -> None:
         (self.plugin / "README.md").write_text("see tests/specflow\n")

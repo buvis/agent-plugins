@@ -36,6 +36,7 @@ COMPAT_FIELDS = {
     "license",
     "keywords",
 }
+COMPAT_REQUIRED = ("name", "version")
 
 FORBIDDEN_PATH_PARTS = (".agents", ".git", "tests", "evals", "parity", "upstream")
 FORBIDDEN_FILE_NAMES = (
@@ -101,7 +102,7 @@ def check_clean(plugin: Path) -> list[str]:
         )
     ]
     errors += [
-        f"{line.split(chr(9), 1)[1]}: embedded repository"
+        line.partition("\t")[2] + ": embedded repository"
         for line in git(plugin, "ls-files", "--full-name", "-s", "--", ".")
         if line.startswith("160000 ")
     ]
@@ -132,6 +133,11 @@ def check_manifests(plugin: Path) -> list[str]:
         compat = load_object(path)
     except ValidationError as error:
         return [*errors, str(error)]
+    errors += [
+        f"{path}: missing required field {key}"
+        for key in COMPAT_REQUIRED
+        if key not in compat
+    ]
     for key, value in sorted(compat.items()):
         if key not in COMPAT_FIELDS:
             errors.append(f"{path}: field {key} is not a root manifest metadata field")
@@ -140,27 +146,38 @@ def check_manifests(plugin: Path) -> list[str]:
     return errors
 
 
-def check_name(path: Path) -> list[str]:
+def check_name(path: Path, plugin: Path) -> list[str]:
     name = path.name
+    tail = f"/{path.relative_to(plugin).as_posix()}"
     errors = (
         [f"{path}: forbidden path part {name}"] if name in FORBIDDEN_PATH_PARTS else []
     )
     errors += [
         f"{path}: name contains marker {m}" for m in FORBIDDEN_MARKERS if m in name
     ]
+    # A marker with a slash spans folders, so it is matched against the path.
+    errors += [
+        f"{path}: path ends in marker {m}"
+        for m in FORBIDDEN_MARKERS
+        if "/" in m and tail.endswith(f"/{m}")
+    ]
     return errors
 
 
 def check_forbidden(plugin: Path) -> list[str]:
     errors: list[str] = []
+
+    def unreadable(error: OSError) -> None:
+        errors.append(f"{error.filename}: cannot read folder: {error.strerror}")
+
     # Every entry's own name is tested, so each part of every path is covered once.
-    for folder, dirs, files in os.walk(plugin):
+    for folder, dirs, files in os.walk(plugin, onerror=unreadable):
         base = Path(folder)
         for name in dirs:
-            errors += check_name(base / name)
+            errors += check_name(base / name, plugin)
         for name in files:
             path = base / name
-            errors += check_name(path)
+            errors += check_name(path, plugin)
             if name in FORBIDDEN_FILE_NAMES:
                 errors.append(f"{path}: forbidden file name")
             errors += [
@@ -189,8 +206,9 @@ def main() -> int:
     except GitError as error:
         print(f"error: {PLUGIN}: {error}", file=sys.stderr)
         return 2
+    repo = f"{PLUGIN.parents[1]}{os.sep}"
     for error in errors:
-        print(f"error: {error}", file=sys.stderr)
+        print(f"error: {error.removeprefix(repo)}", file=sys.stderr)
     if errors:
         return 1
     print("Verified plugins/specflow.")

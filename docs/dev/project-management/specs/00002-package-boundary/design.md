@@ -155,7 +155,7 @@ T-030 (00006) replaces the shell with the skill and, in the same change, adds th
 python3 tools/specflow/verify_release.py
 ```
 
-Takes no argument and checks the checkout it sits in. It is a release check, so it expects a clean checkout: a working tree in which package code was imported fails on its `__pycache__` folders, as intended. It prints one line per failure as `error: <path>: <message>` to standard error, collects every failure before it exits, and prints `Verified plugins/specflow.` on success. Exit codes: 0 pass; 1 one or more failures; 2 `git` is missing, the folder is not a git checkout, or a git call exits nonzero.
+Takes no argument and checks the checkout it sits in. It is a release check, so it expects a clean checkout: a working tree in which package code was imported fails on its `__pycache__` folders, as intended. It prints one line per failure as `error: <path>: <message>` to standard error, with `<path>` relative to the repository root, collects every failure before it exits, and prints `Verified plugins/specflow.` on success. Exit codes: 0 pass; 1 one or more failures; 2 `git` is missing, the folder is not a git checkout, or a git call exits nonzero.
 
 ```python
 ROOT = Path(__file__).resolve().parents[2]
@@ -163,6 +163,7 @@ PLUGIN = ROOT / "plugins" / "specflow"
 
 COMPAT_FIELDS = {"name", "version", "description", "author", "homepage",
                  "repository", "license", "keywords"}
+COMPAT_REQUIRED = ("name", "version")
 
 FORBIDDEN_PATH_PARTS = (".agents", ".git", "tests", "evals", "parity", "upstream")
 FORBIDDEN_FILE_NAMES = ("sources.md", "inventory.json", "criteria.json",
@@ -182,8 +183,8 @@ def main() -> int: ...
   - `status --porcelain --ignored --untracked-files=all -- .`: one error per line. A modified, untracked, or ignored file under the package is an unexpected generated file.
   - `ls-files -ci --exclude-per-directory=.gitignore -- .`: one error per line. A tracked file that a repository ignore rule matches is a committed generated file. Only the repository's own `.gitignore` files count here; a developer's global or local exclude file must not turn a clean package into a failure.
   - `ls-files -s -- .`: one error per entry with mode `160000`. That is an embedded repository, such as an upstream clone.
-- `check_manifests` (T-004) calls `validate_manifest`, `validate_containment`, `validate_skills`, and `validate_mcp` from `scripts/validate.py` and turns a `ValidationError` into an error line. It then loads `.claude-plugin/plugin.json` and reports: a missing file, a value that is not a JSON object, a key outside `COMPAT_FIELDS`, and a key whose value differs from the root manifest's value for that key.
-- `check_forbidden` (T-005) walks the package without following symlinks. For every path it tests each part, folder names included: a part in `FORBIDDEN_PATH_PARTS`, a part that contains a marker. For every file it also tests the name against `FORBIDDEN_FILE_NAMES` and, with `fnmatch`, against `FORBIDDEN_NAME_PATTERNS`, and the bytes for each marker. An error names the path and the rule or marker that matched.
+- `check_manifests` (T-004) calls `validate_manifest`, `validate_containment`, `validate_skills`, and `validate_mcp` from `scripts/validate.py` and turns a `ValidationError` into an error line. It then loads `.claude-plugin/plugin.json` and reports: a missing file, a value that is not a JSON object, a missing key of `COMPAT_REQUIRED`, a key outside `COMPAT_FIELDS`, and a key whose value differs from the root manifest's value for that key.
+- `check_forbidden` (T-005) walks the package without following symlinks, and reports a folder it cannot read. For every path it tests each part, folder names included: a part in `FORBIDDEN_PATH_PARTS`, a part that contains a marker. A marker with a slash, such as `tools/specflow`, spans folders, so it is tested against the path inside the package instead: a path that ends in it fails. For every file it also tests the name against `FORBIDDEN_FILE_NAMES` and, with `fnmatch`, against `FORBIDDEN_NAME_PATTERNS`, and the bytes for each marker. An error names the path and the rule or marker that matched.
 - The tool reaches `scripts/validate.py` by putting `ROOT / "scripts"` on `sys.path`; the tests reach the tool the same way with `ROOT / "tools" / "specflow"`. Both are standard library only.
 
 ### CI steps
@@ -266,8 +267,8 @@ The distributed package contains the AWS references and the adaptation record be
 
 - `test_boundary.py`, T-001: `test_no_specflow_manifest_outside_the_package`. It lists tracked files with `git ls-files`, loads every one named `plugin.json`, and fails when one outside `plugins/specflow/` has the name `specflow`. It passes while no manifest exists. It differs from `check_forbidden`, which looks inside the package.
 - `test_verify_release.py`, T-004, clean tree: `test_clean_fixture_passes`, `test_rejects_modified_tracked_file`, `test_rejects_untracked_file_in_plugin`, `test_rejects_untracked_file_when_git_hides_untracked_files`, `test_rejects_ignored_generated_file_in_plugin`, `test_rejects_committed_file_matching_an_ignore_rule`, `test_rejects_embedded_repository`, `test_exits_2_outside_a_git_checkout`.
-- `test_verify_release.py`, T-004, manifests: `test_rejects_symlink_escaping_plugin_root`, `test_rejects_missing_compat_manifest`, `test_rejects_compat_manifest_that_is_not_an_object`, `test_rejects_compat_manifest_with_component_path`, `test_rejects_compat_value_differing_from_root` (a `subTest` per field), `test_reports_failures_from_every_check`.
-- `test_verify_release.py`, T-005: `test_rejects_each_forbidden_path_part`, `test_rejects_each_forbidden_file_name`, `test_rejects_each_forbidden_name_pattern`, `test_rejects_marker_in_a_folder_name`, `test_rejects_each_marker_in_file_content`, each a loop of `subTest` over the constant it covers; `test_reports_unreadable_file`; `test_error_names_path_and_marker`.
+- `test_verify_release.py`, T-004, manifests: `test_rejects_symlink_escaping_plugin_root`, `test_rejects_missing_compat_manifest`, `test_rejects_compat_manifest_that_is_not_an_object`, `test_rejects_compat_manifest_with_component_path`, `test_rejects_compat_value_differing_from_root` (a `subTest` per field), `test_rejects_compat_manifest_missing_a_required_field`, `test_rejects_empty_compat_manifest`, `test_reports_failures_from_every_check`, `test_main_prints_repository_relative_paths`.
+- `test_verify_release.py`, T-005: the test file holds its own copy of the required entries of each denylist, taken from PKG-002.4 and T-005 and never read from the tool, so dropping an entry from the tool fails a test. `test_denylists_hold_every_required_entry` checks that each tool constant contains every copied entry; `test_rejects_each_forbidden_path_part`, `test_rejects_each_forbidden_file_name`, `test_rejects_each_forbidden_name_pattern`, `test_rejects_marker_in_a_folder_name`, `test_rejects_each_marker_in_file_content` are each a loop of `subTest` over the copied list they cover; `test_reports_unreadable_file`; `test_reports_unreadable_folder`; `test_error_names_path_and_marker`.
 - T-002 and T-003: `python3 scripts/validate.py` passes with the package present, and `claude plugin validate --strict plugins/specflow` passes, with the shell skill in place. The real skill does not exist in this spec, so the skill's name under Claude Code is checked on the probe (T-006) and again on the real package in 00008 (T-043).
 - T-006 is a recorded manual run per host; its evidence is `host-loading-probe.md`.
 
