@@ -468,3 +468,21 @@ which holds each packet, its options, and the answer.
    name, and the 46 guessed risk ratings are confirmed. Two late plan
    corrections that no reviewer re-read were named in the question and are
    accepted with it. Implementation is not started by these approvals.
+
+## 2026-10-09 - specflow 00002 completion review
+
+Decided in the walkthrough of `reviews/00002-package-boundary-review-01.md`,
+which holds each finding, its options, and the answer.
+
+### Decisions
+
+1. **Review fixes.** The user took the recommended fix for each of the four
+   findings that got their own question, and chose fixes from the three
+   batches of small ones: 11 applied, 5 deferred, 2 rejected, 2 resolved or
+   settled, as the minutes there list. The release check now requires `name`
+   and `version` in the Claude manifest, matches slash markers against the
+   package path, and reports folders it cannot read.
+2. **00002 re-approved.** The fixes edited the approved `requirements.md` and
+   `design.md` of 00002, which staled both approvals. The user chose "Approve
+   both (Recommended)"; the receipts are in the 00002 `qa-log.md`. The tasks
+   approval stands: `tasks.md` gained only an Outcome line.

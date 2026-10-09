@@ -198,3 +198,25 @@ each landing exactly once.
 - Outstanding questions: none.
 - Next action: implementation, in dependency order, starting with 00002 (T-001); once the helper of 00004 exists, recovery mode records these receipts as real approvals after the developer confirms each.
 - Verdict: COMPLETE (6 tasks planned; implementation not started).
+
+## Requirements re-approval (2026-10-09)
+
+- Artifact: `docs/dev/project-management/specs/00002-package-boundary/requirements.md`, git blob `aee0e31684d58021f2c86c7ca52226ebbab31550`.
+- Change since the approval of 2026-10-04: one sentence each on REL-001.1 and PKG-002.2, saying the criterion is verified here and built by T-065 of 00001 (review finding R5). No criterion's wording changed.
+- Decision: approved by the developer. Question: "The review fixes changed two approved files of spec 00002 ... Do you approve?" Answer:
+  "Approve both (Recommended)".
+- Scope: the whole artifact as it now reads.
+- Upstream markers accepted by name: none.
+- This is a receipt, since no runtime exists: no canonical hash and no
+  `.specflow.json`.
+
+## Design re-approval (2026-10-09)
+
+- Artifact: `docs/dev/project-management/specs/00002-package-boundary/design.md`, git blob `73870649de6d7da0041a4e5e6eda886571cf26d4`.
+- Change since the re-approval of 2026-10-06: the fixes of the completion review (`reviews/00002-package-boundary-review-01.md`, findings R1, R3, R4, R7, R8, R11): `COMPAT_REQUIRED`, slash markers matched against the package path, an unreadable folder reported, repository-relative error paths, test-owned denylist copies, and the new test names.
+- Decision: approved by the developer, together with the requirements above. Question and answer as above.
+- Scope: the whole artifact as it now reads.
+- Upstream markers accepted by name: none; the approved requirements hold no open marker.
+- This is a receipt, since no runtime exists: no canonical hash, no code
+  baseline, and no `.specflow.json`. The tasks approval of 2026-10-06 stands:
+  `tasks.md` gained only an Outcome line.
