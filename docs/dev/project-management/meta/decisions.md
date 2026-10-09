@@ -486,3 +486,8 @@ which holds each finding, its options, and the answer.
    `design.md` of 00002, which staled both approvals. The user chose "Approve
    both (Recommended)"; the receipts are in the 00002 `qa-log.md`. The tasks
    approval stands: `tasks.md` gained only an Outcome line.
+3. **00008 design re-approved.** The host loading probe (T-006 of 00002)
+   corrected the 00008 host install lines, which staled that design, and no
+   receipt had been written. The user chose "Fix line 66, re-approve
+   (Recommended)": the Codex line now states only the tested marketplace path,
+   and the receipt is in the 00008 `qa-log.md`.

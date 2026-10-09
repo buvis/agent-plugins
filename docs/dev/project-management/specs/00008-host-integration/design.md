@@ -63,7 +63,7 @@ Kiro IDE, Codex, and Claude Code are the supported hosts of the first release (P
 
 ### Codex
 
-- Install: Codex installs plugins only from a marketplace, never from a bare folder (probe, T-006 of 00002). A local install adds the monorepo checkout as a marketplace (`codex plugin marketplace add <checkout>`), which Codex reads from `.agents/plugins/marketplace.json` or `.claude-plugin/marketplace.json`, then runs `codex plugin add specflow@<marketplace>`. Codex copies the plugin into `$CODEX_HOME/plugins/cache/` and lists the skill as `specflow:<skill>`. Whether it accepts the monorepo's `.claude-plugin/marketplace.json` entry as written, and a Git marketplace install, is to be verified.
+- Install: Codex installs plugins only from a marketplace, never from a bare folder (probe, T-006 of 00002). A local install adds the monorepo checkout as a marketplace (`codex plugin marketplace add <checkout>`), then runs `codex plugin add specflow@<marketplace>`. The probe tested a marketplace at `.agents/plugins/marketplace.json` only. Codex copies the plugin into `$CODEX_HOME/plugins/cache/` and lists the skill as `specflow:<skill>`. Whether Codex reads the monorepo's `.claude-plugin/marketplace.json` entry as written, and a Git marketplace install, is to be verified.
 - Load the root Agent Plugins v1 manifest directly.
 - Skills are discovered from `plugins/specflow/skills/`.
 - OpenAI-specific metadata, if later needed, goes under `extensions.com.openai`; no OpenAI-specific workflow copy is introduced.

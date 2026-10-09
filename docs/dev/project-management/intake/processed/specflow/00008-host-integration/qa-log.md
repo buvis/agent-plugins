@@ -177,3 +177,15 @@ each landing exactly once.
 - Outstanding questions: none.
 - Next action: implementation, in dependency order, starting with 00002 (T-001); once the helper of 00004 exists, recovery mode records these receipts as real approvals after the developer confirms each.
 - Verdict: COMPLETE (5 tasks planned; implementation not started).
+
+## Design re-approval (2026-10-09)
+
+- Artifact: `docs/dev/project-management/specs/00008-host-integration/design.md`, git blob `d19ee459db58f6d097f8a7189bdd9a9a091c6fa6`.
+- Change since the re-approval of 2026-10-06: the host install lines corrected by the host loading probe (T-006 of 00002, commit `58c877d`), which staled this design by the normal rule; and the Codex line reworded so it states only the tested marketplace path, `.agents/plugins/marketplace.json` (finding R13 of `reviews/00002-package-boundary-review-01.md`).
+- Decision: approved by the developer. Question: "T-006 of 00002 edited the approved 00008 design ... How should we handle it?" Answer:
+  "Fix line 66, re-approve (Recommended)".
+- Scope: the whole artifact as it now reads.
+- Upstream markers accepted by name: none; the approved requirements hold no open marker.
+- This is a receipt, since no runtime exists: no canonical hash, no code
+  baseline, and no `.specflow.json`. The tasks approval of 2026-10-06 stands:
+  `tasks.md` is unchanged (blob `59664a60f1246cb04261e5daf73c163e044125c6`).
