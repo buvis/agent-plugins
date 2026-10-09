@@ -1,0 +1,172 @@
+# Tasks: specflow cross-host validation
+
+The first sub-bullets of `Details:` and `Verify:` are carried from the source plan in intake item 00001. In them, `design §n` means the source design, `.kiro/specs` means the specs folder, and a task ID may belong to another spec; `docs/dev/project-management/reviews/2026-10-04-specflow-split-map.md` names the spec that now holds each section and each task. Lines written for this plan name a task of another spec with its spec, as in `T-030 (00006)`.
+
+- [ ] T-050 Build canonical workflow fixtures
+  - Requirements: 00004 VAL-001 criterion 1; 00004 STATE-001 criterion 4
+  - Depends on: none
+  - Location: `tests/specflow/fixtures/workflow/`, `tests/specflow/contract/test_fixtures.py`
+  - Reuse: The Kiro captures of T-027 (00004); `validate_spec.py validate`, `status`, and `check_schema` (00004).
+  - Contract: every fixture passes schema and artifact validation, or fails exactly where it is meant to
+  - Details:
+    - Add standard, quick, partially approved, stale, malformed, recovered, and completed specs, each as feature and bugfix where the type changes behavior, and as Design-First where the order changes behavior.
+    - Add a spec with its intake item and `qa-log.md`, a spike in each form, a spec on hold, and a configured workspace root and specs folder.
+    - The fixtures live under `tests/specflow/fixtures/workflow/`. A fixture built to be malformed or stale states the one finding it is meant to show; the malformed ones cover a missing required path, state that fails the schema, an unsupported `schemaVersion`, and a recorded hash that differs from the file.
+    - Add one workspace that holds only an unprocessed intake item: the starting point of the handoff in T-051.
+  - Acceptance criteria: 00004 VAL-001 criterion 1; 00004 STATE-001 criterion 4
+  - Verify:
+    - `tests/specflow/contract/test_fixtures.py`: each fixture passes schema and artifact validation, or fails with exactly the finding it was built to show; and `status --json` of each fixture reports the phase, the artifact statuses, and the hold it is named for; the intake-only workspace shows its item in `intake[]`.
+
+- [ ] T-056 Build the scenario eval runners
+  - Requirements: RULE-001
+  - Depends on: T-050
+  - Location: `tests/specflow/evals/runners/run_claude.py`, `tests/specflow/evals/runners/run_codex.py`, `tests/specflow/evals/runners/score.py`, `tests/specflow/evals/runners/manual-run.md`, `tests/specflow/evals/schemas/result.schema.json`, `tests/specflow/rules/test_score.py`, `tests/specflow/fixtures/results/`, `.github/workflows/validate.yml`
+  - Reuse: The session and eval formats of 00005; `check_schema` (00004) for the run record; `claude -p` and `codex exec` as the two headless hosts; the install surface the T-042 record (00008) names for Codex.
+  - Contract: A runner plays one session and writes a run record. `score.py` reads a run record, evaluates every eval whose `session` matches, and writes the scores into the record. Exit codes of all three: 0 done (for the scorer: every eval passed), 1 a failed eval, an unjudged rubric, or a broken session, 2 a usage error, a host that could not start, or an installed plugin that is not the revision under test.
+  - Details:
+    - Run sessions and score evals in the T-069 formats.
+    - Add runners for Claude Code (`claude -p`) and Codex (`codex exec`) that run each session once and score every eval on it; define the recorded manual run per session for Kiro IDE.
+    - Write `run_claude.py`, `run_codex.py`, `score.py` (with `--compare`), and `manual-run.md`, with the run environment of the design: a scratch workspace with its own `git init` and one commit, one conversation per session, the `edit` of a turn written into the workspace before that turn, an `expects` pattern that breaks a session that went off script, user-level settings left out, and a permission mode, a timeout, and a spending cap as constants. A session and the sessions that continue it are played in one batch, and the later record names the run it started from in `continuesRun`. A run that stops early is recorded as not run, with the reason.
+    - Claude Code loads the plugin per run with `--plugin-dir`. The Codex runner makes a temporary Codex home under the ignored `docs/dev/tmp/specflow/evals/` with only the sign-in and the plugin, hashes the installed copy, exits 2 when it differs from `runtimeRevision`, and removes the home when the batch ends, also after a failure (ruling D11). Prove first that the sign-in works from a temporary home; if it does not, stop and ask the developer.
+    - Write `result.schema.json` with the fields of the design's run-record table. The scorer implements every assertion kind of the eval schema and fails on a kind it does not know. A `rubric` assertion is judged by the developer by hand: the scorer prints the rubric and the messages, and stores the verdict, the judge, and the reason (ruling D10).
+    - The scorer's entry function takes the folder of evals as a parameter, `tests/specflow/evals/` by default. The deliberately broken eval of the checks below is a fixture under `tests/specflow/fixtures/results/`, reached through that parameter, and is never put among the real evals.
+    - The runners and `manual-run.md` replace the workspace root, the plugin root, and the home folder wherever they occur in a record, in paths and inside `messages` and `files` alike, so a record holds no absolute machine path.
+    - The CI step that T-070 (00005) added for the checker's tests is expected to run every test under `tests/specflow/rules/`. If it names single files, add `test_score.py` to it in `.github/workflows/validate.yml`.
+  - Acceptance criteria: RULE-001 criterion 4
+  - Risk: The temporary Codex home is unproven with the developer's sign-in. Mitigation from the design: this task proves it before any Codex session is run; otherwise the developer chooses between moving the instruction file aside for a batch and recording the taint, and a tainted run is release evidence only by the developer's waiver.
+  - Verify:
+    - on each automated runner, one session scores a passing eval and a deliberately broken eval correctly in the same run; a recorded manual session run round-trips through the result format.
+    - `tests/specflow/rules/test_score.py` passes in CI on stored run records: a passing and a deliberately broken eval on one record, a manual record through the scorer and back, the record against its schema, the scorer's kinds equal to the eval schema's, and an unjudged rubric exiting 1.
+    - The live self-check runs once by hand, and its result goes in the `Outcome:` line: one session on each automated runner; `score.py --compare` on its two records; exit 2 when the installed plugin differs from `runtimeRevision`; and no temporary Codex home left behind after a batch that failed.
+
+- [ ] T-051 Test complete cross-host handoff sequence
+  - Requirements: REL-002; 00004 WF-004 criterion 3
+  - Depends on: T-050
+  - Location: `tests/specflow/compatibility/cross-host-handoff.md`
+  - Reuse: `validate_spec.py status --json` and `hash` (00004): the assertions are comparisons of their output. The host records of 00008. The intake-only workspace of T-050.
+  - Contract: T-051, the handoff: requirements in Kiro IDE, design in Codex, tasks in Claude Code, implementation in Codex, verification in Kiro IDE, on one fixture.
+  - Details:
+    - Create requirements in Kiro IDE, design in Codex, tasks in Claude Code, implement in Codex, verify in Kiro IDE.
+    - Assert stable paths, approvals, hashes, task state, and no host-specific canonical files.
+    - After each step the record holds the output of `validate_spec.py status --json`, the `.specflow.json` file, the list of files in the spec folder, and `validate_spec.py hash` of each artifact. Gates and the next task are read from the status document alone.
+    - After the tasks step, still in Claude Code: edit the approved requirements, record `status --json` showing design and tasks stale, approve the three artifacts again, and go on to implementation. This is the step the design gives the handoff record for "modify requirements in Claude Code".
+    - Run the five steps a second time in another host order, with Kiro IDE implementing, so that a task completed in Kiro shows elsewhere: requirements in Codex, design in Claude Code, tasks in Codex, implementation in Kiro IDE, verification in Claude Code.
+  - Acceptance criteria: REL-002 criteria 1, 2, 3, 6, 8; 00004 WF-004 criterion 3
+  - Verify:
+    - end state is identical regardless of host order.
+    - The record is `tests/specflow/compatibility/cross-host-handoff.md`. "Identical" in the clause above means the two final status documents agree in `phase`, `artifacts`, `gates`, `hold`, and whether `nextTask` is null; text a model wrote is not compared. The record also shows design and tasks stale after the requirements edit in Claude Code.
+
+- [ ] T-052 Test native-Kiro coexistence
+  - Requirements: REL-002; 00004 WF-005 criteria 1, 2; 00004 WF-004 criterion 2
+  - Depends on: T-050
+  - Location: `tests/specflow/compatibility/native-kiro-coexistence.md`
+  - Reuse: `validate_spec.py status --json` (00004); a fixture of T-050 with approved requirements, design, and tasks.
+  - Contract: T-052, coexistence: Kiro's native Spec workflow edits an artifact without touching `.specflow.json`; the next resume in another host detects the changed hash, stales the right approvals, and reverts nothing.
+  - Details:
+    - Modify artifacts with Kiro's native Spec workflow without updating `.specflow.json`.
+    - Confirm the plugin detects changes and invalidates the correct approvals.
+    - The edit that makes design and tasks stale is an edit to approved requirements, made by Kiro's native workflow. The host that resumes is Codex.
+  - Acceptance criteria: REL-002 criterion 2; 00004 WF-005 criteria 1, 2; 00004 WF-004 criterion 2
+  - Verify:
+    - no native edit is automatically reverted.
+    - The record is `tests/specflow/compatibility/native-kiro-coexistence.md`. It holds `status --json` before the native edit and after the next resume, with requirements, design, and tasks reported stale, and the edited file as Kiro left it.
+
+- [ ] T-054 Perform security review
+  - Requirements: 00003 SEC-001 criteria 1, 2, 3, 4; 00004 SEC-002 criterion 5; 00006 SEC-002 criteria 1, 2, 3, 4
+  - Depends on: T-050
+  - Location: `docs/dev/project-management/reviews/YYYY-MM-DD-specflow-security-review.md`, `tests/specflow/security/test_*.py`, `.github/workflows/validate.yml`
+  - Reuse: The security findings and regression tests of T-076 and T-077 (00007), which live in `tests/specflow/review/` and are cited by test name, not copied; `sys.stdlib_module_names` for the import test.
+  - Contract: The dependency scan is one test, `test_shipped_and_maintainer_scripts_import_only_the_standard_library`.
+  - Details:
+    - Review the catch-up skill's handling of fetched content and temporary clones, configured-path containment, secret handling, and destructive operations, plus spike cleanup, instructions hidden in artifact or upstream text, code-baseline file reads, cross-spec reshapes, and advisory scans/link handling. Include the findings and regressions owned by T-076/T-077.
+    - Add regression tests for every finding.
+    - Write the review to `docs/dev/project-management/reviews/YYYY-MM-DD-specflow-security-review.md` and the tests under `tests/specflow/security/`. Add the CI step for `tests/specflow/security`.
+    - The import test is in `test_stdlib_only.py`. It reads every Python file under `plugins/specflow/`, `tools/specflow/`, and `tests/specflow/evals/runners/`, and fails on an absolute import whose top-level module is neither in the standard library nor defined under those folders or under the repository's `scripts/`; relative imports are skipped. A folder that does not exist yet is passed over, and CI scans it from the push that adds it.
+  - Acceptance criteria: 00003 SEC-001 criteria 1, 2, 3, 4; 00004 SEC-002 criterion 5; 00006 SEC-002 criteria 1, 2, 3, 4
+  - Verify:
+    - security test suite and dependency scan pass.
+    - The review file gives each item of its scope a finding or "no finding", with what was read; each finding names its regression test; `tests/specflow/security/` passes in CI on Python 3.10, `test_stdlib_only.py` included.
+
+- [ ] T-053 Test concurrent edit protection
+  - Requirements: 00004 WF-006 criteria 1, 2
+  - Depends on: T-050, T-056
+  - Location: `tests/specflow/evals/sessions/concurrent-edit.json`, its eval record and fixture, `tests/specflow/evals/results/<host>/<session>/<n>.json` for the session `concurrent-edit`
+  - Reuse: The guard test of T-025 (00004), cited and not repeated: this task tests the agent, not the helper.
+  - Contract: It is one session, `concurrent-edit`: after the turn in which the agent reads the artifact, the runner (or the developer, in a manual run) edits the file as the second writer, and the next turn must end with the agent reporting a conflict and the edit intact.
+  - Details:
+    - Simulate a second host editing a file after the first host read it and before the first host writes.
+    - Write the session `tests/specflow/evals/sessions/concurrent-edit.json` with its eval record and fixture; the second writer's change is the `edit` of a turn. Run it on each host and store the records; before a record is committed, read it for a secret or an absolute machine path.
+  - Acceptance criteria: 00004 WF-006 criteria 1, 2
+  - Verify:
+    - The first host stops with a conflict and the intervening edit survives: the `concurrent-edit` session's eval passes in the latest stored record of each host. That the user documentation states the one-writer contract is checked by T-061 (00001).
+
+- [ ] T-081 Verify conversion against the proven calcard-mcp fixture
+  - Requirements: 00007 CNV-001 criteria 3, 4, 5, 9
+  - Depends on: T-050, T-056
+  - Location: `tests/specflow/fixtures/conversion/calcard-00032/`, `tests/specflow/evals/sessions/conversion-calcard.json`, `tests/specflow/compatibility/test_conversion_fixture.py`, `.github/workflows/validate.yml`, `tests/specflow/evals/results/<host>/<session>/<n>.json` for the session `conversion-calcard`
+  - Reuse: The shipped `convert-prd` skill and the `conversion-receipt` check of 00007; the runners of T-056.
+  - Contract: A run on a host is equivalent to the proven set when all of these hold: the same file set; the bugfix headings; the same clause numbers under each behavior section; four top-level tasks in Kiro's order; a `Sources:` line that names the processed intake item; every obligation of `idea.md` cited by a clause or by a recorded decision; and every task that is checked in the expected set checked in the run.
+  - Details:
+    - Add the reference conversion as an acceptance fixture: the source calcard-mcp bugfix PRD and the artifact set it produced at `buvis/calcard-mcp` `docs/dev/project-management/specs/00032-add-if-match-preconditions-to-event-writes/` (`bugfix.md`, `design.md`, `tasks.md`, `.config.kiro`, `.specflow.json`), copied as it stands into `tests/specflow/fixtures/conversion/calcard-00032/`, so the test is self-contained and reads nothing outside the repository.
+    - Run the shipped conversion skill on the same source and compare: the bugfix shape, clause numbering, task order, provenance `Sources:` line, and obligation coverage match the proven set; implementation-completion facts are recovered without rescheduling work; the receipt records source and destination paths, each gate's state, and limitations.
+    - State in the fixture notes that the trial demonstrated artifact conversion and review, not executed implementation or a running runtime (design §6.9), so those stay out of scope here.
+    - The fixture has `input/` (the PRD as an unprocessed intake item, and a snapshot of the calcard-mcp source files the artifacts cite) and `expected/`: seven copied files, the five above and the intake item's `idea.md` and `qa-log.md`, which hold the source PRD and the developer's five answers; and a seeded variant whose first two tasks are checked with outcomes. The session `conversion-calcard` answers the skill's questions as the developer did.
+    - The fixture notes give the copy date and each file's SHA-256, and say what the trial was: requirements and design approved, the task plan drafted and not approved, no completed work, no receipt, a `.specflow.json` written by hand. Read the copy for anything that must not be public before it is committed.
+    - The set has no receipt and no completed work. So the receipt is checked by `conversion-receipt`, and the regression for unchecked completed work is shown by the comparison on the seeded variant only; the skill's own behavior on completed work is proven by T-080 (00007). Hashes, the `.config.kiro` UUID, timestamps, and prose are not compared. Add the CI step for `tests/specflow/compatibility`.
+  - Acceptance criteria: 00007 CNV-001 criteria 3, 4, 5, 9
+  - Verify:
+    - `tests/specflow/compatibility/test_conversion_fixture.py`: the comparison passes for a faithful run and fails for a seeded obligation drop and for an unchecked completed task.
+    - The same test rebuilds each host's latest stored run of `conversion-calcard` in a temporary folder, applies the comparison to it, and runs the `conversion-receipt` check on it. A host with no stored record is skipped and reported by the test; that all three hosts have a record that passes is this task's own condition. Before a record is committed, read it for a secret or an absolute machine path.
+
+- [ ] T-057 Author and run one eval per behavioral rule
+  - Requirements: RULE-001, REL-002
+  - Depends on: T-056, T-053, T-081
+  - Location: `tests/specflow/evals/SR-<area>-NNN.json`, `tests/specflow/evals/sessions/`, `tests/specflow/evals/results/<host>/<session>/<n>.json`, `tests/specflow/fixtures/sessions/<name>/`
+  - Reuse: The sessions and eval records written with each reference in 00006 and 00007; `check_rules.py` (00005); the stored records of T-053 and T-081, which count while their revisions are unchanged.
+  - Contract: T-057 also writes the comparison cases its source text names, as two sessions on designs and task plans copied from the second port plan's source skills: `comparison-design` (reuse, contracts, blockers, isolated and inline review) and `comparison-tasks` (sizing, risk evidence, coupling).
+  - Details:
+    - Complete one eval per behavioral rule in the inventory, including both port plans and the `CNV` rules of the conversion skill (T-080), grouped onto as few sessions as keep each session readable, and run every session on every supported host. Include copied design/tasks comparison cases for reuse, contracts, blockers, isolated/inline review, task sizing, risk evidence, and coupling.
+    - Write any eval record or session still missing, with its fixture folder, and the sessions `recover-native-kiro`, `resume-kiro-bugfix`, `resume-kiro-design-first`, and `configured-specs-folder`. Store each run as `tests/specflow/evals/results/<host>/<session>/<n>.json`; a rerun never overwrites an earlier result.
+    - Run the automated hosts first and Kiro IDE last, by hand, on a package that no longer changes. The manual record of `shared-dialogue-design-first` and of `intake-bugfix` notes that Kiro IDE opens each spec as its own type. Before a record is committed, read it for a secret or an absolute machine path; a record that holds one is not committed, and the run is repeated once the cause is fixed.
+    - A session that breaks fails every eval on it. A failing eval is investigated; a fix to a rule or an instruction lands in the file of the spec that owns it and is named in the `Outcome:` line, and since it changes the package, every session runs again on the new revision. A rerun is recorded as a rerun.
+  - Acceptance criteria: RULE-001 criterion 4; REL-002 criterion 6
+  - Risk: Every session runs on three hosts, one of them by hand, so the runs may cost more time than planned. Mitigation from the design: evals are grouped onto as few sessions as stay readable; no eval may be skipped.
+  - Verify:
+    - `check_rules.py` passes in full (every behavioral rule's eval exists); every eval passes on every supported host, and the results are stored per host.
+    - The check for "every eval passes": for each session and host, the latest record under `tests/specflow/evals/results/` has a passed score for every eval on the session, and no `notRun`, and carries the `runtimeRevision` of this task's final commit. `score.py --compare` exits 0 for each session's latest records.
+
+- [ ] T-055 Verify context-efficiency behavior
+  - Requirements: 00006 AWS-002 criterion 2
+  - Depends on: T-057
+  - Location: `tests/specflow/compatibility/context-efficiency.md`
+  - Reuse: The stored run records of T-057, read for their per-turn `filesRead`.
+  - Contract: Which passages of a file were read cannot be seen from a path, so for the profile marks the record states the instruction and the measured sizes of the marked passages, and says that this half is not proven.
+  - Details:
+    - Confirm runtime instructions load only the current phase's references and the profile's passages, and that a design review loads only its tier's files.
+    - Measure and record skill metadata, phase-reference, and review-reference sizes.
+    - Write `tests/specflow/compatibility/context-efficiency.md` in two parts: sizes (lines and bytes of the frontmatter and body of `SKILL.md`, of each phase reference, and of each review reference), and loading (per phase and profile, the files the routing table expects against the files the runs read). A file outside the expected set is a finding; a host whose event output does not list reads is recorded as not measured.
+  - Acceptance criteria: 00006 AWS-002 criterion 2
+  - Verify:
+    - A phase loads only its own AWS reference: in the stored records, no turn of a phase reads a file outside the set the routing table expects for that phase and profile. That only the passages marked for the profile were read cannot be seen from a path, and the record says this half is not proven.
+
+- [ ] T-058 Run the parity gate per retiring skill
+  - Requirements: RULE-001, REL-002
+  - Depends on: T-057
+  - Location: `tests/specflow/parity/<skill>.md`, `tests/specflow/parity/README.md`, `tests/specflow/evals/README.md`
+  - Contract: The source skill's result is a recorded judgement: the source skill is run by hand on Claude Code, where it lives, on the same input, and each rule is judged against what it produced and noted in the report; no runner plays the source skill, since the evals assert specflow's paths.
+  - Details:
+    - For elicit-requirements, review-discovery-doc, review-design-doc, spike, create-prd, and review-prd-backlog, run the source skill and specflow on the same inputs (design §15) and write `tests/specflow/parity/<skill>.md`.
+    - Document, for maintainers, how to run the evals per host and how the parity gate is judged.
+    - The same input means the fixture and the developer turns of each session whose evals carry the skill's rules. specflow's results come from the stored run records. The two maintainer guides are `tests/specflow/evals/README.md` and `tests/specflow/parity/README.md`.
+    - No personal skill is retired here; a report only says a skill is ready. The reports of create-prd and review-prd-backlog also say that their retirement waits for the autopilot repoint.
+  - Acceptance criteria: RULE-001 criterion 6; REL-002 criterion 7
+  - Verify:
+    - each report lists every rule mapped from the skill with the source result and specflow's result per host; a skill is marked ready to retire only when every specflow result passes.
+
+## Completion criteria
+
+- [ ] Every task above is checked, each with its `Outcome:` line.
+- [ ] CI is green on the final commit, with the security and compatibility test steps.
+- [ ] `python3 tools/specflow/check_rules.py` passes with no filter. For every session and host, the latest stored record has a passed score for every eval on the session, and no `notRun`, and carries the package and fixture revisions of this spec's final commit.
+- [ ] Six parity reports exist under `tests/specflow/parity/`, and each shows every specflow result passing; a skill that is not ready is a failed measure, not a finished plan.
+- [ ] No temporary Codex home remains under `docs/dev/tmp/specflow/evals/`.

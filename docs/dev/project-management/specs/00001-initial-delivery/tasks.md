@@ -1,0 +1,153 @@
+# Tasks: specflow initial delivery
+
+The first sub-bullets of `Details:` and `Verify:` are carried from the source plan in intake item 00001. In them, `design §n` means the source design, `.kiro/specs` means the specs folder, and a task ID may belong to another spec; `docs/dev/project-management/reviews/2026-10-04-specflow-split-map.md` names the spec that now holds each section and each task. Lines written for this plan name a task of another spec with its spec, as in `T-030 (00006)`.
+
+- [ ] T-060 Write maintainer documentation
+  - Requirements: 00003 UPD-001 criterion 4; 00003 UPD-002 criterion 8; 00005 RULE-001 criterion 5
+  - Depends on: none
+  - Location: `docs/dev/procedures/running-a-specflow-catch-up.md`, `docs/dev/procedures/adding-a-specflow-rule.md`, `CONTRIBUTING.md`
+  - Reuse: The catch-up skill and `tools/specflow/upstream/sources.md` (00003); `tools/specflow/check_rules.py` (00005); the two maintainer guides under `tests/specflow/` (00009).
+  - Contract: T-060: a fresh agent session, given only the two procedures, runs a review-only catch-up and adds one rule with its eval record; what it had to ask is a defect in the documentation.
+  - Details:
+    - Document the catch-up: the source cursors, the ruling report, the cadence, adopting from an A1 release tag, the source-line format, and the A1 adoption set.
+    - Document the rule inventory, `check_rules.py` with its construction-only `--area` option and unfiltered release gate, and how to add a rule and its check.
+    - State prominently that the catch-up skill is repository-only.
+    - Write the two procedures under `docs/dev/procedures/` and link them from `CONTRIBUTING.md`.
+    - The whole trial of the check below runs on a throwaway branch that is never merged: the trial rule, and the report and cursor moves that a review-only catch-up writes.
+  - Acceptance criteria: 00003 UPD-001 criterion 4; 00003 UPD-002 criterion 8; 00005 RULE-001 criterion 5
+  - Verify:
+    - a maintainer can run a review-only catch-up, and add one rule with its eval record, from the documentation alone.
+    - The maintainer of the clause above is a fresh agent session given only the two procedures; each question it had to ask is fixed in the procedures before the task is checked.
+
+- [ ] T-061 Write user documentation
+  - Requirements: 00008 PKG-003 criterion 4
+  - Depends on: none
+  - Location: `plugins/specflow/docs/user-guide.md`, `plugins/specflow/README.md`, `tests/specflow/release/test_docs.py`
+  - Reuse: The host section of `plugins/specflow/README.md` (00008); the fixture specs of T-050 (00009); `CONTRIBUTING.md` for what a plugin README states.
+  - Contract: A package path in the guide is inline code that starts with `plugins/specflow/`, so the path test can find it; the test holds the map from each example in the guide to its fixture spec; and the supported hosts are a constant in the test (bundle C2).
+  - Details:
+    - Document create, spike, continue, status, the requirements and design reviews, hold, implementation, approval, recovery, and cross-tool handoff. Include cross-spec review and advisory scripts (T-076/T-077) and the PRD-to-specflow conversion skill (T-080, design §6.9) in the initial-release documentation.
+    - Document the workspace config, the specs folder and the repository-made `.kiro/specs` link, the one-writer contract, the intake tree, and the status JSON for external runners.
+    - Include examples for standard and quick profiles.
+    - The guide is `plugins/specflow/docs/user-guide.md`. The README gains the six items `CONTRIBUTING.md` requires and a link to the guide, and loses the line saying the plugin is unreleased (bundle C4). Both edits stay inside the paths that do not stale host evidence.
+    - The handoff section says what moves between tools (the repository's artifacts and state) and what does not (chat history, sessions, and a host's own interface).
+    - The guide states the one-writer contract and that writers at the same moment are outside it; this check came from T-053 (decision 2026-10-04 #10). Write `test_package_does_not_name_autopilot` here too: this task creates the test file and is the one most likely to put the word into the package, and T-066 relies on the test.
+  - Acceptance criteria: 00008 PKG-003 criterion 4
+  - Verify:
+    - documentation examples match fixtures and current paths.
+    - `tests/specflow/release/test_docs.py` passes: `test_every_path_in_the_user_guide_exists_in_the_package`, `test_examples_match_the_fixture_specs`, `test_user_guide_states_the_one_writer_contract`, `test_readme_lists_only_supported_hosts_as_supported`, and `test_package_does_not_name_autopilot`. File check: the guide's handoff section says what moves between tools and what does not.
+
+- [ ] T-062 Add changelog and versioning policy
+  - Requirements: REL-001
+  - Depends on: T-060, T-061
+  - Location: `CONTRIBUTING.md`, `docs/dev/procedures/releasing-specflow.md`, `plugins/specflow/CHANGELOG.md`, `plugins/specflow/README.md`, `tests/specflow/release/test_docs.py`
+  - Reuse: `templates/example-plugin/CHANGELOG.md` for the changelog format.
+  - Contract: While the plugin is at 0.x, a breaking change raises the minor version and any other runtime change the patch.
+  - Details:
+    - Define breaking changes for state schema, config schema, status output, artifact contract, approval semantics, and host compatibility.
+    - Distinguish upstream-reference-only updates from runtime behavior changes.
+    - Write the policy and the release checklist into `docs/dev/procedures/releasing-specflow.md`, with the list of places that carry the version, and the 0.1.0 entry into `plugins/specflow/CHANGELOG.md`. The policy states the rules the design decides: past 0.x a breaking change raises the major version; an update that only refreshes an AWS reference from a new upstream tag is a patch; each schema's own version field is raised on a breaking change to that shape, with a changelog entry.
+    - Link the procedure from `CONTRIBUTING.md`, beside the two that T-060 linked.
+    - The 0.1.0 heading is `## [0.1.0] - YYYY-MM-DD`, with the day this task writes it. A later change of that date is a change to the package: it makes a new candidate, and T-063 runs again.
+    - The checklist also asks that any change to the artifact contract, the state schema, the phase gates, or a distributed upstream reference came with its fixtures and compatibility tests.
+    - Write the release tag into each install line of the README whose route takes a ref; T-045 (00008) recorded which do. Edit no schema: each carries its address from the task of 00004 that wrote it (ruling D13).
+  - Acceptance criteria: REL-001 criterion 6
+  - Verify:
+    - The release checklist requires a version decision and a changelog decision; `test_changelog_and_install_lines_carry_the_manifest_version` in `test_docs.py` passes.
+
+- [ ] T-063 Verify the release candidate commit
+  - Requirements: REL-001, REL-002, REL-003
+  - Depends on: T-062
+  - Location: `docs/dev/project-management/reviews/YYYY-MM-DD-specflow-release-verification.md`
+  - Reuse: `tools/specflow/verify_release.py` (00002, extended in 00003 and 00004) and `tools/specflow/check_rules.py` (00005); `scripts/generate_marketplace.py --check` (00008).
+  - Premise: The candidate commit is on the repository's default branch: `feature/specflow` was merged before this task (the developer's ruling of 2026-10-05).
+  - Contract: it then reads each required criterion against the assertions of its mapped check, so a link to an unrelated or incomplete check cannot pass as coverage
+  - Details:
+    - Run `tools/specflow/verify_release.py` on a clean checkout of the candidate commit.
+    - Run `tools/specflow/check_rules.py` on the same checkout and retain its complete criterion → rule → check output. Review the 33 required criteria against their mapped assertions so a link to an unrelated or incomplete check cannot pass as coverage.
+    - Inspect manifest, file list, license, source record, and AWS references.
+    - Record in the report the candidate commit and the tree id of its package, `git rev-parse <commit>:plugins/specflow`; T-065 compares against it. Keep both tools' outputs in full, with the lists inspected.
+    - Run on the clean checkout, with `PYTHONDONTWRITEBYTECODE=1`, the CI test commands, `test_docs.py` among them, and `scripts/generate_marketplace.py --check`, and keep their counts. A new candidate gets a new dated report; the earlier one is kept.
+  - Acceptance criteria: REL-001 criterion 4; REL-002 criterion 4; REL-003 criterion 3
+  - Verify:
+    - the catch-up skill, the source cursors, the rule inventory, evals, parity reports, and all repository-only tools are absent from `plugins/specflow/`; `check_rules.py` exits 0.
+    - `verify_release.py` exits 0 as well, and so do `scripts/generate_marketplace.py --check` and the CI test commands; the report names the candidate commit and its package tree id.
+
+- [ ] T-064 Run final compatibility acceptance
+  - Requirements: REL-001; REL-002; REL-003; 00009 REL-002 criteria 1, 2, 3, 6, 7, 8
+  - Depends on: T-063
+  - Location: `docs/dev/project-management/reviews/YYYY-MM-DD-specflow-release-verification.md`, `docs/dev/project-management/reviews/YYYY-MM-DD-specflow-upstream-catchup.md`, `tools/specflow/upstream/sources.md`
+  - Reuse: The catch-up skill (00003); the run records and parity reports of 00009; the host records of 00008.
+  - Contract: A stored run record stays valid for the candidate when the difference between its `runtimeRevision` tree and the candidate's package touches only `README.md`, `CHANGELOG.md`, and `docs/`. A change under `skills/` or to a manifest stales every session, and T-064 runs them all again.
+  - Details:
+    - Run a catch-up over every source first (REL-001.5).
+    - Install the release candidate commit in Kiro IDE, Codex, and Claude Code.
+    - Execute the cross-host handoff scenario from that commit.
+    - The catch-up writes its own report under `docs/dev/project-management/reviews/` and may move cursors in `tools/specflow/upstream/sources.md`; both belong in the commit that gets the tag. The installs use the local routes that T-045 and T-046 (00008) recorded, since the pinned lines need the tag; the Kiro IDE part is a manual run by the developer.
+    - Compare each stored record's `runtimeRevision` and `fixtureRevision` with the candidate's, and run again only what the staleness rule above does not keep valid.
+    - Add to the report of T-063 the catch-up report's name, the install result per host, each of the eight success measures with its evidence, and each capability that REL-003 criterion 1 names with the record that shows it. A change to the package after T-063 makes a new candidate: T-063 and the affected parts of this task run again on it.
+  - Acceptance criteria: REL-001 criterion 5; REL-002 criterion 5; REL-003 criteria 1, 2, 3; 00009 REL-002 criteria 1, 2, 3, 6, 7, 8
+  - Verify:
+    - all eight release measures hold, including all-host evals and parity. Evidence from T-057/T-058 must cover the candidate's runtime and fixture contents; rerun affected checks if those inputs changed. No accepted capability or check is deferred.
+
+- [ ] T-065 Publish the first release
+  - Requirements: REL-001
+  - Depends on: T-064
+  - Location: `README.md`; the git tag `specflow-v0.1.0` and its GitHub release notes
+  - Premise: The report of T-064 shows all eight measures holding for the candidate commit, and the developer has given an explicit instruction to tag and publish. The approval of this plan is not that instruction.
+  - Contract: A release tag is never moved or deleted; a bad release is fixed by a new one.
+  - Details:
+    - Tag the verified commit `specflow-v0.1.0` and publish release notes.
+    - Record each AWS source's adopted-from ref in release notes.
+    - The tag goes on a commit that holds the evidence report, the catch-up outputs, and the row for specflow in the plugin table of the root `README.md`; this task changes nothing under `plugins/specflow/`. Before the tag is made, run both tools on that commit again; `git rev-parse <commit>:plugins/specflow` must equal the tree id in the report.
+    - The release notes are the GitHub release of the tag. They hold the two tool outputs and the tree id, with no machine path, and A1's tag and commit and the commits of A2 and A3, copied from the source record.
+    - Once the tag is pushed, fetch the three schema addresses and record the result in the release notes (bundle C1). The install from the tag that the check below asks for is also the first run of the pinned install lines and of the public marketplace route.
+  - Acceptance criteria: REL-001 criterion 4
+  - Risk: Tagging and publishing are outward-facing and cannot be undone cleanly, and a pinned install line first runs once the tag exists. Mitigation from the design: the task runs only on the developer's explicit instruction; T-045 (00008) proved the same routes unpinned; a bad release is fixed by a patch release.
+  - Verify:
+    - installing from the tag yields the tested `plugins/specflow/` tree.
+    - `git rev-parse specflow-v0.1.0:plugins/specflow` equals the tree id that was tested; each of the three schema addresses answers with the schema file.
+
+- [ ] T-066 Hand off the autopilot repoint
+  - Requirements: 00009 REL-002 criterion 8
+  - Depends on: T-061
+  - Location: an intake item in `buvis/claude-autopilot`
+  - Premise: The developer has given an explicit instruction to commit and push into the other repository; the approval of this plan is not that instruction. Without it, the item's text is reported to the developer, and the task stays unchecked until the item exists in the other repository.
+  - Contract: T-066 asks autopilot to read approved specs from the specs folder through the status document (`statusVersion` cited) instead of `prds/backlog`, and to keep its own settings out of specflow's files.
+  - Details:
+    - Write an intake item in `buvis/claude-autopilot` asking autopilot to read approved specs from `.kiro/specs` through the status JSON (design §7.6) instead of `prds/backlog`, and to keep its own knobs outside specflow's files (ART-001.9).
+    - Name the dependency: create-prd and review-prd-backlog retire only after that repoint lands (`qa-log.md` Q2).
+    - This task adds one intake item in the other repository, in that repository's own form, and changes nothing else there; the item's path goes in the `Outcome:` line. The item holds no secret and no machine path. If that repository cannot be written, report the item's text so the developer can file it by hand.
+  - Acceptance criteria: 00009 REL-002 criterion 8
+  - Verify:
+    - the intake item exists in claude-autopilot, cites the status schema version, and nothing in `plugins/specflow/` names autopilot.
+    - `test_package_does_not_name_autopilot` in `test_docs.py` (written by T-061) passes; it scans the package, case-insensitive.
+
+- [ ] T-067 Hand off skill retirement
+  - Requirements: 00009 RULE-001 criterion 6
+  - Depends on: T-065
+  - Location: an intake item or PRD in `buvis/agent-skills`
+  - Premise: The developer has given an explicit instruction to commit and push into the other repository; the approval of this plan is not that instruction. Without it, the item's text is reported to the developer, and the task stays unchecked until the item exists in the other repository.
+  - Contract: T-067 gives `buvis/agent-skills` the parity reports and the Retirement block of Plan A: elicit-requirements, review-discovery-doc, review-design-doc, and spike first; create-prd and review-prd-backlog once the repoint of T-066 has landed.
+  - Details:
+    - Give `buvis/agent-skills` the parity reports and Plan A's "Retirement" block for its retirement PRD; elicit-requirements, review-discovery-doc, review-design-doc, and spike first, then create-prd and review-prd-backlog once T-066's repoint lands.
+    - This task adds one intake item or PRD in the other repository, in that repository's own form, and retires nothing itself; the item's path goes in the `Outcome:` line. It cites each parity report at the tag `specflow-v0.1.0`, and holds no secret and no machine path.
+  - Acceptance criteria: 00009 RULE-001 criterion 6
+  - Verify:
+    - the agent-skills intake item or PRD cites each parity report, and every skill it retires is marked ready in its report.
+
+## Completion criteria
+
+- [ ] Every task above is checked, each with its `Outcome:` line.
+- [ ] Every acceptance criterion that applies to release 0.1 is implemented; none is deferred to a later version.
+- [ ] Requirements, design, state, and task contracts are covered by automated fixtures.
+- [ ] Cross-host handoff works across Kiro IDE, Codex, and Claude Code using repository artifacts only.
+- [ ] Native Kiro edits reconcile safely.
+- [ ] Each AWS source is recorded with its adopted-from ref and license, every adopted passage names its source, and a catch-up report exists.
+- [ ] The repository-only catch-up skill is absent from the released `plugins/specflow/`.
+- [ ] Every approved Plan A and Plan B row and every required decision criterion maps to rules and existing checks (unfiltered `check_rules.py`); the 33 criteria's assertions cover their full obligations.
+- [ ] The release candidate passes the compatibility tests of every supported host, by a run on it or by a stored record that the staleness rule keeps valid.
+- [ ] Documentation distinguishes portable artifacts from non-portable sessions and UI.
+- [ ] The cross-spec review and the advisory scans are built, and `check_rules.py` passes with nothing skipped.
+- [ ] The PRD-to-specflow conversion skill ships in `plugins/specflow/skills/convert-prd/`, its `CNV` rules have checks and evals, and on every supported host its run is equivalent, by the comparison of T-081 (00009), to the calcard-mcp `00032` set as it stands.
+- [ ] Every rule's check passes on every supported host, and each retiring skill has a parity report.
