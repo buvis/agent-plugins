@@ -80,7 +80,7 @@ Overlap: R3, R6, and R18 are all about how the forbidden-name matching works and
 - R11: applied. Print every verifier error path relative to the repository root.
 - R13: applied. Change "(Codex reads both)" to say only `.agents/plugins/marketplace.json` was tested.
 - R14: applied. Record this review's fresh-clone run at 5135c98 under completion criterion 2.
-- R16: queued, after the fixes land. Push `feature/specflow` and open a draft PR so CI runs.
+- R16: applied. Pushed `feature/specflow` (and `master` as the PR base), opened draft PR https://github.com/buvis/agent-plugins/pull/1; CI `plugins` job passed (run 37981347770).
 - R6: deferred. Broader forbidden-name patterns risk refusing innocent files. Home: this file; reopen at the 00001 release (T-065) review.
 - R10: rejected. The early-return copies don't mutate anything, which matches the immutability rule.
 - R12: deferred. Only fails when the suite runs as root; CI is not root. Home: this file.
