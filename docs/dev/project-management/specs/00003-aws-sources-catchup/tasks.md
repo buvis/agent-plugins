@@ -23,7 +23,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - File check: `adaptation.md` holds, per source, what was adopted, adapted, and not adopted, and maps `standard` and `quick` to the AWS depths Standard and Minimal.
   - Outcome: on 2026-10-09 `git ls-remote` gave A1's latest release tag as `v2.11.0` (annotated, tag object `4079edb`), peeling to `6a378b53c0a4fe0641ed7d8de8dfff94264d5b6a`; newer preview tags exist and were skipped. A2 HEAD is still `3e7c0f0aa2a1a084c94631edb709deae5fe0ae4f` and A3 HEAD (and `v2.0.1`) still `a84b2899d0dd518081a4764b42fde4c6dbf3cc9a`, so both recorded commits exist upstream. `v2.11.0` is newer than `v2.10.0`: A1's only license file, `LICENSE`, is the same blob (`09951d9`, MIT-0) at both tags, so no license change blocks adoption; A2 and A3 are MIT-0 as well. Every adoption-set path still exists at `v2.11.0` and none was renamed, but those files changed by about 1,800 lines since `v2.10.0`; the first catch-up (T-018) reviews that range. Cursors seeded at the last full reads: A1 `v2.10.0` on 2026-10-03, A2 on 2026-09-28 (the discovery read, which covered `all-phases/all-phases-aidlc-mcp/` only), A3 on 2026-10-03. Release tests ran 30, OK, including `test_every_recorded_source_has_a_cursor_row` and `test_cursor_rows_carry_an_https_url`; `scripts/validate.py` passes; no forbidden marker or design section number in the package.
 
-- [ ] T-011 Add license and attribution
+- [x] T-011 Add license and attribution
   - Requirements: AWS-001, REL-001
   - Depends on: T-010
   - Location: `plugins/specflow/skills/spec-workflow/references/aws/LICENSE`, `plugins/specflow/README.md`, `tools/specflow/verify_release.py`, `tests/specflow/release/test_verify_release.py`
@@ -39,6 +39,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - release validation fails when the source record, attribution, or a license is missing.
     - The T-011 tests the design lists pass in `test_verify_release.py`, and the fixtures that passed before `check_sources` existed still pass. File check: the plugin README names the three sources. After the commit, `python3 tools/specflow/verify_release.py` prints `Verified plugins/specflow.` on the real package.
+  - Outcome: release tests ran 36, OK, on Python 3.14 and 3.10: the five T-011 tests the design lists, `test_clean_fixture_has_no_source_errors`, and `test_reports_failures_from_every_check` extended with a missing `LICENSE`; every fixture that passed before `check_sources` still passes with the extended `make_package`. `scripts/validate.py` passes. After the commit the tool printed `Verified plugins/specflow.` on the real package. `LICENSE` opens with the A1 attribution line and A1's `LICENSE` text; no reference cites A2 or A3 yet, so theirs are not included. The plugin README names the three sources by name and repository. Simplification: an attribution line counts when the source's repository appears anywhere in `LICENSE`, not only in its opening lines.
 
 - [ ] T-014 Adapt the AWS references by hand
   - Requirements: AWS-001, AWS-002, REL-001
