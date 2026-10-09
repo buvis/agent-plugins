@@ -23,9 +23,16 @@ specflow boundaries (only `plugins/specflow/` ships):
 - `plugins/specflow/` — specflow's only distributable root.
 - `.agents/skills/` — maintainer-only skills, such as the catch-up skill.
 - `tools/specflow/` — maintainer tools, such as release verification.
-- `tools/specflow/upstream/` — upstream source cursors and catch-up reports.
+- `tools/specflow/upstream/` — upstream source cursors; catch-up reports go
+  under `docs/dev/project-management/reviews/`.
 - `tests/specflow/` — specflow tests.
 - `docs/dev/tmp/specflow/` — untracked scratch, such as the host probe.
+
+Maintainer skills: `.agents/skills/<verb>-<plugin>-<object>/` holds the only
+committed copy of each; its support files live under `tools/<plugin>/`. No
+agent-private folder (`.claude/`, `.kiro/`, `.codex/`) is committed, and no
+symlink to one. `scripts/validate.py` checks these skills with the package
+skill rules.
 
 ## Invariants
 

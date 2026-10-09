@@ -51,6 +51,11 @@ tmp/
 *.log
 *.tmp
 
+# Agent-private folders: a local projection of a maintainer skill is never committed.
+/.claude/
+/.kiro/
+/.codex/
+
 # Never ignore a skill directory, whatever its name (coverage, tmp, target...).
 !**/skills/*/
 
