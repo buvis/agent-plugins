@@ -84,6 +84,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 
 ## Completion criteria
 
-- [ ] Every task above is checked, each with its `Outcome:` line.
-- [ ] On the final commit, the pull request's CI run is green (before a pull request exists, the step commands pass in a fresh clone of the commit): the repository validator with the maintainer-skill check, the release tests, and the release check with `check_sources`.
-- [ ] The first catch-up report is under `docs/dev/project-management/reviews/`, with a ruling or a "nothing to adopt" line per source, and the cursors in `tools/specflow/upstream/sources.md` match it.
+- [x] Every task above is checked, each with its `Outcome:` line.
+- [x] On the final commit, the pull request's CI run is green (before a pull request exists, the step commands pass in a fresh clone of the commit): the repository validator with the maintainer-skill check, the release tests, and the release check with `check_sources`.
+  - Outcome: draft PR https://github.com/buvis/agent-plugins/pull/2, CI run 37994671759: `plugins` passed.
+- [x] The first catch-up report is under `docs/dev/project-management/reviews/`, with a ruling or a "nothing to adopt" line per source, and the cursors in `tools/specflow/upstream/sources.md` match it.
