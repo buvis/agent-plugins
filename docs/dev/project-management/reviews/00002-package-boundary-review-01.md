@@ -68,6 +68,28 @@ Standalone run (no autopilot `state.json`). Spec 00002 is a specflow spec, not a
 
 Overlap: R3, R6, and R18 are all about how the forbidden-name matching works and can be fixed in one pass.
 
+## Decisions (walkthrough 2026-10-09)
+
+- R1: queued. Require `name` and `version` in the Claude manifest, add empty-manifest and missing-field tests, and update design.md:185.
+- R3: queued. Check slash markers against the path inside the package, and add a test.
+- R4 + R8: queued. Tests keep their own copy of the required entries and check that each code list contains every one (and refuses it); the folder-name test loops over all six markers; update design.md:270.
+- R7: queued (the coding-style rule "never silently swallow errors" requires it). Add an `os.walk` `onerror` handler that records each failure, plus a test.
+- R5: queued. In requirements.md, mark REL-001.1 and PKG-002.2 as "verified here, built by T-065 (00001)".
+- R2: queued. Guard test skips a deleted tracked file and reports a broken tracked `plugin.json` as a named failure.
+- R9: queued. Write `'\t'` instead of `chr(9)`.
+- R11: queued. Print every verifier error path relative to the repository root.
+- R13: queued. Change "(Codex reads both)" to say only `.agents/plugins/marketplace.json` was tested.
+- R14: queued. Record this review's fresh-clone run at 5135c98 under completion criterion 2.
+- R16: queued, after the fixes land. Push `feature/specflow` and open a draft PR so CI runs.
+- R6: deferred. Broader forbidden-name patterns risk refusing innocent files. Home: this file; reopen at the 00001 release (T-065) review.
+- R10: rejected. The early-return copies don't mutate anything, which matches the immutability rule.
+- R12: deferred. Only fails when the suite runs as root; CI is not root. Home: this file.
+- R15: rejected. Escaping links are already caught by `validate_containment`.
+- R17: deferred. Needs the developer to say what the Kiro terminal fix was. Home: this file; reopen if T-006 is rerun in 00008.
+- R18: deferred. Case-insensitive matching risks refusing innocent files. Home: this file, together with R6.
+- R19: resolved. The lead's fresh-clone run at 5135c98 passed all four commands.
+- R20: settled. The placeholder skill belongs to 00006 (ruling D1).
+
 ## Alice
 
 [ALICE] ⚪ Guard test `test_no_specflow_manifest_outside_the_package` passes against the pre-change code (the mech replay flag); by design, but brittle on a deleted tracked file or unparseable tracked `plugin.json`. | File: tests/specflow/release/test_boundary.py:23 | Task: 1
