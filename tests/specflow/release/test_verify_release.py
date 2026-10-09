@@ -276,7 +276,8 @@ class CheckManifestsTest(VerifyReleaseTest):
         _, _, err = self.run_main()
         self.assertIn("error: plugins/specflow/README.md: contains marker", err)
         self.assertIn(
-            "error: plugins/specflow/.claude-plugin/plugin.json: missing", err
+            "error: plugins/specflow/.claude-plugin/plugin.json: missing",
+            err,
         )
         self.assertNotIn(str(self.repo), err)
 
@@ -309,7 +310,9 @@ class CheckForbiddenTest(VerifyReleaseTest):
                 (plugin / "skills" / part).mkdir(parents=True)
                 (plugin / "skills" / part / "notes.md").write_text("x")
                 self.assert_forbidden(
-                    plugin, f"skills/{part}", f"forbidden path part {part}"
+                    plugin,
+                    f"skills/{part}",
+                    f"forbidden path part {part}",
                 )
 
     def test_rejects_each_forbidden_file_name(self) -> None:
@@ -326,7 +329,9 @@ class CheckForbiddenTest(VerifyReleaseTest):
                 plugin = self.fresh_plugin(f"pattern{name}")
                 (plugin / name).write_text("x")
                 self.assert_forbidden(
-                    plugin, name, f"matches forbidden pattern {pattern}"
+                    plugin,
+                    name,
+                    f"matches forbidden pattern {pattern}",
                 )
 
     def test_rejects_marker_in_a_folder_name(self) -> None:
