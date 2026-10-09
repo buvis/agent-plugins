@@ -467,6 +467,14 @@ def main() -> int:
         except ValidationError as error:
             errors.append(str(error))
 
+    # Maintainer skills live outside every package; the skill rules still apply.
+    agents = ROOT / ".agents"
+    if not args.paths and (agents / "skills").is_dir():
+        try:
+            skill_count += validate_skills(agents)
+        except ValidationError as error:
+            errors.append(str(error))
+
     if errors:
         for error in errors:
             print(f"error: {error}", file=sys.stderr)
