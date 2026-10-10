@@ -115,7 +115,7 @@ Source: the idea (`requirements.md` in intake item 00001)
 
 Criteria 1-2: see 00002.
 
-3. THE RELEASE BUILD SHALL verify that the source record and each source's license are present and that every adopted passage names a recorded source.
+3. THE RELEASE BUILD SHALL verify that the source record and each source's license are present and that every AWS reference carries at least one well-formed source line, each naming a recorded source. That every adopted passage sits under its source line is checked by hand whenever text is adopted, not by the release build (amended after review 00003-aws-sources-catchup-review-01, R3).
 
 Criteria 4-6: see 00001.
 

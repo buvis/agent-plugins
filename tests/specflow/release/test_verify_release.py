@@ -49,12 +49,47 @@ REQUIRED_MARKERS = (
 )
 
 
+A1_COMMIT = "1" * 40
+A2_COMMIT = "2" * 40
+A3_COMMIT = "3" * 40
+RECORD_ROWS = {
+    "A1": f"| A1 `awslabs/aidlc-workflows` | primary method | `v1.2.3` `{A1_COMMIT}` | MIT-0 |",
+    "A2": (
+        "| A2 `aws-samples/sample-ai-powered-sdlc-patterns-with-aws` | patterns"
+        f" | `{A2_COMMIT}` | MIT-0 |"
+    ),
+    "A3": (
+        f"| A3 `aws-samples/sample-aidlc-discovery` | discovery | `{A3_COMMIT}` | MIT-0 |"
+    ),
+}
+SKILL = "---\nname: spec-workflow\ndescription: Fixture skill.\n---\n\nFixture body.\n"
+LICENSE = "Copied from awslabs/aidlc-workflows (A1).\n\nMIT No Attribution\n"
+REFERENCE = (
+    "# Fixture reference\n\n"
+    "> Source: A1 `core/x.md` > Steps @ v1.2.3 (1111111) [both]\n\n"
+    "Adopted text.\n\nAdaptation: local text.\n"
+)
+
+
+def write_record(plugin: Path, rows: dict[str, str]) -> None:
+    table = "| Source | Role | Adopted from | License |\n|---|---|---|---|\n"
+    text = "# Record\n\n" + table + "\n".join(rows.values()) + "\n"
+    (plugin / verify_release.AWS_DIR / "adaptation.md").write_text(text)
+
+
 def make_package(root: Path) -> Path:
     plugin = root / "plugins" / "specflow"
     (plugin / ".claude-plugin").mkdir(parents=True)
     (plugin / "plugin.json").write_text(json.dumps(ROOT_MANIFEST))
     compat = {k: v for k, v in ROOT_MANIFEST.items() if k != "$schema"}
     (plugin / ".claude-plugin" / "plugin.json").write_text(json.dumps(compat))
+    aws = plugin / verify_release.AWS_DIR
+    aws.mkdir(parents=True)
+    (aws.parents[1] / "SKILL.md").write_text(SKILL)
+    write_record(plugin, RECORD_ROWS)
+    (aws / "LICENSE").write_text(LICENSE)
+    for name in verify_release.AWS_REFERENCES:
+        (aws / name).write_text(REFERENCE)
     return plugin
 
 
@@ -263,11 +298,13 @@ class CheckManifestsTest(VerifyReleaseTest):
         self.init_repo()
         (self.plugin / "notes.md").write_text("see tools/specflow")
         self.compat_path().unlink()
+        (self.plugin / verify_release.AWS_DIR / "LICENSE").unlink()
         code, _, err = self.run_main()
         self.assertEqual(code, 1)
         self.assertIn("untracked file", err)
         self.assertIn("missing Claude compatibility manifest", err)
         self.assertIn("contains marker tools/specflow", err)
+        self.assertIn("missing or empty license", err)
 
     def test_main_prints_repository_relative_paths(self) -> None:
         self.init_repo()
@@ -280,6 +317,186 @@ class CheckManifestsTest(VerifyReleaseTest):
             err,
         )
         self.assertNotIn(str(self.repo), err)
+
+
+class CheckSourcesTest(VerifyReleaseTest):
+    def aws(self) -> Path:
+        return self.plugin / verify_release.AWS_DIR
+
+    def test_clean_fixture_has_no_source_errors(self) -> None:
+        self.assertEqual(verify_release.check_sources(self.plugin), [])
+
+    def test_rejects_missing_source_record(self) -> None:
+        (self.aws() / "adaptation.md").unlink()
+        self.assert_error(
+            verify_release.check_sources(self.plugin),
+            "aws/adaptation.md",
+            "missing source record",
+        )
+
+    def test_rejects_source_record_without_a_source_row(self) -> None:
+        for source in RECORD_ROWS:
+            with self.subTest(source=source):
+                write_record(
+                    self.plugin,
+                    {k: v for k, v in RECORD_ROWS.items() if k != source},
+                )
+                self.assert_error(
+                    verify_release.check_sources(self.plugin),
+                    f"source record has no valid row for {source}",
+                )
+
+    def test_rejects_blank_role_or_license_cell(self) -> None:
+        for cell in ("primary method", "MIT-0"):
+            with self.subTest(cell=cell):
+                blank = RECORD_ROWS["A1"].replace(cell, "  ")
+                write_record(self.plugin, {**RECORD_ROWS, "A1": blank})
+                self.assert_error(
+                    verify_release.check_sources(self.plugin),
+                    "source record has no valid row for A1",
+                )
+
+    def test_rejects_preview_tag_in_source_record(self) -> None:
+        preview = RECORD_ROWS["A1"].replace("v1.2.3", "v1.2.4-preview.20261003.1")
+        write_record(self.plugin, {**RECORD_ROWS, "A1": preview})
+        self.assert_error(
+            verify_release.check_sources(self.plugin),
+            "A1 tag v1.2.4-preview.20261003.1 is not a release tag",
+        )
+
+    def test_rejects_missing_license(self) -> None:
+        for content in (None, " \n"):
+            with self.subTest(content=content):
+                path = self.aws() / "LICENSE"
+                if content is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    path.write_text(content)
+                self.assert_error(
+                    verify_release.check_sources(self.plugin),
+                    "aws/LICENSE",
+                    "missing or empty license",
+                )
+
+    def test_rejects_missing_attribution(self) -> None:
+        (self.aws() / "requirements.md").write_text(
+            "> Source: A1 `core/x.md` > Steps @ v1.2.3 [both]\n\nText.\n",
+        )
+        (self.aws() / "LICENSE").write_text("MIT No Attribution\n")
+        self.assert_error(
+            verify_release.check_sources(self.plugin),
+            "aws/LICENSE",
+            "no attribution line for awslabs/aidlc-workflows",
+        )
+
+    def test_rejects_attribution_only_in_the_license_body(self) -> None:
+        (self.aws() / "requirements.md").write_text(
+            "> Source: A1 `core/x.md` > Steps @ v1.2.3 [both]\n\nText.\n",
+        )
+        (self.aws() / "LICENSE").write_text(
+            "MIT No Attribution\n\nSee awslabs/aidlc-workflows for details.\n",
+        )
+        self.assert_error(
+            verify_release.check_sources(self.plugin),
+            "aws/LICENSE",
+            "no attribution line for awslabs/aidlc-workflows",
+        )
+
+    def source_errors_with(self, line: str) -> list[str]:
+        """check_sources with `line` added to the requirements reference."""
+        (self.aws() / "requirements.md").write_text(f"{REFERENCE}\n{line}\n")
+        return verify_release.check_sources(self.plugin)
+
+    def test_rejects_missing_reference(self) -> None:
+        for name in verify_release.AWS_REFERENCES:
+            with self.subTest(name=name):
+                plugin = make_package(self.tmp / f"missing-{name}")
+                (plugin / verify_release.AWS_DIR / name).unlink()
+                self.assert_error(
+                    verify_release.check_sources(plugin),
+                    f"aws/{name}",
+                    "missing AWS reference",
+                )
+
+    def test_rejects_reference_without_a_source_line(self) -> None:
+        (self.aws() / "design.md").write_text(
+            "# Design\n\nAdaptation: only local text.\n",
+        )
+        self.assert_error(
+            verify_release.check_sources(self.plugin),
+            "aws/design.md",
+            "no source line",
+        )
+
+    def test_rejects_mistyped_source_line(self) -> None:
+        for line in (
+            "> source: A1 `core/x.md` > Steps @ v1.2.3 [both]",
+            "> Source: A1 core/x.md > Steps @ v1.2.3 [both]",
+            "**Source:** A1 `core/x.md`",
+        ):
+            with self.subTest(line=line):
+                self.assert_error(self.source_errors_with(line), "mistyped source line")
+
+    def test_rejects_source_line_naming_an_unrecorded_ref(self) -> None:
+        for line in (
+            "> Source: A1 `core/x.md` > Steps @ v9.9.9 [both]",
+            "> Source: A1 `core/x.md` > Steps @ v1.2.3 (abcdef1) [both]",
+            "> Source: A1 `core/x.md` > Steps @ 1111111 [both]",
+        ):
+            with self.subTest(line=line):
+                self.assert_error(
+                    self.source_errors_with(line),
+                    "is not the recorded A1 ref",
+                )
+
+    def test_rejects_source_line_citing_another_sources_commit(self) -> None:
+        line = "> Source: A2 `all-phases/x.md` > Steps @ 1111111 [standard]"
+        self.assert_error(
+            self.source_errors_with(line),
+            "ref 1111111 is not the recorded A2 commit",
+        )
+
+    def test_accepts_commit_prefix_of_seven_characters(self) -> None:
+        line = "> Source: A3 `aidlc-discovery-rules/x.md` > Rules @ 3333333 [quick]"
+        attribution = "Copied from aws-samples/sample-aidlc-discovery (A3).\n"
+        (self.aws() / "LICENSE").write_text(attribution + LICENSE)
+        self.assertEqual(self.source_errors_with(line), [])
+        short = line.replace("3333333", "333333")
+        self.assert_error(self.source_errors_with(short), "mistyped source line")
+
+    def test_reports_unreadable_reference(self) -> None:
+        (self.aws() / "design.md").write_bytes(b"\xff\xfe not utf-8")
+        self.assert_error(
+            verify_release.check_sources(self.plugin),
+            "aws/design.md",
+            "cannot read file",
+        )
+
+    def test_rejects_source_line_naming_a_source_the_record_lacks(self) -> None:
+        write_record(self.plugin, {k: v for k, v in RECORD_ROWS.items() if k != "A2"})
+        line = "> Source: A2 `all-phases/x.md` > Steps @ 2222222 [both]"
+        self.assert_error(
+            self.source_errors_with(line),
+            "source line names A2, which the record lacks",
+        )
+
+    def test_rejects_parenthesised_commit_on_a_commit_only_source(self) -> None:
+        line = "> Source: A2 `all-phases/x.md` > Steps @ 2222222 (2222222) [both]"
+        self.assert_error(self.source_errors_with(line), "A2, which has no tag")
+
+    def test_accepts_prose_line_that_starts_with_the_word_source(self) -> None:
+        for line in ("Source control keeps the history.", "Sources: see above."):
+            with self.subTest(line=line):
+                self.assertEqual(self.source_errors_with(line), [])
+
+    def test_rejects_engine_plumbing_in_a_reference(self) -> None:
+        for plumbing in verify_release.ENGINE_PLUMBING:
+            with self.subTest(plumbing=plumbing):
+                self.assert_error(
+                    self.source_errors_with(f"Run {plumbing} here."),
+                    "aws/requirements.md",
+                    f"contains engine plumbing {plumbing}",
+                )
 
 
 class CheckForbiddenTest(VerifyReleaseTest):

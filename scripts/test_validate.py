@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import shutil
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import validate
 
@@ -70,9 +74,57 @@ class ValidatePlugin(unittest.TestCase):
 
     def test_rejects_env_overriding_reserved_variables(self) -> None:
         self.write_mcp(
-            {"type": "stdio", "command": "node", "env": {"PLUGIN_DATA": "/"}}
+            {"type": "stdio", "command": "node", "env": {"PLUGIN_DATA": "/"}},
         )
         self.assert_rejected("reserved variables")
+
+
+class ValidateMaintainerSkills(unittest.TestCase):
+    """main() checks .agents/skills/*/SKILL.md on a default run only."""
+
+    def setUp(self) -> None:
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp)
+        root_patch = mock.patch.object(validate, "ROOT", self.tmp)
+        root_patch.start()
+        self.addCleanup(root_patch.stop)
+
+    def write_skill(self, folder: str, name: str) -> None:
+        skill = self.tmp / ".agents" / "skills" / folder
+        skill.mkdir(parents=True)
+        (skill / "SKILL.md").write_text(
+            f"---\nname: {name}\ndescription: Maintainer skill.\n---\n\nBody.\n",
+        )
+
+    def run_main(self, *paths: str) -> tuple[int, str, str]:
+        out, err = io.StringIO(), io.StringIO()
+        with (
+            mock.patch.object(sys, "argv", ["validate.py", *paths]),
+            contextlib.redirect_stdout(out),
+            contextlib.redirect_stderr(err),
+        ):
+            code = validate.main()
+        return code, out.getvalue(), err.getvalue()
+
+    def test_accepts_valid_maintainer_skill(self) -> None:
+        self.write_skill("catchup-example-upstream", "catchup-example-upstream")
+        code, out, _ = self.run_main()
+        self.assertEqual(code, 0)
+        self.assertIn("and 1 skill(s)", out)
+
+    def test_rejects_malformed_maintainer_skill(self) -> None:
+        self.write_skill("catchup-example-upstream", "another-name")
+        code, _, err = self.run_main()
+        self.assertEqual(code, 1)
+        self.assertIn("frontmatter name must match the skill directory", err)
+
+    def test_skips_maintainer_skills_when_paths_are_given(self) -> None:
+        self.write_skill("catchup-example-upstream", "another-name")
+        plugin = self.tmp / "example-plugin"
+        shutil.copytree(TEMPLATE, plugin)
+        code, out, _ = self.run_main(str(plugin))
+        self.assertEqual(code, 0)
+        self.assertIn("Validated 1 plugin package(s)", out)
 
 
 if __name__ == "__main__":

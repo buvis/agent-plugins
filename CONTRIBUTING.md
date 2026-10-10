@@ -23,6 +23,19 @@ rest of the monorepo.
 10. Run `python3 -m unittest discover -s scripts` and
     `python3 scripts/validate.py`.
 
+## Maintainer skills
+
+A skill for maintaining a plugin, never for its users, lives at
+`.agents/skills/<verb>-<plugin>-<object>/SKILL.md`, for example
+`.agents/skills/catchup-specflow-upstream/`. That folder holds its only
+committed copy; its support files live under `tools/<plugin>/`. Do not commit
+an agent-private folder (`.claude/`, `.kiro/`, `.codex/`) or a symlink to one:
+a local copy of a skill for your own tool stays uncommitted. A maintainer skill
+is never copied into or named inside a plugin package.
+
+Before each specflow release, and at least monthly, run
+`catchup-specflow-upstream` first and commit its report.
+
 ## Plugin documentation
 
 Each plugin README should state:

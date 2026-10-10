@@ -8,6 +8,7 @@ Exit codes: 0 pass, 1 one or more failures, 2 git missing or failing.
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from fnmatch import fnmatch
@@ -55,6 +56,34 @@ FORBIDDEN_MARKERS = (
     "tests/specflow",
     "docs/dev/tmp/specflow",
 )
+
+
+AWS_DIR = Path("skills/spec-workflow/references/aws")
+AWS_REFERENCES = (
+    "requirements.md",
+    "design.md",
+    "implementation.md",
+    "verification.md",
+)
+RELEASE_TAG = re.compile(r"^v\d+\.\d+\.\d+$")
+SOURCE_LINE = re.compile(
+    r"^> Source: (A[123]) `[^`]+` > \S.* @ (v\d+\.\d+\.\d+|[0-9a-f]{7,40})"
+    r"(?: \(([0-9a-f]{7,40})\))? \[(standard|quick|both)\]$",
+)
+SOURCES = {
+    "A1": "awslabs/aidlc-workflows",
+    "A2": "aws-samples/sample-ai-powered-sdlc-patterns-with-aws",
+    "A3": "aws-samples/sample-aidlc-discovery",
+}
+# A record row: source, repository, role, adopted-from cell, license.
+RECORD_ROW = re.compile(
+    r"^\| (A[123]) `([^`]+)` \| ([^|]*?) \| ([^|]*?) \| ([^|]*?) \|$",
+    re.MULTILINE,
+)
+LOOKS_LIKE_SOURCE = re.compile(r"(?i)^\s*>?\s*\**\s*source\**\s*:")
+ENGINE_PLUMBING = ("{{HARNESS_DIR}}", "{{INVOKE}}", "aidlc engine", "[Answer]:")
+A1_ADOPTED = re.compile(r"^`(\S+)` `([0-9a-f]{40})`$")
+COMMIT_ADOPTED = re.compile(r"^`([0-9a-f]{40})`$")
 
 
 class GitError(Exception):
@@ -200,9 +229,122 @@ def check_forbidden(plugin: Path) -> list[str]:
     return errors
 
 
+def read_text(path: Path, errors: list[str]) -> str | None:
+    """The file's text, or None after recording why it could not be read."""
+    try:
+        return path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as error:
+        errors.append(f"{path}: cannot read file: {error}")
+        return None
+
+
+def read_record(path: Path, text: str) -> tuple[dict[str, tuple], list[str]]:
+    """Source ID -> (tag or None, commit) for each well-formed record row."""
+    rows: dict[str, tuple] = {}
+    errors: list[str] = []
+    for source, repo, role, adopted, license_name in RECORD_ROW.findall(text):
+        form = A1_ADOPTED if source == "A1" else COMMIT_ADOPTED
+        match = form.match(adopted)
+        blank = not role.strip() or not license_name.strip()
+        if repo != SOURCES[source] or blank or not match:
+            continue
+        tag, commit = match.groups() if source == "A1" else (None, match[1])
+        if tag is not None and not RELEASE_TAG.match(tag):
+            errors.append(f"{path}: A1 tag {tag} is not a release tag")
+        rows[source] = (tag, commit)
+    errors += [
+        f"{path}: source record has no valid row for {source}"
+        for source in SOURCES
+        if source not in rows
+    ]
+    return rows, errors
+
+
+def check_source_line(
+    path: Path,
+    match: re.Match,
+    rows: dict[str, tuple],
+) -> str | None:
+    """Why a well-formed source line names no recorded ref, or None."""
+    source, ref, commit = match[1], match[2], match[3]
+    if source not in rows:
+        return f"{path}: source line names {source}, which the record lacks"
+    tag, recorded = rows[source]
+    if source == "A1":
+        if ref != tag or (commit is not None and not recorded.startswith(commit)):
+            return f"{path}: source line ref {ref} is not the recorded A1 ref"
+        return None
+    if commit is not None:
+        return f"{path}: source line gives a tag commit for {source}, which has no tag"
+    if not recorded.startswith(ref):
+        return f"{path}: source line ref {ref} is not the recorded {source} commit"
+    return None
+
+
+def check_reference(path: Path, rows: dict[str, tuple]) -> tuple[list[str], set[str]]:
+    """Errors in one AWS reference, and the sources its source lines cite."""
+    errors: list[str] = []
+    if not path.is_file():
+        return [f"{path}: missing AWS reference"], set()
+    text = read_text(path, errors)
+    if text is None:
+        return errors, set()
+    cited: set[str] = set()
+    for line in text.splitlines():
+        if match := SOURCE_LINE.match(line):
+            cited.add(match[1])
+            if error := check_source_line(path, match, rows):
+                errors.append(error)
+        elif LOOKS_LIKE_SOURCE.match(line):
+            errors.append(f"{path}: mistyped source line: {line.strip()}")
+    if not cited:
+        errors.append(f"{path}: no source line")
+    errors += [
+        f"{path}: contains engine plumbing {p}" for p in ENGINE_PLUMBING if p in text
+    ]
+    return errors, cited
+
+
+def check_sources(plugin: Path) -> list[str]:
+    errors: list[str] = []
+    aws = plugin / AWS_DIR
+    record = aws / "adaptation.md"
+    rows: dict[str, tuple] = {}
+    if not record.is_file():
+        errors.append(f"{record}: missing source record")
+    elif (text := read_text(record, errors)) is not None:
+        rows, record_errors = read_record(record, text)
+        errors += record_errors
+
+    license_path = aws / "LICENSE"
+    license_text = (
+        read_text(license_path, errors) if license_path.is_file() else None
+    ) or ""
+    if not license_text.strip():
+        errors.append(f"{license_path}: missing or empty license")
+    cited: set[str] = set()
+    for name in AWS_REFERENCES:
+        reference_errors, reference_cited = check_reference(aws / name, rows)
+        errors += reference_errors
+        cited |= reference_cited
+    # Attribution lines are the opening block, before the first blank line.
+    header = license_text.split("\n\n", 1)[0].splitlines()
+    errors += [
+        f"{license_path}: no attribution line for {SOURCES[source]}"
+        for source in sorted(cited)
+        if not any(SOURCES[source] in line for line in header)
+    ]
+    return errors
+
+
 def main() -> int:
     try:
-        errors = check_clean(PLUGIN) + check_manifests(PLUGIN) + check_forbidden(PLUGIN)
+        errors = (
+            check_clean(PLUGIN)
+            + check_manifests(PLUGIN)
+            + check_forbidden(PLUGIN)
+            + check_sources(PLUGIN)
+        )
     except GitError as error:
         print(f"error: {PLUGIN}: {error}", file=sys.stderr)
         return 2
