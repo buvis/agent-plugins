@@ -111,7 +111,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - `tests/specflow/contract/test_reconcile.py` passes on the fixtures under `tests/specflow/fixtures/recovery/` and on each Kiro capture: missing state, missing artifacts, malformed state kept byte for byte, an unknown version; none overwrites valid content. One more case: an unknown key survives a write with its value and its place, and the written file has two-space indent and a final newline.
   - Outcome: 2026-10-10, `reconcile.py` written; malformed state and an unknown version raise `StateError` with the file untouched, and missing state returns recovery facts with every present artifact's approval in `ambiguous`. Fixtures under `tests/specflow/fixtures/recovery/`. Contract tests: 118 run, OK.
 
-- [ ] T-025 Implement optimistic concurrency checks
+- [x] T-025 Implement optimistic concurrency checks
   - Requirements: WF-006
   - Depends on: T-022, T-024
   - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/reconcile.py`, `tests/specflow/contract/test_concurrency.py`
@@ -125,6 +125,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - an edit made between an operation's read and its write is detected and not overwritten.
     - `tests/specflow/contract/test_concurrency.py`: a file changed between read and write makes `write_guarded` raise `ConflictError`, and the intervening edit is intact; `reconcile` itself raises it when the state file changes between its read and its write.
+  - Outcome: 2026-10-10, `write_guarded` and `ConflictError` added to `reconcile.py`; `reconcile` hashes the state file before it reads it and writes through `write_guarded` (temporary file, then replace). Contract tests: 123 run, OK.
 
 - [ ] T-026 Implement the optional validator helper
   - Requirements: VAL-001, VAL-002, STATE-003, WF-001, WF-002, WF-004, ART-002

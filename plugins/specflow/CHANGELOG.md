@@ -18,3 +18,4 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: approvals bound to a canonical SHA-256 of each artifact, so line endings, whitespace, task checkboxes (including Kiro's `[-]` and `[~]`), and task progress fields never stale an approval; the phase is derived from the files.
 - **specflow**: a changed artifact stales every approval downstream of it, in both workflow orders, and names the change that caused it.
 - **specflow**: reconciliation that refreshes derived hashes and statuses in `.specflow.json`, keeps unknown fields, never writes an approval, and recovers from a missing state file by asking instead of guessing.
+- **specflow**: writes stop with a conflict when the file changed after it was read, leaving the other edit in place.

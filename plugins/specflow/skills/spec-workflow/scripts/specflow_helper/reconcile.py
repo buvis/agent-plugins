@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
-from .canonical import sha256_canonical
+from .canonical import sha256_canonical, sha256_raw
 from .state import (
     ARTIFACTS,
     ORDERS,
@@ -17,6 +18,23 @@ from .state import (
 )
 
 DERIVED_STATUS = ("missing", "draft", "stale")
+
+
+class ConflictError(Exception):
+    """A file changed between the operation's read and its write."""
+
+
+def write_guarded(path: Path, data: bytes, read_sha256: str | None) -> None:
+    """Write only if the file still has the hash read at the start (None: still absent).
+
+    Not a lock: one active writer per spec is the contract (WF-006).
+    """
+    current = sha256_raw(path) if path.exists() else None
+    if current != read_sha256:
+        raise ConflictError(f"{path}: changed since it was read; nothing was written")
+    temporary = path.with_name(f".{path.name}.tmp")
+    temporary.write_bytes(data)
+    os.replace(temporary, path)
 
 
 def kiro_order(spec_dir: Path) -> str:
@@ -99,13 +117,15 @@ def reconcile(spec_dir: Path, *, dry_run: bool) -> dict:
     Never creates a state file and never replaces a malformed one: load_state raises
     StateError for those, and the file is left as it is.
     """
+    path = spec_dir / STATE_FILE
+    read_sha256 = sha256_raw(path) if path.exists() else None
     state = load_state(spec_dir)
     if state is None:
         return recovery(spec_dir)
     statuses = artifact_status(spec_dir, state)
     changes, ambiguous = derived_changes(spec_dir, state, statuses)
     if changes and not dry_run:
-        (spec_dir / STATE_FILE).write_bytes(render(apply_changes(state, changes)))
+        write_guarded(path, render(apply_changes(state, changes)), read_sha256)
     return {
         "spec": spec_dir.name,
         "statuses": statuses,
