@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from collections.abc import Callable
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import NamedTuple
 
 from .canonical import CHECKBOX, PROGRESS, canonical, scan_lines
+from .config import load_config
 from .deps import (
     dependency_blockers,
     parse_depends_on,
@@ -46,11 +48,7 @@ SPEC_PHASES = frozenset(PHASES[1:])
 DESIGN_ON = frozenset(PHASES[2:])
 TASKS_ON = frozenset(PHASES[3:])
 UNFILTERED = "any run with no phase"
-DEFAULT_CONFIG: dict[str, object] = {
-    "root": ".kiro/specflow",
-    "specsDir": ".kiro/specs",
-    "numberScan": [],
-}
+KIRO_SPECS = PurePosixPath(".kiro/specs")
 REQUIREMENT_HEADING = re.compile(r"^### (?:([A-Z][A-Z0-9]*-\d{3})|Requirement (\d+))\b")
 CRITERION = re.compile(r"^(\d+)\. ")
 ID_ENTRY = re.compile(r"^(?:[A-Z][A-Z0-9]*-\d{3}(?:\.\d+)?|\d+\.\d+)$")
@@ -101,9 +99,29 @@ def check(name: str, phases: frozenset[str]) -> Callable:
     return register
 
 
+class GitError(Exception):
+    """A git call failed for a reason other than "not ignored"."""
+
+
 def workspace_config(repo: Path) -> dict[str, object]:
-    """The workspace config; the defaults until the config file is read."""
-    return dict(DEFAULT_CONFIG)
+    """The workspace config from .agents/specflow.json, or the defaults."""
+    return load_config(repo)
+
+
+def git_ignored(repo: Path, path: str) -> bool:
+    """Whether git ignores the path; False without git."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo), "check-ignore", "-q", path],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        return False
+    if result.returncode not in (0, 1):
+        raise GitError(f"git check-ignore failed: {result.stderr.strip()}")
+    return result.returncode == 0
 
 
 def specs_folder(ctx: Context) -> Path:
@@ -676,6 +694,35 @@ def spec_dependencies(ctx: Context) -> list[Finding]:
         findings.append(
             error(ctx, requirements_file(folder), "spec-dependencies", message, fix),
         )
+    return findings
+
+
+@check("specs-folder", SPEC_PHASES)
+def specs_folder_check(ctx: Context) -> list[Finding]:
+    """Specs left in a real .kiro/specs/ beside a configured folder; an ignored specs folder."""
+    findings = []
+    configured = str(ctx.config["specsDir"])
+    kiro = ctx.repo / KIRO_SPECS
+    if (
+        PurePosixPath(configured) != KIRO_SPECS
+        and kiro.is_dir()
+        and not kiro.is_symlink()
+    ):
+        left = sorted(p.name for p in kiro.iterdir() if p.is_dir())
+        if left:
+            message = (
+                f"specs left in a real .kiro/specs/ while specsDir is {configured}: "
+            )
+            fix = f"Move them into {configured}, then make .kiro/specs a link to it."
+            findings.append(
+                error(ctx, kiro, "specs-folder", message + ", ".join(left), fix)
+            )
+    if (ctx.repo / ".git").exists() and git_ignored(
+        ctx.repo, f"{configured}/.specflow-probe"
+    ):
+        message = f"git ignores the specs folder {configured}, so its specs are never committed"
+        fix = "Remove the ignore rule that matches it, or configure another specsDir."
+        findings.append(error(ctx, ctx.repo / configured, "specs-folder", message, fix))
     return findings
 
 

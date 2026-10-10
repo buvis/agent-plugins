@@ -2,8 +2,8 @@
 """specflow helper: status, validation, hashes, code baseline, and reconciliation.
 
 Run from the repository root. Exit codes: 0 success, 1 validation failure,
-2 state error (malformed or unsupported state, a write conflict, an unreadable
-artifact), 3 usage error. Only `reconcile` writes, and only derived facts into
+2 state error (malformed or unsupported state, a refused configuration, a write
+conflict, a failed git call, an unreadable artifact), 3 usage error. Only `reconcile` writes, and only derived facts into
 a spec's .specflow.json; nothing here records an approval.
 """
 
@@ -21,7 +21,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from specflow_helper import WORKFLOW_VERSION
 from specflow_helper.canonical import sha256_canonical, sha256_raw
-from specflow_helper.checks import validate
+from specflow_helper.checks import GitError, validate
+from specflow_helper.config import ConfigError, load_config
 from specflow_helper.drift import code_baseline
 from specflow_helper.reconcile import ConflictError, reconcile
 from specflow_helper.state import PHASES, StateError
@@ -195,11 +196,16 @@ def parser() -> Parser:
 def main(argv: list[str] | None = None) -> int:
     try:
         args = parser().parse_args(argv)
-        return args.run(args, repo_root())
+        repo = repo_root()
+        load_config(repo)
+        return args.run(args, repo)
     except UsageError as problem:
         print(f"usage error: {problem}", file=sys.stderr)
         return USAGE
-    except (StateError, ConflictError) as problem:
+    except ConfigError as problem:
+        print(f"configuration error: {problem}", file=sys.stderr)
+        return STATE_ERROR
+    except (StateError, ConflictError, GitError) as problem:
         print(f"state error: {problem}", file=sys.stderr)
         return STATE_ERROR
     except (OSError, UnicodeDecodeError) as problem:

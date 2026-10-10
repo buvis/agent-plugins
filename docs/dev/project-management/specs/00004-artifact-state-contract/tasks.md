@@ -154,7 +154,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - `tests/specflow/release/test_verify_release.py` (00002) gains `test_rejects_workflow_version_differing_from_the_manifest` and `test_rejects_schema_id_differing_from_its_address`.
   - Outcome: 2026-10-10, `deps.py`, `code_drift`, `checks.py` (twelve checks), `status.py` with its schema, `validate_spec.py`, and the two release rules written. Contract tests: 201 run, OK; release tests: 52 run, OK. Choices the design left open: status entries carry `state` (`valid`, `missing`, `invalid`) to drive exit 1, and blockers name the referring `spec`; `required-files` also fails an artifact the state records as approved or stale when its file is gone; with no phase, `validate` runs every check except `gates`. On this repository `validate` finds one error: 00003's withdrawn `UPD-003` has no criteria and no task.
 
-- [ ] T-028 Implement the workspace config and the specs folder
+- [x] T-028 Implement the workspace config and the specs folder
   - Requirements: INT-001, ART-001, SEC-002, VAL-001
   - Depends on: T-026
   - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/config.py`, `plugins/specflow/skills/spec-workflow/schemas/specflow-config.schema.json`, `plugins/specflow/skills/spec-workflow/templates/specflow.json`, `plugins/specflow/skills/spec-workflow/scripts/validate_spec.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `tests/specflow/contract/test_config.py`
@@ -173,6 +173,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - fixtures cover no config, a configured root, a configured `specsDir`, each refused path, a `.kiro/specs` path that resolves outside the repository, specs left beside a configured folder, and an ignored specs folder.
     - `tests/specflow/contract/test_config.py` passes with the cases of the clause above, with this repository's own config file, with one seeded defect for the `specs-folder` check, and with a case in which `status` under a configured root lists an item of `<root>/intake/new/`. Fixtures not listed in Location are built in a temporary folder by the test.
+  - Outcome: 2026-10-10, `config.py`, the config schema, `templates/specflow.json`, and the `specs-folder` check written; `validate_spec.py` reads the config before any command and maps `ConfigError` and a failed `git check-ignore` to exit 2. Contract tests: 215 run, OK. Run on this repository, `status` lists specs 00001 to 00009.
 
 - [ ] T-029 Implement spec numbers and intake items
   - Requirements: INT-001, ART-001, VAL-001
