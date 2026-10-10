@@ -175,7 +175,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - `tests/specflow/contract/test_config.py` passes with the cases of the clause above, with this repository's own config file, with one seeded defect for the `specs-folder` check, and with a case in which `status` under a configured root lists an item of `<root>/intake/new/`. Fixtures not listed in Location are built in a temporary folder by the test.
   - Outcome: 2026-10-10, `config.py`, the config schema, `templates/specflow.json`, and the `specs-folder` check written; `validate_spec.py` reads the config before any command and maps `ConfigError` and a failed `git check-ignore` to exit 2. Contract tests: 215 run, OK. Run on this repository, `status` lists specs 00001 to 00009.
 
-- [ ] T-029 Implement spec numbers and intake items
+- [x] T-029 Implement spec numbers and intake items
   - Requirements: INT-001, ART-001, VAL-001
   - Depends on: T-026, T-028
   - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/numbers.py`, `plugins/specflow/skills/spec-workflow/scripts/validate_spec.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `plugins/specflow/skills/spec-workflow/references/artifact-contract.md`, `tests/specflow/contract/test_numbers.py`
@@ -191,9 +191,10 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - fixtures cover an empty repo, grouped intake folders (with the group kept on the move to `processed/`), an item and spec with different titles (no clash), each clash kind, a Kiro-native spec, a missing `Sources:` line, missing/ambiguous numbered dependencies, exact native folder references in a configured specs folder, an intake item without a matching spec (not a prerequisite target), and a file input whose name matches two files (asked, not guessed).
     - `tests/specflow/contract/test_numbers.py` passes: the number scan, each clash kind, a Kiro-native spec, a missing `Sources:` line, and the dependency references, one test each, with one seeded defect each for `number-clashes` and `sources-line`. Fixtures not listed in Location are built in a temporary folder by the test.
     - File check: `references/artifact-contract.md` holds the five steps of the intake procedure. Two cases of the clause above are agent behavior and are proven by sessions that T-031 (00006) writes: the group kept on the move, and a file name that matches two files.
+  - Outcome: 2026-10-10, `numbers.py`, `next-number`, the `number-clashes` and `sources-line` checks, and the five-step intake procedure in `artifact-contract.md` written; `status` now lists intake items through the same scan. An unnumbered Kiro-native spec is exempt from `sources-line`, since it has no intake item. Contract tests: 230 run, OK. On this repository `next-number` prints 00010.
 
 ## Completion criteria
 
 - [ ] Every task above is checked, each with its `Outcome:` line.
 - [ ] On the final commit, the pull request's CI run is green (before a pull request exists, the step commands pass in a fresh clone of the commit): the repository validator, the contract tests (`python3 -m unittest discover -s tests/specflow/contract`), and the release check with its two new rules.
-- [ ] Run from this repository's root, `validate_spec.py status --json` exits 0 and prints a document that `check_schema` accepts against the status schema and that lists specs 00001 to 00009.
+- [x] Run from this repository's root, `validate_spec.py status --json` exits 0 and prints a document that `check_schema` accepts against the status schema and that lists specs 00001 to 00009.

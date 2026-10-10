@@ -11,6 +11,7 @@ from typing import NamedTuple
 
 from .canonical import CHECKBOX, PROGRESS, canonical, scan_lines
 from .config import load_config
+from .numbers import NUMBER, number_clashes
 from .deps import (
     dependency_blockers,
     parse_depends_on,
@@ -724,6 +725,60 @@ def specs_folder_check(ctx: Context) -> list[Finding]:
         fix = "Remove the ignore rule that matches it, or configure another specsDir."
         findings.append(error(ctx, ctx.repo / configured, "specs-folder", message, fix))
     return findings
+
+
+@check("number-clashes", SPEC_PHASES | {"intake"})
+def number_clashes_check(ctx: Context) -> list[Finding]:
+    return number_clashes(ctx.repo, ctx.config)
+
+
+def sources_value(text: str, *, bugfix: bool) -> str | None:
+    """The first Sources: line where the contract puts it, without its label."""
+    section = None
+    for _, line in prose(text):
+        if line.startswith("## "):
+            section = line.strip()
+        elif line.startswith("Sources:"):
+            if (section == "## Introduction") if bugfix else section is None:
+                return line.removeprefix("Sources:").strip()
+    return None
+
+
+@check("sources-line", SPEC_PHASES)
+def sources_line(ctx: Context) -> list[Finding]:
+    """A numbered spec's Sources: line names an intake item with the spec's own number."""
+    number = NUMBER.match(ctx.spec_dir.name)
+    path = artifact_paths(ctx.spec_dir, ctx.state)["requirements"]
+    text = read_text(path)
+    if number is None or text is None:
+        return []
+    value = sources_value(text, bugfix=path.name == "bugfix.md")
+    if value is None:
+        where = (
+            "at the end of ## Introduction"
+            if path.name == "bugfix.md"
+            else "in the header"
+        )
+        fix = f"Add a Sources: line {where} that names the intake item."
+        return [error(ctx, path, "sources-line", "no Sources: line", fix)]
+    item = value.split(",")[0].strip().strip("`").rstrip("/").rsplit("/", 1)[-1]
+    cited = NUMBER.match(item)
+    if cited is None:
+        fix = "Name the intake item's processed/ path first on the line."
+        return [
+            error(
+                ctx,
+                path,
+                "sources-line",
+                f"Sources: names no intake item: {value}",
+                fix,
+            )
+        ]
+    if cited[1] != number[1]:
+        message = f"Sources: names intake item {item}, not one numbered {number[1]}"
+        fix = "Name this spec's own intake item, or renumber the newer of the two."
+        return [error(ctx, path, "sources-line", message, fix)]
+    return []
 
 
 def selected(phases: frozenset[str], phase: str | None) -> bool:

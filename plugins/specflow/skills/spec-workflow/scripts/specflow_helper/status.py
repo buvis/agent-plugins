@@ -9,6 +9,7 @@ from .canonical import canonical, scan_lines
 from .checks import CHECKS, Context, validate, workspace_config
 from .deps import dependency_blockers
 from .drift import code_drift, warning
+from .numbers import numbered_items, spec_folders
 from .state import (
     ORDERS,
     StateError,
@@ -24,7 +25,6 @@ from .state import (
 STATUS_VERSION = 1
 MARKER_SECTIONS = ("## Unresolved questions", "## Open decisions")
 LIST_ITEM = re.compile(r"^(?:[-*+]|\d+\.)\s")
-NUMBERED = re.compile(r"^(\d{5})(?:-|$)")
 REPOSITORY_CHECKS = ("specs-folder", "number-clashes")
 NOT_PER_SPEC = ("gates", "spec-dependencies", *REPOSITORY_CHECKS)
 
@@ -186,28 +186,14 @@ def spec_status(repo: Path, specs_dir: Path, spec_dir: Path) -> dict:
     }
 
 
-def intake_items(repo: Path, config: dict[str, object], specs_dir: Path) -> list[str]:
-    """Items under <root>/intake/new/ (one group folder at most) whose number has no spec folder."""
-    new = repo / str(config["root"]) / "intake" / "new"
-    if not new.is_dir():
-        return []
-    spec_numbers = set()
-    if specs_dir.is_dir():
-        spec_numbers = {
-            m[1] for p in specs_dir.iterdir() if (m := NUMBERED.match(p.name))
-        }
-    items = []
-    for entry in sorted(p for p in new.iterdir() if p.is_dir()):
-        if NUMBERED.match(entry.name):
-            group = [entry]
-        else:
-            group = sorted(p for p in entry.iterdir() if p.is_dir())
-        items += [
-            p.name
-            for p in group
-            if (m := NUMBERED.match(p.name)) and m[1] not in spec_numbers
-        ]
-    return items
+def intake_items(repo: Path, config: dict[str, object]) -> list[str]:
+    """Items under <root>/intake/new/ whose number has no spec folder."""
+    taken = {p.name[:5] for p in spec_folders(repo, config)}
+    return [
+        p.name
+        for p in numbered_items(repo, config, ("new",))
+        if p.name[:5] not in taken
+    ]
 
 
 def status(repo: Path, spec_dirs: list[Path]) -> dict:
@@ -227,5 +213,5 @@ def status(repo: Path, spec_dirs: list[Path]) -> dict:
         "statusVersion": STATUS_VERSION,
         "specs": [spec_status(repo, specs_dir, d) for d in spec_dirs],
         "problems": problems,
-        "intake": intake_items(repo, config, specs_dir),
+        "intake": intake_items(repo, config),
     }

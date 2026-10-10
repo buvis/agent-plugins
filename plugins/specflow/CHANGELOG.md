@@ -21,3 +21,4 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: writes stop with a conflict when the file changed after it was read, leaving the other edit in place.
 - **specflow**: `scripts/validate_spec.py` with `status`, `validate`, `hash`, `code-baseline`, and `reconcile`; named checks with file, rule, and fix; spec dependencies through `Depends on:`; advisory code-drift warnings; and a versioned JSON status for external runners.
 - **specflow**: workspace config in `.agents/specflow.json` (workspace root, specs folder, number-scan folders), refusing absolute, `..`, and out-of-repository paths, and reporting specs left in `.kiro/specs/` or a specs folder that git ignores.
+- **specflow**: `validate_spec.py next-number`, checks for spec numbers used twice and for a `Sources:` line that names the spec's own intake item, and the intake procedure in the artifact contract.

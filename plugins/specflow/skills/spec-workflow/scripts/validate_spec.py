@@ -24,6 +24,7 @@ from specflow_helper.canonical import sha256_canonical, sha256_raw
 from specflow_helper.checks import GitError, validate
 from specflow_helper.config import ConfigError, load_config
 from specflow_helper.drift import code_baseline
+from specflow_helper.numbers import next_number
 from specflow_helper.reconcile import ConflictError, reconcile
 from specflow_helper.state import PHASES, StateError
 from specflow_helper.status import status
@@ -160,6 +161,11 @@ def run_reconcile(args: argparse.Namespace, repo: Path) -> int:
     return OK
 
 
+def run_next_number(args: argparse.Namespace, repo: Path) -> int:
+    print(next_number(repo, load_config(repo)))
+    return OK
+
+
 def parser() -> Parser:
     top = Parser(prog="validate_spec.py", description=__doc__.splitlines()[0])
     commands = top.add_subparsers(dest="command", required=True, parser_class=Parser)
@@ -190,6 +196,8 @@ def parser() -> Parser:
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--json", action="store_true")
     p.set_defaults(run=run_reconcile)
+    p = commands.add_parser("next-number", help="the next free spec number; read-only")
+    p.set_defaults(run=run_next_number)
     return top
 
 
