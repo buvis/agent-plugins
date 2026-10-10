@@ -227,3 +227,11 @@ each landing exactly once.
 - Outstanding questions: one, accepted by name at the design and tasks gates: whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027.
 - Next action: implementation, in dependency order, starting with 00002 (T-001); once the helper of 00004 exists, recovery mode records these receipts as real approvals after the developer confirms each.
 - Verdict: COMPLETE (10 tasks planned; implementation not started).
+
+## Implementation start, T-027 provisional (2026-10-10)
+
+- Question: the run sheet for T-027 asked the developer to generate three specs in Kiro IDE. Answer: "i am not at my macbook, could we leave that for later or do it in a different way? I need you to make progress without my oversight".
+- Reading: do T-027 another way where possible and keep going without asking; the parts that only Kiro IDE can answer wait.
+- Done: three Kiro-made specs from public Apache-2.0 repositories were captured as fixtures; findings in `kiro-captures.md`. T-027 stays unchecked: the Bug Fix display trial and the `.kiro/specs` link trial need Kiro IDE.
+- The captures contradict the approved design in five places (`kiro-captures.md`, "Against the design"). The design was corrected on 2026-10-10. That edit stales the design approval of 2026-10-06 and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval. Implementation goes on against the corrected design by the developer's instruction; if re-approval is refused, the affected code (canonical text, phase derivation, two checks) is reworked.
+- Order changed: T-020 onward starts before T-027 is complete. The risk is the one T-027 names: a later IDE capture may correct the design again.

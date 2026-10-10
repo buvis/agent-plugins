@@ -229,7 +229,7 @@ Fields of the status schema, beyond what the example below shows:
 | `state-content` | STATE-001.3 | error | all | T-021, registered by T-026 | as defined above |
 | `spec-type` | ART-001.7 | error | all | T-022, registered by T-026 | `.config.kiro`, the state, and the files present name one spec type; a disagreement is reported and nothing is rewritten |
 | `requirement-ids` | VAL-001.2 | error | requirements on | T-026 | every requirement has a stable, unique ID and one acceptance criterion or more |
-| `design-sections` | VAL-001.3 | error | design on | T-026 | every template section has content or `Not applicable: <reason>`; every requirement or criterion ID in the criteria column of `## Requirement traceability` exists in the spec's own requirements artifact. The column is the one headed `Criteria` or `Criterion`; an entry in the cross-spec form of Tasks structure, and an entry that is not an ID, are not checked. The section is found through `scan_lines`, so the same heading inside a fenced template is not it. Citations elsewhere in the design are not checked, so prose may name a criterion another spec holds |
+| `design-sections` | VAL-001.3 | error | design on | T-026 | in a design written from the specflow template (first line `# Design: `), every template section has content or `Not applicable: <reason>`; a Kiro-native or bugfix design keeps its own headings, which the T-027 captures show vary, and gets only the rest of this row; every requirement or criterion ID in the criteria column of `## Requirement traceability` exists in the spec's own requirements artifact. The column is the one headed `Criteria` or `Criterion`; an entry in the cross-spec form of Tasks structure, and an entry that is not an ID, are not checked. The section is found through `scan_lines`, so the same heading inside a fenced template is not it. Citations elsewhere in the design are not checked, so prose may name a criterion another spec holds |
 | `task-structure` | VAL-001.4 | error | tasks on | T-026 | stable task IDs, checkbox syntax, dependencies that name earlier tasks, a requirement reference and a verification per task |
 | `requirement-coverage` | VAL-001.4 | error | tasks on | T-026 | every requirement is referenced by a task |
 | `progress-fields` | VAL-002.5 | warning | tasks on | T-026 | no `Outcome:` or `Exception:` line under a task item while the task plan is not approved |
@@ -429,7 +429,7 @@ Sources: <intake item path>
 3.1 WHEN <condition> THEN the system SHALL CONTINUE TO <existing behavior>
 ```
 
-Kiro sometimes adds `## Bug Condition and Properties` to `bugfix.md`; the validator accepts it there or in `design.md`. The `Sources:` line closes `## Introduction`, so the Kiro skeleton stays intact (INT-001.6). When prerequisites exist, insert the optional `Depends on:` line immediately before `Sources:` (or last in Introduction if no `Sources:` exists), using §6.2's grammar. No heading or numbered behavior clause changes.
+Kiro sometimes adds a level-two section whose heading starts `## Bug Condition` (`## Bug Condition and Properties`, `## Bug Condition and Property Specification` in the T-027 captures) to `bugfix.md`; the validator accepts it there or in `design.md`. The `Sources:` line closes `## Introduction`, so the Kiro skeleton stays intact (INT-001.6). When prerequisites exist, insert the optional `Depends on:` line immediately before `Sources:` (or last in Introduction if no `Sources:` exists), using §6.2's grammar. No heading or numbered behavior clause changes.
 
 Bugfix `design.md` (sections beyond these are allowed):
 
@@ -641,7 +641,7 @@ approved := status == "approved"
 2. Normalize CRLF and CR line endings to LF.
 3. Strip trailing whitespace from every line.
 4. End with exactly one final newline.
-5. For `tasks.md` only, outside fenced code, normalize the checkbox of a list item (`[x]` or `[X]` directly after the list marker) to `[ ]`, so recording progress does not invalidate the approved plan. A `[x]` anywhere else in a line, or inside a fence, stays as written.
+5. For `tasks.md` only, outside fenced code, normalize the checkbox of a list item (`[x]`, `[X]`, `[-]`, or `[~]` directly after the list marker) to `[ ]`, so recording progress does not invalidate the approved plan. Kiro writes `[-]` for a task in progress and `[~]` for a queued one (T-027 captures). A `*` right after the box marks an optional task and stays. A `[x]` anywhere else in a line, or inside a fence, stays as written.
 6. For `tasks.md` only, outside fenced code, drop a list line whose first token after the list marker is `Outcome:` or `Exception:` when it is nested under a checkbox item: the two progress fields of §6.4. The same words inside a fence, or outside a task item, stay hash-bound.
 
 Steps 5 and 6 track fences line by line. They exclude only parsed progress, so an edit to a literal example, a command, or a contract in an approved plan always stales it (decision 2026-10-03 #9). An artifact whose fence never closes fails validation and cannot be approved (VAL-001.11), so a stray fence cannot hide the rest of a plan from the hash or from the placeholder scan.
@@ -654,7 +654,7 @@ Details the six steps leave open, pinned so that two implementations hash alike.
 - Step 3 strips spaces and tabs only; a no-break space stays.
 - Step 4 removes every blank line at the end before it adds the one final newline.
 - A fence opens on a line whose first characters after any indent are three or more backticks or tildes, and closes on the next line that starts, after any indent, with the same character at least as many times. A longer fence can hold a shorter one.
-- A checkbox item is a list item whose marker (`-`, `*`, `+`, or a number with `.`) is followed by one or more spaces and then `[x]`, `[X]`, or `[ ]`.
+- A checkbox item is a list item whose marker (`-`, `*`, `+`, or a number with `.`) is followed by one or more spaces and then `[x]`, `[X]`, `[-]`, `[~]`, or `[ ]`, optionally followed by `*`. Only `[x]` and `[X]` count as checked. An item with `*` is optional: left unchecked, it holds no spec out of `verification` or `complete` and is never `nextTask`.
 - A task item is a checkbox item above `## Completion criteria`. It runs until the next non-blank line that is indented no deeper than its own marker; blank lines do not end it, and a tab counts as four columns. An `Outcome:` or `Exception:` list line inside a task item is dropped, at any depth. Three cases fix the reading: with a task at column 0, `- Details:` at 2, and `- Outcome:` at 4, the line is dropped; with a task at 0, a plain `- Notes` item at 0, and `- Outcome:` at 2, the line is kept, since the plain item ended the task; a blank line between a task and its `Outcome:` changes nothing. Under a completion criterion the checkbox is normalized and such a line is kept.
 
 These rules are part of the approval semantics: a change to them stales every recorded approval, so it is a breaking change under the versioning policy of 00001.
@@ -719,7 +719,7 @@ Implementation changes do not invalidate the plan automatically. If implementati
 | `verification` | every task is checked and a `## Completion criteria` checkbox is unchecked |
 | `complete` | every task and every completion criterion is checked |
 
-`## Completion criteria` (§6.4) holds checkboxes, normalized like task boxes (§7.3), so ticking one never stales the plan. A bugfix `tasks.md` has no such section: it is in `verification` while task 4 alone is unchecked. A Kiro-native `tasks.md` without the section skips `verification`. "Marking the spec complete" (WF-001.6) is therefore ticking the last box, never a stored field; a hold (§7.1) does not change the derived phase.
+`## Completion criteria` (§6.4) holds checkboxes, normalized like task boxes (§7.3), so ticking one never stales the plan. A bugfix `tasks.md` has no such section: it is in `verification` while its last top-level task, the checkpoint, alone is unchecked. Kiro bugfix plans may hold more than four top-level tasks (T-027 captures), so the checkpoint is found by position, not by number. A Kiro-native `tasks.md` without the section skips `verification`. "Marking the spec complete" (WF-001.6) is therefore ticking the last box, never a stored field; a hold (§7.1) does not change the derived phase.
 
 Malformed state is renamed or copied to a timestamped diagnostic file only with developer authorization; otherwise the agent leaves it in place and proposes recovery.
 

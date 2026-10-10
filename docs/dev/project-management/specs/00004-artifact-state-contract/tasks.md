@@ -18,6 +18,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Risk: A capture contradicts the Data model of the approved design. Mitigation from the design: the sections on Kiro-native shapes, the bugfix shape, and the specs folder are corrected before T-020 starts; that edit stales the design and this plan, and the developer re-approves both.
   - Verify:
     - design §6.5-§6.7 match the captures, or are corrected before T-020 starts; the link result is in `kiro-captures.md`, for the host documentation of T-045 (00008), which states the limit if Kiro does not list specs through a link.
+  - Outcome: partial (2026-10-10). Three public Kiro-made specs captured as fixtures, five design corrections applied, recorded in `kiro-captures.md`. Open: the Bug Fix display trial and the link trial in Kiro IDE.
 
 - [ ] T-020 Define canonical Markdown templates
   - Requirements: ART-001, ART-002, INT-001
