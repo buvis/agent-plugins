@@ -26,6 +26,19 @@ ORDERS = {
     "requirements-first": ("requirements", "design"),
     "design-first": ("design", "requirements"),
 }
+# The invalidation graph: a stale artifact stales every approval downstream of it.
+DOWNSTREAM = {
+    "requirements-first": {
+        "requirements": ("design", "tasks"),
+        "design": ("tasks",),
+        "tasks": (),
+    },
+    "design-first": {
+        "design": ("requirements", "tasks"),
+        "requirements": ("tasks",),
+        "tasks": (),
+    },
+}
 SPEC_TYPES = ("feature", "bugfix")
 TASK_LINE = re.compile(r"^[ \t]*(?:[-*+]|\d+\.)[ \t]+\[([ xX~-])\](\*?)[ \t]*(.*)$")
 TASK_ID = re.compile(r"^(T-\d+(?:\.\d+)*|\d+(?:\.\d+)*)\.?\s+(.*)$")
@@ -118,11 +131,41 @@ def own_status(path: Path, record: dict) -> str:
     return "approved" if sha256_canonical(path) == record["approvedSha256"] else "stale"
 
 
-def artifact_status(spec_dir: Path, state: dict | None) -> dict[str, str]:
-    """Status per artifact. Approval is bound to approvedSha256, never to a file's existence."""
+def own_statuses(spec_dir: Path, state: dict | None) -> dict[str, str]:
     paths = artifact_paths(spec_dir, state)
     records = (state or {}).get("artifacts", {})
     return {name: own_status(paths[name], records.get(name, {})) for name in ARTIFACTS}
+
+
+def order_of(state: dict | None) -> str:
+    return (state or {}).get("workflowOrder", "requirements-first")
+
+
+def artifact_status(spec_dir: Path, state: dict | None) -> dict[str, str]:
+    """Status per artifact. Approval is bound to approvedSha256, never to a file's
+    existence, and a stale artifact stales every approval downstream of it."""
+    status = own_statuses(spec_dir, state)
+    cause = stale_causes_from(status, order_of(state))
+    return {name: "stale" if name in cause else status[name] for name in ARTIFACTS}
+
+
+def stale_causes_from(status: dict[str, str], order: str) -> dict[str, str]:
+    """Walk the graph top-down, so each stale artifact keeps its most upstream cause."""
+    graph = DOWNSTREAM[order]
+    causes: dict[str, str] = {}
+    for name in (*ORDERS[order], "tasks"):
+        if status[name] != "stale" or name in causes:
+            continue
+        causes[name] = name
+        for below in graph[name]:
+            if status[below] in ("approved", "stale"):
+                causes.setdefault(below, name)
+    return causes
+
+
+def stale_causes(spec_dir: Path, state: dict | None) -> dict[str, str]:
+    """Stale artifact -> the most upstream artifact whose change caused it."""
+    return stale_causes_from(own_statuses(spec_dir, state), order_of(state))
 
 
 def task_items(text: str) -> list[dict]:

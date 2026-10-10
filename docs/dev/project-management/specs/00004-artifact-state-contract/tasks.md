@@ -79,7 +79,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - `tests/specflow/contract/test_drift.py` covers capture of staged, unstaged, and untracked bytes, a missing file, a refused path, and no partial baseline.
   - Outcome: 2026-10-10, `canonical.py`, `state.py`, and `drift.py` written against the corrected design (`[-]`, `[~]`, optional `*`, bugfix checkpoint by position). Contract tests: 101 run, OK. Shared test helpers live in `tests/specflow/contract/support.py`.
 
-- [ ] T-023 Implement dependency invalidation
+- [x] T-023 Implement dependency invalidation
   - Requirements: WF-002, WF-005, STATE-002
   - Depends on: T-022
   - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/state.py`, `tests/specflow/contract/test_invalidation.py`
@@ -93,6 +93,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Risk: This task implements the invalidation rules for two workflow orders. Mitigation from the design: one table-driven test holds every change against every downstream result, in both orders.
   - Verify:
     - table-driven tests cover every change and downstream result in both orders.
+  - Outcome: 2026-10-10, `DOWNSTREAM` graph data, propagation in `artifact_status`, and `stale_causes` added to `state.py`; `test_invalidation.py` holds the ten-row table. Contract tests: 105 run, OK.
 
 - [ ] T-024 Implement reconciliation and recovery rules
   - Requirements: WF-004, WF-005, STATE-001, STATE-002
