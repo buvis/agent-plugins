@@ -95,7 +95,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - table-driven tests cover every change and downstream result in both orders.
   - Outcome: 2026-10-10, `DOWNSTREAM` graph data, propagation in `artifact_status`, and `stale_causes` added to `state.py`; `test_invalidation.py` holds the ten-row table. Contract tests: 105 run, OK.
 
-- [ ] T-024 Implement reconciliation and recovery rules
+- [x] T-024 Implement reconciliation and recovery rules
   - Requirements: WF-004, WF-005, STATE-001, STATE-002
   - Depends on: T-021, T-023
   - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/reconcile.py`, `tests/specflow/contract/test_reconcile.py`, `tests/specflow/fixtures/recovery/`
@@ -109,6 +109,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - recovery fixtures resume without overwriting valid content.
     - `tests/specflow/contract/test_reconcile.py` passes on the fixtures under `tests/specflow/fixtures/recovery/` and on each Kiro capture: missing state, missing artifacts, malformed state kept byte for byte, an unknown version; none overwrites valid content. One more case: an unknown key survives a write with its value and its place, and the written file has two-space indent and a final newline.
+  - Outcome: 2026-10-10, `reconcile.py` written; malformed state and an unknown version raise `StateError` with the file untouched, and missing state returns recovery facts with every present artifact's approval in `ambiguous`. Fixtures under `tests/specflow/fixtures/recovery/`. Contract tests: 118 run, OK.
 
 - [ ] T-025 Implement optimistic concurrency checks
   - Requirements: WF-006
