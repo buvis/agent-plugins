@@ -245,7 +245,8 @@ def read_record(path: Path, text: str) -> tuple[dict[str, tuple], list[str]]:
     for source, repo, role, adopted, license_name in RECORD_ROW.findall(text):
         form = A1_ADOPTED if source == "A1" else COMMIT_ADOPTED
         match = form.match(adopted)
-        if repo != SOURCES[source] or not role or not license_name or not match:
+        blank = not role.strip() or not license_name.strip()
+        if repo != SOURCES[source] or blank or not match:
             continue
         tag, commit = match.groups() if source == "A1" else (None, match[1])
         if tag is not None and not RELEASE_TAG.match(tag):
@@ -259,10 +260,6 @@ def read_record(path: Path, text: str) -> tuple[dict[str, tuple], list[str]]:
     return rows, errors
 
 
-def is_prefix(ref: str | None, commit: str) -> bool:
-    return ref is not None and len(ref) >= 7 and commit.startswith(ref)
-
-
 def check_source_line(
     path: Path,
     match: re.Match,
@@ -274,12 +271,12 @@ def check_source_line(
         return f"{path}: source line names {source}, which the record lacks"
     tag, recorded = rows[source]
     if source == "A1":
-        if ref != tag or (commit is not None and not is_prefix(commit, recorded)):
+        if ref != tag or (commit is not None and not recorded.startswith(commit)):
             return f"{path}: source line ref {ref} is not the recorded A1 ref"
         return None
     if commit is not None:
         return f"{path}: source line gives a tag commit for {source}, which has no tag"
-    if not is_prefix(ref, recorded):
+    if not recorded.startswith(ref):
         return f"{path}: source line ref {ref} is not the recorded {source} commit"
     return None
 
@@ -330,11 +327,12 @@ def check_sources(plugin: Path) -> list[str]:
         reference_errors, reference_cited = check_reference(aws / name, rows)
         errors += reference_errors
         cited |= reference_cited
-    # ponytail: the repository named anywhere in LICENSE counts as its attribution line.
+    # Attribution lines are the opening block, before the first blank line.
+    header = license_text.split("\n\n", 1)[0].splitlines()
     errors += [
         f"{license_path}: no attribution line for {SOURCES[source]}"
         for source in sorted(cited)
-        if SOURCES[source] not in license_text
+        if not any(SOURCES[source] in line for line in header)
     ]
     return errors
 

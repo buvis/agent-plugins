@@ -346,6 +346,16 @@ class CheckSourcesTest(VerifyReleaseTest):
                     f"source record has no valid row for {source}",
                 )
 
+    def test_rejects_blank_role_or_license_cell(self) -> None:
+        for cell in ("primary method", "MIT-0"):
+            with self.subTest(cell=cell):
+                blank = RECORD_ROWS["A1"].replace(cell, "  ")
+                write_record(self.plugin, {**RECORD_ROWS, "A1": blank})
+                self.assert_error(
+                    verify_release.check_sources(self.plugin),
+                    "source record has no valid row for A1",
+                )
+
     def test_rejects_preview_tag_in_source_record(self) -> None:
         preview = RECORD_ROWS["A1"].replace("v1.2.3", "v1.2.4-preview.20261003.1")
         write_record(self.plugin, {**RECORD_ROWS, "A1": preview})
@@ -373,6 +383,19 @@ class CheckSourcesTest(VerifyReleaseTest):
             "> Source: A1 `core/x.md` > Steps @ v1.2.3 [both]\n\nText.\n",
         )
         (self.aws() / "LICENSE").write_text("MIT No Attribution\n")
+        self.assert_error(
+            verify_release.check_sources(self.plugin),
+            "aws/LICENSE",
+            "no attribution line for awslabs/aidlc-workflows",
+        )
+
+    def test_rejects_attribution_only_in_the_license_body(self) -> None:
+        (self.aws() / "requirements.md").write_text(
+            "> Source: A1 `core/x.md` > Steps @ v1.2.3 [both]\n\nText.\n",
+        )
+        (self.aws() / "LICENSE").write_text(
+            "MIT No Attribution\n\nSee awslabs/aidlc-workflows for details.\n",
+        )
         self.assert_error(
             verify_release.check_sources(self.plugin),
             "aws/LICENSE",
@@ -436,10 +459,26 @@ class CheckSourcesTest(VerifyReleaseTest):
     def test_accepts_commit_prefix_of_seven_characters(self) -> None:
         line = "> Source: A3 `aidlc-discovery-rules/x.md` > Rules @ 3333333 [quick]"
         attribution = "Copied from aws-samples/sample-aidlc-discovery (A3).\n"
-        (self.aws() / "LICENSE").write_text(LICENSE + attribution)
+        (self.aws() / "LICENSE").write_text(attribution + LICENSE)
         self.assertEqual(self.source_errors_with(line), [])
         short = line.replace("3333333", "333333")
         self.assert_error(self.source_errors_with(short), "mistyped source line")
+
+    def test_reports_unreadable_reference(self) -> None:
+        (self.aws() / "design.md").write_bytes(b"\xff\xfe not utf-8")
+        self.assert_error(
+            verify_release.check_sources(self.plugin),
+            "aws/design.md",
+            "cannot read file",
+        )
+
+    def test_rejects_source_line_naming_a_source_the_record_lacks(self) -> None:
+        write_record(self.plugin, {k: v for k, v in RECORD_ROWS.items() if k != "A2"})
+        line = "> Source: A2 `all-phases/x.md` > Steps @ 2222222 [both]"
+        self.assert_error(
+            self.source_errors_with(line),
+            "source line names A2, which the record lacks",
+        )
 
     def test_rejects_parenthesised_commit_on_a_commit_only_source(self) -> None:
         line = "> Source: A2 `all-phases/x.md` > Steps @ 2222222 (2222222) [both]"
