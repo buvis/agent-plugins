@@ -1,0 +1,21 @@
+# Implementation Plan
+
+- [ ] 1. Write bug condition exploration test
+  - **Property 1: Bug Condition** - last row kept
+  - **CRITICAL**: This test MUST FAIL on unfixed code - failure confirms the bug exists
+  - **DO NOT attempt to fix the test or the code when it fails**
+  - **EXPECTED OUTCOME**: Tests FAIL
+  - Document counterexamples found
+  - _Requirements: 1.1_
+- [ ] 2. Write preservation property tests (BEFORE implementing fix)
+  - **Property 2: Preservation** - other files unchanged
+  - Observe: files with a final newline on unfixed code
+  - **EXPECTED OUTCOME**: Tests PASS (confirms baseline behavior to preserve)
+  - _Requirements: 3.1_
+- [ ] 3. Fix the reader
+  - [ ] 3.1 Keep the remainder after the last newline
+    - _Bug_Condition: no final newline_ _Expected_Behavior: last row imported_ _Preservation: other files unchanged_
+    - _Requirements: 2.1, 3.1_
+  - [ ] 3.2 Verify bug condition exploration test now passes (re-run the SAME tests from task 1)
+  - [ ] 3.3 Verify preservation tests still pass (re-run the SAME tests from task 2)
+- [ ] 4. Checkpoint - Ensure all tests pass

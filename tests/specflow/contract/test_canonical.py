@@ -6,7 +6,12 @@ import hashlib
 import unittest
 
 import support
-from specflow_helper.canonical import canonical, scan_lines, sha256_canonical, sha256_raw
+from specflow_helper.canonical import (
+    canonical,
+    scan_lines,
+    sha256_canonical,
+    sha256_raw,
+)
 
 
 def tasks_equal(a: str, b: str) -> bool:
@@ -79,7 +84,9 @@ class ProgressFieldTest(unittest.TestCase):
         self.assertTrue(tasks_equal(plain, with_outcome))
 
     def test_exception_line_is_dropped(self) -> None:
-        self.assertTrue(tasks_equal("- [ ] T-001 a\n", "- [ ] T-001 a\n  - Exception: no CI\n"))
+        self.assertTrue(
+            tasks_equal("- [ ] T-001 a\n", "- [ ] T-001 a\n  - Exception: no CI\n"),
+        )
 
     def test_plain_item_at_task_depth_ends_the_task(self) -> None:
         a = "- [ ] T-001 a\n- Notes\n  - Outcome: kept\n"
@@ -110,7 +117,14 @@ class ScannerTest(unittest.TestCase):
         rows = scan_lines("- [ ] T-001 a\n  ```\n  x\n  ```\n# H\n")
         self.assertEqual(
             [(fence, task) for _, fence, task in rows],
-            [(False, True), (True, True), (True, True), (True, True), (False, False), (False, False)],
+            [
+                (False, True),
+                (True, True),
+                (True, True),
+                (True, True),
+                (False, False),
+                (False, False),
+            ],
         )
 
 

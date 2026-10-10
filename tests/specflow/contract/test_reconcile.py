@@ -35,7 +35,10 @@ class ReconcileFixtureTest(support.TempTest):
             {"requirements": "draft", "design": "draft", "tasks": "missing"},
         )
         self.assertEqual(result["phase"], "requirements")
-        self.assertEqual([a["artifact"] for a in result["ambiguous"]], ["requirements", "design"])
+        self.assertEqual(
+            [a["artifact"] for a in result["ambiguous"]],
+            ["requirements", "design"],
+        )
 
     def test_malformed_state_is_kept_byte_for_byte(self) -> None:
         spec = self.copy(RECOVERY / "malformed-state")
@@ -51,7 +54,9 @@ class ReconcileFixtureTest(support.TempTest):
             reconcile(spec, dry_run=False)
         self.assertEqual(snapshot(spec), before)
 
-    def test_missing_artifact_is_marked_missing_and_its_approval_record_kept(self) -> None:
+    def test_missing_artifact_is_marked_missing_and_its_approval_record_kept(
+        self,
+    ) -> None:
         spec = self.copy(RECOVERY / "missing-artifact")
         requirements = (spec / "requirements.md").read_bytes()
         result = reconcile(spec, dry_run=False)
@@ -107,7 +112,8 @@ class ReconcileWriteTest(support.TempTest):
         state = json.loads(text)
         self.assertEqual(list(state), list(self.state))
         self.assertEqual(
-            list(state["artifacts"]["design"]), list(self.state["artifacts"]["design"])
+            list(state["artifacts"]["design"]),
+            list(self.state["artifacts"]["design"]),
         )
         self.assertEqual(state["artifacts"]["design"]["laterField"], {"kept": [1, 2]})
         self.assertEqual(state["zLater"], "after artifacts")
@@ -121,10 +127,13 @@ class ReconcileWriteTest(support.TempTest):
             {(c["artifact"], c["field"]) for c in result["changes"]},
             {("design", "sha256"), ("design", "status")},
         )
-        design = json.loads((self.spec / ".specflow.json").read_text())["artifacts"]["design"]
+        design = json.loads((self.spec / ".specflow.json").read_text())["artifacts"][
+            "design"
+        ]
         self.assertEqual(design["status"], "stale")
         self.assertEqual(
-            design["approvedSha256"], self.state["artifacts"]["design"]["approvedSha256"]
+            design["approvedSha256"],
+            self.state["artifacts"]["design"]["approvedSha256"],
         )
         self.assertEqual(design["approvedAt"], "2026-10-10T10:00:00Z")
 
@@ -133,7 +142,9 @@ class ReconcileWriteTest(support.TempTest):
         support.write_state(self.spec, self.state)
         (self.spec / "tasks.md").write_text(support.TASKS)
         result = reconcile(self.spec, dry_run=False)
-        tasks = json.loads((self.spec / ".specflow.json").read_text())["artifacts"]["tasks"]
+        tasks = json.loads((self.spec / ".specflow.json").read_text())["artifacts"][
+            "tasks"
+        ]
         self.assertEqual(tasks["status"], "draft")
         self.assertNotIn("approvedSha256", tasks)
         self.assertNotIn("approved", [c["to"] for c in result["changes"]])
@@ -150,12 +161,17 @@ class ReconcileWriteTest(support.TempTest):
         support.write_state(self.spec, self.state)
         result = reconcile(self.spec, dry_run=False)
         self.assertEqual(result["ambiguous"][0]["artifact"], "design")
-        design = json.loads((self.spec / ".specflow.json").read_text())["artifacts"]["design"]
+        design = json.loads((self.spec / ".specflow.json").read_text())["artifacts"][
+            "design"
+        ]
         self.assertEqual(design["status"], "approved")
 
     def test_result_has_the_five_documented_keys(self) -> None:
         result = reconcile(self.spec, dry_run=True)
-        self.assertEqual(list(result), ["spec", "statuses", "phase", "changes", "ambiguous"])
+        self.assertEqual(
+            list(result),
+            ["spec", "statuses", "phase", "changes", "ambiguous"],
+        )
 
 
 if __name__ == "__main__":

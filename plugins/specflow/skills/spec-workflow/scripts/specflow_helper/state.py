@@ -43,6 +43,7 @@ SPEC_TYPES = ("feature", "bugfix")
 TASK_LINE = re.compile(r"^[ \t]*(?:[-*+]|\d+\.)[ \t]+\[([ xX~-])\](\*?)[ \t]*(.*)$")
 TASK_ID = re.compile(r"^(T-\d+(?:\.\d+)*|\d+(?:\.\d+)*)\.?\s+(.*)$")
 DEPENDS = re.compile(r"^[ \t]*[-*+][ \t]+Depends on:[ \t]*(.*)$")
+FIELD = re.compile(r"^[ \t]*[-*+][ \t]+([A-Z][A-Za-z ]*):")
 
 
 class StateError(Exception):
@@ -141,11 +142,29 @@ def order_of(state: dict | None) -> str:
     return (state or {}).get("workflowOrder", "requirements-first")
 
 
+def workflow_order(spec_dir: Path, state: dict | None) -> str:
+    """The state's order, else .config.kiro's workflowType, else requirements-first."""
+    if state:
+        return order_of(state)
+    try:
+        data = json.loads((spec_dir / ".config.kiro").read_bytes().decode("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return "requirements-first"
+    value = data.get("workflowType") if isinstance(data, dict) else None
+    return value if value in ORDERS else "requirements-first"
+
+
+def spec_phase(spec_dir: Path, state: dict | None) -> tuple[dict[str, str], str]:
+    """(artifact statuses, derived phase) of one spec."""
+    statuses = artifact_status(spec_dir, state)
+    return statuses, derive_phase(spec_dir, statuses, workflow_order(spec_dir, state))
+
+
 def artifact_status(spec_dir: Path, state: dict | None) -> dict[str, str]:
     """Status per artifact. Approval is bound to approvedSha256, never to a file's
     existence, and a stale artifact stales every approval downstream of it."""
     status = own_statuses(spec_dir, state)
-    cause = stale_causes_from(status, order_of(state))
+    cause = stale_causes_from(status, workflow_order(spec_dir, state))
     return {name: "stale" if name in cause else status[name] for name in ARTIFACTS}
 
 
@@ -165,7 +184,10 @@ def stale_causes_from(status: dict[str, str], order: str) -> dict[str, str]:
 
 def stale_causes(spec_dir: Path, state: dict | None) -> dict[str, str]:
     """Stale artifact -> the most upstream artifact whose change caused it."""
-    return stale_causes_from(own_statuses(spec_dir, state), order_of(state))
+    return stale_causes_from(
+        own_statuses(spec_dir, state),
+        workflow_order(spec_dir, state),
+    )
 
 
 def task_items(text: str) -> list[dict]:
@@ -193,13 +215,16 @@ def task_items(text: str) -> list[dict]:
                 "id": ident[1] if ident else None,
                 "title": (ident[2] if ident else match[3]).strip(),
                 "depends": None,
+                "fields": [],
             }
             items.append(item)
             stack.append(item)
-        elif stack and (dep := DEPENDS.match(line)):
-            value = dep[1].strip()
-            parts = [part.strip() for part in value.split(",") if part.strip()]
-            stack[-1]["depends"] = [] if value.lower() == "none" else parts
+        elif stack and (field := FIELD.match(line)):
+            stack[-1]["fields"].append(field[1])
+            if dep := DEPENDS.match(line):
+                value = dep[1].strip()
+                parts = [part.strip() for part in value.split(",") if part.strip()]
+                stack[-1]["depends"] = [] if value.lower() == "none" else parts
     return items
 
 

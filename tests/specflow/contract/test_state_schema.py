@@ -10,7 +10,10 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True
 REPO = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO / "plugins" / "specflow" / "skills" / "spec-workflow" / "scripts"))
+sys.path.insert(
+    0,
+    str(REPO / "plugins" / "specflow" / "skills" / "spec-workflow" / "scripts"),
+)
 
 from specflow_helper import WORKFLOW_VERSION
 from specflow_helper.schema import check_content, check_schema, load_schema
@@ -113,16 +116,32 @@ class SchemaKeywordTest(unittest.TestCase):
         self.assertEqual(errors, ["$: schema keyword minimum is not supported"])
 
     def test_annotations_are_ignored(self) -> None:
-        schema = {"$schema": "x", "$id": "y", "title": "t", "description": "d", "type": "string"}
+        schema = {
+            "$schema": "x",
+            "$id": "y",
+            "title": "t",
+            "description": "d",
+            "type": "string",
+        }
         self.assertEqual(check_schema("ok", schema), [])
 
     def test_unresolvable_reference_is_an_error(self) -> None:
         errors = check_schema(1, {"$ref": "#/$defs/nothing"})
-        self.assertEqual(errors, ["$: schema reference #/$defs/nothing cannot be resolved"])
+        self.assertEqual(
+            errors,
+            ["$: schema reference #/$defs/nothing cannot be resolved"],
+        )
 
     def test_closed_object_rejects_an_extra_field(self) -> None:
-        schema = {"type": "object", "properties": {"a": {}}, "additionalProperties": False}
-        self.assertEqual(check_schema({"a": 1, "b": 2}, schema), ["$.b: field is not allowed"])
+        schema = {
+            "type": "object",
+            "properties": {"a": {}},
+            "additionalProperties": False,
+        }
+        self.assertEqual(
+            check_schema({"a": 1, "b": 2}, schema),
+            ["$.b: field is not allowed"],
+        )
 
 
 class StateContentTest(unittest.TestCase):
@@ -155,7 +174,9 @@ class StateContentTest(unittest.TestCase):
                 )
 
     def test_absolute_path_in_a_code_baseline_is_caught(self) -> None:
-        self.full["artifacts"]["design"]["approvedCode"]["files"][0]["path"] = "/etc/passwd"
+        self.full["artifacts"]["design"]["approvedCode"]["files"][0]["path"] = (
+            "/etc/passwd"
+        )
         self.assertEqual(len(check_content(self.full)), 1)
 
     def test_free_text_may_start_with_a_slash(self) -> None:

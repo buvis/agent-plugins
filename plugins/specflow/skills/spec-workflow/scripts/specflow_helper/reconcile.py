@@ -15,6 +15,7 @@ from .state import (
     artifact_status,
     derive_phase,
     load_state,
+    workflow_order,
 )
 
 DERIVED_STATUS = ("missing", "draft", "stale")
@@ -37,20 +38,10 @@ def write_guarded(path: Path, data: bytes, read_sha256: str | None) -> None:
     os.replace(temporary, path)
 
 
-def kiro_order(spec_dir: Path) -> str:
-    """workflowType from .config.kiro when it names a known order."""
-    try:
-        data = json.loads((spec_dir / ".config.kiro").read_bytes().decode("utf-8"))
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
-        return "requirements-first"
-    value = data.get("workflowType") if isinstance(data, dict) else None
-    return value if value in ORDERS else "requirements-first"
-
-
 def recovery(spec_dir: Path) -> dict:
     """No state file: objective facts only, and every approval left to the developer."""
     statuses = artifact_status(spec_dir, None)
-    order = kiro_order(spec_dir)
+    order = workflow_order(spec_dir, None)
     paths = artifact_paths(spec_dir, None)
     ambiguous = [
         {
@@ -70,7 +61,11 @@ def recovery(spec_dir: Path) -> dict:
     }
 
 
-def derived_changes(spec_dir: Path, state: dict, statuses: dict[str, str]) -> tuple[list, list]:
+def derived_changes(
+    spec_dir: Path,
+    state: dict,
+    statuses: dict[str, str],
+) -> tuple[list, list]:
     """The sha256 and status values reconcile may write, and the approvals it cannot read."""
     paths = artifact_paths(spec_dir, state)
     changes: list[dict] = []
@@ -83,7 +78,7 @@ def derived_changes(spec_dir: Path, state: dict, statuses: dict[str, str]) -> tu
                     "artifact": name,
                     "path": paths[name].name,
                     "reason": "recorded approved without an approvedSha256",
-                }
+                },
             )
             continue
         wanted = {}
@@ -94,7 +89,12 @@ def derived_changes(spec_dir: Path, state: dict, statuses: dict[str, str]) -> tu
         for field, value in wanted.items():
             if record.get(field) != value:
                 changes.append(
-                    {"artifact": name, "field": field, "from": record.get(field), "to": value}
+                    {
+                        "artifact": name,
+                        "field": field,
+                        "from": record.get(field),
+                        "to": value,
+                    },
                 )
     return changes, ambiguous
 

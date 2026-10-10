@@ -7,7 +7,7 @@ import os
 import unittest
 
 import support
-from specflow_helper.drift import code_baseline
+from specflow_helper.drift import code_baseline, code_drift
 
 
 def digest(data: bytes) -> str:
@@ -30,7 +30,8 @@ class CodeBaselineTest(support.TempTest):
         support.git(self.repo, "add", "src/staged.py")
         (self.repo / "src" / "untracked.py").write_bytes(b"untracked\n")
         baseline = code_baseline(
-            self.repo, ["src/untracked.py", "src/staged.py", "src/committed.py"]
+            self.repo,
+            ["src/untracked.py", "src/staged.py", "src/committed.py"],
         )
         self.assertEqual(
             baseline,
@@ -52,7 +53,10 @@ class CodeBaselineTest(support.TempTest):
 
     def test_paths_are_sorted_and_deduplicated(self) -> None:
         baseline = code_baseline(self.repo, ["src/b.py", "src/a.py", "src/b.py"])
-        self.assertEqual([f["path"] for f in baseline["files"]], ["src/a.py", "src/b.py"])
+        self.assertEqual(
+            [f["path"] for f in baseline["files"]],
+            ["src/a.py", "src/b.py"],
+        )
 
     def test_each_refused_path_yields_not_checked(self) -> None:
         (self.repo / "link").symlink_to(self.repo / "src")
@@ -84,6 +88,76 @@ class CodeBaselineTest(support.TempTest):
         (self.repo / "src" / "committed.py").write_bytes(b"SECRET_SOURCE_LINE\n")
         baseline = code_baseline(self.repo, ["src/committed.py"])
         self.assertNotIn("SECRET_SOURCE_LINE", repr(baseline))
+
+
+class CodeDriftTest(support.TempTest):
+    def setUp(self) -> None:
+        super().setUp()
+        self.repo = self.tmp / "repo"
+        (self.repo / "src").mkdir(parents=True)
+        (self.repo / "src" / "a.py").write_bytes(b"dirty\n")
+        support.git(self.repo, "init", "-q")
+
+    def kinds(self, baseline: dict | None) -> list[tuple[str, str | None]]:
+        return [(w["kind"], w.get("path")) for w in code_drift(self.repo, baseline)]
+
+    def test_unchanged_dirty_bytes_right_after_approval_are_clean(self) -> None:
+        baseline = code_baseline(self.repo, ["src/a.py", "src/new.py"])
+        self.assertEqual(self.kinds(baseline), [])
+
+    def test_later_edit_addition_and_deletion_each_warn_with_their_path(self) -> None:
+        (self.repo / "src" / "b.py").write_bytes(b"b\n")
+        baseline = code_baseline(self.repo, ["src/a.py", "src/b.py", "src/new.py"])
+        (self.repo / "src" / "a.py").write_bytes(b"edited\n")
+        (self.repo / "src" / "b.py").unlink()
+        (self.repo / "src" / "new.py").write_bytes(b"new\n")
+        self.assertEqual(
+            self.kinds(baseline),
+            [
+                ("code-drift", "src/a.py"),
+                ("code-drift", "src/b.py"),
+                ("code-drift", "src/new.py"),
+            ],
+        )
+
+    def test_reapproval_at_the_same_head_clears_the_drift(self) -> None:
+        baseline = code_baseline(self.repo, ["src/a.py"])
+        (self.repo / "src" / "a.py").write_bytes(b"edited\n")
+        self.assertTrue(self.kinds(baseline))
+        self.assertEqual(self.kinds(code_baseline(self.repo, ["src/a.py"])), [])
+
+    def test_committing_the_same_bytes_later_is_no_drift(self) -> None:
+        baseline = code_baseline(self.repo, ["src/a.py"])
+        support.git(self.repo, "add", "-A")
+        support.git(self.repo, "commit", "-q", "-m", "later")
+        self.assertEqual(self.kinds(baseline), [])
+
+    def test_missing_evidence_is_not_checked_never_clean(self) -> None:
+        for baseline in (
+            None,
+            {"status": "not_checked", "reason": "no placement section"},
+        ):
+            with self.subTest(baseline=baseline):
+                self.assertEqual([k for k, _ in self.kinds(baseline)], ["not-checked"])
+
+    def test_explicit_no_file_design_is_not_applicable(self) -> None:
+        self.assertEqual(
+            self.kinds({"status": "not_applicable", "reason": "docs only"}),
+            [],
+        )
+
+    def test_unreadable_or_refused_path_is_not_checked(self) -> None:
+        baseline = code_baseline(self.repo, ["src/a.py"])
+        (self.repo / "src" / "a.py").chmod(0)
+        self.addCleanup((self.repo / "src" / "a.py").chmod, 0o644)
+        self.assertEqual(self.kinds(baseline), [("not-checked", "src/a.py")])
+        stored = {"status": "captured", "files": [{"path": "../x.py", "missing": True}]}
+        self.assertEqual(self.kinds(stored), [("not-checked", "../x.py")])
+
+    def test_comparison_needs_no_git_history(self) -> None:
+        baseline = code_baseline(self.repo, ["src/a.py"])
+        (self.repo / ".git").rename(self.tmp / "gone")
+        self.assertEqual(self.kinds(baseline), [])
 
 
 if __name__ == "__main__":

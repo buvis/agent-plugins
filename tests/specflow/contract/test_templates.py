@@ -47,7 +47,11 @@ DESIGN_HEADINGS = [
     "## Reuse inventory",
     "## Open decisions",
 ]
-TASKS_HEADINGS = ["# Tasks: <Feature>", "## Completion criteria", "## Unresolved questions"]
+TASKS_HEADINGS = [
+    "# Tasks: <Feature>",
+    "## Completion criteria",
+    "## Unresolved questions",
+]
 TASK_FIELDS = [
     "Requirements:",
     "Depends on:",
@@ -90,7 +94,11 @@ BUGFIX_DESIGN_HEADINGS = [
     "### Integration Tests",
 ]
 OTHER_HEADINGS = {
-    "intake/SPEC.md": ["## Idea", "## Smallest end-to-end outcome", "## Guessed contract"],
+    "intake/SPEC.md": [
+        "## Idea",
+        "## Smallest end-to-end outcome",
+        "## Guessed contract",
+    ],
     "cross-spec-review.md": [
         "## Verdict",
         "## Spec map",
@@ -145,21 +153,30 @@ def insert_depends_on(text: str, *, bugfix: bool) -> str:
     lines = text.splitlines()
     if bugfix:
         intro = lines.index("## Introduction")
-        end = next(i for i in range(intro + 1, len(lines)) if lines[i].startswith("## "))
+        end = next(
+            i for i in range(intro + 1, len(lines)) if lines[i].startswith("## ")
+        )
         sources = [i for i in range(intro, end) if lines[i].startswith("Sources:")]
         at = sources[0] if sources else end - 1
     else:
         at = next(i for i, line in enumerate(lines) if line.startswith("## "))
-    return "\n".join([*lines[:at], "Depends on: 00012, folder:login-fix", "", *lines[at:]])
+    return "\n".join(
+        [*lines[:at], "Depends on: 00012, folder:login-fix", "", *lines[at:]],
+    )
 
 
 class FeatureTemplatesTest(unittest.TestCase):
     def test_requirements_template_has_the_data_model_headings_in_order(self) -> None:
         self.assertEqual(headings(read("requirements.md")), REQUIREMENTS_HEADINGS)
 
-    def test_requirements_template_has_requirements_heading_above_first_block(self) -> None:
+    def test_requirements_template_has_requirements_heading_above_first_block(
+        self,
+    ) -> None:
         found = headings(read("requirements.md"))
-        self.assertLess(found.index("## Requirements"), found.index("### REQ-001: <Title>"))
+        self.assertLess(
+            found.index("## Requirements"),
+            found.index("### REQ-001: <Title>"),
+        )
 
     def test_requirements_template_carries_every_header_line(self) -> None:
         text = read("requirements.md")
@@ -170,7 +187,9 @@ class FeatureTemplatesTest(unittest.TestCase):
 
     def test_requirements_depends_on_sits_once_before_the_first_section(self) -> None:
         lines = read("requirements.md").splitlines()
-        first_section = next(i for i, line in enumerate(lines) if line.startswith("## "))
+        first_section = next(
+            i for i, line in enumerate(lines) if line.startswith("## ")
+        )
         found = [i for i, line in enumerate(lines) if line.startswith("Depends on:")]
         self.assertEqual(len(found), 1)
         self.assertLess(found[0], first_section)
@@ -224,7 +243,9 @@ class BugfixTemplatesTest(unittest.TestCase):
         last = [line for line in template.splitlines() if line.startswith("- [ ] ")][-1]
         self.assertTrue(last.startswith("- [ ] 4. Checkpoint"))
 
-    def test_bugfix_depends_on_sits_just_before_sources_in_the_introduction(self) -> None:
+    def test_bugfix_depends_on_sits_just_before_sources_in_the_introduction(
+        self,
+    ) -> None:
         lines = read("bugfix/bugfix.md").splitlines()
         depends = lines.index(next(x for x in lines if x.startswith("Depends on:")))
         self.assertTrue(lines[depends + 1].startswith("Sources:"))
@@ -259,7 +280,14 @@ class PlaceholderTest(unittest.TestCase):
                 self.assertEqual(bad, [])
 
     def test_placeholder_pattern_catches_each_banned_form(self) -> None:
-        for line in ("Owner: TBD", "- TODO write it", "Why???", "N/A", "- N/A", "| N/A |"):
+        for line in (
+            "Owner: TBD",
+            "- TODO write it",
+            "Why???",
+            "N/A",
+            "- N/A",
+            "| N/A |",
+        ):
             with self.subTest(line=line):
                 self.assertRegex(line, BANNED)
         self.assertNotRegex("Not applicable: no data is stored.", BANNED)
@@ -267,7 +295,9 @@ class PlaceholderTest(unittest.TestCase):
 
 class ContractReferenceTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.text = (SKILL / "references" / "artifact-contract.md").read_text(encoding="utf-8")
+        self.text = (SKILL / "references" / "artifact-contract.md").read_text(
+            encoding="utf-8",
+        )
 
     def test_reference_holds_each_data_model_shape(self) -> None:
         for marker in (

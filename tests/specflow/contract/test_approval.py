@@ -29,7 +29,11 @@ class ApprovalTest(support.TempTest):
             },
         )
         self.state = support.approve(
-            self.spec, support.new_state(), "requirements", "design", "tasks"
+            self.spec,
+            support.new_state(),
+            "requirements",
+            "design",
+            "tasks",
         )
 
     def status_after(self, name: str, text: str) -> str:
@@ -37,7 +41,10 @@ class ApprovalTest(support.TempTest):
         return artifact_status(self.spec, self.state)[name.removesuffix(".md")]
 
     def test_content_edit_stales_the_approval(self) -> None:
-        self.assertEqual(self.status_after("design.md", support.DESIGN + "More.\n"), "stale")
+        self.assertEqual(
+            self.status_after("design.md", support.DESIGN + "More.\n"),
+            "stale",
+        )
 
     def test_layout_only_edits_keep_the_approval(self) -> None:
         crlf = support.DESIGN.replace("\n", "  \r\n") + "\n\n"
@@ -79,7 +86,10 @@ class ApprovalTest(support.TempTest):
         other.write_text("{}")
         other.chmod(0)
         self.addCleanup(other.chmod, 0o644)
-        self.assertEqual(set(artifact_status(self.spec, self.state).values()), {"approved"})
+        self.assertEqual(
+            set(artifact_status(self.spec, self.state).values()),
+            {"approved"},
+        )
 
 
 class LoadStateTest(support.TempTest):
@@ -97,7 +107,12 @@ class LoadStateTest(support.TempTest):
 class PhaseTest(support.TempTest):
     """One test per row of the phase table from requirements on, in both orders."""
 
-    def make(self, order: str, approved: tuple[str, ...], tasks: str = support.TASKS) -> str:
+    def make(
+        self,
+        order: str,
+        approved: tuple[str, ...],
+        tasks: str = support.TASKS,
+    ) -> str:
         spec = support.write_spec(
             self.tmp / order,
             {
@@ -135,7 +150,11 @@ class PhaseTest(support.TempTest):
 
     def test_complete_when_every_box_is_checked(self) -> None:
         tasks = support.TASKS.replace("[ ]", "[x]")
-        phase = self.make("requirements-first", ("requirements", "design", "tasks"), tasks)
+        phase = self.make(
+            "requirements-first",
+            ("requirements", "design", "tasks"),
+            tasks,
+        )
         self.assertEqual(phase, "complete")
 
     def test_in_progress_and_queued_boxes_count_as_unchecked(self) -> None:
@@ -143,12 +162,23 @@ class PhaseTest(support.TempTest):
             with self.subTest(box=box):
                 tasks = support.TASKS.replace("[ ]", "[x]")
                 tasks = tasks.replace("[x] T-002", f"[{box}] T-002")
-                phase = self.make("requirements-first", ("requirements", "design", "tasks"), tasks)
+                phase = self.make(
+                    "requirements-first",
+                    ("requirements", "design", "tasks"),
+                    tasks,
+                )
                 self.assertEqual(phase, "implementation")
 
     def test_unchecked_optional_task_holds_no_phase(self) -> None:
-        tasks = support.TASKS.replace("[ ]", "[x]").replace("- [x] T-002", "- [ ]* T-002")
-        phase = self.make("requirements-first", ("requirements", "design", "tasks"), tasks)
+        tasks = support.TASKS.replace("[ ]", "[x]").replace(
+            "- [x] T-002",
+            "- [ ]* T-002",
+        )
+        phase = self.make(
+            "requirements-first",
+            ("requirements", "design", "tasks"),
+            tasks,
+        )
         self.assertEqual(phase, "complete")
 
 
@@ -170,11 +200,17 @@ class KiroPhaseTest(support.TempTest):
         tasks = (spec / "tasks.md").read_text()
         tasks = tasks.replace("- [-] 4.", "- [x] 4.").replace("- [~] 5.", "- [x] 5.")
         (spec / "tasks.md").write_text(tasks)
-        self.assertEqual(self.approve_all(spec, "bugfix", "requirements-first"), "verification")
+        self.assertEqual(
+            self.approve_all(spec, "bugfix", "requirements-first"),
+            "verification",
+        )
 
     def test_bugfix_capture_as_found_is_in_implementation(self) -> None:
         spec = self.kiro_spec("bugfix")
-        self.assertEqual(self.approve_all(spec, "bugfix", "requirements-first"), "implementation")
+        self.assertEqual(
+            self.approve_all(spec, "bugfix", "requirements-first"),
+            "implementation",
+        )
 
     def test_kiro_plan_without_completion_criteria_skips_verification(self) -> None:
         spec = self.kiro_spec("design-first")
@@ -184,7 +220,10 @@ class KiroPhaseTest(support.TempTest):
         spec = self.kiro_spec("requirements-first")
         tasks = (spec / "tasks.md").read_text().replace("- [-] 13.", "- [x] 13.")
         (spec / "tasks.md").write_text(tasks)
-        self.assertEqual(self.approve_all(spec, "feature", "requirements-first"), "complete")
+        self.assertEqual(
+            self.approve_all(spec, "feature", "requirements-first"),
+            "complete",
+        )
 
 
 class SpecTypeTest(support.TempTest):
@@ -203,19 +242,28 @@ class SpecTypeTest(support.TempTest):
     def test_agreeing_sources_report_nothing(self) -> None:
         spec = support.write_spec(self.tmp / "s", {"bugfix.md": "# B\n"})
         (spec / ".config.kiro").write_text('{"specType": "bugfix"}')
-        self.assertEqual(spec_type(spec, support.new_state(specType="bugfix")), ("bugfix", []))
+        self.assertEqual(
+            spec_type(spec, support.new_state(specType="bugfix")),
+            ("bugfix", []),
+        )
 
     def test_spec_type_rewrites_nothing(self) -> None:
         spec = support.write_spec(self.tmp / "s", {"bugfix.md": "# B\n"})
         (spec / ".config.kiro").write_text('{"specType": "feature"}')
         before = sorted((p.name, p.read_bytes()) for p in spec.iterdir())
         spec_type(spec, support.new_state())
-        self.assertEqual(sorted((p.name, p.read_bytes()) for p in spec.iterdir()), before)
+        self.assertEqual(
+            sorted((p.name, p.read_bytes()) for p in spec.iterdir()),
+            before,
+        )
 
     def test_unreadable_config_kiro_is_reported(self) -> None:
         spec = support.write_spec(self.tmp / "s", {"bugfix.md": "# B\n"})
         (spec / ".config.kiro").write_text("{")
-        self.assertEqual(spec_type(spec, None), ("bugfix", [".config.kiro: unreadable"]))
+        self.assertEqual(
+            spec_type(spec, None),
+            ("bugfix", [".config.kiro: unreadable"]),
+        )
 
 
 if __name__ == "__main__":

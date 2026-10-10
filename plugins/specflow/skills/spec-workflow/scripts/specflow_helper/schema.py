@@ -22,7 +22,7 @@ KEYWORDS = frozenset(
         "minLength",
         "oneOf",
         "$ref",
-    }
+    },
 )
 BANNED_KEYS = frozenset(
     k.lower()
@@ -44,7 +44,7 @@ ABSOLUTE = re.compile(r"^(?:/|~|[A-Za-z]:[\\/])")
 FREE_TEXT = re.compile(
     r"^\$\.(?:artifacts\.\w+\.acceptedMarkers\[\d+\]\.line"
     r"|hold\.reason"
-    r"|artifacts\.\w+\.approvedCode\.reason)$"
+    r"|artifacts\.\w+\.approvedCode\.reason)$",
 )
 
 
@@ -103,13 +103,20 @@ def _check(value: object, schema: dict, path: str, root: dict) -> list[str]:
         try:
             target = resolve(schema["$ref"], root)
         except KeyError:
-            errors.append(f"{path}: schema reference {schema['$ref']} cannot be resolved")
+            errors.append(
+                f"{path}: schema reference {schema['$ref']} cannot be resolved",
+            )
         else:
             errors += _check(value, target, path, root)
     if "type" in schema:
-        wanted = schema["type"] if isinstance(schema["type"], list) else [schema["type"]]
+        wanted = (
+            schema["type"] if isinstance(schema["type"], list) else [schema["type"]]
+        )
         if not any(has_type(value, t) for t in wanted):
-            return [*errors, f"{path}: expected {' or '.join(wanted)}, got {json_type(value)}"]
+            return [
+                *errors,
+                f"{path}: expected {' or '.join(wanted)}, got {json_type(value)}",
+            ]
     if "const" in schema and not same(value, schema["const"]):
         errors.append(f"{path}: expected {json.dumps(schema['const'])}")
     if "enum" in schema and not any(same(value, v) for v in schema["enum"]):
@@ -117,7 +124,9 @@ def _check(value: object, schema: dict, path: str, root: dict) -> list[str]:
         errors.append(f"{path}: {json.dumps(value)} is not one of {allowed}")
     if isinstance(value, str):
         if "pattern" in schema and not re.fullmatch(schema["pattern"], value):
-            errors.append(f"{path}: {json.dumps(value)} does not match {schema['pattern']}")
+            errors.append(
+                f"{path}: {json.dumps(value)} does not match {schema['pattern']}",
+            )
         if "minLength" in schema and len(value) < schema["minLength"]:
             errors.append(f"{path}: shorter than {schema['minLength']} characters")
     if isinstance(value, dict):
@@ -128,7 +137,9 @@ def _check(value: object, schema: dict, path: str, root: dict) -> list[str]:
     if "oneOf" in schema:
         passing = [s for s in schema["oneOf"] if not _check(value, s, path, root)]
         if len(passing) != 1:
-            errors.append(f"{path}: matches {len(passing)} of the oneOf choices, not exactly 1")
+            errors.append(
+                f"{path}: matches {len(passing)} of the oneOf choices, not exactly 1",
+            )
     return errors
 
 
@@ -143,7 +154,11 @@ def _check_object(value: dict, schema: dict, path: str, root: dict) -> list[str]
         if key in value:
             errors += _check(value[key], sub, f"{path}.{key}", root)
     if schema.get("additionalProperties") is False:
-        errors += [f"{path}.{key}: field is not allowed" for key in value if key not in properties]
+        errors += [
+            f"{path}.{key}: field is not allowed"
+            for key in value
+            if key not in properties
+        ]
     return errors
 
 

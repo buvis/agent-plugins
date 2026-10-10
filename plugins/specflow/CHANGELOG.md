@@ -19,3 +19,4 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: a changed artifact stales every approval downstream of it, in both workflow orders, and names the change that caused it.
 - **specflow**: reconciliation that refreshes derived hashes and statuses in `.specflow.json`, keeps unknown fields, never writes an approval, and recovers from a missing state file by asking instead of guessing.
 - **specflow**: writes stop with a conflict when the file changed after it was read, leaving the other edit in place.
+- **specflow**: `scripts/validate_spec.py` with `status`, `validate`, `hash`, `code-baseline`, and `reconcile`; named checks with file, rule, and fix; spec dependencies through `Depends on:`; advisory code-drift warnings; and a versioned JSON status for external runners.

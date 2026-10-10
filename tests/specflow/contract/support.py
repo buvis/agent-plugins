@@ -41,7 +41,8 @@ Source: the idea
 
 1. WHEN the user arrives THE SYSTEM SHALL greet them.
 """
-DESIGN = "# Design: Sample\n\n## Overview\n\nGreets.\n"
+# A Kiro-style title, so the template section check does not apply to this short design.
+DESIGN = "# Design Document: Sample\n\n## Overview\n\nGreets.\n"
 TASKS = """# Tasks: Sample
 
 - [ ] T-001 Greet the user
@@ -77,7 +78,11 @@ def new_state(spec_id: str = "00042-sample", **overrides: object) -> dict:
     return state
 
 
-def write_spec(spec_dir: Path, files: dict[str, str], state: dict | None = None) -> Path:
+def write_spec(
+    spec_dir: Path,
+    files: dict[str, str],
+    state: dict | None = None,
+) -> Path:
     spec_dir.mkdir(parents=True, exist_ok=True)
     for name, text in files.items():
         (spec_dir / name).write_text(text, encoding="utf-8")
@@ -136,7 +141,8 @@ class TempTest(unittest.TestCase):
         self.addCleanup(tmp.cleanup)
         self.tmp = Path(tmp.name).resolve()
         patcher = mock.patch.dict(
-            os.environ, {**GIT_ENV, "GIT_CEILING_DIRECTORIES": str(self.tmp)}
+            os.environ,
+            {**GIT_ENV, "GIT_CEILING_DIRECTORIES": str(self.tmp)},
         )
         patcher.start()
         self.addCleanup(patcher.stop)

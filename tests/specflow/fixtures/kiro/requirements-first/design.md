@@ -65,6 +65,7 @@ Registration in `sraverify/main.py`:
 
 ```python
 from sraverify.services.iam import CHECKS as iam_checks
+
 # ...
 ALL_CHECKS = {
     # existing entries unchanged ...
@@ -215,14 +216,16 @@ def execute(self) -> List[Dict[str, Any]]:
 
     if "Error" in response:
         message = response["Error"].get("Message") or ""
-        actual_value = (message[:1000] if message else "Unknown error")
-        self.findings.append(self.create_finding(
-            status="ERROR",
-            region=region,
-            resource_id=self.account_id,
-            actual_value=actual_value,
-            remediation="Verify the execution role has the iam:ListUsers permission attached.",
-        ))
+        actual_value = message[:1000] if message else "Unknown error"
+        self.findings.append(
+            self.create_finding(
+                status="ERROR",
+                region=region,
+                resource_id=self.account_id,
+                actual_value=actual_value,
+                remediation="Verify the execution role has the iam:ListUsers permission attached.",
+            )
+        )
         return self.findings
 
     users = response.get("Users", [])
@@ -236,13 +239,15 @@ def execute(self) -> List[Dict[str, Any]]:
             distinct_users.append(u)
 
     if not distinct_users:
-        self.findings.append(self.create_finding(
-            status="PASS",
-            region=region,
-            resource_id=self.account_id,
-            actual_value="0 IAM users found in the account.",
-            remediation="No remediation needed.",
-        ))
+        self.findings.append(
+            self.create_finding(
+                status="PASS",
+                region=region,
+                resource_id=self.account_id,
+                actual_value="0 IAM users found in the account.",
+                remediation="No remediation needed.",
+            )
+        )
         return self.findings
 
     remediation = (
@@ -251,13 +256,15 @@ def execute(self) -> List[Dict[str, Any]]:
         "after migration is complete."
     )
     for user in distinct_users:
-        self.findings.append(self.create_finding(
-            status="FAIL",
-            region=region,
-            resource_id=user["Arn"],
-            actual_value=f"IAM user '{user.get('UserName', '')}' exists in the account.",
-            remediation=remediation,
-        ))
+        self.findings.append(
+            self.create_finding(
+                status="FAIL",
+                region=region,
+                resource_id=user["Arn"],
+                actual_value=f"IAM user '{user.get('UserName', '')}' exists in the account.",
+                remediation=remediation,
+            )
+        )
     return self.findings
 ```
 
@@ -553,11 +560,19 @@ A single file `tests/services/iam/checks/test_sra_iam_01_properties.py` that use
 from hypothesis import given, strategies as st, settings
 
 # Strategy: a plausible IAM user dict.
-arn_strategy = st.from_regex(r"arn:aws:iam::\d{12}:user/[A-Za-z0-9_+=,.@-]{1,64}", fullmatch=True)
+arn_strategy = st.from_regex(
+    r"arn:aws:iam::\d{12}:user/[A-Za-z0-9_+=,.@-]{1,64}", fullmatch=True
+)
 user_strategy = st.builds(
     lambda arn, name: {"Arn": arn, "UserName": name},
     arn_strategy,
-    st.text(alphabet=st.characters(whitelist_categories=("L", "N"), whitelist_characters="_-."), min_size=1, max_size=64),
+    st.text(
+        alphabet=st.characters(
+            whitelist_categories=("L", "N"), whitelist_characters="_-."
+        ),
+        min_size=1,
+        max_size=64,
+    ),
 )
 response_success = st.builds(
     lambda users: {"Users": users},
@@ -565,36 +580,45 @@ response_success = st.builds(
 )
 response_error = st.builds(
     lambda code, msg: {"Error": {"Code": code, "Message": msg}},
-    st.sampled_from(["AccessDenied", "Throttling", "UnknownError", "EndpointConnectionError"]),
+    st.sampled_from(
+        ["AccessDenied", "Throttling", "UnknownError", "EndpointConnectionError"]
+    ),
     st.text(max_size=5000),
 )
 response = st.one_of(response_success, response_error)
+
 
 @given(response)
 @settings(max_examples=500)
 def test_property_mutual_exclusion(response_dict):
     """P1: findings share a single Status value."""
 
+
 @given(response)
 @settings(max_examples=500)
 def test_property_count_invariant(response_dict):
     """P2: finding count matches error/empty/N-distinct-users cases."""
 
+
 @given(response_success)
 def test_property_arn_bijection(response_dict):
     """P3: FAIL ResourceIds equal distinct user ARNs."""
+
 
 @given(st.lists(user_strategy, min_size=1, max_size=20))
 def test_property_dedup(users):
     """P4: duplicates collapse to one FAIL per distinct ARN."""
 
+
 @given(response)
 def test_property_region_constant(response_dict):
     """P5: Region == 'us-east-1' for every finding."""
 
+
 @given(response_error)
 def test_property_error_truncation(error_response):
     """P6: ActualValue ≤ 1000 chars; empty message → 'Unknown error'."""
+
 
 @given(response)
 def test_property_caching_idempotent(response_dict):

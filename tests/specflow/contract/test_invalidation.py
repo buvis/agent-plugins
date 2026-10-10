@@ -22,7 +22,11 @@ TABLE = [
         "requirements-first",
         ("requirements",),
         {"requirements": S, "design": S, "tasks": S},
-        {"requirements": "requirements", "design": "requirements", "tasks": "requirements"},
+        {
+            "requirements": "requirements",
+            "design": "requirements",
+            "tasks": "requirements",
+        },
     ),
     (
         "requirements-first",
@@ -30,7 +34,12 @@ TABLE = [
         {"requirements": A, "design": S, "tasks": S},
         {"design": "design", "tasks": "design"},
     ),
-    ("requirements-first", ("tasks",), {"requirements": A, "design": A, "tasks": S}, {"tasks": "tasks"}),
+    (
+        "requirements-first",
+        ("tasks",),
+        {"requirements": A, "design": A, "tasks": S},
+        {"tasks": "tasks"},
+    ),
     (
         "requirements-first",
         ("design", "tasks"),
@@ -50,7 +59,12 @@ TABLE = [
         {"requirements": S, "design": A, "tasks": S},
         {"requirements": "requirements", "tasks": "requirements"},
     ),
-    ("design-first", ("tasks",), {"requirements": A, "design": A, "tasks": S}, {"tasks": "tasks"}),
+    (
+        "design-first",
+        ("tasks",),
+        {"requirements": A, "design": A, "tasks": S},
+        {"tasks": "tasks"},
+    ),
     (
         "design-first",
         ("requirements", "design"),
@@ -64,7 +78,11 @@ class InvalidationTest(support.TempTest):
     def build(self, order: str) -> tuple:
         spec = support.write_spec(self.tmp / order, TEXTS)
         state = support.approve(
-            spec, support.new_state(workflowOrder=order), "requirements", "design", "tasks"
+            spec,
+            support.new_state(workflowOrder=order),
+            "requirements",
+            "design",
+            "tasks",
         )
         return spec, state
 
@@ -97,7 +115,8 @@ class InvalidationTest(support.TempTest):
             with self.subTest(order=order):
                 spec, state = self.build(order)
                 self.assertEqual(
-                    derive_phase(spec, artifact_status(spec, state), order), "implementation"
+                    derive_phase(spec, artifact_status(spec, state), order),
+                    "implementation",
                 )
                 (spec / "design.md").write_text(support.DESIGN + "\nChanged.\n")
                 phase = derive_phase(spec, artifact_status(spec, state), order)

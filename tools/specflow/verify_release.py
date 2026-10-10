@@ -82,6 +82,13 @@ RECORD_ROW = re.compile(
 )
 LOOKS_LIKE_SOURCE = re.compile(r"(?i)^\s*>?\s*\**\s*source\**\s*:")
 ENGINE_PLUMBING = ("{{HARNESS_DIR}}", "{{INVOKE}}", "aidlc engine", "[Answer]:")
+HELPER_INIT = Path("skills/spec-workflow/scripts/specflow_helper/__init__.py")
+SCHEMAS_DIR = Path("skills/spec-workflow/schemas")
+WORKFLOW_VERSION = re.compile(r'^WORKFLOW_VERSION = "([^"]*)"$', re.MULTILINE)
+SCHEMA_ID = (
+    "https://raw.githubusercontent.com/buvis/agent-plugins/specflow-v{version}/"
+    "plugins/specflow/{path}"
+)
 A1_ADOPTED = re.compile(r"^`(\S+)` `([0-9a-f]{40})`$")
 COMMIT_ADOPTED = re.compile(r"^`([0-9a-f]{40})`$")
 
@@ -155,6 +162,9 @@ def check_manifests(plugin: Path) -> list[str]:
             if check is validate_manifest:
                 root = result
 
+    if "version" in root:
+        errors += check_versions(plugin, str(root["version"]))
+
     path = plugin / ".claude-plugin" / "plugin.json"
     if not path.is_file():
         return [*errors, f"{path}: missing Claude compatibility manifest"]
@@ -172,6 +182,34 @@ def check_manifests(plugin: Path) -> list[str]:
             errors.append(f"{path}: field {key} is not a root manifest metadata field")
         elif root and value != root.get(key):
             errors.append(f"{path}: {key} differs from the root manifest")
+    return errors
+
+
+def check_versions(plugin: Path, version: str) -> list[str]:
+    """The helper's WORKFLOW_VERSION and every schema $id carry the manifest version."""
+    errors: list[str] = []
+    init = plugin / HELPER_INIT
+    text = read_text(init, errors) if init.is_file() else None
+    match = WORKFLOW_VERSION.search(text or "")
+    if not match:
+        errors.append(f"{init}: missing WORKFLOW_VERSION")
+    elif match[1] != version:
+        errors.append(
+            f"{init}: WORKFLOW_VERSION {match[1]} differs from the manifest version",
+        )
+    folder = plugin / SCHEMAS_DIR
+    for schema in sorted(folder.glob("*.json")) if folder.is_dir() else []:
+        expected = SCHEMA_ID.format(
+            version=version,
+            path=(SCHEMAS_DIR / schema.name).as_posix(),
+        )
+        try:
+            found = load_object(schema).get("$id")
+        except ValidationError as error:
+            errors.append(str(error))
+            continue
+        if found != expected:
+            errors.append(f"{schema}: $id is not {expected}")
     return errors
 
 

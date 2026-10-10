@@ -18,7 +18,9 @@ class WriteGuardedTest(support.TempTest):
         write_guarded(path, b"new", sha256_raw(path))
         self.assertEqual(path.read_bytes(), b"new")
 
-    def test_file_changed_between_read_and_write_raises_and_keeps_the_edit(self) -> None:
+    def test_file_changed_between_read_and_write_raises_and_keeps_the_edit(
+        self,
+    ) -> None:
         path = self.tmp / "f.json"
         path.write_text("old")
         read = sha256_raw(path)
