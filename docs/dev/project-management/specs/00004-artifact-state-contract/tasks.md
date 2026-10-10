@@ -59,7 +59,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - `tests/specflow/contract/test_state_schema.py` passes with the cases the design lists for T-021: each failure names the path of the value, an unknown extra field passes, and a seeded secret, transcript, absolute path, or session identifier is caught by `check_content`. Three more cases: a boolean where an integer is required, a pattern that matches only part of a string, and an unknown keyword in a schema.
   - Outcome: 2026-10-10, schema, `schema.py`, and `WORKFLOW_VERSION` written; the calcard-mcp 00032 state is the fixture `calcard-00032.specflow.json`. Contract tests: 41 run, OK; no `__pycache__` left in the package.
 
-- [ ] T-022 Implement hash and approval semantics
+- [x] T-022 Implement hash and approval semantics
   - Requirements: WF-002, WF-004, ART-001, STATE-001, STATE-002, VAL-002
   - Depends on: T-021
   - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/canonical.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/state.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/drift.py`, `tests/specflow/contract/test_canonical.py`, `tests/specflow/contract/test_approval.py`, `tests/specflow/contract/test_drift.py`
@@ -77,6 +77,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - content edits invalidate approval; line-ending, trailing-whitespace, final-newline, task and completion checkbox, and a task's own `Outcome:`/`Exception:` line changes do not; a `[x]` edit inside a fenced command and an `Outcome:` line outside a task item each invalidate approval.
     - `tests/specflow/contract/test_canonical.py` and `test_approval.py` pass, one test per case of the clause above and per pinned detail. `test_approval.py` also holds one test per row of the phase table from `requirements` on, in both workflow orders, the bugfix case in which task 4 alone is unchecked, the Kiro-native case without completion criteria, and the spec-type order with a disagreement.
     - `tests/specflow/contract/test_drift.py` covers capture of staged, unstaged, and untracked bytes, a missing file, a refused path, and no partial baseline.
+  - Outcome: 2026-10-10, `canonical.py`, `state.py`, and `drift.py` written against the corrected design (`[-]`, `[~]`, optional `*`, bugfix checkpoint by position). Contract tests: 101 run, OK. Shared test helpers live in `tests/specflow/contract/support.py`.
 
 - [ ] T-023 Implement dependency invalidation
   - Requirements: WF-002, WF-005, STATE-002
