@@ -22,8 +22,9 @@ Generated: 2026-10-10
 
 ## Active Work
 
-- 00002 and 00003 complete and merged (PR #1, #2). Starting 00004 on `feature/specflow-00004`.
-- 00004 order: T-027 (manual Kiro IDE capture by the developer) -> T-020 -> T-021 -> T-022 -> T-023 -> T-024 -> T-025 -> T-026 -> T-028 -> T-029. T-027 blocks everything and needs the developer in Kiro IDE.
+- 00002 and 00003 complete and merged (PR #1, #2). 00004 on `feature/specflow-00004` (2026-10-10): every task built except T-027's two Kiro IDE trials. The branch is unpushed: SSH needs 1Password unlocked, and the `gh` token lacks `workflow` scope for the `validate.yml` change. The design was corrected to the Kiro captures, so its approval and the plan's are stale until the developer re-approves. Completion review still to run in a fresh session.
+- The helper (`plugins/specflow/skills/spec-workflow/scripts/validate_spec.py`) now runs on this repo: `status` lists 00001-00009, all in phase `requirements`, because no `.specflow.json` exists yet. Approvals are still `qa-log.md` receipts until recovery mode records them.
+- Python target is 3.10 (CI). The user's global ruff config does not pin a target, so `ruff check --fix` rewrites code to 3.11+ APIs (UP017 broke the helper once). Run the contract tests on `mise exec python@3.10.22` after any ruff fix.
 - Intake `new/split-long-validator-functions/` is pending, unnumbered.
 
 ## Related context

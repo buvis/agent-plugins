@@ -235,3 +235,10 @@ each landing exactly once.
 - Done: three Kiro-made specs from public Apache-2.0 repositories were captured as fixtures; findings in `kiro-captures.md`. T-027 stays unchecked: the Bug Fix display trial and the `.kiro/specs` link trial need Kiro IDE.
 - The captures contradict the approved design in five places (`kiro-captures.md`, "Against the design"). The design was corrected on 2026-10-10. That edit stales the design approval of 2026-10-06 and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval. Implementation goes on against the corrected design by the developer's instruction; if re-approval is refused, the affected code (canonical text, phase derivation, two checks) is reworked.
 - Order changed: T-020 onward starts before T-027 is complete. The risk is the one T-027 names: a later IDE capture may correct the design again.
+
+## Implementation 2026-10-10
+
+- Done, without the developer: T-020 to T-026, T-028, T-029, each in its own commit on `feature/specflow-00004`, with an `Outcome:` line in `tasks.md`. Contract tests: 230 run, OK on Python 3.15 and 3.10; release tests 52, validator tests 12, `scripts/validate.py`, and `verify_release.py` pass, also in a fresh clone of the branch.
+- Open: T-027 (two Kiro IDE trials), the re-approval of the corrected design and plan, the push and the pull request's CI run (completion criterion 2), and the completion review in a fresh session.
+- Design gaps filled by choice, each named in the task's `Outcome:` line and open for the review: a per-spec `state` field and a blocker `spec` field in the status schema; `required-files` also fails on an artifact recorded as approved whose file is gone; `validate` with no phase skips `gates`; `sources-line` skips unnumbered Kiro-native specs.
+- Found in this repository by the new checks: 00003 holds a withdrawn requirement, `UPD-003`, with no criteria and no task, which `requirement-ids` and `requirement-coverage` report as errors. Whether a withdrawn requirement is exempt is the developer's call.
