@@ -20,7 +20,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - design §6.5-§6.7 match the captures, or are corrected before T-020 starts; the link result is in `kiro-captures.md`, for the host documentation of T-045 (00008), which states the limit if Kiro does not list specs through a link.
   - Outcome: partial (2026-10-10). Three public Kiro-made specs captured as fixtures, five design corrections applied, recorded in `kiro-captures.md`. Open: the Bug Fix display trial and the link trial in Kiro IDE.
 
-- [ ] T-020 Define canonical Markdown templates
+- [x] T-020 Define canonical Markdown templates
   - Requirements: ART-001, ART-002, INT-001
   - Depends on: T-027
   - Location: `plugins/specflow/skills/spec-workflow/templates/requirements.md`, `plugins/specflow/skills/spec-workflow/templates/design.md`, `plugins/specflow/skills/spec-workflow/templates/tasks.md`, `plugins/specflow/skills/spec-workflow/templates/bugfix/bugfix.md`, `plugins/specflow/skills/spec-workflow/templates/bugfix/design.md`, `plugins/specflow/skills/spec-workflow/templates/bugfix/tasks.md`, `plugins/specflow/skills/spec-workflow/templates/intake/idea.md`, `plugins/specflow/skills/spec-workflow/templates/intake/qa-log.md`, `plugins/specflow/skills/spec-workflow/templates/intake/SPEC.md`, `plugins/specflow/skills/spec-workflow/templates/cross-spec-review.md`, `plugins/specflow/skills/spec-workflow/references/artifact-contract.md`, `tests/specflow/contract/test_templates.py`, `.github/workflows/validate.yml`
@@ -38,6 +38,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - representative standard and quick specs, feature and bugfix, render and validate; the bugfix templates match the T-027 capture's headings; fixtures place optional prerequisite lists correctly without changing native headings or IDs in either workflow order; no template contains a placeholder that ART-001.10 bans.
     - `tests/specflow/contract/test_templates.py` passes with the cases the design lists for T-020. The "validate" half of the clause above runs in T-026, which fills each template and passes the result through `validate`. Fixtures not listed in Location are built in a temporary folder by the test.
     - File check: `references/artifact-contract.md` holds each shape of the design's Data model, without the state model, and no artifact path in it depends on the host.
+  - Outcome: 2026-10-10, ten templates and `artifact-contract.md` written; `python3 -m unittest discover -s tests/specflow/contract` ran 19 tests, OK. The fill-and-validate half runs in T-026. Started before T-027 was complete, by the developer's instruction (qa-log 2026-10-10).
 
 - [ ] T-021 Define the state JSON Schema
   - Requirements: STATE-001, ART-001, WF-002
