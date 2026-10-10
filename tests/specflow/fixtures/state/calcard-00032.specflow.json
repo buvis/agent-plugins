@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "specId": "00032-add-if-match-preconditions-to-event-writes",
+  "specType": "bugfix",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.3.0-concept",
+  "artifacts": {
+    "requirements": {
+      "path": "bugfix.md",
+      "status": "approved",
+      "sha256": "1c5a6c90546b2b3ed2fd3221e628d6d894d0d9b2aa1a4b22bb78a7a7aa3f2b0e",
+      "approvedSha256": "1c5a6c90546b2b3ed2fd3221e628d6d894d0d9b2aa1a4b22bb78a7a7aa3f2b0e",
+      "approvedAt": "2026-10-03T21:28:24.294151Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "ca11740432276ecc0d7e1e772346b36bf840175e9d00abcf259274c62a9633ca",
+      "approvedSha256": "ca11740432276ecc0d7e1e772346b36bf840175e9d00abcf259274c62a9633ca",
+      "approvedAt": "2026-10-03T22:09:41.488640Z"
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "draft",
+      "sha256": "0c9f0c9b82dacb8d96554c54379731987fdc99a56e2756f00c6601bdfb67f8a2"
+    }
+  }
+}

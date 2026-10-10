@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/buvis/agent-plugins/specflow-v0.1.0/plugins/specflow/skills/spec-workflow/schemas/specflow-config.schema.json",
+  "title": "specflow workspace config",
+  "description": "The optional .agents/specflow.json. Paths are repository-relative with forward slashes.",
+  "type": "object",
+  "required": ["schemaVersion"],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "root": {"type": "string", "minLength": 1},
+    "specsDir": {"type": "string", "minLength": 1},
+    "numberScan": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  }
+}

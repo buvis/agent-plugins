@@ -18,8 +18,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Risk: A capture contradicts the Data model of the approved design. Mitigation from the design: the sections on Kiro-native shapes, the bugfix shape, and the specs folder are corrected before T-020 starts; that edit stales the design and this plan, and the developer re-approves both.
   - Verify:
     - design §6.5-§6.7 match the captures, or are corrected before T-020 starts; the link result is in `kiro-captures.md`, for the host documentation of T-045 (00008), which states the limit if Kiro does not list specs through a link.
+  - Outcome: partial (2026-10-10). Three public Kiro-made specs captured as fixtures, five design corrections applied, recorded in `kiro-captures.md`. Open: the Bug Fix display trial and the link trial in Kiro IDE.
 
-- [ ] T-020 Define canonical Markdown templates
+- [x] T-020 Define canonical Markdown templates
   - Requirements: ART-001, ART-002, INT-001
   - Depends on: T-027
   - Location: `plugins/specflow/skills/spec-workflow/templates/requirements.md`, `plugins/specflow/skills/spec-workflow/templates/design.md`, `plugins/specflow/skills/spec-workflow/templates/tasks.md`, `plugins/specflow/skills/spec-workflow/templates/bugfix/bugfix.md`, `plugins/specflow/skills/spec-workflow/templates/bugfix/design.md`, `plugins/specflow/skills/spec-workflow/templates/bugfix/tasks.md`, `plugins/specflow/skills/spec-workflow/templates/intake/idea.md`, `plugins/specflow/skills/spec-workflow/templates/intake/qa-log.md`, `plugins/specflow/skills/spec-workflow/templates/intake/SPEC.md`, `plugins/specflow/skills/spec-workflow/templates/cross-spec-review.md`, `plugins/specflow/skills/spec-workflow/references/artifact-contract.md`, `tests/specflow/contract/test_templates.py`, `.github/workflows/validate.yml`
@@ -37,8 +38,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - representative standard and quick specs, feature and bugfix, render and validate; the bugfix templates match the T-027 capture's headings; fixtures place optional prerequisite lists correctly without changing native headings or IDs in either workflow order; no template contains a placeholder that ART-001.10 bans.
     - `tests/specflow/contract/test_templates.py` passes with the cases the design lists for T-020. The "validate" half of the clause above runs in T-026, which fills each template and passes the result through `validate`. Fixtures not listed in Location are built in a temporary folder by the test.
     - File check: `references/artifact-contract.md` holds each shape of the design's Data model, without the state model, and no artifact path in it depends on the host.
+  - Outcome: 2026-10-10, ten templates and `artifact-contract.md` written; `python3 -m unittest discover -s tests/specflow/contract` ran 19 tests, OK. The fill-and-validate half runs in T-026. Started before T-027 was complete, by the developer's instruction (qa-log 2026-10-10).
 
-- [ ] T-021 Define the state JSON Schema
+- [x] T-021 Define the state JSON Schema
   - Requirements: STATE-001, ART-001, WF-002
   - Depends on: T-020
   - Location: `plugins/specflow/skills/spec-workflow/schemas/specflow-state.schema.json`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/__init__.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/schema.py`, `tests/specflow/contract/test_state_schema.py`, `tests/specflow/fixtures/state/`
@@ -55,8 +57,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - valid fixtures pass; malformed types and unsupported versions fail safely.
     - `tests/specflow/contract/test_state_schema.py` passes with the cases the design lists for T-021: each failure names the path of the value, an unknown extra field passes, and a seeded secret, transcript, absolute path, or session identifier is caught by `check_content`. Three more cases: a boolean where an integer is required, a pattern that matches only part of a string, and an unknown keyword in a schema.
+  - Outcome: 2026-10-10, schema, `schema.py`, and `WORKFLOW_VERSION` written; the calcard-mcp 00032 state is the fixture `calcard-00032.specflow.json`. Contract tests: 41 run, OK; no `__pycache__` left in the package.
 
-- [ ] T-022 Implement hash and approval semantics
+- [x] T-022 Implement hash and approval semantics
   - Requirements: WF-002, WF-004, ART-001, STATE-001, STATE-002, VAL-002
   - Depends on: T-021
   - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/canonical.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/state.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/drift.py`, `tests/specflow/contract/test_canonical.py`, `tests/specflow/contract/test_approval.py`, `tests/specflow/contract/test_drift.py`
@@ -74,8 +77,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - content edits invalidate approval; line-ending, trailing-whitespace, final-newline, task and completion checkbox, and a task's own `Outcome:`/`Exception:` line changes do not; a `[x]` edit inside a fenced command and an `Outcome:` line outside a task item each invalidate approval.
     - `tests/specflow/contract/test_canonical.py` and `test_approval.py` pass, one test per case of the clause above and per pinned detail. `test_approval.py` also holds one test per row of the phase table from `requirements` on, in both workflow orders, the bugfix case in which task 4 alone is unchecked, the Kiro-native case without completion criteria, and the spec-type order with a disagreement.
     - `tests/specflow/contract/test_drift.py` covers capture of staged, unstaged, and untracked bytes, a missing file, a refused path, and no partial baseline.
+  - Outcome: 2026-10-10, `canonical.py`, `state.py`, and `drift.py` written against the corrected design (`[-]`, `[~]`, optional `*`, bugfix checkpoint by position). Contract tests: 101 run, OK. Shared test helpers live in `tests/specflow/contract/support.py`.
 
-- [ ] T-023 Implement dependency invalidation
+- [x] T-023 Implement dependency invalidation
   - Requirements: WF-002, WF-005, STATE-002
   - Depends on: T-022
   - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/state.py`, `tests/specflow/contract/test_invalidation.py`
@@ -89,8 +93,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Risk: This task implements the invalidation rules for two workflow orders. Mitigation from the design: one table-driven test holds every change against every downstream result, in both orders.
   - Verify:
     - table-driven tests cover every change and downstream result in both orders.
+  - Outcome: 2026-10-10, `DOWNSTREAM` graph data, propagation in `artifact_status`, and `stale_causes` added to `state.py`; `test_invalidation.py` holds the ten-row table. Contract tests: 105 run, OK.
 
-- [ ] T-024 Implement reconciliation and recovery rules
+- [x] T-024 Implement reconciliation and recovery rules
   - Requirements: WF-004, WF-005, STATE-001, STATE-002
   - Depends on: T-021, T-023
   - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/reconcile.py`, `tests/specflow/contract/test_reconcile.py`, `tests/specflow/fixtures/recovery/`
@@ -104,8 +109,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - recovery fixtures resume without overwriting valid content.
     - `tests/specflow/contract/test_reconcile.py` passes on the fixtures under `tests/specflow/fixtures/recovery/` and on each Kiro capture: missing state, missing artifacts, malformed state kept byte for byte, an unknown version; none overwrites valid content. One more case: an unknown key survives a write with its value and its place, and the written file has two-space indent and a final newline.
+  - Outcome: 2026-10-10, `reconcile.py` written; malformed state and an unknown version raise `StateError` with the file untouched, and missing state returns recovery facts with every present artifact's approval in `ambiguous`. Fixtures under `tests/specflow/fixtures/recovery/`. Contract tests: 118 run, OK.
 
-- [ ] T-025 Implement optimistic concurrency checks
+- [x] T-025 Implement optimistic concurrency checks
   - Requirements: WF-006
   - Depends on: T-022, T-024
   - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/reconcile.py`, `tests/specflow/contract/test_concurrency.py`
@@ -119,8 +125,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - an edit made between an operation's read and its write is detected and not overwritten.
     - `tests/specflow/contract/test_concurrency.py`: a file changed between read and write makes `write_guarded` raise `ConflictError`, and the intervening edit is intact; `reconcile` itself raises it when the state file changes between its read and its write.
+  - Outcome: 2026-10-10, `write_guarded` and `ConflictError` added to `reconcile.py`; `reconcile` hashes the state file before it reads it and writes through `write_guarded` (temporary file, then replace). Contract tests: 123 run, OK.
 
-- [ ] T-026 Implement the optional validator helper
+- [x] T-026 Implement the optional validator helper
   - Requirements: VAL-001, VAL-002, STATE-003, WF-001, WF-002, WF-004, ART-002
   - Depends on: T-020, T-021, T-023, T-024, T-025
   - Location: `tests/specflow/contract/test_drift.py`, `tools/specflow/verify_release.py`, `tests/specflow/release/test_verify_release.py`, `plugins/specflow/skills/spec-workflow/scripts/validate_spec.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/deps.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/status.py`, `plugins/specflow/skills/spec-workflow/schemas/specflow-status.schema.json`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/drift.py`, `tests/specflow/contract/test_cli.py`, `tests/specflow/contract/test_checks.py`, `tests/specflow/contract/test_deps.py`, `tests/specflow/contract/test_status.py`, `tests/specflow/fixtures/specs/`
@@ -145,8 +152,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - `tests/specflow/contract/test_cli.py` covers each exit code. `test_checks.py` holds one seeded defect per row of the check table that names T-026, and for the two registered rows; it shows that every finding carries file, rule, and fix, and that `validate` writes nothing. A spec filled from each template, feature and bugfix, passes `validate` with no error; those fixtures are under `tests/specflow/fixtures/specs/`.
     - `test_status.py` passes the status document through `check_schema`, and covers an upstream marker with no acceptance (listed as a blocker of the gate after the dependent artifact) and a spec on hold. `test_deps.py` and `test_drift.py` cover every case of the two clauses above; the cases "native placement" and "missing placement" reach the helper as a list of paths or as a stored `not_checked` value, since the helper reads no placement section.
     - `tests/specflow/release/test_verify_release.py` (00002) gains `test_rejects_workflow_version_differing_from_the_manifest` and `test_rejects_schema_id_differing_from_its_address`.
+  - Outcome: 2026-10-10, `deps.py`, `code_drift`, `checks.py` (twelve checks), `status.py` with its schema, `validate_spec.py`, and the two release rules written. Contract tests: 201 run, OK; release tests: 52 run, OK. Choices the design left open: status entries carry `state` (`valid`, `missing`, `invalid`) to drive exit 1, and blockers name the referring `spec`; `required-files` also fails an artifact the state records as approved or stale when its file is gone; with no phase, `validate` runs every check except `gates`. On this repository `validate` finds one error: 00003's withdrawn `UPD-003` has no criteria and no task.
 
-- [ ] T-028 Implement the workspace config and the specs folder
+- [x] T-028 Implement the workspace config and the specs folder
   - Requirements: INT-001, ART-001, SEC-002, VAL-001
   - Depends on: T-026
   - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/config.py`, `plugins/specflow/skills/spec-workflow/schemas/specflow-config.schema.json`, `plugins/specflow/skills/spec-workflow/templates/specflow.json`, `plugins/specflow/skills/spec-workflow/scripts/validate_spec.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `tests/specflow/contract/test_config.py`
@@ -165,8 +173,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - fixtures cover no config, a configured root, a configured `specsDir`, each refused path, a `.kiro/specs` path that resolves outside the repository, specs left beside a configured folder, and an ignored specs folder.
     - `tests/specflow/contract/test_config.py` passes with the cases of the clause above, with this repository's own config file, with one seeded defect for the `specs-folder` check, and with a case in which `status` under a configured root lists an item of `<root>/intake/new/`. Fixtures not listed in Location are built in a temporary folder by the test.
+  - Outcome: 2026-10-10, `config.py`, the config schema, `templates/specflow.json`, and the `specs-folder` check written; `validate_spec.py` reads the config before any command and maps `ConfigError` and a failed `git check-ignore` to exit 2. Contract tests: 215 run, OK. Run on this repository, `status` lists specs 00001 to 00009.
 
-- [ ] T-029 Implement spec numbers and intake items
+- [x] T-029 Implement spec numbers and intake items
   - Requirements: INT-001, ART-001, VAL-001
   - Depends on: T-026, T-028
   - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/numbers.py`, `plugins/specflow/skills/spec-workflow/scripts/validate_spec.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `plugins/specflow/skills/spec-workflow/references/artifact-contract.md`, `tests/specflow/contract/test_numbers.py`
@@ -182,9 +191,10 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - fixtures cover an empty repo, grouped intake folders (with the group kept on the move to `processed/`), an item and spec with different titles (no clash), each clash kind, a Kiro-native spec, a missing `Sources:` line, missing/ambiguous numbered dependencies, exact native folder references in a configured specs folder, an intake item without a matching spec (not a prerequisite target), and a file input whose name matches two files (asked, not guessed).
     - `tests/specflow/contract/test_numbers.py` passes: the number scan, each clash kind, a Kiro-native spec, a missing `Sources:` line, and the dependency references, one test each, with one seeded defect each for `number-clashes` and `sources-line`. Fixtures not listed in Location are built in a temporary folder by the test.
     - File check: `references/artifact-contract.md` holds the five steps of the intake procedure. Two cases of the clause above are agent behavior and are proven by sessions that T-031 (00006) writes: the group kept on the move, and a file name that matches two files.
+  - Outcome: 2026-10-10, `numbers.py`, `next-number`, the `number-clashes` and `sources-line` checks, and the five-step intake procedure in `artifact-contract.md` written; `status` now lists intake items through the same scan. An unnumbered Kiro-native spec is exempt from `sources-line`, since it has no intake item. Contract tests: 230 run, OK. On this repository `next-number` prints 00010.
 
 ## Completion criteria
 
 - [ ] Every task above is checked, each with its `Outcome:` line.
 - [ ] On the final commit, the pull request's CI run is green (before a pull request exists, the step commands pass in a fresh clone of the commit): the repository validator, the contract tests (`python3 -m unittest discover -s tests/specflow/contract`), and the release check with its two new rules.
-- [ ] Run from this repository's root, `validate_spec.py status --json` exits 0 and prints a document that `check_schema` accepts against the status schema and that lists specs 00001 to 00009.
+- [x] Run from this repository's root, `validate_spec.py status --json` exits 0 and prints a document that `check_schema` accepts against the status schema and that lists specs 00001 to 00009.

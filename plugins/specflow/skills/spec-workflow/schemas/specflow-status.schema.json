@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/buvis/agent-plugins/specflow-v0.1.0/plugins/specflow/skills/spec-workflow/schemas/specflow-status.schema.json",
+  "title": "specflow status",
+  "description": "The output of `validate_spec.py status --json`, computed from repository files alone. A breaking change raises statusVersion.",
+  "type": "object",
+  "required": ["statusVersion", "specs", "problems", "intake"],
+  "properties": {
+    "statusVersion": {"type": "integer", "const": 1},
+    "specs": {"type": "array", "items": {"$ref": "#/$defs/spec"}},
+    "problems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule", "message", "fix"],
+        "properties": {
+          "rule": {"type": "string", "minLength": 1},
+          "message": {"type": "string", "minLength": 1},
+          "fix": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "intake": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  },
+  "$defs": {
+    "artifactStatus": {"type": "string", "enum": ["missing", "draft", "approved", "stale"]},
+    "gate": {"type": "string", "enum": ["open", "closed"]},
+    "spec": {
+      "type": "object",
+      "required": [
+        "spec",
+        "specType",
+        "profile",
+        "phase",
+        "state",
+        "hold",
+        "artifacts",
+        "gates",
+        "blockers",
+        "warnings",
+        "nextTask"
+      ],
+      "properties": {
+        "spec": {"type": "string", "minLength": 1},
+        "specType": {"type": "string", "enum": ["feature", "bugfix"]},
+        "profile": {"type": ["string", "null"], "enum": ["standard", "quick", null]},
+        "phase": {
+          "type": "string",
+          "enum": ["requirements", "design", "tasks", "implementation", "verification", "complete"]
+        },
+        "state": {"type": "string", "enum": ["valid", "missing", "invalid"]},
+        "hold": {
+          "type": ["object", "null"],
+          "required": ["status", "reason", "since"],
+          "properties": {
+            "status": {"type": "string", "enum": ["on_hold", "abandoned"]},
+            "reason": {"type": "string"},
+            "since": {"type": "string"}
+          }
+        },
+        "artifacts": {
+          "type": "object",
+          "required": ["requirements", "design", "tasks"],
+          "properties": {
+            "requirements": {"$ref": "#/$defs/artifactStatus"},
+            "design": {"$ref": "#/$defs/artifactStatus"},
+            "tasks": {"$ref": "#/$defs/artifactStatus"}
+          }
+        },
+        "gates": {
+          "type": "object",
+          "required": ["tasks", "implementation"],
+          "properties": {
+            "requirements": {"$ref": "#/$defs/gate"},
+            "design": {"$ref": "#/$defs/gate"},
+            "tasks": {"$ref": "#/$defs/gate"},
+            "implementation": {"$ref": "#/$defs/gate"}
+          }
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["gate", "reason"],
+            "properties": {
+              "gate": {
+                "type": "string",
+                "enum": ["requirements", "design", "tasks", "implementation"]
+              },
+              "reason": {"type": "string", "minLength": 1},
+              "reference": {"type": "string"},
+              "spec": {"type": "string"},
+              "path": {"type": "string"}
+            }
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind", "message"],
+            "properties": {
+              "kind": {"type": "string", "enum": ["code-drift", "not-checked"]},
+              "message": {"type": "string", "minLength": 1},
+              "path": {"type": "string"}
+            }
+          }
+        },
+        "nextTask": {
+          "type": ["object", "null"],
+          "required": ["id", "title"],
+          "properties": {
+            "id": {"type": ["string", "null"]},
+            "title": {"type": "string"}
+          }
+        }
+      }
+    }
+  }
+}

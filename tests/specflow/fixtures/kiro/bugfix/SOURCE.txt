@@ -1,0 +1,2 @@
+Copied unchanged from https://github.com/awslabs/DefectDetectionApplication/tree/182c509e2c0e6a5f0dbd77a7682bfe149ff7ef87/.kiro/specs/triton-inference-runtimes-missing-fix
+License: see LICENSE (and NOTICE when present) in this folder.
