@@ -40,7 +40,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - File check: `references/artifact-contract.md` holds each shape of the design's Data model, without the state model, and no artifact path in it depends on the host.
   - Outcome: 2026-10-10, ten templates and `artifact-contract.md` written; `python3 -m unittest discover -s tests/specflow/contract` ran 19 tests, OK. The fill-and-validate half runs in T-026. Started before T-027 was complete, by the developer's instruction (qa-log 2026-10-10).
 
-- [ ] T-021 Define the state JSON Schema
+- [x] T-021 Define the state JSON Schema
   - Requirements: STATE-001, ART-001, WF-002
   - Depends on: T-020
   - Location: `plugins/specflow/skills/spec-workflow/schemas/specflow-state.schema.json`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/__init__.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/schema.py`, `tests/specflow/contract/test_state_schema.py`, `tests/specflow/fixtures/state/`
@@ -57,6 +57,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - valid fixtures pass; malformed types and unsupported versions fail safely.
     - `tests/specflow/contract/test_state_schema.py` passes with the cases the design lists for T-021: each failure names the path of the value, an unknown extra field passes, and a seeded secret, transcript, absolute path, or session identifier is caught by `check_content`. Three more cases: a boolean where an integer is required, a pattern that matches only part of a string, and an unknown keyword in a schema.
+  - Outcome: 2026-10-10, schema, `schema.py`, and `WORKFLOW_VERSION` written; the calcard-mcp 00032 state is the fixture `calcard-00032.specflow.json`. Contract tests: 41 run, OK; no `__pycache__` left in the package.
 
 - [ ] T-022 Implement hash and approval semantics
   - Requirements: WF-002, WF-004, ART-001, STATE-001, STATE-002, VAL-002

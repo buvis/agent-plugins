@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/buvis/agent-plugins/specflow-v0.1.0/plugins/specflow/skills/spec-workflow/schemas/specflow-state.schema.json",
+  "title": "specflow state",
+  "description": "The .specflow.json sidecar of one spec folder. The phase is derived from the files and never stored.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "specId",
+    "specType",
+    "profile",
+    "workflowOrder",
+    "workflowVersion",
+    "artifacts"
+  ],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "specId": {"type": "string", "minLength": 1},
+    "specType": {"type": "string", "enum": ["feature", "bugfix"]},
+    "profile": {"type": "string", "enum": ["standard", "quick"]},
+    "workflowOrder": {"type": "string", "enum": ["requirements-first", "design-first"]},
+    "workflowVersion": {"type": "string", "minLength": 1},
+    "artifacts": {
+      "type": "object",
+      "required": ["requirements", "design", "tasks"],
+      "properties": {
+        "requirements": {"$ref": "#/$defs/artifact"},
+        "design": {
+          "$ref": "#/$defs/artifact",
+          "properties": {"approvedCode": {"$ref": "#/$defs/approvedCode"}}
+        },
+        "tasks": {"$ref": "#/$defs/artifact"}
+      }
+    },
+    "hold": {
+      "type": "object",
+      "required": ["status", "reason", "since"],
+      "properties": {
+        "status": {"type": "string", "enum": ["on_hold", "abandoned"]},
+        "reason": {"type": "string", "minLength": 1},
+        "since": {"type": "string", "pattern": "\\d{4}-\\d{2}-\\d{2}"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "[0-9a-f]{64}"},
+    "artifact": {
+      "type": "object",
+      "required": ["path", "status"],
+      "properties": {
+        "path": {"type": "string", "pattern": "[^/\\\\]+\\.md"},
+        "status": {"type": "string", "enum": ["missing", "draft", "approved", "stale"]},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "approvedSha256": {"$ref": "#/$defs/sha256"},
+        "approvedAt": {
+          "type": "string",
+          "pattern": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z"
+        },
+        "approvedCommit": {"type": "string", "pattern": "[0-9a-f]{7,64}"},
+        "acceptedMarkers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["artifact", "line"],
+            "properties": {
+              "artifact": {"type": "string", "enum": ["requirements", "design"]},
+              "line": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "approvedCode": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["status", "files"],
+          "properties": {
+            "status": {"const": "captured"},
+            "files": {"type": "array", "items": {"$ref": "#/$defs/codeFile"}}
+          }
+        },
+        {
+          "type": "object",
+          "required": ["status", "reason"],
+          "properties": {
+            "status": {"const": "not_checked"},
+            "reason": {"type": "string", "minLength": 1}
+          }
+        },
+        {
+          "type": "object",
+          "required": ["status", "reason"],
+          "properties": {
+            "status": {"const": "not_applicable"},
+            "reason": {"type": "string", "minLength": 1}
+          }
+        }
+      ]
+    },
+    "codeFile": {
+      "type": "object",
+      "required": ["path"],
+      "properties": {"path": {"type": "string", "minLength": 1}},
+      "oneOf": [
+        {"required": ["sha256"], "properties": {"sha256": {"$ref": "#/$defs/sha256"}}},
+        {"required": ["missing"], "properties": {"missing": {"const": true}}}
+      ]
+    }
+  }
+}

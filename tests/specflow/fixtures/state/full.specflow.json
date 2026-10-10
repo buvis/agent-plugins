@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "specId": "00042-portable-spec-workflow",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "approvedSha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "approvedAt": "2026-09-27T12:00:00Z",
+      "approvedCommit": "0123456789abcdef0123456789abcdef01234567"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "approvedSha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "approvedAt": "2026-09-28T09:30:00.5Z",
+      "acceptedMarkers": [
+        {"artifact": "requirements", "line": "- /api path naming stays open until the pilot."}
+      ],
+      "approvedCode": {
+        "status": "captured",
+        "files": [
+          {"path": "src/import.py", "sha256": "3333333333333333333333333333333333333333333333333333333333333333"},
+          {"path": "src/new_retry.py", "missing": true}
+        ]
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "draft",
+      "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+    }
+  },
+  "hold": {"status": "on_hold", "reason": "/waiting on the pilot", "since": "2026-10-01"},
+  "laterField": {"kept": true}
+}
