@@ -25,11 +25,11 @@ By default a run reviews and reports, and leaves `plugins/specflow/` untouched. 
 
 ## Sequence
 
-1. Verify that the working directory is the root of the plugin source repository: it holds `plugins/specflow/plugin.json` and `tools/specflow/upstream/sources.md`. Stop otherwise.
+1. Verify that the working directory is the root of the plugin source repository: it holds `plugins/specflow/plugin.json` and `tools/specflow/upstream/sources.md`, `git remote get-url origin` names `buvis/agent-plugins`, and `git status --porcelain -- plugins/specflow tools/specflow/upstream` prints nothing. Stop otherwise.
 2. Read `sources.md` and the rulings the last report deferred.
-3. Fetch each configured HTTPS repository into a fresh temporary directory outside the tracked tree, for example `git clone --bare --filter=blob:none <URL> <tmp>/a1.git`. Run nothing from it.
+3. Make the temporary directory with `mktemp -d` and fetch each configured HTTPS repository into it, for example `git clone --bare --filter=blob:none <URL> <tmp>/a1.git`. Run nothing from it.
 4. For each source, read what changed since its cursor within its scope: `git log <cursor>..<head> -- <paths>` and `git diff <cursor>..<head> -- <paths>`; for A1 also the release notes in `CHANGELOG.md`. Diff the source's license files over the same range; the Scope cell names them. A catch-up may read unreleased A1 commits to see what is coming.
-5. Rule on each change considered: adopt, adapt, defer, or reject, each with the source evidence (path and commit), the local impact, and the upkeep cost. Rule again on each deferred item. A license change blocks adoption from that source until the maintainer rules on it.
+5. Rule on each change considered: adopt, adapt, defer, or reject, each with the source evidence (path and heading, plus the commit when the change maps to one), the local impact, and the upkeep cost. Rule again on each deferred item. A license change blocks adoption from that source until the maintainer rules on it.
 6. Write the report to `docs/dev/project-management/reviews/YYYY-MM-DD-specflow-upstream-catchup.md` (format below). A source with nothing to adopt gets a line saying so.
 7. Advance the cursor of each fully reviewed source in `sources.md`: the commit reviewed through and the review date. A source that could not be read, or was only partly reviewed, keeps its cursor, and the report says its coverage is incomplete.
 8. The default run ends here: review and report, with `plugins/specflow/` untouched. Remove the temporary clones, unless step 9 follows.
@@ -69,4 +69,4 @@ Deferred rulings carried from the last report, ruled again: <list or none>.
 
 ## Cadence
 
-Run a catch-up before each specflow release and at least monthly. Nothing schedules it: the release process names it as its first step. This skill installs no scheduler.
+Run a catch-up before each specflow release and at least monthly. Nothing schedules it: `CONTRIBUTING.md` (Maintainer skills) names it as the first step before each specflow release. This skill installs no scheduler.

@@ -33,6 +33,9 @@ an agent-private folder (`.claude/`, `.kiro/`, `.codex/`) or a symlink to one:
 a local copy of a skill for your own tool stays uncommitted. A maintainer skill
 is never copied into or named inside a plugin package.
 
+Before each specflow release, and at least monthly, run
+`catchup-specflow-upstream` first and commit its report.
+
 ## Plugin documentation
 
 Each plugin README should state:

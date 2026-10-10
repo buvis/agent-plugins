@@ -41,7 +41,7 @@ A1 scope names never become profiles: some skip artifacts specflow always writes
 |---|---|---|
 | Intake | No A1 stage; the same adapted A3 rules; local `phases/intake.md` (targeted discovery) | Concise impact assessment |
 | Requirements | `inception/requirements-analysis.md`, Minimal passages | `requirements.md` |
-| Design | `inception/domain-design.md`, Minimal passages; existing-pattern assessment (ART-003.5) | Minimal `design.md` |
+| Design | `inception/domain-design.md`, Minimal passages; existing-pattern assessment | Minimal `design.md` |
 | Tasks | None; local `phases/tasks.md` (same checks, concise task text) | `tasks.md` |
 | Implementation | `construction/code-generation.md` Minimal floor (one test per requirement plus a happy-path floor) | Source changes |
 | Verification | `construction/build-and-test.md`, Minimal passages | Regression evidence |
@@ -59,14 +59,14 @@ A1's stage files wrap the method in engine plumbing. Adaptation keeps the method
 
 A full read of twelve stages outside the adoption set (the seven `ideation` stages, the three `initialization` stages, `practices-discovery`, and `reverse-engineering`) gave these local rules. No text is taken from those stages:
 
-- one fixed rule for "existing code or empty", and a coverage statement for every discovery (WF-003.15, WF-003.16; from `workspace-detection` and the scope block of `reverse-engineering`);
-- a source for every requirement, nothing unpicked turned into scope, and assumptions named at approval (ART-002.15, WF-002.1; from the grounding contract of `intent-capture`);
-- applicable repository instructions read on every host, with their scope preserved (WF-003.17; from the guardrail files each A1 stage loads);
-- an existing library, tool, or service among the design alternatives (ART-003.12; from `market-research`);
-- a commit recorded at approval and a drift warning (WF-004.8; from the freshness guard of `reverse-engineering`);
-- a "not decided yet" choice, plain words with terms defined, and a playback before drafting (ART-002.16-18; from `intent-capture`, `practices-discovery`, and the summary checkpoint in `stage-protocol.md`);
-- working practices asked when nothing shows them (WF-003.18; from `practices-discovery`), and a `Depends on:` line between specs (ART-002.11, WF-001.9; from the dependency register of `feasibility`);
-- design-system/accessibility context and an accessibility note for sketches (INT-002.8; from `rough-mockups`, with known-answer reuse and the spike budget of the spike rules), and one explicit path for an input file (INT-001.8; from `intent-capture`).
+- one fixed rule for "existing code or empty", and a coverage statement for every discovery (from `workspace-detection` and the scope block of `reverse-engineering`);
+- a source for every requirement, nothing unpicked turned into scope, and assumptions named at approval (from the grounding contract of `intent-capture`);
+- applicable repository instructions read on every host, with their scope preserved (from the guardrail files each A1 stage loads);
+- an existing library, tool, or service among the design alternatives (from `market-research`);
+- a commit recorded at approval and a drift warning (from the freshness guard of `reverse-engineering`);
+- a "not decided yet" choice, plain words with terms defined, and a playback before drafting (from `intent-capture`, `practices-discovery`, and the summary checkpoint in `stage-protocol.md`);
+- working practices asked when nothing shows them (from `practices-discovery`), and a `Depends on:` line between specs (from the dependency register of `feasibility`);
+- design-system/accessibility context and an accessibility note for sketches (from `rough-mockups`, with known-answer reuse and the spike budget of the spike rules), and one explicit path for an input file (from `intent-capture`).
 
 ### Not adopted
 
@@ -104,15 +104,15 @@ No text is taken from A3.
 
 ### Adapted
 
-These are adapted as local rules (decisions 2026-10-03 #10 and #11):
+These are adapted as local rules:
 
-- what must not change, in the repository and in systems outside it, and how to learn about those systems (WF-003.11);
-- binding technical constraints when the repository gives nothing to infer, each ban with its reason and alternative, plus one example to imitate (WF-003.12);
-- intake choices saved to disk as soon as they are confirmed (WF-003.13), and a profile that can be raised later (WF-003.14);
-- genuine uncertainty in hedged answers recorded as unresolved questions, with definite current choices and later follow-ups kept distinct (decision 2026-10-04 #2); a source for every inferred answer, and a progress line while asking (ART-002.12-14);
-- answers logged in the developer's own words, in an append-only log (INT-001.5);
-- English structure whatever the developer's language (ART-001.11), and a validation failure for an unclosed code fence (VAL-001.11);
-- a sketch form of the spike: a user journey and static mockups (INT-002.8).
+- what must not change, in the repository and in systems outside it, and how to learn about those systems;
+- binding technical constraints when the repository gives nothing to infer, each ban with its reason and alternative, plus one example to imitate;
+- intake choices saved to disk as soon as they are confirmed, and a profile that can be raised later;
+- genuine uncertainty in hedged answers recorded as unresolved questions, with definite current choices and later follow-ups kept distinct; a source for every inferred answer, and a progress line while asking;
+- answers logged in the developer's own words, in an append-only log;
+- English structure whatever the developer's language, and a validation failure for an unclosed code fence;
+- a sketch form of the spike: a user journey and static mockups.
 
 ### Not adopted
 

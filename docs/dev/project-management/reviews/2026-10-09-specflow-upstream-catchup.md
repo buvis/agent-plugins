@@ -56,7 +56,7 @@ Nothing to adopt now: every method change in the released range is already refle
 ## A2 aws-samples/sample-ai-powered-sdlc-patterns-with-aws
 
 - Range: `3e7c0f0aa2a1a084c94631edb709deae5fe0ae4f` to the same commit; the repository has no new commits.
-- Coverage: complete for changes since the cursor. Its wider catalog, as it stands at the cursor, has never been read against specflow; that is standing backlog, not a change.
+- Coverage: incomplete. No commits since the cursor, but the cursor Scope's wider catalog has never been read against specflow; only `all-phases/all-phases-aidlc-mcp/` was read (2026-09-28). The cursor keeps its commit and its 2026-09-28 date until a catch-up reads the catalog (corrected after review 00003-aws-sources-catchup-review-01, R1).
 - License files: unchanged.
 - Instructions found in upstream text: none read; no diff.
 

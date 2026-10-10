@@ -73,6 +73,26 @@ Standalone run (no autopilot `state.json`). Spec 00003 is a specflow spec, not a
 
 Overlap: R2, R3, R4, R6 and R8 all touch `check_sources` and can be fixed in one pass. R1, R11 and R15 are all fixes to the first catch-up report and its cursors.
 
+## Decisions (walkthrough 2026-10-10)
+
+- R1: applied. A2's cursor is marked incomplete and keeps its 2026-09-28 date in `sources.md`, and the report says its coverage is incomplete.
+- R3: applied. REL-001.3 is amended to a per-file source-line check; passage placement is checked by hand whenever text is adopted.
+- R2: applied. Attribution must now appear in the LICENSE opening block (before the first blank line), and the ponytail shortcut is removed. New test `test_rejects_attribution_only_in_the_license_body` failed before the fix.
+- R4: applied. Blank role and license cells are rejected. New test `test_rejects_blank_role_or_license_cell` failed before the fix.
+- R5: rejected. The skip test fails if the `not args.paths` guard is removed, and its sibling test pins the default-mode rejection.
+- R6: applied. `is_prefix` is removed and its callers use `recorded.startswith(...)`.
+- R7: rejected. `self.check()` raises on a rejection, so it is the assertion; both tests predate 00003.
+- R8: rejected. The fixed row form is by design, and a padded cell fails loudly.
+- R9: accepted. The churn is isolated in commit 4fd42f8. The long validator functions are filed at `docs/dev/project-management/intake/new/split-long-validator-functions/idea.md`.
+- R10: applied. Added `test_reports_unreadable_reference` (invalid UTF-8, so it does not depend on chmod) and `test_rejects_source_line_naming_a_source_the_record_lacks`.
+- R11: applied. Skill step 5 now asks for path and heading as evidence, plus the commit when the change maps to one.
+- R12: applied. `CONTRIBUTING.md` (Maintainer skills) now names the catch-up as the first step before each specflow release, and the skill points there.
+- R13: applied. Skill step 1 now checks the `origin` remote and a clean `plugins/specflow`/`tools/specflow/upstream` tree, and step 3 uses `mktemp -d`.
+- R14: applied. Internal requirement and decision IDs are removed from the shipped `adaptation.md`.
+- R15: applied. `src/` is removed from A3's cursor Scope, matching UPD-002.2.
+- R16: resolved. A heading-chain check at `v2.11.0` found 45 passages and 0 problems, and a control copy was flagged; recorded in the T-014 Outcome.
+- R17: resolved. The lead ran all four commands at HEAD and CI run 37994671759 is green.
+
 ## Alice
 
 [ALICE] 🟡 A2 cursor date advanced and "Coverage: complete" though the wider catalog was never read (R1). | File: docs/dev/project-management/reviews/2026-10-09-specflow-upstream-catchup.md:59 | Task: T-018
