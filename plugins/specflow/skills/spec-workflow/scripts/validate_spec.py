@@ -13,7 +13,7 @@ import argparse
 import json
 import subprocess
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.dont_write_bytecode = True
@@ -112,7 +112,8 @@ def run_validate(args: argparse.Namespace, repo: Path) -> int:
 
 
 def now() -> str:
-    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+    # timezone.utc, not datetime.UTC: the helper targets Python 3.10.
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def run_hash(args: argparse.Namespace, repo: Path) -> int:
