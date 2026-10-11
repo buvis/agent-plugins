@@ -242,3 +242,18 @@ each landing exactly once.
 - Open: T-027 (two Kiro IDE trials), the re-approval of the corrected design and plan, the push and the pull request's CI run (completion criterion 2), and the completion review in a fresh session.
 - Design gaps filled by choice, each named in the task's `Outcome:` line and open for the review: a per-spec `state` field and a blocker `spec` field in the status schema; `required-files` also fails on an artifact recorded as approved whose file is gone; `validate` with no phase skips `gates`; `sources-line` skips unnumbered Kiro-native specs.
 - Found in this repository by the new checks: 00003 holds a withdrawn requirement, `UPD-003`, with no criteria and no task, which `requirement-ids` and `requirement-coverage` report as errors. Whether a withdrawn requirement is exempt is the developer's call.
+
+## Requirements re-approval (2026-10-11)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/requirements.md`, git blob `a2f61c0c72e5b923e20328ab2fb30e5273cc3297` (commit `e0dd00e`).
+- Decision: approved by the developer. Request: "re-approve requirements and design".
+- Scope: the whole artifact, including the review 00004-01 rewording of STATE-002.4 (F26), STATE-003.4 (F9), and WF-004.8 (F10).
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Design re-approval (2026-10-11)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/design.md`, git blob `2b0f3d4ff08acc27b9ff6697c7ba950d817439ad` (commit `e0dd00e`).
+- Decision: approved by the developer, with the same request. It covers the 2026-10-10 corrections from the Kiro captures (`kiro-captures.md`, "Against the design") and the review 00004-01 edits: the `stale-approvals` check row (F2) and cumulative gates (F1).
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027). Question: "Accept it for the design approval?" Answer: "Accept it by name (Recommended)".
+- Not covered: the tasks approval of 2026-10-06 stays stale (WF-002.6), since both upstream artifacts changed. It needs its own re-approval.
+- This is a receipt: no `.specflow.json` exists for this spec.
