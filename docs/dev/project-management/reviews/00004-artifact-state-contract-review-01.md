@@ -284,3 +284,27 @@ R13: fail
 Verdict: 32 findings
 
 Tests: 294 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-11)
+
+- F1: cumulative gates (a closed gate closes every later gate), tests in both workflow orders, status schema doc line. Queued.
+- F2: new `stale-approvals` check, error level, all phases, names the cause from `stale_causes`; design table row under VAL-001.1. Queued.
+- F3: narrow state schema `path` to canonical names per slot, plus a schema test. Queued.
+- F4, F5, F16, F17: one refactor pass (split `checks.py`, `functools.partial` for `found`, one finding constructor in a leaf module, split the two `deps.py` functions). Queued.
+- F6: `required-files` uses the requested phase when given, plus a test. Queued.
+- F7: scope `BAD_CHECKBOX` to task items, one test per sample. Queued.
+- F8: `next_number` also scans a real `.kiro/specs/` that differs from `specsDir`, plus a test. Queued.
+- F9: reword STATE-003.4 (the helper writes no approval; it may compute the values the agent records). Queued.
+- F10: amend WF-004.8 to the design's all-or-nothing baseline. Queued.
+- F11: catch decode errors per spec, mark the spec `state: invalid` with a blocker, plus a test. Queued.
+- F12: closed by F2's check; no `status` field. Rejected as separate work.
+- F13, F14, F15, F21: apply all four bundle fixes. Queued.
+- F18, F19, F27: apply the small cleanups. Queued.
+- F20: keep `workspace_config` for the design's interface name. Rejected.
+- F22: point the placement test at shipped templates and fixtures; re-run the replay under unittest for the other three. Queued.
+- F23: deferred by design to 00005 T-071 and 00006. Accepted.
+- F24, F25: trace dotted IDs; pass `--` to `git check-ignore`. Queued.
+- F26: content matching `approvedSha256` clears a stored `stale` (STATE-002.4), pinned by a test. Queued.
+- F28: extras and the hold rule accepted.
+- F29: zero-task `tasks.md` does not derive `complete`; `write_guarded` unlinks its tmp file in `finally`. Queued.
+- F30: resolved. F31, F32: known open items, already owned.
