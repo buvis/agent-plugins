@@ -131,7 +131,8 @@ def own_status(path: Path, record: dict) -> str:
         return "draft"
     try:
         current = sha256_canonical(path)
-    except UnicodeDecodeError:  # approved text was UTF-8, so it changed; required-files reports it
+    except UnicodeDecodeError:
+        # The approved text was UTF-8, so it changed; required-files reports it.
         return "stale"
     return "approved" if current == record["approvedSha256"] else "stale"
 

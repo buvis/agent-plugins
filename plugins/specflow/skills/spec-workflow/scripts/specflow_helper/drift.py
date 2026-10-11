@@ -12,7 +12,8 @@ from .config import DRIVE
 def refuse_reason(repo: Path, path: str) -> str | None:
     """Why a baseline path is refused, or None. Checked before anything is read."""
     pure = PurePosixPath(path)
-    absolute = pure.is_absolute() or DRIVE.match(path)  # PurePosixPath reads C:/x as relative
+    # PurePosixPath reads C:/x as relative, so drive paths are caught apart.
+    absolute = pure.is_absolute() or DRIVE.match(path)
     if not path or "\\" in path or absolute or path.startswith("~"):
         return "not a repository-relative path"
     if ".." in pure.parts:
@@ -95,7 +96,9 @@ def code_drift(repo: Path, approved_code: dict | None) -> list[dict[str, str]]:
         except OSError as error:
             warnings.append(
                 warning(
-                    "not-checked", f"{path} cannot be read: {error.strerror}", path
+                    "not-checked",
+                    f"{path} cannot be read: {error.strerror}",
+                    path,
                 ),
             )
             continue

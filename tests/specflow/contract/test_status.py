@@ -192,7 +192,9 @@ class MarkerTest(StatusTest):
             with self.subTest(order=order):
                 spec = self.make(name)
                 path = spec / f"{upstream}.md"
-                path.write_text(path.read_text() + "\n## Open decisions\n\n- Pick one.\n")
+                path.write_text(
+                    path.read_text() + "\n## Open decisions\n\n- Pick one.\n"
+                )
                 state = support.new_state(name, workflowOrder=order)
                 accepted = [{"artifact": upstream, "line": "- Pick one."}]
                 state["artifacts"]["tasks"]["acceptedMarkers"] = accepted

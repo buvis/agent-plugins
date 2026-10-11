@@ -127,12 +127,13 @@ class SourcesLineTest(NumbersTest):
 
     def test_bugfix_sources_closes_the_introduction(self) -> None:
         spec = shutil.copytree(
-            support.FIXTURES / "specs" / "00102-bugfix-sample", self.specs / "00102-bug"
+            support.FIXTURES / "specs" / "00102-bugfix-sample",
+            self.specs / "00102-bug",
         )
         self.assertNotIn("sources-line", self.rules(spec))
         text = (spec / "bugfix.md").read_text().replace("Sources:", "Notes:")
         (spec / "bugfix.md").write_text(
-            text + "\nSources: docs/intake/processed/00102-x\n"
+            text + "\nSources: docs/intake/processed/00102-x\n",
         )
         self.assertIn("sources-line", self.rules(spec))
 
@@ -163,7 +164,7 @@ class ReferenceTest(NumbersTest):
         self.assertEqual(reasons["00020"], "missing target")
         self.assertTrue(reasons["00021"].startswith("ambiguous target"))
         self.assertTrue(
-            reasons["folder:login-fix"].startswith("incomplete prerequisite")
+            reasons["folder:login-fix"].startswith("incomplete prerequisite"),
         )
 
 

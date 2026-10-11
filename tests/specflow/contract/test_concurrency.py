@@ -43,7 +43,6 @@ class WriteGuardedTest(support.TempTest):
             write_guarded(path, b"mine", "0" * 64)
         self.assertFalse(path.exists())
 
-
     def test_failed_write_leaves_no_temporary_file(self) -> None:
         path = self.tmp / "f.json"
         path.write_text("old")

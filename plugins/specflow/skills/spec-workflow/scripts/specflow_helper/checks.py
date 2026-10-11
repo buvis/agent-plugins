@@ -363,7 +363,9 @@ def design_sections(ctx: Context) -> list[Finding]:
                 body[0].startswith("Not applicable:")
                 and not body[0].split(":", 1)[1].strip()
             ):
-                findings.append(found(f"## {name} gives no reason", "Write the reason."))
+                findings.append(
+                    found(f"## {name} gives no reason", "Write the reason.")
+                )
     requirements = read_text(paths["requirements"])
     if "Requirement traceability" in parts and requirements is not None:
         source = paths["requirements"].name
@@ -611,10 +613,11 @@ def specs_folder_check(ctx: Context) -> list[Finding]:
             )
             fix = f"Move them into {configured}, then make .kiro/specs a link to it."
             findings.append(
-                error(ctx, kiro, "specs-folder", message + ", ".join(left), fix)
+                error(ctx, kiro, "specs-folder", message + ", ".join(left), fix),
             )
     if (ctx.repo / ".git").exists() and git_ignored(
-        ctx.repo, f"{configured}/.specflow-probe"
+        ctx.repo,
+        f"{configured}/.specflow-probe",
     ):
         message = f"git ignores the specs folder {configured}, so its specs are never committed"
         fix = "Remove the ignore rule that matches it, or configure another specsDir."

@@ -77,10 +77,13 @@ class ExitCodeTest(CliTest):
             (1, ""),
         ):
             result = subprocess.CompletedProcess([], code, "", stderr)
-            with self.subTest(code=code), mock.patch.object(
-                validate_spec.subprocess,
-                "run",
-                return_value=result,
+            with (
+                self.subTest(code=code),
+                mock.patch.object(
+                    validate_spec.subprocess,
+                    "run",
+                    return_value=result,
+                ),
             ):
                 self.assertIsNone(
                     validate_spec.git(self.repo, "rev-parse", "--verify", "HEAD"),
