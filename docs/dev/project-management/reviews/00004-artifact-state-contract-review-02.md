@@ -148,3 +148,21 @@ D5: pass
 Verdict: 16 findings
 
 Tests: 311 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-11)
+
+- F1 + F6: `malformed_boxes` scans from the first task to the next level-2 heading and skips fenced lines. This covers Kiro-native plans and a fenced `## Completion criteria`. Add 2-3 tests. Queued.
+- F2: Outcome and Exception stay one line. No change to the hash rules. State it in `artifact-contract.md` and the tasks template, and have `progress-fields` warn on a continuation line under one. Queued.
+- F3 + F11: edit the design. Add the withdrawn exemption to the `requirement-ids` and `requirement-coverage` rows, and update the interface block and module table for `findings.py`, `spec_text.py`, `Context.phase` and `validate(skip=...)`. Then re-approve the design, and the tasks it stales. Queued.
+- F4: `cross-spec-references` compares resolved folders, not raw strings. Add one test per direction (number against `folder:`, and the reverse). Queued.
+- F5: a file restored over a recorded `missing` that still has `approvedSha256` reads as `stale`, with the cause "deleted since approval" in `stale-approvals`. Add one test. Queued.
+- F7: delete `test_placement_keeps_headings_and_ids_in_every_capture`. Queued.
+- F8: accepted. Add one design line saying VAL-001.8's repository reports count as repository discovery under the Performance NFR. Queued with F3.
+- F9: dismissed. The lead's unittest replay at `4d000aa` shows the named tests fail at base, and the six that pass do so by design.
+- F10: `next_number` scans `.kiro/specs` leftovers only when it is a real directory inside the repository. Add a link test. Queued.
+- F12: `[0-9]{5}` in place of `\d{5}` in `deps.py`, `numbers.py` and `spec_text.py`. Add one test. Queued.
+- F13: refuse a spec directory outside the repository in `reconcile` and `status`. `write_guarded` uses a unique temp name and keeps the file mode. Queued.
+- F14: drift hashes use line-ending-normalized content. Note that existing `approvedCode` baselines may show drift once. Queued.
+- F15: out of scope (00006). Accepted.
+- F16: known open item (T-027 Kiro IDE trials, cycle-1 F32). The developer owns it.
+- Auto-dismissed (F23/F28 re-raises): settled in cycle 1, no action.
