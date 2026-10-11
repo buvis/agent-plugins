@@ -129,7 +129,11 @@ def own_status(path: Path, record: dict) -> str:
         return "stale"
     if record.get("status") != "approved" or "approvedSha256" not in record:
         return "draft"
-    return "approved" if sha256_canonical(path) == record["approvedSha256"] else "stale"
+    try:
+        current = sha256_canonical(path)
+    except UnicodeDecodeError:  # approved text was UTF-8, so it changed; required-files reports it
+        return "stale"
+    return "approved" if current == record["approvedSha256"] else "stale"
 
 
 def own_statuses(spec_dir: Path, state: dict | None) -> dict[str, str]:
@@ -261,7 +265,7 @@ def derive_phase(spec_dir: Path, status: dict[str, str], order: str) -> str:
         top = [item for item in items if item["parent"] is None]
         if top and open_items == [top[-1]]:
             return "verification"
-    if open_items:
+    if open_items or not items:  # a plan with no task is not complete
         return "implementation"
     if boxes and not all(boxes):
         return "verification"

@@ -6,6 +6,8 @@ import os
 import re
 from pathlib import Path
 
+from .findings import finding
+
 NUMBER = re.compile(r"^(\d{5})-")
 FIX = (
     "Renumber the newer item and every place that cites it, before it is cited further."
@@ -52,6 +54,9 @@ def next_number(repo: Path, config: dict[str, object]) -> str:
     """One more than the highest five-digit prefix in use; read-only."""
     names = [p.name for p in numbered_items(repo, config) + spec_folders(repo, config)]
     names += scanned_names(repo, config)
+    kiro = repo / ".kiro" / "specs"
+    if kiro.resolve() != (repo / str(config["specsDir"])).resolve():
+        names += [p.name for p in subfolders(kiro)]  # leftovers specs-folder reports
     numbers = [int(m[1]) for name in names if (m := NUMBER.match(name))]
     return f"{max(numbers, default=0) + 1:05d}"
 
@@ -69,13 +74,7 @@ def number_clashes(repo: Path, config: dict[str, object]) -> list[dict[str, str]
         for number, clash in sorted(seen.items()):
             if len(clash) > 1:
                 paths = ", ".join(p.relative_to(repo).as_posix() for p in clash)
-                findings.append(
-                    {
-                        "level": "error",
-                        "file": clash[-1].relative_to(repo).as_posix(),
-                        "rule": "number-clashes",
-                        "message": f"number {number} is used by two {kind}: {paths}",
-                        "fix": FIX,
-                    },
-                )
+                message = f"number {number} is used by two {kind}: {paths}"
+                file = clash[-1].relative_to(repo).as_posix()
+                findings.append(finding(file, "number-clashes", message, FIX))
     return findings

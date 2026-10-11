@@ -110,6 +110,17 @@ class InvalidationTest(support.TempTest):
         (spec / "requirements.md").write_text(support.REQUIREMENTS + "\nChanged.\n")
         self.assertEqual(artifact_status(spec, state)["tasks"], "draft")
 
+    def test_approved_plan_without_a_task_is_not_complete(self) -> None:
+        spec, state = self.build("requirements-first")
+        plan = "# Tasks: Sample\n\n## Completion criteria\n\n- [x] Done.\n"
+        (spec / "tasks.md").write_text(plan)
+        support.approve(spec, state, "tasks")
+        statuses = artifact_status(spec, state)
+        self.assertEqual(
+            derive_phase(spec, statuses, "requirements-first"),
+            "implementation",
+        )
+
     def test_stale_upstream_closes_the_implementation_gate(self) -> None:
         for order in ("requirements-first", "design-first"):
             with self.subTest(order=order):

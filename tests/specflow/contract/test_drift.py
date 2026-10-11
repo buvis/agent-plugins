@@ -65,6 +65,7 @@ class CodeBaselineTest(support.TempTest):
             ("/etc/hosts", "not a repository-relative path"),
             ("~/x.py", "not a repository-relative path"),
             ("src\\x.py", "not a repository-relative path"),
+            ("C:/outside/file.py", "not a repository-relative path"),
             ("src/../x.py", "holds a .. segment"),
             ("link/committed.py", "goes through a symbolic link"),
             ("src", "is a directory"),

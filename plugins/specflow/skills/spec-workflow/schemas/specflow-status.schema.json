@@ -68,6 +68,7 @@
           }
         },
         "gates": {
+          "description": "Cumulative: a closed gate closes every later gate; each blocker names the gate it closes first.",
           "type": "object",
           "required": ["tasks", "implementation"],
           "properties": {

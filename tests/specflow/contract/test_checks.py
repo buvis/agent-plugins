@@ -261,6 +261,66 @@ class SeededDefectTest(ChecksTest):
         self.edit(spec / "tasks.md", "  - Requirements: REQ-002\n", requirements)
         self.assertNotIn("cross-spec-references", self.rules(spec))
 
+    def test_task_structure_ignores_bracket_labels_below_the_task_list(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        path = spec / "tasks.md"
+        labels = "\n## Unresolved questions\n\n- [Q1] note\n- [RFC] y\n- [] x\n"
+        path.write_text(path.read_text() + labels)
+        self.assertNotIn("task-structure", self.rules(spec))
+
+    def test_requirement_coverage_counts_a_cited_criterion(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(
+            spec / "tasks.md",
+            "  - Requirements: REQ-002\n",
+            "  - Requirements: REQ-002.1\n",
+        )
+        self.assertNotIn("requirement-coverage", self.rules(spec))
+
+    def test_required_files_follow_the_requested_phase(self) -> None:
+        spec = self.specs / "00106-empty"
+        spec.mkdir()
+        self.assertNotIn("required-files", self.rules(spec))
+        missing = {
+            f["file"]
+            for f in validate(self.repo, spec, "tasks")
+            if f["rule"] == "required-files"
+        }
+        folder = ".kiro/specs/00106-empty"
+        self.assertEqual(missing, {f"{folder}/requirements.md", f"{folder}/design.md"})
+
+    def test_stale_approvals_name_each_stale_artifact_and_its_cause(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        state = support.new_state("00101-feature-sample")
+        support.approve(spec, state, "requirements", "design")
+        self.assertNotIn("stale-approvals", self.rules(spec))
+        self.edit(spec / "requirements.md", "### REQ-002: Report", "### REQ-002: Tell")
+        for phase in (None, "tasks"):
+            with self.subTest(phase=phase):
+                messages = [
+                    f["message"]
+                    for f in validate(self.repo, spec, phase)
+                    if f["rule"] == "stale-approvals"
+                ]
+                self.assertEqual(
+                    messages,
+                    [
+                        "the requirements.md approval is stale: "
+                        "its content changed since the approval",
+                        "the design.md approval is stale: "
+                        "upstream requirements.md changed since its approval",
+                    ],
+                )
+
+    def test_specs_folder_starting_with_a_dash_is_not_a_git_option(self) -> None:
+        support.git(self.repo, "init", "-q")
+        (self.repo / ".agents").mkdir()
+        config = {"schemaVersion": 1, "specsDir": "-specs"}
+        (self.repo / ".agents" / "specflow.json").write_text(json.dumps(config))
+        spec = self.repo / "-specs" / "00101-feature-sample"
+        shutil.copytree(SPECS / "00101-feature-sample", spec)
+        self.assertNotIn("specs-folder", self.rules(spec))
+
     def test_gates(self) -> None:
         spec = self.copy("00101-feature-sample")
         support.approve(

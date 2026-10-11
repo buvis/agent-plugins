@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 from .canonical import canonical, scan_lines
-from .checks import CHECKS, Context, validate, workspace_config
+from .checks import CHECKS, Context, read_text, validate, workspace_config
 from .deps import dependency_blockers
 from .drift import code_drift, warning
 from .numbers import numbered_items, spec_folders
@@ -26,7 +26,10 @@ STATUS_VERSION = 1
 MARKER_SECTIONS = ("## Unresolved questions", "## Open decisions")
 LIST_ITEM = re.compile(r"^(?:[-*+]|\d+\.)\s")
 REPOSITORY_CHECKS = ("specs-folder", "number-clashes")
-NOT_PER_SPEC = ("gates", "spec-dependencies", *REPOSITORY_CHECKS)
+# Covered by the artifact and dependency blockers, or reported once under problems.
+NOT_PER_SPEC = frozenset(
+    {"gates", "spec-dependencies", "stale-approvals", *REPOSITORY_CHECKS},
+)
 
 
 def markers(text: str) -> list[str]:
@@ -89,9 +92,9 @@ def marker_blockers(
             (a["artifact"], a["line"]) for a in record.get("acceptedMarkers", [])
         }
         for name in upstream:
-            if not paths[name].exists():
+            text = read_text(paths[name])
+            if text is None:  # required-files reports it
                 continue
-            text = paths[name].read_bytes().decode("utf-8")
             blockers += [
                 {
                     "gate": gate_after(order, dependent),
@@ -161,14 +164,15 @@ def spec_status(repo: Path, specs_dir: Path, spec_dir: Path) -> dict:
             "reason": f"validation failed: {f['rule']}: {f['message']}",
             "reference": f["file"],
         }
-        for f in validate(repo, spec_dir)
-        if f["level"] == "error" and f["rule"] not in NOT_PER_SPEC
+        for f in validate(repo, spec_dir, skip=NOT_PER_SPEC)
+        if f["level"] == "error"
     ]
-    gate_names = (second, "tasks", "implementation")
-    gates = {
-        g: "closed" if any(b["gate"] == g for b in blockers) else "open"
-        for g in gate_names
-    }
+    # A closed gate closes every later gate too, whatever blocker closed it.
+    gates: dict[str, str] = {}
+    closed = False
+    for g in (second, "tasks", "implementation"):
+        closed = closed or any(b["gate"] == g for b in blockers)
+        gates[g] = "closed" if closed else "open"
     hold = (state or {}).get("hold")
     ready = gates["implementation"] == "open" and not hold
     return {

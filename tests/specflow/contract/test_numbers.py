@@ -66,6 +66,11 @@ class NextNumberTest(NumbersTest):
         self.write_config({"numberScan": ["docs/prds"]})
         self.assertEqual(next_number(self.repo, self.config()), "00012")
 
+    def test_specs_left_in_a_real_kiro_folder_count(self) -> None:
+        self.folder("docs", "specs", "00004-x")
+        self.folder(".kiro", "specs", "00009-left-behind")
+        self.assertEqual(next_number(self.repo, self.config()), "00010")
+
     def test_items_deeper_than_one_group_do_not_count(self) -> None:
         self.folder("docs", "intake", "new", "g1", "g2", "00099-too-deep")
         self.assertEqual(next_number(self.repo, self.config()), "00001")

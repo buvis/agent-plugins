@@ -63,7 +63,7 @@ def scan_lines(text: str) -> list[tuple[str, bool, bool]]:
 
 def canonical(text: str, *, tasks: bool = False) -> str:
     """The text an approval hash covers (design: approval representation)."""
-    text = text.removeprefix("﻿").replace("\r\n", "\n").replace("\r", "\n")
+    text = text.removeprefix("\ufeff").replace("\r\n", "\n").replace("\r", "\n")
     lines = [line.rstrip(" \t") for line in text.split("\n")]
     while lines and not lines[-1]:
         lines.pop()

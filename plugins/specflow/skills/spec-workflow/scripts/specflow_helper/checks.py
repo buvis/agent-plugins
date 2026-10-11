@@ -6,19 +6,33 @@ import json
 import re
 import subprocess
 from collections.abc import Callable
+from functools import partial
 from pathlib import Path, PurePosixPath
 from typing import NamedTuple
 
-from .canonical import CHECKBOX, PROGRESS, canonical, scan_lines
+from .canonical import CHECKBOX, COMPLETION, PROGRESS, canonical, scan_lines
 from .config import load_config
-from .numbers import NUMBER, number_clashes
 from .deps import (
     dependency_blockers,
     parse_depends_on,
     requirements_file,
     resolve_reference,
 )
+from .findings import Finding, finding
+from .numbers import NUMBER, number_clashes
 from .schema import check_content
+from .spec_text import (
+    CLAUSE,
+    CROSS_SPEC,
+    REQUIREMENT_HEADING,
+    known_ids,
+    prose,
+    requirement_ids,
+    sections,
+    sources_value,
+    traceability_entries,
+    traced_ids,
+)
 from .state import (
     ORDERS,
     PHASES,
@@ -29,11 +43,10 @@ from .state import (
     load_state,
     spec_phase,
     spec_type,
+    stale_causes,
     task_items,
     workflow_order,
 )
-
-Finding = dict[str, str]
 
 
 class Context(NamedTuple):
@@ -41,6 +54,7 @@ class Context(NamedTuple):
     config: dict[str, object]
     spec_dir: Path  # or the intake item, for phase "intake"
     state: dict | None
+    phase: str | None = None  # the requested phase; None for an unfiltered run
 
 
 CHECKS: dict[str, tuple[frozenset[str], Callable[[Context], list[Finding]]]] = {}
@@ -50,15 +64,8 @@ DESIGN_ON = frozenset(PHASES[2:])
 TASKS_ON = frozenset(PHASES[3:])
 UNFILTERED = "any run with no phase"
 KIRO_SPECS = PurePosixPath(".kiro/specs")
-REQUIREMENT_HEADING = re.compile(r"^### (?:([A-Z][A-Z0-9]*-\d{3})|Requirement (\d+))\b")
-CRITERION = re.compile(r"^(\d+)\. ")
 ID_ENTRY = re.compile(r"^(?:[A-Z][A-Z0-9]*-\d{3}(?:\.\d+)?|\d+\.\d+)$")
-CROSS_SPEC = re.compile(
-    r"(\d{5}|folder:[^\s,;]+) ([A-Z][A-Z0-9]*-\d{3})"
-    r"(?: (?:criterion|criteria) (\d+(?:, ?\d+)*))?",
-)
 BAD_CHECKBOX = re.compile(r"^[ \t]*(?:[-*+]|\d+\.)[ \t]*\[[^\]]{0,3}\]")
-CLAUSE = re.compile(r"^(\d+)\.(\d+) ")
 DESIGN_SECTIONS = (
     "Overview",
     "Context and constraints",
@@ -113,7 +120,7 @@ def git_ignored(repo: Path, path: str) -> bool:
     """Whether git ignores the path; False without git."""
     try:
         result = subprocess.run(
-            ["git", "-C", str(repo), "check-ignore", "-q", path],
+            ["git", "-C", str(repo), "check-ignore", "-q", "--", path],
             capture_output=True,
             text=True,
             check=False,
@@ -137,13 +144,7 @@ def rel(ctx: Context, path: Path) -> str:
 
 
 def error(ctx: Context, path: Path, rule: str, message: str, fix: str) -> Finding:
-    return {
-        "level": "error",
-        "file": rel(ctx, path),
-        "rule": rule,
-        "message": message,
-        "fix": fix,
-    }
+    return finding(rel(ctx, path), rule, message, fix)
 
 
 def read_text(path: Path) -> str | None:
@@ -152,67 +153,6 @@ def read_text(path: Path) -> str | None:
         return path.read_bytes().decode("utf-8")
     except (OSError, UnicodeDecodeError):
         return None
-
-
-def prose(text: str) -> list[tuple[int, str]]:
-    """(line number, line) outside fences, of the canonical text."""
-    return [
-        (i + 1, line)
-        for i, (line, in_fence, _) in enumerate(scan_lines(canonical(text)))
-        if not in_fence
-    ]
-
-
-def sections(text: str) -> dict[str, list[str]]:
-    """Level-two heading -> its lines up to the next level-two heading, outside fences."""
-    found: dict[str, list[str]] = {}
-    current: list[str] | None = None
-    for _, line in prose(text):
-        if line.startswith("## "):
-            current = found.setdefault(line[3:].strip(), [])
-        elif current is not None:
-            current.append(line)
-    return found
-
-
-def requirement_ids(text: str) -> dict[str, set[int]]:
-    """Requirement ID -> its numbered criteria ("1" stands for Kiro's Requirement 1)."""
-    lines = prose(text)
-    ids: dict[str, set[int]] = {}
-    current: str | None = None
-    in_requirements = "## Requirements" not in {line for _, line in lines}
-    for _, line in lines:
-        if line.startswith("## "):
-            in_requirements = line.strip() == "## Requirements"
-            current = None
-            continue
-        match = REQUIREMENT_HEADING.match(line) if in_requirements else None
-        if match:
-            current = match[1] or match[2]
-            ids.setdefault(current, set())
-        elif line.startswith("### "):
-            current = None
-        elif current and (number := CRITERION.match(line)):
-            ids[current].add(int(number[1]))
-    return ids
-
-
-def bugfix_clauses(text: str) -> dict[str, set[int]]:
-    """Section number ("1", "2", "3") -> clause numbers, from a bugfix.md."""
-    clauses: dict[str, set[int]] = {}
-    for _, line in prose(text):
-        if match := CLAUSE.match(line):
-            clauses.setdefault(match[1], set()).add(int(match[2]))
-    return clauses
-
-
-def known_ids(text: str, bugfix: bool) -> set[str]:
-    """Every ID a trace may cite: requirements and their criteria, or bugfix clauses."""
-    groups = bugfix_clauses(text) if bugfix else requirement_ids(text)
-    known = set(groups)
-    for key, numbers in groups.items():
-        known |= {f"{key}.{n}" for n in numbers}
-    return known
 
 
 def is_intake(ctx: Context) -> bool:
@@ -226,15 +166,8 @@ def required_files(ctx: Context) -> list[Finding]:
         idea = ctx.spec_dir / "idea.md"
         if read_text(idea) is None:
             fix = "Save the first input verbatim as idea.md."
-            return [
-                error(
-                    ctx,
-                    idea,
-                    "required-files",
-                    "idea.md is missing or unreadable",
-                    fix,
-                ),
-            ]
+            message = "idea.md is missing or unreadable"
+            return [error(ctx, idea, "required-files", message, fix)]
         return []
     paths = artifact_paths(ctx.spec_dir, ctx.state)
     findings = [
@@ -250,7 +183,9 @@ def required_files(ctx: Context) -> list[Finding]:
     ]
     if findings:
         return findings
-    _, phase = spec_phase(ctx.spec_dir, ctx.state)
+    phase = ctx.phase
+    if phase not in SPEC_PHASES:
+        phase = spec_phase(ctx.spec_dir, ctx.state)[1]
     order = (*ORDERS[workflow_order(ctx.spec_dir, ctx.state)], "tasks")
     needed = list(order[: order.index(phase)] if phase in order else order)
     records = (ctx.state or {}).get("artifacts", {})
@@ -302,6 +237,26 @@ def state_content(ctx: Context) -> list[Finding]:
     ]
 
 
+@check("stale-approvals", SPEC_PHASES)
+def stale_approvals(ctx: Context) -> list[Finding]:
+    """Each approval whose artifact or upstream changed, with the cause (WF-005.1, WF-005.4)."""
+    paths = artifact_paths(ctx.spec_dir, ctx.state)
+    records = (ctx.state or {}).get("artifacts", {})
+    findings = []
+    for name, cause in stale_causes(ctx.spec_dir, ctx.state).items():
+        file = paths[name].name
+        if cause != name:
+            why = f"upstream {paths[cause].name} changed since its approval"
+        elif records.get(name, {}).get("status") == "stale":
+            why = "it is recorded stale"
+        else:
+            why = "its content changed since the approval"
+        message = f"the {file} approval is stale: {why}"
+        fix = f"Review {file} with the developer and record its approval again."
+        findings.append(error(ctx, paths[name], "stale-approvals", message, fix))
+    return findings
+
+
 @check("spec-type", SPEC_PHASES)
 def spec_type_check(ctx: Context) -> list[Finding]:
     _, disagree = spec_type(ctx.spec_dir, ctx.state)
@@ -320,10 +275,7 @@ def requirement_ids_check(ctx: Context) -> list[Finding]:
         return []
     if path.name == "bugfix.md":
         return bugfix_findings(ctx, path, text)
-
-    def found(message: str, fix: str) -> Finding:
-        return error(ctx, path, "requirement-ids", message, fix)
-
+    found = partial(error, ctx, path, "requirement-ids")
     findings = []
     seen: set[str] = set()
     for _, line in prose(text):
@@ -331,12 +283,8 @@ def requirement_ids_check(ctx: Context) -> list[Finding]:
         if match:
             ident = match[1] or match[2]
             if ident in seen:
-                findings.append(
-                    found(
-                        f"requirement ID {ident} is used twice",
-                        "Give it a new, unused ID.",
-                    ),
-                )
+                message = f"requirement ID {ident} is used twice"
+                findings.append(found(message, "Give it a new, unused ID."))
             seen.add(ident)
     findings += [
         found(
@@ -355,24 +303,19 @@ def requirement_ids_check(ctx: Context) -> list[Finding]:
         if not criteria
     ]
     if not seen:
-        findings.append(
-            found(
-                "no requirement with a stable ID",
-                "Add requirements under ## Requirements.",
-            ),
-        )
+        fix = "Add requirements under ## Requirements."
+        findings.append(found("no requirement with a stable ID", fix))
     return findings
 
 
 def bugfix_findings(ctx: Context, path: Path, text: str) -> list[Finding]:
     lines = [line for _, line in prose(text)]
+    found = partial(error, ctx, path, "requirement-ids")
     findings = []
     for heading, number, pattern in BUGFIX_SECTIONS:
         if heading not in lines:
             fix = "Keep Kiro's three behavior sections."
-            findings.append(
-                error(ctx, path, "requirement-ids", f"missing section {heading}", fix),
-            )
+            findings.append(found(f"missing section {heading}", fix))
             continue
         start = lines.index(heading) + 1
         end = next(
@@ -382,20 +325,18 @@ def bugfix_findings(ctx: Context, path: Path, text: str) -> list[Finding]:
         clauses = [line for line in lines[start:end] if CLAUSE.match(line)]
         if not clauses:
             fix = f"Add a clause numbered {number}.1."
-            findings.append(
-                error(ctx, path, "requirement-ids", f"{heading} has no clause", fix),
-            )
+            findings.append(found(f"{heading} has no clause", fix))
         for index, clause in enumerate(clauses, start=1):
             if not clause.startswith(f"{number}.{index} "):
                 message = f"clause out of sequence: {clause}"
                 fix = f"Number this section's clauses {number}.1, {number}.2, and on."
-                findings.append(error(ctx, path, "requirement-ids", message, fix))
+                findings.append(found(message, fix))
             elif not re.match(rf"^{number}\.{index} {pattern}", clause):
                 message = f"clause does not follow the pattern: {clause}"
                 fix = (
                     "Use WHEN <condition> THEN the system ..., as the section requires."
                 )
-                findings.append(error(ctx, path, "requirement-ids", message, fix))
+                findings.append(found(message, fix))
     return findings
 
 
@@ -406,10 +347,7 @@ def design_sections(ctx: Context) -> list[Finding]:
     text = read_text(path)
     if text is None:
         return []
-
-    def found(message: str, fix: str) -> Finding:
-        return error(ctx, path, "design-sections", message, fix)
-
+    found = partial(error, ctx, path, "design-sections")
     parts = sections(text)
     findings = []
     if canonical(text).startswith("# Design: "):
@@ -419,19 +357,13 @@ def design_sections(ctx: Context) -> list[Finding]:
                 fix = "Keep every section; mark one that does not apply Not applicable: <reason>."
                 findings.append(found(f"missing section ## {name}", fix))
             elif not body:
-                findings.append(
-                    found(
-                        f"## {name} is empty",
-                        "Write it, or Not applicable: <reason>.",
-                    ),
-                )
+                fix = "Write it, or Not applicable: <reason>."
+                findings.append(found(f"## {name} is empty", fix))
             elif (
                 body[0].startswith("Not applicable:")
                 and not body[0].split(":", 1)[1].strip()
             ):
-                findings.append(
-                    found(f"## {name} gives no reason", "Write the reason."),
-                )
+                findings.append(found(f"## {name} gives no reason", "Write the reason."))
     requirements = read_text(paths["requirements"])
     if "Requirement traceability" in parts and requirements is not None:
         source = paths["requirements"].name
@@ -447,28 +379,15 @@ def design_sections(ctx: Context) -> list[Finding]:
     return findings
 
 
-def traceability_entries(lines: list[str]) -> list[str]:
-    """Entries of the Criteria (or Criterion) column of the traceability table."""
-    rows = [
-        [cell.strip() for cell in line.strip().strip("|").split("|")]
-        for line in lines
-        if line.strip().startswith("|")
-    ]
-    if not rows:
-        return []
-    names = ("Criteria", "Criterion")
-    column = next((i for i, cell in enumerate(rows[0]) if cell in names), None)
-    if column is None:
-        return []
-    entries = []
-    for row in rows[1:]:
-        if column >= len(row) or set(row[column]) <= set("-: "):
-            continue
-        for entry in row[column].split(","):
-            entry = entry.strip().strip("`")
-            if not CROSS_SPEC.match(entry):
-                entries.append(entry)
-    return entries
+def malformed_boxes(text: str) -> list[tuple[int, str]]:
+    """List items above ## Completion criteria whose box is not [ ], [x], [~] or [-]."""
+    bad = []
+    for n, (line, in_fence, _) in enumerate(scan_lines(canonical(text)), start=1):
+        if line == COMPLETION:
+            break
+        if not in_fence and BAD_CHECKBOX.match(line) and not CHECKBOX.match(line):
+            bad.append((n, line.strip()))
+    return bad
 
 
 @check("task-structure", TASKS_ON)
@@ -477,17 +396,13 @@ def task_structure(ctx: Context) -> list[Finding]:
     text = read_text(path)
     if text is None:
         return []
-
-    def found(message: str, fix: str) -> Finding:
-        return error(ctx, path, "task-structure", message, fix)
-
+    found = partial(error, ctx, path, "task-structure")
     findings = [
         found(
-            f"line {n}: malformed checkbox: {line.strip()}",
+            f"line {n}: malformed checkbox: {line}",
             "Write [ ] or [x] after the marker.",
         )
-        for n, (line, in_fence, _) in enumerate(scan_lines(canonical(text)), start=1)
-        if not in_fence and BAD_CHECKBOX.match(line) and not CHECKBOX.match(line)
+        for n, line in malformed_boxes(text)
     ]
     seen: list[str] = []
     for item in task_items(text):
@@ -517,23 +432,6 @@ def task_structure(ctx: Context) -> list[Finding]:
                     )
         seen.append(item["id"])
     return findings
-
-
-def traced_ids(text: str) -> set[str]:
-    """Requirement IDs the task plan cites, in either numbering; cross-spec citations excluded."""
-    traced: set[str] = set()
-    for _, line in prose(text):
-        stripped = line.strip().lstrip("-*+ ").strip("_")
-        if not stripped.startswith("Requirements:"):
-            continue
-        value = CROSS_SPEC.sub("", stripped.removeprefix("Requirements:"))
-        for token in re.split(r"[,;\s]+", value):
-            token = token.strip("_`")
-            if re.fullmatch(r"[A-Z][A-Z0-9]*-\d{3}", token):
-                traced.add(token)
-            elif re.fullmatch(r"\d+(?:\.\d+)?", token):
-                traced.add(token.split(".")[0])
-    return traced
 
 
 @check("requirement-coverage", TASKS_ON)
@@ -567,13 +465,13 @@ def progress_fields(ctx: Context) -> list[Finding]:
         return []
     fix = "Record Outcome: and Exception: only after the task plan is approved."
     return [
-        {
-            "level": "warning",
-            "file": rel(ctx, path),
-            "rule": "progress-fields",
-            "message": f"line {n}: {line.strip()} in a plan that is not approved",
-            "fix": fix,
-        }
+        finding(
+            rel(ctx, path),
+            "progress-fields",
+            f"line {n}: {line.strip()} in a plan that is not approved",
+            fix,
+            level="warning",
+        )
         for n, (line, in_fence, in_task) in enumerate(
             scan_lines(canonical(text)),
             start=1,
@@ -617,10 +515,7 @@ def cross_spec_finding(
 ) -> list[Finding]:
     ref, ident, criteria = match[1], match[2], match[3]
     where = f"line {number}: {match[0]}"
-
-    def found(message: str, fix: str) -> Finding:
-        return error(ctx, path, "cross-spec-references", message, fix)
-
+    found = partial(error, ctx, path, "cross-spec-references")
     if ref not in declared:
         fix = "Add the spec to Depends on:, or cite this spec's own requirement."
         return [
@@ -732,18 +627,6 @@ def number_clashes_check(ctx: Context) -> list[Finding]:
     return number_clashes(ctx.repo, ctx.config)
 
 
-def sources_value(text: str, *, bugfix: bool) -> str | None:
-    """The first Sources: line where the contract puts it, without its label."""
-    section = None
-    for _, line in prose(text):
-        if line.startswith("## "):
-            section = line.strip()
-        elif line.startswith("Sources:"):
-            if (section == "## Introduction") if bugfix else section is None:
-                return line.removeprefix("Sources:").strip()
-    return None
-
-
 @check("sources-line", SPEC_PHASES)
 def sources_line(ctx: Context) -> list[Finding]:
     """A numbered spec's Sources: line names an intake item with the spec's own number."""
@@ -752,6 +635,7 @@ def sources_line(ctx: Context) -> list[Finding]:
     text = read_text(path)
     if number is None or text is None:
         return []
+    found = partial(error, ctx, path, "sources-line")
     value = sources_value(text, bugfix=path.name == "bugfix.md")
     if value is None:
         where = (
@@ -760,24 +644,16 @@ def sources_line(ctx: Context) -> list[Finding]:
             else "in the header"
         )
         fix = f"Add a Sources: line {where} that names the intake item."
-        return [error(ctx, path, "sources-line", "no Sources: line", fix)]
+        return [found("no Sources: line", fix)]
     item = value.split(",")[0].strip().strip("`").rstrip("/").rsplit("/", 1)[-1]
     cited = NUMBER.match(item)
     if cited is None:
         fix = "Name the intake item's processed/ path first on the line."
-        return [
-            error(
-                ctx,
-                path,
-                "sources-line",
-                f"Sources: names no intake item: {value}",
-                fix,
-            )
-        ]
+        return [found(f"Sources: names no intake item: {value}", fix)]
     if cited[1] != number[1]:
         message = f"Sources: names intake item {item}, not one numbered {number[1]}"
         fix = "Name this spec's own intake item, or renumber the newer of the two."
-        return [error(ctx, path, "sources-line", message, fix)]
+        return [found(message, fix)]
     return []
 
 
@@ -788,15 +664,20 @@ def selected(phases: frozenset[str], phase: str | None) -> bool:
     return UNFILTERED in phases or bool(phases & (SPEC_PHASES - {"implementation"}))
 
 
-def validate(repo: Path, spec_dir: Path, phase: str | None = None) -> list[Finding]:
-    """Every finding of the checks that apply to the phase; writes nothing."""
+def validate(
+    repo: Path,
+    spec_dir: Path,
+    phase: str | None = None,
+    skip: frozenset[str] = frozenset(),
+) -> list[Finding]:
+    """Every finding of the phase's checks, except those named in skip; writes nothing."""
     try:
         state = load_state(spec_dir)
     except StateError:
         state = None
-    ctx = Context(repo, workspace_config(repo), spec_dir, state)
+    ctx = Context(repo, workspace_config(repo), spec_dir, state, phase)
     findings: list[Finding] = []
-    for phases, function in CHECKS.values():
-        if selected(phases, phase):
+    for name, (phases, function) in CHECKS.items():
+        if name not in skip and selected(phases, phase):
             findings += function(ctx)
     return findings

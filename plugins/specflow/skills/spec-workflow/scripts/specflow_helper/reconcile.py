@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 import os
 from pathlib import Path
@@ -34,8 +35,11 @@ def write_guarded(path: Path, data: bytes, read_sha256: str | None) -> None:
     if current != read_sha256:
         raise ConflictError(f"{path}: changed since it was read; nothing was written")
     temporary = path.with_name(f".{path.name}.tmp")
-    temporary.write_bytes(data)
-    os.replace(temporary, path)
+    try:
+        temporary.write_bytes(data)
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)  # gone after a successful replace
 
 
 def recovery(spec_dir: Path) -> dict:
@@ -101,7 +105,7 @@ def derived_changes(
 
 def apply_changes(state: dict, changes: list[dict]) -> dict:
     """A copy of the state with the derived values set; every other key keeps its place."""
-    updated = json.loads(json.dumps(state))
+    updated = copy.deepcopy(state)
     for change in changes:
         updated["artifacts"][change["artifact"]][change["field"]] = change["to"]
     return updated

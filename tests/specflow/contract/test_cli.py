@@ -11,6 +11,7 @@ import subprocess
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import support
 import validate_spec
@@ -62,6 +63,28 @@ class ExitCodeTest(CliTest):
     def test_unreadable_artifact_is_2(self) -> None:
         (self.spec / "tasks.md").write_bytes(b"\xff\xfe")
         self.assertEqual(self.run_cli("hash", str(self.spec / "tasks.md"))[0], 2)
+
+    def test_unexpected_git_failure_is_2(self) -> None:
+        failure = subprocess.CompletedProcess([], 128, "", "fatal: dubious ownership")
+        with mock.patch.object(validate_spec.subprocess, "run", return_value=failure):
+            code, _, err = self.run_cli("hash", str(self.spec / "tasks.md"), "--json")
+        self.assertEqual(code, 2)
+        self.assertIn("dubious ownership", err)
+
+    def test_no_repository_and_quiet_misses_are_absence_not_errors(self) -> None:
+        for code, stderr in (
+            (128, "fatal: not a git repository (or any of the parent directories)"),
+            (1, ""),
+        ):
+            result = subprocess.CompletedProcess([], code, "", stderr)
+            with self.subTest(code=code), mock.patch.object(
+                validate_spec.subprocess,
+                "run",
+                return_value=result,
+            ):
+                self.assertIsNone(
+                    validate_spec.git(self.repo, "rev-parse", "--verify", "HEAD"),
+                )
 
     def test_usage_errors_are_3(self) -> None:
         for args in (

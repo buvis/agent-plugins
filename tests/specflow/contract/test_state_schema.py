@@ -78,6 +78,13 @@ class StateSchemaTest(unittest.TestCase):
         self.full["artifacts"]["tasks"]["sha256"] = "4" * 64 + "x"
         self.assert_fails_at(self.full, "$.artifacts.tasks.sha256")
 
+    def test_artifact_path_names_its_own_canonical_file(self) -> None:
+        self.full["artifacts"]["tasks"]["path"] = "notes.md"
+        self.assert_fails_at(self.full, "$.artifacts.tasks.path")
+        self.full["artifacts"]["tasks"]["path"] = "tasks.md"
+        self.full["artifacts"]["requirements"]["path"] = "bugfix.md"
+        self.assertEqual(self.errors(self.full), [])
+
     def test_unknown_extra_field_passes(self) -> None:
         self.full["artifacts"]["tasks"]["laterField"] = [1, 2]
         self.assertEqual(self.errors(self.full), [])

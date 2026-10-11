@@ -24,12 +24,21 @@
       "type": "object",
       "required": ["requirements", "design", "tasks"],
       "properties": {
-        "requirements": {"$ref": "#/$defs/artifact"},
+        "requirements": {
+          "$ref": "#/$defs/artifact",
+          "properties": {"path": {"enum": ["requirements.md", "bugfix.md"]}}
+        },
         "design": {
           "$ref": "#/$defs/artifact",
-          "properties": {"approvedCode": {"$ref": "#/$defs/approvedCode"}}
+          "properties": {
+            "path": {"const": "design.md"},
+            "approvedCode": {"$ref": "#/$defs/approvedCode"}
+          }
         },
-        "tasks": {"$ref": "#/$defs/artifact"}
+        "tasks": {
+          "$ref": "#/$defs/artifact",
+          "properties": {"path": {"const": "tasks.md"}}
+        }
       }
     },
     "hold": {

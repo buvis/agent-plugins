@@ -6,22 +6,13 @@ import re
 from pathlib import Path
 
 from .canonical import canonical, scan_lines
+from .findings import Finding, finding
 from .state import StateError, load_state, spec_phase
 
 RULE = "spec-dependencies"
 NUMBER = re.compile(r"\d{5}")
 FOLDER = re.compile(r"folder:(.*)")
 FIX = "Write one unindented `Depends on:` line of five-digit numbers or folder:<name> items."
-
-
-def finding(file: str, message: str, fix: str = FIX) -> dict[str, str]:
-    return {
-        "level": "error",
-        "file": file,
-        "rule": RULE,
-        "message": message,
-        "fix": fix,
-    }
 
 
 def valid_item(item: str) -> bool:
@@ -32,16 +23,21 @@ def valid_item(item: str) -> bool:
     return bool(name) and name not in (".", "..") and not any(c in name for c in ",/\\")
 
 
-def parse_depends_on(
+def placed_declarations(
     text: str,
     *,
     bugfix: bool,
-    file: str = "requirements.md",
-) -> tuple[list[str], list[dict[str, str]]]:
-    """The declared references, and declaration errors. Fences and indented fields declare nothing."""
+    file: str,
+) -> tuple[list[str], list[Finding]]:
+    """The Depends on: lines where the contract puts them, and the misplaced ones."""
     section: str | None = None
     placed: list[str] = []
-    findings: list[dict[str, str]] = []
+    findings: list[Finding] = []
+    where = (
+        "the end of ## Introduction"
+        if bugfix
+        else "the header, before the first ## heading"
+    )
     for line, in_fence, _ in scan_lines(canonical(text)):
         if in_fence:
             continue
@@ -49,42 +45,36 @@ def parse_depends_on(
             section = line
         if not line.startswith("Depends on:"):
             continue
-        allowed = section == "## Introduction" if bugfix else section is None
-        if allowed:
+        if (section == "## Introduction") if bugfix else section is None:
             placed.append(line)
         else:
-            where = (
-                "the end of ## Introduction"
-                if bugfix
-                else "the header, before the first ## heading"
-            )
-            findings.append(
-                finding(file, f"misplaced declaration: {line}", f"Move it to {where}."),
-            )
+            message = f"misplaced declaration: {line}"
+            findings.append(finding(file, RULE, message, f"Move it to {where}."))
+    return placed, findings
+
+
+def parse_depends_on(
+    text: str,
+    *,
+    bugfix: bool,
+    file: str = "requirements.md",
+) -> tuple[list[str], list[Finding]]:
+    """The declared references, and declaration errors. Fences and indented fields declare nothing."""
+    placed, findings = placed_declarations(text, bugfix=bugfix, file=file)
     if len(placed) > 1:
-        findings.append(
-            finding(
-                file,
-                f"repeated declaration: {placed[1]}",
-                "Keep one Depends on: line.",
-            ),
-        )
+        message = f"repeated declaration: {placed[1]}"
+        findings.append(finding(file, RULE, message, "Keep one Depends on: line."))
     if not placed:
         return [], findings
     value = placed[0].removeprefix("Depends on:").strip()
     if not value:
-        findings.append(
-            finding(
-                file,
-                "empty declaration",
-                "Name a prerequisite or delete the line.",
-            ),
-        )
+        fix = "Name a prerequisite or delete the line."
+        findings.append(finding(file, RULE, "empty declaration", fix))
         return [], findings
     refs: list[str] = []
     for item in (part.strip() for part in value.split(",")):
         if not valid_item(item):
-            findings.append(finding(file, f"unsupported reference {item!r}"))
+            findings.append(finding(file, RULE, f"unsupported reference {item!r}", FIX))
         elif item not in refs:
             refs.append(item)
     return refs, findings
@@ -113,7 +103,7 @@ def resolve_reference(ref: str, specs_dir: Path) -> tuple[Path | None, str | Non
     return found[0], None
 
 
-def declared(spec_dir: Path) -> tuple[list[str], list[dict[str, str]], str | None]:
+def declared(spec_dir: Path) -> tuple[list[str], list[Finding], str | None]:
     """(references, declaration findings, unreadable reason) of one spec."""
     path = requirements_file(spec_dir)
     if not path.exists():
@@ -150,15 +140,8 @@ def dependency_blockers(spec_dir: Path, specs_dir: Path) -> list[dict[str, str]]
     done: set[Path] = set()
 
     def block(spec: Path, reference: str, reason: str, **extra: str) -> None:
-        blockers.append(
-            {
-                "gate": "implementation",
-                "spec": spec.name,
-                "reference": reference,
-                "reason": reason,
-                **extra,
-            },
-        )
+        item = {"gate": "implementation", "spec": spec.name, "reference": reference}
+        blockers.append({**item, "reason": reason, **extra})
 
     def visit(node: Path, stack: list[Path]) -> list[str]:
         refs, findings, unreadable = declared(node)

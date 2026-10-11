@@ -44,6 +44,17 @@ class WriteGuardedTest(support.TempTest):
         self.assertFalse(path.exists())
 
 
+    def test_failed_write_leaves_no_temporary_file(self) -> None:
+        path = self.tmp / "f.json"
+        path.write_text("old")
+        failure = OSError("disk full")
+        with mock.patch.object(reconcile_module.os, "replace", side_effect=failure):
+            with self.assertRaises(OSError):
+                write_guarded(path, b"new", sha256_raw(path))
+        self.assertEqual([p.name for p in self.tmp.iterdir()], ["f.json"])
+        self.assertEqual(path.read_text(), "old")
+
+
 class ReconcileConflictTest(support.TempTest):
     def test_reconcile_raises_when_state_changes_between_read_and_write(self) -> None:
         spec = support.write_spec(

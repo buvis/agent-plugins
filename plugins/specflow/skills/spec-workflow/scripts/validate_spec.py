@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -42,17 +43,24 @@ class Parser(argparse.ArgumentParser):
 
 
 def git(repo: Path, *args: str) -> str | None:
-    """git's output, or None when git is missing or the call fails."""
+    """git's output; None without git, outside a repository, or for a quiet miss
+    such as an unborn HEAD. Any other failure raises GitError."""
     try:
         result = subprocess.run(
             ["git", "-C", str(repo), *args],
             capture_output=True,
             text=True,
             check=False,
+            env={**os.environ, "LC_ALL": "C"},  # English messages, to match below
         )
     except FileNotFoundError:
         return None
-    return result.stdout.strip() if result.returncode == 0 else None
+    if result.returncode == 0:
+        return result.stdout.strip()
+    stderr = result.stderr.strip()
+    if "not a git repository" in stderr or (result.returncode == 1 and not stderr):
+        return None
+    raise GitError(f"git {args[0]} failed: {stderr}")
 
 
 def repo_root() -> Path:

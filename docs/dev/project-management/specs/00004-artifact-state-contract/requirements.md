@@ -117,7 +117,7 @@ Criterion 1: see 00006.
 
 Criteria 6-7: see 00006.
 
-8. WHEN the repository is under git, an approval SHALL record the current commit if one exists, and design approval SHALL also record the content hashes or absence of the repository files named in its module placement, including uncommitted content (design §7.1). On resume and before implementation, THE WORKFLOW SHALL compare those files with that approval baseline and warn, without failing, on added, changed, or deleted content. Re-approving the design SHALL replace the baseline with current content and clear prior drift warnings for successfully captured files. Unavailable evidence SHALL be reported as not checked, never as clean; drift checking SHALL require neither a clean tree nor retained Git history.
+8. WHEN the repository is under git, an approval SHALL record the current commit if one exists, and design approval SHALL also record the content hashes or absence of the repository files named in its module placement, including uncommitted content (design §7.1). On resume and before implementation, THE WORKFLOW SHALL compare those files with that approval baseline and warn, without failing, on added, changed, or deleted content. Re-approving the design SHALL replace the baseline with current content and clear prior drift warnings. The baseline SHALL be captured whole or not at all: when any named path is refused or unreadable, the whole baseline SHALL be reported as not checked. Unavailable evidence SHALL be reported as not checked, never as clean; drift checking SHALL require neither a clean tree nor retained Git history.
 
 ### WF-005: Manual and native-Kiro edits
 
@@ -187,7 +187,7 @@ Source: `qa-log.md` Q2.
 1. THE optional helper SHALL print, for one spec or for all specs, a JSON status with the derived phase, each artifact's status, open and closed gates, stale artifacts, any hold, unfinished or invalid spec dependencies as implementation blockers naming the reference and reason, advisory warnings such as code drift (WF-004.8), and the next unchecked task whose upstream approvals are valid. A closed implementation gate SHALL yield `nextTask: null`.
 2. THE status output SHALL follow a versioned JSON schema shipped in the package; a breaking change SHALL raise its version (REL-001.6).
 3. THE status SHALL be computed from the repository files alone, so every host gets the same result (STATE-001.5).
-4. Producing the status SHALL be read-only, and neither the status nor the helper SHALL offer a way to record an approval.
+4. Producing the status SHALL be read-only, and neither the status nor the helper SHALL write an approval. The helper MAY compute the values the agent records.
 
 ### VAL-001: Workflow validation
 

@@ -199,7 +199,7 @@ Without it, the root is `.kiro/specflow` and the specs folder `.kiro/specs`. Pat
 The agent performs these steps; `validate_spec.py next-number` only reads.
 
 1. **Create an item.** Run `validate_spec.py next-number`. Create `<root>/intake/new/[<group>/]NNNNN-<title>/` with the number, save the developer's first input verbatim as `idea.md`, and start `qa-log.md` from `templates/intake/qa-log.md`.
-2. **Scan again.** Run `next-number` once more after writing. If another item or spec now holds the same number, rename your own new item to the next free number before anything cites it. Never rename an item someone else made.
+2. **Scan again.** Run `validate_spec.py validate <your item> --phase intake` after writing. If it reports a `number-clashes` error naming your item, rename your own new item to the number `next-number` now prints, before anything cites it. Never rename an item someone else made.
 3. **Move the item.** When the requirements artifact is first written, move the item to `<root>/intake/processed/`, keeping its group folder, first. Then write the artifact with a `Sources:` line naming the `processed/` path, and any spike folder inside it.
 4. **Write the fallback log.** A spec with no intake item, such as one Kiro created, gets `<root>/intake/processed/<spec-folder>/qa-log.md` on its first question.
 5. **Take a file input.** Take an input file only from one explicit path. When the path is missing or matches more than one file, ask; never pick a match. Copy the file into the intake item. When it is binary, too large to read, or outside the repository, record its location in `idea.md` and say what could not be read.

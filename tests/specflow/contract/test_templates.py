@@ -12,6 +12,10 @@ REPO = Path(__file__).resolve().parents[3]
 SKILL = REPO / "plugins" / "specflow" / "skills" / "spec-workflow"
 TEMPLATES = SKILL / "templates"
 KIRO = REPO / "tests" / "specflow" / "fixtures" / "kiro"
+if str(SKILL / "scripts") not in sys.path:
+    sys.path.insert(0, str(SKILL / "scripts"))
+
+from specflow_helper.deps import parse_depends_on
 
 # Copied from the design's Data model, not read from the templates, so a
 # dropped heading fails a test.
@@ -256,6 +260,20 @@ class BugfixTemplatesTest(unittest.TestCase):
 
 class PrerequisitePlacementTest(unittest.TestCase):
     """A Depends on: line placed per the contract leaves native headings and IDs alone."""
+
+    def test_helper_reads_the_placed_line_in_every_capture(self) -> None:
+        for folder, name, bugfix in (
+            ("requirements-first", "requirements.md", False),
+            ("design-first", "requirements.md", False),
+            ("bugfix", "bugfix.md", True),
+        ):
+            with self.subTest(folder=folder):
+                before = (KIRO / folder / name).read_text(encoding="utf-8")
+                after = insert_depends_on(before, bugfix=bugfix)
+                self.assertEqual(
+                    parse_depends_on(after, bugfix=bugfix),
+                    (["00012", "folder:login-fix"], []),
+                )
 
     def test_placement_keeps_headings_and_ids_in_every_capture(self) -> None:
         for folder, name, bugfix in (

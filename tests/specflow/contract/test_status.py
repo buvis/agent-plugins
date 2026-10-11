@@ -181,6 +181,48 @@ class MarkerTest(StatusTest):
         support.approve(spec, state, "design")
         self.assertNotIn(blocker, self.entry(spec)["blockers"])
 
+    def test_marker_skipped_by_the_second_approval_closes_implementation(
+        self,
+    ) -> None:
+        cases = (
+            ("req-first", "requirements-first", "requirements", "design"),
+            ("design-first", "design-first", "design", "requirements"),
+        )
+        for name, order, upstream, second in cases:
+            with self.subTest(order=order):
+                spec = self.make(name)
+                path = spec / f"{upstream}.md"
+                path.write_text(path.read_text() + "\n## Open decisions\n\n- Pick one.\n")
+                state = support.new_state(name, workflowOrder=order)
+                accepted = [{"artifact": upstream, "line": "- Pick one."}]
+                state["artifacts"]["tasks"]["acceptedMarkers"] = accepted
+                support.approve(spec, state, *ALL)
+                entry = self.entry(spec)
+                self.assertEqual(
+                    {b["gate"] for b in entry["blockers"]},
+                    {"tasks"},
+                    "the skipped marker must be the only blocker",
+                )
+                self.assertEqual(entry["gates"][second], "open")
+                self.assertEqual(entry["gates"]["tasks"], "closed")
+                self.assertEqual(entry["gates"]["implementation"], "closed")
+                self.assertIsNone(entry["nextTask"])
+
+
+class UnreadableArtifactTest(StatusTest):
+    def test_non_utf8_artifact_blocks_its_spec_and_spares_the_rest(self) -> None:
+        healthy = self.make("00042-sample", approve=ALL)
+        broken = self.make("broken", approve=ALL)
+        (broken / "design.md").write_bytes(b"\xff\xfe broken")
+        document = status(self.repo, [])
+        self.assertEqual(check_schema(document, SCHEMA), [])
+        entries = {s["spec"]: s for s in document["specs"]}
+        self.assertEqual(entries[healthy.name]["gates"]["implementation"], "open")
+        self.assertEqual(entries[broken.name]["artifacts"]["design"], "stale")
+        self.assertIsNone(entries[broken.name]["nextTask"])
+        reasons = [b["reason"] for b in entries[broken.name]["blockers"]]
+        self.assertTrue(any("cannot be read as UTF-8" in r for r in reasons), reasons)
+
 
 class WarningTest(StatusTest):
     def test_code_drift_warns_in_git_and_closes_no_gate(self) -> None:

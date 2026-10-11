@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
-import hashlib
 import stat
 from pathlib import Path, PurePosixPath
+
+from .canonical import sha256_raw
+from .config import DRIVE
 
 
 def refuse_reason(repo: Path, path: str) -> str | None:
     """Why a baseline path is refused, or None. Checked before anything is read."""
     pure = PurePosixPath(path)
-    if not path or "\\" in path or pure.is_absolute() or path.startswith("~"):
+    absolute = pure.is_absolute() or DRIVE.match(path)  # PurePosixPath reads C:/x as relative
+    if not path or "\\" in path or absolute or path.startswith("~"):
         return "not a repository-relative path"
     if ".." in pure.parts:
         return "holds a .. segment"
@@ -46,7 +49,7 @@ def code_baseline(repo: Path, paths: list[str]) -> dict:
             files.append({"path": path, "missing": True})
             continue
         try:
-            digest = hashlib.sha256(target.read_bytes()).hexdigest()
+            digest = sha256_raw(target)
         except OSError as error:
             problems.append(f"{path} cannot be read: {error.strerror}")
             continue
@@ -88,7 +91,7 @@ def code_drift(repo: Path, approved_code: dict | None) -> list[dict[str, str]]:
                 warnings.append(warning("code-drift", f"{path} was deleted", path))
             continue
         try:
-            digest = hashlib.sha256(target.read_bytes()).hexdigest()
+            digest = sha256_raw(target)
         except OSError as error:
             warnings.append(
                 warning(
