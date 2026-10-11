@@ -7,6 +7,7 @@ import re
 from .canonical import canonical, scan_lines
 
 REQUIREMENT_HEADING = re.compile(r"^### (?:([A-Z][A-Z0-9]*-\d{3})|Requirement (\d+))\b")
+WITHDRAWN = re.compile(r"^### [A-Z][A-Z0-9]*-\d{3}: withdrawn\s*$")
 CRITERION = re.compile(r"^(\d+)\. ")
 CROSS_SPEC = re.compile(
     r"(\d{5}|folder:[^\s,;]+) ([A-Z][A-Z0-9]*-\d{3})"
@@ -37,7 +38,11 @@ def sections(text: str) -> dict[str, list[str]]:
 
 
 def requirement_ids(text: str) -> dict[str, set[int]]:
-    """Requirement ID -> its numbered criteria ("1" stands for Kiro's Requirement 1)."""
+    """Requirement ID -> its numbered criteria ("1" stands for Kiro's Requirement 1).
+
+    A withdrawn requirement (`### <ID>: withdrawn`) holds nothing and is left out;
+    its ID stays reserved through the duplicate check.
+    """
     lines = prose(text)
     ids: dict[str, set[int]] = {}
     current: str | None = None
@@ -48,7 +53,9 @@ def requirement_ids(text: str) -> dict[str, set[int]]:
             current = None
             continue
         match = REQUIREMENT_HEADING.match(line) if in_requirements else None
-        if match:
+        if match and WITHDRAWN.match(line):
+            current = None
+        elif match:
             current = match[1] or match[2]
             ids.setdefault(current, set())
         elif line.startswith("### "):

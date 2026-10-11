@@ -50,6 +50,7 @@ Source: <the idea | a Q&A entry such as Q3 | a discovery finding such as D1>
 ```
 
 - IDs never change when sections are reordered, and a deleted ID is not reused. Every requirement is required; there are no priority tiers.
+- A withdrawn requirement keeps its heading as `### <ID>: withdrawn`, followed by one line giving the reason. It needs no criteria and no task, its ID stays taken, and nothing may cite it.
 - Each requirement names its source. Anything without one is a `(guess)` or an assumption. A contract detail the developer did not give stays marked `(guess)` until confirmed.
 - `## Risks` holds risks known at requirements time; technical risks found later go to the design.
 - A spec that reworks a complete spec names it in `Supersedes:` and leaves the complete spec unchanged.

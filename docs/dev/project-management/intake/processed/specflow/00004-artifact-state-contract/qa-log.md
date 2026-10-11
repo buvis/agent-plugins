@@ -242,6 +242,7 @@ each landing exactly once.
 - Open: T-027 (two Kiro IDE trials), the re-approval of the corrected design and plan, the push and the pull request's CI run (completion criterion 2), and the completion review in a fresh session.
 - Design gaps filled by choice, each named in the task's `Outcome:` line and open for the review: a per-spec `state` field and a blocker `spec` field in the status schema; `required-files` also fails on an artifact recorded as approved whose file is gone; `validate` with no phase skips `gates`; `sources-line` skips unnumbered Kiro-native specs.
 - Found in this repository by the new checks: 00003 holds a withdrawn requirement, `UPD-003`, with no criteria and no task, which `requirement-ids` and `requirement-coverage` report as errors. Whether a withdrawn requirement is exempt is the developer's call.
+  - Decided 2026-10-11: exempt. A `### <ID>: withdrawn` heading keeps its ID reserved (the duplicate check still sees it) and needs no criteria or task. Nothing may cite it. The artifact contract states the form, and `validate` on 00003 now reports no error.
 
 ## Requirements re-approval (2026-10-11)
 

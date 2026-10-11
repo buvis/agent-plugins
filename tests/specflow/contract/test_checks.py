@@ -268,6 +268,20 @@ class SeededDefectTest(ChecksTest):
         path.write_text(path.read_text() + labels)
         self.assertNotIn("task-structure", self.rules(spec))
 
+    def test_withdrawn_requirement_needs_no_criterion_or_task(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        withdrawn = "### REQ-009: withdrawn\n\nWithdrawn: cut from scope.\n\n"
+        self.edit(spec / "requirements.md", "### REQ-002:", withdrawn + "### REQ-002:")
+        rules = self.rules(spec)
+        self.assertNotIn("requirement-ids", rules)
+        self.assertNotIn("requirement-coverage", rules)
+
+    def test_withdrawn_id_stays_reserved(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        withdrawn = "### REQ-001: withdrawn\n\n"
+        self.edit(spec / "requirements.md", "### REQ-002:", withdrawn + "### REQ-002:")
+        self.assert_seeded(spec, "requirement-ids")
+
     def test_requirement_coverage_counts_a_cited_criterion(self) -> None:
         spec = self.copy("00101-feature-sample")
         self.edit(
