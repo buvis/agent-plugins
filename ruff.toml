@@ -1,0 +1,2 @@
+# CI and the specflow helpers run on Python 3.10; keep ruff from applying 3.11+ fixes.
+target-version = "py310"
