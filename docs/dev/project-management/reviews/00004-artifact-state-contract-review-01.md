@@ -308,3 +308,14 @@ Tests: 294 passed, 0 failed, 0 skipped (suite run this cycle)
 - F28: extras and the hold rule accepted.
 - F29: zero-task `tasks.md` does not derive `complete`; `write_guarded` unlinks its tmp file in `finally`. Queued.
 - F30: resolved. F31, F32: known open items, already owned.
+
+### Outcome (2026-10-11, commit 43c4748)
+
+All queued items above are applied in `43c4748`, except F26, with these notes:
+
+- F7: the check stops at `## Completion criteria`, not at `in_task`. `in_task` marks only lines under a valid checkbox, so a malformed top-level box such as `- [] T-002` would have gone unreported.
+- F11: the unreadable artifact shows as `stale` (when approved) or `draft`, and the spec gets a `required-files` blocker. Its `state` field stays `valid`, because that field describes `.specflow.json`, which is fine.
+- F22: the new test checks that the shipped `parse_depends_on` reads the placed line in every capture. The unittest replay at base `1f9f341` passes 1 of 19 template tests, `test_placeholder_pattern_catches_each_banned_form`, which checks the test's own regex by design. The other three pytest passes were replay artifacts: templates and fixtures do not exist at base.
+- Fail-first: each new bug-fix test fails against `720bf1a`, 15 failures and errors in all. Two pass there by design: the git-absence test, which pins kept behavior, and the retargeted parser test.
+- F26: held, not applied. If matching content cleared a stored `stale`, the agent could re-approve the upstream artifact and a downstream approval that `reconcile` recorded stale would turn `approved` again with no review. That breaks WF-002.6. The decision goes back to the developer.
+- Checks: 244 contract tests (Python 3.14 and 3.10), 52 release, 12 validator, all OK; `validate.py` and `verify_release.py` exit 0.
