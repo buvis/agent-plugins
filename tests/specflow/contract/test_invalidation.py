@@ -5,7 +5,13 @@ from __future__ import annotations
 import unittest
 
 import support
-from specflow_helper.state import artifact_status, derive_phase, stale_causes
+from specflow_helper.reconcile import reconcile
+from specflow_helper.state import (
+    artifact_status,
+    derive_phase,
+    load_state,
+    stale_causes,
+)
 
 FILES = {"requirements": "requirements.md", "design": "design.md", "tasks": "tasks.md"}
 TEXTS = {
@@ -103,6 +109,15 @@ class InvalidationTest(support.TempTest):
         spec, state = self.build("requirements-first")
         state["artifacts"]["requirements"]["status"] = "stale"
         self.assertEqual(set(artifact_status(spec, state).values()), {S})
+
+    def test_recorded_stale_outlives_the_upstream_reapproval(self) -> None:
+        spec, _ = self.build("requirements-first")
+        (spec / "requirements.md").write_text(support.REQUIREMENTS + "\nChanged.\n")
+        reconcile(spec, dry_run=False)
+        state = support.approve(spec, load_state(spec), "requirements")
+        statuses = artifact_status(spec, state)
+        self.assertEqual(statuses["requirements"], A)
+        self.assertEqual((statuses["design"], statuses["tasks"]), (S, S))
 
     def test_draft_downstream_stays_draft(self) -> None:
         spec, state = self.build("requirements-first")

@@ -173,7 +173,7 @@ Source: the idea (`requirements.md` in intake item 00001)
 1. Human-readable canonical artifacts SHALL be authoritative for content.
 2. `tasks.md` checkboxes SHALL be authoritative for task completion.
 3. `.specflow.json` SHALL be authoritative only for recorded approvals, their accepted markers, hashes, workflow order, workflow version, and hold status.
-4. WHEN a state hash conflicts with current content, current content SHALL win and the approval SHALL become stale.
+4. WHEN a state hash conflicts with current content, current content SHALL win and the approval SHALL become stale. A recorded `stale` SHALL clear only when the developer approves that artifact again, so an upstream re-approval never revives a downstream approval.
 5. A malformed state file SHALL be preserved for diagnosis before a replacement is generated.
 
 ### STATE-003: Status output for external runners
