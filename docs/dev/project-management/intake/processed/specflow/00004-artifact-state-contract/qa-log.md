@@ -343,6 +343,16 @@ each landing exactly once.
 - Edited: `requirements.md` `## Unresolved questions` now holds no marker, and its Kiro-link risk is retired; `design.md` §6.7 states the verified result instead of "until then it is an assumption", and the matching risk is retired.
 - This edit stales the requirements approval of 2026-10-11, and the design and tasks approvals with it (WF-002.5-6). All three need the developer's re-approval.
 
+## Re-approvals after the T-027 edit (2026-10-12)
+
+Asked one at a time in the T-027 session, which did not see the cycle-5 edits below until after the answers.
+
+- Requirements: `requirements.md`, git blob `5ce33ef1dae67efb73f9528d7d874477eef74a88` (commit `363778b`), 2 lines changed from blob `a2f61c0`. Decision: approved by the developer. Question: "Re-approve 00004 requirements.md?" Answer: "Approve (Recommended)". No upstream marker. Unchanged by cycle 5, so this approval stands.
+- Design: `design.md`, git blob `cd104a8d5d85b732e023614fd153ce34e56705cf` (commit `363778b`), 2 lines changed from blob `544cdf3`. Decision: approved by the developer. Question: "Re-approve 00004 design.md?" Answer: "Approve (Recommended)". Superseded: commit `24919c4` (cycle 5) changed the design to blob `5ec0366`, which this approval does not cover.
+- Tasks: `tasks.md`, git blob `1f496decafbb3b9098350bac2ec01683a0ca8f2e` (commit `183380c`), canonically equal to blob `a2023ca`. Decision: approved by the developer. Question: "Re-approve 00004 tasks.md against the newly approved requirements and design?" Answer: "Re-approve (Recommended)". Stale again with the cycle-5 design edit (WF-002.6).
+- Still needed: the design re-approval of blob `5ec0366` or later (cycle 5), then tasks. No upstream marker is left to accept.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
 ## Review 00004-05 design edits (2026-10-12)
 
 - The cycle-5 walkthrough (`reviews/00004-artifact-state-contract-review-05.md`, minutes) decided F4 as a design edit. Fixes F1, F3, F7, F8 and F9 also change design text.
