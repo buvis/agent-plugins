@@ -488,7 +488,9 @@ def progress_fields(ctx: Context) -> list[Finding]:
         if not line.strip():
             continue
         if field is not None and indent_of(line) > field:
-            message = f"line {n}: continues an Outcome: or Exception: line, so it is hashed"
+            message = (
+                f"line {n}: continues an Outcome: or Exception: line, so it is hashed"
+            )
             fix = "Keep the field on one line; only that line is left out of the hash."
             findings.append(warn(message, fix))
             field = None

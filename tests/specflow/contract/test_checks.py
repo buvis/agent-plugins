@@ -301,7 +301,9 @@ class SeededDefectTest(ChecksTest):
         verify = "  - Verify: `python -m unittest tests.test_log`"
         self.edit(spec / "tasks.md", verify, f"{verify}\n  - Outcome: done")
         self.assertNotIn("progress-fields", self.rules(spec, level="warning"))
-        self.edit(spec / "tasks.md", "  - Outcome: done", "  - Outcome: done,\n    and more")
+        self.edit(
+            spec / "tasks.md", "  - Outcome: done", "  - Outcome: done,\n    and more"
+        )
         messages = [
             f["message"]
             for f in validate(self.repo, spec)

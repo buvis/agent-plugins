@@ -42,7 +42,9 @@ def write_guarded(path: Path, data: bytes, read_sha256: str | None) -> None:
         umask = os.umask(0)
         os.umask(umask)
         mode = 0o666 & ~umask
-    handle, name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
+    handle, name = tempfile.mkstemp(
+        dir=path.parent, prefix=f".{path.name}.", suffix=".tmp"
+    )
     temporary = Path(name)
     try:
         with os.fdopen(handle, "wb") as file:

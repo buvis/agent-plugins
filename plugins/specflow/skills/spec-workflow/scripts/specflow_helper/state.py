@@ -128,7 +128,9 @@ def own_status(path: Path, record: dict) -> str:
     if record.get("status") == "stale":
         return "stale"
     if record.get("status") == "missing" and "approvedSha256" in record:
-        return "stale"  # restored after a recorded deletion: the approval needs renewing
+        return (
+            "stale"  # restored after a recorded deletion: the approval needs renewing
+        )
     if record.get("status") != "approved" or "approvedSha256" not in record:
         return "draft"
     try:
