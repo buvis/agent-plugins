@@ -78,6 +78,7 @@ Shipped paths are written relative to `plugins/specflow/skills/spec-workflow/` t
 | `scripts/specflow_helper/numbers.py` | new | T-029 | spec numbers, intake items, clashes |
 | `scripts/validate_spec.py`, `scripts/specflow_helper/checks.py`, `references/artifact-contract.md` | edit | T-029 | `next-number`; clash and `Sources:` checks; the intake procedure |
 | `tests/specflow/contract/test_numbers.py` | new | T-029 | its tests |
+| `scripts/specflow_helper/findings.py`, `scripts/specflow_helper/spec_text.py` | new | review 00004-01 F4, F16, F17 | the finding constructor every module shares; read-only views of spec Markdown, split out of `checks.py` |
 
 ## Components and interfaces
 
@@ -142,15 +143,26 @@ class ConflictError(Exception): ...
 def reconcile(spec_dir: Path, *, dry_run: bool) -> dict: ...
 def write_guarded(path: Path, data: bytes, read_sha256: str | None) -> None: ...
 
-# specflow_helper/checks.py                                              T-026, T-028, T-029
+# specflow_helper/findings.py                                            review 00004-01
 Finding = dict[str, str]    # keys: level ("error" or "warning"), file, rule, message, fix
+def finding(file: str, rule: str, message: str, fix: str, level: str = "error") -> Finding: ...
+
+# specflow_helper/spec_text.py                                           review 00004-01
+def prose(text: str) -> list[tuple[int, str]]: ...                # (line number, line) outside fences
+def sections(text: str) -> dict[str, list[str]]: ...              # level-two heading -> its lines
+def requirement_ids(text: str) -> dict[str, set[int]]: ...        # ID -> criteria; withdrawn ones left out
+def traced_ids(text: str) -> set[str]: ...                        # IDs the task plan cites
+
+# specflow_helper/checks.py                                              T-026, T-028, T-029
 class Context(NamedTuple):
     repo: Path
     config: dict[str, object]
     spec_dir: Path              # or the intake item, for phase "intake"
     state: dict | None
+    phase: str | None = None    # the requested phase; None for an unfiltered run
 CHECKS: dict[str, tuple[frozenset[str], Callable[[Context], list[Finding]]]] = {}   # name -> (phases, check)
-def validate(repo: Path, spec_dir: Path, phase: str | None = None) -> list[Finding]: ...
+def validate(repo: Path, spec_dir: Path, phase: str | None = None,
+             skip: frozenset[str] = frozenset()) -> list[Finding]: ...   # skip: checks status runs once per run
 def workspace_config(repo: Path) -> dict[str, object]: ...   # the defaults until T-028 switches it to load_config
 
 # specflow_helper/deps.py                                                T-026
@@ -176,7 +188,8 @@ def number_clashes(repo: Path, config: dict[str, object]) -> list[Finding]: ...
 
 - A check is a function registered in `CHECKS` under its name, the `<check-name>` of a `validator:<check-name>` entry in the rule inventory (00005). `validate` runs every check that applies to the phase and returns their findings; an `error` makes the exit code 1, a `warning` never does. 00005 (T-071) and 00006 (T-039) add checks to the same registry.
 - What the helper writes: `reconcile` without `--dry-run` writes `.specflow.json` in the given spec directory, and only derived facts: each artifact's `sha256`, and a `status` of `missing`, `draft`, or `stale`. It changes those values and nothing else: every other key, unknown ones included, keeps its value and its place, and the file is written with two-space indent and a final newline. It never creates a state file and never replaces a malformed one; in both cases it reports what it found and what needs the developer. Both forms return, and print with `--json`, one object: `spec`, `statuses`, `phase`, `changes` (what was or would be written), and `ambiguous` (what needs a confirmation). It never writes `approved`, `approvedSha256`, `approvedAt`, `approvedCommit`, `approvedCode`, `acceptedMarkers`, or `hold`; those record a developer's decision, and the agent writes them after an explicit answer, using `hash` and `code-baseline` for the values. Every other operation is read-only.
-- Every write goes through `write_guarded`: it compares the file's current SHA-256 with the one read at the start of the operation and raises `ConflictError` when they differ, leaving the file as it is.
+- Every write goes through `write_guarded`: it compares the file's current SHA-256 with the one read at the start of the operation and raises `ConflictError` when they differ, leaving the file as it is. It writes a temporary file with a unique name beside the target, gives it the target's mode, and replaces the target with it.
+- `status` and `reconcile` refuse a spec folder outside the repository with a usage error (exit 3), so `reconcile` never writes there (review 00004-02 F13).
 
 ### Schema checking
 
@@ -227,14 +240,14 @@ Fields of the status schema, beyond what the example below shows:
 | `required-files` | VAL-001.1 | error | all | T-026 | the artifacts the phase needs exist and can be read |
 | `state-valid` | VAL-001.1 | error | all | T-026 | the state file passes the state schema and its version is supported |
 | `state-content` | STATE-001.3 | error | all | T-021, registered by T-026 | as defined above |
-| `stale-approvals` | VAL-001.1, WF-005.1, WF-005.4 | error | all | review 00004-01 F2 | each approval that is stale, with its cause: the artifact's own change, a recorded `stale`, or the upstream artifact whose change staled it. `status` leaves it out, since its artifact blockers carry the same facts |
+| `stale-approvals` | VAL-001.1, WF-005.1, WF-005.4 | error | all | review 00004-01 F2 | each approval that is stale, with its cause: the artifact's own change, a recorded `stale`, a deletion after the approval, or the upstream artifact whose change staled it. `status` leaves it out, since its artifact blockers carry the same facts |
 | `spec-type` | ART-001.7 | error | all | T-022, registered by T-026 | `.config.kiro`, the state, and the files present name one spec type; a disagreement is reported and nothing is rewritten |
-| `requirement-ids` | VAL-001.2 | error | requirements on | T-026 | every requirement has a stable, unique ID and one acceptance criterion or more |
+| `requirement-ids` | VAL-001.2 | error | requirements on | T-026 | every requirement has a stable, unique ID and one acceptance criterion or more. A withdrawn requirement (`### <ID>: withdrawn`) needs no criterion, and its ID stays reserved |
 | `design-sections` | VAL-001.3 | error | design on | T-026 | in a design written from the specflow template (first line `# Design: `), every template section has content or `Not applicable: <reason>`; a Kiro-native or bugfix design keeps its own headings, which the T-027 captures show vary, and gets only the rest of this row; every requirement or criterion ID in the criteria column of `## Requirement traceability` exists in the spec's own requirements artifact. The column is the one headed `Criteria` or `Criterion`; an entry in the cross-spec form of Tasks structure, and an entry that is not an ID, are not checked. The section is found through `scan_lines`, so the same heading inside a fenced template is not it. Citations elsewhere in the design are not checked, so prose may name a criterion another spec holds |
-| `task-structure` | VAL-001.4 | error | tasks on | T-026 | stable task IDs, checkbox syntax, dependencies that name earlier tasks, a requirement reference and a verification per task |
-| `requirement-coverage` | VAL-001.4 | error | tasks on | T-026 | every requirement is referenced by a task |
-| `progress-fields` | VAL-002.5 | warning | tasks on | T-026 | no `Outcome:` or `Exception:` line under a task item while the task plan is not approved |
-| `cross-spec-references` | VAL-001.13 | error | tasks on | T-026 | every reference of the cross-spec form names a spec on the `Depends on:` line and a requirement and criterion that spec holds; the prerequisite is read, never written |
+| `task-structure` | VAL-001.4 | error | tasks on | T-026 | stable task IDs, checkbox syntax in the task list (above the first level-two heading, or under `## Tasks`; fences skipped), dependencies that name earlier tasks, a requirement reference and a verification per task |
+| `requirement-coverage` | VAL-001.4 | error | tasks on | T-026 | every requirement that is not withdrawn is referenced by a task |
+| `progress-fields` | VAL-002.5 | warning | tasks on | T-026 | no `Outcome:` or `Exception:` line under a task item while the task plan is not approved; in any plan, no line continuing one, since only the field's own line is left out of the hash (review 00004-02 F2) |
+| `cross-spec-references` | VAL-001.13 | error | tasks on | T-026 | every reference of the cross-spec form names a spec on the `Depends on:` line, in either form, compared by the folder it resolves to, and a requirement and criterion that spec holds; the prerequisite is read, never written |
 | `gates` | VAL-001.5 | error | implementation | T-026 | tasks approved, no stale upstream artifact, the spec-dependency gate open |
 | `spec-dependencies` | VAL-001.8 | error | implementation, and any run with no phase | T-026 | the dependency grammar and graph |
 | `specs-folder` | VAL-001.8 | error | all | T-028 | no specs left in a real `.kiro/specs/` beside a configured folder; the specs folder is not ignored by git |
@@ -242,6 +255,8 @@ Fields of the status schema, beyond what the example below shows:
 | `sources-line` | VAL-001.8 | error | requirements on | T-029 | a `Sources:` line that names an intake item with the spec's own number |
 
 Every finding carries the file, the rule, and the corrective action (VAL-001 criterion 6), and `validate` writes nothing (criterion 7).
+
+`specs-folder` and `number-clashes` list folders outside the selected spec on every run. VAL-001.8 asks for their reports, so they count as the repository discovery the Performance requirement allows (review 00004-02 F8).
 
 ### Status output for external runners
 
@@ -605,7 +620,7 @@ Each approval records HEAD as `approvedCommit` when it exists. An unborn Git rep
   "approvedCode": {
     "status": "captured",
     "files": [
-      {"path": "src/import.py", "sha256": "<SHA-256 of raw file bytes>"},
+      {"path": "src/import.py", "sha256": "<SHA-256 of the file bytes, CRLF and CR as LF>"},
       {"path": "src/new_retry.py", "missing": true}
     ]
   }
@@ -614,7 +629,9 @@ Each approval records HEAD as `approvedCommit` when it exists. An unborn Git rep
 
 Paths are exact repo-relative files, sorted and deduplicated; no globs or recursive folder scan. The approving agent supplies the explicit paths from the design's placement section to the read-only `code-baseline` operation; the helper validates and hashes them, returning an `approvedCode` value without recording an approval. A captured or not-checked result exits 0; missing required CLI arguments remain a usage error. Ambiguous placement is not checked, never guessed. The set records approval-time evidence, not a second list of scope decisions. Validate containment before reading; absolute paths, `..`, symlinks in any path component, directories, and special files are not followed. A declared file that does not exist has `missing: true`; all existing regular files are hashed, including staged, unstaged, and untracked content. Capture uses the same before-write consistency check as approval (WF-006), with no lock or forced commit. A stale design approval reports the baseline as not checked until reapproval; it cannot claim coverage for the changed design.
 
-On resume and before implementation, compare the declared files' current raw hashes/existence with `approvedCode`. Added, modified, and deleted files raise path-specific advisory warnings; no approval or phase changes. Reapproval replaces the baseline, so unchanged working bytes immediately after reapproval produce no drift even at the same HEAD. A later commit of those same bytes also produces no drift. An unreadable/unsupported path, a missing placement section, or an old approval without a baseline yields a path/reason-specific `not checked` warning, never a clean result; capture failure records `{"status":"not_checked","reason":"<paths and reason>"}` instead of a partial baseline. Reapproval does not clear an unavailable-evidence warning unless capture succeeds. When the design explicitly has no affected files, record `{"status":"not_applicable","reason":"<design's stated reason>"}`. Without Git, omit both Git provenance and this baseline and do not run this Git-scoped advisory. No historical Git object is needed for comparison.
+The hash reads the bytes with CRLF and CR line endings turned into LF, so line-ending churn from an editor or `core.autocrlf` is no drift (review 00004-02 F14); nothing else is normalized. A baseline captured before this rule may show drift once on a file with CRLF line endings, and re-approving the design clears it.
+
+On resume and before implementation, compare the declared files' current hashes/existence with `approvedCode`. Added, modified, and deleted files raise path-specific advisory warnings; no approval or phase changes. Reapproval replaces the baseline, so unchanged working bytes immediately after reapproval produce no drift even at the same HEAD. A later commit of those same bytes also produces no drift. An unreadable/unsupported path, a missing placement section, or an old approval without a baseline yields a path/reason-specific `not checked` warning, never a clean result; capture failure records `{"status":"not_checked","reason":"<paths and reason>"}` instead of a partial baseline. Reapproval does not clear an unavailable-evidence warning unless capture succeeds. When the design explicitly has no affected files, record `{"status":"not_applicable","reason":"<design's stated reason>"}`. Without Git, omit both Git provenance and this baseline and do not run this Git-scoped advisory. No historical Git object is needed for comparison.
 
 An approval of `design` or `tasks`, or in Design-First of `requirements`, may carry `"acceptedMarkers": [{"artifact": "requirements", "line": "<exact canonical line>"}]`, one entry per upstream marker the developer accepted by name (WF-002.7). A marker is any `(guess)` outside inline code and fenced blocks, any list item under `## Unresolved questions`, or any list item under `## Open decisions` (decision 2026-10-04 #10). For a list item that spans several lines, the recorded line is its first. An entry counts only while that exact line still exists in the named artifact, so a reworded marker is asked again, and a stale approval drops its acceptances with it. The rationale goes to the approval summary and the intake item's `qa-log.md`, not to state; recovery mode (§7.5) asks again for any acceptance it cannot find.
 
@@ -635,6 +652,8 @@ Approval is bound to content:
 approved := status == "approved"
             AND sha256(canonical(current text)) == approvedSha256
 ```
+
+A file restored after `reconcile` recorded it `missing` reads as stale while its record still holds `approvedSha256`, never as draft. The approval needs renewing, and `stale-approvals` says the file was deleted after its approval (review 00004-02 F5).
 
 `canonical` makes hashes stable across machines and editors:
 
@@ -767,7 +786,7 @@ Every validation failure names the affected file, the rule, and the corrective a
 - Hash-based approval and invalidation graph.
 - Hash exclusions: a real task checkbox and a task's own progress fields do not stale approval; a `[x]` inside a fenced command and an `Outcome:` line outside a task item do.
 - Spec dependencies (§6.2): multiple numbered/native references, feature/bugfix placement in both workflow orders, absent declarations, duplicate references, unfinished/complete/stale prerequisites, missing/ambiguous/unsupported/unreadable targets, invalid prerequisite state, misplaced/empty/repeated declarations, self-reference and reachable cycles. Fenced examples and task-local fields never declare spec dependencies. Assert blocker reasons, cycle paths, `nextTask: null` when blocked, unchanged earlier gates/phase/approval records, configured-folder resolution, and no prerequisite writes or unrelated content reads. A completed direct prerequisite is judged by its local phase even if a transitive prerequisite later becomes incomplete; invalid reachable graphs still block.
-- Code drift: baseline includes staged, unstaged, and untracked file bytes; unchanged dirty approval is clean, later edits warn, and reapproval at the same HEAD clears captured differences. New/deleted declared files warn, unchanged bytes later committed do not, and unborn/shallow repositories work without historical objects. Missing placement, old state without a baseline, unreadable files, and refused paths yield `not checked`; explicit no-file designs are not applicable. Native/bugfix placement uses its matching section. No check modifies phase, approvals, or source files; non-Git repositories omit this Git-scoped check. Assert containment, raw-byte hashing, no source content in state, no partial baseline labeled captured, and no implicit baseline refresh on resume.
+- Code drift: baseline includes staged, unstaged, and untracked file bytes; unchanged dirty approval is clean, later edits warn, and reapproval at the same HEAD clears captured differences. New/deleted declared files warn, unchanged bytes later committed do not, and unborn/shallow repositories work without historical objects. Missing placement, old state without a baseline, unreadable files, and refused paths yield `not checked`; explicit no-file designs are not applicable. Native/bugfix placement uses its matching section. No check modifies phase, approvals, or source files; non-Git repositories omit this Git-scoped check. Assert containment, byte hashing with only line endings normalized (line-ending churn is no drift), no source content in state, no partial baseline labeled captured, and no implicit baseline refresh on resume.
 - Recovery from missing/malformed state.
 - Optimistic concurrency failure: an edit made between read and write is detected.
 - Spec numbers: recursive intake scan, clash handling, Kiro-native folders skipped.

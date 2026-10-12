@@ -266,3 +266,9 @@ each landing exactly once.
 - Scope: the whole artifact as it reads now. The review 00004-01 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-01.md`.
 - Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
 - This is a receipt: no `.specflow.json` exists for this spec.
+
+## Review 00004-02 design edits (2026-10-12)
+
+- The cycle-2 walkthrough (`reviews/00004-artifact-state-contract-review-02.md`, minutes) decided F3, F8 and F11 as design edits. Fixes F1, F2, F4, F5, F13 and F14 also change design text.
+- Edited: the module table and interface block (`findings.py`, `spec_text.py`, `Context.phase`, `validate(skip=...)`), the check rows `stale-approvals`, `requirement-ids`, `task-structure`, `requirement-coverage`, `progress-fields` and `cross-spec-references`, a line on repository discovery under the Performance requirement, the guarded write and out-of-repository refusal, the restored-artifact rule, and drift hashing with line endings normalized.
+- This edit stales the design approval of 2026-10-11, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval. Requirements are unchanged.
