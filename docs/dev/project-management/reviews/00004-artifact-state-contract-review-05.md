@@ -142,3 +142,17 @@ D5: pass
 Verdict: 10 findings
 
 Tests: 344 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-12)
+
+- F1: narrow task-item detection to the task-list region (before the first `## ` heading, or under `## Tasks`, as `task-structure` does), so a box in any other section is hashed as text wherever it sits. Add a test for a box in a section above `## Completion criteria`. Queued.
+- F2: change the `CROSS_SPEC` row text to `f"{arabic}00 REQ-001"` so the row fails under a `\d` regression. Queued.
+- F3: `schemaVersion` becomes optional in the config schema (still `const: 1` when present); the loader treats an absent field as version 1. Queued.
+- F4: an approved design or tasks record without `upstreamSha256` derives as `stale`, cause "approval binds no upstream"; re-approval heals it. Design §7.4 changes, so design and tasks need re-approval. Add a test. Queued.
+- F5: dismissed. The four tests pin behavior that was already right; F2 is the one row that needs fixing.
+- F6: dismissed. The `subTest` replay artifact again (cycle-2 F9, cycle-3 F6, cycle-4 F7): the lead's unittest replay shows all 4 fail at base.
+- F7: move `drift_warnings` into `drift.py` so `status` and `gates` share it. Queued.
+- F8: run `number-clashes` and `specs-folder` in the requirements phase only. Queued.
+- F9: add a top-level `stale` array of artifact names to the status JSON and its schema. Queued.
+- F10: one sentence in the artifact contract stating that a symlinked `.specflow.json` is replaced by a regular file. Queued.
+- Auto-dismissed re-raises (cycle-1 F23 placeholders and bugfix checks): settled earlier, no action.

@@ -70,5 +70,23 @@
     "issue": "design-sections template trigger matches section names case-sensitively; the minutes asked for case-insensitive matching",
     "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
     "reason": "case-insensitive matching was rejected during rework because Kiro writes `## Error Handling` and every Kiro design would then be flagged; the fix adds Kiro's three other headings to SHARED_SECTIONS instead"
+  },
+  {
+    "cycle": 5,
+    "ref": "F5",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags coverage-pin tests as passing against base: test_structure_ids_take_ascii_digits_only, test_traced_ids_take_ascii_digits_only, test_malformed_or_unsupported_state_is_2, test_fenced_and_list_fields_declare_nothing",
+    "file": "tests/specflow/contract/test_checks.py",
+    "reason": "coverage pins of behavior that was already right (cycle-4 F8, F9 and the narrowed F13 contract); the one vacuous row is cycle-5 F2"
+  },
+  {
+    "cycle": 5,
+    "ref": "F6",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Fail-first replay flags subTest tests as passing against base: test_each_refused_path_is_named_before_use, test_bugfix_declaration_not_last_in_its_introduction_is_misplaced, test_indented_or_recased_declaration_is_malformed, test_every_shipped_pattern_is_anchored_for_external_validators",
+    "file": "tests/specflow/contract/test_config.py",
+    "reason": "pytest without the subtests plugin reports subTest failures as passes; the lead's unittest replay at 60ae7e1 fails all four (1 error, 10 subtest failures)"
   }
 ]
