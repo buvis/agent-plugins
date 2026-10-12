@@ -295,3 +295,20 @@ each landing exactly once.
 - The cycle-3 walkthrough (`reviews/00004-artifact-state-contract-review-03.md`, minutes) decided F1 and F14 as design edits. Fixes F2, F3, F11, F12 and F13 also change design text.
 - Edited: `hash --json` gains `upstreamSha256`, with the state-table row, the interface block (`StateError.reason`, `upstream_hashes`), the fields `reconcile` never writes, and the approval rule binding upstream hashes (§7.4). Also: anchored ASCII schema patterns, the malformed-state blocker's `reference` and the no-absolute-path rule, `nextTask` on a hold, `problems` and `intake` beyond STATE-003.1, ASCII output and the `->` cycle path, the `design-sections` trigger, the non-dotfile ignore probe, and the `next-number` intake scan.
 - This edit stales the design approval of 2026-10-12, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval. Requirements are unchanged.
+
+## Design re-approval, cycle 3 (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/design.md`, git blob `a0f8dc88da36d017dc3047ab5c7316749c111aaf` (commit `74b83f7`).
+- Decision: approved by the developer. Question: "Re-approve 00004 design.md after the cycle-3 edits?" Answer: "Approve, accept marker (Recommended)".
+- Scope: the review 00004-03 design edits listed above.
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
+- Not covered: the tasks approval stays stale (WF-002.6). It needs its own re-approval.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Tasks re-approval, cycle 3 (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/tasks.md`, git blob `a2023ca0d1b7910e8561072d6eb5f6868c5ea4af` (commit `5153d8b`), unchanged since its 2026-10-11 approval.
+- Decision: approved by the developer. Question: "Re-approve 00004 tasks.md (blob a2023ca, unchanged) against the newly approved design, accepting the open Kiro-link requirements question by name?" Answer: "Re-approve, accept marker (Recommended)".
+- Scope: the whole artifact as it reads now. The review 00004-03 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-03.md`.
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
+- This is a receipt: no `.specflow.json` exists for this spec.
