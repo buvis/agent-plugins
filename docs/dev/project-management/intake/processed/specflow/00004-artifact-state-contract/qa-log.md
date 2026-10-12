@@ -318,3 +318,12 @@ each landing exactly once.
 - The cycle-4 walkthrough (`reviews/00004-artifact-state-contract-review-04.md`, minutes) decided F3 and F9 as design edits. Fixes F4, F5, F10, F11, F12 and F13 also change design text.
 - Edited: §7.3 step 5 and the hash-exclusion test note normalize only task and `## Completion criteria` boxes (WF-002.4); `hash --json` exits 2 on a malformed sibling state (STATE-002.5); the `gates` row adds the drift warnings (WF-004.8); schema patterns close with `(?!\n)$`; the `design-sections` trigger excludes the five headings Kiro writes too; configured paths refuse a NUL; `templates/specflow.json` holds the defaults; the `Depends on:` grammar reports an indented or recased bare line and a bugfix line followed by anything but `Sources:`.
 - This edit stales the design approval of 2026-10-12, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval. Requirements are unchanged.
+
+## Design re-approval, cycle 4 (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/design.md`, git blob `544cdf33f4d0edd5bdb4e504ab449366a76afca4` (commit `154f804`).
+- Decision: approved by the developer. Question: "Re-approve 00004 design.md after the cycle-4 edits?" Answer: "Approve, accept marker (Recommended)".
+- Scope: the review 00004-04 design edits listed above, including the two departures from the minutes the question named: F10 excludes Kiro's headings instead of matching without case, and F13 changed the indented-line test.
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
+- Not covered: the tasks approval stays stale (WF-002.6). It needs its own re-approval.
+- This is a receipt: no `.specflow.json` exists for this spec.
