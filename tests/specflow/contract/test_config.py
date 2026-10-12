@@ -57,6 +57,10 @@ class ConfigTest(support.TempTest):
         self.write_config({"schemaVersion": 1, "laterField": True})
         self.assertEqual(load_config(self.repo), DEFAULTS)
 
+    def test_config_without_a_schema_version_reads_as_version_1(self) -> None:
+        self.write_config({"root": "docs/pm"})
+        self.assertEqual(load_config(self.repo)["root"], "docs/pm")
+
     def test_each_refused_path_is_named_before_use(self) -> None:
         outside = self.tmp / "outside"
         outside.mkdir()
@@ -140,6 +144,21 @@ class SpecsFolderTest(support.TempTest):
         [problem] = status(self.repo, [])["problems"]
         self.assertEqual(problem["rule"], "specs-folder")
         self.assertIn("00200-left", problem["message"])
+
+    def test_folder_scans_run_in_the_requirements_phase_only(self) -> None:
+        (self.repo / ".kiro" / "specs" / "00200-left").mkdir(parents=True)
+        (self.specs / "00101-clash").mkdir()
+        by_phase = {
+            phase: {f["rule"] for f in validate(self.repo, self.spec, phase)}
+            for phase in ("requirements", "design", "tasks", "implementation")
+        }
+        self.assertLessEqual(
+            {"specs-folder", "number-clashes"}, by_phase["requirements"]
+        )
+        for phase in ("design", "tasks", "implementation"):
+            with self.subTest(phase=phase):
+                self.assertNotIn("specs-folder", by_phase[phase])
+                self.assertNotIn("number-clashes", by_phase[phase])
 
     def test_a_kiro_link_to_the_configured_folder_is_fine(self) -> None:
         (self.repo / ".kiro").mkdir()

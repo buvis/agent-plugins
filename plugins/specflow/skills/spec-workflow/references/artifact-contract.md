@@ -17,6 +17,7 @@ The shapes every host reads and writes. The templates in `templates/` are filled
 - `NNNNN` is the spec number of the intake item. The title is lowercase kebab-case, stable, and filesystem-safe. A number is never reused.
 - The folder name is chosen once. Renaming needs an explicit migration. A Kiro-native folder without a number is valid and is never renamed to add one.
 - The three canonical artifacts keep these names on every host. Other files in the folder (another tool's sidecar, Kiro's `tasks.meta.json`) belong to their owners: never edit, hash, or approve them.
+- `.specflow.json` is written by a check and then a replace, as WF-006.4 allows: a write stops when the file changed since it was read, and a state file that is a symbolic link is replaced by a regular file.
 - Structure stays English whatever language the prose uses: headings, IDs, field names, EARS keywords, markers such as `(guess)`, and file names.
 - No placeholder in a written artifact: no `TBD`, `TODO`, `???`, or bare `N/A`. `requirements.md`, `bugfix.md`, and `tasks.md` leave out a section that does not apply. `design.md` keeps every section and marks one that does not apply `Not applicable: <reason>`.
 
@@ -117,7 +118,7 @@ Every section stays. One that does not apply reads `Not applicable: <reason>`, w
 - Each progress field is one line. Only that line is left out of the hash: a wrapped or indented line under it is hashed, so writing one stales the approved plan, and validation warns about it.
 - `Depends on:` names earlier task IDs. Re-planning keeps checked tasks and their IDs.
 - `## Completion criteria` holds checkboxes; ticking the last one marks the spec complete.
-- Ticking a task or completion-criteria box never stales the approved plan. A checkbox in any other section, such as `## Unresolved questions`, is hashed like other text.
+- Ticking a task or completion-criteria box never stales the approved plan. A checkbox in any other section, such as `## Risks` or `## Unresolved questions`, is hashed like other text, wherever that section sits. The task list is the part before the first `## ` heading, or the `## Tasks` section of a Kiro plan.
 - A task may cite a criterion of a spec its own spec depends on. On a `Requirements:` or `Acceptance criteria:` line the form is `<spec reference> <requirement ID> criterion <n>` (or `criteria <n>, <m>`), the reference following the `Depends on:` grammar: `00004 WF-004 criterion 8`. An ID without a spec reference belongs to the task's own spec.
 
 Checkbox forms: `[ ]` open, `[x]` or `[X]` checked, and Kiro's `[-]` (in progress) and `[~]` (queued), which count as open. A `*` right after the box (`- [ ]* 2.2 ...`) marks an optional task: left unchecked, it holds the spec in no phase and is never offered as the next task.
@@ -177,7 +178,7 @@ Sources: <intake item path>
 }
 ```
 
-Without it, the root is `.kiro/specflow` and the specs folder `.kiro/specs`. Paths are repository-relative with forward slashes. A path that is absolute, holds a `..` segment, or resolves outside the repository is refused before any use. `numberScan` lists extra folders whose five-digit prefixes count when a new number is claimed.
+Without it, the root is `.kiro/specflow` and the specs folder `.kiro/specs`. `schemaVersion` is optional and must be `1` when present. Paths are repository-relative with forward slashes. A path that is absolute, holds a `..` segment, or resolves outside the repository is refused before any use. `numberScan` lists extra folders whose five-digit prefixes count when a new number is claimed.
 
 ```text
 <root>/

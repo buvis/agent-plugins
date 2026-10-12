@@ -139,12 +139,22 @@ class InvalidationTest(support.TempTest):
                     {name: causes[name] for name in below}, dict.fromkeys(below, edited)
                 )
 
-    def test_approval_without_an_upstream_binding_binds_nothing(self) -> None:
+    def test_approval_without_an_upstream_binding_is_stale_until_approved_again(
+        self,
+    ) -> None:
         spec, state = self.build("requirements-first")
-        for name in ("design", "tasks"):
-            del state["artifacts"][name]["upstreamSha256"]
-        (spec / "requirements.md").write_text(support.REQUIREMENTS + "\nChanged.\n")
-        state = support.approve(spec, state, "requirements")
+        del state["artifacts"]["tasks"]["upstreamSha256"]
+        self.assertEqual(
+            artifact_status(spec, state),
+            {"requirements": A, "design": A, "tasks": S},
+        )
+        self.assertEqual(stale_causes(spec, state), {"tasks": "tasks"})
+        state = support.approve(spec, state, "tasks")
+        self.assertEqual(set(artifact_status(spec, state).values()), {A})
+
+    def test_first_artifact_of_the_order_needs_no_binding(self) -> None:
+        spec, state = self.build("design-first")
+        self.assertNotIn("upstreamSha256", state["artifacts"]["design"])
         self.assertEqual(set(artifact_status(spec, state).values()), {A})
 
     def test_draft_downstream_stays_draft(self) -> None:

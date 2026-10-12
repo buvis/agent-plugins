@@ -156,3 +156,20 @@ Tests: 344 passed, 0 failed, 0 skipped (suite run this cycle)
 - F9: add a top-level `stale` array of artifact names to the status JSON and its schema. Queued.
 - F10: one sentence in the artifact contract stating that a symlinked `.specflow.json` is replaced by a regular file. Queued.
 - Auto-dismissed re-raises (cycle-1 F23 placeholders and bugfix checks): settled earlier, no action.
+
+### Outcome (2026-10-12)
+
+Every queued item is applied:
+
+- F1: `scan_lines` marks a task item only in the task list (before the first `## ` heading, or under `## Tasks`), which `task_items`, `canonical` and `progress-fields` all read, so a box in any other section stays hash-bound wherever it sits. `TASKS_HEADING` moves to `canonical.py`. Tests: a box under `## Risks` above the completion criteria, and a Kiro plan whose `## Notes` box stays while its `## Tasks` box normalizes. Design §7.3 step 5, the task-item definition and the test note, the artifact contract and the CHANGELOG say so.
+- F2: the `CROSS_SPEC` row is `f"{arabic}00 REQ-001"`.
+- F3: the config schema no longer requires `schemaVersion` (`const: 1` when present); the loader needs no change, since it never read the field. Test: `{"root": "docs/pm"}` loads. Design and artifact contract updated.
+- F4: `state.unbound` names an approved record that binds no upstream though one exists; `stale_causes` makes it stale with itself as the cause, and `stale-approvals` says "it binds no upstream artifact" (the only reason left once its own text and record are fine). Re-approval records the binding and heals it. **The existing test `test_approval_without_an_upstream_binding_binds_nothing` is replaced** by `..._is_stale_until_approved_again`, since this decision reverses that contract; a second test pins that the first artifact of the order needs no binding. Design §7.4 drops the earlier exception.
+- F7: `drift_warnings` lives in `drift.py`; `status` and `gates` both call it, so `gates` now also emits the not-checked warning for a stale design, as `status` does.
+- F8: `specs-folder` runs in the `requirements` phase and `number-clashes` in `requirements` and `intake`; a run with no phase still runs both (it is an audit, not a resume), and `status` reports both under `problems`. Test: seeded left-behind specs and a number clash are found in `requirements` and in no later phase.
+- F9: each status entry carries `stale`, the artifact names whose status is stale, in workflow order; the status schema requires it. Test: a changed design lists `design` and `tasks`.
+- F10: the artifact contract states that a state write is a check and then a replace, and that a linked `.specflow.json` becomes a regular file.
+- Fail-first: 7 of the 8 new tests failed against the old code (F1 ×2, F3, F4, F7 via the stale-approvals message, F8, F9); the design-first binding pin passes by design, and the F2 row is a coverage fix that cannot fail first.
+- Checks: contract 287 OK on Python 3.14 and 3.10, release 52 OK, validator 12 OK, `scripts/validate.py` OK. `ruff check` on the changed modules: clean; `ruff format` applied to two files. The pre-existing ISC004 findings in `test_checks.py` are untouched.
+- Replay artifact: the cycle's pytest replay had left a `__pycache__` inside the package, which failed the no-bytecode test and the release check until removed.
+- The design approval was already stale from the T-027 edit committed meanwhile (`363778b`); this rework widens it (qa-log, "Review 00004-05 design edits"). Requirements, design and tasks need the developer's re-approval.

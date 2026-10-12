@@ -342,3 +342,9 @@ each landing exactly once.
 - Decision: resolve the question now and re-approve all three artifacts. Question: "How do you want to handle it?" Answer: "Resolve now, re-approve 3".
 - Edited: `requirements.md` `## Unresolved questions` now holds no marker, and its Kiro-link risk is retired; `design.md` §6.7 states the verified result instead of "until then it is an assumption", and the matching risk is retired.
 - This edit stales the requirements approval of 2026-10-11, and the design and tasks approvals with it (WF-002.5-6). All three need the developer's re-approval.
+
+## Review 00004-05 design edits (2026-10-12)
+
+- The cycle-5 walkthrough (`reviews/00004-artifact-state-contract-review-05.md`, minutes) decided F4 as a design edit. Fixes F1, F3, F7, F8 and F9 also change design text.
+- Edited: §7.3 step 5 and the task-item definition (a task item is a checkbox item of the task list, before the first level-two heading or under `## Tasks`, so a box in any other section stays hash-bound wherever it sits) and the hash-exclusion test note; §7.4 drops the exception for a record without `upstreamSha256` (such an approval is stale until approved again); the config schema's `schemaVersion` is optional; the `specs-folder` and `number-clashes` rows run in the `requirements` phase (and `intake`) with the Performance note reworded; the status example and field table gain `specs[].stale`; the interface block lists `drift_warnings` in `drift.py`.
+- The design approval is already stale from the T-027 edit above; this edit widens what the re-approval covers. Design and tasks need the developer's re-approval after the requirements re-approval (WF-002.5-6).

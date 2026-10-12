@@ -51,3 +51,8 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: a configured path holding a NUL character is refused as a configuration error instead of crashing.
 - **specflow**: the config template holds the default locations, so copying it changes nothing.
 - **specflow**: an indented or recased `Depends on:` line, and a bugfix one with text after it in the Introduction, are reported instead of silently ignored.
+- **specflow**: a checkbox outside the task list now stales the approved plan wherever its section sits, including above `## Completion criteria` and in a Kiro `## Notes` section; only the task list (before the first `## ` heading, or under `## Tasks`) and the completion criteria are progress.
+- **specflow**: `.agents/specflow.json` no longer needs `schemaVersion`; a file without it reads as version 1.
+- **specflow**: an approval recorded without its upstream hashes reads as stale until approved again, so a hand-written approval can no longer be revived by an upstream re-approval.
+- **specflow**: `validate` runs the specs-folder and number-clash scans in the `requirements` phase only (`number-clashes` also for `intake`), so validating a later phase stays inside the spec folder; `status` still reports both.
+- **specflow**: `status` lists each spec's stale artifacts under `stale`.

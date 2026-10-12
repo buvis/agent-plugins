@@ -8,7 +8,7 @@ from pathlib import Path
 from .canonical import canonical, scan_lines
 from .checks import CHECKS, Context, read_text, validate, workspace_config
 from .deps import dependency_blockers
-from .drift import code_drift, warning
+from .drift import drift_warnings
 from .numbers import numbered_items, spec_folders
 from .state import (
     ORDERS,
@@ -107,20 +107,6 @@ def marker_blockers(
     return blockers
 
 
-def drift_warnings(
-    repo: Path,
-    state: dict | None,
-    statuses: dict[str, str],
-) -> list[dict]:
-    """Code drift since the design approval; omitted outside Git."""
-    if not (repo / ".git").exists() or statuses["design"] not in ("approved", "stale"):
-        return []
-    if statuses["design"] == "stale":
-        message = "the design approval is stale; code is checked again after reapproval"
-        return [warning("not-checked", message)]
-    return code_drift(repo, (state or {})["artifacts"]["design"].get("approvedCode"))
-
-
 def next_task(tasks_path: Path) -> dict | None:
     """The first unchecked required task whose Depends on: tasks are checked.
 
@@ -210,6 +196,7 @@ def spec_status(repo: Path, specs_dir: Path, spec_dir: Path) -> dict:
         "state": kind,
         "hold": hold,
         "artifacts": statuses,
+        "stale": [name for name, value in statuses.items() if value == "stale"],
         "gates": gates,
         "blockers": blockers,
         "warnings": drift_warnings(repo, state, statuses),

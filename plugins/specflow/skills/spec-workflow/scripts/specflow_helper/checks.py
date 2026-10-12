@@ -10,7 +10,14 @@ from functools import partial
 from pathlib import Path, PurePosixPath
 from typing import NamedTuple
 
-from .canonical import CHECKBOX, PROGRESS, canonical, indent_of, scan_lines
+from .canonical import (
+    CHECKBOX,
+    PROGRESS,
+    TASKS_HEADING,
+    canonical,
+    indent_of,
+    scan_lines,
+)
 from .config import load_config
 from .deps import (
     dependency_blockers,
@@ -18,7 +25,7 @@ from .deps import (
     requirements_file,
     resolve_reference,
 )
-from .drift import code_drift
+from .drift import drift_warnings
 from .findings import Finding, finding
 from .numbers import NUMBER, number_clashes
 from .schema import check_content
@@ -42,6 +49,7 @@ from .state import (
     artifact_paths,
     artifact_status,
     load_state,
+    own_statuses,
     spec_phase,
     spec_type,
     stale_causes,
@@ -67,7 +75,6 @@ UNFILTERED = "any run with no phase"
 KIRO_SPECS = PurePosixPath(".kiro/specs")
 ID_ENTRY = re.compile(r"^(?:[A-Z][A-Z0-9]*-[0-9]{3}(?:\.[0-9]+)?|[0-9]+\.[0-9]+)$")
 BAD_CHECKBOX = re.compile(r"^[ \t]*(?:[-*+]|[0-9]+\.)[ \t]*\[[^\]]{0,3}\]")
-TASKS_HEADING = "## Tasks"
 DESIGN_SECTIONS = (
     "Overview",
     "Context and constraints",
@@ -255,6 +262,7 @@ def stale_approvals(ctx: Context) -> list[Finding]:
     """Each approval whose artifact or upstream changed, with the cause (WF-005.1, WF-005.4)."""
     paths = artifact_paths(ctx.spec_dir, ctx.state)
     records = (ctx.state or {}).get("artifacts", {})
+    own = own_statuses(ctx.spec_dir, ctx.state)
     findings = []
     for name, cause in stale_causes(ctx.spec_dir, ctx.state).items():
         file = paths[name].name
@@ -264,6 +272,9 @@ def stale_approvals(ctx: Context) -> list[Finding]:
             why = "it is recorded stale"
         elif records.get(name, {}).get("status") == "missing":
             why = "the file was deleted after its approval"
+        elif own[name] == "approved":
+            # Its own text and record are fine, so only the binding can be missing.
+            why = "it binds no upstream artifact"
         else:
             why = "its content changed since the approval"
         message = f"the {file} approval is stale: {why}"
@@ -619,21 +630,19 @@ def gates(ctx: Context) -> list[Finding]:
         )
         for b in dependency_blockers(ctx.spec_dir, specs_folder(ctx))
     ]
-    # WF-004.8: the drift check runs before implementation, as in status.
-    if statuses["design"] == "approved" and (ctx.repo / ".git").exists():
-        approved_code = (ctx.state or {})["artifacts"]["design"].get("approvedCode")
-        findings += [
-            finding(
-                rel(ctx, ctx.repo / w["path"])
-                if "path" in w
-                else rel(ctx, paths["design"]),
-                "gates",
-                f"{w['kind']}: {w['message']}",
-                "Review the change against the design; re-approve the design if it holds.",
-                "warning",
-            )
-            for w in code_drift(ctx.repo, approved_code)
-        ]
+    # WF-004.8: the same drift warnings status shows, before implementation.
+    findings += [
+        finding(
+            rel(ctx, ctx.repo / w["path"])
+            if "path" in w
+            else rel(ctx, paths["design"]),
+            "gates",
+            f"{w['kind']}: {w['message']}",
+            "Review the change against the design; re-approve the design if it holds.",
+            "warning",
+        )
+        for w in drift_warnings(ctx.repo, ctx.state, statuses)
+    ]
     return findings
 
 
@@ -657,7 +666,7 @@ def spec_dependencies(ctx: Context) -> list[Finding]:
     return findings
 
 
-@check("specs-folder", SPEC_PHASES)
+@check("specs-folder", frozenset({"requirements"}))
 def specs_folder_check(ctx: Context) -> list[Finding]:
     """Specs left in a real .kiro/specs/ beside a configured folder; an ignored specs folder."""
     findings = []
@@ -688,7 +697,7 @@ def specs_folder_check(ctx: Context) -> list[Finding]:
     return findings
 
 
-@check("number-clashes", SPEC_PHASES | {"intake"})
+@check("number-clashes", frozenset({"requirements", "intake"}))
 def number_clashes_check(ctx: Context) -> list[Finding]:
     return number_clashes(ctx.repo, ctx.config)
 

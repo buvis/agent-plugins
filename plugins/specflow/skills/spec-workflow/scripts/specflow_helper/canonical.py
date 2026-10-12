@@ -11,6 +11,7 @@ LIST_MARKER = r"[ \t]*(?:[-*+]|[0-9]+\.)[ \t]+"
 CHECKBOX = re.compile(rf"^({LIST_MARKER})\[([ xX~-])\]")
 PROGRESS = re.compile(rf"^{LIST_MARKER}(?:Outcome|Exception):")
 COMPLETION = "## Completion criteria"
+TASKS_HEADING = "## Tasks"
 
 
 def indent_of(line: str) -> int:
@@ -31,13 +32,14 @@ def scan_lines(text: str) -> list[tuple[str, bool, bool]]:
 
     A fence opens on three or more backticks or tildes after any indent and
     closes on the next line starting with the same character at least as many
-    times. A task item is a checkbox item above `## Completion criteria`; it
+    times. A task item is a checkbox item in the task list, which sits before
+    the first level-two heading (the template) or under `## Tasks` (Kiro); it
     runs until the next non-blank line indented no deeper than its marker.
     """
     result: list[tuple[str, bool, bool]] = []
     fence: str | None = None
     tasks: list[int] = []
-    above_completion = True
+    in_task_list = True
     for line in text.split("\n"):
         match = FENCE.match(line)
         if fence is not None:
@@ -49,13 +51,13 @@ def scan_lines(text: str) -> list[tuple[str, bool, bool]]:
             column = indent_of(line)
             while tasks and column <= tasks[-1]:
                 tasks.pop()
-            if line.rstrip() == COMPLETION:
-                above_completion = False
+            if line.startswith("## "):
+                in_task_list = line.rstrip() == TASKS_HEADING
         if match:
             fence = match[1]
             result.append((line, True, bool(tasks)))
             continue
-        if above_completion and CHECKBOX.match(line):
+        if in_task_list and CHECKBOX.match(line):
             tasks.append(indent_of(line))
         result.append((line, False, bool(tasks)))
     return result

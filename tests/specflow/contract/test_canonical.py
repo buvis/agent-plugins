@@ -84,6 +84,20 @@ class CheckboxTest(unittest.TestCase):
         self.assertFalse(tasks_equal(a, a.replace("- [x] Who", "- [ ] Who")))
         self.assertTrue(tasks_equal(a, a.replace("[x]", "[ ]", 2)))
 
+    def test_box_in_a_section_above_completion_criteria_stays(self) -> None:
+        a = (
+            "- [x] T-001 a\n\n## Risks\n\n- [x] open risk\n\n"
+            "## Completion criteria\n\n- [x] done\n"
+        )
+        self.assertFalse(tasks_equal(a, a.replace("- [x] open", "- [ ] open")))
+        progress = a.replace("[x] T-001", "[ ] T-001").replace("[x] done", "[ ] done")
+        self.assertTrue(tasks_equal(a, progress))
+
+    def test_kiro_tasks_section_boxes_normalize_and_notes_boxes_stay(self) -> None:
+        a = "# Plan\n\n## Tasks\n\n- [x] 1. Build\n\n## Notes\n\n- [x] Reviewed\n"
+        self.assertTrue(tasks_equal(a, a.replace("[x] 1.", "[ ] 1.")))
+        self.assertFalse(tasks_equal(a, a.replace("[x] Reviewed", "[ ] Reviewed")))
+
 
 class ProgressFieldTest(unittest.TestCase):
     def test_outcome_nested_under_a_task_is_dropped_at_any_depth(self) -> None:

@@ -199,9 +199,21 @@ def upstream_hashes(spec_dir: Path, state: dict | None, name: str) -> dict[str, 
     }
 
 
+def unbound(state: dict | None, order: str) -> set[str]:
+    """Artifacts recorded approved whose record binds no upstream though one exists."""
+    records = (state or {}).get("artifacts", {})
+    return {
+        name
+        for name in ARTIFACTS
+        if records.get(name, {}).get("status") == "approved"
+        and not records[name].get("upstreamSha256")
+        and upstream_of(name, order)
+    }
+
+
 def rebound(spec_dir: Path, state: dict | None, order: str) -> dict[str, str]:
     """Artifact -> the most upstream artifact no longer matching the hash its approval
-    bound in `upstreamSha256`. A record without the field binds nothing."""
+    bound in `upstreamSha256`. A record without the field is `unbound`, not compared."""
     paths = artifact_paths(spec_dir, state)
     records = (state or {}).get("artifacts", {})
     found = {}
@@ -237,7 +249,9 @@ def stale_causes_from(status: dict[str, str], order: str) -> dict[str, str]:
 def stale_causes(spec_dir: Path, state: dict | None) -> dict[str, str]:
     """Stale artifact -> the most upstream artifact whose change caused it. An approval
     whose bound upstream hash no longer matches is stale even after the upstream's
-    re-approval, so the order of reconcile and approvals does not matter."""
+    re-approval, so the order of reconcile and approvals does not matter; one that
+    binds no upstream at all is stale, with itself as the cause, until approved again
+    (STATE-002.4)."""
     order = workflow_order(spec_dir, state)
     status = own_statuses(spec_dir, state)
     moved = {
@@ -245,7 +259,8 @@ def stale_causes(spec_dir: Path, state: dict | None) -> dict[str, str]:
         for name, above in rebound(spec_dir, state, order).items()
         if status[name] == "approved"
     }
-    status = {name: "stale" if name in moved else status[name] for name in ARTIFACTS}
+    stale = set(moved) | {n for n in unbound(state, order) if status[n] == "approved"}
+    status = {name: "stale" if name in stale else status[name] for name in ARTIFACTS}
     causes = stale_causes_from(status, order)
     rank = (*ORDERS[order], "tasks").index
     for name, above in moved.items():
@@ -255,7 +270,7 @@ def stale_causes(spec_dir: Path, state: dict | None) -> dict[str, str]:
 
 
 def task_items(text: str) -> list[dict]:
-    """Checkbox items above `## Completion criteria`, in document order."""
+    """Checkbox items of the task list (`scan_lines`), in document order."""
     items: list[dict] = []
     stack: list[dict] = []
     for index, (line, in_fence, in_task) in enumerate(scan_lines(canonical(text))):

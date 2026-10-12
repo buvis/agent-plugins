@@ -73,6 +73,20 @@ def warning(kind: str, message: str, path: str | None = None) -> dict[str, str]:
     return item
 
 
+def drift_warnings(
+    repo: Path,
+    state: dict | None,
+    statuses: dict[str, str],
+) -> list[dict[str, str]]:
+    """Code drift since the design approval, for status and the gates check; omitted outside Git."""
+    if not (repo / ".git").exists() or statuses["design"] not in ("approved", "stale"):
+        return []
+    if statuses["design"] == "stale":
+        message = "the design approval is stale; code is checked again after reapproval"
+        return [warning("not-checked", message)]
+    return code_drift(repo, (state or {})["artifacts"]["design"].get("approvedCode"))
+
+
 def code_drift(repo: Path, approved_code: dict | None) -> list[dict[str, str]]:
     """Advisory warnings: declared files added, changed, or deleted since the design approval.
 

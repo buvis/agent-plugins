@@ -35,6 +35,7 @@
         "state",
         "hold",
         "artifacts",
+        "stale",
         "gates",
         "blockers",
         "warnings",
@@ -66,6 +67,11 @@
             "design": {"$ref": "#/$defs/artifactStatus"},
             "tasks": {"$ref": "#/$defs/artifactStatus"}
           }
+        },
+        "stale": {
+          "description": "The artifacts whose status is stale, in workflow order (STATE-003.1).",
+          "type": "array",
+          "items": {"type": "string", "enum": ["requirements", "design", "tasks"]}
         },
         "gates": {
           "description": "Cumulative: a closed gate closes every later gate; each blocker names the gate it closes first.",

@@ -89,6 +89,12 @@ class GateTest(StatusTest):
         )
         self.assertIsNone(entry["nextTask"])
 
+    def test_stale_artifacts_are_listed_by_name(self) -> None:
+        spec = self.make("00042-sample", approve=ALL)
+        self.assertEqual(self.entry(spec)["stale"], [])
+        (spec / "design.md").write_text(support.DESIGN + "\nChanged.\n")
+        self.assertEqual(self.entry(spec)["stale"], ["design", "tasks"])
+
     def test_missing_state_has_no_profile_and_a_blocker(self) -> None:
         spec = self.make("00042-sample")
         (spec / ".specflow.json").unlink()

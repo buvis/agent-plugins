@@ -451,6 +451,22 @@ class SeededDefectTest(ChecksTest):
                     ],
                 )
 
+    def test_stale_approvals_name_an_approval_that_binds_no_upstream(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        state = support.new_state("00101-feature-sample")
+        support.approve(spec, state, "requirements", "design", "tasks")
+        del state["artifacts"]["tasks"]["upstreamSha256"]
+        support.write_state(spec, state)
+        messages = [
+            f["message"]
+            for f in validate(self.repo, spec)
+            if f["rule"] == "stale-approvals"
+        ]
+        self.assertEqual(
+            messages,
+            ["the tasks.md approval is stale: it binds no upstream artifact"],
+        )
+
     def test_specs_folder_starting_with_a_dash_is_not_a_git_option(self) -> None:
         support.git(self.repo, "init", "-q")
         (self.repo / ".agents").mkdir()
@@ -497,7 +513,7 @@ class AsciiDigitsTest(unittest.TestCase):
             (BAD_CHECKBOX, f"{arabic}. [] Build"),
             (TASK_LINE, f"{arabic}. [x] Build"),
             (LIST_ITEM, f"{arabic}. Who owns the log?"),
-            (CROSS_SPEC, f"{arabic}{arabic}00 REQ-001"),
+            (CROSS_SPEC, f"{arabic}00 REQ-001"),
             (CROSS_SPEC, f"00042 REQ-{arabic}"),
         ):
             with self.subTest(text=text):

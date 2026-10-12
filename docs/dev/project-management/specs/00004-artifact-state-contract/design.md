@@ -174,6 +174,7 @@ def dependency_blockers(spec_dir: Path, specs_dir: Path) -> list[dict[str, str]]
 # specflow_helper/drift.py                                               T-022, T-026
 def code_baseline(repo: Path, paths: list[str]) -> dict: ...     # an approvedCode value
 def code_drift(repo: Path, approved_code: dict) -> list[dict[str, str]]: ...
+def drift_warnings(repo: Path, state: dict | None, statuses: dict[str, str]) -> list[dict[str, str]]: ...   # the warnings of status and gates (review 00004-05 F7)
 
 # specflow_helper/status.py                                              T-026
 def markers(text: str) -> list[str]: ...            # open marker lines of one artifact
@@ -218,7 +219,7 @@ Fields of the state schema, version 1 (the example and prose under Data model gi
 | `artifacts.design.approvedCode` | object | no | one of the three shapes under Code drift: `captured` with `files`, `not_checked` with `reason`, `not_applicable` with `reason` |
 | `hold` | object | no | `status` (`on_hold`, `abandoned`), `reason`, `since` (`YYYY-MM-DD`) |
 
-Fields of the config schema: `schemaVersion` (integer, `1`, required), `root` (string), `specsDir` (string), `numberScan` (array of strings). A schema that lets unknown fields through cannot keep secrets out, so STATE-001 criterion 3 has its own check, `state-content`: it fails a state file that has a key named `transcript`, `prompt`, `messages`, `conversation`, `sessionId`, `session_id`, `token`, `secret`, `password`, `credential`, or `apiKey` at any depth, or a string value that is an absolute path (a leading `/`, `~`, or a drive letter). Three free-text fields are not checked for paths, since an accepted marker or a reason may start with `/`: `acceptedMarkers[].line`, `hold.reason`, and the `reason` of `approvedCode`. The scan is `check_content` in `schema.py`, built and tested in T-021; T-026 registers it as a check.
+Fields of the config schema: `schemaVersion` (integer, `1` when present; a file without it is version 1, since INT-001.1 names only the root and the specs folder; review 00004-05 F3), `root` (string), `specsDir` (string), `numberScan` (array of strings). A schema that lets unknown fields through cannot keep secrets out, so STATE-001 criterion 3 has its own check, `state-content`: it fails a state file that has a key named `transcript`, `prompt`, `messages`, `conversation`, `sessionId`, `session_id`, `token`, `secret`, `password`, `credential`, or `apiKey` at any depth, or a string value that is an absolute path (a leading `/`, `~`, or a drive letter). Three free-text fields are not checked for paths, since an accepted marker or a reason may start with `/`: `acceptedMarkers[].line`, `hold.reason`, and the `reason` of `approvedCode`. The scan is `check_content` in `schema.py`, built and tested in T-021; T-026 registers it as a check.
 
 Fields of the status schema, beyond what the example below shows:
 
@@ -227,6 +228,7 @@ Fields of the status schema, beyond what the example below shows:
 | `specs[].gates` | object | the keys are the three things a gate opens: for Requirements-First `design`, `tasks`, `implementation`; for Design-First `requirements`, `tasks`, `implementation`; each `open` or `closed` |
 | `specs[].blockers[]` | object | `gate`, `reason`, and, for a spec dependency, `reference` and, for a cycle, `path`; for a malformed state, `reference` is the state file's repository-relative path. No `reason` holds an absolute path, so every host prints the same document (review 00004-03 F3) |
 | `specs[].warnings[]` | object | `kind` (`code-drift` or `not-checked`), `message`, and `path` when one file is meant |
+| `specs[].stale[]` | string | the artifacts whose status is `stale`, in workflow order: the explicit list STATE-003.1 asks for, derived from `artifacts` (review 00004-05 F9) |
 | `specs[].profile` | string or null | null when the spec has no state file; such a spec also carries a blocker with the reason `state missing` |
 | `specs[].nextTask` | object or null | the first unchecked item in document order, sub-tasks included, whose `Depends on:` tasks are all checked; a task with unchecked sub-tasks is not itself next. It is null while the implementation gate is closed or the spec has a `hold`, since neither may start a task (review 00004-03 F14) |
 | `problems[]` | object | repository-level findings that belong to no one spec, each with `rule`, `message`, and `fix`: an ignored specs folder, specs left in a real `.kiro/specs/`, a number clash |
@@ -253,13 +255,13 @@ Fields of the status schema, beyond what the example below shows:
 | `cross-spec-references` | VAL-001.13 | error | tasks on | T-026 | every reference of the cross-spec form names a spec on the `Depends on:` line, in either form, compared by the folder it resolves to, and a requirement and criterion that spec holds; the prerequisite is read, never written |
 | `gates` | VAL-001.5 | error | implementation | T-026 | tasks approved, no stale upstream artifact, the spec-dependency gate open; with the design approved in a Git repository, also the `status` code-drift and not-checked warnings as warning-level findings, so the check before implementation does not depend on running `status` too (WF-004.8; review 00004-04 F4) |
 | `spec-dependencies` | VAL-001.8 | error | implementation, and any run with no phase | T-026 | the dependency grammar and graph |
-| `specs-folder` | VAL-001.8 | error | all | T-028 | no specs left in a real `.kiro/specs/` beside a configured folder; the specs folder is not ignored by git, probed with a name that is not a dotfile so a `.*` rule does not count |
-| `number-clashes` | VAL-001.8 | error | all | T-029 | no number used by two intake items or two spec folders |
+| `specs-folder` | VAL-001.8 | error | requirements | T-028 | no specs left in a real `.kiro/specs/` beside a configured folder; the specs folder is not ignored by git, probed with a name that is not a dotfile so a `.*` rule does not count |
+| `number-clashes` | VAL-001.8 | error | requirements, intake | T-029 | no number used by two intake items or two spec folders |
 | `sources-line` | VAL-001.8 | error | requirements on | T-029 | a `Sources:` line that names an intake item with the spec's own number |
 
 Every finding carries the file, the rule, and the corrective action (VAL-001 criterion 6), and `validate` writes nothing (criterion 7).
 
-`specs-folder` and `number-clashes` list folders outside the selected spec on every run. VAL-001.8 asks for their reports, so they count as the repository discovery the Performance requirement allows (review 00004-02 F8).
+`specs-folder` and `number-clashes` list folders outside the selected spec, which the Performance requirement allows when a spec number is claimed. So they run in the `requirements` phase (`number-clashes` also for `intake`), and in a run with no phase, which is an audit rather than a resume; a later phase's validation stays inside the spec folder. `status` runs both once per run for `problems`, since VAL-001.8 asks for their reports (review 00004-02 F8, 00004-05 F8).
 
 ### Status output for external runners
 
@@ -276,6 +278,7 @@ Source: `qa-log.md` Q2 (STATE-003). `validate_spec.py status --json` is the only
       "phase": "implementation",
       "hold": null,
       "artifacts": {"requirements": "approved", "design": "approved", "tasks": "approved"},
+      "stale": [],
       "gates": {"design": "open", "tasks": "open", "implementation": "open"},
       "blockers": [],
       "warnings": [],
@@ -657,7 +660,7 @@ approved := status == "approved"
             AND each upstreamSha256[u] == sha256(canonical(current text of u)), for each u it names
 ```
 
-An approval binds the upstream text it was approved against through `upstreamSha256`, the value `hash --json` returns. When an upstream artifact is edited and approved again, a downstream approval is stale whether or not `reconcile` ran in between, and `stale-approvals` names that upstream artifact as the cause (WF-002.6, STATE-002.4; review 00004-03 F1). A record without the field binds nothing and keeps the earlier rule, so state written before it still reads as it did. An upstream artifact that no longer exists is not compared; its own `missing` status already closes the gates.
+An approval binds the upstream text it was approved against through `upstreamSha256`, the value `hash --json` returns. When an upstream artifact is edited and approved again, a downstream approval is stale whether or not `reconcile` ran in between, and `stale-approvals` names that upstream artifact as the cause (WF-002.6, STATE-002.4; review 00004-03 F1). An approved record of an artifact that has an upstream but carries no `upstreamSha256`, such as one written by hand, is stale, with itself as the cause and the reason that it binds no upstream artifact; approving it again, which records the binding, heals it. So STATE-002.4 holds for every record, and no exception is kept for state written before the field existed (review 00004-05 F4). The first artifact of the order has no upstream and needs no binding. An upstream artifact that no longer exists is not compared; its own `missing` status already closes the gates.
 
 A file restored after `reconcile` recorded it `missing` reads as stale while its record still holds `approvedSha256`, never as draft. The approval needs renewing, and `stale-approvals` says the file was deleted after its approval (review 00004-02 F5).
 
@@ -667,7 +670,7 @@ A file restored after `reconcile` recorded it `missing` reads as stale while its
 2. Normalize CRLF and CR line endings to LF.
 3. Strip trailing whitespace from every line.
 4. End with exactly one final newline.
-5. For `tasks.md` only, outside fenced code, normalize the checkbox (`[x]`, `[X]`, `[-]`, or `[~]` directly after the list marker) of a task item or of an item in the `## Completion criteria` section to `[ ]`, so recording progress does not invalidate the approved plan. A checkbox item in any other section, such as `## Unresolved questions` after the completion criteria, keeps its box and stays hash-bound (WF-002.4; review 00004-04 F3). Kiro writes `[-]` for a task in progress and `[~]` for a queued one (T-027 captures). A `*` right after the box marks an optional task and stays. A `[x]` anywhere else in a line, or inside a fence, stays as written.
+5. For `tasks.md` only, outside fenced code, normalize the checkbox (`[x]`, `[X]`, `[-]`, or `[~]` directly after the list marker) of a task item or of an item in the `## Completion criteria` section to `[ ]`, so recording progress does not invalidate the approved plan. A checkbox item in any other section, such as `## Risks` or `## Unresolved questions`, keeps its box and stays hash-bound wherever that section sits, and whether or not the file has a `## Completion criteria` section (WF-002.4; review 00004-04 F3, 00004-05 F1). Kiro writes `[-]` for a task in progress and `[~]` for a queued one (T-027 captures). A `*` right after the box marks an optional task and stays. A `[x]` anywhere else in a line, or inside a fence, stays as written.
 6. For `tasks.md` only, outside fenced code, drop a list line whose first token after the list marker is `Outcome:` or `Exception:` when it is nested under a checkbox item: the two progress fields of §6.4. The same words inside a fence, or outside a task item, stay hash-bound.
 
 Steps 5 and 6 track fences line by line. They exclude only parsed progress, so an edit to a literal example, a command, or a contract in an approved plan always stales it (decision 2026-10-03 #9). An artifact whose fence never closes fails validation and cannot be approved (VAL-001.11), so a stray fence cannot hide the rest of a plan from the hash or from the placeholder scan.
@@ -681,7 +684,7 @@ Details the six steps leave open, pinned so that two implementations hash alike.
 - Step 4 removes every blank line at the end before it adds the one final newline.
 - A fence opens on a line whose first characters after any indent are three or more backticks or tildes, and closes on the next line that starts, after any indent, with the same character at least as many times. A longer fence can hold a shorter one.
 - A checkbox item is a list item whose marker (`-`, `*`, `+`, or a number with `.`) is followed by one or more spaces and then `[x]`, `[X]`, `[-]`, `[~]`, or `[ ]`, optionally followed by `*`. Only `[x]` and `[X]` count as checked. An item with `*` is optional: left unchecked, it holds no spec out of `verification` or `complete` and is never `nextTask`.
-- A task item is a checkbox item above `## Completion criteria`. It runs until the next non-blank line that is indented no deeper than its own marker; blank lines do not end it, and a tab counts as four columns. An `Outcome:` or `Exception:` list line inside a task item is dropped, at any depth. Three cases fix the reading: with a task at column 0, `- Details:` at 2, and `- Outcome:` at 4, the line is dropped; with a task at 0, a plain `- Notes` item at 0, and `- Outcome:` at 2, the line is kept, since the plain item ended the task; a blank line between a task and its `Outcome:` changes nothing. Under a completion criterion the checkbox is normalized and such a line is kept.
+- A task item is a checkbox item in the task list: the lines before the first level-two heading (the template's shape) or under `## Tasks` (Kiro's), the same region `task-structure` reads; a heading inside a fence does not end it. It runs until the next non-blank line that is indented no deeper than its own marker; blank lines do not end it, and a tab counts as four columns. An `Outcome:` or `Exception:` list line inside a task item is dropped, at any depth. Three cases fix the reading: with a task at column 0, `- Details:` at 2, and `- Outcome:` at 4, the line is dropped; with a task at 0, a plain `- Notes` item at 0, and `- Outcome:` at 2, the line is kept, since the plain item ended the task; a blank line between a task and its `Outcome:` changes nothing. Under a completion criterion the checkbox is normalized and such a line is kept.
 
 These rules are part of the approval semantics: a change to them stales every recorded approval, so it is a breaking change under the versioning policy of 00001.
 
@@ -790,7 +793,7 @@ Every validation failure names the affected file, the rule, and the corrective a
 - Stable IDs and traceability.
 - State schema validation.
 - Hash-based approval and invalidation graph.
-- Hash exclusions: a real task checkbox, a completion-criteria checkbox, and a task's own progress fields do not stale approval; a `[x]` inside a fenced command, a box in a section after `## Completion criteria`, and an `Outcome:` line outside a task item do.
+- Hash exclusions: a real task checkbox, a completion-criteria checkbox, and a task's own progress fields do not stale approval; a `[x]` inside a fenced command, a box in any section outside the task list (above or below `## Completion criteria`, or in a Kiro `## Notes`), and an `Outcome:` line outside a task item do.
 - Spec dependencies (§6.2): multiple numbered/native references, feature/bugfix placement in both workflow orders, absent declarations, duplicate references, unfinished/complete/stale prerequisites, missing/ambiguous/unsupported/unreadable targets, invalid prerequisite state, misplaced/empty/repeated declarations, self-reference and reachable cycles. Fenced examples and task-local fields never declare spec dependencies. Assert blocker reasons, cycle paths, `nextTask: null` when blocked, unchanged earlier gates/phase/approval records, configured-folder resolution, and no prerequisite writes or unrelated content reads. A completed direct prerequisite is judged by its local phase even if a transitive prerequisite later becomes incomplete; invalid reachable graphs still block.
 - Code drift: baseline includes staged, unstaged, and untracked file bytes; unchanged dirty approval is clean, later edits warn, and reapproval at the same HEAD clears captured differences. New/deleted declared files warn, unchanged bytes later committed do not, and unborn/shallow repositories work without historical objects. Missing placement, old state without a baseline, unreadable files, and refused paths yield `not checked`; explicit no-file designs are not applicable. Native/bugfix placement uses its matching section. No check modifies phase, approvals, or source files; non-Git repositories omit this Git-scoped check. Assert containment, byte hashing with only line endings normalized (line-ending churn is no drift), no source content in state, no partial baseline labeled captured, and no implicit baseline refresh on resume.
 - Recovery from missing/malformed state.
