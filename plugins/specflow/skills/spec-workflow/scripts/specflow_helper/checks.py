@@ -64,8 +64,8 @@ DESIGN_ON = frozenset(PHASES[2:])
 TASKS_ON = frozenset(PHASES[3:])
 UNFILTERED = "any run with no phase"
 KIRO_SPECS = PurePosixPath(".kiro/specs")
-ID_ENTRY = re.compile(r"^(?:[A-Z][A-Z0-9]*-\d{3}(?:\.\d+)?|\d+\.\d+)$")
-BAD_CHECKBOX = re.compile(r"^[ \t]*(?:[-*+]|\d+\.)[ \t]*\[[^\]]{0,3}\]")
+ID_ENTRY = re.compile(r"^(?:[A-Z][A-Z0-9]*-[0-9]{3}(?:\.[0-9]+)?|[0-9]+\.[0-9]+)$")
+BAD_CHECKBOX = re.compile(r"^[ \t]*(?:[-*+]|[0-9]+\.)[ \t]*\[[^\]]{0,3}\]")
 TASKS_HEADING = "## Tasks"
 DESIGN_SECTIONS = (
     "Overview",
@@ -85,6 +85,9 @@ DESIGN_SECTIONS = (
     "Reuse inventory",
     "Open decisions",
 )
+# Template sections other designs hold too: Kiro writes the first two, and any
+# design may record open decisions (a marker section).
+SHARED_SECTIONS = ("Overview", "Architecture", "Open decisions")
 BUGFIX_SECTIONS = (
     ("### Current Behavior (Defect)", 1, r"WHEN .+ THEN (?i:the system) "),
     ("### Expected Behavior (Correct)", 2, r"WHEN .+ THEN (?i:the system) SHALL "),
@@ -214,7 +217,7 @@ def state_valid(ctx: Context) -> list[Finding]:
     try:
         load_state(ctx.spec_dir)
     except StateError as problem:
-        message = str(problem).split(": ", 1)[-1]
+        message = problem.reason
         fix = (
             "Fix the file by hand, or move it aside and recover; it is never replaced."
         )
@@ -353,7 +356,12 @@ def design_sections(ctx: Context) -> list[Finding]:
     found = partial(error, ctx, path, "design-sections")
     parts = sections(text)
     findings = []
-    if canonical(text).startswith("# Design: "):
+    # From the template: its title, or a section only the template has, so a
+    # retitled template design keeps every section (ART-001.10).
+    templated = canonical(text).startswith("# Design: ") or any(
+        name in parts for name in DESIGN_SECTIONS if name not in SHARED_SECTIONS
+    )
+    if templated:
         for name in DESIGN_SECTIONS:
             body = [line.strip() for line in parts.get(name, []) if line.strip()]
             if name not in parts:
@@ -487,21 +495,21 @@ def progress_fields(ctx: Context) -> list[Finding]:
     ):
         if not line.strip():
             continue
-        if field is not None and indent_of(line) > field:
-            message = (
-                f"line {n}: continues an Outcome: or Exception: line, so it is hashed"
-            )
-            fix = "Keep the field on one line; only that line is left out of the hash."
-            findings.append(warn(message, fix))
-            field = None
-            continue
-        field = None
+        # A progress field at any depth is itself left out of the hash, so test it first.
         if not in_fence and in_task and PROGRESS.match(line):
             field = indent_of(line)
             if not approved:
                 message = f"line {n}: {line.strip()} in a plan that is not approved"
                 fix = "Record Outcome: and Exception: only after the task plan is approved."
                 findings.append(warn(message, fix))
+            continue
+        if field is not None and indent_of(line) > field:
+            message = (
+                f"line {n}: continues an Outcome: or Exception: line, so it is hashed"
+            )
+            fix = "Keep the field on one line; only that line is left out of the hash."
+            findings.append(warn(message, fix))
+        field = None
     return findings
 
 
@@ -571,7 +579,7 @@ def cross_spec_finding(
             f"{where}: {target.name} {ident} holds no criterion {n}",
             "Cite a criterion it holds.",
         )
-        for n in re.findall(r"\d+", criteria or "")
+        for n in re.findall(r"[0-9]+", criteria or "")
         if int(n) not in held[ident]
     ]
 
@@ -645,9 +653,10 @@ def specs_folder_check(ctx: Context) -> list[Finding]:
             findings.append(
                 error(ctx, kiro, "specs-folder", message + ", ".join(left), fix),
             )
+    # The probe is not a dotfile, so a `.*` ignore rule does not match it.
     if (ctx.repo / ".git").exists() and git_ignored(
         ctx.repo,
-        f"{configured}/.specflow-probe",
+        f"{configured}/specflow-probe",
     ):
         message = f"git ignores the specs folder {configured}, so its specs are never committed"
         fix = "Remove the ignore rule that matches it, or configure another specsDir."

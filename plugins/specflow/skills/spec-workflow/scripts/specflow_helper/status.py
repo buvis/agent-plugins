@@ -24,7 +24,7 @@ from .state import (
 
 STATUS_VERSION = 1
 MARKER_SECTIONS = ("## Unresolved questions", "## Open decisions")
-LIST_ITEM = re.compile(r"^(?:[-*+]|\d+\.)\s")
+LIST_ITEM = re.compile(r"^(?:[-*+]|[0-9]+\.)\s")
 REPOSITORY_CHECKS = ("specs-folder", "number-clashes")
 # Covered by the artifact and dependency blockers, or reported once under problems.
 NOT_PER_SPEC = frozenset(
@@ -154,7 +154,15 @@ def spec_status(repo: Path, specs_dir: Path, spec_dir: Path) -> dict:
     if kind == "missing":
         blockers.append({"gate": second, "reason": "state missing"})
     if problem is not None:
-        blockers.append({"gate": second, "reason": f"state invalid: {problem}"})
+        blockers.append(
+            {
+                "gate": second,
+                "reason": f"state invalid: {problem.reason}",
+                "reference": problem.path.resolve()
+                .relative_to(repo.resolve())
+                .as_posix(),
+            },
+        )
     blockers += artifact_blockers(order, statuses, paths)
     blockers += marker_blockers(order, state, paths)
     blockers += dependency_blockers(spec_dir, specs_dir)

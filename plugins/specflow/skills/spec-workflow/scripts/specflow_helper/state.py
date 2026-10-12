@@ -40,14 +40,22 @@ DOWNSTREAM = {
     },
 }
 SPEC_TYPES = ("feature", "bugfix")
-TASK_LINE = re.compile(r"^[ \t]*(?:[-*+]|\d+\.)[ \t]+\[([ xX~-])\](\*?)[ \t]*(.*)$")
-TASK_ID = re.compile(r"^(T-\d+(?:\.\d+)*|\d+(?:\.\d+)*)\.?\s+(.*)$")
+TASK_LINE = re.compile(r"^[ \t]*(?:[-*+]|[0-9]+\.)[ \t]+\[([ xX~-])\](\*?)[ \t]*(.*)$")
+TASK_ID = re.compile(r"^(T-[0-9]+(?:\.[0-9]+)*|[0-9]+(?:\.[0-9]+)*)\.?\s+(.*)$")
 DEPENDS = re.compile(r"^[ \t]*[-*+][ \t]+Depends on:[ \t]*(.*)$")
 FIELD = re.compile(r"^[ \t]*[-*+][ \t]+([A-Z][A-Za-z ]*):")
 
 
 class StateError(Exception):
-    """The state file is malformed or of an unsupported version."""
+    """The state file is malformed or of an unsupported version.
+
+    `reason` names no path, so output that every host must render alike can use it.
+    """
+
+    def __init__(self, path: Path, reason: str) -> None:
+        super().__init__(f"{path}: {reason}")
+        self.path = path
+        self.reason = reason
 
 
 def load_state(spec_dir: Path) -> dict | None:
@@ -58,17 +66,17 @@ def load_state(spec_dir: Path) -> dict | None:
     try:
         state = json.loads(path.read_bytes().decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as error:
-        raise StateError(f"{path}: not valid JSON: {error}") from error
+        raise StateError(path, f"not valid JSON: {error}") from error
     if not isinstance(state, dict):
-        raise StateError(f"{path}: must contain a JSON object")
+        raise StateError(path, "must contain a JSON object")
     version = state.get("schemaVersion")
     if not isinstance(version, int) or isinstance(version, bool):
-        raise StateError(f"{path}: schemaVersion must be an integer")
+        raise StateError(path, "schemaVersion must be an integer")
     if version != SCHEMA_VERSION:
-        raise StateError(f"{path}: unsupported state version {version}")
+        raise StateError(path, f"unsupported state version {version}")
     errors = check_schema(state, load_schema("specflow-state.schema.json"))
     if errors:
-        raise StateError(f"{path}: " + "; ".join(errors))
+        raise StateError(path, "; ".join(errors))
     return state
 
 
@@ -125,13 +133,11 @@ def own_status(path: Path, record: dict) -> str:
     """One artifact's status from its file and its approval record alone."""
     if not path.exists():
         return "missing"
-    if record.get("status") == "stale":
+    recorded = record.get("status")
+    # A file restored after a recorded deletion needs its approval renewed too.
+    if recorded == "stale" or (recorded == "missing" and "approvedSha256" in record):
         return "stale"
-    if record.get("status") == "missing" and "approvedSha256" in record:
-        return (
-            "stale"  # restored after a recorded deletion: the approval needs renewing
-        )
-    if record.get("status") != "approved" or "approvedSha256" not in record:
+    if recorded != "approved" or "approvedSha256" not in record:
         return "draft"
     try:
         current = sha256_canonical(path)
@@ -173,8 +179,45 @@ def artifact_status(spec_dir: Path, state: dict | None) -> dict[str, str]:
     """Status per artifact. Approval is bound to approvedSha256, never to a file's
     existence, and a stale artifact stales every approval downstream of it."""
     status = own_statuses(spec_dir, state)
-    cause = stale_causes_from(status, workflow_order(spec_dir, state))
+    cause = stale_causes(spec_dir, state)
     return {name: "stale" if name in cause else status[name] for name in ARTIFACTS}
+
+
+def upstream_of(name: str, order: str) -> list[str]:
+    """The artifacts whose approval an approval of `name` depends on, most upstream first."""
+    graph = DOWNSTREAM[order]
+    return [above for above in (*ORDERS[order], "tasks") if name in graph[above]]
+
+
+def upstream_hashes(spec_dir: Path, state: dict | None, name: str) -> dict[str, str]:
+    """Canonical hash of each existing upstream artifact, as an approval of `name` binds it."""
+    paths = artifact_paths(spec_dir, state)
+    return {
+        above: sha256_canonical(paths[above])
+        for above in upstream_of(name, workflow_order(spec_dir, state))
+        if paths[above].exists()
+    }
+
+
+def rebound(spec_dir: Path, state: dict | None, order: str) -> dict[str, str]:
+    """Artifact -> the most upstream artifact no longer matching the hash its approval
+    bound in `upstreamSha256`. A record without the field binds nothing."""
+    paths = artifact_paths(spec_dir, state)
+    records = (state or {}).get("artifacts", {})
+    found = {}
+    for name in ARTIFACTS:
+        bound = records.get(name, {}).get("upstreamSha256", {})
+        for above in upstream_of(name, order):
+            if above not in bound or not paths[above].exists():
+                continue
+            try:
+                current = sha256_canonical(paths[above])
+            except UnicodeDecodeError:
+                current = None
+            if current != bound[above]:
+                found[name] = above
+                break
+    return found
 
 
 def stale_causes_from(status: dict[str, str], order: str) -> dict[str, str]:
@@ -192,11 +235,23 @@ def stale_causes_from(status: dict[str, str], order: str) -> dict[str, str]:
 
 
 def stale_causes(spec_dir: Path, state: dict | None) -> dict[str, str]:
-    """Stale artifact -> the most upstream artifact whose change caused it."""
-    return stale_causes_from(
-        own_statuses(spec_dir, state),
-        workflow_order(spec_dir, state),
-    )
+    """Stale artifact -> the most upstream artifact whose change caused it. An approval
+    whose bound upstream hash no longer matches is stale even after the upstream's
+    re-approval, so the order of reconcile and approvals does not matter."""
+    order = workflow_order(spec_dir, state)
+    status = own_statuses(spec_dir, state)
+    moved = {
+        name: above
+        for name, above in rebound(spec_dir, state, order).items()
+        if status[name] == "approved"
+    }
+    status = {name: "stale" if name in moved else status[name] for name in ARTIFACTS}
+    causes = stale_causes_from(status, order)
+    rank = (*ORDERS[order], "tasks").index
+    for name, above in moved.items():
+        if rank(above) < rank(causes[name]):
+            causes[name] = above
+    return causes
 
 
 def task_items(text: str) -> list[dict]:

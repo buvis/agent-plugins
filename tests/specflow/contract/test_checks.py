@@ -10,6 +10,8 @@ from pathlib import Path
 import support
 from specflow_helper.checks import CHECKS, validate
 from specflow_helper.reconcile import reconcile
+from specflow_helper.spec_text import CLAUSE, CRITERION, REQUIREMENT_HEADING
+from specflow_helper.state import TASK_ID
 
 SPECS = support.FIXTURES / "specs"
 T026_ROWS = {
@@ -155,6 +157,12 @@ class SeededDefectTest(ChecksTest):
         self.edit(spec / "design.md", old, "Not applicable:")
         self.assert_seeded(spec, "design-sections")
 
+    def test_design_sections_still_apply_to_a_retitled_template_design(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(spec / "design.md", "# Design: ", "# Design Document: ")
+        self.edit(spec / "design.md", "## Reuse inventory\n", "")
+        self.assert_seeded(spec, "design-sections")
+
     def test_design_sections_traceability_cites_an_unknown_criterion(self) -> None:
         spec = self.copy("00101-feature-sample")
         self.edit(spec / "design.md", "REQ-002.1 |", "REQ-002.7 |")
@@ -167,9 +175,11 @@ class SeededDefectTest(ChecksTest):
         self.assertNotIn("design-sections", self.rules(spec))
 
     def test_design_sections_lets_kiro_designs_keep_their_headings(self) -> None:
-        spec = self.specs / "kiro-design-first"
-        shutil.copytree(support.FIXTURES / "kiro" / "design-first", spec)
-        self.assertNotIn("design-sections", self.rules(spec))
+        for capture in ("design-first", "requirements-first", "bugfix"):
+            with self.subTest(capture=capture):
+                spec = self.specs / f"kiro-{capture}"
+                shutil.copytree(support.FIXTURES / "kiro" / capture, spec)
+                self.assertNotIn("design-sections", self.rules(spec))
 
     def test_design_sections_ignores_the_heading_inside_a_fence(self) -> None:
         spec = self.copy("00101-feature-sample")
@@ -312,6 +322,21 @@ class SeededDefectTest(ChecksTest):
         continued = [m for m in messages if "continues an Outcome: or Exception:" in m]
         self.assertEqual(len(continued), 1, messages)
 
+    def test_nested_progress_field_is_not_a_continuation(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        verify = "  - Verify: `python -m unittest tests.test_log`"
+        nested = f"{verify}\n  - Outcome: done\n    - Exception: flaky on CI"
+        self.edit(spec / "tasks.md", verify, nested)
+        state = support.approve(
+            spec,
+            support.new_state("00101-feature-sample"),
+            "requirements",
+            "design",
+            "tasks",
+        )
+        self.assertEqual(state["artifacts"]["tasks"]["status"], "approved")
+        self.assertNotIn("progress-fields", self.rules(spec, level="warning"))
+
     def test_cross_spec_reference_matches_either_declared_form(self) -> None:
         self.copy("00101-feature-sample", "00090-base")
         cases = (
@@ -441,6 +466,20 @@ class SeededDefectTest(ChecksTest):
         self.assert_seeded(spec, "spec-dependencies")
         self.assert_seeded(spec, "spec-dependencies", "implementation")
         self.assertNotIn("spec-dependencies", self.rules(spec, "design"))
+
+
+class AsciiDigitsTest(unittest.TestCase):
+    def test_structure_ids_take_ascii_digits_only(self) -> None:
+        arabic = "١٢٣"
+        for pattern, text in (
+            (REQUIREMENT_HEADING, f"### REQ-{arabic}: Retry"),
+            (REQUIREMENT_HEADING, f"### Requirement {arabic}"),
+            (CRITERION, f"{arabic}. WHEN"),
+            (CLAUSE, f"{arabic}.{arabic} WHEN"),
+            (TASK_ID, f"T-{arabic} Build"),
+        ):
+            with self.subTest(text=text):
+                self.assertIsNone(pattern.match(text))
 
 
 class IntakeTest(ChecksTest):

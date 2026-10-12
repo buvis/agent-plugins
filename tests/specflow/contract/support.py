@@ -96,8 +96,9 @@ def write_state(spec_dir: Path, state: dict) -> None:
 
 
 def approve(spec_dir: Path, state: dict, *names: str) -> dict:
-    """Record approvals the way the agent does: status, hash, and time."""
+    """Record approvals the way the agent does: status, hashes, and time."""
     from specflow_helper.canonical import sha256_canonical
+    from specflow_helper.state import upstream_hashes
 
     for name in names:
         record = state["artifacts"][name]
@@ -108,6 +109,8 @@ def approve(spec_dir: Path, state: dict, *names: str) -> dict:
             approvedSha256=digest,
             approvedAt="2026-10-10T10:00:00Z",
         )
+        if upstream := upstream_hashes(spec_dir, state, name):
+            record["upstreamSha256"] = upstream
     write_state(spec_dir, state)
     return state
 

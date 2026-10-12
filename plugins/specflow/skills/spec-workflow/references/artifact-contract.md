@@ -13,7 +13,7 @@ The shapes every host reads and writes. The templates in `templates/` are filled
 └── .specflow.json      # specflow state
 ```
 
-- The specs folder is `.kiro/specs/` by default, or the folder `specsDir` names in `.agents/specflow.json`. Read and write it directly. Never create, repair, or depend on a `.kiro/specs` link; making that link so Kiro IDE lists the specs is the repository's own setup, and it must be a link, never a copy.
+- The specs folder is `.kiro/specs/` by default, or the folder `specsDir` names in `.agents/specflow.json`. Read and write it directly. Never create, repair, or depend on a `.kiro/specs` link; making that link so Kiro IDE lists the specs is the repository's own setup, and it must be a link, never a copy. Kiro IDE's spec panel reads `.kiro/specs/`, so a spec in another specs folder may not appear there, and whether Kiro follows such a link is not yet confirmed.
 - `NNNNN` is the spec number of the intake item. The title is lowercase kebab-case, stable, and filesystem-safe. A number is never reused.
 - The folder name is chosen once. Renaming needs an explicit migration. A Kiro-native folder without a number is valid and is never renamed to add one.
 - The three canonical artifacts keep these names on every host. Other files in the folder (another tool's sidecar, Kiro's `tasks.meta.json`) belong to their owners: never edit, hash, or approve them.

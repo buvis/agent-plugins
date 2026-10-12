@@ -50,10 +50,22 @@ def scanned_names(repo: Path, config: dict[str, object]) -> list[str]:
     return names
 
 
+def intake_names(repo: Path, config: dict[str, object]) -> list[str]:
+    """Folder names a new number must clear: each stage's entries and the folders one
+    level inside them (a numbered group's items too), and folders put straight under
+    <root>/intake/."""
+    intake = repo / str(config["root"]) / "intake"
+    names = [p.name for p in subfolders(intake)]
+    for stage in ("new", "processed"):
+        for entry in subfolders(intake / stage):
+            names += [entry.name, *(p.name for p in subfolders(entry))]
+    return names
+
+
 def next_number(repo: Path, config: dict[str, object]) -> str:
     """One more than the highest five-digit prefix in use; read-only."""
-    names = [p.name for p in numbered_items(repo, config) + spec_folders(repo, config)]
-    names += scanned_names(repo, config)
+    names = [p.name for p in spec_folders(repo, config)]
+    names += intake_names(repo, config) + scanned_names(repo, config)
     kiro = repo / ".kiro" / "specs"
     real = kiro.is_dir() and not kiro.is_symlink()
     inside = kiro.resolve().is_relative_to(repo.resolve())

@@ -119,6 +119,34 @@ class InvalidationTest(support.TempTest):
         self.assertEqual(statuses["requirements"], A)
         self.assertEqual((statuses["design"], statuses["tasks"]), (S, S))
 
+    def test_upstream_reapproval_without_reconcile_never_revives_downstream(
+        self,
+    ) -> None:
+        for order, edited, below in (
+            ("requirements-first", "requirements", ("design", "tasks")),
+            ("design-first", "design", ("requirements", "tasks")),
+        ):
+            with self.subTest(order=order):
+                spec, state = self.build(order)
+                path = spec / FILES[edited]
+                path.write_text(path.read_text() + "\nChanged.\n")
+                state = support.approve(spec, state, edited)
+                statuses = artifact_status(spec, state)
+                self.assertEqual(statuses[edited], A)
+                self.assertEqual([statuses[name] for name in below], [S, S])
+                causes = stale_causes(spec, state)
+                self.assertEqual(
+                    {name: causes[name] for name in below}, dict.fromkeys(below, edited)
+                )
+
+    def test_approval_without_an_upstream_binding_binds_nothing(self) -> None:
+        spec, state = self.build("requirements-first")
+        for name in ("design", "tasks"):
+            del state["artifacts"][name]["upstreamSha256"]
+        (spec / "requirements.md").write_text(support.REQUIREMENTS + "\nChanged.\n")
+        state = support.approve(spec, state, "requirements")
+        self.assertEqual(set(artifact_status(spec, state).values()), {A})
+
     def test_draft_downstream_stays_draft(self) -> None:
         spec, state = self.build("requirements-first")
         state["artifacts"]["tasks"] = {"path": "tasks.md", "status": "draft"}

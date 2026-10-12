@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import stat
 import unittest
 from unittest import mock
@@ -49,6 +50,16 @@ class WriteGuardedTest(support.TempTest):
         path.write_text("old")
         path.chmod(0o640)
         write_guarded(path, b"new", sha256_raw(path))
+        self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o640)
+
+    def test_new_file_takes_the_umask_mode_not_the_temporary_files(self) -> None:
+        path = self.tmp / "new.json"
+        previous = os.umask(0o027)
+        try:
+            write_guarded(path, b"new", None)
+        finally:
+            os.umask(previous)
+        self.assertEqual(path.read_bytes(), b"new")
         self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o640)
 
     def test_stray_temporary_name_is_neither_used_nor_removed(self) -> None:

@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 FENCE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
-LIST_MARKER = r"[ \t]*(?:[-*+]|\d+\.)[ \t]+"
+LIST_MARKER = r"[ \t]*(?:[-*+]|[0-9]+\.)[ \t]+"
 CHECKBOX = re.compile(rf"^({LIST_MARKER})\[([ xX~-])\]")
 PROGRESS = re.compile(rf"^{LIST_MARKER}(?:Outcome|Exception):")
 COMPLETION = "## Completion criteria"

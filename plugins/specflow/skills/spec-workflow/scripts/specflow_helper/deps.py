@@ -111,7 +111,7 @@ def declared(spec_dir: Path) -> tuple[list[str], list[Finding], str | None]:
     try:
         text = path.read_bytes().decode("utf-8")
     except (OSError, UnicodeDecodeError) as error:
-        return [], [], f"unreadable target: {error}"
+        return [], [], f"unreadable target: {unreadable(error)}"
     refs, findings = parse_depends_on(
         text,
         bugfix=path.name == "bugfix.md",
@@ -120,14 +120,21 @@ def declared(spec_dir: Path) -> tuple[list[str], list[Finding], str | None]:
     return refs, findings, None
 
 
+def unreadable(error: OSError | UnicodeDecodeError) -> str:
+    """The error without the file's absolute path; the blocker names its reference."""
+    if isinstance(error, OSError):
+        return error.strerror or "cannot be read"
+    return str(error)
+
+
 def completeness(target: Path) -> str | None:
     """Why a direct prerequisite does not count as complete, or None."""
     try:
         _, phase = spec_phase(target, load_state(target))
     except StateError as error:
-        return f"state cannot be reconciled: {error}"
+        return f"state cannot be reconciled: {error.reason}"
     except (OSError, UnicodeDecodeError) as error:
-        return f"unreadable target: {error}"
+        return f"unreadable target: {unreadable(error)}"
     return None if phase == "complete" else f"incomplete prerequisite (phase {phase})"
 
 
@@ -162,7 +169,7 @@ def dependency_blockers(spec_dir: Path, specs_dir: Path) -> list[dict[str, str]]
                 block(node, ref, "self-reference")
             elif target.resolve() in on_stack:
                 names = [s.name for s in stack[on_stack.index(target.resolve()) :]]
-                block(node, ref, "cycle", path=" → ".join([*names, target.name]))
+                block(node, ref, "cycle", path=" -> ".join([*names, target.name]))
             elif target.resolve() not in done:
                 visit(target, [*stack, target])
         done.add(node.resolve())

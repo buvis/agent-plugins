@@ -6,14 +6,16 @@ import re
 
 from .canonical import canonical, scan_lines
 
-REQUIREMENT_HEADING = re.compile(r"^### (?:([A-Z][A-Z0-9]*-\d{3})|Requirement (\d+))\b")
-WITHDRAWN = re.compile(r"^### [A-Z][A-Z0-9]*-\d{3}: withdrawn\s*$")
-CRITERION = re.compile(r"^(\d+)\. ")
-CROSS_SPEC = re.compile(
-    r"([0-9]{5}|folder:[^\s,;]+) ([A-Z][A-Z0-9]*-\d{3})"
-    r"(?: (?:criterion|criteria) (\d+(?:, ?\d+)*))?",
+REQUIREMENT_HEADING = re.compile(
+    r"^### (?:([A-Z][A-Z0-9]*-[0-9]{3})|Requirement ([0-9]+))\b"
 )
-CLAUSE = re.compile(r"^(\d+)\.(\d+) ")
+WITHDRAWN = re.compile(r"^### [A-Z][A-Z0-9]*-[0-9]{3}: withdrawn\s*$")
+CRITERION = re.compile(r"^([0-9]+)\. ")
+CROSS_SPEC = re.compile(
+    r"([0-9]{5}|folder:[^\s,;]+) ([A-Z][A-Z0-9]*-[0-9]{3})"
+    r"(?: (?:criterion|criteria) ([0-9]+(?:, ?[0-9]+)*))?",
+)
+CLAUSE = re.compile(r"^([0-9]+)\.([0-9]+) ")
 
 
 def prose(text: str) -> list[tuple[int, str]]:
@@ -117,7 +119,9 @@ def traced_ids(text: str) -> set[str]:
         value = CROSS_SPEC.sub("", stripped.removeprefix("Requirements:"))
         for token in re.split(r"[,;\s]+", value):
             token = token.strip("_`")
-            if re.fullmatch(r"[A-Z][A-Z0-9]*-\d{3}(?:\.\d+)?|\d+(?:\.\d+)?", token):
+            if re.fullmatch(
+                r"[A-Z][A-Z0-9]*-[0-9]{3}(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?", token
+            ):
                 traced.add(token.split(".")[0])
     return traced
 

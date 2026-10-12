@@ -19,6 +19,7 @@ from specflow_helper import WORKFLOW_VERSION
 from specflow_helper.schema import check_content, check_schema, load_schema
 
 FIXTURES = REPO / "tests" / "specflow" / "fixtures" / "state"
+SCHEMAS = REPO / "plugins" / "specflow" / "skills" / "spec-workflow" / "schemas"
 SCHEMA_ID = (
     "https://raw.githubusercontent.com/buvis/agent-plugins/specflow-v{v}/"
     "plugins/specflow/skills/spec-workflow/schemas/specflow-state.schema.json"
@@ -115,6 +116,28 @@ class StateSchemaTest(unittest.TestCase):
 
     def test_schema_carries_its_public_address(self) -> None:
         self.assertEqual(self.schema["$id"], SCHEMA_ID.format(v=WORKFLOW_VERSION))
+
+    def test_upstream_binding_holds_hashes_of_upstream_artifacts(self) -> None:
+        tasks = self.full["artifacts"]["tasks"]
+        tasks["upstreamSha256"] = {"requirements": "a" * 64, "design": "b" * 64}
+        self.assertEqual(self.errors(self.full), [])
+        tasks["upstreamSha256"]["design"] = "b" * 63
+        self.assert_fails_at(self.full, "$.artifacts.tasks.upstreamSha256.design")
+
+    def test_every_shipped_pattern_is_anchored_for_external_validators(self) -> None:
+        # JSON Schema validators search; the helper full-matches. Anchors make them agree.
+        def patterns(node: object) -> list[str]:
+            if isinstance(node, dict):
+                own = [node["pattern"]] if isinstance(node.get("pattern"), str) else []
+                return own + [p for value in node.values() for p in patterns(value)]
+            if isinstance(node, list):
+                return [p for value in node for p in patterns(value)]
+            return []
+
+        for path in sorted(SCHEMAS.glob("*.schema.json")):
+            for pattern in patterns(json.loads(path.read_text(encoding="utf-8"))):
+                with self.subTest(schema=path.name, pattern=pattern):
+                    self.assertTrue(pattern.startswith("^") and pattern.endswith("$"))
 
 
 class SchemaKeywordTest(unittest.TestCase):

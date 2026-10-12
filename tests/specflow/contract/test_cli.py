@@ -130,6 +130,38 @@ class OperationTest(CliTest):
             ["00101-feature-sample"],
         )
 
+    def test_status_prints_on_a_non_utf8_stdout(self) -> None:
+        other = shutil.copytree(self.spec, self.specs / "00102-other")
+        for spec, target in ((self.spec, other), (other, self.spec)):
+            path = spec / "requirements.md"
+            text = path.read_text().replace(
+                "\n## Purpose",
+                f"Depends on: folder:{target.name}\n\n## Purpose",
+                1,
+            )
+            path.write_text(text)
+        env = {**os.environ, "PYTHONIOENCODING": "cp1252"}
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "status", "--json"],
+            capture_output=True,
+            env=env,
+            check=False,
+        )
+        self.assertNotIn(b"Traceback", result.stderr)
+        self.assertIn(b"00101-feature-sample -> 00102-other", result.stdout)
+
+    def test_status_names_a_malformed_state_by_its_repository_path(self) -> None:
+        (self.spec / ".specflow.json").write_text("{")
+        _, out, _ = self.run_cli("status", "--json")
+        self.assertNotIn(str(self.tmp.resolve()), out)
+        self.assertNotIn(str(self.tmp), out)
+        blocker = json.loads(out)["specs"][0]["blockers"][0]
+        self.assertTrue(blocker["reason"].startswith("state invalid: not valid JSON"))
+        self.assertEqual(
+            blocker["reference"],
+            ".kiro/specs/00101-feature-sample/.specflow.json",
+        )
+
     def test_status_exits_1_on_a_malformed_state_and_still_prints(self) -> None:
         (self.spec / ".specflow.json").write_text("{")
         code, out, _ = self.run_cli("status", str(self.spec), "--json")
@@ -146,9 +178,22 @@ class OperationTest(CliTest):
         self.assertNotEqual(canonical, raw)
         _, out, _ = self.run_cli("hash", tasks, "--json")
         record = json.loads(out)
-        self.assertEqual(list(record), ["sha256", "approvedAt", "workflowVersion"])
+        self.assertEqual(
+            list(record),
+            ["sha256", "approvedAt", "workflowVersion", "upstreamSha256"],
+        )
         self.assertEqual(record["sha256"], canonical.strip())
         self.assertRegex(record["approvedAt"], r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
+
+    def test_hash_json_binds_each_upstream_artifact(self) -> None:
+        expected = {}
+        for name in ("requirements", "design"):
+            _, digest, _ = self.run_cli("hash", str(self.spec / f"{name}.md"))
+            expected[name] = digest.strip()
+        _, out, _ = self.run_cli("hash", str(self.spec / "tasks.md"), "--json")
+        self.assertEqual(json.loads(out)["upstreamSha256"], expected)
+        _, out, _ = self.run_cli("hash", str(self.spec / "requirements.md"), "--json")
+        self.assertNotIn("upstreamSha256", json.loads(out))
 
     def test_hash_json_records_the_commit_when_there_is_one(self) -> None:
         support.git(self.repo, "add", "-A")

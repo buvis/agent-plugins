@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import support
 from specflow_helper.deps import dependency_blockers, parse_depends_on
@@ -177,6 +178,20 @@ class ResolutionTest(DepsTest):
         self.assertEqual(reasons["00013"], "ambiguous target: 00013-one, 00013-two")
         self.assertTrue(reasons["Depends on:"].startswith("unreadable target"))
 
+    def test_unreadable_target_reason_names_no_absolute_path(self) -> None:
+        locked = self.make("00014-locked")
+        spec = self.make("00050-main", "00014")
+        real = Path.read_bytes
+
+        def read_bytes(path: Path) -> bytes:
+            if path.parent == locked:
+                raise PermissionError(13, "Permission denied", str(path))
+            return real(path)
+
+        with mock.patch.object(Path, "read_bytes", read_bytes):
+            reasons = [reason for _, _, reason in self.reasons(spec)]
+        self.assertEqual(set(reasons), {"unreadable target: Permission denied"})
+
     def test_prerequisite_state_that_cannot_be_reconciled_blocks(self) -> None:
         base = self.make("00012-base")
         (base / ".specflow.json").write_text("{")
@@ -218,7 +233,7 @@ class GraphTest(DepsTest):
             b for b in dependency_blockers(spec, self.specs) if b["reason"] == "cycle"
         ]
         self.assertEqual(len(cycle), 1)
-        self.assertEqual(cycle[0]["path"], "00050-main → login-fix → 00050-main")
+        self.assertEqual(cycle[0]["path"], "00050-main -> login-fix -> 00050-main")
 
     def test_invalid_reference_deeper_in_the_graph_blocks(self) -> None:
         self.make("00012-base", "00099")

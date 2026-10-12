@@ -27,7 +27,13 @@ from specflow_helper.config import ConfigError, load_config
 from specflow_helper.drift import code_baseline
 from specflow_helper.numbers import next_number
 from specflow_helper.reconcile import ConflictError, reconcile
-from specflow_helper.state import PHASES, StateError
+from specflow_helper.state import (
+    PHASES,
+    StateError,
+    artifact_paths,
+    load_state,
+    upstream_hashes,
+)
 from specflow_helper.status import status
 
 OK, FAILED, STATE_ERROR, USAGE = 0, 1, 2, 3
@@ -80,7 +86,8 @@ def folder(value: str, repo: Path | None = None) -> Path:
 
 
 def emit(value: object, as_json: bool, text: str) -> None:
-    print(json.dumps(value, indent=2, ensure_ascii=False) if as_json else text)
+    # ASCII JSON and backslash escapes in text: any stdout encoding can print it.
+    print(json.dumps(value, indent=2) if as_json else text)
 
 
 def status_line(spec: dict) -> str:
@@ -143,6 +150,12 @@ def run_hash(args: argparse.Namespace, repo: Path) -> int:
     if commit:
         record["approvedCommit"] = commit
     record["workflowVersion"] = WORKFLOW_VERSION
+    spec_dir = path.resolve().parent
+    state = load_state(spec_dir)
+    paths = artifact_paths(spec_dir, state)
+    name = next((n for n, p in paths.items() if p == path.resolve()), None)
+    if name and (upstream := upstream_hashes(spec_dir, state, name)):
+        record["upstreamSha256"] = upstream
     emit(record, True, "")
     return OK
 
@@ -214,6 +227,8 @@ def parser() -> Parser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    if reconfigure := getattr(sys.stdout, "reconfigure", None):
+        reconfigure(errors="backslashreplace")  # artifact text in a message
     try:
         args = parser().parse_args(argv)
         repo = repo_root()

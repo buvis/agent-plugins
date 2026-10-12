@@ -82,6 +82,12 @@ class NextNumberTest(NumbersTest):
         self.folder("docs", "specs", "١٢٣٤٥-x")
         self.assertEqual(next_number(self.repo, self.config()), "00001")
 
+    def test_numbered_group_items_and_misplaced_intake_folders_count(self) -> None:
+        self.folder("docs", "intake", "new", "00002-group", "00006-inside")
+        self.assertEqual(next_number(self.repo, self.config()), "00007")
+        self.folder("docs", "intake", "00009-misplaced")
+        self.assertEqual(next_number(self.repo, self.config()), "00010")
+
     def test_items_deeper_than_one_group_do_not_count(self) -> None:
         self.folder("docs", "intake", "new", "g1", "g2", "00099-too-deep")
         self.assertEqual(next_number(self.repo, self.config()), "00001")

@@ -146,6 +146,11 @@ class SpecsFolderTest(support.TempTest):
         self.assertIn("specs-folder", self.rules())
         self.assertEqual(status(self.repo, [])["problems"][0]["rule"], "specs-folder")
 
+    def test_a_dotfile_ignore_rule_does_not_ignore_the_specs_folder(self) -> None:
+        support.git(self.repo, "init", "-q")
+        (self.repo / ".gitignore").write_text(".*\n!.gitignore\n")
+        self.assertNotIn("specs-folder", self.rules())
+
     def test_status_under_a_configured_root_lists_its_new_intake_items(self) -> None:
         (self.repo / "docs" / "intake" / "new" / "00300-idea").mkdir(parents=True)
         self.assertEqual(status(self.repo, [])["intake"], ["00300-idea"])

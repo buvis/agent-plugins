@@ -34,3 +34,12 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: `status` and `reconcile` refuse a spec folder outside the repository; state writes keep the file's mode and use a unique temporary file.
 - **specflow**: code-drift warnings ignore line-ending changes, and spec numbers accept ASCII digits only.
 - **specflow**: `next-number` no longer lists folders behind a `.kiro/specs` link that leads outside the repository.
+- **specflow**: approvals record the upstream hashes they were approved against (`hash --json` returns `upstreamSha256`), so re-approving an edited upstream artifact no longer revives the downstream approvals, even when `reconcile` did not run in between.
+- **specflow**: `status` and `validate` no longer crash on a non-UTF-8 terminal; JSON output is ASCII and a dependency cycle prints as `a -> b -> a`.
+- **specflow**: `status` output names a malformed state file by its repository path and no longer carries this machine's absolute paths.
+- **specflow**: a nested `Outcome:` or `Exception:` line no longer draws a false "it is hashed" warning.
+- **specflow**: requirement, criterion, and task IDs accept ASCII digits only.
+- **specflow**: a template design with a new title still has to keep every section.
+- **specflow**: `next-number` counts items inside a numbered group folder and folders placed straight under `intake/`.
+- **specflow**: a `.*` rule in `.gitignore` no longer reports the specs folder as ignored, and the shipped schema patterns are anchored, so external validators agree with the helper.
+- **specflow**: the README states the helper's real security boundary, and the artifact contract notes that Kiro's spec panel may not show a spec in a non-default specs folder.
