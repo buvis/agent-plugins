@@ -327,3 +327,11 @@ each landing exactly once.
 - Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
 - Not covered: the tasks approval stays stale (WF-002.6). It needs its own re-approval.
 - This is a receipt: no `.specflow.json` exists for this spec.
+
+## Tasks re-approval, cycle 4 (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/tasks.md`, git blob `a2023ca0d1b7910e8561072d6eb5f6868c5ea4af` (commit `5153d8b`), unchanged since its 2026-10-11 approval.
+- Decision: approved by the developer. Question: "Re-approve 00004 tasks.md against the newly approved design?" Answer: "Re-approve, accept marker (Recommended)".
+- Scope: the whole artifact as it reads now. The review 00004-04 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-04.md`.
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
+- This is a receipt: no `.specflow.json` exists for this spec.
