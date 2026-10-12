@@ -143,3 +143,19 @@ D5: pass
 Verdict: 13 findings
 
 Tests: 335 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-12)
+
+- F1 + F2: move the invalid-state blocker into a helper. This also brings `spec_status` back under 50 lines, as the standing rule requires. The helper builds `reference` from the path relative to the repo, without resolving it. Add one symlink regression test (a malformed sidecar or spec folder linked outside the repo). Queued.
+- F3: narrow the code to the spec. The `tasks.md` hash resets only the boxes of task items and `## Completion criteria` items. Every other box outside a fence stays hash-bound. Design §7.3.5 changes, so design and tasks need re-approval. Queued.
+- F4: the `gates` check under `--phase implementation` emits the drift and not-checked warnings, reusing `drift_warnings`. Queued.
+- F5: put a no-newline guard beside each anchored schema `pattern` (it must work in both Python and ECMA-262 engines). Test a 64-hex `sha256` value followed by a newline. Queued.
+- F6: dismissed. The three tests pin behaviour that was already right. Each fix has its own test that fails at base.
+- F7: dismissed. This is the `subTest` replay artifact again (cycle-2 F9, cycle-3 F6): the lead's unittest replay shows all 3 tests fail at base.
+- F8: add one ASCII-digit table row for each pattern still untested (`LIST_MARKER`, `ID_ENTRY`, `BAD_CHECKBOX`, `TASK_LINE`, `LIST_ITEM`, `CROSS_SPEC`, `traced_ids`). Queued.
+- F9: add a test that `hash --json` exits 2 on a malformed sibling `.specflow.json`, and one design line citing STATE-002.5 (part of F3's design edit). Queued.
+- F10: match template section names without regard to case in the `design-sections` trigger. Queued.
+- F11: a `ValueError` from resolving a configured path (NUL) becomes `configuration error`, exit 2. Add a test. Queued.
+- F12: the shipped `templates/specflow.json` holds default values. This repo keeps its own config. Queued.
+- F13: report an indented or near-miss `Depends on:` line, and a bugfix `Depends on:` out of place, as malformed. Queued.
+- Dismissed re-raises (cycle-1 F23: placeholders, bugfix task checks): settled earlier, no action.
