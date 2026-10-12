@@ -59,7 +59,7 @@ Kiro IDE, Codex, and Claude Code are the supported hosts of the first release (P
 - Keywords in the portable manifest support contextual activation.
 - The runtime skill writes Kiro-native artifact paths.
 - Kiro's native Spec agent may edit the same Markdown files; the next plugin resume reconciles hashes.
-- With a configured specs folder, Kiro's spec panel lists the specs only when `.kiro/specs` points at that folder, which is the repository's own setup (§6.7). Kiro following such a link, and ignoring `.kiro/specflow/`, is to be verified (T-027).
+- With a configured specs folder, Kiro's spec panel lists the specs only when `.kiro/specs` points at that folder, which is the repository's own setup (§6.7). T-027 (00004) verified on 2026-10-12 that Kiro IDE lists, opens, and watches specs through such a link, and ignores `.kiro/specflow/`.
 
 ### Codex
 

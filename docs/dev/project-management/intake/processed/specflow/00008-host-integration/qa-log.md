@@ -193,3 +193,9 @@ each landing exactly once.
 ## Deferred to the host tests (2026-10-09)
 
 - When this spec runs Kiro IDE on the real package, reopen finding R17 of `reviews/00002-package-boundary-review-01.md`: the probe's first Kiro run passed only on a second attempt, after a terminal fix the record does not describe (`00002-package-boundary/host-loading-probe.md`). Record what the fix was, so the run can be repeated.
+
+## Kiro-link line updated after T-027 of 00004 (2026-10-12)
+
+- T-027 of 00004 ran the link trial in Kiro IDE: Kiro lists, opens, and watches specs through a `.kiro/specs` link, and ignores `.kiro/specflow/` (`00004-artifact-state-contract/kiro-captures.md`, "IDE trials").
+- Edited: the last Kiro IDE line of the host notes now states that result instead of "is to be verified (T-027)". Nothing else changed; the design was blob `d19ee45` and the tasks blob `59664a6` before this edit.
+- This edit stales the design approval of 2026-10-09, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval.
