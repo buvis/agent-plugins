@@ -312,3 +312,9 @@ each landing exactly once.
 - Scope: the whole artifact as it reads now. The review 00004-03 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-03.md`.
 - Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
 - This is a receipt: no `.specflow.json` exists for this spec.
+
+## Review 00004-04 design edits (2026-10-12)
+
+- The cycle-4 walkthrough (`reviews/00004-artifact-state-contract-review-04.md`, minutes) decided F3 and F9 as design edits. Fixes F4, F5, F10, F11, F12 and F13 also change design text.
+- Edited: §7.3 step 5 and the hash-exclusion test note normalize only task and `## Completion criteria` boxes (WF-002.4); `hash --json` exits 2 on a malformed sibling state (STATE-002.5); the `gates` row adds the drift warnings (WF-004.8); schema patterns close with `(?!\n)$`; the `design-sections` trigger excludes the five headings Kiro writes too; configured paths refuse a NUL; `templates/specflow.json` holds the defaults; the `Depends on:` grammar reports an indented or recased bare line and a bugfix line followed by anything but `Sources:`.
+- This edit stales the design approval of 2026-10-12, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval. Requirements are unchanged.
