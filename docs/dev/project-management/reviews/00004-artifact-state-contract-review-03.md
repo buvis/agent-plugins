@@ -162,3 +162,22 @@ Tests: 321 passed, 0 failed, 0 skipped (suite run this cycle)
 - F13: a non-dot probe name for the `specs-folder` ignore check, and `^...$` anchors on the shipped JSON schema `pattern`s. Queued.
 - F14: document the `intake` and `problems` arrays and `nextTask: null` on hold in the design. Do it together with F1's design edit. Queued.
 - Dismissed re-raises (F23 placeholders and bugfix checks; F15 runtime skill): settled earlier, no action.
+
+### Outcome (2026-10-12)
+
+Every queued item is applied:
+
+- F1 + F9: `hash --json` returns `upstreamSha256` for a canonical artifact, and `stale_causes` stales an approval whose bound upstream hash no longer matches, naming that upstream artifact as the cause. A record without the field binds nothing. The schema gains the field. `own_status` folds the restored-`missing` case into the `stale` branch.
+- F2: JSON uses ASCII escapes, the cycle path uses `->`, and stdout uses `backslashreplace`, so text that quotes an artifact cannot crash either. The last part goes beyond the minutes, for the same Windows case.
+- F3: `StateError` carries `path` and a path-free `reason`. The `status` blocker uses the reason plus a repository-relative `reference`. Going beyond the minutes, the same class was fixed in `deps.py`, where an `OSError` text carried the absolute path of an unreadable target.
+- F4 + F7: the README Security section states the real boundary. `artifact-contract.md` carries the Kiro spec-panel caveat. T-027 stays open.
+- F5: `progress_fields` tests for a progress field before the continuation branch.
+- F8: every `\d` in the spec grammar (`spec_text`, `state`, `canonical`, `checks`, `status`) is now `[0-9]`. That covers the whole class, not just the 3-digit IDs.
+- F10: a new-file mode test under a set umask.
+- F11: `design-sections` also runs when the design holds a template-only section. `Overview`, `Architecture` and `Open decisions` do not count, since Kiro designs and marker sections use them.
+- F12: `next_number` counts items inside a numbered group folder, and folders placed straight under `intake/`. The existing rule that items deeper than one group do not count stays, pinned by its own test.
+- F13: the ignore probe is `specflow-probe`, and every shipped schema pattern is anchored and ASCII.
+- F14 and the design text of F1, F2, F3, F11, F12 and F13 are recorded in the qa-log. The design and tasks approvals are now stale and need the developer's re-approval.
+- Tests: 14 new tests, and 3 existing ones extended. Fail-first: run against the old code, every new regression test fails. The F10 coverage test passes, as expected for a test of behavior that was already right.
+- Checks: 271 contract tests on Python 3.14 and 3.10, 52 release tests and 12 validator tests, all OK. `validate.py` exits 0. `verify_release.py` ran after the commit.
+- Lint: `ruff check` reports 6 findings (SIM102, ISC004 ×3, SIM117 ×2), all present at `2eaa406` and in lines this rework did not touch. They are left as they are, and reported here.
