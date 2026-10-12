@@ -10,7 +10,7 @@ REQUIREMENT_HEADING = re.compile(r"^### (?:([A-Z][A-Z0-9]*-\d{3})|Requirement (\
 WITHDRAWN = re.compile(r"^### [A-Z][A-Z0-9]*-\d{3}: withdrawn\s*$")
 CRITERION = re.compile(r"^(\d+)\. ")
 CROSS_SPEC = re.compile(
-    r"(\d{5}|folder:[^\s,;]+) ([A-Z][A-Z0-9]*-\d{3})"
+    r"([0-9]{5}|folder:[^\s,;]+) ([A-Z][A-Z0-9]*-\d{3})"
     r"(?: (?:criterion|criteria) (\d+(?:, ?\d+)*))?",
 )
 CLAUSE = re.compile(r"^(\d+)\.(\d+) ")

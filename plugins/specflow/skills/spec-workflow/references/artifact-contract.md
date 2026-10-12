@@ -114,6 +114,7 @@ Every section stays. One that does not apply reads `Not applicable: <reason>`, w
 
 - Top-level tasks have stable IDs. A checkbox records progress: a task is checked only after its verification succeeds or an exception is recorded.
 - `Outcome:` and `Exception:` are progress fields, written during implementation and left out of the hash. Before the plan is approved, they draw a validation warning.
+- Each progress field is one line. Only that line is left out of the hash: a wrapped or indented line under it is hashed, so writing one stales the approved plan, and validation warns about it.
 - `Depends on:` names earlier task IDs. Re-planning keeps checked tasks and their IDs.
 - `## Completion criteria` holds checkboxes; ticking the last one marks the spec complete.
 - A task may cite a criterion of a spec its own spec depends on. On a `Requirements:` or `Acceptance criteria:` line the form is `<spec reference> <requirement ID> criterion <n>` (or `criteria <n>, <m>`), the reference following the `Depends on:` grammar: `00004 WF-004 criterion 8`. An ID without a spec reference belongs to the task's own spec.

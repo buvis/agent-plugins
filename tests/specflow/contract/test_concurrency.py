@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import stat
 import unittest
 from unittest import mock
 
@@ -42,6 +43,22 @@ class WriteGuardedTest(support.TempTest):
         with self.assertRaises(ConflictError):
             write_guarded(path, b"mine", "0" * 64)
         self.assertFalse(path.exists())
+
+    def test_write_keeps_the_file_mode(self) -> None:
+        path = self.tmp / "f.json"
+        path.write_text("old")
+        path.chmod(0o640)
+        write_guarded(path, b"new", sha256_raw(path))
+        self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o640)
+
+    def test_stray_temporary_name_is_neither_used_nor_removed(self) -> None:
+        path = self.tmp / "f.json"
+        path.write_text("old")
+        stray = self.tmp / ".f.json.tmp"
+        stray.write_text("another writer's temporary file")
+        write_guarded(path, b"new", sha256_raw(path))
+        self.assertEqual(stray.read_text(), "another writer's temporary file")
+        self.assertEqual(path.read_bytes(), b"new")
 
     def test_failed_write_leaves_no_temporary_file(self) -> None:
         path = self.tmp / "f.json"

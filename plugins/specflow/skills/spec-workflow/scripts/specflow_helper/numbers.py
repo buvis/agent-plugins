@@ -8,7 +8,7 @@ from pathlib import Path
 
 from .findings import finding
 
-NUMBER = re.compile(r"^(\d{5})-")
+NUMBER = re.compile(r"^([0-9]{5})-")
 FIX = (
     "Renumber the newer item and every place that cites it, before it is cited further."
 )
@@ -55,7 +55,9 @@ def next_number(repo: Path, config: dict[str, object]) -> str:
     names = [p.name for p in numbered_items(repo, config) + spec_folders(repo, config)]
     names += scanned_names(repo, config)
     kiro = repo / ".kiro" / "specs"
-    if kiro.resolve() != (repo / str(config["specsDir"])).resolve():
+    real = kiro.is_dir() and not kiro.is_symlink()
+    inside = kiro.resolve().is_relative_to(repo.resolve())
+    if real and inside and kiro.resolve() != (repo / str(config["specsDir"])).resolve():
         names += [p.name for p in subfolders(kiro)]  # leftovers specs-folder reports
     numbers = [int(m[1]) for name in names if (m := NUMBER.match(name))]
     return f"{max(numbers, default=0) + 1:05d}"

@@ -106,6 +106,17 @@ class ExitCodeTest(CliTest):
 
 
 class OperationTest(CliTest):
+    def test_status_and_reconcile_refuse_a_spec_outside_the_repository(self) -> None:
+        outside = shutil.copytree(self.spec, self.tmp / "outside" / self.spec.name)
+        support.write_state(outside, support.new_state(self.spec.name))
+        before = (outside / ".specflow.json").read_bytes()
+        for command in ("status", "reconcile"):
+            with self.subTest(command=command):
+                code, _, err = self.run_cli(command, str(outside))
+                self.assertEqual(code, 3)
+                self.assertIn("outside the repository", err)
+        self.assertEqual((outside / ".specflow.json").read_bytes(), before)
+
     def test_status_json_follows_the_schema_and_exits_0(self) -> None:
         code, out, _ = self.run_cli("status", "--json")
         self.assertEqual(code, 0)

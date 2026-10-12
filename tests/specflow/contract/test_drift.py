@@ -121,6 +121,14 @@ class CodeDriftTest(support.TempTest):
             ],
         )
 
+    def test_line_ending_churn_is_no_drift(self) -> None:
+        (self.repo / "src" / "a.py").write_bytes(b"one\ntwo\n")
+        baseline = code_baseline(self.repo, ["src/a.py"])
+        for data in (b"one\r\ntwo\r\n", b"one\rtwo\r"):
+            with self.subTest(data=data):
+                (self.repo / "src" / "a.py").write_bytes(data)
+                self.assertEqual(self.kinds(baseline), [])
+
     def test_reapproval_at_the_same_head_clears_the_drift(self) -> None:
         baseline = code_baseline(self.repo, ["src/a.py"])
         (self.repo / "src" / "a.py").write_bytes(b"edited\n")

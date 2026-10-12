@@ -71,6 +71,17 @@ class NextNumberTest(NumbersTest):
         self.folder(".kiro", "specs", "00009-left-behind")
         self.assertEqual(next_number(self.repo, self.config()), "00010")
 
+    def test_a_kiro_link_to_outside_the_repository_is_not_listed(self) -> None:
+        outside = self.tmp / "outside" / "00099-elsewhere"
+        outside.mkdir(parents=True)
+        self.folder(".kiro")
+        (self.repo / ".kiro" / "specs").symlink_to(outside.parent)
+        self.assertEqual(next_number(self.repo, self.config()), "00001")
+
+    def test_non_ascii_digits_are_not_a_number(self) -> None:
+        self.folder("docs", "specs", "١٢٣٤٥-x")
+        self.assertEqual(next_number(self.repo, self.config()), "00001")
+
     def test_items_deeper_than_one_group_do_not_count(self) -> None:
         self.folder("docs", "intake", "new", "g1", "g2", "00099-too-deep")
         self.assertEqual(next_number(self.repo, self.config()), "00001")

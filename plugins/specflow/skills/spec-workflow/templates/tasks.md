@@ -14,7 +14,7 @@
 
 ## Completion criteria
 
-- [ ] Every task above is checked, each with its `Outcome:` line.
+- [ ] Every task above is checked, each with its one-line `Outcome:`.
 
 ## Unresolved questions
 

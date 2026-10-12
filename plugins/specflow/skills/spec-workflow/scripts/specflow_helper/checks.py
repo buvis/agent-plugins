@@ -10,7 +10,7 @@ from functools import partial
 from pathlib import Path, PurePosixPath
 from typing import NamedTuple
 
-from .canonical import CHECKBOX, COMPLETION, PROGRESS, canonical, scan_lines
+from .canonical import CHECKBOX, PROGRESS, canonical, indent_of, scan_lines
 from .config import load_config
 from .deps import (
     dependency_blockers,
@@ -66,6 +66,7 @@ UNFILTERED = "any run with no phase"
 KIRO_SPECS = PurePosixPath(".kiro/specs")
 ID_ENTRY = re.compile(r"^(?:[A-Z][A-Z0-9]*-\d{3}(?:\.\d+)?|\d+\.\d+)$")
 BAD_CHECKBOX = re.compile(r"^[ \t]*(?:[-*+]|\d+\.)[ \t]*\[[^\]]{0,3}\]")
+TASKS_HEADING = "## Tasks"
 DESIGN_SECTIONS = (
     "Overview",
     "Context and constraints",
@@ -249,6 +250,8 @@ def stale_approvals(ctx: Context) -> list[Finding]:
             why = f"upstream {paths[cause].name} changed since its approval"
         elif records.get(name, {}).get("status") == "stale":
             why = "it is recorded stale"
+        elif records.get(name, {}).get("status") == "missing":
+            why = "the file was deleted after its approval"
         else:
             why = "its content changed since the approval"
         message = f"the {file} approval is stale: {why}"
@@ -382,12 +385,20 @@ def design_sections(ctx: Context) -> list[Finding]:
 
 
 def malformed_boxes(text: str) -> list[tuple[int, str]]:
-    """List items above ## Completion criteria whose box is not [ ], [x], [~] or [-]."""
+    """Task-list items whose box is not [ ], [x], [~] or [-].
+
+    Tasks sit above the first level-two heading (the template) or under
+    `## Tasks` (Kiro), so `- [Q1] note` under `## Notes` or `## Unresolved
+    questions` is not a box. Fenced lines are skipped.
+    """
     bad = []
+    in_tasks = True
     for n, (line, in_fence, _) in enumerate(scan_lines(canonical(text)), start=1):
-        if line == COMPLETION:
-            break
-        if not in_fence and BAD_CHECKBOX.match(line) and not CHECKBOX.match(line):
+        if in_fence:
+            continue
+        if line.startswith("## "):
+            in_tasks = line.rstrip() == TASKS_HEADING
+        elif in_tasks and BAD_CHECKBOX.match(line) and not CHECKBOX.match(line):
             bad.append((n, line.strip()))
     return bad
 
@@ -461,25 +472,35 @@ def requirement_coverage(ctx: Context) -> list[Finding]:
 
 @check("progress-fields", TASKS_ON)
 def progress_fields(ctx: Context) -> list[Finding]:
+    """Outcome:/Exception: before approval, and any line continuing one (it is hashed)."""
     path = artifact_paths(ctx.spec_dir, ctx.state)["tasks"]
     text = read_text(path)
-    if text is None or artifact_status(ctx.spec_dir, ctx.state)["tasks"] == "approved":
+    if text is None:
         return []
-    fix = "Record Outcome: and Exception: only after the task plan is approved."
-    return [
-        finding(
-            rel(ctx, path),
-            "progress-fields",
-            f"line {n}: {line.strip()} in a plan that is not approved",
-            fix,
-            level="warning",
-        )
-        for n, (line, in_fence, in_task) in enumerate(
-            scan_lines(canonical(text)),
-            start=1,
-        )
-        if not in_fence and in_task and PROGRESS.match(line)
-    ]
+    approved = artifact_status(ctx.spec_dir, ctx.state)["tasks"] == "approved"
+    warn = partial(finding, rel(ctx, path), "progress-fields", level="warning")
+    findings = []
+    field: int | None = None  # indent of the open progress field
+    for n, (line, in_fence, in_task) in enumerate(
+        scan_lines(canonical(text)),
+        start=1,
+    ):
+        if not line.strip():
+            continue
+        if field is not None and indent_of(line) > field:
+            message = f"line {n}: continues an Outcome: or Exception: line, so it is hashed"
+            fix = "Keep the field on one line; only that line is left out of the hash."
+            findings.append(warn(message, fix))
+            field = None
+            continue
+        field = None
+        if not in_fence and in_task and PROGRESS.match(line):
+            field = indent_of(line)
+            if not approved:
+                message = f"line {n}: {line.strip()} in a plan that is not approved"
+                fix = "Record Outcome: and Exception: only after the task plan is approved."
+                findings.append(warn(message, fix))
+    return findings
 
 
 @check("cross-spec-references", TASKS_ON)
@@ -489,10 +510,11 @@ def cross_spec_references(ctx: Context) -> list[Finding]:
     requirements = read_text(paths["requirements"])
     if tasks is None:
         return []
-    declared: list[str] = []
+    refs: list[str] = []
     if requirements is not None:
         bugfix = paths["requirements"].name == "bugfix.md"
-        declared, _ = parse_depends_on(requirements, bugfix=bugfix)
+        refs, _ = parse_depends_on(requirements, bugfix=bugfix)
+    declared = {*refs, *(spec_key(ctx, ref) for ref in refs)} - {None}
     findings = []
     for number, line in prose(tasks):
         stripped = line.strip().lstrip("-*+ ")
@@ -508,17 +530,23 @@ def cross_spec_references(ctx: Context) -> list[Finding]:
     return findings
 
 
+def spec_key(ctx: Context, ref: str) -> str | None:
+    """The folder a reference resolves to, as `folder:<name>`, so both forms compare equal."""
+    target, _ = resolve_reference(ref, specs_folder(ctx))
+    return f"folder:{target.name}" if target else None
+
+
 def cross_spec_finding(
     ctx: Context,
     path: Path,
     number: int,
     match: re.Match,
-    declared: list[str],
+    declared: set[str],
 ) -> list[Finding]:
     ref, ident, criteria = match[1], match[2], match[3]
     where = f"line {number}: {match[0]}"
     found = partial(error, ctx, path, "cross-spec-references")
-    if ref not in declared:
+    if ref not in declared and spec_key(ctx, ref) not in declared:
         fix = "Add the spec to Depends on:, or cite this spec's own requirement."
         return [
             found(f"{where} names {ref}, which is not on the Depends on: line", fix),

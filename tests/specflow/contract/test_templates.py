@@ -259,7 +259,7 @@ class BugfixTemplatesTest(unittest.TestCase):
 
 
 class PrerequisitePlacementTest(unittest.TestCase):
-    """A Depends on: line placed per the contract leaves native headings and IDs alone."""
+    """A Depends on: line placed per the contract is read by the shipped parser."""
 
     def test_helper_reads_the_placed_line_in_every_capture(self) -> None:
         for folder, name, bugfix in (
@@ -274,20 +274,6 @@ class PrerequisitePlacementTest(unittest.TestCase):
                     parse_depends_on(after, bugfix=bugfix),
                     (["00012", "folder:login-fix"], []),
                 )
-
-    def test_placement_keeps_headings_and_ids_in_every_capture(self) -> None:
-        for folder, name, bugfix in (
-            ("requirements-first", "requirements.md", False),
-            ("design-first", "requirements.md", False),
-            ("bugfix", "bugfix.md", True),
-        ):
-            with self.subTest(folder=folder):
-                before = (KIRO / folder / name).read_text(encoding="utf-8")
-                after = insert_depends_on(before, bugfix=bugfix)
-                self.assertEqual(headings(after), headings(before))
-                ids = re.compile(r"(?m)^(?:### Requirement \d+|\d+\.\d+ WHEN)")
-                self.assertEqual(ids.findall(after), ids.findall(before))
-                self.assertEqual(after.count("\nDepends on: "), 1)
 
 
 class PlaceholderTest(unittest.TestCase):

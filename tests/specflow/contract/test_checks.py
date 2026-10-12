@@ -9,6 +9,7 @@ from pathlib import Path
 
 import support
 from specflow_helper.checks import CHECKS, validate
+from specflow_helper.reconcile import reconcile
 
 SPECS = support.FIXTURES / "specs"
 T026_ROWS = {
@@ -267,6 +268,88 @@ class SeededDefectTest(ChecksTest):
         labels = "\n## Unresolved questions\n\n- [Q1] note\n- [RFC] y\n- [] x\n"
         path.write_text(path.read_text() + labels)
         self.assertNotIn("task-structure", self.rules(spec))
+
+    def test_task_structure_ignores_bracket_labels_beside_a_kiro_task_section(
+        self,
+    ) -> None:
+        spec = self.specs / "kiro-design-first"
+        shutil.copytree(support.FIXTURES / "kiro" / "design-first", spec)
+        self.edit(spec / "tasks.md", "## Tasks\n", "- [Q1] note\n\n## Tasks\n")
+        self.edit(spec / "tasks.md", "## Notes\n", "## Notes\n\n- [RFC] y\n- [] x\n")
+        self.assertNotIn("task-structure", self.rules(spec))
+        self.edit(spec / "tasks.md", "## Notes\n", "- [] 9. Broken\n\n## Notes\n")
+        self.assert_seeded(spec, "task-structure")
+
+    def test_task_structure_sees_past_a_fenced_completion_heading(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        fenced = "```\n## Completion criteria\n```\n- [ ] T-002 Log"
+        self.edit(spec / "tasks.md", "- [ ] T-002 Log", fenced)
+        self.edit(spec / "tasks.md", "- [ ] T-002 Log", "- [] T-002 Log")
+        self.assert_seeded(spec, "task-structure")
+
+    def test_progress_fields_warn_on_a_continued_outcome_even_when_approved(
+        self,
+    ) -> None:
+        spec = self.copy("00101-feature-sample")
+        support.approve(
+            spec,
+            support.new_state("00101-feature-sample"),
+            "requirements",
+            "design",
+            "tasks",
+        )
+        verify = "  - Verify: `python -m unittest tests.test_log`"
+        self.edit(spec / "tasks.md", verify, f"{verify}\n  - Outcome: done")
+        self.assertNotIn("progress-fields", self.rules(spec, level="warning"))
+        self.edit(spec / "tasks.md", "  - Outcome: done", "  - Outcome: done,\n    and more")
+        messages = [
+            f["message"]
+            for f in validate(self.repo, spec)
+            if f["rule"] == "progress-fields"
+        ]
+        continued = [m for m in messages if "continues an Outcome: or Exception:" in m]
+        self.assertEqual(len(continued), 1, messages)
+
+    def test_cross_spec_reference_matches_either_declared_form(self) -> None:
+        self.copy("00101-feature-sample", "00090-base")
+        cases = (
+            ("folder:00090-base", "00090 REQ-001 criterion 1"),
+            ("00090", "folder:00090-base REQ-001 criterion 1"),
+        )
+        for number, (declared, cited) in enumerate(cases):
+            with self.subTest(declared=declared):
+                spec = self.copy("00101-feature-sample", f"0013{number}-dep")
+                self.edit(
+                    spec / "requirements.md",
+                    "Sources:",
+                    f"Depends on: {declared}\nSources:",
+                )
+                self.edit(
+                    spec / "tasks.md",
+                    "  - Requirements: REQ-002\n",
+                    f"  - Requirements: REQ-002; {cited}\n",
+                )
+                self.assertNotIn("cross-spec-references", self.rules(spec))
+
+    def test_restored_artifact_reads_stale_and_says_it_was_deleted(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        support.approve(spec, support.new_state("00101-feature-sample"), "requirements")
+        text = (spec / "requirements.md").read_bytes()
+        (spec / "requirements.md").unlink()
+        reconcile(spec, dry_run=False)
+        (spec / "requirements.md").write_bytes(text)
+        messages = [
+            f["message"]
+            for f in validate(self.repo, spec)
+            if f["rule"] == "stale-approvals"
+        ]
+        self.assertEqual(
+            messages,
+            [
+                "the requirements.md approval is stale: "
+                "the file was deleted after its approval",
+            ],
+        )
 
     def test_withdrawn_requirement_needs_no_criterion_or_task(self) -> None:
         spec = self.copy("00101-feature-sample")

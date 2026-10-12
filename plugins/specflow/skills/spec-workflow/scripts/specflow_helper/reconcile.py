@@ -5,6 +5,8 @@ from __future__ import annotations
 import copy
 import json
 import os
+import stat
+import tempfile
 from pathlib import Path
 
 from .canonical import sha256_canonical, sha256_raw
@@ -34,9 +36,18 @@ def write_guarded(path: Path, data: bytes, read_sha256: str | None) -> None:
     current = sha256_raw(path) if path.exists() else None
     if current != read_sha256:
         raise ConflictError(f"{path}: changed since it was read; nothing was written")
-    temporary = path.with_name(f".{path.name}.tmp")
+    if path.exists():
+        mode = stat.S_IMODE(path.stat().st_mode)
+    else:
+        umask = os.umask(0)
+        os.umask(umask)
+        mode = 0o666 & ~umask
+    handle, name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
+    temporary = Path(name)
     try:
-        temporary.write_bytes(data)
+        with os.fdopen(handle, "wb") as file:
+            file.write(data)
+        os.chmod(temporary, mode)
         os.replace(temporary, path)
     finally:
         temporary.unlink(missing_ok=True)  # gone after a successful replace

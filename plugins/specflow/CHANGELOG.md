@@ -24,3 +24,13 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: `validate_spec.py next-number`, checks for spec numbers used twice and for a `Sources:` line that names the spec's own intake item, and the intake procedure in the artifact contract.
 - **specflow**: `validate` reports each stale approval with its cause in every phase, and status gates are cumulative, so a closed gate closes every later one.
 - **specflow**: a requirement headed `### <ID>: withdrawn` keeps its ID reserved but needs no criteria or task.
+
+### Fixed
+
+- **specflow**: the checkbox check reads only the task list, so bracket labels such as `- [Q1]` under `## Notes` or `## Unresolved questions` no longer fail it, and a fenced `## Completion criteria` no longer hides later tasks.
+- **specflow**: `validate` warns when a line continues an `Outcome:` or `Exception:` field, since only the field's own line is left out of the plan's hash.
+- **specflow**: a cross-spec citation passes when it names its prerequisite by number and `Depends on:` names the folder, or the other way round.
+- **specflow**: an approved artifact deleted and later restored reads as stale, with the cause, not as a silent draft.
+- **specflow**: `status` and `reconcile` refuse a spec folder outside the repository; state writes keep the file's mode and use a unique temporary file.
+- **specflow**: code-drift warnings ignore line-ending changes, and spec numbers accept ASCII digits only.
+- **specflow**: `next-number` no longer lists folders behind a `.kiro/specs` link that leads outside the repository.

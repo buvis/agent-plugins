@@ -1,12 +1,18 @@
-"""The design approval's code baseline: raw hashes of the files its placement names."""
+"""The design approval's code baseline: hashes of the files its placement names."""
 
 from __future__ import annotations
 
+import hashlib
 import stat
 from pathlib import Path, PurePosixPath
 
-from .canonical import sha256_raw
 from .config import DRIVE
+
+
+def sha256_file(path: Path) -> str:
+    """SHA-256 of the bytes with CRLF and CR turned into LF, so line-ending churn is no drift."""
+    data = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(data).hexdigest()
 
 
 def refuse_reason(repo: Path, path: str) -> str | None:
@@ -50,7 +56,7 @@ def code_baseline(repo: Path, paths: list[str]) -> dict:
             files.append({"path": path, "missing": True})
             continue
         try:
-            digest = sha256_raw(target)
+            digest = sha256_file(target)
         except OSError as error:
             problems.append(f"{path} cannot be read: {error.strerror}")
             continue
@@ -92,7 +98,7 @@ def code_drift(repo: Path, approved_code: dict | None) -> list[dict[str, str]]:
                 warnings.append(warning("code-drift", f"{path} was deleted", path))
             continue
         try:
-            digest = sha256_raw(target)
+            digest = sha256_file(target)
         except OSError as error:
             warnings.append(
                 warning(

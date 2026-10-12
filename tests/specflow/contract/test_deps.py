@@ -89,6 +89,7 @@ class GrammarTest(unittest.TestCase):
             "folder:a/b",
             "https://x",
             "folder:a\\b",
+            "١٢٣٤٥",  # five Arabic-Indic digits: not ASCII
         ):
             with self.subTest(item=item):
                 refs, findings = parse_depends_on(requirements(item), bugfix=False)

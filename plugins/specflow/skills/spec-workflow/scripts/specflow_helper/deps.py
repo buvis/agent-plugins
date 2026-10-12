@@ -10,7 +10,7 @@ from .findings import Finding, finding
 from .state import StateError, load_state, spec_phase
 
 RULE = "spec-dependencies"
-NUMBER = re.compile(r"\d{5}")
+NUMBER = re.compile(r"[0-9]{5}")  # ASCII digits only; \d matches any script
 FOLDER = re.compile(r"folder:(.*)")
 FIX = "Write one unindented `Depends on:` line of five-digit numbers or folder:<name> items."
 

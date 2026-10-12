@@ -69,10 +69,13 @@ def repo_root() -> Path:
     return Path(top) if top else Path.cwd()
 
 
-def folder(value: str) -> Path:
+def folder(value: str, repo: Path | None = None) -> Path:
+    """An existing folder; with repo, one inside the repository."""
     path = Path(value).resolve()
     if not path.is_dir():
         raise UsageError(f"{value}: no such folder")
+    if repo is not None and not path.is_relative_to(repo.resolve()):
+        raise UsageError(f"{value}: outside the repository {repo}")
     return path
 
 
@@ -88,7 +91,7 @@ def status_line(spec: dict) -> str:
 
 
 def run_status(args: argparse.Namespace, repo: Path) -> int:
-    dirs = [folder(args.spec_dir)] if args.spec_dir else []
+    dirs = [folder(args.spec_dir, repo)] if args.spec_dir else []
     document = status(repo, dirs)
     lines = [status_line(spec) for spec in document["specs"]]
     lines += [
@@ -155,7 +158,7 @@ def run_code_baseline(args: argparse.Namespace, repo: Path) -> int:
 
 
 def run_reconcile(args: argparse.Namespace, repo: Path) -> int:
-    result = reconcile(folder(args.spec_dir), dry_run=args.dry_run)
+    result = reconcile(folder(args.spec_dir, repo), dry_run=args.dry_run)
     verb = "would set" if args.dry_run else "set"
     lines = [f"{result['spec']}: phase {result['phase']}"]
     lines += [
