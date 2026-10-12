@@ -144,3 +144,21 @@ D5: pass
 Verdict: 14 findings
 
 Tests: 321 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-12)
+
+- F1: bind the upstream hash. Each approval records `upstreamSha256` of the artifact it was approved against, and status reads `stale` when that no longer matches, whatever order `reconcile` ran in. A record without the field has no binding. Schema, design and tests change, so the design and tasks need re-approval. Queued.
+- F2: ASCII-safe output. JSON keeps the default `ensure_ascii=True`, and human messages use `->` in place of "→". Add one cp1252 test. Queued.
+- F3: path-bearing error messages (`StateError` and its siblings) cite paths relative to the repository root. Add one test. Queued.
+- F4: the README Security section states the real boundary: an optional stdlib helper that runs local `git` read commands and writes only `.specflow.json` (through `reconcile`), with no network, MCP or auth. Queued.
+- F5: `progress_fields` checks for a progress field before the continuation branch. Add one nested-field regression test. Queued.
+- F6: dismissed. It repeats the cycle-2 F9 decision: the lead's unittest replay at `4efec99` shows all 3 tests fail at base.
+- F7: ship the caveat now. One line in the plugin docs says a non-default specs folder may not appear in Kiro's spec panel, pending the T-027 trial. The T-027 trial stays open (developer-owned). Queued.
+- F8: `[0-9]{3}` in place of `\d{3}` in the requirement ID patterns, with a test. Queued.
+- F9: fold the restored-`missing` return into the `stale` branch of `own_status`. Do it inside the F1 rewrite. Queued.
+- F10: a test for the new-file mode branch of `write_guarded` (it restores the umask). Queued.
+- F11: run `design-sections` on the design artifact whatever its title. Check Kiro-native designs for new findings. Queued.
+- F12: `next_number` also scans items inside numbered group folders and entries placed directly under `<root>/intake/`. Queued.
+- F13: a non-dot probe name for the `specs-folder` ignore check, and `^...$` anchors on the shipped JSON schema `pattern`s. Queued.
+- F14: document the `intake` and `problems` arrays and `nextTask: null` on hold in the design. Do it together with F1's design edit. Queued.
+- Dismissed re-raises (F23 placeholders and bugfix checks; F15 runtime skill): settled earlier, no action.
