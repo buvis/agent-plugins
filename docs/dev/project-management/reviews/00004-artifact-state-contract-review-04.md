@@ -159,3 +159,21 @@ Tests: 335 passed, 0 failed, 0 skipped (suite run this cycle)
 - F12: the shipped `templates/specflow.json` holds default values. This repo keeps its own config. Queued.
 - F13: report an indented or near-miss `Depends on:` line, and a bugfix `Depends on:` out of place, as malformed. Queued.
 - Dismissed re-raises (cycle-1 F23: placeholders, bugfix task checks): settled earlier, no action.
+
+### Outcome (2026-10-12)
+
+Every queued item is applied:
+
+- F1 + F2: `state_blockers` and `repo_reference` (`status.py`) build the blocker. The reference tries the lexical path first, then the path with its folder resolved, and falls back to the file name. `spec_status` drops from 57 to 45 lines. New test: a malformed sidecar linked outside the repo, and a spec folder linked outside it.
+- F3: `canonical` resets a box only inside a task item or the `## Completion criteria` section. Design §7.3 and the artifact contract say so. Existing approvals of a `tasks.md` with a box in a later section go stale.
+- F4: `gates` adds code-drift and not-checked warnings (level `warning`) when the design is approved inside a Git repository. It reuses `drift.code_drift` rather than `status.drift_warnings`, which would be a circular import.
+- F5: every shipped schema pattern ends in `(?!\n)$`. The anchoring test requires that ending, and a new test checks that `re.search` rejects 64 hex digits plus a newline.
+- F8: 7 new rows in the ASCII-digit table, and a `traced_ids` test.
+- F9: the exit-2 test, plus a design line.
+- F10: **changed from the minutes.** The minutes said to match section names regardless of case. That would have made the false positive worse: Kiro writes `## Error Handling`, which would then match the template's `Error handling` and flag every Kiro design. The fix that delivers the intent is different: `SHARED_SECTIONS` gains the three other headings Kiro writes (`Components and interfaces`, `Error handling`, `Testing strategy`), so none of them triggers the template rule. Test: a Kiro design with those three headings lowercased.
+- F11: `refuse_reason` refuses a NUL before `resolve()`, which yields `configuration error` and exit 2.
+- F12: `templates/specflow.json` holds the defaults. This also changes design §T-020, which had specified the buvis values. Test: the template loads to `DEFAULTS`.
+- F13: a bare indented line, or one in another letter case, is reported as `malformed declaration`. A bugfix declaration followed by any text but `Sources:` in `## Introduction` is `misplaced`. List-item fields still declare nothing, per the design. **The existing test `test_fenced_indented_and_list_fields_declare_nothing` changed**: the indented case moved into the new malformed test, because this decision changes that contract.
+- Fail-first: each new regression test was run against the old code and failed (F2, F3, F4, F5, F10, F11, F13). The coverage additions (F8, F9, F12) pin behavior; F12's test would fail against the old template.
+- Checks: 280 contract tests on Python 3.14 and 3.10, 52 release tests and 12 validator tests, all OK. `validate.py` exits 0. `ruff check` reports the same 6 earlier findings, none in changed lines. `ruff format` was applied to the changed files.
+- The design and tasks approvals are now stale (qa-log, "Review 00004-04 design edits") and need the developer's re-approval.
