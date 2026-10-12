@@ -1,0 +1,74 @@
+[
+  {
+    "cycle": 1,
+    "ref": "F23",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "VAL-001.8 / ART-001.10 / VAL-001.3 placeholder checks missing: placeholder detection (TBD, TODO, ???, bare N/A) and unfilled design template sections are not checked by validate",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
+    "reason": "deferred by design to 00005 T-071 (design.md: 00005 adds the placeholder checks); re-raised and dismissed in cycles 2, 3 and 4"
+  },
+  {
+    "cycle": 1,
+    "ref": "F23",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "VAL-001.4 bugfix task order and 2.x/3.x coverage checks missing: validate does not check that bugfix tasks follow the required order or that every 2.x and 3.x item is covered",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
+    "reason": "deferred by design to 00006 (design.md: 00006 adds the bugfix checks); re-raised and dismissed in cycles 2, 3 and 4"
+  },
+  {
+    "cycle": 1,
+    "ref": "F28",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Scope extras beyond the spec: cross-spec-review.md reference, hash --raw, code-baseline and next-number commands in validate_spec.py",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/validate_spec.py",
+    "reason": "accepted as in-scope helper surface in the cycle-1 walkthrough"
+  },
+  {
+    "cycle": 2,
+    "ref": "F15",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "SKILL.md is still a shell: the spec-workflow skill body does not yet describe the agent workflow around the artifacts",
+    "file": "plugins/specflow/skills/spec-workflow/SKILL.md",
+    "reason": "00006 (runtime skill) scope, not 00004"
+  },
+  {
+    "cycle": 2,
+    "ref": "F16",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "T-027 Kiro IDE trials pending: the Kiro IDE Bug Fix display and spec link trials are not captured, so T-027 stays partial",
+    "file": "plugins/specflow/skills/spec-workflow/references/artifact-contract.md",
+    "reason": "developer-owned manual trial, tracked as open on T-027; the caveat is documented in artifact-contract.md (cycle-3 F7)"
+  },
+  {
+    "cycle": 4,
+    "ref": "F7",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Fail-first replay flags subTest tests as passing against base: test_structure_ids_take_ascii_digits_only, test_upstream_reapproval_without_reconcile_never_revives_downstream, test_every_shipped_pattern_is_anchored_for_external_validators",
+    "file": "tests/specflow/contract/test_checks.py",
+    "reason": "pytest without the subtests plugin reports subTest failures as passes; the lead's unittest replay at base fails all of them (cycles 2, 3 and 4)"
+  },
+  {
+    "cycle": 4,
+    "ref": "F6",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags behavior-pin tests as passing against base: test_design_sections_lets_kiro_designs_keep_their_headings, test_new_file_takes_the_umask_mode_not_the_temporary_files, test_approval_without_an_upstream_binding_binds_nothing",
+    "file": "tests/specflow/contract/test_concurrency.py",
+    "reason": "they pin behavior that was already right (a no-false-positive guard, a coverage test, the no-binding case); each fix has its own test that fails at base"
+  },
+  {
+    "cycle": 4,
+    "ref": "F10",
+    "disposition": "changed",
+    "severity": "⚪",
+    "issue": "design-sections template trigger matches section names case-sensitively; the minutes asked for case-insensitive matching",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
+    "reason": "case-insensitive matching was rejected during rework because Kiro writes `## Error Handling` and every Kiro design would then be flagged; the fix adds Kiro's three other headings to SHARED_SECTIONS instead"
+  }
+]
