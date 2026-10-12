@@ -325,3 +325,7 @@ All queued items above are applied in `43c4748`, except F26, with these notes:
 - Found: a ruff auto-fix outside the session (UP017) rewrote `timezone.utc` to `datetime.UTC`, which breaks Python 3.10. It was reverted in `8194cf4`. The repo has no ruff config, so the next `ruff --fix` will do it again, and CI does not run the contract tests yet (F31).
 - Decided: fix aegis first, then pin. aegis `protect_config.py` blocks every `ruff.toml`, even one that only sets `target-version`. The fix lets a ruff config through when the existing file and every incoming text hold only `target-version = "py3N"` lines, comments, or blank lines. It has 4 new tests, and the full aegis hook suite passes in a copy.
 - Done: the aegis fix shipped in aegis v0.4.1 (`46c2647`). `2391d12` adds `ruff.toml` with `target-version = "py310"` and nothing else. `ruff check --select UP017` on the specflow scripts now passes; the same run with `--target-version py312` flags `validate_spec.py:124`.
+
+### Follow-up: F31 closed (2026-10-12)
+
+- `4efec99` adds the contract-test step to `.github/workflows/validate.yml`, identical to the one on `feature/specflow-00004-with-ci`. The last three `Validate` runs on this branch pass, including run `38263476154`, which ran after `4efec99`.
