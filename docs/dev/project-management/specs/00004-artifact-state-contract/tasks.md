@@ -2,7 +2,7 @@
 
 The first sub-bullets of `Details:` and `Verify:` are carried from the source plan in intake item 00001. In them, `design §n` means the source design, `.kiro/specs` means the specs folder, and a task ID may belong to another spec; `docs/dev/project-management/reviews/2026-10-04-specflow-split-map.md` names the spec that now holds each section and each task. Lines written for this plan name a task of another spec with its spec, as in `T-030 (00006)`.
 
-- [ ] T-027 Capture Kiro-native spec samples
+- [x] T-027 Capture Kiro-native spec samples
   - Requirements: ART-001
   - Depends on: none
   - Location: `tests/specflow/fixtures/kiro/`, `docs/dev/tmp/specflow/kiro-capture/`, `docs/dev/project-management/intake/processed/specflow/00004-artifact-state-contract/kiro-captures.md`
@@ -18,7 +18,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Risk: A capture contradicts the Data model of the approved design. Mitigation from the design: the sections on Kiro-native shapes, the bugfix shape, and the specs folder are corrected before T-020 starts; that edit stales the design and this plan, and the developer re-approves both.
   - Verify:
     - design §6.5-§6.7 match the captures, or are corrected before T-020 starts; the link result is in `kiro-captures.md`, for the host documentation of T-045 (00008), which states the limit if Kiro does not list specs through a link.
-  - Outcome: partial (2026-10-10). Three public Kiro-made specs captured as fixtures, five design corrections applied, recorded in `kiro-captures.md`. Open: the Bug Fix display trial and the link trial in Kiro IDE.
+  - Outcome: 2026-10-10, three public Kiro-made specs captured as fixtures, five design corrections applied, recorded in `kiro-captures.md`. 2026-10-12: the developer ran both Kiro IDE trials and both passed: a specflow-written bugfix spec shows as Bug Fix, and Kiro lists, opens, and watches specs through a `.kiro/specs` link while ignoring `.kiro/specflow/`. Recorded in `kiro-captures.md`.
 
 - [x] T-020 Define canonical Markdown templates
   - Requirements: ART-001, ART-002, INT-001

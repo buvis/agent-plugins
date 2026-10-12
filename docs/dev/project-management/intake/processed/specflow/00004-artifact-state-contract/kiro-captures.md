@@ -1,6 +1,6 @@
 # Kiro captures (T-027)
 
-Status: provisional, 2026-10-10. The developer was away from the machine that runs Kiro IDE and asked for progress without oversight. Instead of three specs generated in Kiro IDE, three Kiro-made specs from public repositories were captured. All three are Apache-2.0, and each is stored unchanged with its LICENSE, NOTICE, and source commit. The two IDE trials (open a specflow-written bugfix spec, and list specs through a `.kiro/specs` link) have not been run, so T-027 stays unchecked.
+Status: complete, 2026-10-12. On 2026-10-10 the developer was away from the machine that runs Kiro IDE and asked for progress without oversight. Instead of three specs generated in Kiro IDE, three Kiro-made specs from public repositories were captured. All three are Apache-2.0, and each is stored unchanged with its LICENSE, NOTICE, and source commit. The developer ran the two IDE trials in Kiro IDE on 2026-10-12; both passed (see "IDE trials").
 
 ## Captures
 
@@ -45,8 +45,19 @@ Corrections applied to `design.md` on 2026-10-10. Each one stales the design app
 
 Matches without change: the `.config.kiro` keys and values, the `bugfix.md` and bugfix `design.md` skeletons, the IDs and traces in Kiro's own numbering, and the requirements-slot path `bugfix.md`.
 
-## Still open (needs Kiro IDE)
+## IDE trials (2026-10-12)
 
-- Open a specflow-written bugfix spec (with `.config.kiro`) in Kiro IDE and record whether it shows as a Bug Fix spec.
-- Link trial: point `.kiro/specs` at a folder elsewhere in the repository with a symbolic link (macOS), and record whether Kiro IDE lists, opens, and watches those specs, and whether it ignores `.kiro/specflow/`. Until then, the requirements' unresolved question stands, and so does the documented fallback (a configured specs folder may be invisible to Kiro's spec panel).
-- A Requirements-First and a Design-First capture generated in this repository's own Kiro IDE, to compare with the public ones. Run sheet: `docs/dev/tmp/specflow/kiro-capture/RUNBOOK.md`.
+Run by the developer in Kiro IDE on macOS, each in its own workspace under the ignored `docs/dev/tmp/specflow/kiro-capture/`. Inputs were copies of the specflow-written fixtures `tests/specflow/fixtures/specs/00101-feature-sample` and `00102-bugfix-sample`.
+
+- Bug Fix display (`trial-bugfix/`, the spec in a real `.kiro/specs/`): Kiro's spec panel lists `00102-bugfix-sample` with the documents Bugfix, Design, Tasks, so it reads the spec as a Bug Fix spec. All three open, and Kiro offers to run the tasks.
+- Link trial (`trial-link/`, `.kiro/specs` a relative symbolic link to `../specs-elsewhere`):
+  - Lists: both specs appear in the spec panel.
+  - Opens: all six documents open; 00101 shows Requirements, 00102 shows Bugfix, so each keeps its type through the link.
+  - Watches: with 00101's Tasks open, `T-001` was checked by an edit to the real file under `specs-elsewhere/` from outside Kiro; Kiro showed it done without a reload.
+  - Ignores `.kiro/specflow/`: a spec-shaped folder there (`.config.kiro` and all three documents) did not appear in the panel.
+
+Result: the design's assumption holds. A configured specs folder is visible to Kiro's spec panel when `.kiro/specs` links to it, so the fallback (documenting it as invisible) is not needed. T-045 (00008) can state that the link works.
+
+## Optional follow-up
+
+- A Requirements-First and a Design-First capture generated in this repository's own Kiro IDE, to compare with the public ones. Not needed to close T-027.
