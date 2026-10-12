@@ -166,3 +166,15 @@ Tests: 311 passed, 0 failed, 0 skipped (suite run this cycle)
 - F15: out of scope (00006). Accepted.
 - F16: known open item (T-027 Kiro IDE trials, cycle-1 F32). The developer owns it.
 - Auto-dismissed (F23/F28 re-raises): settled in cycle 1, no action.
+
+### Outcome (2026-10-12, commits b99b7d5 and 2eb3f1b)
+
+Every queued item is applied:
+
+- F1 + F6: the scan covers only the part above the first level-two heading and the `## Tasks` section, and it skips fenced lines. This departs from the minutes ("from the first task to the next `##`"). That rule would have stopped at `## Tasks` whenever a bracketed item stood in a Kiro `## Overview` above it, so it would have skipped every task.
+- F2: `progress-fields` now warns on a line that continues an `Outcome:` or `Exception:` field, once per field, in any plan. The contract and the tasks template state the one-line rule.
+- F3 + F8 + F11: design edits, plus the design-text side of F1, F2, F4, F5, F13 and F14. They are recorded in the qa-log. The design and tasks approvals are now stale and need the developer's re-approval.
+- F7: the helper-only placement test is deleted.
+- Code: F4, F5, F10, F12, F13 and F14, with one regression test each (12 new tests). Fail-first: all 12 fail against the old code at `a039b6c`, with 15 failures and 1 error across subtests.
+- Housekeeping: a stray `specflow_helper/__pycache__` from Blake's 2026-10-11 probe was removed. It failed the no-bytecode test.
+- Checks: 257 contract tests on Python 3.14 and 3.10, 52 release tests and 12 validator tests, all OK. `validate.py` and `verify_release.py` exit 0.
