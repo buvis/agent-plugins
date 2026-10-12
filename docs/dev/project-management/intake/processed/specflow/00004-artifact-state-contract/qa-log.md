@@ -335,3 +335,10 @@ each landing exactly once.
 - Scope: the whole artifact as it reads now. The review 00004-04 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-04.md`.
 - Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
 - This is a receipt: no `.specflow.json` exists for this spec.
+
+## T-027 closed, Kiro-link question resolved (2026-10-12)
+
+- The developer ran both Kiro IDE trials; both passed (`kiro-captures.md`, "IDE trials"). T-027 is checked; that edit leaves the canonical hash of `tasks.md` unchanged (`5346f6c6…` before and after).
+- Decision: resolve the question now and re-approve all three artifacts. Question: "How do you want to handle it?" Answer: "Resolve now, re-approve 3".
+- Edited: `requirements.md` `## Unresolved questions` now holds no marker, and its Kiro-link risk is retired; `design.md` §6.7 states the verified result instead of "until then it is an assumption", and the matching risk is retired.
+- This edit stales the requirements approval of 2026-10-11, and the design and tasks approvals with it (WF-002.5-6). All three need the developer's re-approval.

@@ -261,8 +261,8 @@ Criteria 1-4: see 00006.
 
 ## Risks
 
-- Kiro IDE does not list specs through a `.kiro/specs` link: impact m, likelihood m; mitigation: T-027 checks it before the templates are written; fallback: a configured specs folder is documented as invisible to Kiro's spec panel, while the skill keeps working there.
+- Kiro IDE does not list specs through a `.kiro/specs` link: retired 2026-10-12. T-027 ran the trial in Kiro IDE: it lists, opens, and watches specs through the link, and ignores `.kiro/specflow/` (`kiro-captures.md`, "IDE trials").
 
 ## Unresolved questions
 
-- Whether Kiro IDE lists specs through a `.kiro/specs` link is unverified until T-027. Resolves when T-027 records the result.
+None. The question whether Kiro IDE lists specs through a `.kiro/specs` link was settled by T-027 on 2026-10-12: it does.
