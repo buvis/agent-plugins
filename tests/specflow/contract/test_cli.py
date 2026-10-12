@@ -59,6 +59,9 @@ class ExitCodeTest(CliTest):
                 (self.spec / ".specflow.json").write_text(text)
                 self.assertEqual(self.run_cli("validate", str(self.spec))[0], 2)
                 self.assertEqual(self.run_cli("reconcile", str(self.spec))[0], 2)
+                tasks = str(self.spec / "tasks.md")
+                self.assertEqual(self.run_cli("hash", tasks, "--json")[0], 2)
+                self.assertEqual(self.run_cli("hash", tasks)[0], 0)
 
     def test_unreadable_artifact_is_2(self) -> None:
         (self.spec / "tasks.md").write_bytes(b"\xff\xfe")
@@ -160,6 +163,27 @@ class OperationTest(CliTest):
         self.assertEqual(
             blocker["reference"],
             ".kiro/specs/00101-feature-sample/.specflow.json",
+        )
+
+    def test_status_names_a_malformed_state_linked_from_outside_the_repository(
+        self,
+    ) -> None:
+        outside = self.tmp / "outside"
+        outside.mkdir()
+        (outside / "state.json").write_text("{")
+        (self.spec / ".specflow.json").symlink_to(outside / "state.json")
+        linked = shutil.copytree(self.spec, outside / "00102-linked", symlinks=True)
+        (self.specs / "00102-linked").symlink_to(linked)
+        code, out, err = self.run_cli("status", "--json")
+        self.assertNotIn("Traceback", err)
+        self.assertEqual(code, 1)
+        references = [s["blockers"][0]["reference"] for s in json.loads(out)["specs"]]
+        self.assertEqual(
+            references,
+            [
+                ".kiro/specs/00101-feature-sample/.specflow.json",
+                ".kiro/specs/00102-linked/.specflow.json",
+            ],
         )
 
     def test_status_exits_1_on_a_malformed_state_and_still_prints(self) -> None:

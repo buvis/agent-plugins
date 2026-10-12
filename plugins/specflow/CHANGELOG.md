@@ -43,3 +43,11 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: `next-number` counts items inside a numbered group folder and folders placed straight under `intake/`.
 - **specflow**: a `.*` rule in `.gitignore` no longer reports the specs folder as ignored, and the shipped schema patterns are anchored, so external validators agree with the helper.
 - **specflow**: the README states the helper's real security boundary, and the artifact contract notes that Kiro's spec panel may not show a spec in a non-default specs folder.
+- **specflow**: `status` no longer crashes when a malformed state file or a spec folder is a link that leads outside the repository.
+- **specflow**: a checkbox outside the task list and the completion criteria, such as one under `## Unresolved questions`, now stales the approved plan when it changes.
+- **specflow**: `validate --phase implementation` warns about code drift since the design approval, as `status` does.
+- **specflow**: the shipped schema patterns reject a value with a trailing newline in external validators too.
+- **specflow**: a lowercased Kiro heading such as `## Error handling` no longer turns a Kiro design into a template design.
+- **specflow**: a configured path holding a NUL character is refused as a configuration error instead of crashing.
+- **specflow**: the config template holds the default locations, so copying it changes nothing.
+- **specflow**: an indented or recased `Depends on:` line, and a bugfix one with text after it in the Introduction, are reported instead of silently ignored.

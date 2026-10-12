@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 import support
+from specflow_helper.checks import validate
 from specflow_helper.schema import check_schema, load_schema
 from specflow_helper.status import markers, status
 
@@ -243,6 +244,23 @@ class WarningTest(StatusTest):
             [{"kind": "code-drift", "message": "src.py changed", "path": "src.py"}],
         )
         self.assertEqual(entry["gates"]["implementation"], "open")
+
+    def test_implementation_validation_warns_on_drift_too(self) -> None:
+        support.git(self.repo, "init", "-q")
+        (self.repo / "src.py").write_text("one\n")
+        spec = self.make("00042-sample")
+        state = support.new_state("00042-sample")
+        state["artifacts"]["design"]["approvedCode"] = {
+            "status": "captured",
+            "files": [{"path": "src.py", "sha256": "0" * 64}],
+        }
+        support.approve(spec, state, *ALL)
+        drift = [
+            (f["level"], f["message"])
+            for f in validate(self.repo, spec, "implementation")
+            if f["rule"] == "gates"
+        ]
+        self.assertEqual(drift, [("warning", "code-drift: src.py changed")])
 
     def test_no_drift_check_outside_git(self) -> None:
         self.assertEqual(

@@ -48,6 +48,11 @@ class ConfigTest(support.TempTest):
         config = load_config(self.repo)
         self.assertEqual(config["specsDir"], "docs/dev/project-management/specs")
 
+    def test_shipped_config_template_holds_the_defaults(self) -> None:
+        template = support.SCRIPTS.parent / "templates" / "specflow.json"
+        self.write_config(template.read_text())
+        self.assertEqual(load_config(self.repo), DEFAULTS)
+
     def test_unknown_fields_pass(self) -> None:
         self.write_config({"schemaVersion": 1, "laterField": True})
         self.assertEqual(load_config(self.repo), DEFAULTS)
@@ -62,6 +67,7 @@ class ConfigTest(support.TempTest):
             ("specsDir", "C:/specs", "is absolute"),
             ("root", "docs/../../up", "holds a .. segment"),
             ("specsDir", "escape/specs", "resolves outside the repository"),
+            ("root", "docs\x00pm", "holds a NUL character"),
         ):
             with self.subTest(value=value):
                 self.write_config({"schemaVersion": 1, key: value})

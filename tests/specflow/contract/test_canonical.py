@@ -76,6 +76,14 @@ class CheckboxTest(unittest.TestCase):
         a = "# T\n\n## Completion criteria\n\n- [x] done\n"
         self.assertTrue(tasks_equal(a, a.replace("[x]", "[ ]")))
 
+    def test_box_in_a_section_after_completion_criteria_stays(self) -> None:
+        a = (
+            "- [x] T-001 a\n\n## Completion criteria\n\n- [x] done\n\n"
+            "## Unresolved questions\n\n- [x] Who owns the log?\n"
+        )
+        self.assertFalse(tasks_equal(a, a.replace("- [x] Who", "- [ ] Who")))
+        self.assertTrue(tasks_equal(a, a.replace("[x]", "[ ]", 2)))
+
 
 class ProgressFieldTest(unittest.TestCase):
     def test_outcome_nested_under_a_task_is_dropped_at_any_depth(self) -> None:

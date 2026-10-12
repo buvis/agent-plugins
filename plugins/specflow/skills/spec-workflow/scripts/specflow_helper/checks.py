@@ -18,6 +18,7 @@ from .deps import (
     requirements_file,
     resolve_reference,
 )
+from .drift import code_drift
 from .findings import Finding, finding
 from .numbers import NUMBER, number_clashes
 from .schema import check_content
@@ -85,9 +86,17 @@ DESIGN_SECTIONS = (
     "Reuse inventory",
     "Open decisions",
 )
-# Template sections other designs hold too: Kiro writes the first two, and any
-# design may record open decisions (a marker section).
-SHARED_SECTIONS = ("Overview", "Architecture", "Open decisions")
+# Template sections other designs hold too: Kiro writes all but the last (in
+# Title Case, which a hand edit may lower), and any design may record open
+# decisions (a marker section).
+SHARED_SECTIONS = (
+    "Overview",
+    "Architecture",
+    "Components and interfaces",
+    "Error handling",
+    "Testing strategy",
+    "Open decisions",
+)
 BUGFIX_SECTIONS = (
     ("### Current Behavior (Defect)", 1, r"WHEN .+ THEN (?i:the system) "),
     ("### Expected Behavior (Correct)", 2, r"WHEN .+ THEN (?i:the system) SHALL "),
@@ -610,6 +619,21 @@ def gates(ctx: Context) -> list[Finding]:
         )
         for b in dependency_blockers(ctx.spec_dir, specs_folder(ctx))
     ]
+    # WF-004.8: the drift check runs before implementation, as in status.
+    if statuses["design"] == "approved" and (ctx.repo / ".git").exists():
+        approved_code = (ctx.state or {})["artifacts"]["design"].get("approvedCode")
+        findings += [
+            finding(
+                rel(ctx, ctx.repo / w["path"])
+                if "path" in w
+                else rel(ctx, paths["design"]),
+                "gates",
+                f"{w['kind']}: {w['message']}",
+                "Review the change against the design; re-approve the design if it holds.",
+                "warning",
+            )
+            for w in code_drift(ctx.repo, approved_code)
+        ]
     return findings
 
 

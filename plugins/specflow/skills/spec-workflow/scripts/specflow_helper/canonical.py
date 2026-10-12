@@ -69,11 +69,18 @@ def canonical(text: str, *, tasks: bool = False) -> str:
         lines.pop()
     if tasks:
         kept = []
+        in_completion = False
         for line, in_fence, in_task in scan_lines("\n".join(lines)):
             if in_fence:
                 kept.append(line)
-            elif not (in_task and PROGRESS.match(line)):
-                kept.append(CHECKBOX.sub(r"\1[ ]", line, count=1))
+                continue
+            if line.startswith("## "):
+                in_completion = line == COMPLETION
+            if in_task and PROGRESS.match(line):
+                continue
+            # Only task and completion-criteria boxes are progress (WF-002.4).
+            normalize = in_task or in_completion
+            kept.append(CHECKBOX.sub(r"\1[ ]", line, count=1) if normalize else line)
         lines = kept
     return "\n".join(lines) + "\n"
 

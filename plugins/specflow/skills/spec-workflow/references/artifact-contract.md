@@ -59,7 +59,7 @@ Source: <the idea | a Q&A entry such as Q3 | a discovery finding such as D1>
 
 `Depends on:` lists implementation prerequisites. It is separate from task dependencies, `Blocks:`, and `Supersedes:`.
 
-- At most one unindented `Depends on:` line, before the first level-two heading of `requirements.md`, or at the end of `## Introduction` in `bugfix.md`, just before `Sources:`. No line means no prerequisite. An empty or repeated line is invalid. An indented or list-item field, a fenced example, and a field in `tasks.md` declare nothing. An unindented `Depends on:` line elsewhere in the requirements artifact is a misplaced declaration.
+- At most one unindented `Depends on:` line, before the first level-two heading of `requirements.md`, or at the end of `## Introduction` in `bugfix.md`, just before `Sources:`. No line means no prerequisite. An empty or repeated line is invalid. A list-item field, a fenced example, and a field in `tasks.md` declare nothing. An unindented `Depends on:` line elsewhere in the requirements artifact is a misplaced declaration, and so is a bugfix one with any text but `Sources:` after it in `## Introduction`. A bare indented line, or one spelled in another letter case, declares nothing and is reported as malformed.
 - The value is a comma-separated list; each item is trimmed. An item is five ASCII digits (the one spec folder with that number) or `folder:<name>` (the one spec folder with exactly that name). A name cannot be empty, `.` or `..`, or hold a comma, slash, or backslash. No other form is valid. Two items that resolve to the same folder count once.
 - References resolve only in the configured specs folder. Each direct prerequisite must be complete before implementation starts. A missing, ambiguous, or unreadable target, a target whose state cannot be reconciled, a self-reference, or a cycle anywhere in the reachable graph closes the implementation gate, and only that gate. Phase and approvals stay as they are. Prerequisites are read, never written.
 
@@ -117,6 +117,7 @@ Every section stays. One that does not apply reads `Not applicable: <reason>`, w
 - Each progress field is one line. Only that line is left out of the hash: a wrapped or indented line under it is hashed, so writing one stales the approved plan, and validation warns about it.
 - `Depends on:` names earlier task IDs. Re-planning keeps checked tasks and their IDs.
 - `## Completion criteria` holds checkboxes; ticking the last one marks the spec complete.
+- Ticking a task or completion-criteria box never stales the approved plan. A checkbox in any other section, such as `## Unresolved questions`, is hashed like other text.
 - A task may cite a criterion of a spec its own spec depends on. On a `Requirements:` or `Acceptance criteria:` line the form is `<spec reference> <requirement ID> criterion <n>` (or `criteria <n>, <m>`), the reference following the `Depends on:` grammar: `00004 WF-004 criterion 8`. An ID without a spec reference belongs to the task's own spec.
 
 Checkbox forms: `[ ]` open, `[x]` or `[X]` checked, and Kiro's `[-]` (in progress) and `[~]` (queued), which count as open. A `*` right after the box (`- [ ]* 2.2 ...`) marks an optional task: left unchecked, it holds the spec in no phase and is never offered as the next task.

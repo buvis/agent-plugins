@@ -38,15 +38,26 @@ def placed_declarations(
         if bugfix
         else "the header, before the first ## heading"
     )
+    open_line: str | None = None  # a bugfix declaration that only Sources: may follow
     for line, in_fence, _ in scan_lines(canonical(text)):
         if in_fence:
             continue
         if line.startswith("## "):
-            section = line
+            section, open_line = line, None
+        if open_line and line.strip() and not line.startswith("Sources:"):
+            message = f"misplaced declaration: {open_line}"
+            findings.append(finding(file, RULE, message, f"Move it to {where}."))
+            open_line = None
         if not line.startswith("Depends on:"):
+            # A list-item field declares nothing; a bare near miss is a mistake.
+            if line.lstrip(" \t")[:11].casefold() == "depends on:":
+                findings.append(
+                    finding(file, RULE, f"malformed declaration: {line}", FIX)
+                )
             continue
         if (section == "## Introduction") if bugfix else section is None:
             placed.append(line)
+            open_line = line if bugfix else None
         else:
             message = f"misplaced declaration: {line}"
             findings.append(finding(file, RULE, message, f"Move it to {where}."))

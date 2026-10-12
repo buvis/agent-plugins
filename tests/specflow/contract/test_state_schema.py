@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -137,7 +138,15 @@ class StateSchemaTest(unittest.TestCase):
         for path in sorted(SCHEMAS.glob("*.schema.json")):
             for pattern in patterns(json.loads(path.read_text(encoding="utf-8"))):
                 with self.subTest(schema=path.name, pattern=pattern):
-                    self.assertTrue(pattern.startswith("^") and pattern.endswith("$"))
+                    # Python's `$` also matches before a final newline; the lookahead stops it.
+                    self.assertTrue(
+                        pattern.startswith("^") and pattern.endswith(r"(?!\n)$"),
+                    )
+
+    def test_trailing_newline_fails_a_searching_validator(self) -> None:
+        pattern = self.schema["$defs"]["sha256"]["pattern"]
+        self.assertIsNotNone(re.search(pattern, "a" * 64))
+        self.assertIsNone(re.search(pattern, "a" * 64 + "\n"))
 
 
 class SchemaKeywordTest(unittest.TestCase):

@@ -139,6 +139,37 @@ def next_task(tasks_path: Path) -> dict | None:
     return None
 
 
+def repo_reference(repo: Path, path: Path) -> str:
+    """The path relative to the repository, never through a link that leads out of it."""
+    for base, target in (
+        (repo, path),
+        (repo.resolve(), path.parent.resolve() / path.name),
+    ):
+        if target.is_relative_to(base):
+            return target.relative_to(base).as_posix()
+    return path.name
+
+
+def state_blockers(
+    repo: Path,
+    gate: str,
+    kind: str,
+    problem: StateError | None,
+) -> list[dict]:
+    """The blocker a missing or invalid state file puts on the second gate."""
+    if kind == "missing":
+        return [{"gate": gate, "reason": "state missing"}]
+    if problem is None:
+        return []
+    return [
+        {
+            "gate": gate,
+            "reason": f"state invalid: {problem.reason}",
+            "reference": repo_reference(repo, problem.path),
+        },
+    ]
+
+
 def spec_status(repo: Path, specs_dir: Path, spec_dir: Path) -> dict:
     """One entry of `specs`."""
     try:
@@ -150,19 +181,7 @@ def spec_status(repo: Path, specs_dir: Path, spec_dir: Path) -> dict:
     statuses = artifact_status(spec_dir, state)
     paths = artifact_paths(spec_dir, state)
     second = ORDERS[order][1]
-    blockers: list[dict] = []
-    if kind == "missing":
-        blockers.append({"gate": second, "reason": "state missing"})
-    if problem is not None:
-        blockers.append(
-            {
-                "gate": second,
-                "reason": f"state invalid: {problem.reason}",
-                "reference": problem.path.resolve()
-                .relative_to(repo.resolve())
-                .as_posix(),
-            },
-        )
+    blockers = state_blockers(repo, second, kind, problem)
     blockers += artifact_blockers(order, statuses, paths)
     blockers += marker_blockers(order, state, paths)
     blockers += dependency_blockers(spec_dir, specs_dir)

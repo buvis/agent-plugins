@@ -8,10 +8,18 @@ import unittest
 from pathlib import Path
 
 import support
-from specflow_helper.checks import CHECKS, validate
+from specflow_helper.canonical import CHECKBOX
+from specflow_helper.checks import BAD_CHECKBOX, CHECKS, ID_ENTRY, validate
 from specflow_helper.reconcile import reconcile
-from specflow_helper.spec_text import CLAUSE, CRITERION, REQUIREMENT_HEADING
-from specflow_helper.state import TASK_ID
+from specflow_helper.spec_text import (
+    CLAUSE,
+    CRITERION,
+    CROSS_SPEC,
+    REQUIREMENT_HEADING,
+    traced_ids,
+)
+from specflow_helper.state import TASK_ID, TASK_LINE
+from specflow_helper.status import LIST_ITEM
 
 SPECS = support.FIXTURES / "specs"
 T026_ROWS = {
@@ -180,6 +188,13 @@ class SeededDefectTest(ChecksTest):
                 spec = self.specs / f"kiro-{capture}"
                 shutil.copytree(support.FIXTURES / "kiro" / capture, spec)
                 self.assertNotIn("design-sections", self.rules(spec))
+
+    def test_design_sections_lets_a_recased_kiro_design_keep_its_headings(self) -> None:
+        spec = self.specs / "kiro-recased"
+        shutil.copytree(support.FIXTURES / "kiro" / "requirements-first", spec)
+        for old in ("Components and Interfaces", "Error Handling", "Testing Strategy"):
+            self.edit(spec / "design.md", f"## {old}\n", f"## {old.capitalize()}\n")
+        self.assertNotIn("design-sections", self.rules(spec))
 
     def test_design_sections_ignores_the_heading_inside_a_fence(self) -> None:
         spec = self.copy("00101-feature-sample")
@@ -477,9 +492,19 @@ class AsciiDigitsTest(unittest.TestCase):
             (CRITERION, f"{arabic}. WHEN"),
             (CLAUSE, f"{arabic}.{arabic} WHEN"),
             (TASK_ID, f"T-{arabic} Build"),
+            (CHECKBOX, f"{arabic}. [x] Build"),
+            (ID_ENTRY, f"REQ-{arabic}"),
+            (BAD_CHECKBOX, f"{arabic}. [] Build"),
+            (TASK_LINE, f"{arabic}. [x] Build"),
+            (LIST_ITEM, f"{arabic}. Who owns the log?"),
+            (CROSS_SPEC, f"{arabic}{arabic}00 REQ-001"),
+            (CROSS_SPEC, f"00042 REQ-{arabic}"),
         ):
             with self.subTest(text=text):
                 self.assertIsNone(pattern.match(text))
+
+    def test_traced_ids_take_ascii_digits_only(self) -> None:
+        self.assertEqual(traced_ids("- Requirements: REQ-١٢٣, ١.١\n"), set())
 
 
 class IntakeTest(ChecksTest):

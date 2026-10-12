@@ -47,25 +47,25 @@
       "properties": {
         "status": {"type": "string", "enum": ["on_hold", "abandoned"]},
         "reason": {"type": "string", "minLength": 1},
-        "since": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+        "since": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?!\\n)$"}
       }
     }
   },
   "$defs": {
-    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}(?!\\n)$"},
     "artifact": {
       "type": "object",
       "required": ["path", "status"],
       "properties": {
-        "path": {"type": "string", "pattern": "^[^/\\\\]+\\.md$"},
+        "path": {"type": "string", "pattern": "^[^/\\\\]+\\.md(?!\\n)$"},
         "status": {"type": "string", "enum": ["missing", "draft", "approved", "stale"]},
         "sha256": {"$ref": "#/$defs/sha256"},
         "approvedSha256": {"$ref": "#/$defs/sha256"},
         "approvedAt": {
           "type": "string",
-          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$"
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z(?!\\n)$"
         },
-        "approvedCommit": {"type": "string", "pattern": "^[0-9a-f]{7,64}$"},
+        "approvedCommit": {"type": "string", "pattern": "^[0-9a-f]{7,64}(?!\\n)$"},
         "upstreamSha256": {
           "type": "object",
           "properties": {

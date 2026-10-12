@@ -120,14 +120,42 @@ class GrammarTest(unittest.TestCase):
             ["misplaced declaration: Depends on: 00012"],
         )
 
-    def test_fenced_indented_and_list_fields_declare_nothing(self) -> None:
+    def test_fenced_and_list_fields_declare_nothing(self) -> None:
         for text in (
             "# R\n\n```\nDepends on: 00012\n```\n\n## Purpose\n",
-            "# R\n\n  Depends on: 00012\n\n## Purpose\n",
             "# R\n\n- Depends on: 00012\n\n## Purpose\n",
         ):
             with self.subTest(text=text):
                 self.assertEqual(parse_depends_on(text, bugfix=False), ([], []))
+
+    def test_indented_or_recased_declaration_is_malformed(self) -> None:
+        for line in ("  Depends on: 00012", "\tDepends on: 00012", "Depends On: 00012"):
+            with self.subTest(line=line):
+                text = f"# R\n\n{line}\n\n## Purpose\n"
+                refs, findings = parse_depends_on(text, bugfix=False)
+                self.assertEqual(refs, [])
+                self.assertEqual(
+                    [f["message"] for f in findings],
+                    [f"malformed declaration: {line}"],
+                )
+
+    def test_bugfix_declaration_not_last_in_its_introduction_is_misplaced(self) -> None:
+        text = BUGFIX.format(deps="00012").replace(
+            "Sources: docs/intake/processed/00050-rows\n",
+            "Sources: docs/intake/processed/00050-rows\nMore context.\n",
+        )
+        early = text.replace(
+            "Rows go missing.\n\nDepends on: 00012\n",
+            "Depends on: 00012\n\nRows go missing.\n",
+        )
+        for case in (text, early):
+            with self.subTest(case=case[40:80]):
+                refs, findings = parse_depends_on(case, bugfix=True)
+                self.assertEqual(refs, ["00012"])
+                self.assertEqual(
+                    [f["message"] for f in findings],
+                    ["misplaced declaration: Depends on: 00012"],
+                )
 
     def test_bugfix_declares_at_the_end_of_its_introduction(self) -> None:
         refs, findings = parse_depends_on(BUGFIX.format(deps="00012"), bugfix=True)
