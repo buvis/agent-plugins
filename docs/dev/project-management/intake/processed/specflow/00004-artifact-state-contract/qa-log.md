@@ -289,3 +289,9 @@ each landing exactly once.
 - Scope: the whole artifact as it reads now. The review 00004-02 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-02.md`.
 - Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
 - This is a receipt: no `.specflow.json` exists for this spec.
+
+## Review 00004-03 design edits (2026-10-12)
+
+- The cycle-3 walkthrough (`reviews/00004-artifact-state-contract-review-03.md`, minutes) decided F1 and F14 as design edits. Fixes F2, F3, F11, F12 and F13 also change design text.
+- Edited: `hash --json` gains `upstreamSha256`, with the state-table row, the interface block (`StateError.reason`, `upstream_hashes`), the fields `reconcile` never writes, and the approval rule binding upstream hashes (§7.4). Also: anchored ASCII schema patterns, the malformed-state blocker's `reference` and the no-absolute-path rule, `nextTask` on a hold, `problems` and `intake` beyond STATE-003.1, ASCII output and the `->` cycle path, the `design-sections` trigger, the non-dotfile ignore probe, and the `next-number` intake scan.
+- This edit stales the design approval of 2026-10-12, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval. Requirements are unchanged.
