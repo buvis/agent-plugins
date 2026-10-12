@@ -358,3 +358,19 @@ Asked one at a time in the T-027 session, which did not see the cycle-5 edits be
 - The cycle-5 walkthrough (`reviews/00004-artifact-state-contract-review-05.md`, minutes) decided F4 as a design edit. Fixes F1, F3, F7, F8 and F9 also change design text.
 - Edited: §7.3 step 5 and the task-item definition (a task item is a checkbox item of the task list, before the first level-two heading or under `## Tasks`, so a box in any other section stays hash-bound wherever it sits) and the hash-exclusion test note; §7.4 drops the exception for a record without `upstreamSha256` (such an approval is stale until approved again); the config schema's `schemaVersion` is optional; the `specs-folder` and `number-clashes` rows run in the `requirements` phase (and `intake`) with the Performance note reworded; the status example and field table gain `specs[].stale`; the interface block lists `drift_warnings` in `drift.py`.
 - The design approval is already stale from the T-027 edit above; this edit widens what the re-approval covers. Design and tasks need the developer's re-approval after the requirements re-approval (WF-002.5-6).
+
+## Design re-approval, cycle 5 (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/design.md`, git blob `5ec0366ca2028fb5effd9f157a5fd0dc572eaa09` (commit `24919c4`).
+- Decision: approved by the developer. Question: "Re-approve 00004 design.md at blob 5ec0366?", which listed the six review 00004-05 changes (F1, F3, F4, F7, F8, F9) against the T-027 version `cd104a8`. Answer: "Approve (Recommended)".
+- Scope: the T-027 edit and the review 00004-05 design edits listed above. Upstream: requirements blob `5ce33ef`, approved the same day.
+- Upstream markers: none open.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Tasks re-approval, cycle 5 (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/tasks.md`, git blob `1f496decafbb3b9098350bac2ec01683a0ca8f2e` (commit `183380c`). Its canonical hash under the cycle-5 code is `5346f6c67e0f7f1e640d393816985ab17bfe2868012f2310d18c888883c9fc38`, equal to the 2026-10-11 approved blob `a2023ca`.
+- Decision: approved by the developer. Question: "Re-approve 00004 tasks.md against requirements 5ce33ef and design 5ec0366?" Answer: "Re-approve (Recommended)".
+- Scope: the whole artifact as it reads now. The review 00004-05 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-05.md`.
+- Upstream markers: none open.
+- This is a receipt: no `.specflow.json` exists for this spec.
