@@ -199,3 +199,19 @@ each landing exactly once.
 - T-027 of 00004 ran the link trial in Kiro IDE: Kiro lists, opens, and watches specs through a `.kiro/specs` link, and ignores `.kiro/specflow/` (`00004-artifact-state-contract/kiro-captures.md`, "IDE trials").
 - Edited: the last Kiro IDE line of the host notes now states that result instead of "is to be verified (T-027)". Nothing else changed; the design was blob `d19ee45` and the tasks blob `59664a6` before this edit.
 - This edit stales the design approval of 2026-10-09, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval.
+
+## Design re-approval (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00008-host-integration/design.md`, git blob `7fb52d0001f3a3b154665ec900732614a231bb5c` (commit `f24cd4f`).
+- Decision: approved by the developer. Question: "Re-approve 00008 design.md?" Answer: "Approve (Recommended)".
+- Scope: the one-line Kiro-link edit above; nothing else changed since the 2026-10-09 approval.
+- Upstream markers accepted by name: none; the approved requirements hold no open marker.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Tasks re-approval (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00008-host-integration/tasks.md`, git blob `59664a60f1246cb04261e5daf73c163e044125c6`, unchanged since its 2026-10-06 approval.
+- Decision: approved by the developer. Question: "Re-approve 00008 tasks.md against design 7fb52d0?" Answer: "Re-approve (Recommended)".
+- Scope: the whole artifact. Re-approved rather than left standing, since an approval now binds the exact upstream text (review 00004-05 F4).
+- Upstream markers accepted by name: none.
+- This is a receipt: no `.specflow.json` exists for this spec.
