@@ -233,6 +233,16 @@ class OperationTest(CliTest):
                 self.assertIn("not a canonical artifact", err)
                 self.assertEqual(self.run_cli("hash", str(path))[0], 0)
 
+    def test_hash_json_follows_the_configured_specs_folder(self) -> None:
+        config = self.repo / ".agents" / "specflow.json"
+        config.parent.mkdir()
+        config.write_text(json.dumps({"schemaVersion": 1, "specsDir": "docs/specs"}))
+        moved = shutil.copytree(self.spec, self.repo / "docs" / "specs" / self.spec.name)
+        code, out, _ = self.run_cli("hash", str(moved / "design.md"), "--json")
+        self.assertEqual(code, 0)
+        self.assertIn("sha256", json.loads(out))
+        self.assertEqual(self.run_cli("hash", str(self.spec / "design.md"), "--json")[0], 3)
+
     def test_hash_json_binds_each_upstream_artifact(self) -> None:
         expected = {}
         for name in ("requirements", "design"):
