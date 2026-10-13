@@ -138,3 +138,14 @@ D5: pass
 Verdict: 7 findings
 
 Tests: 357 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-13)
+
+- F1: `hash --json` refuses (exit 3) a file whose folder is not directly under the configured specs folder (`load_config` root). Regression with an unrelated `docs/design.md`. Queued.
+- F2: the durability test records each `fsync` beside `os.replace` and asserts the temporary file is flushed before the replace and the folder after it on POSIX. Queued.
+- F3: dismissed. Passes at base by design (ledger entry added).
+- F4: dismissed. The `subTest` replay artifact; the unittest replay at `14afdff` fails both (ledger entry added). From cycle 8 the replay runs `uv run --no-project --with pytest --with pytest-subtests python -m pytest`, so subtest failures count; the project memory recipe says so. Applied.
+- F5: `derive_phase` takes the loaded state and calls `spec_type(spec_dir, state)`; test with a bugfix recorded only in `.specflow.json`. Queued.
+- F6: `validate` and `code-baseline` call `folder(value, repo)`; test that a spec outside the repository exits 3. Queued.
+- F7: accepted as an approved design choice (ledger entry added). Applied.
+- Auto-dismissed F23 re-raises (placeholder and bugfix checks): settled earlier, no action.

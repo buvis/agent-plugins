@@ -97,5 +97,32 @@
     "issue": "Fail-first replay flags subTest test as passing against base: test_folder_scans_run_in_the_requirements_phase_only",
     "file": "tests/specflow/contract/test_config.py",
     "reason": "pytest without the subtests plugin reports subTest failures as passes; the lead's unittest replay at 8cee2d8 fails it (3 subtest failures)"
+  },
+  {
+    "cycle": 7,
+    "ref": "F3",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags test_implementation_validation_warns_that_a_stale_design_is_not_checked as passing against base",
+    "file": "tests/specflow/contract/test_status.py",
+    "reason": "passes at base by design: it covers the gates warning that shipped in cycle 5 (cycle-6 outcome)"
+  },
+  {
+    "cycle": 7,
+    "ref": "F4",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Fail-first replay flags subTest tests as passing against base: test_usage_errors_are_3, test_partial_upstream_binding_never_revives_after_upstream_reapproval",
+    "file": "tests/specflow/contract/test_invalidation.py",
+    "reason": "pytest without the subtests plugin reports subTest failures as passes; the lead's unittest replay at 14afdff fails both (3 subtest failures)"
+  },
+  {
+    "cycle": 7,
+    "ref": "F7",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Status JSON adds top-level problems and intake fields that STATE-003.1 does not list",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/status.py",
+    "reason": "approved design choice (design.md status fields, review 00004-03 F14); the status schema requires both"
   }
 ]
