@@ -112,7 +112,7 @@ def run_status(args: argparse.Namespace, repo: Path) -> int:
 
 
 def run_validate(args: argparse.Namespace, repo: Path) -> int:
-    findings = validate(repo, folder(args.spec_dir), args.phase)
+    findings = validate(repo, folder(args.spec_dir, repo), args.phase)
     errors = [f for f in findings if f["level"] == "error"]
     code = FAILED if errors else OK
     if any(f["rule"] == "state-valid" for f in errors):
@@ -145,13 +145,17 @@ def run_hash(args: argparse.Namespace, repo: Path) -> int:
     if not args.json:
         print(digest)
         return OK
+    # An approval record only for the files specflow owns (ART-001.9).
+    refused = UsageError(f"{args.file}: not a canonical artifact of a spec folder")
     spec_dir = path.resolve().parent
+    specs = (repo / str(load_config(repo)["specsDir"])).resolve()
+    if spec_dir.parent != specs:
+        raise refused
     state = load_state(spec_dir)
     paths = artifact_paths(spec_dir, state)
     name = next((n for n, p in paths.items() if p == path.resolve()), None)
     if name is None:
-        # An approval record only for the files specflow owns (ART-001.9).
-        raise UsageError(f"{args.file}: not a canonical artifact of a spec folder")
+        raise refused
     record = {"sha256": digest, "approvedAt": now()}
     commit = git(repo, "rev-parse", "--verify", "--quiet", "HEAD")
     if commit:
@@ -164,7 +168,7 @@ def run_hash(args: argparse.Namespace, repo: Path) -> int:
 
 
 def run_code_baseline(args: argparse.Namespace, repo: Path) -> int:
-    folder(args.spec_dir)
+    folder(args.spec_dir, repo)
     if git(repo, "rev-parse", "--is-inside-work-tree") != "true":
         value = {"status": "not_checked", "reason": "not a Git repository"}
     else:

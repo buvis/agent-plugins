@@ -387,3 +387,9 @@ Asked one at a time in the T-027 session, which did not see the cycle-5 edits be
 - Design: `design.md`, git blob `9a043ea6194bf25c8d1cb2315b24ea49693e30b1` (commit `ed8ae19`), the review 00004-06 edits (F1, F8, F10, F11, F12) against blob `5ec0366`. Decision: approved by the developer. Question: "Re-approve 00004 design.md at blob 9a043ea (cycle-6 edits F1, F8, F10, F11, F12)?" Answer: "Approve (Recommended)". Upstream: requirements blob `fef2213`. Upstream markers: none open.
 - Tasks: `tasks.md`, git blob `1f496decafbb3b9098350bac2ec01683a0ca8f2e` (commit `183380c`), unchanged; canonical hash under the cycle-6 code `5346f6c67e0f7f1e640d393816985ab17bfe2868012f2310d18c888883c9fc38`. Decision: approved by the developer. Question: "Re-approve 00004 tasks.md (blob 1f496de, unchanged) against requirements fef2213 and design 9a043ea?" Answer: "Re-approve (Recommended)". Scope: the whole artifact as it reads now; the review 00004-06 fixes are recorded in `reviews/00004-artifact-state-contract-review-06.md`. Upstream markers: none open.
 - This is a receipt: no `.specflow.json` exists for this spec.
+
+## Review 00004-07 design edits (2026-10-13)
+
+- The cycle-7 walkthrough (`reviews/00004-artifact-state-contract-review-07.md`, minutes) decided F1, F5 and F6, which change design text. No requirement changes.
+- Edited: `design.md` `hash --json` refuses a canonical artifact name whose folder is not placed directly in the configured specs folder; `validate` and `code-baseline` refuse a spec folder outside the repository, as `status` and `reconcile` do; `derive_phase` takes the state, so the phase uses the same spec type as the artifact paths.
+- This edit stales the design approval of 2026-10-13, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval; requirements stay approved.

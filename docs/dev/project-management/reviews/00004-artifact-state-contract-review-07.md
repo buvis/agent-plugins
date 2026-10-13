@@ -149,3 +149,14 @@ Tests: 357 passed, 0 failed, 0 skipped (suite run this cycle)
 - F6: `validate` and `code-baseline` call `folder(value, repo)`; test that a spec outside the repository exits 3. Queued.
 - F7: accepted as an approved design choice (ledger entry added). Applied.
 - Auto-dismissed F23 re-raises (placeholder and bugfix checks): settled earlier, no action.
+
+### Outcome (2026-10-13)
+
+Every queued item is applied:
+
+- F1: `hash --json` raises the usage error unless the file's folder sits directly in the configured specs folder (`load_config` `specsDir`, resolved). Test: an unrelated `docs/design.md` and a spec copied outside the specs folder both exit 3 with no output; the plain form still hashes them.
+- F2: the durability test records each `fsync` (file or folder, from `fstat`) beside `os.replace` and asserts `file`, `replace`, `folder` on POSIX.
+- F5: `derive_phase` takes the state and calls `spec_type(spec_dir, state)`; every caller passes it (`None` in recovery). Test: a bugfix that only `.specflow.json` records, with only the checkpoint open, is in `verification` through `spec_phase`.
+- F6: `validate` and `code-baseline` call `folder(value, repo)`. The outside-repository test now covers all four commands.
+- Fail-first: the F1, F5 and F6 tests fail against the old code (5 failures). The F2 test passes there, since the code was right; with the file flush removed it fails (`['replace', 'folder']`).
+- Design text changed (F1, F5, F6), so design and tasks need the developer's re-approval (qa-log, "Review 00004-07 design edits").

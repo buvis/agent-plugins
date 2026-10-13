@@ -190,7 +190,7 @@ class InvalidationTest(support.TempTest):
         support.approve(spec, state, "tasks")
         statuses = artifact_status(spec, state)
         self.assertEqual(
-            derive_phase(spec, statuses, "requirements-first"),
+            derive_phase(spec, statuses, "requirements-first", state),
             "implementation",
         )
 
@@ -199,11 +199,11 @@ class InvalidationTest(support.TempTest):
             with self.subTest(order=order):
                 spec, state = self.build(order)
                 self.assertEqual(
-                    derive_phase(spec, artifact_status(spec, state), order),
+                    derive_phase(spec, artifact_status(spec, state), order, state),
                     "implementation",
                 )
                 (spec / "design.md").write_text(support.DESIGN + "\nChanged.\n")
-                phase = derive_phase(spec, artifact_status(spec, state), order)
+                phase = derive_phase(spec, artifact_status(spec, state), order, state)
                 self.assertNotIn(phase, ("implementation", "verification", "complete"))
 
 

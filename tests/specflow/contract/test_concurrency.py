@@ -71,12 +71,31 @@ class WriteGuardedTest(support.TempTest):
         self.assertEqual(stray.read_text(), "another writer's temporary file")
         self.assertEqual(path.read_bytes(), b"new")
 
-    def test_write_flushes_the_file_and_its_folder_before_returning(self) -> None:
+    def test_write_flushes_the_file_before_the_rename_and_the_folder_after(
+        self,
+    ) -> None:
         path = self.tmp / "f.json"
         path.write_text("old")
-        with mock.patch.object(reconcile_module.os, "fsync", wraps=os.fsync) as fsync:
+        calls = []
+        fsync, replace = os.fsync, os.replace
+
+        def record_fsync(fd: int) -> None:
+            calls.append("folder" if stat.S_ISDIR(os.fstat(fd).st_mode) else "file")
+            fsync(fd)
+
+        def record_replace(src: object, dst: object) -> None:
+            calls.append("replace")
+            replace(src, dst)
+
+        with (
+            mock.patch.object(reconcile_module.os, "fsync", record_fsync),
+            mock.patch.object(reconcile_module.os, "replace", record_replace),
+        ):
             write_guarded(path, b"new", sha256_raw(path))
-        self.assertEqual(fsync.call_count, 2 if os.name == "posix" else 1)
+        expected = (
+            ["file", "replace", "folder"] if os.name == "posix" else ["file", "replace"]
+        )
+        self.assertEqual(calls, expected)
         self.assertEqual(path.read_bytes(), b"new")
 
     def test_failed_write_leaves_no_temporary_file(self) -> None:

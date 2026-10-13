@@ -80,7 +80,7 @@ def recovery(spec_dir: Path) -> dict:
     return {
         "spec": spec_dir.name,
         "statuses": statuses,
-        "phase": derive_phase(spec_dir, statuses, order),
+        "phase": derive_phase(spec_dir, statuses, order, None),
         "changes": [],
         "ambiguous": ambiguous,
     }
@@ -154,7 +154,7 @@ def reconcile(spec_dir: Path, *, dry_run: bool) -> dict:
     return {
         "spec": spec_dir.name,
         "statuses": statuses,
-        "phase": derive_phase(spec_dir, statuses, state["workflowOrder"]),
+        "phase": derive_phase(spec_dir, statuses, state["workflowOrder"], state),
         "changes": changes,
         "ambiguous": ambiguous,
     }

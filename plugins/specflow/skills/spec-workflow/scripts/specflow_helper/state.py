@@ -172,7 +172,8 @@ def workflow_order(spec_dir: Path, state: dict | None) -> str:
 def spec_phase(spec_dir: Path, state: dict | None) -> tuple[dict[str, str], str]:
     """(artifact statuses, derived phase) of one spec."""
     statuses = artifact_status(spec_dir, state)
-    return statuses, derive_phase(spec_dir, statuses, workflow_order(spec_dir, state))
+    order = workflow_order(spec_dir, state)
+    return statuses, derive_phase(spec_dir, statuses, order, state)
 
 
 def artifact_status(spec_dir: Path, state: dict | None) -> dict[str, str]:
@@ -334,7 +335,12 @@ def required_open(items: list[dict]) -> list[dict]:
     return [item for item in items if not item["checked"] and not item["optional"]]
 
 
-def derive_phase(spec_dir: Path, status: dict[str, str], order: str) -> str:
+def derive_phase(
+    spec_dir: Path,
+    status: dict[str, str],
+    order: str,
+    state: dict | None,
+) -> str:
     """The first row of the phase table that matches, read in workflow order."""
     for name in (*ORDERS[order], "tasks"):
         if status[name] != "approved":
@@ -343,7 +349,7 @@ def derive_phase(spec_dir: Path, status: dict[str, str], order: str) -> str:
     items = task_items(text)
     open_items = required_open(items)
     boxes = completion_boxes(text)
-    if boxes is None and spec_type(spec_dir, None)[0] == "bugfix":
+    if boxes is None and spec_type(spec_dir, state)[0] == "bugfix":
         top = [item for item in items if item["parent"] is None]
         if top and open_items == [top[-1]]:
             return "verification"

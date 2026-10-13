@@ -13,6 +13,7 @@ from specflow_helper.state import (
     artifact_status,
     derive_phase,
     load_state,
+    spec_phase,
     spec_type,
 )
 
@@ -122,7 +123,7 @@ class PhaseTest(support.TempTest):
             },
         )
         state = support.approve(spec, support.new_state(workflowOrder=order), *approved)
-        return derive_phase(spec, artifact_status(spec, state), order)
+        return derive_phase(spec, artifact_status(spec, state), order, state)
 
     def test_first_artifact_in_order_comes_first(self) -> None:
         self.assertEqual(self.make("requirements-first", ()), "requirements")
@@ -193,7 +194,7 @@ class KiroPhaseTest(support.TempTest):
         if kind == "bugfix":
             state["artifacts"]["requirements"]["path"] = "bugfix.md"
         state = support.approve(spec, state, "requirements", "design", "tasks")
-        return derive_phase(spec, artifact_status(spec, state), order)
+        return derive_phase(spec, artifact_status(spec, state), order, state)
 
     def test_bugfix_is_in_verification_while_only_the_checkpoint_is_open(self) -> None:
         spec = self.kiro_spec("bugfix")
@@ -204,6 +205,19 @@ class KiroPhaseTest(support.TempTest):
             self.approve_all(spec, "bugfix", "requirements-first"),
             "verification",
         )
+
+    def test_phase_takes_the_spec_type_the_artifact_paths_take(self) -> None:
+        # Only the state says bugfix: no .config.kiro, no bugfix.md.
+        spec = self.kiro_spec("bugfix")
+        (spec / ".config.kiro").unlink()
+        (spec / "bugfix.md").rename(spec / "requirements.md")
+        tasks = (spec / "tasks.md").read_text()
+        tasks = tasks.replace("- [-] 4.", "- [x] 4.").replace("- [~] 5.", "- [x] 5.")
+        (spec / "tasks.md").write_text(tasks)
+        state = support.new_state(specType="bugfix")
+        state = support.approve(spec, state, "requirements", "design", "tasks")
+        self.assertEqual(spec_type(spec, state)[0], "bugfix")
+        self.assertEqual(spec_phase(spec, state)[1], "verification")
 
     def test_bugfix_capture_as_found_is_in_implementation(self) -> None:
         spec = self.kiro_spec("bugfix")

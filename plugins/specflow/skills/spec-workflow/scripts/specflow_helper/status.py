@@ -192,7 +192,7 @@ def spec_status(repo: Path, specs_dir: Path, spec_dir: Path) -> dict:
         "spec": spec_dir.name,
         "specType": spec_type(spec_dir, state)[0],
         "profile": (state or {}).get("profile"),
-        "phase": derive_phase(spec_dir, statuses, order),
+        "phase": derive_phase(spec_dir, statuses, order, state),
         "state": kind,
         "hold": hold,
         "artifacts": statuses,

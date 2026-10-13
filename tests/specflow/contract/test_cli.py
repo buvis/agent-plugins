@@ -110,13 +110,18 @@ class ExitCodeTest(CliTest):
 
 
 class OperationTest(CliTest):
-    def test_status_and_reconcile_refuse_a_spec_outside_the_repository(self) -> None:
+    def test_spec_commands_refuse_a_spec_outside_the_repository(self) -> None:
         outside = shutil.copytree(self.spec, self.tmp / "outside" / self.spec.name)
         support.write_state(outside, support.new_state(self.spec.name))
         before = (outside / ".specflow.json").read_bytes()
-        for command in ("status", "reconcile"):
-            with self.subTest(command=command):
-                code, _, err = self.run_cli(command, str(outside))
+        for command in (
+            ("status",),
+            ("reconcile",),
+            ("validate",),
+            ("code-baseline", "--paths", "x.py"),
+        ):
+            with self.subTest(command=command[0]):
+                code, _, err = self.run_cli(command[0], str(outside), *command[1:])
                 self.assertEqual(code, 3)
                 self.assertIn("outside the repository", err)
         self.assertEqual((outside / ".specflow.json").read_bytes(), before)
@@ -215,6 +220,18 @@ class OperationTest(CliTest):
         self.assertEqual(self.run_cli("hash", other, "--json")[0], 3)
         self.assertEqual(self.run_cli("hash", other)[0], 0)
         self.assertEqual(self.run_cli("hash", other, "--raw")[0], 0)
+
+    def test_hash_json_refuses_an_artifact_name_outside_the_specs_folder(self) -> None:
+        docs = self.repo / "docs"
+        docs.mkdir()
+        (docs / "design.md").write_text(support.DESIGN)
+        elsewhere = shutil.copytree(self.spec, self.repo / "elsewhere" / self.spec.name)
+        for path in (docs / "design.md", elsewhere / "tasks.md"):
+            with self.subTest(path=path.parent.name):
+                code, out, err = self.run_cli("hash", str(path), "--json")
+                self.assertEqual((code, out), (3, ""))
+                self.assertIn("not a canonical artifact", err)
+                self.assertEqual(self.run_cli("hash", str(path))[0], 0)
 
     def test_hash_json_binds_each_upstream_artifact(self) -> None:
         expected = {}
