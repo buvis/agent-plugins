@@ -36,15 +36,6 @@
     "reason": "00006 (runtime skill) scope, not 00004"
   },
   {
-    "cycle": 2,
-    "ref": "F16",
-    "disposition": "accepted",
-    "severity": "⚪",
-    "issue": "T-027 Kiro IDE trials pending: the Kiro IDE Bug Fix display and spec link trials are not captured, so T-027 stays partial",
-    "file": "plugins/specflow/skills/spec-workflow/references/artifact-contract.md",
-    "reason": "developer-owned manual trial, tracked as open on T-027; the caveat is documented in artifact-contract.md (cycle-3 F7)"
-  },
-  {
     "cycle": 4,
     "ref": "F7",
     "disposition": "dismissed",
@@ -88,5 +79,23 @@
     "issue": "Fail-first replay flags subTest tests as passing against base: test_each_refused_path_is_named_before_use, test_bugfix_declaration_not_last_in_its_introduction_is_misplaced, test_indented_or_recased_declaration_is_malformed, test_every_shipped_pattern_is_anchored_for_external_validators",
     "file": "tests/specflow/contract/test_config.py",
     "reason": "pytest without the subtests plugin reports subTest failures as passes; the lead's unittest replay at 60ae7e1 fails all four (1 error, 10 subtest failures)"
+  },
+  {
+    "cycle": 6,
+    "ref": "F6",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags pin tests as passing against base: test_structure_ids_take_ascii_digits_only, test_first_artifact_of_the_order_needs_no_binding",
+    "file": "tests/specflow/contract/test_invalidation.py",
+    "reason": "pass at base by design: the cycle-5 F2 row is a coverage fix and the first-artifact exemption pins existing behavior (cycle-5 outcome)"
+  },
+  {
+    "cycle": 6,
+    "ref": "F7",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Fail-first replay flags subTest test as passing against base: test_folder_scans_run_in_the_requirements_phase_only",
+    "file": "tests/specflow/contract/test_config.py",
+    "reason": "pytest without the subtests plugin reports subTest failures as passes; the lead's unittest replay at 8cee2d8 fails it (3 subtest failures)"
   }
 ]

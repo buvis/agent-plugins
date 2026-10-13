@@ -145,3 +145,19 @@ D5: pass
 Verdict: 12 findings
 
 Tests: 351 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-13)
+
+- F1: an approved record whose `upstreamSha256` lacks the hash of any existing upstream in the workflow order is unbound, through the same path and message as cycle-5 F4. Regression for the partial-binding sequence in both orders. Design §7.4 changes. Queued.
+- F2: build `stale` in workflow order (`(*ORDERS[order], "tasks")`); add a design-first row to `test_stale_artifacts_are_listed_by_name`. Queued.
+- F3: add one gates test with a stale design that asserts the warning-level `not-checked` finding. Queued.
+- F4: reword STATE-003.1 so the helper prints the JSON status with `--json`, matching the design. Requirements, design and tasks need re-approval. Queued.
+- F5: `artifact-contract.md:16` states the T-027 result (Kiro lists, opens and watches specs through a `.kiro/specs` link and ignores `.kiro/specflow/`). The ledger's "T-027 trials pending" entry (cycle-2 F16) is retired, so it stops dismissing. Ledger: applied. Doc: queued.
+- F6: dismissed. Both tests pass at base by design (ledger entry added).
+- F7: dismissed. The `subTest` replay artifact again; the unittest replay at `8cee2d8` fails it (ledger entry added).
+- F8: one sentence in the design migration paragraph: an approved calcard record that binds no upstream reads as stale until approved again. Queued.
+- F9: STATE-003.1 also yields `nextTask: null` when a hold is set (folds into the F4 requirement edit). Queued.
+- F10: `hash --json` refuses (exit 3) a file that is not one of the three canonical artifacts of a spec folder; the plain and `--raw` forms stay open. Test. Queued.
+- F11: `next_number` scans folders and files directly under `<root>/intake/`, with a five-digit prefix followed by `-` or the end of the name. Test. Queued.
+- F12: `write_guarded` calls `os.fsync` on the temp file before `os.replace`, and on the directory after. Test that both flushes happen. Queued.
+- Auto-dismissed F23 re-raises (placeholder and bugfix checks): settled earlier, no action.
