@@ -95,6 +95,16 @@ class GateTest(StatusTest):
         (spec / "design.md").write_text(support.DESIGN + "\nChanged.\n")
         self.assertEqual(self.entry(spec)["stale"], ["design", "tasks"])
 
+    def test_stale_artifacts_follow_the_workflow_order(self) -> None:
+        spec = self.make("00042-sample")
+        state = support.new_state("00042-sample", workflowOrder="design-first")
+        support.approve(spec, state, "design", "requirements", "tasks")
+        (spec / "design.md").write_text(support.DESIGN + "\nChanged.\n")
+        self.assertEqual(
+            self.entry(spec)["stale"],
+            ["design", "requirements", "tasks"],
+        )
+
     def test_missing_state_has_no_profile_and_a_blocker(self) -> None:
         spec = self.make("00042-sample")
         (spec / ".specflow.json").unlink()
@@ -267,6 +277,20 @@ class WarningTest(StatusTest):
             if f["rule"] == "gates"
         ]
         self.assertEqual(drift, [("warning", "code-drift: src.py changed")])
+
+    def test_implementation_validation_warns_that_a_stale_design_is_not_checked(
+        self,
+    ) -> None:
+        support.git(self.repo, "init", "-q")
+        spec = self.make("00042-sample", approve=ALL)
+        (spec / "design.md").write_text(support.DESIGN + "\nChanged.\n")
+        warnings = [
+            f["message"]
+            for f in validate(self.repo, spec, "implementation")
+            if f["rule"] == "gates" and f["level"] == "warning"
+        ]
+        stale = "not-checked: the design approval is stale; code is checked again"
+        self.assertEqual(warnings, [f"{stale} after reapproval"])
 
     def test_no_drift_check_outside_git(self) -> None:
         self.assertEqual(

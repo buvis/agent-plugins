@@ -9,6 +9,7 @@ from pathlib import Path
 from .findings import finding
 
 NUMBER = re.compile(r"^([0-9]{5})-")
+TAKEN = re.compile(r"^([0-9]{5})(?:-|$)")  # what blocks a new number: a bare 00123 too
 FIX = (
     "Renumber the newer item and every place that cites it, before it is cited further."
 )
@@ -51,11 +52,11 @@ def scanned_names(repo: Path, config: dict[str, object]) -> list[str]:
 
 
 def intake_names(repo: Path, config: dict[str, object]) -> list[str]:
-    """Folder names a new number must clear: each stage's entries and the folders one
-    level inside them (a numbered group's items too), and folders put straight under
-    <root>/intake/."""
+    """Names a new number must clear: each stage's entries and the folders one level
+    inside them (a numbered group's items too), and every folder or file put straight
+    under <root>/intake/."""
     intake = repo / str(config["root"]) / "intake"
-    names = [p.name for p in subfolders(intake)]
+    names = [p.name for p in intake.iterdir()] if intake.is_dir() else []
     for stage in ("new", "processed"):
         for entry in subfolders(intake / stage):
             names += [entry.name, *(p.name for p in subfolders(entry))]
@@ -71,7 +72,7 @@ def next_number(repo: Path, config: dict[str, object]) -> str:
     inside = kiro.resolve().is_relative_to(repo.resolve())
     if real and inside and kiro.resolve() != (repo / str(config["specsDir"])).resolve():
         names += [p.name for p in subfolders(kiro)]  # leftovers specs-folder reports
-    numbers = [int(m[1]) for name in names if (m := NUMBER.match(name))]
+    numbers = [int(m[1]) for name in names if (m := TAKEN.match(name))]
     return f"{max(numbers, default=0) + 1:05d}"
 
 

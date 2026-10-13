@@ -101,6 +101,7 @@ class ExitCodeTest(CliTest):
             ("validate", str(self.spec), "--phase", "done"),
             ("code-baseline", str(self.spec)),
             ("hash", "missing.md"),
+            ("hash", str(self.spec / ".config.kiro"), "--json"),
         ):
             with self.subTest(args=args):
                 code, _, err = self.run_cli(*args)
@@ -208,6 +209,12 @@ class OperationTest(CliTest):
         )
         self.assertEqual(record["sha256"], canonical.strip())
         self.assertRegex(record["approvedAt"], r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
+
+    def test_hash_json_is_for_canonical_artifacts_only(self) -> None:
+        other = str(self.spec / ".config.kiro")
+        self.assertEqual(self.run_cli("hash", other, "--json")[0], 3)
+        self.assertEqual(self.run_cli("hash", other)[0], 0)
+        self.assertEqual(self.run_cli("hash", other, "--raw")[0], 0)
 
     def test_hash_json_binds_each_upstream_artifact(self) -> None:
         expected = {}

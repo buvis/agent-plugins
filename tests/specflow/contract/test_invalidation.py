@@ -152,6 +152,26 @@ class InvalidationTest(support.TempTest):
         state = support.approve(spec, state, "tasks")
         self.assertEqual(set(artifact_status(spec, state).values()), {A})
 
+    def test_partial_upstream_binding_never_revives_after_upstream_reapproval(
+        self,
+    ) -> None:
+        for order, first, second in (
+            ("requirements-first", "requirements", "design"),
+            ("design-first", "design", "requirements"),
+        ):
+            with self.subTest(order=order):
+                spec, state = self.build(order)
+                del state["artifacts"]["tasks"]["upstreamSha256"][first]
+                self.assertEqual(stale_causes(spec, state), {"tasks": "tasks"})
+                path = spec / FILES[first]
+                path.write_text(path.read_text() + "\nChanged.\n")
+                state = support.approve(spec, state, first, second)
+                statuses = artifact_status(spec, state)
+                self.assertEqual((statuses[first], statuses[second]), (A, A))
+                self.assertEqual(statuses["tasks"], S)
+                state = support.approve(spec, state, "tasks")
+                self.assertEqual(set(artifact_status(spec, state).values()), {A})
+
     def test_first_artifact_of_the_order_needs_no_binding(self) -> None:
         spec, state = self.build("design-first")
         self.assertNotIn("upstreamSha256", state["artifacts"]["design"])

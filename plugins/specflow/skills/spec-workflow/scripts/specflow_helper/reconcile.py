@@ -49,10 +49,18 @@ def write_guarded(path: Path, data: bytes, read_sha256: str | None) -> None:
     try:
         with os.fdopen(handle, "wb") as file:
             file.write(data)
+            file.flush()
+            os.fsync(file.fileno())  # the bytes reach the disk before the rename
         os.chmod(temporary, mode)
         os.replace(temporary, path)
     finally:
         temporary.unlink(missing_ok=True)  # gone after a successful replace
+    if os.name == "posix":  # Windows cannot open a folder; NTFS journals the rename
+        folder = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(folder)  # and so does the rename
+        finally:
+            os.close(folder)
 
 
 def recovery(spec_dir: Path) -> dict:

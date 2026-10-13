@@ -71,6 +71,14 @@ class WriteGuardedTest(support.TempTest):
         self.assertEqual(stray.read_text(), "another writer's temporary file")
         self.assertEqual(path.read_bytes(), b"new")
 
+    def test_write_flushes_the_file_and_its_folder_before_returning(self) -> None:
+        path = self.tmp / "f.json"
+        path.write_text("old")
+        with mock.patch.object(reconcile_module.os, "fsync", wraps=os.fsync) as fsync:
+            write_guarded(path, b"new", sha256_raw(path))
+        self.assertEqual(fsync.call_count, 2 if os.name == "posix" else 1)
+        self.assertEqual(path.read_bytes(), b"new")
+
     def test_failed_write_leaves_no_temporary_file(self) -> None:
         path = self.tmp / "f.json"
         path.write_text("old")

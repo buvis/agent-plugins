@@ -88,6 +88,14 @@ class NextNumberTest(NumbersTest):
         self.folder("docs", "intake", "00009-misplaced")
         self.assertEqual(next_number(self.repo, self.config()), "00010")
 
+    def test_bare_numbers_and_files_straight_under_intake_count(self) -> None:
+        self.folder("docs", "intake", "00012")
+        self.assertEqual(next_number(self.repo, self.config()), "00013")
+        (self.repo / "docs" / "intake" / "00020-note.md").write_text("x")
+        self.assertEqual(next_number(self.repo, self.config()), "00021")
+        self.folder("docs", "intake", "00030x")
+        self.assertEqual(next_number(self.repo, self.config()), "00021")
+
     def test_items_deeper_than_one_group_do_not_count(self) -> None:
         self.folder("docs", "intake", "new", "g1", "g2", "00099-too-deep")
         self.assertEqual(next_number(self.repo, self.config()), "00001")

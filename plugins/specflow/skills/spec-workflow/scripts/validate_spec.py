@@ -145,16 +145,19 @@ def run_hash(args: argparse.Namespace, repo: Path) -> int:
     if not args.json:
         print(digest)
         return OK
+    spec_dir = path.resolve().parent
+    state = load_state(spec_dir)
+    paths = artifact_paths(spec_dir, state)
+    name = next((n for n, p in paths.items() if p == path.resolve()), None)
+    if name is None:
+        # An approval record only for the files specflow owns (ART-001.9).
+        raise UsageError(f"{args.file}: not a canonical artifact of a spec folder")
     record = {"sha256": digest, "approvedAt": now()}
     commit = git(repo, "rev-parse", "--verify", "--quiet", "HEAD")
     if commit:
         record["approvedCommit"] = commit
     record["workflowVersion"] = WORKFLOW_VERSION
-    spec_dir = path.resolve().parent
-    state = load_state(spec_dir)
-    paths = artifact_paths(spec_dir, state)
-    name = next((n for n, p in paths.items() if p == path.resolve()), None)
-    if name and (upstream := upstream_hashes(spec_dir, state, name)):
+    if upstream := upstream_hashes(spec_dir, state, name):
         record["upstreamSha256"] = upstream
     emit(record, True, "")
     return OK

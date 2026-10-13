@@ -13,11 +13,11 @@ The shapes every host reads and writes. The templates in `templates/` are filled
 └── .specflow.json      # specflow state
 ```
 
-- The specs folder is `.kiro/specs/` by default, or the folder `specsDir` names in `.agents/specflow.json`. Read and write it directly. Never create, repair, or depend on a `.kiro/specs` link; making that link so Kiro IDE lists the specs is the repository's own setup, and it must be a link, never a copy. Kiro IDE's spec panel reads `.kiro/specs/`, so a spec in another specs folder may not appear there, and whether Kiro follows such a link is not yet confirmed.
+- The specs folder is `.kiro/specs/` by default, or the folder `specsDir` names in `.agents/specflow.json`. Read and write it directly. Never create, repair, or depend on a `.kiro/specs` link; making that link so Kiro IDE lists the specs is the repository's own setup, and it must be a link, never a copy. Kiro IDE's spec panel reads `.kiro/specs/`; through a `.kiro/specs` link to another specs folder it lists, opens, and watches those specs, and it ignores `.kiro/specflow/`.
 - `NNNNN` is the spec number of the intake item. The title is lowercase kebab-case, stable, and filesystem-safe. A number is never reused.
 - The folder name is chosen once. Renaming needs an explicit migration. A Kiro-native folder without a number is valid and is never renamed to add one.
 - The three canonical artifacts keep these names on every host. Other files in the folder (another tool's sidecar, Kiro's `tasks.meta.json`) belong to their owners: never edit, hash, or approve them.
-- `.specflow.json` is written by a check and then a replace, as WF-006.4 allows: a write stops when the file changed since it was read, and a state file that is a symbolic link is replaced by a regular file.
+- `.specflow.json` is written by a check and then a replace, as WF-006.4 allows: a write stops when the file changed since it was read, and a state file that is a symbolic link is replaced by a regular file. The new file is flushed to disk before it replaces the old one, so a crash leaves one of the two whole.
 - Structure stays English whatever language the prose uses: headings, IDs, field names, EARS keywords, markers such as `(guess)`, and file names.
 - No placeholder in a written artifact: no `TBD`, `TODO`, `???`, or bare `N/A`. `requirements.md`, `bugfix.md`, and `tasks.md` leave out a section that does not apply. `design.md` keeps every section and marks one that does not apply `Not applicable: <reason>`.
 

@@ -184,7 +184,7 @@ Source: `qa-log.md` Q2.
 
 #### Acceptance criteria
 
-1. THE optional helper SHALL print, for one spec or for all specs, a JSON status with the derived phase, each artifact's status, open and closed gates, stale artifacts, any hold, unfinished or invalid spec dependencies as implementation blockers naming the reference and reason, advisory warnings such as code drift (WF-004.8), and the next unchecked task whose upstream approvals are valid. A closed implementation gate SHALL yield `nextTask: null`.
+1. THE optional helper SHALL print, for one spec or for all specs and when asked for JSON (`--json`), a JSON status with the derived phase, each artifact's status, open and closed gates, stale artifacts, any hold, unfinished or invalid spec dependencies as implementation blockers naming the reference and reason, advisory warnings such as code drift (WF-004.8), and the next unchecked task whose upstream approvals are valid. A closed implementation gate or a hold SHALL yield `nextTask: null`.
 2. THE status output SHALL follow a versioned JSON schema shipped in the package; a breaking change SHALL raise its version (REL-001.6).
 3. THE status SHALL be computed from the repository files alone, so every host gets the same result (STATE-001.5).
 4. Producing the status SHALL be read-only, and neither the status nor the helper SHALL write an approval. The helper MAY compute the values the agent records.

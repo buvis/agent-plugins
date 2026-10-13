@@ -161,3 +161,20 @@ Tests: 351 passed, 0 failed, 0 skipped (suite run this cycle)
 - F11: `next_number` scans folders and files directly under `<root>/intake/`, with a five-digit prefix followed by `-` or the end of the name. Test. Queued.
 - F12: `write_guarded` calls `os.fsync` on the temp file before `os.replace`, and on the directory after. Test that both flushes happen. Queued.
 - Auto-dismissed F23 re-raises (placeholder and bugfix checks): settled earlier, no action.
+
+### Outcome (2026-10-13)
+
+Every queued item is applied:
+
+- F1: `state.unbound` takes the spec folder and flags an approved record when any existing upstream artifact is missing from its `upstreamSha256`, so a partial binding is stale with itself as the cause. Test: a `tasks` record that drops its most upstream binding stays stale through the edit-and-re-approve sequence in both orders, and heals when approved again. Design §7.4 and its approval rule say so.
+- F2: `stale` walks `(*ORDERS[order], "tasks")`. Test: a design-first spec lists `design`, `requirements`, `tasks`.
+- F3: test that `validate --phase implementation` warns `not-checked` for a stale design in a Git repository.
+- F4, F9: STATE-003.1 prints the JSON status with `--json`, and a hold yields `nextTask: null`.
+- F5: `artifact-contract.md` states the T-027 result. Ledger entry retired in `310e1c3`.
+- F8: the design migration paragraph says an approved calcard record that binds no upstream reads as stale until approved again.
+- F10: `hash --json` exits 3 for a file that is not a canonical artifact of a spec folder; plain and `--raw` still hash it. Test with `.config.kiro`.
+- F11: `next_number` reads every name straight under `<root>/intake/`, and `TAKEN` (`^[0-9]{5}(?:-|$)`) matches every name it scans; `NUMBER` keeps its meaning for clashes and `Sources:`. Test: a bare `00012` folder and a `00020-note.md` file count, `00030x` does not.
+- F12: `write_guarded` fsyncs the temporary file before `os.replace`, and the folder after it on POSIX. Test that both flushes happen. The artifact contract and design say so.
+- Fail-first: 5 of the 6 new tests fail against the old code (F1 in both orders, F2, F10, F11, F12). The F3 test passes there, since it covers behavior that shipped in cycle 5.
+- Checks: contract 293 OK, release 52 OK, validator 12 OK, `scripts/validate.py` OK; `verify_release.py` after the commit (it refuses uncommitted package files). `ruff check` on the changed files: clean except three warnings that were already there (SIM102 in `spec_text.py`, SIM117 twice in `test_concurrency.py`); `ruff format` applied to `test_concurrency.py`.
+- Requirements, design and tasks need the developer's re-approval (qa-log, "Review 00004-06 requirements and design edits").

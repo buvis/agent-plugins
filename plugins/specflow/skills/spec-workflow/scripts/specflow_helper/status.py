@@ -196,7 +196,7 @@ def spec_status(repo: Path, specs_dir: Path, spec_dir: Path) -> dict:
         "state": kind,
         "hold": hold,
         "artifacts": statuses,
-        "stale": [name for name, value in statuses.items() if value == "stale"],
+        "stale": [n for n in (*ORDERS[order], "tasks") if statuses[n] == "stale"],
         "gates": gates,
         "blockers": blockers,
         "warnings": drift_warnings(repo, state, statuses),

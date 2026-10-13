@@ -55,4 +55,9 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: `.agents/specflow.json` no longer needs `schemaVersion`; a file without it reads as version 1.
 - **specflow**: an approval recorded without its upstream hashes reads as stale until approved again, so a hand-written approval can no longer be revived by an upstream re-approval.
 - **specflow**: `validate` runs the specs-folder and number-clash scans in the `requirements` phase only (`number-clashes` also for `intake`), so validating a later phase stays inside the spec folder; `status` still reports both.
-- **specflow**: `status` lists each spec's stale artifacts under `stale`.
+- **specflow**: `status` lists each spec's stale artifacts under `stale`, in workflow order.
+- **specflow**: an approval whose upstream hashes leave out an existing upstream artifact also reads as stale until approved again.
+- **specflow**: `hash --json` gives an approval record only for a spec's canonical artifacts and refuses any other file; the plain and `--raw` forms still hash any file.
+- **specflow**: `next-number` also counts files and bare `NNNNN` folders placed straight under `intake/`.
+- **specflow**: state writes are flushed to disk before they replace the old file, so a crash cannot leave an empty `.specflow.json`.
+- **specflow**: the artifact contract records that Kiro IDE lists, opens, and watches specs through a `.kiro/specs` link.

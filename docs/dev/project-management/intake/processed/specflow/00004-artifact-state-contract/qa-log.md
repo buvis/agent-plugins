@@ -374,3 +374,9 @@ Asked one at a time in the T-027 session, which did not see the cycle-5 edits be
 - Scope: the whole artifact as it reads now. The review 00004-05 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-05.md`.
 - Upstream markers: none open.
 - This is a receipt: no `.specflow.json` exists for this spec.
+
+## Review 00004-06 requirements and design edits (2026-10-13)
+
+- The cycle-6 walkthrough (`reviews/00004-artifact-state-contract-review-06.md`, minutes) decided F4 and F9 as requirement edits, and F1, F8, F10, F11 and F12 change design text.
+- Edited: `requirements.md` STATE-003.1 prints the JSON status when asked for JSON (`--json`), and a hold yields `nextTask: null` as a closed implementation gate does. `design.md` §7.4 and its approval rule: an approval whose `upstreamSha256` does not name every existing upstream artifact is stale until approved again; the migration paragraph says such a calcard record reads as stale; `hash --json` refuses a file that is not a canonical artifact of a spec folder; `next-number` also counts files and bare `NNNNN` names straight under `intake/`; `write_guarded` flushes the file, and on POSIX the folder, to disk.
+- This edit stales the requirements approval of 2026-10-12, and the design and tasks approvals with it (WF-002.5-6). All three need the developer's re-approval.
