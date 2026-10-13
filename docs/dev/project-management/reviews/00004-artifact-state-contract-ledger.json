@@ -124,5 +124,68 @@
     "issue": "Status JSON adds top-level problems and intake fields that STATE-003.1 does not list",
     "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/status.py",
     "reason": "approved design choice (design.md status fields, review 00004-03 F14); the status schema requires both"
+  },
+  {
+    "cycle": 8,
+    "ref": "F2",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "status runs the specs-folder check through git check-ignore, so a git failure aborts it, while STATE-003.3 says status comes from repository files alone",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/status.py",
+    "reason": "deferred by the developer in the cycle-8 walkthrough: needs a design call (soft check or reworded requirement), not worth reopening approval now"
+  },
+  {
+    "cycle": 8,
+    "ref": "F3",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "next-number misses a bare five-digit folder (00123) in the specs folder: spec_folders filters with NUMBER before TAKEN sees the names",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/numbers.py",
+    "reason": "deferred by the developer in the cycle-8 walkthrough: small hole, fix would reopen design approval"
+  },
+  {
+    "cycle": 8,
+    "ref": "F4",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "marker_blockers honors acceptedMarkers from the dependent record regardless of its status (WF-002.7 acceptance lapse)",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/status.py",
+    "reason": "deferred by the developer in the cycle-8 walkthrough: the closed artifact gate masks it today"
+  },
+  {
+    "cycle": 8,
+    "ref": "F5",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Scope extras: reconcile --dry-run flag and config schemaVersion field beyond the spec",
+    "file": "plugins/specflow/skills/spec-workflow/schemas/specflow-status.schema.json",
+    "reason": "accepted in the cycle-8 walkthrough: read-only, harmless helper surface (the status intake and problems half was accepted in cycle 7)"
+  },
+  {
+    "cycle": 8,
+    "ref": "F6",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Fail-first replay flags subTest tests as passing against base: test_hash_json_refuses_an_artifact_name_outside_the_specs_folder, test_spec_commands_refuse_a_spec_outside_the_repository",
+    "file": "tests/specflow/contract/test_cli.py",
+    "reason": "subTest replay artifact (pytest-subtests does not fix it); the lead's unittest replay at 1991d18 fails both (4 subtest failures)"
+  },
+  {
+    "cycle": 8,
+    "ref": "F7",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Fail-first replay flags subTest test as passing against base: test_stale_upstream_closes_the_implementation_gate",
+    "file": "tests/specflow/contract/test_invalidation.py",
+    "reason": "subTest replay artifact; the lead's unittest replay at 1991d18 fails it (2 subtest errors, old derive_phase signature)"
+  },
+  {
+    "cycle": 8,
+    "ref": "F8",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags test_write_flushes_the_file_before_the_rename_and_the_folder_after as passing against base",
+    "file": "tests/specflow/contract/test_concurrency.py",
+    "reason": "passes at base by design: the code was already right; the cycle-7 outcome showed it fails with the file flush removed"
   }
 ]

@@ -137,3 +137,19 @@ D5: pass
 Verdict: 8 findings
 
 Tests: 359 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-13)
+
+- F1: add a `hash --json` test with a non-default `specsDir`. Applied.
+- F2: deferred (ledger entry added): it needs a design call (a soft check or a reworded STATE-003.3).
+- F3: deferred (ledger entry added): a small hole, and fixing it would reopen design approval.
+- F4: deferred (ledger entry added): the closed artifact gate masks it today.
+- F5: accepted (ledger entry added): `--dry-run` and `schemaVersion` are read-only helper surface.
+- F6, F7: dismissed (ledger entries added): the `subTest` replay artifact. The unittest replay at `1991d18` fails all three tests.
+- F8: dismissed (ledger entry added): passes at base by design.
+- Auto-dismissed F23 re-raises (placeholder and bugfix checks): settled earlier, no action.
+
+### Outcome (2026-10-13)
+
+- F1: `test_hash_json_follows_the_configured_specs_folder` sets `specsDir` to `docs/specs`. It checks that a spec there gets an approval record and that the default-folder spec is refused (exit 3). Mutation check: with `load_config` pinned to `.kiro/specs`, the test fails (`3 != 0`). Test only, with no design or tasks edits, so no re-approval is needed.
+- Gate after the fix: `scripts` 12 OK, release 52 OK, contract 296 OK; `validate.py` and `verify_release.py` exit 0.
