@@ -64,7 +64,11 @@ def load_state(spec_dir: Path) -> dict | None:
     if not path.exists():
         return None
     try:
-        state = json.loads(path.read_bytes().decode("utf-8"))
+        data = path.read_bytes()
+    except OSError as error:
+        raise StateError(path, f"cannot read: {error.strerror}") from error
+    try:
+        state = json.loads(data.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as error:
         raise StateError(path, f"not valid JSON: {error}") from error
     if not isinstance(state, dict):

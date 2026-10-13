@@ -143,6 +143,8 @@ def completeness(target: Path) -> str | None:
     try:
         _, phase = spec_phase(target, load_state(target))
     except StateError as error:
+        if isinstance(error.__cause__, OSError):
+            return f"unreadable target: {unreadable(error.__cause__)}"
         return f"state cannot be reconciled: {error.reason}"
     except (OSError, UnicodeDecodeError) as error:
         return f"unreadable target: {unreadable(error)}"

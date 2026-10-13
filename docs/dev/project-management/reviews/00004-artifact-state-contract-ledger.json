@@ -187,5 +187,32 @@
     "issue": "Replay flags test_write_flushes_the_file_before_the_rename_and_the_folder_after as passing against base",
     "file": "tests/specflow/contract/test_concurrency.py",
     "reason": "passes at base by design: the code was already right; the cycle-7 outcome showed it fails with the file flush removed"
+  },
+  {
+    "cycle": 9,
+    "ref": "F2",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Templates beyond the spec: templates/cross-spec-review.md and the intake SPEC.md spike template",
+    "file": "plugins/specflow/skills/spec-workflow/templates/cross-spec-review.md",
+    "reason": "accepted in the cycle-9 walkthrough: read-only templates shipped early as helper surface (cross-spec-review.md was accepted in cycle 1)"
+  },
+  {
+    "cycle": 9,
+    "ref": "F3",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "hash --json returns the key sha256 while the state schema records approvedSha256",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/validate_spec.py",
+    "reason": "accepted in the cycle-9 walkthrough: the field mapping belongs to the 00006 recording agent"
+  },
+  {
+    "cycle": 9,
+    "ref": "F4",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags test_hash_json_follows_the_configured_specs_folder as passing against base",
+    "file": "tests/specflow/contract/test_cli.py",
+    "reason": "passes at base by design: the cycle-8 F1 fix was test-only; the cycle-8 outcome showed it fails with load_config pinned to .kiro/specs"
   }
 ]

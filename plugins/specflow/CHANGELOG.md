@@ -64,3 +64,4 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: `hash --json` also refuses a file named like a canonical artifact whose folder is not a spec folder in the configured specs folder, such as `docs/design.md`.
 - **specflow**: `validate` and `code-baseline` refuse a spec folder outside the repository, as `status` and `reconcile` do.
 - **specflow**: a bugfix whose type only `.specflow.json` records derives its phase as a bugfix, matching its artifact paths.
+- **specflow**: an unreadable `.specflow.json` marks only its own spec's state invalid, so `status` still reports every other spec.

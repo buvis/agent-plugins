@@ -149,3 +149,16 @@ R13: pass
 Verdict: 4 findings
 
 Tests: 360 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-13)
+
+- F1: `load_state` turns a read `OSError` into `StateError`, with a regression test. Applied.
+- F2: accepted (ledger entry added): read-only templates shipped early.
+- F3: accepted (ledger entry added): the field mapping belongs to the 00006 recording agent.
+- F4: dismissed (ledger entry added): passes at base by design.
+- Auto-dismissed re-raises: settled earlier, no action.
+
+### Outcome (2026-10-13)
+
+- F1: `load_state` (`state.py`) catches `OSError` on the read and raises `StateError(path, "cannot read: <strerror>")`; the reason names no path. Every caller already handles `StateError`, so `status` marks that one spec `invalid` (exit 1, document still printed) and `validate` reports it as a state error, as for a malformed file. `deps.completeness` maps a `StateError` caused by an `OSError` back to `unreadable target: <strerror>`, which keeps the label `test_unreadable_target_reason_names_no_absolute_path` pins. Regression test `test_status_reports_an_unreadable_state_and_spares_the_other_specs` (`.specflow.json` as a folder, a second spec beside it): fails before the fix (`2 != 1`), passes after. CHANGELOG entry added. No design or tasks edit, so no re-approval: design.md's status rule names malformed or unsupported state, and an unreadable file now takes that same path. The design does not name the unreadable case word for word.
+- Gate after the fix: `scripts` 12 OK, release 52 OK, contract 297 OK, `validate.py` exit 0; `verify_release.py` re-run after the commit.

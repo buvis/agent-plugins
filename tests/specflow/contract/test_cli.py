@@ -198,6 +198,25 @@ class OperationTest(CliTest):
         self.assertEqual(code, 1)
         self.assertEqual(json.loads(out)["specs"][0]["state"], "invalid")
 
+    def test_status_reports_an_unreadable_state_and_spares_the_other_specs(
+        self,
+    ) -> None:
+        other = shutil.copytree(self.spec, self.specs / "00102-other")
+        state = self.spec / ".specflow.json"
+        state.unlink(missing_ok=True)
+        state.mkdir()
+        code, out, err = self.run_cli("status", "--json")
+        self.assertNotIn("Traceback", err)
+        self.assertEqual(code, 1)
+        self.assertNotIn(str(self.tmp), out)
+        entries = {s["spec"]: s for s in json.loads(out)["specs"]}
+        broken = entries[self.spec.name]
+        self.assertEqual(broken["state"], "invalid")
+        self.assertTrue(
+            broken["blockers"][0]["reason"].startswith("state invalid: cannot read")
+        )
+        self.assertNotEqual(entries[other.name]["state"], "invalid")
+
     def test_hash_forms(self) -> None:
         path = self.spec / "tasks.md"
         path.write_text(path.read_text().replace("- [ ] T-001", "- [x] T-001"))
@@ -237,11 +256,15 @@ class OperationTest(CliTest):
         config = self.repo / ".agents" / "specflow.json"
         config.parent.mkdir()
         config.write_text(json.dumps({"schemaVersion": 1, "specsDir": "docs/specs"}))
-        moved = shutil.copytree(self.spec, self.repo / "docs" / "specs" / self.spec.name)
+        moved = shutil.copytree(
+            self.spec, self.repo / "docs" / "specs" / self.spec.name
+        )
         code, out, _ = self.run_cli("hash", str(moved / "design.md"), "--json")
         self.assertEqual(code, 0)
         self.assertIn("sha256", json.loads(out))
-        self.assertEqual(self.run_cli("hash", str(self.spec / "design.md"), "--json")[0], 3)
+        self.assertEqual(
+            self.run_cli("hash", str(self.spec / "design.md"), "--json")[0], 3
+        )
 
     def test_hash_json_binds_each_upstream_artifact(self) -> None:
         expected = {}
