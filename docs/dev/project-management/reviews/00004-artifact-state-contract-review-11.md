@@ -167,3 +167,15 @@ Tests: 368 passed, 0 failed, 0 skipped (suite run this cycle)
 - F5: move the citation parser to `spec_text.py` with F1. Queued.
 - F6: deferred (ledger entry added): a concurrent-claim-only gap; a fix would reopen design approval.
 - Auto-dismissed re-raises: settled earlier, no action.
+
+### Outcome (2026-10-14)
+
+Commit `f81f3ca` (decisions and ledger entries: `01b8a45`).
+
+- F1 + F5: the citation parser moved to `spec_text.py` beside `traced_ids` and reads the `Requirements:` and `Acceptance criteria:` values token by token. After the cross-spec strip, the value is split on `[,;\s]+`; a token is a citation only when it full-matches an ID (`[A-Z][A-Z0-9]*-[0-9A-Za-z]+`, optionally `.N`, loose on purpose so `REQ-0010` and `REQ-001a` are citations and get reported) or, in a Kiro-numbered spec, `N` or `N.M`; the words `criterion` and `criteria` make the numbers after them criteria of the held ID before them; anything else is not a citation. `checks.py` keeps only the `requirement-coverage` check and drops from 790 to 753 lines; `spec_text.py` is 192. The review's probe now gives: every stray-prose line (`criteria 1 and 2`, `1-2`, `1,  2` with two spaces or a tab, `1 ,2`, `(see design §3)`, `(T-003 covers the rest)`, a date) raises nothing; `REQ-0010` and `REQ-001a` are reported; `REQ-001.9`, `1.3` and `9.1` still are; cross-spec and Kiro lines still pass. A bare `T-003` token on a `Requirements:` line is still reported, since that line's grammar admits requirement IDs only; the finding text listed it in its parenthetical form, which is now ignored.
+- F2: `test_requirement_coverage_skips_cross_spec_citations` and `test_requirement_coverage_refuses_an_unheld_kiro_citation`. Both pass at the fix by design, and each fails under its mutation in a worktree at `f81f3ca`: with the cross-spec strip removed, the first reports `cites REQ-009`; with the Kiro form and the `_` strip removed, the second loses both `cites 12` and `cites 1 criterion 9`.
+- F3: `state.read_failure(error)` replaces the two copies in `load_state` and `status()`; `deps.unreadable` keeps its own message shape.
+- Tests for F1: `test_requirement_coverage_reads_stray_prose_as_no_citation` (five cases) and `test_requirement_coverage_refuses_an_id_that_only_starts_like_a_held_one`. Fail-first against `01b8a45`: six failures (the five stray-prose cases and the typo test); the two F2 guards pass there by design.
+- No `design.md` edit: the design places read-only views of spec Markdown in `spec_text.py` ("split out of `checks.py`") and describes `requirement-coverage` by what it checks, not by how it tokenizes, so the approvals stand.
+- Gate after the fix: `scripts` 12 OK, release 52 OK, contract 308 OK, `validate.py` exit 0, `verify_release.py` exit 0 once the fix was committed (it refuses modified tracked package files). Contract suite under Python 3.10.22: 308 OK.
+- Lint: `ruff format --check` clean on the five touched files; `ruff check` reports only the four pre-existing findings (`spec_text.py` SIM102 in `sources_value`, `test_checks.py` ISC004 ×3), left as they are.
