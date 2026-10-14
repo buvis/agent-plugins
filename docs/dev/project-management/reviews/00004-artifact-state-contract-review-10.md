@@ -182,3 +182,26 @@ Tests: 361 passed, 0 failed, 0 skipped (suite run this cycle)
 - F9: accepted (ledger entry added): `specType`, `profile`, `state` status fields.
 - F10: accepted (ledger entry added): VAL-001.8 requires the scans.
 - Auto-dismissed re-raises: settled earlier, no action. The two wrong dismissals were restored as F5 and F10.
+
+### Outcome (2026-10-14)
+
+Commit `6c8f842`.
+
+- F1 + F2 + F7:
+  - `load_state` no longer calls `exists()` first. It reads the file, returns None on `FileNotFoundError`, and raises `StateError` for any other `OSError`, falling back to "cannot be read" when `strerror` is `None`. An unreadable state therefore marks its spec `invalid` on Python 3.10 and 3.14 alike.
+  - `status()` catches an `OSError` from one spec and reports it under `problems` as `spec-readable` (`<spec>: cannot read: <reason>`). The schema requires concrete `specType`, `phase` and `artifacts` values, so a per-spec entry for a spec that cannot be read would have to invent them. `validate` keeps exit 2 for an unreadable artifact, as `validate_spec.py` documents.
+  - Tests:
+    - `test_status_reports_a_state_whose_existence_check_fails` mocks 3.10's raising `exists()`.
+    - `test_status_reports_an_unreadable_spec_and_spares_the_other_specs` makes an approved `requirements.md` a folder.
+    - `test_state_read_error_without_a_reason_never_prints_none` covers F7.
+- F4: `status.gate_blockers` (artifact, marker and dependency blockers) feeds both `spec_status` and the `gates` check. The check emits one finding per distinct blocker (`<reason>: <reference>`). `gates` imports it inside the function, since `status` imports `checks`. Test: `test_implementation_validation_and_status_agree_on_markers` asserts closed/error, then open/no error after accepting the marker.
+- F5: `requirement_coverage` also reports own-spec citations on `Requirements:` and `Acceptance criteria:` lines whose requirement or criterion `requirements.md` does not hold. It understands `REQ-001`, `REQ-001.2`, Kiro `1.2` and `REQ-001 criteria 1, 2`, and skips cross-spec citations. Tests cover an unknown ID, unknown criteria in both forms, and a clean fixture. The Kiro fixture still yields only `no task references 8`, and the repo's nine specs show no new finding.
+- F6: `StateError` docstring updated.
+- design.md:
+  - exit code 2 wording;
+  - the `problems` row and the status exit paragraph (`spec-readable`);
+  - the `requirement-coverage` and `gates` rows.
+  The qa-log records the edit. It stales the design approval and, with it, the tasks approval.
+- Fail-first: in a worktree at `7c2df40` with the new tests copied in, all six regression tests fail. The no-false-positive guard (`accepts_every_held_citation`) passes there by design.
+- Gate after the fix: `scripts` 12 OK, release 52 OK, contract 304 OK, `validate.py` and `verify_release.py` exit 0. Contract suite under Python 3.10.22: 304 OK.
+- Lint: `ruff format` applied to the touched files. `ruff check` reports six pre-existing findings in files or lines this rework did not touch (`spec_text.py:135` SIM102, `test_checks.py` ISC004 ×3, `test_concurrency.py` SIM117 ×2). They are left as they are.
