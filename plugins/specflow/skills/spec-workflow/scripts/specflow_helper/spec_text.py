@@ -126,6 +126,60 @@ def traced_ids(text: str) -> set[str]:
     return traced
 
 
+# A citation token: an ID of the contract's shape, read loosely so a typo such as
+# `REQ-0010` or `REQ-001a` is still a citation (and reported), or Kiro's `1.2`.
+ID_CITATION = re.compile(r"([A-Z][A-Z0-9]*-[0-9A-Za-z]+)(?:\.([0-9]+))?")
+KIRO_CITATION = re.compile(r"([0-9]+)(?:\.([0-9]+))?")
+CITING_FIELDS = ("Requirements:", "Acceptance criteria:")
+
+
+def citing_tokens(text: str) -> list[tuple[int, list[str]]]:
+    """(line number, tokens) of each Requirements: or Acceptance criteria: line.
+
+    Cross-spec citations are left out: they are checked against their own spec.
+    """
+    found = []
+    for number, line in prose(text):
+        stripped = line.strip().lstrip("-*+ ").strip("_")
+        field = next((f for f in CITING_FIELDS if stripped.startswith(f)), None)
+        if field is not None:
+            value = CROSS_SPEC.sub("", stripped.removeprefix(field))
+            tokens = [t.strip("_`") for t in re.split(r"[,;\s]+", value)]
+            found.append((number, tokens))
+    return found
+
+
+def unheld_citations(tasks: str, held: dict[str, set[int]]) -> list[tuple[int, str]]:
+    """(line, citation) of own-spec citations the requirements do not define.
+
+    Tokens are read as `traced_ids` reads them: an ID, then the word `criterion` or
+    `criteria` whose numbers belong to the held ID before it; anything else on the
+    line is not a citation, so stray prose raises nothing.
+    """
+    shapes = [ID_CITATION]
+    if any(ident.isdigit() for ident in held):
+        shapes.append(KIRO_CITATION)
+    unheld: list[tuple[int, str]] = []
+    for number, tokens in citing_tokens(tasks):
+        ident, listing = "", False
+        for token in tokens:
+            if token in ("criterion", "criteria"):
+                listing = ident in held
+            elif listing and token.isdigit():
+                if int(token) not in held[ident]:
+                    unheld.append((number, f"{ident} criterion {token}"))
+            else:
+                match = next(filter(None, (s.fullmatch(token) for s in shapes)), None)
+                if match is None:
+                    continue
+                ident, listing = match[1], False
+                if ident not in held:
+                    unheld.append((number, ident))
+                elif match[2] and int(match[2]) not in held[ident]:
+                    unheld.append((number, f"{ident} criterion {match[2]}"))
+    return unheld
+
+
 def sources_value(text: str, *, bugfix: bool) -> str | None:
     """The first Sources: line where the contract puts it, without its label."""
     section = None

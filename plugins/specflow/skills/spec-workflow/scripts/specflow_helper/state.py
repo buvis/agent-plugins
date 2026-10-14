@@ -58,6 +58,11 @@ class StateError(Exception):
         self.reason = reason
 
 
+def read_failure(error: OSError) -> str:
+    """Why a read failed, for output that every host must render alike."""
+    return f"cannot read: {error.strerror}" if error.strerror else "cannot be read"
+
+
 def load_state(spec_dir: Path) -> dict | None:
     """The state, or None when .specflow.json is absent; StateError when unusable."""
     path = spec_dir / STATE_FILE
@@ -67,10 +72,7 @@ def load_state(spec_dir: Path) -> dict | None:
     except FileNotFoundError:
         return None
     except OSError as error:
-        reason = (
-            f"cannot read: {error.strerror}" if error.strerror else "cannot be read"
-        )
-        raise StateError(path, reason) from error
+        raise StateError(path, read_failure(error)) from error
     try:
         state = json.loads(data.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as error:

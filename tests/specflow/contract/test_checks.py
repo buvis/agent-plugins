@@ -275,6 +275,67 @@ class SeededDefectTest(ChecksTest):
     def test_requirement_coverage_accepts_every_held_citation(self) -> None:
         self.assertEqual(self.coverage_messages(self.copy("00101-feature-sample")), [])
 
+    def test_requirement_coverage_reads_stray_prose_as_no_citation(self) -> None:
+        values = (
+            "REQ-001 criteria 1 and 2",
+            "REQ-001 criteria 1-2",
+            "REQ-001 criteria 1,  2",
+            "REQ-001 criteria 1, 2 (see design §3)",
+            "REQ-001 criteria 1, 2, decided 2026-10-14",
+        )
+        for i, value in enumerate(values):
+            with self.subTest(value=value):
+                spec = self.copy("00101-feature-sample", f"0011{i}-prose")
+                self.edit(
+                    spec / "tasks.md",
+                    "  - Acceptance criteria: REQ-001 criteria 1, 2\n",
+                    f"  - Acceptance criteria: {value}\n",
+                )
+                self.assertEqual(self.coverage_messages(spec), [])
+
+    def test_requirement_coverage_refuses_an_id_that_only_starts_like_a_held_one(
+        self,
+    ) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(
+            spec / "tasks.md",
+            "  - Requirements: REQ-002\n",
+            "  - Requirements: REQ-002, REQ-0010, REQ-001a\n",
+        )
+        self.assertEqual(
+            self.coverage_messages(spec),
+            [
+                "line 12: cites REQ-0010, which requirements.md does not hold",
+                "line 12: cites REQ-001a, which requirements.md does not hold",
+            ],
+        )
+
+    def test_requirement_coverage_skips_cross_spec_citations(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(
+            spec / "tasks.md",
+            "  - Requirements: REQ-002\n",
+            "  - Requirements: 00090 REQ-009 criterion 1, REQ-002\n",
+        )
+        self.assertEqual(self.coverage_messages(spec), [])
+
+    def test_requirement_coverage_refuses_an_unheld_kiro_citation(self) -> None:
+        spec = self.specs / "kiro-design-first"
+        shutil.copytree(support.FIXTURES / "kiro" / "design-first", spec)
+        self.edit(
+            spec / "tasks.md",
+            "    - _Requirements: 6.1, 6.2, 6.3, 6.4_\n",
+            "    - _Requirements: 6.1, 6.2, 6.3, 6.4, 12.1, 1.9_\n",
+        )
+        self.assertEqual(
+            self.coverage_messages(spec),
+            [
+                "no task references 8",
+                "line 13: cites 12, which requirements.md does not hold",
+                "line 13: cites 1 criterion 9, which requirements.md does not hold",
+            ],
+        )
+
     def test_requirement_coverage_reads_kiro_traces(self) -> None:
         spec = self.specs / "kiro-design-first"
         shutil.copytree(support.FIXTURES / "kiro" / "design-first", spec)

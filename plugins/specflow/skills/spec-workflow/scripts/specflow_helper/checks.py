@@ -40,6 +40,7 @@ from .spec_text import (
     sources_value,
     traceability_entries,
     traced_ids,
+    unheld_citations,
 )
 from .state import (
     ORDERS,
@@ -500,44 +501,6 @@ def requirement_coverage(ctx: Context) -> list[Finding]:
         )
         for n, cite in unheld_citations(tasks, held)
     ]
-
-
-# An own-spec citation: `REQ-001`, `REQ-001.2`, Kiro's `1.2`, or `REQ-001 criteria 1, 2`.
-CITATION = re.compile(
-    r"([A-Z][A-Z0-9]*-[0-9]{3}|\b[0-9]+)"
-    r"(?:\.([0-9]+)| (?:criterion|criteria) ([0-9]+(?:, ?[0-9]+)*))?",
-)
-
-
-def unheld_citations(tasks: str, held: dict[str, set[int]]) -> list[tuple[int, str]]:
-    """(line, citation) of own-spec citations the requirements do not define."""
-    unheld = []
-    for number, line in prose(tasks):
-        stripped = line.strip().lstrip("-*+ ").strip("_")
-        field = next(
-            (
-                f
-                for f in ("Requirements:", "Acceptance criteria:")
-                if stripped.startswith(f)
-            ),
-            None,
-        )
-        if field is None:
-            continue
-        # Cross-spec citations are checked against their own spec.
-        value = CROSS_SPEC.sub("", stripped.removeprefix(field))
-        for match in CITATION.finditer(value):
-            ident = match[1]
-            if ident not in held:
-                unheld.append((number, ident))
-                continue
-            criteria = [match[2]] if match[2] else re.findall(r"[0-9]+", match[3] or "")
-            unheld += [
-                (number, f"{ident} criterion {c}")
-                for c in criteria
-                if int(c) not in held[ident]
-            ]
-    return unheld
 
 
 @check("progress-fields", TASKS_ON)

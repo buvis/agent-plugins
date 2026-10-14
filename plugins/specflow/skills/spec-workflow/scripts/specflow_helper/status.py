@@ -17,6 +17,7 @@ from .state import (
     artifact_status,
     derive_phase,
     load_state,
+    read_failure,
     spec_type,
     task_items,
     workflow_order,
@@ -246,13 +247,10 @@ def status(repo: Path, spec_dirs: list[Path]) -> dict:
         try:
             specs.append(spec_status(repo, specs_dir, spec_dir))
         except OSError as error:
-            reason = (
-                f"cannot read: {error.strerror}" if error.strerror else "cannot be read"
-            )
             problems.append(
                 {
                     "rule": "spec-readable",
-                    "message": f"{spec_dir.name}: {reason}",
+                    "message": f"{spec_dir.name}: {read_failure(error)}",
                     "fix": "Restore read access to the spec folder's files.",
                 },
             )
