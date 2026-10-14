@@ -229,6 +229,52 @@ class SeededDefectTest(ChecksTest):
         )
         self.assert_seeded(spec, "requirement-coverage")
 
+    def coverage_messages(self, spec: Path) -> list[str]:
+        return [
+            f["message"]
+            for f in validate(self.repo, spec)
+            if f["rule"] == "requirement-coverage"
+        ]
+
+    def test_requirement_coverage_refuses_a_cited_requirement_the_spec_lacks(
+        self,
+    ) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(
+            spec / "tasks.md",
+            "  - Requirements: REQ-002\n",
+            "  - Requirements: REQ-002, REQ-999\n",
+        )
+        self.assertEqual(
+            self.coverage_messages(spec),
+            ["line 12: cites REQ-999, which requirements.md does not hold"],
+        )
+
+    def test_requirement_coverage_refuses_a_cited_criterion_the_spec_lacks(
+        self,
+    ) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(
+            spec / "tasks.md",
+            "  - Acceptance criteria: REQ-001 criteria 1, 2\n",
+            "  - Acceptance criteria: REQ-001 criteria 1, 7\n",
+        )
+        self.edit(
+            spec / "tasks.md",
+            "  - Requirements: REQ-002\n",
+            "  - Requirements: REQ-002.4\n",
+        )
+        self.assertEqual(
+            self.coverage_messages(spec),
+            [
+                "line 9: cites REQ-001 criterion 7, which requirements.md does not hold",
+                "line 12: cites REQ-002 criterion 4, which requirements.md does not hold",
+            ],
+        )
+
+    def test_requirement_coverage_accepts_every_held_citation(self) -> None:
+        self.assertEqual(self.coverage_messages(self.copy("00101-feature-sample")), [])
+
     def test_requirement_coverage_reads_kiro_traces(self) -> None:
         spec = self.specs / "kiro-design-first"
         shutil.copytree(support.FIXTURES / "kiro" / "design-first", spec)

@@ -485,17 +485,59 @@ def requirement_coverage(ctx: Context) -> list[Finding]:
         return []
     traced = traced_ids(tasks)
     fix = "Reference the requirement on a task's Requirements: line."
-    return [
-        error(
-            ctx,
-            paths["tasks"],
-            "requirement-coverage",
-            f"no task references {ident}",
-            fix,
-        )
-        for ident in requirement_ids(requirements)
+    found = partial(error, ctx, paths["tasks"], "requirement-coverage")
+    held = requirement_ids(requirements)
+    missing = [
+        found(f"no task references {ident}", fix)
+        for ident in held
         if ident not in traced
     ]
+    fix = "Cite a requirement and criterion this spec holds, or fix the typo."
+    return missing + [
+        found(
+            f"line {n}: cites {cite}, which {paths['requirements'].name} does not hold",
+            fix,
+        )
+        for n, cite in unheld_citations(tasks, held)
+    ]
+
+
+# An own-spec citation: `REQ-001`, `REQ-001.2`, Kiro's `1.2`, or `REQ-001 criteria 1, 2`.
+CITATION = re.compile(
+    r"([A-Z][A-Z0-9]*-[0-9]{3}|\b[0-9]+)"
+    r"(?:\.([0-9]+)| (?:criterion|criteria) ([0-9]+(?:, ?[0-9]+)*))?",
+)
+
+
+def unheld_citations(tasks: str, held: dict[str, set[int]]) -> list[tuple[int, str]]:
+    """(line, citation) of own-spec citations the requirements do not define."""
+    unheld = []
+    for number, line in prose(tasks):
+        stripped = line.strip().lstrip("-*+ ").strip("_")
+        field = next(
+            (
+                f
+                for f in ("Requirements:", "Acceptance criteria:")
+                if stripped.startswith(f)
+            ),
+            None,
+        )
+        if field is None:
+            continue
+        # Cross-spec citations are checked against their own spec.
+        value = CROSS_SPEC.sub("", stripped.removeprefix(field))
+        for match in CITATION.finditer(value):
+            ident = match[1]
+            if ident not in held:
+                unheld.append((number, ident))
+                continue
+            criteria = [match[2]] if match[2] else re.findall(r"[0-9]+", match[3] or "")
+            unheld += [
+                (number, f"{ident} criterion {c}")
+                for c in criteria
+                if int(c) not in held[ident]
+            ]
+    return unheld
 
 
 @check("progress-fields", TASKS_ON)
@@ -606,30 +648,20 @@ def cross_spec_finding(
 
 @check("gates", frozenset({"implementation"}))
 def gates(ctx: Context) -> list[Finding]:
+    from .status import gate_blockers  # status imports this module
+
     statuses = artifact_status(ctx.spec_dir, ctx.state)
     paths = artifact_paths(ctx.spec_dir, ctx.state)
-    findings = [
-        error(
-            ctx,
-            paths[name],
-            "gates",
-            f"{paths[name].name} is {status}; implementation needs every artifact approved",
-            f"Review {paths[name].name} and record its approval.",
-        )
-        for name, status in statuses.items()
-        if status != "approved"
-    ]
-    fix = "Complete or fix the prerequisite before implementation."
-    findings += [
-        error(
-            ctx,
-            ctx.spec_dir,
-            "gates",
-            f"dependency {b['reference']}: {b['reason']}",
-            fix,
-        )
-        for b in dependency_blockers(ctx.spec_dir, specs_folder(ctx))
-    ]
+    fix = (
+        "Approve the artifact, accept the marker on the dependent approval, "
+        "or complete the prerequisite."
+    )
+    # One finding per blocker; an artifact blocker repeats for each later gate.
+    messages = dict.fromkeys(
+        f"{b['reason']}: {b['reference']}"
+        for b in gate_blockers(ctx.spec_dir, specs_folder(ctx), ctx.state)
+    )
+    findings = [error(ctx, ctx.spec_dir, "gates", m, fix) for m in messages]
     # WF-004.8: the same drift warnings status shows, before implementation.
     findings += [
         finding(

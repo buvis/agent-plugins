@@ -227,6 +227,31 @@ class MarkerTest(StatusTest):
                 self.assertEqual(entry["gates"]["implementation"], "closed")
                 self.assertIsNone(entry["nextTask"])
 
+    def test_implementation_validation_and_status_agree_on_markers(self) -> None:
+        spec = self.make("00042-sample")
+        path = spec / "requirements.md"
+        path.write_text(path.read_text() + "\n## Open decisions\n\n- Pick one.\n")
+        state = support.approve(spec, support.new_state("00042-sample"), *ALL)
+
+        def gate_errors() -> list[str]:
+            return [
+                f["message"]
+                for f in validate(self.repo, spec, "implementation")
+                if f["rule"] == "gates" and f["level"] == "error"
+            ]
+
+        self.assertEqual(self.entry(spec)["gates"]["implementation"], "closed")
+        self.assertIn(
+            "requirements marker not accepted for the design approval: - Pick one.",
+            gate_errors(),
+        )
+        accepted = [{"artifact": "requirements", "line": "- Pick one."}]
+        state["artifacts"]["design"]["acceptedMarkers"] = accepted
+        state["artifacts"]["tasks"]["acceptedMarkers"] = accepted
+        support.approve(spec, state, *ALL)
+        self.assertEqual(self.entry(spec)["gates"]["implementation"], "open")
+        self.assertEqual(gate_errors(), [])
+
 
 class UnreadableArtifactTest(StatusTest):
     def test_non_utf8_artifact_blocks_its_spec_and_spares_the_rest(self) -> None:

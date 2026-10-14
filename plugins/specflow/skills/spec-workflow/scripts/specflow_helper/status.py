@@ -107,6 +107,21 @@ def marker_blockers(
     return blockers
 
 
+def gate_blockers(spec_dir: Path, specs_dir: Path, state: dict | None) -> list[dict]:
+    """What the artifacts, their markers and the dependencies put on the gates.
+
+    Status and the gates check both read this, so they cannot disagree (STATE-001.5).
+    """
+    order = workflow_order(spec_dir, state)
+    statuses = artifact_status(spec_dir, state)
+    paths = artifact_paths(spec_dir, state)
+    return [
+        *artifact_blockers(order, statuses, paths),
+        *marker_blockers(order, state, paths),
+        *dependency_blockers(spec_dir, specs_dir),
+    ]
+
+
 def next_task(tasks_path: Path) -> dict | None:
     """The first unchecked required task whose Depends on: tasks are checked.
 
@@ -168,9 +183,7 @@ def spec_status(repo: Path, specs_dir: Path, spec_dir: Path) -> dict:
     paths = artifact_paths(spec_dir, state)
     second = ORDERS[order][1]
     blockers = state_blockers(repo, second, kind, problem)
-    blockers += artifact_blockers(order, statuses, paths)
-    blockers += marker_blockers(order, state, paths)
-    blockers += dependency_blockers(spec_dir, specs_dir)
+    blockers += gate_blockers(spec_dir, specs_dir, state)
     blockers += [
         {
             "gate": "implementation",
@@ -227,9 +240,25 @@ def status(repo: Path, spec_dirs: list[Path]) -> dict:
         if name in CHECKS
         for f in CHECKS[name][1](context)
     ]
+    specs = []
+    for spec_dir in spec_dirs:
+        # One unreadable spec is a problem of its own; it never hides the others.
+        try:
+            specs.append(spec_status(repo, specs_dir, spec_dir))
+        except OSError as error:
+            reason = (
+                f"cannot read: {error.strerror}" if error.strerror else "cannot be read"
+            )
+            problems.append(
+                {
+                    "rule": "spec-readable",
+                    "message": f"{spec_dir.name}: {reason}",
+                    "fix": "Restore read access to the spec folder's files.",
+                },
+            )
     return {
         "statusVersion": STATUS_VERSION,
-        "specs": [spec_status(repo, specs_dir, d) for d in spec_dirs],
+        "specs": specs,
         "problems": problems,
         "intake": intake_items(repo, config),
     }

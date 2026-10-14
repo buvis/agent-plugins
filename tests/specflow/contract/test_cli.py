@@ -217,6 +217,76 @@ class OperationTest(CliTest):
         )
         self.assertNotEqual(entries[other.name]["state"], "invalid")
 
+    def test_status_reports_a_state_whose_existence_check_fails(self) -> None:
+        # Python 3.10's exists() raises where 3.14 returns False, for example a
+        # link into a folder without search permission; neither may hide the spec.
+        (self.spec / ".specflow.json").write_text(json.dumps(support.new_state()))
+        real_exists, real_read = Path.exists, Path.read_bytes
+        denied = PermissionError(13, "Permission denied")
+
+        def exists(path: Path) -> bool:
+            if path.name == ".specflow.json":
+                raise denied
+            return real_exists(path)
+
+        def read_bytes(path: Path) -> bytes:
+            if path.name == ".specflow.json":
+                raise denied
+            return real_read(path)
+
+        with (
+            mock.patch.object(Path, "exists", exists),
+            mock.patch.object(Path, "read_bytes", read_bytes),
+        ):
+            code, out, err = self.run_cli("status", "--json")
+        self.assertNotIn("Traceback", err)
+        self.assertEqual(code, 1)
+        (spec,) = json.loads(out)["specs"]
+        self.assertEqual(spec["state"], "invalid")
+        self.assertEqual(
+            spec["blockers"][0]["reason"],
+            "state invalid: cannot read: Permission denied",
+        )
+
+    def test_state_read_error_without_a_reason_never_prints_none(self) -> None:
+        (self.spec / ".specflow.json").write_text(json.dumps(support.new_state()))
+        real_read = Path.read_bytes
+
+        def read_bytes(path: Path) -> bytes:
+            if path.name == ".specflow.json":
+                raise OSError("no errno")
+            return real_read(path)
+
+        with mock.patch.object(Path, "read_bytes", read_bytes):
+            _, out, _ = self.run_cli("status", "--json")
+        (spec,) = json.loads(out)["specs"]
+        self.assertEqual(spec["blockers"][0]["reason"], "state invalid: cannot be read")
+
+    def test_status_reports_an_unreadable_spec_and_spares_the_other_specs(
+        self,
+    ) -> None:
+        other = shutil.copytree(self.spec, self.specs / "00102-other")
+        support.approve(self.spec, support.new_state(self.spec.name), "requirements")
+        (self.spec / "requirements.md").unlink()
+        (self.spec / "requirements.md").mkdir()  # approved, but cannot be read
+        code, out, err = self.run_cli("status", "--json")
+        self.assertNotIn("Traceback", err)
+        self.assertEqual(code, 1)
+        self.assertNotIn(str(self.tmp), out)
+        document = json.loads(out)
+        self.assertEqual(
+            check_schema(document, load_schema("specflow-status.schema.json")), []
+        )
+        self.assertEqual([s["spec"] for s in document["specs"]], [other.name])
+        self.assertIn(
+            {
+                "rule": "spec-readable",
+                "message": f"{self.spec.name}: cannot read: Is a directory",
+                "fix": "Restore read access to the spec folder's files.",
+            },
+            document["problems"],
+        )
+
     def test_hash_forms(self) -> None:
         path = self.spec / "tasks.md"
         path.write_text(path.read_text().replace("- [ ] T-001", "- [x] T-001"))

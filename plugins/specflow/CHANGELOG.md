@@ -65,3 +65,6 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: `validate` and `code-baseline` refuse a spec folder outside the repository, as `status` and `reconcile` do.
 - **specflow**: a bugfix whose type only `.specflow.json` records derives its phase as a bugfix, matching its artifact paths.
 - **specflow**: an unreadable `.specflow.json` marks only its own spec's state invalid, so `status` still reports every other spec.
+- **specflow**: `status` reports a spec with an unreadable artifact under `problems` (`spec-readable`) instead of stopping the whole run, and a state file that cannot even be looked up marks its spec invalid on every Python version; a state read error without a system reason no longer prints `None`.
+- **specflow**: `validate --phase implementation` closes the gate on unaccepted upstream markers too, so it always agrees with `status`.
+- **specflow**: `validate` refuses a task that cites a requirement or criterion its own spec does not hold.

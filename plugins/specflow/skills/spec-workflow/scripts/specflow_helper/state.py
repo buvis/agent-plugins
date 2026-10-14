@@ -47,7 +47,7 @@ FIELD = re.compile(r"^[ \t]*[-*+][ \t]+([A-Z][A-Za-z ]*):")
 
 
 class StateError(Exception):
-    """The state file is malformed or of an unsupported version.
+    """The state file is unreadable, malformed, or of an unsupported version.
 
     `reason` names no path, so output that every host must render alike can use it.
     """
@@ -61,12 +61,16 @@ class StateError(Exception):
 def load_state(spec_dir: Path) -> dict | None:
     """The state, or None when .specflow.json is absent; StateError when unusable."""
     path = spec_dir / STATE_FILE
-    if not path.exists():
-        return None
+    # No exists() first: on Python 3.10 it raises where 3.14 returns False.
     try:
         data = path.read_bytes()
+    except FileNotFoundError:
+        return None
     except OSError as error:
-        raise StateError(path, f"cannot read: {error.strerror}") from error
+        reason = (
+            f"cannot read: {error.strerror}" if error.strerror else "cannot be read"
+        )
+        raise StateError(path, reason) from error
     try:
         state = json.loads(data.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError) as error:
