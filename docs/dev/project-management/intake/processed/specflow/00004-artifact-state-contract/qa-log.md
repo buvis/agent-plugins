@@ -406,3 +406,10 @@ Asked one at a time in the T-027 session, which did not see the cycle-5 edits be
 - The cycle-10 walkthrough (`reviews/00004-artifact-state-contract-review-10.md`, minutes) decided F1, F2, F4, F5 and F6, which change design text. No requirement changes.
 - Edited: `design.md` exit code 2 also covers an unreadable state file; `status` reports a spec whose files cannot be read under `problems` as `spec-readable` and leaves it out of `specs`; `requirement-coverage` also refuses a cited requirement or criterion the spec does not hold; the `gates` check reads its blockers from the function `status` uses, so unaccepted upstream markers close it too.
 - This edit stales the design approval of 2026-10-13, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval; requirements stay approved.
+
+## Re-approvals, cycle 10 (2026-10-14)
+
+- Design: `design.md`, git blob `061a3c8579a603fd0f6c8a0557764e5ff89a9963` (commit `6c8f842`), the review 00004-10 edits (F1, F2, F4, F5, F6) against blob `0751cab`. Decision: approved by the developer. Question: "Re-approve 00004 design.md at blob 061a3c8 (cycle-10 edits: exit-2 wording, spec-readable problem, requirement-coverage reverse check, shared gates blockers) and tasks.md at blob 1f496de (unchanged; canonical hash 5346f6c… under the new code) against requirements fef2213?" Answer: "Approve both (Recommended)". Upstream: requirements blob `fef2213`, unchanged. Upstream markers: none open.
+- Tasks: `tasks.md`, git blob `1f496decafbb3b9098350bac2ec01683a0ca8f2e` (commit `183380c`), unchanged; canonical hash under the cycle-10 code `5346f6c67e0f7f1e640d393816985ab17bfe2868012f2310d18c888883c9fc38`. Decision: approved by the developer, in the same answer. Scope: the whole artifact as it reads now; the review 00004-10 fixes are recorded in `reviews/00004-artifact-state-contract-review-10.md`. Upstream markers: none open.
+- Requirements: still approved at blob `fef2213` (cycle 6); not touched by cycle 10.
+- This is a receipt: no `.specflow.json` exists for this spec.
