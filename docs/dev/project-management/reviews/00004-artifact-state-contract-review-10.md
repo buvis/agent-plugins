@@ -169,3 +169,16 @@ R13: pass
 Verdict: 10 findings
 
 Tests: 361 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-14)
+
+- F1 + F2: per-spec catch. Guard `path.exists()` in `load_state`, and have `spec_status` (and validate's state path) turn any `OSError` from one spec into that spec's `invalid`. Add a regression test per site (state `exists()`, approved-artifact hash). Queued.
+- F3: dismissed (ledger entry added): refuted by mutation.
+- F4: one shared gate. The `gates` check derives the implementation gate from the blockers `status` uses, markers included, with a test that `validate` and `status` agree on one marker fixture. Queued.
+- F5: add the reverse traceability check. A same-spec requirement ID or criterion number cited in tasks.md that requirements.md does not define is an error, with a test for each. Queued.
+- F6: fix the `StateError` docstring and design.md's interface comment ("or unreadable"). Queued.
+- F7: fall back to "cannot be read" when `strerror` is `None`, as `deps.unreadable` does. Queued (with F1 + F2).
+- F8: accepted (ledger entry added): formatter churn.
+- F9: accepted (ledger entry added): `specType`, `profile`, `state` status fields.
+- F10: accepted (ledger entry added): VAL-001.8 requires the scans.
+- Auto-dismissed re-raises: settled earlier, no action. The two wrong dismissals were restored as F5 and F10.

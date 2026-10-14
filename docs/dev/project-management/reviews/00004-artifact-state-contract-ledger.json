@@ -214,5 +214,41 @@
     "issue": "Replay flags test_hash_json_follows_the_configured_specs_folder as passing against base",
     "file": "tests/specflow/contract/test_cli.py",
     "reason": "passes at base by design: the cycle-8 F1 fix was test-only; the cycle-8 outcome showed it fails with load_config pinned to .kiro/specs"
+  },
+  {
+    "cycle": 10,
+    "ref": "F3",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "deps.completeness branch for a StateError caused by an OSError (unreadable target) is untested",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/deps.py",
+    "reason": "refuted by mutation in the cycle-10 review: with the two lines deleted, test_unreadable_target_reason_names_no_absolute_path fails (1 of 297)"
+  },
+  {
+    "cycle": 10,
+    "ref": "F8",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Unrelated reformatting of two lines in test_hash_json_follows_the_configured_specs_folder mixed into the cycle-9 fix",
+    "file": "tests/specflow/contract/test_cli.py",
+    "reason": "accepted in the cycle-10 walkthrough: harmless formatter churn, no revert"
+  },
+  {
+    "cycle": 10,
+    "ref": "F9",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Status JSON adds specType, profile and state fields that STATE-003.1 does not list",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/validate_spec.py",
+    "reason": "accepted in the cycle-10 walkthrough: the status schema defines them, as for problems and intake (cycle 7)"
+  },
+  {
+    "cycle": 10,
+    "ref": "F10",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Unfiltered validate runs number-clashes and specs-folder, which list the intake and specs folders and call git check-ignore outside the selected spec folder",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
+    "reason": "accepted in the cycle-10 walkthrough: VAL-001.8 requires the scans and they read names only"
   }
 ]
