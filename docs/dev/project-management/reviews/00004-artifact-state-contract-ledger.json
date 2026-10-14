@@ -250,5 +250,23 @@
     "issue": "Unfiltered validate runs number-clashes and specs-folder, which list the intake and specs folders and call git check-ignore outside the selected spec folder",
     "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
     "reason": "accepted in the cycle-10 walkthrough: VAL-001.8 requires the scans and they read names only"
+  },
+  {
+    "cycle": 11,
+    "ref": "F4",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags test_requirement_coverage_accepts_every_held_citation as passing against base",
+    "file": "tests/specflow/contract/test_checks.py",
+    "reason": "passes at base by design: it is the no-false-positive guard of the cycle-10 F5 fix; the six sibling regression tests fail at base under pytest and unittest"
+  },
+  {
+    "cycle": 11,
+    "ref": "F6",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "number_clashes never compares a new intake item with a spec folder of the same number that has no processed intake item, so validate --phase intake misses that clash (INT-001.4)",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/numbers.py",
+    "reason": "deferred by the developer in the cycle-11 walkthrough: next-number counts those folders, so only a concurrent claim slips through; a fix would edit the design row and reopen design approval"
   }
 ]

@@ -157,3 +157,13 @@ R13: pass
 Verdict: 6 findings
 
 Tests: 368 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-14)
+
+- F1: fix both halves. Tokenize the `Requirements:` and `Acceptance criteria:` values as `traced_ids` does (split on `[,;\s]+`, full-match each token; the bare-number form only for a Kiro-numbered spec; `criterion`/`criteria` numbers attach to the preceding ID; anything else is not a citation), so stray prose raises nothing and `REQ-0010` or `REQ-001a` is reported. A regression test per case. Queued.
+- F2: fix with F1. Two fixtures: a cross-spec citation that raises no `requirement-coverage` finding, and a Kiro-numbered spec citing an unheld `9.1` that does. Queued.
+- F3: fix with the rework. One `read_failure(error)` helper in `state.py`, used by `load_state` and `status()`; `deps.unreadable` keeps its own message shape. Queued.
+- F4: dismissed (ledger entry added): the no-false-positive guard passes at base by design.
+- F5: move the citation parser to `spec_text.py` with F1. Queued.
+- F6: deferred (ledger entry added): a concurrent-claim-only gap; a fix would reopen design approval.
+- Auto-dismissed re-raises: settled earlier, no action.
