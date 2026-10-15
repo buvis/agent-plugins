@@ -154,7 +154,8 @@ def unheld_citations(tasks: str, held: dict[str, set[int]]) -> list[tuple[int, s
 
     Tokens are read as `traced_ids` reads them: an ID, then the word `criterion` or
     `criteria` whose numbers belong to the held ID before it; anything else on the
-    line is not a citation, so stray prose raises nothing.
+    line is not a citation and (except `and`) ends that list, so stray prose raises
+    nothing.
     """
     shapes = [ID_CITATION]
     if any(ident.isdigit() for ident in held):
@@ -171,6 +172,7 @@ def unheld_citations(tasks: str, held: dict[str, set[int]]) -> list[tuple[int, s
             else:
                 match = next(filter(None, (s.fullmatch(token) for s in shapes)), None)
                 if match is None:
+                    listing = listing and token == "and"
                     continue
                 ident, listing = match[1], False
                 if ident not in held:

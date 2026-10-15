@@ -282,6 +282,7 @@ class SeededDefectTest(ChecksTest):
             "REQ-001 criteria 1,  2",
             "REQ-001 criteria 1, 2 (see design §3)",
             "REQ-001 criteria 1, 2, decided 2026-10-14",
+            "REQ-001 criteria 1, 2 in section 7",
         )
         for i, value in enumerate(values):
             with self.subTest(value=value):
