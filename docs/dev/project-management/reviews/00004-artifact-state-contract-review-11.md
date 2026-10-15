@@ -179,3 +179,12 @@ Commit `f81f3ca` (decisions and ledger entries: `01b8a45`).
 - No `design.md` edit: the design places read-only views of spec Markdown in `spec_text.py` ("split out of `checks.py`") and describes `requirement-coverage` by what it checks, not by how it tokenizes, so the approvals stand.
 - Gate after the fix: `scripts` 12 OK, release 52 OK, contract 308 OK, `validate.py` exit 0, `verify_release.py` exit 0 once the fix was committed (it refuses modified tracked package files). Contract suite under Python 3.10.22: 308 OK.
 - Lint: `ruff format --check` clean on the five touched files; `ruff check` reports only the four pre-existing findings (`spec_text.py` SIM102 in `sources_value`, `test_checks.py` ISC004 ×3), left as they are.
+
+### Per-task patch review (2026-10-15)
+
+The cycle converged under the severity bar (no CRITICAL or HIGH since cycle 4), so the rework above is the Medium/Low tail sweep and gets the per-task patch review a swept task gets under autopilot, not another cycle. Pat (`agents/pat.md` rendered by `render_prompt.py`, Sonnet lane, `sonnet-run.sh -t ""`, no tools) reviewed `f81f3ca` against the walkthrough decisions and the recorded verification. Output: `docs/dev/tmp/review-task-00004c11rw.md`.
+
+- Closure: F1, F2, F3 and F5 resolved, each with the diff line that resolves it.
+- LOW `spec_text.py:176`: `listing` survived a word that is not a citation, so `REQ-001 criteria 1, 2 in section 7` reported `REQ-001 criterion 7`. Confirmed and fixed in `4ffceaa`: such a token now ends the list (except `and`). The case joined `test_requirement_coverage_reads_stray_prose_as_no_citation` and fails against `84c1715` (`cites REQ-001 criterion 7`). Contract suite 308 OK on 3.14 and 3.10.22; `ruff check` and `ruff format --check` unchanged.
+- LOW `spec_text.py:130`: a hyphenated word such as `UTF-8` on a `Requirements:` line is reported as an unheld citation, and a punctuated `REQ-009)` or `REQ-009.` is ignored. Accepted as designed: the line admits requirement IDs only, the old grammar reported such words too (`UTF-8` as `cites 8`, `SHA-256` as an ID), and `traced_ids` ignores a punctuated token the same way, so the forward check still reports `no task references REQ-009`. No change.
+- LOW `spec_text.py:141`: `citing_tokens` is public with one caller. Skipped: the module keeps its helpers public, as its neighbours do. No change.
