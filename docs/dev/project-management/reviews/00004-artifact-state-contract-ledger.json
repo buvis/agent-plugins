@@ -1,0 +1,272 @@
+[
+  {
+    "cycle": 1,
+    "ref": "F23",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "VAL-001.8 / ART-001.10 / VAL-001.3 placeholder checks missing: placeholder detection (TBD, TODO, ???, bare N/A) and unfilled design template sections are not checked by validate",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
+    "reason": "deferred by design to 00005 T-071 (design.md: 00005 adds the placeholder checks); re-raised and dismissed in cycles 2, 3 and 4"
+  },
+  {
+    "cycle": 1,
+    "ref": "F23",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "VAL-001.4 bugfix task order and 2.x/3.x coverage checks missing: validate does not check that bugfix tasks follow the required order or that every 2.x and 3.x item is covered",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
+    "reason": "deferred by design to 00006 (design.md: 00006 adds the bugfix checks); re-raised and dismissed in cycles 2, 3 and 4"
+  },
+  {
+    "cycle": 1,
+    "ref": "F28",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Scope extras beyond the spec: cross-spec-review.md reference, hash --raw, code-baseline and next-number commands in validate_spec.py",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/validate_spec.py",
+    "reason": "accepted as in-scope helper surface in the cycle-1 walkthrough"
+  },
+  {
+    "cycle": 2,
+    "ref": "F15",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "SKILL.md is still a shell: the spec-workflow skill body does not yet describe the agent workflow around the artifacts",
+    "file": "plugins/specflow/skills/spec-workflow/SKILL.md",
+    "reason": "00006 (runtime skill) scope, not 00004"
+  },
+  {
+    "cycle": 4,
+    "ref": "F7",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Fail-first replay flags subTest tests as passing against base: test_structure_ids_take_ascii_digits_only, test_upstream_reapproval_without_reconcile_never_revives_downstream, test_every_shipped_pattern_is_anchored_for_external_validators",
+    "file": "tests/specflow/contract/test_checks.py",
+    "reason": "pytest without the subtests plugin reports subTest failures as passes; the lead's unittest replay at base fails all of them (cycles 2, 3 and 4)"
+  },
+  {
+    "cycle": 4,
+    "ref": "F6",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags behavior-pin tests as passing against base: test_design_sections_lets_kiro_designs_keep_their_headings, test_new_file_takes_the_umask_mode_not_the_temporary_files, test_approval_without_an_upstream_binding_binds_nothing",
+    "file": "tests/specflow/contract/test_concurrency.py",
+    "reason": "they pin behavior that was already right (a no-false-positive guard, a coverage test, the no-binding case); each fix has its own test that fails at base"
+  },
+  {
+    "cycle": 4,
+    "ref": "F10",
+    "disposition": "changed",
+    "severity": "⚪",
+    "issue": "design-sections template trigger matches section names case-sensitively; the minutes asked for case-insensitive matching",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
+    "reason": "case-insensitive matching was rejected during rework because Kiro writes `## Error Handling` and every Kiro design would then be flagged; the fix adds Kiro's three other headings to SHARED_SECTIONS instead"
+  },
+  {
+    "cycle": 5,
+    "ref": "F5",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags coverage-pin tests as passing against base: test_structure_ids_take_ascii_digits_only, test_traced_ids_take_ascii_digits_only, test_malformed_or_unsupported_state_is_2, test_fenced_and_list_fields_declare_nothing",
+    "file": "tests/specflow/contract/test_checks.py",
+    "reason": "coverage pins of behavior that was already right (cycle-4 F8, F9 and the narrowed F13 contract); the one vacuous row is cycle-5 F2"
+  },
+  {
+    "cycle": 5,
+    "ref": "F6",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Fail-first replay flags subTest tests as passing against base: test_each_refused_path_is_named_before_use, test_bugfix_declaration_not_last_in_its_introduction_is_misplaced, test_indented_or_recased_declaration_is_malformed, test_every_shipped_pattern_is_anchored_for_external_validators",
+    "file": "tests/specflow/contract/test_config.py",
+    "reason": "pytest without the subtests plugin reports subTest failures as passes; the lead's unittest replay at 60ae7e1 fails all four (1 error, 10 subtest failures)"
+  },
+  {
+    "cycle": 6,
+    "ref": "F6",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags pin tests as passing against base: test_structure_ids_take_ascii_digits_only, test_first_artifact_of_the_order_needs_no_binding",
+    "file": "tests/specflow/contract/test_invalidation.py",
+    "reason": "pass at base by design: the cycle-5 F2 row is a coverage fix and the first-artifact exemption pins existing behavior (cycle-5 outcome)"
+  },
+  {
+    "cycle": 6,
+    "ref": "F7",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Fail-first replay flags subTest test as passing against base: test_folder_scans_run_in_the_requirements_phase_only",
+    "file": "tests/specflow/contract/test_config.py",
+    "reason": "pytest without the subtests plugin reports subTest failures as passes; the lead's unittest replay at 8cee2d8 fails it (3 subtest failures)"
+  },
+  {
+    "cycle": 7,
+    "ref": "F3",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags test_implementation_validation_warns_that_a_stale_design_is_not_checked as passing against base",
+    "file": "tests/specflow/contract/test_status.py",
+    "reason": "passes at base by design: it covers the gates warning that shipped in cycle 5 (cycle-6 outcome)"
+  },
+  {
+    "cycle": 7,
+    "ref": "F4",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Fail-first replay flags subTest tests as passing against base: test_usage_errors_are_3, test_partial_upstream_binding_never_revives_after_upstream_reapproval",
+    "file": "tests/specflow/contract/test_invalidation.py",
+    "reason": "pytest without the subtests plugin reports subTest failures as passes; the lead's unittest replay at 14afdff fails both (3 subtest failures)"
+  },
+  {
+    "cycle": 7,
+    "ref": "F7",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Status JSON adds top-level problems and intake fields that STATE-003.1 does not list",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/status.py",
+    "reason": "approved design choice (design.md status fields, review 00004-03 F14); the status schema requires both"
+  },
+  {
+    "cycle": 8,
+    "ref": "F2",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "status runs the specs-folder check through git check-ignore, so a git failure aborts it, while STATE-003.3 says status comes from repository files alone",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/status.py",
+    "reason": "deferred by the developer in the cycle-8 walkthrough: needs a design call (soft check or reworded requirement), not worth reopening approval now"
+  },
+  {
+    "cycle": 8,
+    "ref": "F3",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "next-number misses a bare five-digit folder (00123) in the specs folder: spec_folders filters with NUMBER before TAKEN sees the names",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/numbers.py",
+    "reason": "deferred by the developer in the cycle-8 walkthrough: small hole, fix would reopen design approval"
+  },
+  {
+    "cycle": 8,
+    "ref": "F4",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "marker_blockers honors acceptedMarkers from the dependent record regardless of its status (WF-002.7 acceptance lapse)",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/status.py",
+    "reason": "deferred by the developer in the cycle-8 walkthrough: the closed artifact gate masks it today"
+  },
+  {
+    "cycle": 8,
+    "ref": "F5",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Scope extras: reconcile --dry-run flag and config schemaVersion field beyond the spec",
+    "file": "plugins/specflow/skills/spec-workflow/schemas/specflow-status.schema.json",
+    "reason": "accepted in the cycle-8 walkthrough: read-only, harmless helper surface (the status intake and problems half was accepted in cycle 7)"
+  },
+  {
+    "cycle": 8,
+    "ref": "F6",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Fail-first replay flags subTest tests as passing against base: test_hash_json_refuses_an_artifact_name_outside_the_specs_folder, test_spec_commands_refuse_a_spec_outside_the_repository",
+    "file": "tests/specflow/contract/test_cli.py",
+    "reason": "subTest replay artifact (pytest-subtests does not fix it); the lead's unittest replay at 1991d18 fails both (4 subtest failures)"
+  },
+  {
+    "cycle": 8,
+    "ref": "F7",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Fail-first replay flags subTest test as passing against base: test_stale_upstream_closes_the_implementation_gate",
+    "file": "tests/specflow/contract/test_invalidation.py",
+    "reason": "subTest replay artifact; the lead's unittest replay at 1991d18 fails it (2 subtest errors, old derive_phase signature)"
+  },
+  {
+    "cycle": 8,
+    "ref": "F8",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags test_write_flushes_the_file_before_the_rename_and_the_folder_after as passing against base",
+    "file": "tests/specflow/contract/test_concurrency.py",
+    "reason": "passes at base by design: the code was already right; the cycle-7 outcome showed it fails with the file flush removed"
+  },
+  {
+    "cycle": 9,
+    "ref": "F2",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Templates beyond the spec: templates/cross-spec-review.md and the intake SPEC.md spike template",
+    "file": "plugins/specflow/skills/spec-workflow/templates/cross-spec-review.md",
+    "reason": "accepted in the cycle-9 walkthrough: read-only templates shipped early as helper surface (cross-spec-review.md was accepted in cycle 1)"
+  },
+  {
+    "cycle": 9,
+    "ref": "F3",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "hash --json returns the key sha256 while the state schema records approvedSha256",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/validate_spec.py",
+    "reason": "accepted in the cycle-9 walkthrough: the field mapping belongs to the 00006 recording agent"
+  },
+  {
+    "cycle": 9,
+    "ref": "F4",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags test_hash_json_follows_the_configured_specs_folder as passing against base",
+    "file": "tests/specflow/contract/test_cli.py",
+    "reason": "passes at base by design: the cycle-8 F1 fix was test-only; the cycle-8 outcome showed it fails with load_config pinned to .kiro/specs"
+  },
+  {
+    "cycle": 10,
+    "ref": "F3",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "deps.completeness branch for a StateError caused by an OSError (unreadable target) is untested",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/deps.py",
+    "reason": "refuted by mutation in the cycle-10 review: with the two lines deleted, test_unreadable_target_reason_names_no_absolute_path fails (1 of 297)"
+  },
+  {
+    "cycle": 10,
+    "ref": "F8",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Unrelated reformatting of two lines in test_hash_json_follows_the_configured_specs_folder mixed into the cycle-9 fix",
+    "file": "tests/specflow/contract/test_cli.py",
+    "reason": "accepted in the cycle-10 walkthrough: harmless formatter churn, no revert"
+  },
+  {
+    "cycle": 10,
+    "ref": "F9",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Status JSON adds specType, profile and state fields that STATE-003.1 does not list",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/validate_spec.py",
+    "reason": "accepted in the cycle-10 walkthrough: the status schema defines them, as for problems and intake (cycle 7)"
+  },
+  {
+    "cycle": 10,
+    "ref": "F10",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Unfiltered validate runs number-clashes and specs-folder, which list the intake and specs folders and call git check-ignore outside the selected spec folder",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
+    "reason": "accepted in the cycle-10 walkthrough: VAL-001.8 requires the scans and they read names only"
+  },
+  {
+    "cycle": 11,
+    "ref": "F4",
+    "disposition": "dismissed",
+    "severity": "🟡",
+    "issue": "Replay flags test_requirement_coverage_accepts_every_held_citation as passing against base",
+    "file": "tests/specflow/contract/test_checks.py",
+    "reason": "passes at base by design: it is the no-false-positive guard of the cycle-10 F5 fix; the six sibling regression tests fail at base under pytest and unittest"
+  },
+  {
+    "cycle": 11,
+    "ref": "F6",
+    "disposition": "deferred",
+    "severity": "⚪",
+    "issue": "number_clashes never compares a new intake item with a spec folder of the same number that has no processed intake item, so validate --phase intake misses that clash (INT-001.4)",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/numbers.py",
+    "reason": "deferred by the developer in the cycle-11 walkthrough: next-number counts those folders, so only a concurrent claim slips through; a fix would edit the design row and reopen design approval"
+  }
+]

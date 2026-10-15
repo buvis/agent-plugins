@@ -117,7 +117,7 @@ Criterion 1: see 00006.
 
 Criteria 6-7: see 00006.
 
-8. WHEN the repository is under git, an approval SHALL record the current commit if one exists, and design approval SHALL also record the content hashes or absence of the repository files named in its module placement, including uncommitted content (design §7.1). On resume and before implementation, THE WORKFLOW SHALL compare those files with that approval baseline and warn, without failing, on added, changed, or deleted content. Re-approving the design SHALL replace the baseline with current content and clear prior drift warnings for successfully captured files. Unavailable evidence SHALL be reported as not checked, never as clean; drift checking SHALL require neither a clean tree nor retained Git history.
+8. WHEN the repository is under git, an approval SHALL record the current commit if one exists, and design approval SHALL also record the content hashes or absence of the repository files named in its module placement, including uncommitted content (design §7.1). On resume and before implementation, THE WORKFLOW SHALL compare those files with that approval baseline and warn, without failing, on added, changed, or deleted content. Re-approving the design SHALL replace the baseline with current content and clear prior drift warnings. The baseline SHALL be captured whole or not at all: when any named path is refused or unreadable, the whole baseline SHALL be reported as not checked. Unavailable evidence SHALL be reported as not checked, never as clean; drift checking SHALL require neither a clean tree nor retained Git history.
 
 ### WF-005: Manual and native-Kiro edits
 
@@ -173,7 +173,7 @@ Source: the idea (`requirements.md` in intake item 00001)
 1. Human-readable canonical artifacts SHALL be authoritative for content.
 2. `tasks.md` checkboxes SHALL be authoritative for task completion.
 3. `.specflow.json` SHALL be authoritative only for recorded approvals, their accepted markers, hashes, workflow order, workflow version, and hold status.
-4. WHEN a state hash conflicts with current content, current content SHALL win and the approval SHALL become stale.
+4. WHEN a state hash conflicts with current content, current content SHALL win and the approval SHALL become stale. A recorded `stale` SHALL clear only when the developer approves that artifact again, so an upstream re-approval never revives a downstream approval.
 5. A malformed state file SHALL be preserved for diagnosis before a replacement is generated.
 
 ### STATE-003: Status output for external runners
@@ -184,10 +184,10 @@ Source: `qa-log.md` Q2.
 
 #### Acceptance criteria
 
-1. THE optional helper SHALL print, for one spec or for all specs, a JSON status with the derived phase, each artifact's status, open and closed gates, stale artifacts, any hold, unfinished or invalid spec dependencies as implementation blockers naming the reference and reason, advisory warnings such as code drift (WF-004.8), and the next unchecked task whose upstream approvals are valid. A closed implementation gate SHALL yield `nextTask: null`.
+1. THE optional helper SHALL print, for one spec or for all specs and when asked for JSON (`--json`), a JSON status with the derived phase, each artifact's status, open and closed gates, stale artifacts, any hold, unfinished or invalid spec dependencies as implementation blockers naming the reference and reason, advisory warnings such as code drift (WF-004.8), and the next unchecked task whose upstream approvals are valid. A closed implementation gate or a hold SHALL yield `nextTask: null`.
 2. THE status output SHALL follow a versioned JSON schema shipped in the package; a breaking change SHALL raise its version (REL-001.6).
 3. THE status SHALL be computed from the repository files alone, so every host gets the same result (STATE-001.5).
-4. Producing the status SHALL be read-only, and neither the status nor the helper SHALL offer a way to record an approval.
+4. Producing the status SHALL be read-only, and neither the status nor the helper SHALL write an approval. The helper MAY compute the values the agent records.
 
 ### VAL-001: Workflow validation
 
@@ -261,8 +261,8 @@ Criteria 1-4: see 00006.
 
 ## Risks
 
-- Kiro IDE does not list specs through a `.kiro/specs` link: impact m, likelihood m; mitigation: T-027 checks it before the templates are written; fallback: a configured specs folder is documented as invisible to Kiro's spec panel, while the skill keeps working there.
+- Kiro IDE does not list specs through a `.kiro/specs` link: retired 2026-10-12. T-027 ran the trial in Kiro IDE: it lists, opens, and watches specs through the link, and ignores `.kiro/specflow/` (`kiro-captures.md`, "IDE trials").
 
 ## Unresolved questions
 
-- Whether Kiro IDE lists specs through a `.kiro/specs` link is unverified until T-027. Resolves when T-027 records the result.
+None. The question whether Kiro IDE lists specs through a `.kiro/specs` link was settled by T-027 on 2026-10-12: it does.

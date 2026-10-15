@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 2,
+  "specId": "00099-recovery",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "draft"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "draft"
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "missing"
+    }
+  }
+}

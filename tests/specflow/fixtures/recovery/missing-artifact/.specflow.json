@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "specId": "00099-recovery",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "6b86c29c8fc62ed5d3c6900a1caf9750ac70a19b8ff6b5d6b47e6f271b72e35d",
+      "approvedSha256": "6b86c29c8fc62ed5d3c6900a1caf9750ac70a19b8ff6b5d6b47e6f271b72e35d",
+      "approvedAt": "2026-10-01T09:00:00Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+      "approvedSha256": "5555555555555555555555555555555555555555555555555555555555555555",
+      "approvedAt": "2026-10-02T09:00:00Z"
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "missing"
+    }
+  }
+}

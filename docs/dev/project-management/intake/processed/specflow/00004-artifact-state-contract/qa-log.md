@@ -227,3 +227,189 @@ each landing exactly once.
 - Outstanding questions: one, accepted by name at the design and tasks gates: whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027.
 - Next action: implementation, in dependency order, starting with 00002 (T-001); once the helper of 00004 exists, recovery mode records these receipts as real approvals after the developer confirms each.
 - Verdict: COMPLETE (10 tasks planned; implementation not started).
+
+## Implementation start, T-027 provisional (2026-10-10)
+
+- Question: the run sheet for T-027 asked the developer to generate three specs in Kiro IDE. Answer: "i am not at my macbook, could we leave that for later or do it in a different way? I need you to make progress without my oversight".
+- Reading: do T-027 another way where possible and keep going without asking; the parts that only Kiro IDE can answer wait.
+- Done: three Kiro-made specs from public Apache-2.0 repositories were captured as fixtures; findings in `kiro-captures.md`. T-027 stays unchecked: the Bug Fix display trial and the `.kiro/specs` link trial need Kiro IDE.
+- The captures contradict the approved design in five places (`kiro-captures.md`, "Against the design"). The design was corrected on 2026-10-10. That edit stales the design approval of 2026-10-06 and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval. Implementation goes on against the corrected design by the developer's instruction; if re-approval is refused, the affected code (canonical text, phase derivation, two checks) is reworked.
+- Order changed: T-020 onward starts before T-027 is complete. The risk is the one T-027 names: a later IDE capture may correct the design again.
+
+## Implementation 2026-10-10
+
+- Done, without the developer: T-020 to T-026, T-028, T-029, each in its own commit on `feature/specflow-00004`, with an `Outcome:` line in `tasks.md`. Contract tests: 230 run, OK on Python 3.15 and 3.10; release tests 52, validator tests 12, `scripts/validate.py`, and `verify_release.py` pass, also in a fresh clone of the branch.
+- Open: T-027 (two Kiro IDE trials), the re-approval of the corrected design and plan, the push and the pull request's CI run (completion criterion 2), and the completion review in a fresh session.
+- Design gaps filled by choice, each named in the task's `Outcome:` line and open for the review: a per-spec `state` field and a blocker `spec` field in the status schema; `required-files` also fails on an artifact recorded as approved whose file is gone; `validate` with no phase skips `gates`; `sources-line` skips unnumbered Kiro-native specs.
+- Found in this repository by the new checks: 00003 holds a withdrawn requirement, `UPD-003`, with no criteria and no task, which `requirement-ids` and `requirement-coverage` report as errors. Whether a withdrawn requirement is exempt is the developer's call.
+  - Decided 2026-10-11: exempt. A `### <ID>: withdrawn` heading keeps its ID reserved (the duplicate check still sees it) and needs no criteria or task. Nothing may cite it. The artifact contract states the form, and `validate` on 00003 now reports no error.
+
+## Requirements re-approval (2026-10-11)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/requirements.md`, git blob `a2f61c0c72e5b923e20328ab2fb30e5273cc3297` (commit `e0dd00e`).
+- Decision: approved by the developer. Request: "re-approve requirements and design".
+- Scope: the whole artifact, including the review 00004-01 rewording of STATE-002.4 (F26), STATE-003.4 (F9), and WF-004.8 (F10).
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Design re-approval (2026-10-11)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/design.md`, git blob `2b0f3d4ff08acc27b9ff6697c7ba950d817439ad` (commit `e0dd00e`).
+- Decision: approved by the developer, with the same request. It covers the 2026-10-10 corrections from the Kiro captures (`kiro-captures.md`, "Against the design") and the review 00004-01 edits: the `stale-approvals` check row (F2) and cumulative gates (F1).
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027). Question: "Accept it for the design approval?" Answer: "Accept it by name (Recommended)".
+- Not covered: the tasks approval of 2026-10-06 stays stale (WF-002.6), since both upstream artifacts changed. It needs its own re-approval.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Tasks re-approval (2026-10-11)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/tasks.md`, git blob `a2023ca0d1b7910e8561072d6eb5f6868c5ea4af` (commit `7062376`).
+- Decision: approved by the developer. Question: "Re-approve tasks.md for 00004?" Answer: "Re-approve, accept marker (Recommended)".
+- Scope: the whole artifact as it reads now. The review 00004-01 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-01.md`.
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Review 00004-02 design edits (2026-10-12)
+
+- The cycle-2 walkthrough (`reviews/00004-artifact-state-contract-review-02.md`, minutes) decided F3, F8 and F11 as design edits. Fixes F1, F2, F4, F5, F13 and F14 also change design text.
+- Edited: the module table and interface block (`findings.py`, `spec_text.py`, `Context.phase`, `validate(skip=...)`), the check rows `stale-approvals`, `requirement-ids`, `task-structure`, `requirement-coverage`, `progress-fields` and `cross-spec-references`, a line on repository discovery under the Performance requirement, the guarded write and out-of-repository refusal, the restored-artifact rule, and drift hashing with line endings normalized.
+- This edit stales the design approval of 2026-10-11, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval. Requirements are unchanged.
+
+## Design re-approval (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/design.md`, git blob `85e64f365f5d98b9494f6428b23f62d56267188b` (commit `2eb3f1b`).
+- Decision: approved by the developer. Question: "Re-approve 00004 design.md?" Answer: "Approve as is (Recommended)".
+- Scope: the review 00004-02 design edits listed above.
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027). Question: "Accept the open requirements question by name for this design approval?" Answer: "Accept it by name (Recommended)".
+- Not covered: the tasks approval of 2026-10-11 stays stale (WF-002.6). It needs its own re-approval.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Tasks re-approval (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/tasks.md`, git blob `a2023ca0d1b7910e8561072d6eb5f6868c5ea4af` (commit `5153d8b`), unchanged since its 2026-10-11 approval.
+- Decision: approved by the developer. Question: "Re-approve 00004 tasks.md?" Answer: "Re-approve, accept marker (Recommended)".
+- Scope: the whole artifact as it reads now. The review 00004-02 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-02.md`.
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Review 00004-03 design edits (2026-10-12)
+
+- The cycle-3 walkthrough (`reviews/00004-artifact-state-contract-review-03.md`, minutes) decided F1 and F14 as design edits. Fixes F2, F3, F11, F12 and F13 also change design text.
+- Edited: `hash --json` gains `upstreamSha256`, with the state-table row, the interface block (`StateError.reason`, `upstream_hashes`), the fields `reconcile` never writes, and the approval rule binding upstream hashes (§7.4). Also: anchored ASCII schema patterns, the malformed-state blocker's `reference` and the no-absolute-path rule, `nextTask` on a hold, `problems` and `intake` beyond STATE-003.1, ASCII output and the `->` cycle path, the `design-sections` trigger, the non-dotfile ignore probe, and the `next-number` intake scan.
+- This edit stales the design approval of 2026-10-12, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval. Requirements are unchanged.
+
+## Design re-approval, cycle 3 (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/design.md`, git blob `a0f8dc88da36d017dc3047ab5c7316749c111aaf` (commit `74b83f7`).
+- Decision: approved by the developer. Question: "Re-approve 00004 design.md after the cycle-3 edits?" Answer: "Approve, accept marker (Recommended)".
+- Scope: the review 00004-03 design edits listed above.
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
+- Not covered: the tasks approval stays stale (WF-002.6). It needs its own re-approval.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Tasks re-approval, cycle 3 (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/tasks.md`, git blob `a2023ca0d1b7910e8561072d6eb5f6868c5ea4af` (commit `5153d8b`), unchanged since its 2026-10-11 approval.
+- Decision: approved by the developer. Question: "Re-approve 00004 tasks.md (blob a2023ca, unchanged) against the newly approved design, accepting the open Kiro-link requirements question by name?" Answer: "Re-approve, accept marker (Recommended)".
+- Scope: the whole artifact as it reads now. The review 00004-03 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-03.md`.
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Review 00004-04 design edits (2026-10-12)
+
+- The cycle-4 walkthrough (`reviews/00004-artifact-state-contract-review-04.md`, minutes) decided F3 and F9 as design edits. Fixes F4, F5, F10, F11, F12 and F13 also change design text.
+- Edited: §7.3 step 5 and the hash-exclusion test note normalize only task and `## Completion criteria` boxes (WF-002.4); `hash --json` exits 2 on a malformed sibling state (STATE-002.5); the `gates` row adds the drift warnings (WF-004.8); schema patterns close with `(?!\n)$`; the `design-sections` trigger excludes the five headings Kiro writes too; configured paths refuse a NUL; `templates/specflow.json` holds the defaults; the `Depends on:` grammar reports an indented or recased bare line and a bugfix line followed by anything but `Sources:`.
+- This edit stales the design approval of 2026-10-12, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval. Requirements are unchanged.
+
+## Design re-approval, cycle 4 (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/design.md`, git blob `544cdf33f4d0edd5bdb4e504ab449366a76afca4` (commit `154f804`).
+- Decision: approved by the developer. Question: "Re-approve 00004 design.md after the cycle-4 edits?" Answer: "Approve, accept marker (Recommended)".
+- Scope: the review 00004-04 design edits listed above, including the two departures from the minutes the question named: F10 excludes Kiro's headings instead of matching without case, and F13 changed the indented-line test.
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
+- Not covered: the tasks approval stays stale (WF-002.6). It needs its own re-approval.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Tasks re-approval, cycle 4 (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/tasks.md`, git blob `a2023ca0d1b7910e8561072d6eb5f6868c5ea4af` (commit `5153d8b`), unchanged since its 2026-10-11 approval.
+- Decision: approved by the developer. Question: "Re-approve 00004 tasks.md against the newly approved design?" Answer: "Re-approve, accept marker (Recommended)".
+- Scope: the whole artifact as it reads now. The review 00004-04 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-04.md`.
+- Upstream markers accepted by name: the unresolved question of the requirements (whether Kiro IDE lists specs through a `.kiro/specs` link, unverified until T-027).
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## T-027 closed, Kiro-link question resolved (2026-10-12)
+
+- The developer ran both Kiro IDE trials; both passed (`kiro-captures.md`, "IDE trials"). T-027 is checked; that edit leaves the canonical hash of `tasks.md` unchanged (`5346f6c6…` before and after).
+- Decision: resolve the question now and re-approve all three artifacts. Question: "How do you want to handle it?" Answer: "Resolve now, re-approve 3".
+- Edited: `requirements.md` `## Unresolved questions` now holds no marker, and its Kiro-link risk is retired; `design.md` §6.7 states the verified result instead of "until then it is an assumption", and the matching risk is retired.
+- This edit stales the requirements approval of 2026-10-11, and the design and tasks approvals with it (WF-002.5-6). All three need the developer's re-approval.
+
+## Re-approvals after the T-027 edit (2026-10-12)
+
+Asked one at a time in the T-027 session, which did not see the cycle-5 edits below until after the answers.
+
+- Requirements: `requirements.md`, git blob `5ce33ef1dae67efb73f9528d7d874477eef74a88` (commit `363778b`), 2 lines changed from blob `a2f61c0`. Decision: approved by the developer. Question: "Re-approve 00004 requirements.md?" Answer: "Approve (Recommended)". No upstream marker. Unchanged by cycle 5, so this approval stands.
+- Design: `design.md`, git blob `cd104a8d5d85b732e023614fd153ce34e56705cf` (commit `363778b`), 2 lines changed from blob `544cdf3`. Decision: approved by the developer. Question: "Re-approve 00004 design.md?" Answer: "Approve (Recommended)". Superseded: commit `24919c4` (cycle 5) changed the design to blob `5ec0366`, which this approval does not cover.
+- Tasks: `tasks.md`, git blob `1f496decafbb3b9098350bac2ec01683a0ca8f2e` (commit `183380c`), canonically equal to blob `a2023ca`. Decision: approved by the developer. Question: "Re-approve 00004 tasks.md against the newly approved requirements and design?" Answer: "Re-approve (Recommended)". Stale again with the cycle-5 design edit (WF-002.6).
+- Still needed: the design re-approval of blob `5ec0366` or later (cycle 5), then tasks. No upstream marker is left to accept.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Review 00004-05 design edits (2026-10-12)
+
+- The cycle-5 walkthrough (`reviews/00004-artifact-state-contract-review-05.md`, minutes) decided F4 as a design edit. Fixes F1, F3, F7, F8 and F9 also change design text.
+- Edited: §7.3 step 5 and the task-item definition (a task item is a checkbox item of the task list, before the first level-two heading or under `## Tasks`, so a box in any other section stays hash-bound wherever it sits) and the hash-exclusion test note; §7.4 drops the exception for a record without `upstreamSha256` (such an approval is stale until approved again); the config schema's `schemaVersion` is optional; the `specs-folder` and `number-clashes` rows run in the `requirements` phase (and `intake`) with the Performance note reworded; the status example and field table gain `specs[].stale`; the interface block lists `drift_warnings` in `drift.py`.
+- The design approval is already stale from the T-027 edit above; this edit widens what the re-approval covers. Design and tasks need the developer's re-approval after the requirements re-approval (WF-002.5-6).
+
+## Design re-approval, cycle 5 (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/design.md`, git blob `5ec0366ca2028fb5effd9f157a5fd0dc572eaa09` (commit `24919c4`).
+- Decision: approved by the developer. Question: "Re-approve 00004 design.md at blob 5ec0366?", which listed the six review 00004-05 changes (F1, F3, F4, F7, F8, F9) against the T-027 version `cd104a8`. Answer: "Approve (Recommended)".
+- Scope: the T-027 edit and the review 00004-05 design edits listed above. Upstream: requirements blob `5ce33ef`, approved the same day.
+- Upstream markers: none open.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Tasks re-approval, cycle 5 (2026-10-12)
+
+- Artifact: `docs/dev/project-management/specs/00004-artifact-state-contract/tasks.md`, git blob `1f496decafbb3b9098350bac2ec01683a0ca8f2e` (commit `183380c`). Its canonical hash under the cycle-5 code is `5346f6c67e0f7f1e640d393816985ab17bfe2868012f2310d18c888883c9fc38`, equal to the 2026-10-11 approved blob `a2023ca`.
+- Decision: approved by the developer. Question: "Re-approve 00004 tasks.md against requirements 5ce33ef and design 5ec0366?" Answer: "Re-approve (Recommended)".
+- Scope: the whole artifact as it reads now. The review 00004-05 fixes are not listed as tasks; they are recorded in `reviews/00004-artifact-state-contract-review-05.md`.
+- Upstream markers: none open.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Review 00004-06 requirements and design edits (2026-10-13)
+
+- The cycle-6 walkthrough (`reviews/00004-artifact-state-contract-review-06.md`, minutes) decided F4 and F9 as requirement edits, and F1, F8, F10, F11 and F12 change design text.
+- Edited: `requirements.md` STATE-003.1 prints the JSON status when asked for JSON (`--json`), and a hold yields `nextTask: null` as a closed implementation gate does. `design.md` §7.4 and its approval rule: an approval whose `upstreamSha256` does not name every existing upstream artifact is stale until approved again; the migration paragraph says such a calcard record reads as stale; `hash --json` refuses a file that is not a canonical artifact of a spec folder; `next-number` also counts files and bare `NNNNN` names straight under `intake/`; `write_guarded` flushes the file, and on POSIX the folder, to disk.
+- This edit stales the requirements approval of 2026-10-12, and the design and tasks approvals with it (WF-002.5-6). All three need the developer's re-approval.
+
+## Re-approvals, cycle 6 (2026-10-13)
+
+- Requirements: `requirements.md`, git blob `fef2213789ed15e795ea17999f557e41287b292c` (commit `ed8ae19`), 1 line changed from blob `5ce33ef` (STATE-003.1 criterion 1). Decision: approved by the developer. Question: "Re-approve 00004 requirements.md at blob fef2213 (STATE-003.1: JSON status via --json; a hold also yields nextTask: null)?" Answer: "Approve (Recommended)". No upstream marker.
+- Design: `design.md`, git blob `9a043ea6194bf25c8d1cb2315b24ea49693e30b1` (commit `ed8ae19`), the review 00004-06 edits (F1, F8, F10, F11, F12) against blob `5ec0366`. Decision: approved by the developer. Question: "Re-approve 00004 design.md at blob 9a043ea (cycle-6 edits F1, F8, F10, F11, F12)?" Answer: "Approve (Recommended)". Upstream: requirements blob `fef2213`. Upstream markers: none open.
+- Tasks: `tasks.md`, git blob `1f496decafbb3b9098350bac2ec01683a0ca8f2e` (commit `183380c`), unchanged; canonical hash under the cycle-6 code `5346f6c67e0f7f1e640d393816985ab17bfe2868012f2310d18c888883c9fc38`. Decision: approved by the developer. Question: "Re-approve 00004 tasks.md (blob 1f496de, unchanged) against requirements fef2213 and design 9a043ea?" Answer: "Re-approve (Recommended)". Scope: the whole artifact as it reads now; the review 00004-06 fixes are recorded in `reviews/00004-artifact-state-contract-review-06.md`. Upstream markers: none open.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Review 00004-07 design edits (2026-10-13)
+
+- The cycle-7 walkthrough (`reviews/00004-artifact-state-contract-review-07.md`, minutes) decided F1, F5 and F6, which change design text. No requirement changes.
+- Edited: `design.md` `hash --json` refuses a canonical artifact name whose folder is not placed directly in the configured specs folder; `validate` and `code-baseline` refuse a spec folder outside the repository, as `status` and `reconcile` do; `derive_phase` takes the state, so the phase uses the same spec type as the artifact paths.
+- This edit stales the design approval of 2026-10-13, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval; requirements stay approved.
+
+## Re-approvals, cycle 7 (2026-10-13)
+
+- Design: `design.md`, git blob `0751cabe950f8d2f46f77f8cb56f45a77a24c07d` (commit `5d5ca92`), the review 00004-07 edits (F1, F5, F6) against blob `9a043ea`. Decision: approved by the developer. Question: "Re-approve 00004 design.md at blob 0751cab (cycle-7 edits F1, F5, F6)?" Answer: "Approve (Recommended)". Upstream: requirements blob `fef2213`, unchanged. Upstream markers: none open.
+- Tasks: `tasks.md`, git blob `1f496decafbb3b9098350bac2ec01683a0ca8f2e` (commit `183380c`), unchanged; canonical hash under the cycle-7 code `5346f6c67e0f7f1e640d393816985ab17bfe2868012f2310d18c888883c9fc38`. Decision: approved by the developer. Question: "Re-approve 00004 tasks.md (blob 1f496de, unchanged) against requirements fef2213 and design 0751cab?" Answer: "Re-approve (Recommended)". Scope: the whole artifact as it reads now; the review 00004-07 fixes are recorded in `reviews/00004-artifact-state-contract-review-07.md`. Upstream markers: none open.
+- Requirements: still approved at blob `fef2213` (cycle 6); not touched by cycle 7.
+- This is a receipt: no `.specflow.json` exists for this spec.
+
+## Review 00004-10 design edits (2026-10-14)
+
+- The cycle-10 walkthrough (`reviews/00004-artifact-state-contract-review-10.md`, minutes) decided F1, F2, F4, F5 and F6, which change design text. No requirement changes.
+- Edited: `design.md` exit code 2 also covers an unreadable state file; `status` reports a spec whose files cannot be read under `problems` as `spec-readable` and leaves it out of `specs`; `requirement-coverage` also refuses a cited requirement or criterion the spec does not hold; the `gates` check reads its blockers from the function `status` uses, so unaccepted upstream markers close it too.
+- This edit stales the design approval of 2026-10-13, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval; requirements stay approved.
+
+## Re-approvals, cycle 10 (2026-10-14)
+
+- Design: `design.md`, git blob `061a3c8579a603fd0f6c8a0557764e5ff89a9963` (commit `6c8f842`), the review 00004-10 edits (F1, F2, F4, F5, F6) against blob `0751cab`. Decision: approved by the developer. Question: "Re-approve 00004 design.md at blob 061a3c8 (cycle-10 edits: exit-2 wording, spec-readable problem, requirement-coverage reverse check, shared gates blockers) and tasks.md at blob 1f496de (unchanged; canonical hash 5346f6c… under the new code) against requirements fef2213?" Answer: "Approve both (Recommended)". Upstream: requirements blob `fef2213`, unchanged. Upstream markers: none open.
+- Tasks: `tasks.md`, git blob `1f496decafbb3b9098350bac2ec01683a0ca8f2e` (commit `183380c`), unchanged; canonical hash under the cycle-10 code `5346f6c67e0f7f1e640d393816985ab17bfe2868012f2310d18c888883c9fc38`. Decision: approved by the developer, in the same answer. Scope: the whole artifact as it reads now; the review 00004-10 fixes are recorded in `reviews/00004-artifact-state-contract-review-10.md`. Upstream markers: none open.
+- Requirements: still approved at blob `fef2213` (cycle 6); not touched by cycle 10.
+- This is a receipt: no `.specflow.json` exists for this spec.

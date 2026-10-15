@@ -1,0 +1,2 @@
+Copied unchanged from https://github.com/sebsto/swift-bedrock-library/tree/5f05e9f13217b69f919e7bf4f48e380bb734e256/.kiro/specs/structured-output
+License: see LICENSE (and NOTICE when present) in this folder.

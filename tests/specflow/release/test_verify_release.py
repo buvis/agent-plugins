@@ -64,6 +64,11 @@ RECORD_ROWS = {
 }
 SKILL = "---\nname: spec-workflow\ndescription: Fixture skill.\n---\n\nFixture body.\n"
 LICENSE = "Copied from awslabs/aidlc-workflows (A1).\n\nMIT No Attribution\n"
+# Copied from ruling D13, not built from the tool's template.
+STATE_SCHEMA_ID = (
+    "https://raw.githubusercontent.com/buvis/agent-plugins/specflow-v0.1.0/"
+    "plugins/specflow/skills/spec-workflow/schemas/specflow-state.schema.json"
+)
 REFERENCE = (
     "# Fixture reference\n\n"
     "> Source: A1 `core/x.md` > Steps @ v1.2.3 (1111111) [both]\n\n"
@@ -90,6 +95,14 @@ def make_package(root: Path) -> Path:
     (aws / "LICENSE").write_text(LICENSE)
     for name in verify_release.AWS_REFERENCES:
         (aws / name).write_text(REFERENCE)
+    init = plugin / verify_release.HELPER_INIT
+    init.parent.mkdir(parents=True)
+    init.write_text('"""Helper."""\n\nWORKFLOW_VERSION = "0.1.0"\n')
+    schemas = plugin / verify_release.SCHEMAS_DIR
+    schemas.mkdir(parents=True)
+    (schemas / "specflow-state.schema.json").write_text(
+        json.dumps({"$id": STATE_SCHEMA_ID}),
+    )
     return plugin
 
 
@@ -287,6 +300,40 @@ class CheckManifestsTest(VerifyReleaseTest):
                     ".claude-plugin/plugin.json",
                     f"missing required field {field}",
                 )
+
+    def test_rejects_workflow_version_differing_from_the_manifest(self) -> None:
+        init = self.plugin / verify_release.HELPER_INIT
+        init.write_text('WORKFLOW_VERSION = "0.0.9"\n')
+        self.assert_error(
+            verify_release.check_manifests(self.plugin),
+            "specflow_helper/__init__.py",
+            "WORKFLOW_VERSION 0.0.9 differs from the manifest version",
+        )
+        init.unlink()
+        self.assert_error(
+            verify_release.check_manifests(self.plugin),
+            "specflow_helper/__init__.py",
+            "missing WORKFLOW_VERSION",
+        )
+
+    def test_rejects_schema_id_differing_from_its_address(self) -> None:
+        schemas = self.plugin / verify_release.SCHEMAS_DIR
+        for wrong in (
+            STATE_SCHEMA_ID.replace("v0.1.0", "v0.0.9"),
+            STATE_SCHEMA_ID.replace("state", "status"),
+            None,
+        ):
+            with self.subTest(wrong=wrong):
+                value = {} if wrong is None else {"$id": wrong}
+                (schemas / "specflow-state.schema.json").write_text(json.dumps(value))
+                self.assert_error(
+                    verify_release.check_manifests(self.plugin),
+                    "specflow-state.schema.json",
+                    "$id is not",
+                )
+
+    def test_accepts_matching_versions(self) -> None:
+        self.assertEqual(verify_release.check_versions(self.plugin, "0.1.0"), [])
 
     def test_rejects_empty_compat_manifest(self) -> None:
         self.write_compat({})

@@ -13,3 +13,59 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: AWS AI-DLC source record and profile mapping (`references/aws/adaptation.md`).
 - **specflow**: license and attribution of the AWS sources, and a provenance section in the README.
 - **specflow**: four AWS AI-DLC references, for requirements, design, implementation, and verification, adapted by hand from `awslabs/aidlc-workflows` `v2.11.0`.
+- **specflow**: Kiro-compatible templates for requirements, design, tasks, bugfix specs, intake items, spikes, and cross-spec reviews, and the artifact contract reference (`references/artifact-contract.md`).
+- **specflow**: versioned JSON schema for the `.specflow.json` spec state.
+- **specflow**: approvals bound to a canonical SHA-256 of each artifact, so line endings, whitespace, task checkboxes (including Kiro's `[-]` and `[~]`), and task progress fields never stale an approval; the phase is derived from the files.
+- **specflow**: a changed artifact stales every approval downstream of it, in both workflow orders, and names the change that caused it.
+- **specflow**: reconciliation that refreshes derived hashes and statuses in `.specflow.json`, keeps unknown fields, never writes an approval, and recovers from a missing state file by asking instead of guessing.
+- **specflow**: writes stop with a conflict when the file changed after it was read, leaving the other edit in place.
+- **specflow**: `scripts/validate_spec.py` with `status`, `validate`, `hash`, `code-baseline`, and `reconcile`; named checks with file, rule, and fix; spec dependencies through `Depends on:`; advisory code-drift warnings; and a versioned JSON status for external runners.
+- **specflow**: workspace config in `.agents/specflow.json` (workspace root, specs folder, number-scan folders), refusing absolute, `..`, and out-of-repository paths, and reporting specs left in `.kiro/specs/` or a specs folder that git ignores.
+- **specflow**: `validate_spec.py next-number`, checks for spec numbers used twice and for a `Sources:` line that names the spec's own intake item, and the intake procedure in the artifact contract.
+- **specflow**: `validate` reports each stale approval with its cause in every phase, and status gates are cumulative, so a closed gate closes every later one.
+- **specflow**: a requirement headed `### <ID>: withdrawn` keeps its ID reserved but needs no criteria or task.
+
+### Fixed
+
+- **specflow**: the checkbox check reads only the task list, so bracket labels such as `- [Q1]` under `## Notes` or `## Unresolved questions` no longer fail it, and a fenced `## Completion criteria` no longer hides later tasks.
+- **specflow**: `validate` warns when a line continues an `Outcome:` or `Exception:` field, since only the field's own line is left out of the plan's hash.
+- **specflow**: a cross-spec citation passes when it names its prerequisite by number and `Depends on:` names the folder, or the other way round.
+- **specflow**: an approved artifact deleted and later restored reads as stale, with the cause, not as a silent draft.
+- **specflow**: `status` and `reconcile` refuse a spec folder outside the repository; state writes keep the file's mode and use a unique temporary file.
+- **specflow**: code-drift warnings ignore line-ending changes, and spec numbers accept ASCII digits only.
+- **specflow**: `next-number` no longer lists folders behind a `.kiro/specs` link that leads outside the repository.
+- **specflow**: approvals record the upstream hashes they were approved against (`hash --json` returns `upstreamSha256`), so re-approving an edited upstream artifact no longer revives the downstream approvals, even when `reconcile` did not run in between.
+- **specflow**: `status` and `validate` no longer crash on a non-UTF-8 terminal; JSON output is ASCII and a dependency cycle prints as `a -> b -> a`.
+- **specflow**: `status` output names a malformed state file by its repository path and no longer carries this machine's absolute paths.
+- **specflow**: a nested `Outcome:` or `Exception:` line no longer draws a false "it is hashed" warning.
+- **specflow**: requirement, criterion, and task IDs accept ASCII digits only.
+- **specflow**: a template design with a new title still has to keep every section.
+- **specflow**: `next-number` counts items inside a numbered group folder and folders placed straight under `intake/`.
+- **specflow**: a `.*` rule in `.gitignore` no longer reports the specs folder as ignored, and the shipped schema patterns are anchored, so external validators agree with the helper.
+- **specflow**: the README states the helper's real security boundary, and the artifact contract notes that Kiro's spec panel may not show a spec in a non-default specs folder.
+- **specflow**: `status` no longer crashes when a malformed state file or a spec folder is a link that leads outside the repository.
+- **specflow**: a checkbox outside the task list and the completion criteria, such as one under `## Unresolved questions`, now stales the approved plan when it changes.
+- **specflow**: `validate --phase implementation` warns about code drift since the design approval, as `status` does.
+- **specflow**: the shipped schema patterns reject a value with a trailing newline in external validators too.
+- **specflow**: a lowercased Kiro heading such as `## Error handling` no longer turns a Kiro design into a template design.
+- **specflow**: a configured path holding a NUL character is refused as a configuration error instead of crashing.
+- **specflow**: the config template holds the default locations, so copying it changes nothing.
+- **specflow**: an indented or recased `Depends on:` line, and a bugfix one with text after it in the Introduction, are reported instead of silently ignored.
+- **specflow**: a checkbox outside the task list now stales the approved plan wherever its section sits, including above `## Completion criteria` and in a Kiro `## Notes` section; only the task list (before the first `## ` heading, or under `## Tasks`) and the completion criteria are progress.
+- **specflow**: `.agents/specflow.json` no longer needs `schemaVersion`; a file without it reads as version 1.
+- **specflow**: an approval recorded without its upstream hashes reads as stale until approved again, so a hand-written approval can no longer be revived by an upstream re-approval.
+- **specflow**: `validate` runs the specs-folder and number-clash scans in the `requirements` phase only (`number-clashes` also for `intake`), so validating a later phase stays inside the spec folder; `status` still reports both.
+- **specflow**: `status` lists each spec's stale artifacts under `stale`, in workflow order.
+- **specflow**: an approval whose upstream hashes leave out an existing upstream artifact also reads as stale until approved again.
+- **specflow**: `hash --json` gives an approval record only for a spec's canonical artifacts and refuses any other file; the plain and `--raw` forms still hash any file.
+- **specflow**: `next-number` also counts files and bare `NNNNN` folders placed straight under `intake/`.
+- **specflow**: state writes are flushed to disk before they replace the old file, so a crash cannot leave an empty `.specflow.json`.
+- **specflow**: the artifact contract records that Kiro IDE lists, opens, and watches specs through a `.kiro/specs` link.
+- **specflow**: `hash --json` also refuses a file named like a canonical artifact whose folder is not a spec folder in the configured specs folder, such as `docs/design.md`.
+- **specflow**: `validate` and `code-baseline` refuse a spec folder outside the repository, as `status` and `reconcile` do.
+- **specflow**: a bugfix whose type only `.specflow.json` records derives its phase as a bugfix, matching its artifact paths.
+- **specflow**: an unreadable `.specflow.json` marks only its own spec's state invalid, so `status` still reports every other spec.
+- **specflow**: `status` reports a spec with an unreadable artifact under `problems` (`spec-readable`) instead of stopping the whole run, and a state file that cannot even be looked up marks its spec invalid on every Python version; a state read error without a system reason no longer prints `None`.
+- **specflow**: `validate --phase implementation` closes the gate on unaccepted upstream markers too, so it always agrees with `status`.
+- **specflow**: `validate` refuses a task that cites a requirement or criterion its own spec does not hold.
+- **specflow**: `validate` reads a task's `Requirements:` and `Acceptance criteria:` lines token by token, so stray words, dates, ranges or a note after a criteria list no longer raise a false unknown-citation error, and an ID that only starts like one the spec holds (`REQ-0010`) is reported.

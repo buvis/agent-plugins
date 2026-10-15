@@ -1,0 +1,21 @@
+# Implementation Plan
+
+- [ ] 1. Write bug condition exploration test
+  - **Property 1: Bug Condition** - <title>
+  - **CRITICAL**: This test MUST FAIL on unfixed code - failure confirms the bug exists
+  - **DO NOT attempt to fix the test or the code when it fails**
+  - **EXPECTED OUTCOME**: Tests FAIL
+  - Document counterexamples found
+  - _Requirements: 1.1_
+- [ ] 2. Write preservation property tests (BEFORE implementing fix)
+  - **Property 2: Preservation** - <title>
+  - Observe: <behavior> on unfixed code
+  - **EXPECTED OUTCOME**: Tests PASS (confirms baseline behavior to preserve)
+  - _Requirements: 3.1_
+- [ ] 3. Fix <bug>
+  - [ ] 3.1 <change>
+    - _Bug_Condition: <C>_ _Expected_Behavior: <P>_ _Preservation: <behavior kept>_
+    - _Requirements: 2.1, 3.1_
+  - [ ] 3.2 Verify bug condition exploration test now passes (re-run the SAME tests from task 1)
+  - [ ] 3.3 Verify preservation tests still pass (re-run the SAME tests from task 2)
+- [ ] 4. Checkpoint - Ensure all tests pass

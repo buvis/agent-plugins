@@ -1,0 +1,129 @@
+"""The design approval's code baseline: hashes of the files its placement names."""
+
+from __future__ import annotations
+
+import hashlib
+import stat
+from pathlib import Path, PurePosixPath
+
+from .config import DRIVE
+
+
+def sha256_file(path: Path) -> str:
+    """SHA-256 of the bytes with CRLF and CR turned into LF, so line-ending churn is no drift."""
+    data = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(data).hexdigest()
+
+
+def refuse_reason(repo: Path, path: str) -> str | None:
+    """Why a baseline path is refused, or None. Checked before anything is read."""
+    pure = PurePosixPath(path)
+    # PurePosixPath reads C:/x as relative, so drive paths are caught apart.
+    absolute = pure.is_absolute() or DRIVE.match(path)
+    if not path or "\\" in path or absolute or path.startswith("~"):
+        return "not a repository-relative path"
+    if ".." in pure.parts:
+        return "holds a .. segment"
+    current = repo
+    for part in pure.parts:
+        current = current / part
+        if current.is_symlink():
+            return "goes through a symbolic link"
+    if not current.exists():
+        return None
+    mode = current.lstat().st_mode
+    if stat.S_ISDIR(mode):
+        return "is a directory"
+    if not stat.S_ISREG(mode):
+        return "is not a regular file"
+    return None
+
+
+def code_baseline(repo: Path, paths: list[str]) -> dict:
+    """An approvedCode value: every file captured, or not_checked with the reason. Never partial."""
+    unique = sorted(set(paths))
+    if not unique:
+        return {"status": "not_checked", "reason": "no placement paths given"}
+    problems = []
+    files = []
+    for path in unique:
+        reason = refuse_reason(repo, path)
+        if reason:
+            problems.append(f"{path} {reason}")
+            continue
+        target = repo / path
+        if not target.exists():
+            files.append({"path": path, "missing": True})
+            continue
+        try:
+            digest = sha256_file(target)
+        except OSError as error:
+            problems.append(f"{path} cannot be read: {error.strerror}")
+            continue
+        files.append({"path": path, "sha256": digest})
+    if problems:
+        return {"status": "not_checked", "reason": "; ".join(problems)}
+    return {"status": "captured", "files": files}
+
+
+def warning(kind: str, message: str, path: str | None = None) -> dict[str, str]:
+    item = {"kind": kind, "message": message}
+    if path is not None:
+        item["path"] = path
+    return item
+
+
+def drift_warnings(
+    repo: Path,
+    state: dict | None,
+    statuses: dict[str, str],
+) -> list[dict[str, str]]:
+    """Code drift since the design approval, for status and the gates check; omitted outside Git."""
+    if not (repo / ".git").exists() or statuses["design"] not in ("approved", "stale"):
+        return []
+    if statuses["design"] == "stale":
+        message = "the design approval is stale; code is checked again after reapproval"
+        return [warning("not-checked", message)]
+    return code_drift(repo, (state or {})["artifacts"]["design"].get("approvedCode"))
+
+
+def code_drift(repo: Path, approved_code: dict | None) -> list[dict[str, str]]:
+    """Advisory warnings: declared files added, changed, or deleted since the design approval.
+
+    Missing evidence is reported as not checked, never as clean. Nothing here closes a gate.
+    """
+    if approved_code is None:
+        return [warning("not-checked", "the design approval has no code baseline")]
+    if approved_code.get("status") == "not_applicable":
+        return []
+    if approved_code.get("status") != "captured":
+        reason = approved_code.get("reason", "no reason recorded")
+        return [warning("not-checked", f"code baseline not captured: {reason}")]
+    warnings = []
+    for entry in approved_code.get("files", []):
+        path = entry["path"]
+        refused = refuse_reason(repo, path)
+        if refused:
+            warnings.append(warning("not-checked", f"{path} {refused}", path))
+            continue
+        target = repo / path
+        if not target.exists():
+            if "sha256" in entry:
+                warnings.append(warning("code-drift", f"{path} was deleted", path))
+            continue
+        try:
+            digest = sha256_file(target)
+        except OSError as error:
+            warnings.append(
+                warning(
+                    "not-checked",
+                    f"{path} cannot be read: {error.strerror}",
+                    path,
+                ),
+            )
+            continue
+        if entry.get("missing"):
+            warnings.append(warning("code-drift", f"{path} was added", path))
+        elif digest != entry.get("sha256"):
+            warnings.append(warning("code-drift", f"{path} changed", path))
+    return warnings

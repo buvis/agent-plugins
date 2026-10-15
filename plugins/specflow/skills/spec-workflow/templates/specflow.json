@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "root": ".kiro/specflow",
+  "specsDir": ".kiro/specs",
+  "numberScan": []
+}

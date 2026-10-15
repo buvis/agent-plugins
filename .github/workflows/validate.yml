@@ -33,5 +33,8 @@ jobs:
       - name: Test specflow release checks
         run: python3 -m unittest discover -s tests/specflow/release
 
+      - name: Test specflow contract
+        run: python3 -m unittest discover -s tests/specflow/contract
+
       - name: Verify specflow release boundary
         run: python3 tools/specflow/verify_release.py

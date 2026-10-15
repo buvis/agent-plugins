@@ -29,5 +29,10 @@ source that text is copied from.
 
 ## Security
 
-This package has no scripts, network access, MCP servers, authentication, or
-persistent data.
+The package ships one optional helper,
+`skills/spec-workflow/scripts/validate_spec.py`, a Python 3 standard-library
+script. It reads the repository's spec artifacts and runs read-only local
+`git` commands (`rev-parse`, `check-ignore`). Its only write is
+`.specflow.json` inside a spec folder, through `reconcile`. It refuses paths
+outside the repository. The package has no network access, MCP servers, or
+authentication.
