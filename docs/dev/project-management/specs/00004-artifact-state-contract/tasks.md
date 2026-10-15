@@ -195,6 +195,6 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 
 ## Completion criteria
 
-- [ ] Every task above is checked, each with its `Outcome:` line.
-- [ ] On the final commit, the pull request's CI run is green (before a pull request exists, the step commands pass in a fresh clone of the commit): the repository validator, the contract tests (`python3 -m unittest discover -s tests/specflow/contract`), and the release check with its two new rules.
+- [x] Every task above is checked, each with its `Outcome:` line.
+- [x] On the final commit, the pull request's CI run is green (before a pull request exists, the step commands pass in a fresh clone of the commit): the repository validator, the contract tests (`python3 -m unittest discover -s tests/specflow/contract`), and the release check with its two new rules.
 - [x] Run from this repository's root, `validate_spec.py status --json` exits 0 and prints a document that `check_schema` accepts against the status schema and that lists specs 00001 to 00009.
