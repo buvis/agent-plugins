@@ -29,7 +29,13 @@ LIST_ITEM = re.compile(r"^(?:[-*+]|[0-9]+\.)\s")
 REPOSITORY_CHECKS = ("specs-folder", "number-clashes")
 # Covered by the artifact and dependency blockers, or reported once under problems.
 NOT_PER_SPEC = frozenset(
-    {"gates", "spec-dependencies", "stale-approvals", *REPOSITORY_CHECKS},
+    {
+        "gates",
+        "open-markers",
+        "spec-dependencies",
+        "stale-approvals",
+        *REPOSITORY_CHECKS,
+    },
 )
 
 
@@ -79,6 +85,26 @@ def artifact_blockers(
     ]
 
 
+def unaccepted_markers(
+    state: dict | None,
+    dependent: str,
+    upstream: tuple[str, ...],
+    paths: dict[str, Path],
+) -> list[tuple[str, str]]:
+    """(upstream artifact, marker line) pairs the dependent approval does not accept by name."""
+    record = (state or {}).get("artifacts", {}).get(dependent, {})
+    accepted = {(a["artifact"], a["line"]) for a in record.get("acceptedMarkers", [])}
+    found = []
+    for name in upstream:
+        text = read_text(paths[name])
+        if text is None:  # required-files reports it
+            continue
+        found += [
+            (name, line) for line in markers(text) if (name, line) not in accepted
+        ]
+    return found
+
+
 def marker_blockers(
     order: str,
     state: dict | None,
@@ -86,26 +112,15 @@ def marker_blockers(
 ) -> list[dict]:
     """Upstream markers not accepted by name on the dependent approval (WF-002.7)."""
     first, second = ORDERS[order]
-    blockers = []
-    for dependent, upstream in ((second, (first,)), ("tasks", (first, second))):
-        record = (state or {}).get("artifacts", {}).get(dependent, {})
-        accepted = {
-            (a["artifact"], a["line"]) for a in record.get("acceptedMarkers", [])
+    return [
+        {
+            "gate": gate_after(order, dependent),
+            "reason": f"{name} marker not accepted for the {dependent} approval",
+            "reference": line,
         }
-        for name in upstream:
-            text = read_text(paths[name])
-            if text is None:  # required-files reports it
-                continue
-            blockers += [
-                {
-                    "gate": gate_after(order, dependent),
-                    "reason": f"{name} marker not accepted for the {dependent} approval",
-                    "reference": line,
-                }
-                for line in markers(text)
-                if (name, line) not in accepted
-            ]
-    return blockers
+        for dependent, upstream in ((second, (first,)), ("tasks", (first, second)))
+        for name, line in unaccepted_markers(state, dependent, upstream, paths)
+    ]
 
 
 def gate_blockers(spec_dir: Path, specs_dir: Path, state: dict | None) -> list[dict]:

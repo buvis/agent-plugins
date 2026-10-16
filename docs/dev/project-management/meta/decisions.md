@@ -491,3 +491,42 @@ which holds each finding, its options, and the answer.
    receipt had been written. The user chose "Fix line 66, re-approve
    (Recommended)": the Codex line now states only the tested marketplace path,
    and the receipt is in the 00008 `qa-log.md`.
+
+## 2026-10-10 - specflow 00003 completion review
+
+Decided in the walkthrough of `reviews/00003-aws-sources-catchup-review-01.md`,
+which holds each finding and the answer.
+
+### Decisions
+
+1. **Review fixes.** Of 17 findings, 11 were applied (R1-R4, R6, R10-R15),
+   3 rejected with evidence (R5, R7, R8), 2 resolved by a check (R16, R17), and
+   1 accepted and filed (R9: the long validator functions, now intake item
+   `00010-split-long-validator-functions`).
+2. **REL-001.3 amended.** R3 turned REL-001 criterion 3 into a per-file
+   source-line check, with passage placement checked by hand whenever text is
+   adopted. The edit staled the approved 00003 `requirements.md` and no
+   receipt followed; the developer approved it again on 2026-10-16, in the
+   recovery that wrote `.specflow.json` (00003 `qa-log.md`, "Recovery").
+
+## 2026-10-11 to 2026-10-14 - specflow 00004 completion review
+
+Decided in the walkthroughs of `reviews/00004-artifact-state-contract-review-01.md`
+to `-11.md`; each file's minutes hold the findings, options, and answers, and
+`reviews/00004-artifact-state-contract-ledger.json` holds the dismissed and
+deferred findings so a later cycle does not raise them again.
+
+### Decisions
+
+1. **Eleven cycles.** Cycles 1 to 7 and 10 changed design text, and cycles 1
+   and 6 requirements text too, so each ended with re-approvals recorded in the
+   00004 `qa-log.md`; cycles 8, 9, and 11 changed code and tests only. No
+   CRITICAL or HIGH finding was raised after cycle 4, so cycle 11's rework got
+   a per-task patch review (2026-10-15) instead of a twelfth cycle.
+2. **Withdrawn requirements (2026-10-11).** A `### <ID>: withdrawn` heading
+   keeps its ID reserved and needs no criteria or task; nothing may cite it.
+3. **Kiro link (2026-10-12).** Both Kiro IDE trials of T-027 passed, so the
+   unresolved question was resolved in the artifacts instead of accepted, and
+   all three were approved again.
+4. **Close-out (2026-10-15).** PR #3 was merged locally, as PRs #1 and #2
+   were, and the completion criteria were ticked (commit `31e1383`).

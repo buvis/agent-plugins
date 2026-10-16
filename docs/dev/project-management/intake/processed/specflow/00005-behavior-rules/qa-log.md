@@ -205,3 +205,27 @@ each landing exactly once.
 - Outstanding questions: none.
 - Next action: implementation, in dependency order, starting with 00002 (T-001); once the helper of 00004 exists, recovery mode records these receipts as real approvals after the developer confirms each.
 - Verdict: COMPLETE (3 tasks planned; implementation not started).
+
+## Recovery (2026-10-16)
+
+- Recovery mode (00004 design, reconciliation step 10 and the migration note) recorded the receipts above in `docs/dev/project-management/specs/00005-behavior-rules/.specflow.json`, values copied from `validate_spec.py hash --json`.
+- Question: one question for specs 00002 to 00005 listing each artifact, its receipt date, and the blob check. Answer: "Record all (Recommended)".
+- Requirements: realises the re-approval of 2026-10-04 (commit `a4c09b3`); blob `c6d3d8b` unchanged.
+- Design: realises the re-approval of 2026-10-06; blob `d7cb95b` unchanged. Code baseline captured by `code-baseline` over the fifteen files of `## Module placement`, before any task starts.
+- Tasks: realises the approval of 2026-10-06; blob `ee0b911` unchanged.
+- `reconcile` then reports phase `implementation`, next task T-070.
+
+## Review 00005-01 design edits (2026-10-16)
+
+- The cycle-1 walkthrough (`reviews/00005-behavior-rules-review-01.md`, minutes) decided F2, F3, F9 and F11 (with F17), which change design text. No requirement changes.
+- Edited: `design.md` places the five structural checks in a new `specflow_helper/structural.py`, registered in `CHECKS` of `checks.py`, and their tests in a new `tests/specflow/contract/test_structural_checks.py`, so neither old file passes 800 lines (F2, F3); a rule's tag present twice in its own file fails (F9); the `plans` map takes a capital letter other than `D` and `R` as a key, with the plan's repository path as its value (F11, F17).
+- This edit stales the design approval recorded on 2026-10-16, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval; requirements stay approved.
+- With the fix, `tasks.md` T-071 `Location:` and `Verify:` name `structural.py` and `test_structural_checks.py` in place of `test_checks.py`, as the design now places them; its `Outcome:` line stays as written.
+- Correction after the fix (`ba8e7b8`): the move left `checks.py` byte-identical to its 00004 text at `392098d`, and the registration is one import in `specflow_helper/__init__.py`. The design's tree and placement table, and T-071 `Location:`, now name `__init__.py` (edit) and no longer call `checks.py` edited. The developer's first re-approval answer covered the text before this correction, so it was asked again.
+
+## Re-approvals, review 00005-01 (2026-10-16)
+
+- Design: `design.md`, git blob `a11739169525833149b560667785107ef68e805e` (commit `f2ef83a`), canonical `5d23d285…`, the review 00005-01 edits (F2, F3, F9, F11, F17) and the `__init__.py` correction. Decision: approved by the developer. Question: "Re-approve design.md at blob a117391 (canonical 5d23d28…) and tasks.md at blob 3bda98d (canonical 87da530…), with the code baseline over the 16 placement files plus __init__.py?" Answer: "Approve both (Recommended)". The baseline holds the 16 paths of `## Module placement`, of which `__init__.py` is one (it takes the place of `checks.py`, so the question's "plus" overstated the count by one). Upstream: requirements blob `c6d3d8b`, unchanged. Upstream markers: none open.
+- Tasks: `tasks.md`, git blob `3bda98dcd050ae3d551d22abd2248babc24274be` (commit `f2ef83a`), canonical `87da5306…`; T-071 `Location:` and `Verify:` name the new files. Decision: approved by the developer, in the same answer. Upstream markers: none open.
+- Requirements: still approved at blob `c6d3d8b` (recovery, 2026-10-16); not touched.
+- Recorded in `.specflow.json` with values copied from `validate_spec.py hash --json` and `code-baseline` at `f2ef83a`; `reconcile` then reports phase `complete`.

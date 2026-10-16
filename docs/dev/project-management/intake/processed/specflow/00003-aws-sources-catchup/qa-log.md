@@ -187,3 +187,13 @@ each landing exactly once.
 - Outstanding questions: two, accepted by name at the design and tasks gates: the catch-up cadence is an unconfirmed default; the repository has no onboarding command.
 - Next action: implementation, in dependency order, starting with 00002 (T-001); once the helper of 00004 exists, recovery mode records these receipts as real approvals after the developer confirms each.
 - Verdict: COMPLETE (4 tasks planned; implementation not started).
+
+## Recovery (2026-10-16)
+
+- Recovery mode (00004 design, reconciliation step 10 and the migration note) recorded the receipts above in `docs/dev/project-management/specs/00003-aws-sources-catchup/.specflow.json`, values copied from `validate_spec.py hash --json`.
+- Question: one question for specs 00002 to 00005 listing each artifact, its receipt date, and the blob check. Answer: "Record all (Recommended)".
+- Requirements: the approval of 2026-10-04 (commit `b6112ad`) was stale: commit `f95848f` (2026-10-10, review R3) amended REL-001 criterion 3 and no receipt followed. Approved again at the current blob `b7e3b90` in the same answer.
+- Design: realises the re-approval of 2026-10-06; blob `c948282` unchanged. Code baseline `not_checked`: the spec was built before recovery, so the bytes at approval time are unknown.
+- Tasks: the approval of 2026-10-06 (blob `2ce08e8`) no longer matched canonically: the current blob `85dae46` adds an `Outcome:` line under a completion criterion, which the canonical text keeps. Approved again at the current text in the same answer.
+- Upstream markers accepted by name on the design and tasks records, as in the 2026-10-06 receipts: the two unresolved questions of the requirements (the catch-up cadence; the missing onboarding command).
+- `reconcile` then reports phase `complete`.

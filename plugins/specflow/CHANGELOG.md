@@ -24,6 +24,7 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: `validate_spec.py next-number`, checks for spec numbers used twice and for a `Sources:` line that names the spec's own intake item, and the intake procedure in the artifact contract.
 - **specflow**: `validate` reports each stale approval with its cause in every phase, and status gates are cumulative, so a closed gate closes every later one.
 - **specflow**: a requirement headed `### <ID>: withdrawn` keeps its ID reserved but needs no criteria or task.
+- **specflow**: `validate` fails on placeholders (`TBD`, `TODO`, `???`, bare `N/A`, or a `Not applicable:` outside `design.md`), on a code fence that never closes, and on upstream markers no approval accepted by name; it warns on home-directory and absolute paths, `[[...]]` links, and a requirement with no `Source:` line. The rules are listed in `references/validation-rules.md`.
 
 ### Fixed
 
@@ -69,3 +70,5 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: `validate --phase implementation` closes the gate on unaccepted upstream markers too, so it always agrees with `status`.
 - **specflow**: `validate` refuses a task that cites a requirement or criterion its own spec does not hold.
 - **specflow**: `validate` reads a task's `Requirements:` and `Acceptance criteria:` lines token by token, so stray words, dates, ranges or a note after a criteria list no longer raise a false unknown-citation error, and an ID that only starts like one the spec holds (`REQ-0010`) is reported.
+- **specflow**: `validate` also warns on a root-level absolute path such as `/tmp` or `/config.json` and on a `$HOME/` path.
+- **specflow**: `status` lists an unaccepted upstream marker once per dependent approval, no longer a second time as a validation error.

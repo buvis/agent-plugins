@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "specId": "00003-aws-sources-catchup",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "abeb948192affa45d3bfbbf7c3c7f0501d7d082d8401e34a1d8a6af7b517e58b",
+      "approvedSha256": "abeb948192affa45d3bfbbf7c3c7f0501d7d082d8401e34a1d8a6af7b517e58b",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "7cf67ffd7a78e520b7dad149d219c659bc936f14246f111989d1d9e76f15941e",
+      "approvedSha256": "7cf67ffd7a78e520b7dad149d219c659bc936f14246f111989d1d9e76f15941e",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900",
+      "upstreamSha256": {
+        "requirements": "abeb948192affa45d3bfbbf7c3c7f0501d7d082d8401e34a1d8a6af7b517e58b"
+      },
+      "acceptedMarkers": [
+        {
+          "artifact": "requirements",
+          "line": "- The catch-up cadence (before each release and at least monthly) is a default from the review, not yet confirmed by use. Resolves when the first catch-ups have run and the developer confirms or changes it."
+        },
+        {
+          "artifact": "requirements",
+          "line": "- The repository has no onboarding command yet, so Claude Code reaches the maintainer skill only by being told to read its `SKILL.md`. Resolves when the repository gains its onboarding command."
+        }
+      ],
+      "approvedCode": {
+        "status": "not_checked",
+        "reason": "recovered from a receipt after implementation; the file bytes at approval time were not recorded"
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "a80903c9fb52e908acef0defdc5fa374017146a7e673a57468df28f209388bee",
+      "approvedSha256": "a80903c9fb52e908acef0defdc5fa374017146a7e673a57468df28f209388bee",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900",
+      "upstreamSha256": {
+        "requirements": "abeb948192affa45d3bfbbf7c3c7f0501d7d082d8401e34a1d8a6af7b517e58b",
+        "design": "7cf67ffd7a78e520b7dad149d219c659bc936f14246f111989d1d9e76f15941e"
+      },
+      "acceptedMarkers": [
+        {
+          "artifact": "requirements",
+          "line": "- The catch-up cadence (before each release and at least monthly) is a default from the review, not yet confirmed by use. Resolves when the first catch-ups have run and the developer confirms or changes it."
+        },
+        {
+          "artifact": "requirements",
+          "line": "- The repository has no onboarding command yet, so Claude Code reaches the maintainer skill only by being told to read its `SKILL.md`. Resolves when the repository gains its onboarding command."
+        }
+      ]
+    }
+  }
+}

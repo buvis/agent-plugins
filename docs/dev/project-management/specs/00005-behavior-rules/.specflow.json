@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "specId": "00005-behavior-rules",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "19db7c550715da823e3d0aeefecfc9afa5ec90cc743355ce9d7ac4af7cd69085",
+      "approvedSha256": "19db7c550715da823e3d0aeefecfc9afa5ec90cc743355ce9d7ac4af7cd69085",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "5d23d285f9f71ddbf0721dcd07a863fa7a74823119609499340455283d2d3c50",
+      "approvedSha256": "5d23d285f9f71ddbf0721dcd07a863fa7a74823119609499340455283d2d3c50",
+      "approvedAt": "2026-10-16T20:00:09Z",
+      "approvedCommit": "f2ef83a21c4964dab77fe41a689a677375188f86",
+      "upstreamSha256": {
+        "requirements": "19db7c550715da823e3d0aeefecfc9afa5ec90cc743355ce9d7ac4af7cd69085"
+      },
+      "approvedCode": {
+        "status": "captured",
+        "files": [
+          {
+            "path": ".github/workflows/validate.yml",
+            "sha256": "0da06c079c3a42faaa9cdb97119ece0eb3d43a84dbfeee8db2ad01745ff003c1"
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/validation-rules.md",
+            "sha256": "16282d78725fc9d039ac73028ebecb5ef9e32cbf78e3742b822b88e0d56e7e4e"
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/__init__.py",
+            "sha256": "76a36f6c4d9a93f0f50b2885d8d67706a1d79e45d4b20a075fac072fa1ed7bcf"
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/structural.py",
+            "sha256": "65e6dd0dcd90110885dd997791e95dfd4cc8ed6cccbce66c59b765acf620754d"
+          },
+          {
+            "path": "tests/specflow/contract/test_structural_checks.py",
+            "sha256": "9a43d71d3fec607f3ce14a4053ace5696f19cdc8bdd4d558532d1083da8aeda9"
+          },
+          {
+            "path": "tests/specflow/evals/examples/eval.json",
+            "sha256": "508c1b3ab6aa5b100a932b3dd5d39c59602afe26765e248725df3bbb4de5f662"
+          },
+          {
+            "path": "tests/specflow/evals/examples/session.json",
+            "sha256": "b020234f32beeb882fa37762be2cd2ffcc89573a5ee3fe1a6bd260ce6ebcd8d6"
+          },
+          {
+            "path": "tests/specflow/evals/schemas/eval.schema.json",
+            "sha256": "9ad9ee6cc35c83bdfcec190642ca8eb0a6b8c4d5536e57c93dca8571e0b14095"
+          },
+          {
+            "path": "tests/specflow/evals/schemas/session.schema.json",
+            "sha256": "b0fd5b978ba129fe9201f0fd77fc7434641dd77dc0b29032534790671e7000d7"
+          },
+          {
+            "path": "tests/specflow/rules/test_check_rules.py",
+            "sha256": "2c089bd8c38a58a7a0f2c766af54a4f693604ad8d05b6ec3d8d3cde1e42a4d9e"
+          },
+          {
+            "path": "tests/specflow/rules/test_eval_formats.py",
+            "sha256": "36014fc610384ba4531ab1cfc1de2e63a9c1d0891fce541c2ddcf91393b43f3e"
+          },
+          {
+            "path": "tools/specflow/check_rules.py",
+            "sha256": "15910ea6d3e8be4da1e53e51c5e7d3882735f828280a9b8cb7fccf6a2cc1a04e"
+          },
+          {
+            "path": "tools/specflow/rules/criteria.json",
+            "sha256": "b3697730d775a2c6ad984f1b4580959d3a8e441e1d547dc10b6dd3565018621a"
+          },
+          {
+            "path": "tools/specflow/rules/criteria.schema.json",
+            "sha256": "387dd7b568a75dfad5412d46a25adf97ef2a18e3c5c0ec914776bc04dfd51673"
+          },
+          {
+            "path": "tools/specflow/rules/inventory.json",
+            "sha256": "36713a7607e4f5d0174afa7c70b0f427c5aa9adaa2c65906d479744704b25582"
+          },
+          {
+            "path": "tools/specflow/rules/inventory.schema.json",
+            "sha256": "4281a41303ddf0ca6ba8344b55cef4271a2ea6b70a3a158213c38a93a1504b51"
+          }
+        ]
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "87da530690ccc3d741dda95577712884482b604d7bd75e3d658e7d491f8833d4",
+      "approvedSha256": "87da530690ccc3d741dda95577712884482b604d7bd75e3d658e7d491f8833d4",
+      "approvedAt": "2026-10-16T20:00:10Z",
+      "approvedCommit": "f2ef83a21c4964dab77fe41a689a677375188f86",
+      "upstreamSha256": {
+        "requirements": "19db7c550715da823e3d0aeefecfc9afa5ec90cc743355ce9d7ac4af7cd69085",
+        "design": "5d23d285f9f71ddbf0721dcd07a863fa7a74823119609499340455283d2d3c50"
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "name": "example-requirements-dialogue",
+  "fixture": "specs/00101-feature-sample",
+  "turns": [
+    {"developer": "Continue spec 00101: the import should also retry rows it skipped."},
+    {
+      "developer": "Retry a skipped row once, the next night.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Approve the requirements.",
+      "edit": {
+        "path": "requirements.md",
+        "text": "# Requirements: Import retries\n\nEdited by a second writer.\n"
+      }
+    }
+  ]
+}

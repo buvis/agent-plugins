@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "specflow eval session",
+  "description": "A fixture repository plus scripted developer turns, run once on a host and scored by every eval that names it. check_rules.py also requires name to equal the file name without .json, except under examples/.",
+  "type": "object",
+  "required": ["schemaVersion", "name", "turns"],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "name": {"$ref": "#/$defs/name"},
+    "fixture": {"type": "string", "minLength": 1},
+    "continues": {"$ref": "#/$defs/name"},
+    "turns": {"type": "array", "items": {"$ref": "#/$defs/turn"}}
+  },
+  "oneOf": [
+    {"required": ["fixture"]},
+    {"required": ["continues"]}
+  ],
+  "$defs": {
+    "name": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*(?!\\n)$"},
+    "turn": {
+      "type": "object",
+      "required": ["developer"],
+      "additionalProperties": false,
+      "properties": {
+        "developer": {"type": "string", "minLength": 1},
+        "edit": {
+          "type": "object",
+          "required": ["path", "text"],
+          "additionalProperties": false,
+          "properties": {
+            "path": {"type": "string", "minLength": 1},
+            "text": {"type": "string"}
+          }
+        },
+        "expects": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

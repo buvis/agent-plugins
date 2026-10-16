@@ -198,6 +198,23 @@ class MarkerTest(StatusTest):
         support.approve(spec, state, "design")
         self.assertNotIn(blocker, self.entry(spec)["blockers"])
 
+    def test_each_open_marker_is_one_blocker_per_dependent_approval(self) -> None:
+        spec = self.make("00042-sample")
+        path = spec / "requirements.md"
+        path.write_text(path.read_text() + "\n## Open decisions\n\n- Pick one.\n")
+        support.approve(spec, support.new_state("00042-sample"), "requirements")
+        self.assertEqual(
+            [
+                b["reason"]
+                for b in self.entry(spec)["blockers"]
+                if "Pick one." in b["reason"] + b.get("reference", "")
+            ],
+            [
+                "requirements marker not accepted for the design approval",
+                "requirements marker not accepted for the tasks approval",
+            ],
+        )
+
     def test_marker_skipped_by_the_second_approval_closes_implementation(
         self,
     ) -> None:

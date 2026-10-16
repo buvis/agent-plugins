@@ -39,15 +39,15 @@ def sections(text: str) -> dict[str, list[str]]:
     return found
 
 
-def requirement_ids(text: str) -> dict[str, set[int]]:
-    """Requirement ID -> its numbered criteria ("1" stands for Kiro's Requirement 1).
+def requirement_blocks(text: str) -> dict[str, list[str]]:
+    """Requirement ID -> the lines under its heading ("1" stands for Kiro's Requirement 1).
 
     A withdrawn requirement (`### <ID>: withdrawn`) holds nothing and is left out;
     its ID stays reserved through the duplicate check.
     """
     lines = prose(text)
-    ids: dict[str, set[int]] = {}
-    current: str | None = None
+    blocks: dict[str, list[str]] = {}
+    current: list[str] | None = None
     in_requirements = "## Requirements" not in {line for _, line in lines}
     for _, line in lines:
         if line.startswith("## "):
@@ -58,13 +58,20 @@ def requirement_ids(text: str) -> dict[str, set[int]]:
         if match and WITHDRAWN.match(line):
             current = None
         elif match:
-            current = match[1] or match[2]
-            ids.setdefault(current, set())
+            current = blocks.setdefault(match[1] or match[2], [])
         elif line.startswith("### "):
             current = None
-        elif current and (number := CRITERION.match(line)):
-            ids[current].add(int(number[1]))
-    return ids
+        elif current is not None:
+            current.append(line)
+    return blocks
+
+
+def requirement_ids(text: str) -> dict[str, set[int]]:
+    """Requirement ID -> its numbered criteria; withdrawn requirements are left out."""
+    return {
+        ident: {int(m[1]) for line in block if (m := CRITERION.match(line))}
+        for ident, block in requirement_blocks(text).items()
+    }
 
 
 def bugfix_clauses(text: str) -> dict[str, set[int]]:

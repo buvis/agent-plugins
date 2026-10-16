@@ -1,0 +1,38 @@
+[
+  {
+    "cycle": 1,
+    "ref": "F8",
+    "disposition": "deferred",
+    "severity": "🟡",
+    "issue": "VAL-001.11 approval ban unmapped: no rule or eval covers THE AGENT SHALL NOT record an approval of an artifact with an unclosed fence; only the structural SR-VAL-004 (validator:closed-fences) maps to VAL-001.11, and hash --json still emits an approval record",
+    "file": "tools/specflow/rules/inventory.json",
+    "reason": "deferred by design to 00006: its approval procedure records an approval only after a validate run with no error (T-071 Verify), and its reference rules carry the behavioral half; walkthrough 2026-10-16"
+  },
+  {
+    "cycle": 1,
+    "ref": "F10",
+    "disposition": "deferred",
+    "severity": "🟡",
+    "issue": "CI runs check_rules.py --area VAL only; nothing yet makes CI or verify_release.py run the unfiltered check before a release",
+    "file": ".github/workflows/validate.yml",
+    "reason": "deferred by design: the --area filter is a construction aid (design Rollout), each reference task of 00006 and 00007 appends its area, and full-tree coverage gates T-063 (00001) before release; walkthrough 2026-10-16"
+  },
+  {
+    "cycle": 1,
+    "ref": "F14",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "closed_fences re-implements the fence open and close logic of scan_lines (canonical.py)",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
+    "reason": "sharing it would change scan_lines, the scanner the canonical hash of 00004 depends on; a style item does not justify that risk; walkthrough 2026-10-16"
+  },
+  {
+    "cycle": 1,
+    "ref": "F18",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "Plan B is not in the inventory; plans holds the key A only and no rule cites a B: source",
+    "file": "tools/specflow/rules/inventory.json",
+    "reason": "intended: the T-070 contract and design say T-079 (00007) adds the key B and all its mappings in one change; walkthrough 2026-10-16"
+  }
+]

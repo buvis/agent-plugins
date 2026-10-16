@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "specId": "00004-artifact-state-contract",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "587614a3022e0cd92e9b340432ee63330f20b62939f2cc3dfb4a314b1fdfab8a",
+      "approvedSha256": "587614a3022e0cd92e9b340432ee63330f20b62939f2cc3dfb4a314b1fdfab8a",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "223ef5637907f02cdd6969244fb7254869049574ed11eeeecc62bc79cb901c88",
+      "approvedSha256": "223ef5637907f02cdd6969244fb7254869049574ed11eeeecc62bc79cb901c88",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900",
+      "upstreamSha256": {
+        "requirements": "587614a3022e0cd92e9b340432ee63330f20b62939f2cc3dfb4a314b1fdfab8a"
+      },
+      "approvedCode": {
+        "status": "not_checked",
+        "reason": "recovered from a receipt after implementation; the file bytes at approval time were not recorded"
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "5346f6c67e0f7f1e640d393816985ab17bfe2868012f2310d18c888883c9fc38",
+      "approvedSha256": "5346f6c67e0f7f1e640d393816985ab17bfe2868012f2310d18c888883c9fc38",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900",
+      "upstreamSha256": {
+        "requirements": "587614a3022e0cd92e9b340432ee63330f20b62939f2cc3dfb4a314b1fdfab8a",
+        "design": "223ef5637907f02cdd6969244fb7254869049574ed11eeeecc62bc79cb901c88"
+      }
+    }
+  }
+}

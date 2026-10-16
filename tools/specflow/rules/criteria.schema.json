@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "specflow required decision criteria",
+  "description": "The reviewed criterion IDs that each need a rule (decision 2026-10-04 #4). check_rules.py tests the ID form, repeats, and the version itself, so each failure gets its own message.",
+  "type": "object",
+  "required": ["schemaVersion", "requiredCriteria"],
+  "properties": {
+    "schemaVersion": {"type": "integer"},
+    "requiredCriteria": {"type": "array", "items": {"type": "string"}}
+  }
+}
