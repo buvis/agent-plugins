@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-005",
+  "session": "intake-existing-code",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-order-webhooks/.specflow.json",
+      "pattern": "\"profile\": \"standard\""
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent recommend standard and name the trigger: the change crosses components and calls a system outside the repository?"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-053",
+  "session": "intake-nested-project",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)existing code"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)services/refunds"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent find the nested project under services/refunds after the root shows no signal, and classify the repository as existing code with that basis?"
+    }
+  ]
+}

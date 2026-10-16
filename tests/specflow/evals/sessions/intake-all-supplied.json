@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "name": "intake-all-supplied",
+  "fixture": "sessions/intake-all-supplied",
+  "turns": [
+    {
+      "developer": "Create a spec from intake item billing/00001-invoice-pdf."
+    },
+    {
+      "developer": "Yes: a feature, requirements-first, quick profile. Name the spec folder 00001-invoice-pdf.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Go ahead."
+    },
+    {
+      "developer": "Approve the requirements."
+    }
+  ]
+}

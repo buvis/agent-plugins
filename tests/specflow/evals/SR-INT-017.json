@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-017",
+  "session": "intake-all-supplied",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)src/invoices\\.py|requirements\\.txt"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the profile ratings explained with this repository's files, not with examples from another project?"
+    }
+  ]
+}

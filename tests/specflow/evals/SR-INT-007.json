@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-007",
+  "session": "late-profile-trigger",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "After the raise to standard, do the agent's further questions and its plan for the design follow the standard profile's range and depth rather than quick's?"
+    }
+  ]
+}

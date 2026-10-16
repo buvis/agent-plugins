@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-019",
+  "session": "intake-two-unknowns",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specflow/intake/new/00004-invoice-export/idea.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the number 00004 come from a scan of intake/new (00001), intake/processed (00002), and the specs folder (00003)?"
+    }
+  ]
+}

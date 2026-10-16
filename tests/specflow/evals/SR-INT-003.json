@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-003",
+  "session": "intake-all-supplied",
+  "assertions": [
+    {
+      "kind": "question_count_at_most",
+      "count": 1
+    },
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)should the html view|which (pdf )?library|is any (outside|external) system"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent ask no content question, since the idea supplies the problem, constraints, outside systems, test order, and success criterion, and ask only the one confirmation of type, order, and profile?"
+    }
+  ]
+}

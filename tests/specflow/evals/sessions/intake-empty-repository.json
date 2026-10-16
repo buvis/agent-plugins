@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "name": "intake-empty-repository",
+  "fixture": "sessions/intake-empty-repository",
+  "turns": [
+    {
+      "developer": "Create a spec from intake item 00001-habit-tracker."
+    },
+    {
+      "developer": "Python 3.12 only. No JavaScript framework, because nobody on the team can maintain one; render HTML on the server instead.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "No cloud services: the data stays on my own machine; use SQLite.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "pytest, with tests written before the code.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "No example to follow; PEP 8 is enough.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-habit-tracker.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Go ahead and draft."
+    }
+  ]
+}

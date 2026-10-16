@@ -68,6 +68,8 @@ A spec on hold or abandoned keeps its derived phase. Show the hold, and never of
 ## Profiles and language
 
 - [SR-SKL-005] The developer may raise the profile from `quick` to `standard` at any time. Write the new profile to `.specflow.json` and note the change in the Q&A log; the raise stales no approval, and from then on questions and reviews follow the standard profile. A profile is never lowered or raised without the developer.
+- [SR-SKL-013] When a `quick` spec shows, after intake, a change that is security-sensitive, architectural, a data migration, a public API, cross-component, about concurrency or timing, must match an existing implementation, invents an algorithm or a predicate, or is destructive, propose raising it to `standard` and say which trigger you saw. Raise it only when the developer agrees.
+- [SR-SKL-014] When the paths a spec affects become known or change, before you draft or edit that work, revisit which repository instructions apply to them (the instruction rule in `references/phases/intake.md`): read the newly relevant ones, update the discovery coverage, and when the spec's constraints change, correct the upstream artifact so the normal staling follows.
 - [SR-SKL-006] Write the structure of every artifact in English whatever language the developer uses: headings, IDs, field names, EARS keywords, markers such as `(guess)`, and file names. Prose may follow the developer's language.
 
 ## Conflicts and recovery
