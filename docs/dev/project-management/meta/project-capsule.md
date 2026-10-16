@@ -1,10 +1,10 @@
 # Project Capsule: buvis agent-plugins
 
-Generated: 2026-10-10
+Generated: 2026-10-16
 
 ## Key Invariants
 
-- specflow is dogfooded on itself: nine specs (00001-00009) under `docs/dev/project-management/specs/`, the folder `.agents/specflow.json` names. Approvals are dated receipts in each intake item's `qa-log.md` (naming a git blob) until the 00004 helper exists; no `.specflow.json` is written by hand (decision 2026-10-04 #7).
+- specflow is dogfooded on itself: nine specs (00001-00009) under `docs/dev/project-management/specs/`, the folder `.agents/specflow.json` names. Since 2026-10-16, 00002-00005 record approvals in `.specflow.json`, written by recovery mode from the `qa-log.md` receipts after the developer confirmed them, with values copied from `validate_spec.py hash --json`. 00001 and 00006-00009 still hold receipts only; recover each before its work starts.
 - A criterion has one home spec; other specs cite it as `00004 WF-004 criterion 8` (decision 2026-10-04 #9). Pointer lines ("Criterion 6: see 00006.") are not gaps.
 - Editing an approved `requirements.md`/`design.md` stales its approval: needs a new receipt in `qa-log.md` (precedent: 2026-10-09 #2, #3). `tasks.md` gaining only `Outcome:` lines does not.
 - Shipped code under `plugins/specflow/` is stdlib-only Python 3.10 and cannot import repo code (`scripts/validate.py`); copy patterns as ideas. Tests live in `tests/specflow/`, never in the package; the release check forbids it.
@@ -18,14 +18,14 @@ Generated: 2026-10-10
 ## Component Boundaries
 
 - 00004 builds `plugins/specflow/skills/spec-workflow/{templates,schemas,scripts,references}`; 00005 (T-071) and 00006 (T-039) register more checks into its `CHECKS` registry.
-- `tools/specflow/verify_release.py` (00002) gains two rules in T-026.
+- 00005 builds the maintainer-only rule inventory (`tools/specflow/rules/`, `tools/specflow/check_rules.py`) and the eval formats (`tests/specflow/evals/`). Each reference task of 00006 and 00007 writes its tagged rule texts and evals and adds its area to the CI step `check_rules.py --area VAL,...`.
 
 ## Active Work
 
-- 00002 and 00003 complete and merged (PR #1, #2). 00004 on `feature/specflow-00004` (2026-10-10): every task built except T-027's two Kiro IDE trials. The branch is unpushed: SSH needs 1Password unlocked, and the `gh` token lacks `workflow` scope for the `validate.yml` change. The design was corrected to the Kiro captures, so its approval and the plan's are stale until the developer re-approves. Completion review still to run in a fresh session.
-- The helper (`plugins/specflow/skills/spec-workflow/scripts/validate_spec.py`) now runs on this repo: `status` lists 00001-00009, all in phase `requirements`, because no `.specflow.json` exists yet. Approvals are still `qa-log.md` receipts until recovery mode records them.
+- 00002, 00003, and 00004 complete and merged (PR #1 to #3). `validate_spec.py status` shows them `complete`.
+- 00005 on `feature/specflow-00005` (2026-10-16): T-070, T-071, and T-069 built, each with its `Outcome:` line. Next: the pull request and CI, the two completion-criteria boxes, then the completion review in a fresh session.
 - Python target is 3.10 (CI). The user's global ruff config does not pin a target, so `ruff check --fix` rewrites code to 3.11+ APIs (UP017 broke the helper once). Run the contract tests on `mise exec python@3.10.22` after any ruff fix.
-- Intake `new/split-long-validator-functions/` is pending, unnumbered.
+- Intake `new/00010-split-long-validator-functions/` is pending (numbered 2026-10-16).
 
 ## Related context
 
@@ -38,7 +38,7 @@ Generated: 2026-10-10
 
 ## GitHub State
 
-- 0 open issues, 0 open PRs, no releases. CI (Validate) green on master 2026-10-10.
+- 0 open issues, no releases. PR #3 (00004) merged 2026-10-15; the 00005 PR follows.
 
 ## Project Health
 
