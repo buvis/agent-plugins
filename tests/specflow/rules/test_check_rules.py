@@ -82,7 +82,17 @@ class Fixture:
         self.criteria(["ART-002.14"])
         self.write(REFS / "artifact-contract.md", "- [SR-DLG-001] Ask one question.\n")
         self.write(REFS / "validation-rules.md", "- [SR-VAL-001] Stable IDs.\n")
-        self.write("tests/specflow/evals/SR-DLG-001.json", "{}\n")
+        assertions = [{"kind": "one_question_per_message"}]
+        record = {"schemaVersion": 1, "rule": "SR-DLG-001", "session": "one-question"}
+        self.write(
+            "tests/specflow/evals/SR-DLG-001.json",
+            json.dumps({**record, "assertions": assertions}),
+        )
+        session = {"schemaVersion": 1, "name": "one-question", "fixture": "specs/a"}
+        self.write(
+            "tests/specflow/evals/sessions/one-question.json",
+            json.dumps({**session, "turns": [{"developer": "Create a spec."}]}),
+        )
 
     def write(self, rel: str | Path, text: str) -> Path:
         path = self.root / rel

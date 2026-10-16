@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "specflow eval",
+  "description": "One behavioral rule's assertions over one named session. Every kind but rubric is deterministic; a rubric is judged by the developer by hand. check_rules.py also requires one or more assertions, rule equal to the file name without .json (except under examples/), and an existing session file.",
+  "type": "object",
+  "required": ["schemaVersion", "rule", "session", "assertions"],
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "rule": {"type": "string", "pattern": "^SR-[A-Z]{3}-[0-9]{3}(?!\\n)$"},
+    "session": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*(?!\\n)$"},
+    "assertions": {"type": "array", "items": {"$ref": "#/$defs/assertion"}}
+  },
+  "$defs": {
+    "path": {"type": "string", "minLength": 1},
+    "pattern": {"type": "string", "minLength": 1},
+    "check": {"type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*(?!\\n)$"},
+    "assertion": {
+      "oneOf": [
+        {"$ref": "#/$defs/path_only", "properties": {"kind": {"const": "file_exists"}}},
+        {"$ref": "#/$defs/path_only", "properties": {"kind": {"const": "file_unchanged"}}},
+        {"$ref": "#/$defs/path_only", "properties": {"kind": {"const": "file_absent"}}},
+        {"$ref": "#/$defs/path_pattern", "properties": {"kind": {"const": "file_matches"}}},
+        {"$ref": "#/$defs/path_pattern", "properties": {"kind": {"const": "file_lacks"}}},
+        {"$ref": "#/$defs/bare", "properties": {"kind": {"const": "one_question_per_message"}}},
+        {"$ref": "#/$defs/bare", "properties": {"kind": {"const": "recommended_option_first"}}},
+        {"$ref": "#/$defs/message", "properties": {"kind": {"const": "message_matches"}}},
+        {"$ref": "#/$defs/message", "properties": {"kind": {"const": "message_lacks"}}},
+        {"$ref": "#/$defs/read", "properties": {"kind": {"const": "file_read"}}},
+        {"$ref": "#/$defs/read", "properties": {"kind": {"const": "file_not_read"}}},
+        {"$ref": "#/$defs/validation", "properties": {"kind": {"const": "validation_passes"}}},
+        {"$ref": "#/$defs/validation", "properties": {"kind": {"const": "validation_reports"}}},
+        {
+          "type": "object",
+          "required": ["kind", "count"],
+          "additionalProperties": false,
+          "properties": {"kind": {"const": "question_count_at_most"}, "count": {"type": "integer"}}
+        },
+        {
+          "type": "object",
+          "required": ["kind", "rubric"],
+          "additionalProperties": false,
+          "properties": {"kind": {"const": "rubric"}, "rubric": {"type": "string", "minLength": 1}}
+        }
+      ]
+    },
+    "bare": {
+      "type": "object",
+      "required": ["kind"],
+      "additionalProperties": false,
+      "properties": {"kind": {"type": "string"}}
+    },
+    "path_only": {
+      "type": "object",
+      "required": ["kind", "path"],
+      "additionalProperties": false,
+      "properties": {"kind": {"type": "string"}, "path": {"$ref": "#/$defs/path"}}
+    },
+    "path_pattern": {
+      "type": "object",
+      "required": ["kind", "path", "pattern"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"type": "string"},
+        "path": {"$ref": "#/$defs/path"},
+        "pattern": {"$ref": "#/$defs/pattern"}
+      }
+    },
+    "message": {
+      "type": "object",
+      "required": ["kind", "pattern"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"type": "string"},
+        "pattern": {"$ref": "#/$defs/pattern"},
+        "turn": {"type": "integer"}
+      }
+    },
+    "read": {
+      "type": "object",
+      "required": ["kind", "path"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"type": "string"},
+        "path": {"$ref": "#/$defs/path"},
+        "before_turn": {"type": "integer"}
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["kind", "check"],
+      "additionalProperties": false,
+      "properties": {"kind": {"type": "string"}, "check": {"$ref": "#/$defs/check"}}
+    }
+  }
+}

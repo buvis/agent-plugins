@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-001",
+  "session": "example-requirements-dialogue",
+  "assertions": [
+    {"kind": "one_question_per_message"},
+    {"kind": "recommended_option_first"},
+    {"kind": "question_count_at_most", "count": 3},
+    {"kind": "message_matches", "pattern": "question \\d+ of about \\d+", "turn": 2},
+    {"kind": "message_lacks", "pattern": "(?i)approved"},
+    {"kind": "file_exists", "path": "requirements.md"},
+    {"kind": "file_absent", "path": "spike/SPEC.md"},
+    {"kind": "file_unchanged", "path": "design.md"},
+    {"kind": "file_matches", "path": "requirements.md", "pattern": "skipped row"},
+    {"kind": "file_lacks", "path": "requirements.md", "pattern": "TBD"},
+    {"kind": "file_read", "path": "requirements.md", "before_turn": 2},
+    {"kind": "file_not_read", "path": "tasks.md"},
+    {"kind": "validation_passes", "check": "requirement-ids"},
+    {"kind": "validation_reports", "check": "stale-approvals"},
+    {"kind": "rubric", "rubric": "Does the agent stop and show the conflict instead of overwriting the second writer's edit?"}
+  ]
+}

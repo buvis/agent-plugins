@@ -32,6 +32,7 @@ RULES = Path("tools/specflow/rules")
 SKILLS = Path("plugins/specflow/skills")
 WORKFLOW = SKILLS / "spec-workflow"
 EVALS = Path("tests/specflow/evals")
+EVAL_SCHEMAS = HERE.parents[1] / EVALS / "schemas"
 HEADER = [
     "id",
     "source skill",
@@ -186,6 +187,42 @@ def check_exists(root: Path, check: str) -> bool:
     return re.search(rf"^\s*def {re.escape(name)}\(", text, re.MULTILINE) is not None
 
 
+def record_problems(root: Path, path: Path, kind: str) -> list[str]:
+    """Why one eval or session record is malformed; empty when it is sound."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as problem:
+        return [f"not readable JSON: {problem}"]
+    schema = (EVAL_SCHEMAS / f"{kind}.schema.json").read_text(encoding="utf-8")
+    problems = check_schema(data, json.loads(schema))
+    if problems:
+        return problems
+    field = "rule" if kind == "eval" else "name"
+    if data[field] != path.stem:
+        problems.append(f"{field} {data[field]} differs from the file name {path.name}")
+    if kind == "eval":
+        if not data["assertions"]:
+            problems.append("no assertion")
+        session = EVALS / "sessions" / f"{data['session']}.json"
+        if not (root / session).is_file():
+            problems.append(
+                f"session {data['session']} has no file {session.as_posix()}"
+            )
+    return problems
+
+
+def record_errors(root: Path) -> dict[str, list[str]]:
+    """Problems of every eval and session record by path; examples/ is never read."""
+    found = {}
+    for kind, folder, pattern in (
+        ("eval", root / EVALS, "SR-*.json"),
+        ("session", root / EVALS / "sessions", "*.json"),
+    ):
+        for path in sorted(folder.glob(pattern)):
+            found[path.relative_to(root).as_posix()] = record_problems(root, path, kind)
+    return found
+
+
 def rule_errors(rule: dict, required: set[str]) -> list[str]:
     """The inventory's own tests of one rule; they run under any area filter."""
     rid, check = rule["id"], rule.get("check")
@@ -228,7 +265,12 @@ def source_errors(rule: dict, plans: dict[str, dict[str, str]]) -> list[str]:
     return errors
 
 
-def presence_errors(root: Path, rule: dict, tags: dict[str, list[str]]) -> list[str]:
+def presence_errors(
+    root: Path,
+    rule: dict,
+    tags: dict[str, list[str]],
+    records: dict[str, list[str]],
+) -> list[str]:
     """The file, tag, and check-existence tests that --area filters."""
     rid, path = rule["id"], rule_path(root, rule["file"])
     shown = path.relative_to(root).as_posix()
@@ -242,8 +284,15 @@ def presence_errors(root: Path, rule: dict, tags: dict[str, list[str]]) -> list[
     errors += [
         f"{rid}: tag also in {other}" for other in tags.get(rid, []) if other != shown
     ]
-    if "check" in rule and not check_exists(root, rule["check"]):
-        errors.append(f"{rid}: check {rule['check']} does not exist")
+    check = rule.get("check")
+    if check and not check_exists(root, check):
+        errors.append(f"{rid}: check {check} does not exist")
+    elif (
+        check
+        and check.startswith("evals/")
+        and records.get((EVALS / check[6:]).as_posix())
+    ):
+        errors.append(f"{rid}: check {check} does not validate")
     return errors
 
 
@@ -289,9 +338,11 @@ def check(root: Path, areas: frozenset[str] | None) -> tuple[list[str], list[str
         for ident, files in tags.items()
         if ident not in seen
     ]
+    records = record_errors(root)
+    errors += [f"{path}: {p}" for path, problems in records.items() for p in problems]
     for rule in rules:
         if areas is None or rule["id"].split("-")[1] in areas:
-            errors += presence_errors(root, rule, tags)
+            errors += presence_errors(root, rule, tags, records)
     return errors, info
 
 
