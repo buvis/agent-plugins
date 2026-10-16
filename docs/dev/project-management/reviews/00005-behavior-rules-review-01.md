@@ -184,3 +184,31 @@ The cycle converges under the severity bar (no CRITICAL or HIGH), so the rework 
 - F16: fix. The test asserts that the count of rows read from Plan A matches the plan's row lines, not a hard-coded 469. Queued.
 - F18: accepted (ledger entry added). Plan B arrives with T-079 (00007).
 - Design edits are recorded in the 00005 qa-log ("Review 00005-01 design edits"). They stale the design and tasks approvals, which are asked again after the fix.
+
+### Outcome (2026-10-16)
+
+Fix commit `ba8e7b8`; decisions and ledger `11f54ac`; placement correction `f2ef83a`.
+
+- F2 + F3: the five checks and their regexes moved to `specflow_helper/structural.py` (161 lines), registered in `CHECKS` through `from . import structural as structural` in the package `__init__.py`. An import at the bottom of `checks.py` would need a lint suppression, which aegis refuses. `checks.py` is back to 753 lines and byte-identical to its 00004 text at `392098d`, which led to the placement correction in `f2ef83a`. `StructuralRuleTest` moved to `test_structural_checks.py` (233 lines), and `test_checks.py` is now 653 lines.
+- F1: each of the three guard tests seeds a defect in the same file after its no-finding assertion. Mutation at `ba8e7b8`: with `closed_fences`, `portable_links` and `requirement_source` returning `[]`, all three tests fail.
+- F4: `MACHINE_PATH` takes `/word` with no further segment and `$HOME/` or `${HOME}/`; `test_portable_links` expects six hits, and the skip test gains a lone `/` and a positive control. Over the repository's nine specs the check reports the same four warnings as before.
+- F5: `check_exists` parses a `test:` file with `ast`; a name only in a docstring or a comment is missing.
+- F6 + F15: `unaccepted_markers(state, dependent, upstream, paths)` in `status.py` serves `marker_blockers` and `open_markers`, and `open-markers` joins `NOT_PER_SPEC`. `test_each_open_marker_is_one_blocker_per_dependent_approval` expects one blocker per dependent approval.
+- F7: `test_eval_formats.py` puts `tools/specflow` on `sys.path` itself; `test_eval_format_tests_run_on_their_own` runs it alone in a subprocess.
+- F9: a tag present twice in its own file fails (`appears 2 times`); repeated "tag also in" lines are deduplicated.
+- F11 + F17: `check_rules.py` itself refuses a `plans` key that is not one capital letter other than `D` and `R`, or a value that is not a non-empty string, and skips that plan. `check_schema` has no keyword for map keys or values, so the minutes' "the inventory schema constrains" became a check in the checker.
+- F12: a matrix with tables but no data row fails (`no row in the matrix tables`).
+- F13: `check.removeprefix("evals/")`.
+- F16: the test counts the matrix rows of Plan A by line shape and compares the count with the checker's line.
+- Fail-first, tests written before the code: rules 7 failures and 1 error (F5, F7, F9, F11 in four subTests with one `TypeError`, F12); contract 3 failures (F4 twice, F6). F16's independent count passes by design (469).
+- Gate at `ba8e7b8`, Python 3.14: `scripts` 12, release 52, contract 322, rules 58, all OK; `validate.py`, `check_rules.py --area VAL` and `verify_release.py` exit 0. Python 3.10.22: rules 58 OK, contract 322 OK. Lint: `ruff check` reports only the three ISC004 findings already in `test_checks.py`; `ruff format --check` is clean.
+- `CHANGELOG.md` gains two lines under Fixed: the root-level and `$HOME/` path warning, and one blocker per open marker in `status`.
+- Re-approvals: design at blob `a117391` and tasks at blob `3bda98d`, approved by the developer and recorded in `.specflow.json` with a fresh code baseline; `status` reports 00005 `complete` with no blocker and no warning (qa-log "Re-approvals, review 00005-01").
+- For later specs: the approved 00006 and 00007 designs still plan their new checks in `checks.py` and their seeded defects in `test_checks.py`. Both files have room again (753 and 653 lines), but those specs should place large additions the way 00005 now does.
+
+### Per-task patch review (2026-10-16)
+
+Pat (`agents/pat.md` rendered by `render_prompt.py`, Sonnet lane, `sonnet-run.sh -t ""`, no tools) reviewed `11f54ac..ba8e7b8` against the quoted findings and the recorded verification. Output: `docs/dev/tmp/review-task-00005c1rw.md`.
+
+- Closure: all 14 quoted findings (F1-F7, F9, F11-F13, F15-F17) resolved, each with the diff line that resolves it.
+- LOW `structural.py:22`: the root-level alternative warns on any ` /word` in prose, such as a slash command, and keeps a sentence's final `.` in the reported match. Accepted, no change: the check is a warning that never changes the exit status, the nine repository specs show no new hit, the `~/` branch has the same trailing-character behavior, and the ponytail note already names an allow list as the fix once a real spec needs one.
