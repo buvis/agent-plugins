@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-015",
+  "session": "design-open-marker",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specs/00001-csv-import-errors/design.md"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-csv-import-errors/.specflow.json",
+      "pattern": "\"acceptedMarkers\""
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent draft the design despite the (guess) in the approved requirements, refuse the first approval while that marker has no acceptance by name, and record the approval once the developer accepts it?"
+    }
+  ]
+}

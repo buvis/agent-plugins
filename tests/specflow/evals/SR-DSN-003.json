@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-003",
+  "session": "design-reuse",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Where the approach is a real choice, does the agent ask one question with two or three approaches and their trade-offs, and record the answer under ## Alternatives considered?"
+    }
+  ]
+}

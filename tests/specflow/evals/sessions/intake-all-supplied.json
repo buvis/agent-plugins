@@ -15,6 +15,12 @@
     },
     {
       "developer": "Approve the requirements."
+    },
+    {
+      "developer": "Continue with the design."
+    },
+    {
+      "developer": "Approve the design."
     }
   ]
 }

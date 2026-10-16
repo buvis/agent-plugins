@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "name": "design-reuse",
+  "fixture": "sessions/design-reuse",
+  "turns": [
+    {
+      "developer": "Continue spec 00001-retry-uploads."
+    },
+    {
+      "developer": "Follow the existing retry helper.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Approve the design."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-019",
+  "session": "shared-dialogue-design-first",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-retry-queue/design.md",
+      "pattern": "Not applicable: Design-First"
+    }
+  ]
+}

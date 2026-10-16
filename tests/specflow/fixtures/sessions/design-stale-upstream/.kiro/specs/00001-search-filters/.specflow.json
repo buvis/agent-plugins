@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "specId": "00001-search-filters",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "086fc26c4bd06f70ec18c833d65d5769c98ae6f4e3163cd59bd9625cb5f19cff",
+      "approvedSha256": "086fc26c4bd06f70ec18c833d65d5769c98ae6f4e3163cd59bd9625cb5f19cff",
+      "approvedAt": "2026-10-14T09:00:00Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "missing"
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "missing"
+    }
+  }
+}

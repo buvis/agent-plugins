@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-008",
+  "session": "design-reuse",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does ## Testing strategy state the mix of test kinds without imposing a coverage target?"
+    }
+  ]
+}

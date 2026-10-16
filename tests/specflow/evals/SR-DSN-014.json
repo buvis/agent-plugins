@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-014",
+  "session": "design-stale-upstream",
+  "assertions": [
+    {
+      "kind": "file_absent",
+      "path": ".kiro/specs/00001-search-filters/design.md"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)stale"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent refuse to draft the design while the requirements approval is stale, even when asked to draft anyway, and say that the requirements need approving again?"
+    }
+  ]
+}

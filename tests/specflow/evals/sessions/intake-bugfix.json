@@ -17,6 +17,15 @@
     {
       "developer": "Yes: a bugfix, requirements-first, standard profile. Name the spec folder 00001-discount-total.",
       "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Go ahead and draft bugfix.md."
+    },
+    {
+      "developer": "Approve it."
+    },
+    {
+      "developer": "Continue with the design."
     }
   ]
 }
