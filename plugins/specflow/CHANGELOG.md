@@ -70,3 +70,5 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: `validate --phase implementation` closes the gate on unaccepted upstream markers too, so it always agrees with `status`.
 - **specflow**: `validate` refuses a task that cites a requirement or criterion its own spec does not hold.
 - **specflow**: `validate` reads a task's `Requirements:` and `Acceptance criteria:` lines token by token, so stray words, dates, ranges or a note after a criteria list no longer raise a false unknown-citation error, and an ID that only starts like one the spec holds (`REQ-0010`) is reported.
+- **specflow**: `validate` also warns on a root-level absolute path such as `/tmp` or `/config.json` and on a `$HOME/` path.
+- **specflow**: `status` lists an unaccepted upstream marker once per dependent approval, no longer a second time as a validation error.

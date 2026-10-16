@@ -12,6 +12,7 @@ covered pair. Exit 0 on a pass, 1 on a failure, 2 on a usage error.
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 import sys
@@ -47,6 +48,7 @@ CLASSES = ("port", "redesign", "drop", "struck")
 CELL = re.compile(r"(?<!\\)\|")
 CRITERION = re.compile(r"^[A-Z]+-[0-9]{3}\.[0-9]+$")
 PLAN_SOURCE = re.compile(r"^([A-Z]):(.+)$")
+PLAN_KEY = re.compile(r"[A-CE-QS-Z]")  # D and R name the decision and requirement forms
 MD_TAG = re.compile(r"^\s*- \[(SR-[A-Z]{3}-[0-9]{3})\] ")
 PY_TAG = re.compile(r"^\s*# \[(SR-[A-Z]{3}-[0-9]{3})\] ")
 
@@ -111,7 +113,7 @@ def plan_rows(root: Path, rel: str, errors: list[str]) -> dict[str, str]:
         errors.append(f"{rel}: no ## Inventory Matrix section")
         return {}
     rows: dict[str, str] = {}
-    tables = 0
+    tables = data_rows = 0
     in_table = False
     for line in lines[start + 1 :]:
         if line.startswith("## "):
@@ -129,6 +131,7 @@ def plan_rows(root: Path, rel: str, errors: list[str]) -> dict[str, str]:
             continue
         if set(line.strip()) <= set("|-: "):
             continue
+        data_rows += 1
         ident = cells[0] if cells else line.strip()
         if len(cells) != len(HEADER):
             errors.append(f"{rel} {ident}: row has {len(cells)} cells, not 8 cells")
@@ -140,6 +143,8 @@ def plan_rows(root: Path, rel: str, errors: list[str]) -> dict[str, str]:
             rows[ident] = cells[4]
     if not tables:
         errors.append(f"{rel}: no matrix table under ## Inventory Matrix")
+    elif not data_rows:
+        errors.append(f"{rel}: no row in the matrix tables under ## Inventory Matrix")
     return rows
 
 
@@ -181,10 +186,13 @@ def check_exists(root: Path, check: str) -> bool:
         return (root / EVALS / check.removeprefix("evals/")).is_file()
     path, name = check.removeprefix("test:").split("::")
     try:
-        text = (root / path).read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
+        tree = ast.parse((root / path).read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, SyntaxError, ValueError):
         return False
-    return re.search(rf"^\s*def {re.escape(name)}\(", text, re.MULTILINE) is not None
+    return any(
+        isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name
+        for node in ast.walk(tree)
+    )
 
 
 def record_problems(root: Path, path: Path, kind: str) -> list[str]:
@@ -279,10 +287,14 @@ def presence_errors(
         errors.append(f"{rid}: file {shown} does not exist")
     elif not path.is_file():
         errors.append(f"{rid}: {shown} is not a file")
-    elif rid not in file_tags(path):
+    elif (count := file_tags(path).count(rid)) == 0:
         errors.append(f"{rid}: no tag [{rid}] in {shown}")
+    elif count > 1:
+        errors.append(f"{rid}: tag [{rid}] appears {count} times in {shown}")
     errors += [
-        f"{rid}: tag also in {other}" for other in tags.get(rid, []) if other != shown
+        f"{rid}: tag also in {other}"
+        for other in dict.fromkeys(tags.get(rid, []))
+        if other != shown
     ]
     check = rule.get("check")
     if check and not check_exists(root, check):
@@ -290,7 +302,7 @@ def presence_errors(
     elif (
         check
         and check.startswith("evals/")
-        and records.get((EVALS / check[6:]).as_posix())
+        and records.get((EVALS / check.removeprefix("evals/")).as_posix())
     ):
         errors.append(f"{rid}: check {check} does not validate")
     return errors
@@ -307,6 +319,12 @@ def check(root: Path, areas: frozenset[str] | None) -> tuple[list[str], list[str
     rules = inventory["rules"]
     plans = {}
     for key, rel in inventory["plans"].items():
+        if not PLAN_KEY.fullmatch(key) or not isinstance(rel, str) or not rel:
+            errors.append(
+                f"{RULES.as_posix()}/inventory.json: plans.{key}: a plan key is one"
+                " capital letter other than D and R, its value a non-empty path"
+            )
+            continue
         plans[key] = plan_rows(root, rel, errors)
         info.append(f"plan {key}: {len(plans[key])} rows read from {rel}")
     covered = {

@@ -132,7 +132,15 @@ class CheckRulesTest(unittest.TestCase):
     def test_every_approved_plan_a_row_has_a_rule(self) -> None:
         errors, info = check_rules.check(REPO, frozenset())
         self.assertEqual(errors, [])
-        self.assertIn(f"plan A: 469 rows read from {PLAN_A}", info)
+        # Counted here by line shape, not by the checker, so a row it skips fails.
+        text = (REPO / PLAN_A).read_text(encoding="utf-8")
+        matrix = text.split("\n## Inventory Matrix\n", 1)[1].split("\n## ", 1)[0]
+        rows = [
+            line
+            for line in matrix.splitlines()
+            if line.startswith("| ") and not line.startswith("| id |")
+        ]
+        self.assertIn(f"plan A: {len(rows)} rows read from {PLAN_A}", info)
 
     def test_no_drop_or_struck_row_has_a_rule(self) -> None:
         self.repo.inventory(
@@ -170,6 +178,14 @@ class CheckRulesTest(unittest.TestCase):
         self.repo.write(test, "class T:\n    def test_y(self):\n        pass\n")
         self.assertEqual(self.repo.run()[0], [])
 
+    def test_test_check_needs_a_function_definition(self) -> None:
+        test = "tests/specflow/review/test_x.py"
+        self.repo.write(
+            test, '"""Renamed from:\ndef test_y(self):\n"""\n# def test_y():\n'
+        )
+        self.repo.inventory([dlg_rule(), val_rule(check=f"test:{test}::test_y")])
+        self.assert_error(self.repo.run()[0], "SR-VAL-001", "test_y", "does not exist")
+
     def test_rejects_missing_rule_file(self) -> None:
         self.repo.inventory([dlg_rule(file="phases/requirements.md"), val_rule()])
         self.assert_error(self.repo.run()[0], "SR-DLG-001", "phases/requirements.md")
@@ -177,6 +193,15 @@ class CheckRulesTest(unittest.TestCase):
     def test_rejects_rule_tag_in_two_files(self) -> None:
         self.repo.write(REFS / "phases/intake.md", "- [SR-DLG-001] Ask one question.\n")
         self.assert_error(self.repo.run()[0], "SR-DLG-001", "phases/intake.md")
+
+    def test_rejects_rule_tag_twice_in_its_file(self) -> None:
+        self.repo.write(
+            REFS / "artifact-contract.md",
+            "- [SR-DLG-001] Ask one question.\n- [SR-DLG-001] Ask one question.\n",
+        )
+        self.assert_error(
+            self.repo.run()[0], "SR-DLG-001", "2 times", "artifact-contract.md"
+        )
 
     def test_required_list_is_the_reviewed_ids(self) -> None:
         path = REPO / "tools/specflow/rules/criteria.json"
@@ -280,6 +305,22 @@ class CheckRulesTest(unittest.TestCase):
         extra = "| ELI-05 | skill | phase | row |  | why | no | e |\n"
         self.repo.write("docs/plan-a.md", plan(extra=extra))
         self.assert_error(self.repo.run()[0], "ELI-05", "empty classification")
+
+    def test_rejects_matrix_table_without_a_row(self) -> None:
+        self.repo.write("docs/plan-a.md", plan(rows={}))
+        self.assert_error(self.repo.run()[0], "docs/plan-a.md", "no row")
+
+    def test_rejects_plan_key_or_path_of_another_shape(self) -> None:
+        for plans in (
+            {"A": 42},
+            {"A": ""},
+            {"D": "docs/plan-a.md"},
+            {"AB": "docs/plan-a.md"},
+        ):
+            with self.subTest(plans=plans):
+                data = {"schemaVersion": 1, "plans": plans, "rules": [val_rule()]}
+                self.repo.write("tools/specflow/rules/inventory.json", json.dumps(data))
+                self.assert_error(self.repo.run()[0], "inventory.json", "plan key")
 
     def test_rejects_source_naming_unknown_row_or_plan(self) -> None:
         rule = dlg_rule(sources=["A:ELI-01", "A:ELI-99", "B:PLT-01"])
@@ -401,6 +442,23 @@ class CheckRulesTest(unittest.TestCase):
             self.assertEqual(check_rules.main([], self.repo.root), 1)
         self.assertIn("error: A:ELI-02: ", err.getvalue())
         self.assertIn("plan A: 4 rows read", out.getvalue())
+
+    def test_eval_format_tests_run_on_their_own(self) -> None:
+        discover = [
+            "discover",
+            "-s",
+            "tests/specflow/rules",
+            "-p",
+            "test_eval_formats.py",
+        ]
+        result = subprocess.run(
+            [sys.executable, "-B", "-m", "unittest", *discover],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_sets_the_bytecode_flag_before_importing_the_helper(self) -> None:
         env = {k: v for k, v in os.environ.items() if k != "PYTHONDONTWRITEBYTECODE"}

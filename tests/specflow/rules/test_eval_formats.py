@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
+REPO = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(REPO / "tools" / "specflow"))
 import check_rules
-from test_check_rules import REPO, Fixture, dlg_rule, val_rule
+from test_check_rules import Fixture, dlg_rule, val_rule
 
 EVALS = REPO / "tests" / "specflow" / "evals"
 # Copied from the 00005 design (Data model, assertion kinds), not read from the schema.
