@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-016",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent run validate before asking for approval and report any placement-drift warning as an advisory?"
+    }
+  ]
+}

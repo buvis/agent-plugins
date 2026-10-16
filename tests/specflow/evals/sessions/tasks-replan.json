@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "name": "tasks-replan",
+  "fixture": "sessions/tasks-replan",
+  "turns": [
+    {
+      "developer": "Continue spec 00001-price-import."
+    },
+    {
+      "developer": "Re-plan: split T-002 into updating the prices and writing the report, two tasks."
+    },
+    {
+      "developer": "Approve the tasks."
+    }
+  ]
+}

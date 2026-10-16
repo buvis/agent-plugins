@@ -30,6 +30,7 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: the spike path in the intake reference: a rough spec, a throwaway build on its own folder or branch, the report with refine, graduate, or discard, and a sketch form of journeys and static mockups; `validate --phase intake` fails a sketch whose screens and mockups do not match one to one, whose actions do not link their targets, or whose journey holds a Mermaid line of no accepted kind (`sketch-screens`).
 - **specflow**: requirements-phase instructions (`references/phases/requirements.md`): a question bank by profile, non-answers and the spike offer, early exit, the contradiction check, `(guess)` markers and the guess-density offer, a `Source:` line per requirement, no priority tiers, and no solution posing as a requirement.
 - **specflow**: design-phase instructions (`references/phases/design.md`): drafting only from an approved upstream, open markers blocking approval but not drafting, reuse searches with a known-hit control, exact placement and interfaces, alternatives with the smallest diff and an existing library, every heading kept, and the code baseline captured at approval.
+- **specflow**: task-planning instructions (`references/phases/tasks.md`): contracts copied from the design, premises, owned verification, risk notes, the five sizing checks, re-planning that keeps checked tasks, and the planning summary; `validate` warns when two or more task `Location:` paths are missing from the design's placement (`placement-drift`).
 
 ### Fixed
 

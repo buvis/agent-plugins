@@ -89,5 +89,77 @@ class SketchScreensTest(ChecksTest):
         self.assertNotIn("sketch-screens", self.rules(spec))
 
 
+class PlacementDriftTest(ChecksTest):
+    """placement-drift on the task plan, and the T-026 rejections on the same plan (T-034)."""
+
+    def drift(self, spec: Path, level: str = "warning") -> list[dict]:
+        return [
+            f
+            for f in validate(self.repo, spec, "tasks")
+            if f["rule"] == "placement-drift" and f["level"] == level
+        ]
+
+    def test_two_modules_absent_from_placement_warn(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(
+            spec / "tasks.md",
+            "`src/import/log.py`",
+            "`src/import/log.py`, `src/report/rate.py`, `src/report/mail.py`",
+        )
+        [warning] = self.drift(spec)
+        self.assertIn("src/report/rate.py, src/report/mail.py", warning["message"])
+        self.assertNotIn("placement-drift", self.rules(spec, "tasks"))
+
+    def test_one_module_absent_does_not_warn(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(
+            spec / "tasks.md", "`src/import/log.py`", "`src/import/log.py`, `src/x.py`"
+        )
+        self.assertEqual(self.drift(spec), [])
+
+    def test_placed_modules_and_a_placed_folder_do_not_warn(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.assertEqual(self.drift(spec), [])
+        self.edit(spec / "design.md", "`src/import/log.py`", "`src/import/`")
+        self.edit(
+            spec / "tasks.md",
+            "`src/import/log.py`",
+            "`src/import/log.py`, `src/import/rate.py`",
+        )
+        self.assertEqual(self.drift(spec), [])
+
+    def test_design_without_a_placement_section_is_not_checked(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(spec / "design.md", "## Module placement", "## Layout")
+        self.edit(spec / "tasks.md", "`src/import/log.py`", "`src/a.py`, `src/b.py`")
+        self.assertEqual(self.drift(spec), [])
+
+    def test_task_plan_defects_are_rejected(self) -> None:
+        cases = {
+            "orphan requirement": (
+                "requirement-coverage",
+                [
+                    ("  - Requirements: REQ-002", "  - Requirements: REQ-001"),
+                    ("REQ-002 criterion 1", "REQ-001 criterion 1"),
+                ],
+            ),
+            "dependency cycle": (
+                "task-structure",
+                [("  - Depends on: none", "  - Depends on: T-002")],
+            ),
+            "missing verification": (
+                "task-structure",
+                [("  - Verify: `python -m unittest tests.test_log`\n", "")],
+            ),
+            "unstable syntax": ("task-structure", [("- [ ] T-002", "- [o] T-002")]),
+        }
+        for case, (rule, edits) in cases.items():
+            with self.subTest(case=case):
+                spec = self.copy("00101-feature-sample", f"00101-{case.split()[0]}")
+                for old, new in edits:
+                    self.edit(spec / "tasks.md", old, new)
+                self.assertIn(rule, self.rules(spec, "tasks"))
+
+
 if __name__ == "__main__":
     unittest.main()

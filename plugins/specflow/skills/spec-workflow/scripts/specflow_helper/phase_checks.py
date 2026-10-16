@@ -5,8 +5,10 @@ from __future__ import annotations
 import re
 from functools import partial
 
-from .checks import Context, check, error, read_text
-from .findings import Finding
+from .checks import TASKS_ON, Context, check, error, read_text, rel
+from .findings import Finding, finding
+from .spec_text import prose, sections
+from .state import artifact_paths
 
 SCREEN = r"[A-Za-z][\w-]*"
 LABEL = r"(?:\[[^\]\n]*\]|\([^)\n]*\)|\{[^}\n]*\})"
@@ -17,6 +19,10 @@ EDGE = re.compile(rf"^{END}\s*(?:-->\s*\|([^|\n]+)\|\s*|--\s+(.+?)\s+-->\s*){END
 HREF = re.compile(r"""href\s*=\s*["'](?:\./)?([^"'#?]+)""", re.IGNORECASE)
 INDEX = "index"
 Edge = tuple[int, str, str, str]  # line, source, action, target
+CODE_SPAN = re.compile(r"`([^`\s]+)`")
+LOCATION = re.compile(r"^\s*- Location:\s*(.*)$")
+# The template's ## Module placement, or a native or bugfix design's section that names files.
+PLACEMENT = re.compile(r"placement|file|fix implementation", re.IGNORECASE)
 
 
 def journey_lines(text: str) -> list[tuple[int, str]]:
@@ -126,3 +132,51 @@ def sketch_screens(ctx: Context) -> list[Finding]:
                 )
             )
     return findings
+
+
+def placed_paths(design: str) -> set[str]:
+    """Inline-code paths of the design's placement sections; empty when it has none."""
+    return {
+        path
+        for heading, lines in sections(design).items()
+        if PLACEMENT.search(heading)
+        for line in lines
+        for path in CODE_SPAN.findall(line)
+    }
+
+
+@check("placement-drift", TASKS_ON)
+def placement_drift(ctx: Context) -> list[Finding]:
+    """Two or more Location paths the design's placement does not name (ART-004.15)."""
+    paths = artifact_paths(ctx.spec_dir, ctx.state)
+    design, tasks = read_text(paths["design"]), read_text(paths["tasks"])
+    placed = placed_paths(design or "")
+    if not placed or tasks is None:
+        return []
+    # ponytail: Location paths count only in inline code; plain-text lists are not parsed.
+    named = dict.fromkeys(
+        path
+        for _, line in prose(tasks)
+        if (location := LOCATION.match(line))
+        for path in CODE_SPAN.findall(location[1])
+    )
+    absent = [
+        path
+        for path in named
+        if not any(
+            path == p or (p.endswith("/") and path.startswith(p)) for p in placed
+        )
+    ]
+    if len(absent) < 2:
+        return []
+    return [
+        finding(
+            rel(ctx, paths["tasks"]),
+            "placement-drift",
+            f"{len(absent)} Location paths are not in the design's placement: "
+            + ", ".join(absent),
+            "Add them to the design's ## Module placement, or keep the tasks"
+            " to the files it names.",
+            "warning",
+        )
+    ]

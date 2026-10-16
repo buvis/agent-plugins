@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-018",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-order-export/tasks.md",
+      "pattern": "(?m)^- \\[ \\] T-001 "
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-order-export/tasks.md",
+      "pattern": "(?m)^  - Acceptance criteria: REQ-00[12] criteri"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-012",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-order-export/tasks.md",
+      "pattern": "(?m)^  - Risk: .*(?i:currency|orders_in|csv header)"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does a Risk: note appear only on the tasks whose contract changes the order shape or the CSV header, and on no task that only calls an interface?"
+    }
+  ]
+}

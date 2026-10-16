@@ -16,6 +16,18 @@
     },
     {
       "developer": "Go ahead and draft."
+    },
+    {
+      "developer": "Approve the requirements."
+    },
+    {
+      "developer": "Continue with the design."
+    },
+    {
+      "developer": "Approve the design."
+    },
+    {
+      "developer": "Continue with the tasks."
     }
   ]
 }
