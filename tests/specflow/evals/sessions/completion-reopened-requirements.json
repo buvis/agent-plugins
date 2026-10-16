@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "completion-reopened-requirements",
+  "fixture": "sessions/completion-reopened-requirements",
+  "turns": [
+    {
+      "developer": "Verify spec 00001-cart-rounding. I just learned the shop must round half up, not half to even as round() does."
+    },
+    {
+      "developer": "Yes, correct the requirements."
+    }
+  ]
+}

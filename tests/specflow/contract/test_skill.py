@@ -15,7 +15,6 @@ SIZE_LIMIT = 500
 # Routed files a later task writes. Each task takes its own off the list; a
 # listed file that exists fails, so the list cannot go stale.
 NOT_WRITTEN_YET = {
-    "references/phases/verification.md",  # T-036
     "references/review/core.md",  # 00007
     "references/review/requirements.md",  # 00007
     "references/review/design/",  # 00007
