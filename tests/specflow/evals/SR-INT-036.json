@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-036",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent keep the build small enough to demonstrate quickly, and would it stop and report if the demonstration could not be reached within about an hour?"
+    }
+  ]
+}

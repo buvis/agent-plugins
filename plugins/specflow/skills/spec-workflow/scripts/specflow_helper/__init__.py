@@ -2,5 +2,6 @@
 
 WORKFLOW_VERSION = "0.1.0"
 
-# Registers the structural checks of 00005 in CHECKS, whichever module is imported first.
+# Registers the checks of 00005 and 00006 in CHECKS, whichever module is imported first.
+from . import phase_checks as phase_checks
 from . import structural as structural

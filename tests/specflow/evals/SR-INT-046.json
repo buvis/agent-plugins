@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-046",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-todo-calendar/requirements.md",
+      "pattern": "(?m)^Sources: .*00001-todo-calendar.*spike"
+    }
+  ]
+}

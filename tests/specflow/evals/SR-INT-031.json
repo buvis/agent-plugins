@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-031",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "file_absent",
+      "path": ".kiro/specs/00001-todo-calendar/tasks.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent build the demonstration directly, with no task plan, test-first step, or approval before the build?"
+    }
+  ]
+}

@@ -58,3 +58,52 @@ Revisiting instruction scope when the affected paths become known or change is a
 - [SR-INT-061] For a bugfix, collect the reproduction steps, the current behavior, the expected behavior, and the constraints (behavior or code that must not change), asking one question at a time and only for an item the developer has not given. Under either profile, read the code around the defect before the design is drafted.
 
 Each of these questions draws on the intake budget above.
+
+## Spike path
+
+A spike answers a fuzzy idea with a throwaway build instead of more questions. It lives in the intake item, before any spec exists.
+
+### Entry and rough spec
+
+- [SR-INT-021] Offer a spike at intake when the idea is too unclear to specify, or during requirements after the developer's second non-answer to a contract-level question: spike it, keep answering, or park the item with its open questions under unresolved questions. The developer may also ask for one directly ("spike this", "prototype this idea", "a throwaway prototype"). The spike path is part of this skill, chosen before requirements.
+- [SR-INT-022] A spike needs only Git and a host where the developer attends the build; it holds the same way on every host.
+- [SR-INT-024] The rough spec is a guess and the build is how the guess gets tested: iterate with the developer until the contract is real, then graduate. Nothing built in a spike ships.
+- [SR-INT-025] Write the rough spec as `spike/SPEC.md` in the intake item, from `templates/intake/SPEC.md`; it moves with the item.
+- [SR-INT-026] `SPEC.md` records the developer's idea verbatim.
+- [SR-INT-027] `SPEC.md` states the smallest outcome that demonstrates the idea end to end.
+- [SR-INT-028] `SPEC.md` lists the guessed contract (inputs, outputs, interfaces), each guess marked `(guess)`.
+- [SR-INT-029] When the developer gave only a phrase, ask at most one question, the most consequential, and guess the rest.
+- [SR-INT-030] Spend about ten minutes on the rough spec, with no polish.
+
+### Build
+
+- [SR-INT-031] Build the smallest end-to-end demonstration directly. The task, test, and approval gates of specflow do not apply to a spike.
+- [SR-INT-032] A standalone idea builds inside the intake item's `spike/` folder.
+- [SR-INT-033] A change to existing code builds on a branch `spike/NNNNN-<title>`, in a separate worktree when the working tree has changes, and never on the current branch.
+- [SR-INT-034] Never touch production data, live services, or anything irreversible from a spike.
+- [SR-INT-035] Keep input validation at real trust boundaries; only specflow's own verification and approval gates are skipped.
+- [SR-INT-036] Aim for about twenty minutes of building. When it will not demonstrate within about an hour, stop, report what you have, and carry the open questions into the requirements phase.
+
+### Sketch form
+
+- [SR-INT-058] For a user-facing feature the build may be a sketch instead of running code. `spike/journey.md` holds one Mermaid flowchart per user type: each node a screen the user sees, each edge a user action. Use the same screen ID wherever a screen recurs, across user types too; a distinct visible state may have its own ID. `spike/mockups/` holds exactly one `<screen-id>.html` per unique screen ID, and `index.html` for navigation only (`index` is never a screen ID); no mockup belongs to no screen. Every mockup is self-contained, with no script and no network resource, says "mockup, not functional" at the top, and carries a one-line accessibility note (its heading level, landmark regions, and keyboard entry point; an unknown target level stays open, and the note claims no conformance). Each declared action links, in the edge's words, to its target's file; a terminal screen gets no invented action, and no screen shows a feature the rough spec lacks. Reuse the design-system, UI-pattern, and accessibility requirements the input and the instructions already give; ask only material unknowns, from the same question budget. For phrase-only entry the one question covers the rough spec and the sketch together; record the remaining choices as `(guess)` or open questions in `SPEC.md` and in the report. After writing or changing the mockups, and before showing them, run `validate_spec.py validate <intake item> --phase intake` and fix every `sketch-screens` error.
+
+### Report and the three choices
+
+- [SR-INT-037] After each build, report first what was built and how to run it, in two or three lines with the run command.
+- [SR-INT-038] Then `ASSUMPTIONS:`, one line per choice you made where `SPEC.md` was silent.
+- [SR-INT-039] Then `OPEN QUESTIONS:`, what the build surfaced.
+- [SR-INT-040] Then ask one question with exactly three choices: refine, graduate, or discard.
+- [SR-INT-041] Refine: fold the answers into `SPEC.md` and rebuild in place, back to the build.
+- [SR-INT-042] Never start another build, or chain refine cycles, without the developer; their look at each build is the point.
+- [SR-INT-043] Discard: delete the spike folder or branch after the developer confirms the exact target. The intake item stays in `new/` unless the developer asks to remove it.
+
+### Graduate
+
+- [SR-INT-023] Graduating hands the spike to the requirements phase of this same skill.
+- [SR-INT-044] Graduate: enter the requirements phase for the spec `NNNNN-<title>`; the intake item, with `spike/`, moves to `processed/` when the requirements artifact is first written.
+- [SR-INT-045] The requirements record the behavior the spike showed, not the original guesses.
+- [SR-INT-046] The requirements' `Sources:` line names the intake item and the spike folder or branch.
+- [SR-INT-047] The real implementation goes through the design, tasks, implementation, and verification phases, built anew; nothing is copied over from the spike.
+
+Spike code never merges. At verification, `references/phases/verification.md` checks that no spike path or branch is part of the change and, at `complete`, offers to delete the spike; it is not repeated here.
