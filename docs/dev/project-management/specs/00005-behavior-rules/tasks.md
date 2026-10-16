@@ -26,7 +26,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 - [x] T-071 Add validator checks for the structural rules
   - Requirements: RULE-001; VAL-001; 00004 ART-001 criterion 10; 00004 WF-002 criterion 7
   - Depends on: T-070
-  - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/structural.py`, `plugins/specflow/skills/spec-workflow/references/validation-rules.md`, `tests/specflow/contract/test_structural_checks.py`, `tools/specflow/rules/inventory.json`, `.github/workflows/validate.yml`
+  - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/__init__.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/structural.py`, `plugins/specflow/skills/spec-workflow/references/validation-rules.md`, `tests/specflow/contract/test_structural_checks.py`, `tools/specflow/rules/inventory.json`, `.github/workflows/validate.yml`
   - Reuse: `CHECKS`, `Finding`, and the marker scanner of `specflow_helper` (00004); where a check of 00004 already enforces a structural rule, the inventory names that check's key and no second check is written.
   - Contract: T-071 registers these checks in `CHECKS`, each with its phases, and adds one more for each structural rule of the inventory that no check of 00004 already enforces, named in kebab case for what it proves; where a 00004 check enforces the rule, the inventory names that check's key.
   - Details:

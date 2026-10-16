@@ -26,7 +26,8 @@ tools/specflow/
 plugins/specflow/skills/spec-workflow/
 ├── references/validation-rules.md            # Text of structural rules no phase file carries (area VAL)
 └── scripts/specflow_helper/
-    ├── checks.py                             # The check registry of 00004, extended here
+    ├── __init__.py                           # Imports structural.py, so its checks register
+    ├── checks.py                             # The check registry of 00004, unchanged
     └── structural.py                         # The five checks of T-071, registered in it
 tests/specflow/
 ├── evals/
@@ -49,7 +50,7 @@ The inventory is the hub. A port-plan row or a required criterion points into it
 | `tools/specflow/check_rules.py` | new | T-070 | the checker |
 | `tests/specflow/rules/test_check_rules.py` | new | T-070 | its tests; fixtures are built in temporary folders |
 | `.github/workflows/validate.yml` | edit | T-070 | two steps: the checker's tests, and the checker with the list of finished areas |
-| `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py` | edit | T-071 | the registry entries of the structural checks |
+| `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/__init__.py` | edit | T-071, review 00005-01 F2 | imports `structural.py`, so its checks register in `CHECKS` of `checks.py` whichever helper module loads first |
 | `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/structural.py` | new | T-071, review 00005-01 F2 | one named check per structural rule, so `checks.py` stays under 800 lines |
 | `plugins/specflow/skills/spec-workflow/references/validation-rules.md` | new | T-071 | structural rule texts, tagged with their IDs |
 | `tests/specflow/contract/test_structural_checks.py` | new | T-071, review 00005-01 F3 | one seeded defect per check, so `test_checks.py` stays under 800 lines |
