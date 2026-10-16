@@ -228,3 +228,12 @@ each landing exactly once.
 - Outstanding questions: none.
 - Next action: implementation, in dependency order, starting with 00002 (T-001); once the helper of 00004 exists, recovery mode records these receipts as real approvals after the developer confirms each.
 - Verdict: COMPLETE (11 tasks planned; implementation not started).
+
+## Recovery (2026-10-16)
+
+- Recovery mode (00004 design, reconciliation step 10 and the migration note) recorded the receipts above in `docs/dev/project-management/specs/00006-runtime-skill/.specflow.json`, values copied from `validate_spec.py hash --json`.
+- Question: one question listing each artifact, its receipt date, and the blob check. Answer: "Record all (Recommended)".
+- Requirements: realises the approval of 2026-10-04 (commit `b6112ad`); blob `fb01bd9` unchanged.
+- Design: realises the re-approval of 2026-10-06; blob `0ee0586` unchanged. Code baseline captured by `code-baseline` over the eighteen files of `## Module placement`, before any task starts. Left out, since `code-baseline` refuses a folder: `tests/specflow/fixtures/sketch/`, `tests/specflow/fixtures/specs/`, and the per-task patterns `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `tests/specflow/evals/SR-<area>-NNN.json`.
+- Tasks: realises the approval of 2026-10-06; blob `339b97c` unchanged.
+- `reconcile` then reports phase `implementation`, next task T-030.
