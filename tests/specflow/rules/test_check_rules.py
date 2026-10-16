@@ -91,7 +91,11 @@ class Fixture:
         return path
 
     def inventory(self, rules: list[dict], version: object = 1) -> None:
-        data = {"schemaVersion": version, "plans": {"A": "docs/plan-a.md"}, "rules": rules}
+        data = {
+            "schemaVersion": version,
+            "plans": {"A": "docs/plan-a.md"},
+            "rules": rules,
+        }
         self.write("tools/specflow/rules/inventory.json", json.dumps(data))
 
     def criteria(self, ids: object, version: object = 1) -> None:
@@ -259,7 +263,9 @@ class CheckRulesTest(unittest.TestCase):
     def test_rejects_plan_without_matrix_table_or_with_empty_classification(
         self,
     ) -> None:
-        self.repo.write("docs/plan-a.md", "# Plan\n\n## Inventory Matrix\n\nNo table.\n")
+        self.repo.write(
+            "docs/plan-a.md", "# Plan\n\n## Inventory Matrix\n\nNo table.\n"
+        )
         self.assert_error(self.repo.run()[0], "docs/plan-a.md", "no matrix table")
         extra = "| ELI-05 | skill | phase | row |  | why | no | e |\n"
         self.repo.write("docs/plan-a.md", plan(extra=extra))
@@ -283,8 +289,12 @@ class CheckRulesTest(unittest.TestCase):
             "```\n- [SR-DLG-001] fenced\n```\n"
         )
         self.repo.write(REFS / "artifact-contract.md", text)
-        self.assert_error(self.repo.run()[0], "SR-DLG-001", "tag", "artifact-contract.md")
-        self.repo.write(REFS / "artifact-contract.md", text + "  - [SR-DLG-001] Nested.\n")
+        self.assert_error(
+            self.repo.run()[0], "SR-DLG-001", "tag", "artifact-contract.md"
+        )
+        self.repo.write(
+            REFS / "artifact-contract.md", text + "  - [SR-DLG-001] Nested.\n"
+        )
         self.assertEqual(self.repo.run()[0], [])
 
     def test_script_tag_is_a_comment_line(self) -> None:
@@ -311,7 +321,9 @@ class CheckRulesTest(unittest.TestCase):
         self.assert_error(self.repo.run()[0], "inventory.json", "missing")
 
     def test_rejects_inventory_that_fails_its_schema(self) -> None:
-        self.repo.inventory([dlg_rule(text="Ask one question."), val_rule(kind="other")])
+        self.repo.inventory(
+            [dlg_rule(text="Ask one question."), val_rule(kind="other")]
+        )
         errors, _ = self.repo.run()
         self.assert_error(errors, "inventory.json", "text")
         self.assert_error(errors, "inventory.json", "kind")
@@ -340,14 +352,20 @@ class CheckRulesTest(unittest.TestCase):
         self.assert_error(errors, "SR-DLG-001", "evals/SR-DLG-002.json", "another rule")
 
     def test_rejects_rule_file_under_aws(self) -> None:
-        self.repo.write(REFS / "aws/requirements.md", "- [SR-DLG-001] Ask one question.\n")
+        self.repo.write(
+            REFS / "aws/requirements.md", "- [SR-DLG-001] Ask one question.\n"
+        )
         (self.repo.root / REFS / "artifact-contract.md").unlink()
         self.repo.inventory([dlg_rule(file="aws/requirements.md"), val_rule()])
         self.assert_error(self.repo.run()[0], "SR-DLG-001", "aws/")
 
     def test_rejects_tag_of_no_rule(self) -> None:
-        self.repo.write(REFS / "phases/intake.md", "- [SR-INT-009] Not in the inventory.\n")
-        self.assert_error(self.repo.run(frozenset())[0], "SR-INT-009", "phases/intake.md")
+        self.repo.write(
+            REFS / "phases/intake.md", "- [SR-INT-009] Not in the inventory.\n"
+        )
+        self.assert_error(
+            self.repo.run(frozenset())[0], "SR-INT-009", "phases/intake.md"
+        )
 
     def test_area_none_skips_file_tag_and_check_tests(self) -> None:
         (self.repo.root / REFS / "artifact-contract.md").unlink()
@@ -358,7 +376,10 @@ class CheckRulesTest(unittest.TestCase):
 
     def test_unknown_area_is_a_usage_error(self) -> None:
         stderr = io.StringIO()
-        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(stderr):
+        with (
+            contextlib.redirect_stdout(io.StringIO()),
+            contextlib.redirect_stderr(stderr),
+        ):
             self.assertEqual(check_rules.main(["--area", "XYZ"], self.repo.root), 2)
             self.assertEqual(check_rules.main(["--area", "VAL"], self.repo.root), 0)
         self.assertIn("XYZ", stderr.getvalue())

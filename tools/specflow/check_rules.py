@@ -20,7 +20,9 @@ from pathlib import Path
 # Before the helper is imported, so a run leaves no __pycache__ in the package.
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parents[1] / "plugins/specflow/skills/spec-workflow/scripts"))
+sys.path.insert(
+    0, str(HERE.parents[1] / "plugins/specflow/skills/spec-workflow/scripts")
+)
 
 from specflow_helper.checks import CHECKS
 from specflow_helper.schema import check_schema
@@ -30,7 +32,16 @@ RULES = Path("tools/specflow/rules")
 SKILLS = Path("plugins/specflow/skills")
 WORKFLOW = SKILLS / "spec-workflow"
 EVALS = Path("tests/specflow/evals")
-HEADER = ["id", "source skill", "phase", "row", "classification", "reason", "code-only", "evidence"]
+HEADER = [
+    "id",
+    "source skill",
+    "phase",
+    "row",
+    "classification",
+    "reason",
+    "code-only",
+    "evidence",
+]
 CLASSES = ("port", "redesign", "drop", "struck")
 CELL = re.compile(r"(?<!\\)\|")
 CRITERION = re.compile(r"^[A-Z]+-[0-9]{3}\.[0-9]+$")
@@ -51,7 +62,11 @@ def load_json(root: Path, name: str, errors: list[str]) -> dict | None:
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as problem:
         errors.append(f"{subject}: not readable JSON: {problem}")
         return None
-    schema = json.loads((HERE / "rules" / name.replace(".json", ".schema.json")).read_text(encoding="utf-8"))
+    schema = json.loads(
+        (HERE / "rules" / name.replace(".json", ".schema.json")).read_text(
+            encoding="utf-8"
+        )
+    )
     problems = check_schema(data, schema)
     errors += [f"{subject}: {p}" for p in problems]
     if problems:
@@ -87,7 +102,10 @@ def plan_rows(root: Path, rel: str, errors: list[str]) -> dict[str, str]:
         errors.append(f"{rel}: cannot be read: {problem}")
         return {}
     lines = [line for _, line in prose(text)]
-    start = next((i for i, line in enumerate(lines) if line.rstrip() == "## Inventory Matrix"), None)
+    start = next(
+        (i for i, line in enumerate(lines) if line.rstrip() == "## Inventory Matrix"),
+        None,
+    )
     if start is None:
         errors.append(f"{rel}: no ## Inventory Matrix section")
         return {}
@@ -104,7 +122,9 @@ def plan_rows(root: Path, rel: str, errors: list[str]) -> dict[str, str]:
         if not in_table:
             in_table, tables = True, tables + 1
             if cells != HEADER:
-                errors.append(f"{rel}: matrix table with another header: {line.strip()}")
+                errors.append(
+                    f"{rel}: matrix table with another header: {line.strip()}"
+                )
             continue
         if set(line.strip()) <= set("|-: "):
             continue
@@ -169,13 +189,21 @@ def check_exists(root: Path, check: str) -> bool:
 def rule_errors(rule: dict, required: set[str]) -> list[str]:
     """The inventory's own tests of one rule; they run under any area filter."""
     rid, check = rule["id"], rule.get("check")
-    errors = [f"{rid}: criterion {c} is not in the required list" for c in rule.get("criteria", []) if c not in required]
+    errors = [
+        f"{rid}: criterion {c} is not in the required list"
+        for c in rule.get("criteria", [])
+        if c not in required
+    ]
     if rule["file"].startswith("aws/"):
-        errors.append(f"{rid}: file {rule['file']} is under aws/, which a catch-up edits")
+        errors.append(
+            f"{rid}: file {rule['file']} is under aws/, which a catch-up edits"
+        )
     if check is None:
         return [*errors, f"{rid}: no check"]
     if rule["kind"] == "structural" and check.startswith("evals/"):
-        errors.append(f"{rid}: a structural rule needs a validator: or test: check, not {check}")
+        errors.append(
+            f"{rid}: a structural rule needs a validator: or test: check, not {check}"
+        )
     if rule["kind"] == "behavioral" and not check.startswith("evals/"):
         errors.append(f"{rid}: a behavioral rule needs an evals/ check, not {check}")
     if check.startswith("evals/") and check != f"evals/{rid}.json":
@@ -194,7 +222,9 @@ def source_errors(rule: dict, plans: dict[str, dict[str, str]]) -> list[str]:
         elif match[2] not in plans[match[1]]:
             errors.append(f"{rule['id']}: source {source} names an unknown row")
         elif plans[match[1]][match[2]] in ("drop", "struck"):
-            errors.append(f"{rule['id']}: source {source} is a {plans[match[1]][match[2]]} row")
+            errors.append(
+                f"{rule['id']}: source {source} is a {plans[match[1]][match[2]]} row"
+            )
     return errors
 
 
@@ -209,7 +239,9 @@ def presence_errors(root: Path, rule: dict, tags: dict[str, list[str]]) -> list[
         errors.append(f"{rid}: {shown} is not a file")
     elif rid not in file_tags(path):
         errors.append(f"{rid}: no tag [{rid}] in {shown}")
-    errors += [f"{rid}: tag also in {other}" for other in tags.get(rid, []) if other != shown]
+    errors += [
+        f"{rid}: tag also in {other}" for other in tags.get(rid, []) if other != shown
+    ]
     if "check" in rule and not check_exists(root, rule["check"]):
         errors.append(f"{rid}: check {rule['check']} does not exist")
     return errors
@@ -228,7 +260,9 @@ def check(root: Path, areas: frozenset[str] | None) -> tuple[list[str], list[str
     for key, rel in inventory["plans"].items():
         plans[key] = plan_rows(root, rel, errors)
         info.append(f"plan {key}: {len(plans[key])} rows read from {rel}")
-    covered = {m.groups() for r in rules for s in r["sources"] if (m := PLAN_SOURCE.match(s))}
+    covered = {
+        m.groups() for r in rules for s in r["sources"] if (m := PLAN_SOURCE.match(s))
+    }
     for key, rows in plans.items():
         errors += [
             f"{key}:{row}: {cls} row has no rule"
@@ -246,9 +280,15 @@ def check(root: Path, areas: frozenset[str] | None) -> tuple[list[str], list[str
         mapped = [r for r in rules if ident in r.get("criteria", [])]
         if not mapped:
             errors.append(f"{ident}: no rule covers this required criterion")
-        info += [f"{ident} -> {r['id']} -> {r.get('check', '(no check)')}" for r in mapped]
+        info += [
+            f"{ident} -> {r['id']} -> {r.get('check', '(no check)')}" for r in mapped
+        ]
     tags = package_tags(root)
-    errors += [f"{ident}: tag in {files[0]} belongs to no rule" for ident, files in tags.items() if ident not in seen]
+    errors += [
+        f"{ident}: tag in {files[0]} belongs to no rule"
+        for ident, files in tags.items()
+        if ident not in seen
+    ]
     for rule in rules:
         if areas is None or rule["id"].split("-")[1] in areas:
             errors += presence_errors(root, rule, tags)
@@ -258,7 +298,9 @@ def check(root: Path, areas: frozenset[str] | None) -> tuple[list[str], list[str
 def inventory_areas(root: Path) -> set[str] | None:
     """The areas the inventory's rule IDs use; None when it cannot be read (check() reports why)."""
     try:
-        rules = json.loads((root / RULES / "inventory.json").read_text(encoding="utf-8"))["rules"]
+        rules = json.loads(
+            (root / RULES / "inventory.json").read_text(encoding="utf-8")
+        )["rules"]
         return {rule["id"].split("-")[1] for rule in rules}
     except (OSError, ValueError, KeyError, TypeError, IndexError, AttributeError):
         return None
@@ -266,7 +308,10 @@ def inventory_areas(root: Path) -> set[str] | None:
 
 def main(argv: list[str] | None = None, root: Path | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
-    parser.add_argument("--area", help="comma-separated areas whose files and checks must exist, or none")
+    parser.add_argument(
+        "--area",
+        help="comma-separated areas whose files and checks must exist, or none",
+    )
     args = parser.parse_args(argv)
     root = root or Path.cwd()
     areas = None
@@ -274,7 +319,9 @@ def main(argv: list[str] | None = None, root: Path | None = None) -> int:
         areas = frozenset(a for a in args.area.split(",") if a != "none")
         unknown = sorted(areas - (inventory_areas(root) or areas))
         if unknown:
-            print(f"error: --area: no rule of area {', '.join(unknown)}", file=sys.stderr)
+            print(
+                f"error: --area: no rule of area {', '.join(unknown)}", file=sys.stderr
+            )
             return 2
     errors, info = check(root, areas)
     for line in info:
