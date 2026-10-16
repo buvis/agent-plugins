@@ -59,6 +59,6 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 
 ## Completion criteria
 
-- [ ] Every task above is checked, each with its `Outcome:` line.
-- [ ] CI is green on the final commit: the checker's tests, `python3 tools/specflow/check_rules.py --area VAL`, the contract tests, and the release check.
-- [ ] `python3 tools/specflow/check_rules.py --area VAL` prints a coverage row for each of the 33 required criteria.
+- [x] Every task above is checked, each with its `Outcome:` line.
+- [x] CI is green on the final commit: the checker's tests, `python3 tools/specflow/check_rules.py --area VAL`, the contract tests, and the release check.
+- [x] `python3 tools/specflow/check_rules.py --area VAL` prints a coverage row for each of the 33 required criteria.
