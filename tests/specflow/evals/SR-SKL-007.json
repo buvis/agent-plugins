@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-007",
+  "session": "shared-dialogue-design-first",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-retry-queue/requirements.md",
+      "pattern": "(?m)^Depends on: (00001|folder:00001-import-retries)$"
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00002-retry-queue/tasks.md",
+      "pattern": "(?m)^- \\[[xX]\\]"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Asked to implement 00002-retry-queue, does the agent start no task, and name the prerequisite 00001-import-retries and the reason it blocks (not complete)?"
+    }
+  ]
+}

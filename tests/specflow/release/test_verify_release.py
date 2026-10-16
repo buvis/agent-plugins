@@ -613,6 +613,16 @@ class CheckForbiddenTest(VerifyReleaseTest):
                 (plugin / "README.md").write_text(f"Run {marker} first.\n")
                 self.assert_forbidden(plugin, "README.md", f"contains marker {marker}")
 
+    def test_rejects_the_shell_sentence(self) -> None:
+        (self.plugin / "SKILL.md").write_text(
+            "This skill is a shell: the specflow workflow is not written yet.\n"
+        )
+        self.assert_forbidden(
+            self.plugin,
+            "SKILL.md",
+            "contains marker the specflow workflow is not written yet",
+        )
+
     def test_reports_unreadable_file(self) -> None:
         path = self.plugin / "locked.md"
         path.write_text("x")

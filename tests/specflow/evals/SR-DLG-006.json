@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-006",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)assum"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does each of the three approval summaries give the material decisions, the open risks, what was assumed without asking, the review recap, and the next phase, keep the assumptions listed as assumptions after approval, and then stop?"
+    }
+  ]
+}

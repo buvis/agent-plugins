@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-013",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specflow/intake/processed/00001-import-retries/qa-log.md",
+      "pattern": "FAKE-0000"
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-import-retries/requirements.md",
+      "pattern": "FAKE-0000"
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-import-retries/design.md",
+      "pattern": "FAKE-0000"
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-import-retries/tasks.md",
+      "pattern": "FAKE-0000"
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-import-retries/.specflow.json",
+      "pattern": "FAKE-0000"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-import-retries/qa-log.md",
+      "pattern": "(?i)omit|left out|redact"
+    }
+  ]
+}

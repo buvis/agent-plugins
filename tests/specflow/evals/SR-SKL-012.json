@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-012",
+  "session": "shared-dialogue-design-first",
+  "assertions": [
+    {
+      "kind": "file_unchanged",
+      "path": ".kiro/specs/00001-import-retries/requirements.md"
+    },
+    {
+      "kind": "file_unchanged",
+      "path": ".kiro/specs/00001-import-retries/design.md"
+    },
+    {
+      "kind": "file_unchanged",
+      "path": ".kiro/specs/00001-import-retries/tasks.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Asked to start 00001-import-retries from scratch, does the agent read the existing folder, say what it holds, and ask before replacing anything?"
+    }
+  ]
+}

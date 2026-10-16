@@ -55,6 +55,8 @@ FORBIDDEN_MARKERS = (
     "tools/specflow",
     "tests/specflow",
     "docs/dev/tmp/specflow",
+    # The shell SKILL.md of T-002 (00002); T-030 (00006) replaced it.
+    "the specflow workflow is not written yet",
 )
 
 

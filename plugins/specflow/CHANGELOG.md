@@ -25,6 +25,7 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: `validate` reports each stale approval with its cause in every phase, and status gates are cumulative, so a closed gate closes every later one.
 - **specflow**: a requirement headed `### <ID>: withdrawn` keeps its ID reserved but needs no criteria or task.
 - **specflow**: `validate` fails on placeholders (`TBD`, `TODO`, `???`, bare `N/A`, or a `Not applicable:` outside `design.md`), on a code fence that never closes, and on upstream markers no approval accepted by name; it warns on home-directory and absolute paths, `[[...]]` links, and a requirement with no `Source:` line. The rules are listed in `references/validation-rules.md`.
+- **specflow**: the `spec-workflow` skill replaces its placeholder with the runtime workflow: natural-language intents, the phase gates, explicit approvals, reference routing, and conflict and recovery handling; plus the state contract, the `standard` and `quick` profile references, and the shared dialogue rules in the artifact contract.
 
 ### Fixed
 

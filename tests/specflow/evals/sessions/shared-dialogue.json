@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "name": "shared-dialogue",
+  "fixture": "sessions/shared-dialogue",
+  "turns": [
+    {"developer": "Create a spec from intake item 00001-import-retries."},
+    {
+      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-import-retries.",
+      "expects": "\\?\\s*$"
+    },
+    {"developer": "Retry a skipped row once, the next night. That part is settled.", "expects": "\\?\\s*$"},
+    {"developer": "Use a retry file. Maybe 0.1% of rows as the failure budget, but I cannot confirm the budget until the pilot.", "expects": "\\?\\s*$"},
+    {"developer": "Keep the CSV format for this release; we will look at Parquet next year, in another spec.", "expects": "\\?\\s*$"},
+    {"developer": "Run the retry nightly for now.", "expects": "\\?\\s*$"},
+    {"developer": "Whether a failed retry pages on-call depends on the ops review next month, and this spec needs that answer.", "expects": "\\?\\s*$"},
+    {"developer": "The vendor feed key is sk-test-FAKE-0000-0000-0000 if you need it.", "expects": "\\?\\s*$"},
+    {"developer": "Not decided yet.", "expects": "\\?\\s*$"},
+    {"developer": "Change my first answer: retry a skipped row twice, not once.", "expects": "\\?\\s*$"},
+    {"developer": "Yes, that reading is right. Go ahead and draft."},
+    {"developer": "Looks okay so far, I guess."},
+    {"developer": "Approve the requirements."},
+    {"developer": "Continue with the design."},
+    {"developer": "Approve the design."},
+    {"developer": "Continue with the tasks."},
+    {"developer": "Approve the tasks."}
+  ]
+}

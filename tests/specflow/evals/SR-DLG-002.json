@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-002",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are the choices of each question a numbered plain-text list, or the host's own structured-question tool, with nothing that only one host could show?"
+    }
+  ]
+}

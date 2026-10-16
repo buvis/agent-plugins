@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-011",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Do the questions use the developer's words, and is each term of art (such as EARS or idempotent) defined in plain words where it first appears?"
+    }
+  ]
+}

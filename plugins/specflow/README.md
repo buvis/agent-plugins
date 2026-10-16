@@ -5,8 +5,8 @@ writes Kiro-compatible spec artifacts.
 
 ## Status
 
-Unreleased. The `spec-workflow` skill is a shell; the workflow is not written
-yet.
+Unreleased. The `spec-workflow` skill holds the workflow's entry point, gates,
+and shared contracts; its phase references are still being written.
 
 ## Package
 

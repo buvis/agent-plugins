@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-002",
+  "session": "shared-dialogue-design-first",
+  "assertions": [
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)review-design-doc"
+    },
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specs/00002-retry-queue/design.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Asked to review the design of 00002-retry-queue, does the agent review it inside spec-workflow and apply each accepted edit to design.md before it presents the next finding?"
+    }
+  ]
+}

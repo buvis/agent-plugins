@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-010",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-import-retries/.specflow.json",
+      "pattern": "\"approvedSha256\""
+    },
+    {
+      "kind": "rubric",
+      "rubric": "After 'Looks okay so far, I guess.', does the agent record no approval and ask for an explicit one, recording the requirements approval only after 'Approve the requirements.'?"
+    }
+  ]
+}
