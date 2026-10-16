@@ -25,7 +25,9 @@ tools/specflow/
     └── criteria.schema.json
 plugins/specflow/skills/spec-workflow/
 ├── references/validation-rules.md            # Text of structural rules no phase file carries (area VAL)
-└── scripts/specflow_helper/checks.py         # The check registry of 00004, extended here
+└── scripts/specflow_helper/
+    ├── checks.py                             # The check registry of 00004, extended here
+    └── structural.py                         # The five checks of T-071, registered in it
 tests/specflow/
 ├── evals/
 │   ├── schemas/                  # session.schema.json, eval.schema.json
@@ -47,9 +49,10 @@ The inventory is the hub. A port-plan row or a required criterion points into it
 | `tools/specflow/check_rules.py` | new | T-070 | the checker |
 | `tests/specflow/rules/test_check_rules.py` | new | T-070 | its tests; fixtures are built in temporary folders |
 | `.github/workflows/validate.yml` | edit | T-070 | two steps: the checker's tests, and the checker with the list of finished areas |
-| `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py` | edit | T-071 | one named check per structural rule |
+| `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py` | edit | T-071 | the registry entries of the structural checks |
+| `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/structural.py` | new | T-071, review 00005-01 F2 | one named check per structural rule, so `checks.py` stays under 800 lines |
 | `plugins/specflow/skills/spec-workflow/references/validation-rules.md` | new | T-071 | structural rule texts, tagged with their IDs |
-| `tests/specflow/contract/test_checks.py` | edit | T-071 | one seeded defect per check |
+| `tests/specflow/contract/test_structural_checks.py` | new | T-071, review 00005-01 F3 | one seeded defect per check, so `test_checks.py` stays under 800 lines |
 | `tools/specflow/rules/inventory.json` | edit | T-071 | the check name of each structural rule |
 | `.github/workflows/validate.yml` | edit | T-071 | the checker step changes to `--area VAL` |
 | `tests/specflow/evals/schemas/session.schema.json`, `tests/specflow/evals/schemas/eval.schema.json` | new | T-069 | the two formats |
@@ -165,7 +168,7 @@ The tag of a rule is a list item that starts `- [SR-<area>-NNN] `, outside fence
 
 It also checks the inventory itself: the file exists, parses, passes its schema, and has a supported `schemaVersion`; no rule ID repeats; a `structural` rule has a `validator:` or `test:` check and a `behavioral` rule an `evals/` check; an `evals/<rule-id>.json` check carries its own rule's ID; no rule's `file` is under `aws/`; and every tag found in the package belongs to a rule of the inventory.
 
-What it fails on, besides the conditions the paragraphs above state (the plan-row rules, the tag form, a folder as `file`, and the six inventory checks): a `port` or `redesign` row with no rule; a rule whose source names a `drop` or `struck` row, an unknown row, or an unknown plan; a required criterion with no rule; a criteria list that is absent, fails its schema, has an unsupported `schemaVersion`, is empty, or holds a malformed or repeated ID; an inventory `criteria` entry outside the required list; a rule with no `check`; a rule whose `file` does not exist; a rule whose tag `[<rule ID>]` is absent from its file or present in a second file under `plugins/specflow/skills/`; a check that does not exist.
+What it fails on, besides the conditions the paragraphs above state (the plan-row rules, the tag form, a folder as `file`, and the six inventory checks): a `port` or `redesign` row with no rule; a rule whose source names a `drop` or `struck` row, an unknown row, or an unknown plan; a required criterion with no rule; a criteria list that is absent, fails its schema, has an unsupported `schemaVersion`, is empty, or holds a malformed or repeated ID; an inventory `criteria` entry outside the required list; a rule with no `check`; a rule whose `file` does not exist; a rule whose tag `[<rule ID>]` is absent from its file, present twice in it, or present in a second file under `plugins/specflow/skills/`; a check that does not exist.
 
 `--area` names the areas whose files and checks must exist, by the `<area>` of `SR-<area>-NNN`. For a rule of another area the file, tag, and check-existence tests are skipped; every other test still runs, so a criterion with no mapping fails under any filter. `--area none` skips those three tests for every rule; it is what CI runs from T-070 until the first area is finished. An area name the inventory does not use is a usage error, exit 2. An area passes only when the last task that writes its rules has landed.
 
@@ -247,7 +250,7 @@ A checker failure names its subject, so a missing mapping reads as the criterion
 `unittest`, with tests named for the rule they enforce. The checker's tests build small plan, inventory, and criteria fixtures in temporary folders.
 
 - T-070, `tests/specflow/rules/test_check_rules.py`: `test_every_approved_plan_a_row_has_a_rule`, `test_no_drop_or_struck_row_has_a_rule`, `test_rejects_unmapped_row`, `test_rejects_rule_without_check`, `test_rejects_missing_check`, `test_rejects_missing_rule_file`, `test_rejects_rule_tag_in_two_files`, `test_required_list_is_the_reviewed_ids`, `test_rejects_criterion_with_only_a_decision_source`, `test_rejects_missing_criteria_list`, `test_rejects_duplicate_criterion_id`, `test_rejects_unknown_criterion_id`, `test_accepts_shared_rule_and_mixed_kind_split`, `test_area_filter_skips_other_areas_files_only`, `test_area_filter_still_rejects_unmapped_criterion`, `test_prints_criterion_rule_check_rows`; and for the conditions this design adds: `test_rejects_table_with_another_header`, `test_rejects_row_without_eight_cells`, `test_splits_cells_on_unescaped_pipes_only`, `test_rejects_unknown_classification`, `test_rejects_folder_as_rule_file`, `test_only_the_list_item_form_is_a_tag`, `test_rejects_unreadable_inventory`, `test_rejects_inventory_that_fails_its_schema`, `test_rejects_criteria_list_that_fails_its_schema`, `test_rejects_repeated_rule_id`, `test_rejects_kind_and_check_mismatch`, `test_rejects_eval_check_of_another_rule`, `test_rejects_rule_file_under_aws`, `test_rejects_tag_of_no_rule`, `test_area_none_skips_file_tag_and_check_tests`, `test_unknown_area_is_a_usage_error`.
-- T-071, `tests/specflow/contract/test_checks.py`: one seeded defect per check fails with file, rule, and fix; an artifact with an unclosed fence fails; a warning never changes the exit status; `test_every_structural_rule_check_is_registered`; `test_open_markers_reads_only_upstream_artifacts`. `python3 tools/specflow/check_rules.py --area VAL` passes.
+- T-071, `tests/specflow/contract/test_structural_checks.py`: one seeded defect per check fails with file, rule, and fix; an artifact with an unclosed fence fails; a warning never changes the exit status; `test_every_structural_rule_check_is_registered`; `test_open_markers_reads_only_upstream_artifacts`. `python3 tools/specflow/check_rules.py --area VAL` passes.
 - T-069, `tests/specflow/rules/test_eval_formats.py`: both examples validate; `test_eval_check_resolves_only_to_a_valid_file`; `test_rejects_malformed_eval_record`; `test_rejects_malformed_eval_through_a_criterion_mapping`; `test_several_criteria_may_share_one_eval`.
 
 ## Rollout and migration
@@ -260,7 +263,7 @@ Nothing migrates. The personal skills keep working until their parity gates pass
 
 - A rule maps to a check whose assertions do not cover its whole obligation: impact h, likelihood m; mitigation: reference authors check every obligation of each criterion against its assertions; fallback: the release review of the 33 required criteria (T-063) rejects the mapping.
 - A port plan's table layout changes and rows go unread: impact h, likelihood l; mitigation: a plan with no matrix row, or a row with an unknown classification, fails; fallback: the checker prints how many rows it read per plan, and the release review compares that with the plan tables by hand.
-- Likely next change, a third port plan: the `plans` map takes any key; impact l, likelihood m; mitigation: sources are written `<plan key>:<row id>`; fallback: none needed.
+- Likely next change, a third port plan: the `plans` map takes any capital letter but `D` and `R`, which name the decision and requirement source forms, as a key, and its value is the plan's repository path; impact l, likelihood m; mitigation: sources are written `<plan key>:<row id>`; fallback: none needed.
 - Likely next change, a new rule area: an area is tied to one file by the routing table; impact l, likelihood m; mitigation: the area is the middle of the rule ID, so adding one is a new row in that table and a new entry in the file-resolution rule; fallback: route the rule to `validation-rules.md`.
 - Likely next change, the required-criterion list grows: its content is reviewed scope, and RULE-001 criterion 1 names its size; impact m, likelihood h, since two criteria were added on 2026-10-04; mitigation: an addition is one reviewed edit to the list and to that criterion, as ruling D8 made; fallback: cover the new criteria by rules without listing them.
 - Edge case: one rule may cover several criteria, and one criterion may need several rules; both pass. A decision citation in `sources` with no `criteria` entry covers nothing.

@@ -162,3 +162,25 @@ R13: fail
 Verdict: 18 findings
 
 Tests: 438 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-16)
+
+The cycle converges under the severity bar (no CRITICAL or HIGH), so the rework is the Medium/Low tail sweep and no cycle 2 runs. The developer accepted the lead's proposed rulings and answered two questions: "Defer both (Recommended)" for F8 and F10, and "Edit design, re-approve (Recommended)" for F2 and F3.
+
+- F1: fix. Each of the three guard tests gains a positive control, a seeded defect in the same file that the check must report, so the test fails if the check goes silent. Queued.
+- F2: fix by design edit. The five structural checks move to `specflow_helper/structural.py`, registered in `CHECKS` of `checks.py`. Queued.
+- F3: fix by design edit. `StructuralRuleTest` moves to `tests/specflow/contract/test_structural_checks.py`. Queued.
+- F4: fix. `portable-links` also warns on a root-level path (`/tmp`, `/config.json`) and on `$HOME/...`; a bare `/` and the existing skip cases still pass. Queued.
+- F5: fix. `check_exists` parses a `test:` file with `ast` and looks for a function definition of that name. Queued.
+- F6 + F15: fix. `open-markers` joins `NOT_PER_SPEC`, and one marker helper in `status.py` serves both `marker_blockers` and `open_markers`. Queued.
+- F7: fix. `test_eval_formats.py` puts `tools/specflow` on `sys.path` itself. Queued.
+- F8: deferred (ledger entry added) to 00006's approval procedure.
+- F9: fix by design edit. A tag present twice in its own file fails. Queued.
+- F10: deferred (ledger entry added) to the per-area CI steps of 00006 and 00007 and to T-063 (00001).
+- F11 + F17: fix by design edit. The inventory schema constrains the `plans` keys to a capital letter other than `D` and `R` and the values to non-empty strings, so a malformed map fails with an error line instead of a traceback. Queued.
+- F12: fix. A matrix with no data row fails; design line 262 already says so. Queued.
+- F13: fix. `check.removeprefix("evals/")`. Queued.
+- F14: accepted (ledger entry added). Sharing the fence logic would change `scan_lines`, which the canonical hash of 00004 depends on.
+- F16: fix. The test asserts that the count of rows read from Plan A matches the plan's row lines, not a hard-coded 469. Queued.
+- F18: accepted (ledger entry added). Plan B arrives with T-079 (00007).
+- Design edits are recorded in the 00005 qa-log ("Review 00005-01 design edits"). They stale the design and tasks approvals, which are asked again after the fix.
