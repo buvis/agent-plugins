@@ -53,17 +53,17 @@ The skill is small and always loaded; a reference is loaded only when its situat
 | `tests/specflow/contract/test_skill.py` | edit | T-031 to T-036 | each takes the files it writes off the list of routed files not written yet |
 | `plugins/specflow/skills/spec-workflow/references/phases/intake.md` | new | T-031 | discovery, spec type, order, profile, the intake budget, instruction applicability |
 | `plugins/specflow/skills/spec-workflow/references/phases/intake.md` | edit | T-072 | the spike path |
-| `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `tests/specflow/contract/test_checks.py`, `tests/specflow/fixtures/sketch/` | edit, edit, new | T-072 | the `sketch-screens` check and its malformed sketch fixtures |
+| `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/phase_checks.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/__init__.py`, `tests/specflow/contract/test_phase_checks.py`, `tests/specflow/fixtures/sketch/` | new, edit, new, new | T-072 | the `sketch-screens` check, registered in `CHECKS` through one import in the package init, its tests, and its malformed sketch fixtures |
 | `plugins/specflow/skills/spec-workflow/references/phases/requirements.md` | new | T-032 | the requirements phase |
 | `plugins/specflow/skills/spec-workflow/references/phases/design.md` | new | T-033 | design drafting and the review handoff |
 | `plugins/specflow/skills/spec-workflow/references/phases/tasks.md` | new | T-034 | task planning |
-| `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `tests/specflow/contract/test_checks.py`, `tests/specflow/fixtures/specs/` | edit | T-034 | the `placement-drift` check, its test and fixture |
+| `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/phase_checks.py`, `tests/specflow/contract/test_phase_checks.py`, `tests/specflow/fixtures/specs/` | edit | T-034 | the `placement-drift` check, its test and fixture |
 | `plugins/specflow/skills/spec-workflow/references/phases/implementation.md` | new | T-035 | implementation, with the premise re-check |
 | `plugins/specflow/skills/spec-workflow/references/phases/verification.md` | new | T-036 | verification and completion, with spike cleanup |
 | `plugins/specflow/skills/spec-workflow/SKILL.md` | edit | T-031 | the two rules that act after intake |
 | `plugins/specflow/skills/spec-workflow/SKILL.md` | edit | T-037 | the status and handoff summary |
 | `plugins/specflow/skills/spec-workflow/references/phases/requirements.md`, `plugins/specflow/skills/spec-workflow/references/phases/design.md`, `plugins/specflow/skills/spec-workflow/references/phases/tasks.md`, `plugins/specflow/skills/spec-workflow/references/phases/implementation.md`, `plugins/specflow/skills/spec-workflow/references/phases/verification.md` | edit | T-038 | the bugfix instructions in each phase |
-| `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `tests/specflow/contract/test_checks.py`, `tests/specflow/fixtures/specs/` | edit | T-039 | the five bugfix checks and their seeded defects |
+| `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/phase_checks.py`, `tests/specflow/contract/test_phase_checks.py`, `tests/specflow/fixtures/specs/` | edit | T-039 | the five bugfix checks and their seeded defects |
 | `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/` | new | each task | the sessions named under Testing strategy and their fixtures |
 | `tests/specflow/evals/SR-<area>-NNN.json` | new | each task | one eval record per behavioral rule the task writes |
 | `tools/specflow/rules/inventory.json` | edit | each task | where a planned file or check name changed, and an entry for each `R:` rule the task writes |
@@ -247,7 +247,7 @@ The root cause is a hypothesis that task 1 tests. If the exploration test passes
 
 ### Checks added to the helper
 
-T-072, T-034, and T-039 register these in `CHECKS` of 00004:
+T-072, T-034, and T-039 register these in `CHECKS` of 00004, from `specflow_helper/phase_checks.py`, which `specflow_helper/__init__.py` imports as it imports `structural.py` of 00005; their tests live in `tests/specflow/contract/test_phase_checks.py`. `checks.py` (753 lines) and `test_checks.py` (653) would pass 800 lines with them:
 
 | Check name | Task | Level | Rule |
 |---|---|---|---|
@@ -360,15 +360,15 @@ A task of this spec is verified in two parts. Inside the spec: deterministic tes
 |---|---|---|
 | T-030 | `python3 scripts/validate.py`; `test_rejects_the_shell_sentence` in `test_verify_release.py`; `test_skill.py`: `test_skill_md_is_within_the_size_limit`, `test_routing_names_only_files_that_exist` (it holds a list of routed files not written yet, which shrinks as tasks land: the phase files here, the `review/` files in 00007; a listed file that exists fails the test, so the list cannot go stale), `test_every_reference_is_routed` (`aws/adaptation.md` and `aws/LICENSE` are exempt by name: a record and a license, not guidance; a folder the routing table names, such as `review/design/`, routes every file in it); areas `SKL` and `DLG` | `shared-dialogue` (ask, correct, defer; the playback and caveat cases; the three approval summaries; a synthetic secret), `shared-dialogue-design-first` (continues it in a fresh context, Design-First), `direct-review-entry`, `other-language` |
 | T-031 | area `INT`, where the only failures left are rules that T-072 writes; area `SKL` again, with the two rules that act after intake | `intake-all-supplied`, `intake-two-unknowns`, `intake-third-unknown-raise`, `intake-third-unknown-keep-quick`, `intake-existing-code`, `intake-empty-repository`, `intake-nested-project`, `intake-bugfix`, `resume-after-intake` (continues `intake-all-supplied` in a new conversation; a disagreeing `.config.kiro`), `late-profile-trigger`, `working-practices`, `instruction-scope`; `intake-all-supplied` also carries an intake group kept on the move, and `intake-two-unknowns` a file name that matches two files, the two cases 00004 leaves to this spec |
-| T-072 | area `INT` in full; `test_checks.py`: a missing screen, an orphan mockup, and a wrong link each fail `sketch-screens` | `spike-standalone` (refine, then graduate), `spike-branch` (dirty tree, then discard), `sketch-spike` |
+| T-072 | area `INT` in full; `test_phase_checks.py`: a missing screen, an orphan mockup, and a wrong link each fail `sketch-screens` | `spike-standalone` (refine, then graduate), `spike-branch` (dirty tree, then discard), `sketch-spike` |
 | T-032 | area `REQ` | `requirements-incomplete`, `requirements-ambiguous`; assertions added to `shared-dialogue` (standard) and `intake-all-supplied` (quick) |
 | T-033 | area `DSN`, baseline rules | `design-stale-upstream`, `design-open-marker`, `design-reuse`; assertions added to `shared-dialogue-design-first`, `intake-all-supplied`, and `intake-bugfix` |
-| T-034 | area `TSK`, baseline rules; `test_checks.py`: an orphan requirement, a dependency cycle, a missing verification, and unstable syntax are rejected, and `placement-drift` warns | `tasks-planning` (copied contract, safe split, coupled edit, unsplittable blocker, risk note), `tasks-replan` (a checked task survives); assertions added to `working-practices` |
+| T-034 | area `TSK`, baseline rules; `test_phase_checks.py`: an orphan requirement, a dependency cycle, a missing verification, and unstable syntax are rejected, and `placement-drift` warns | `tasks-planning` (copied contract, safe split, coupled edit, unsplittable blocker, risk note), `tasks-replan` (a checked task survives); assertions added to `working-practices` |
 | T-035 | area `IMP` | `implementation-failed-check`, `implementation-false-premise`, `implementation-scope-change` |
 | T-036 | area `VER` | `completion-success`, `completion-failure`, `completion-exception`, `completion-reopened-requirements`, `completion-spike-code` |
 | T-037 | area `SKL` again, with the summary rule | `status-summary`; that the status is equivalent across hosts is scored in 00009 |
 | T-038 | areas `REQ`, `DSN`, `TSK`, `IMP`, and `VER` again, with the bugfix rules | `bugfix-confirmed`, `bugfix-refuted` (design reopened, tasks stale), `bugfix-flipped-preservation` (test file unchanged) |
-| T-039 | `test_checks.py`: the bugfix capture of T-027 passes; a missing section, a `SHALL` in a Current clause, a bugfix design without `## Hypothesized Root Cause`, a fix task before task 1, and an untraced `3.x` each fail with a targeted message | none |
+| T-039 | `test_phase_checks.py`: the bugfix capture of T-027 passes; a missing section, a `SHALL` in a Current clause, a bugfix design without `## Hypothesized Root Cause`, a fix task before task 1, and an untraced `3.x` each fail with a targeted message | none |
 
 `INT` joins the CI step with T-072, not with T-031: the spike rules route to the same file and area, so the area cannot pass before the spike path is written. T-079 in 00007 completes `DSN` and `TSK` with the Plan B rows. The assertion kinds and the `continues` field these sessions need are part of the formats 00005 defines. A session cannot name a host: a continuing session starts a new conversation, and resuming on another host is proven by the handoff of T-051 (00009).
 
@@ -419,7 +419,7 @@ Order inside the spec: T-030, then intake and the spike path, then the phases in
 
 ## Reuse inventory
 
-- The helper of 00004, by its operations: `status`, `validate`, `hash`, `code-baseline`, `reconcile`, `next-number`. `state-contract.md` says when the agent runs each; `specflow_helper/checks.py` and its `CHECKS` registry take the seven checks.
+- The helper of 00004, by its operations: `status`, `validate`, `hash`, `code-baseline`, `reconcile`, `next-number`. `state-contract.md` says when the agent runs each; the `CHECKS` registry of `specflow_helper/checks.py` takes the seven checks, written in `specflow_helper/phase_checks.py`.
 - The templates and `references/artifact-contract.md` of 00004: every phase writes from a template and points to the contract for shapes.
 - The AWS references of 00003, read per phase and per profile.
 - The rule inventory, `check_rules.py`, `references/validation-rules.md`, and the session and eval formats of 00005.

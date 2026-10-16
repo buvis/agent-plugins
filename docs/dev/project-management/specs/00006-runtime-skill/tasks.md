@@ -65,7 +65,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 - [ ] T-072 Implement the spike path
   - Requirements: INT-002, SEC-002
   - Depends on: T-031
-  - Location: `plugins/specflow/skills/spec-workflow/references/phases/intake.md`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `tests/specflow/contract/test_checks.py`, `tests/specflow/fixtures/sketch/`, `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `tests/specflow/evals/SR-<area>-NNN.json`, `tools/specflow/rules/inventory.json`, `.github/workflows/validate.yml`
+  - Location: `plugins/specflow/skills/spec-workflow/references/phases/intake.md`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/phase_checks.py`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/__init__.py`, `tests/specflow/contract/test_phase_checks.py`, `tests/specflow/fixtures/sketch/`, `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `tests/specflow/evals/SR-<area>-NNN.json`, `tools/specflow/rules/inventory.json`, `.github/workflows/validate.yml`
   - Reuse: `CHECKS` of `specflow_helper/checks.py` and `validate <intake-item-dir> --phase intake` (00004).
   - Contract: every screen ID in `spike/journey.md` has exactly one `spike/mockups/<screen-id>.html`; every file in `spike/mockups/` but `index.html` belongs to a screen ID; each declared edge links to its target's file.
   - Details:
@@ -76,7 +76,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Acceptance criteria: INT-002 criteria 1, 2, 3, 4, 5, 6, 7, 8; SEC-002 criterion 4
   - Verify:
     - scenario fixtures cover a standalone spike, a branch spike with a dirty tree, refine, graduate (`Sources:` names the spike, item moves to `processed/`), and discard. Own the sketch session's structural and dialogue assertions in design §15: unique-screen correspondence across journeys, index exclusion, terminal screens, correct action links, disclaimers and accessibility notes, no scripts/network resources, known-answer reuse, and the phrase-only one-question limit with explicit remaining guesses/open questions. Include malformed-output fixtures for missing/orphan screens and wrong links; `check_rules.py --area INT` passes in full.
-    - Inside this spec: `check_rules.py --area INT` passes in full; `test_checks.py`: a missing screen, an orphan mockup, a wrong link, and a Mermaid line of no accepted kind each fail `sketch-screens`, the last with its line number, and a well-formed sketch passes.
+    - Inside this spec: `check_rules.py --area INT` passes in full; `test_phase_checks.py`: a missing screen, an orphan mockup, a wrong link, and a Mermaid line of no accepted kind each fail `sketch-screens`, the last with its line number, and a well-formed sketch passes.
     - Sessions written: `spike-standalone`, `spike-branch`, `sketch-spike`. The scenario clauses above are assertions in eval records on the sessions this task writes; T-057 (00009) scores them on the three hosts.
 
 - [ ] T-032 Implement requirements-phase instructions
@@ -119,7 +119,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 - [ ] T-034 Implement task-phase instructions
   - Requirements: ART-004; 00004 WF-002 criterion 7
   - Depends on: T-033
-  - Location: `tests/specflow/contract/test_skill.py`, `plugins/specflow/skills/spec-workflow/references/phases/tasks.md`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `tests/specflow/contract/test_checks.py`, `tests/specflow/fixtures/specs/`, `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `tests/specflow/evals/SR-<area>-NNN.json`, `tools/specflow/rules/inventory.json`, `.github/workflows/validate.yml`
+  - Location: `tests/specflow/contract/test_skill.py`, `plugins/specflow/skills/spec-workflow/references/phases/tasks.md`, `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/phase_checks.py`, `tests/specflow/contract/test_phase_checks.py`, `tests/specflow/fixtures/specs/`, `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `tests/specflow/evals/SR-<area>-NNN.json`, `tools/specflow/rules/inventory.json`, `.github/workflows/validate.yml`
   - Reuse: `CHECKS` of `specflow_helper/checks.py` (00004), where `placement-drift` is registered; the cross-spec reference form and the checks `task-structure`, `requirement-coverage`, and `cross-spec-references` of 00004.
   - Contract: two or more modules named in task `Location:` lines are absent from the design's `## Module placement`, or from the matching placement section of a native design (ART-004.15)
   - Details:
@@ -137,7 +137,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - validators reject orphan requirements, cycles, missing verification, and unstable syntax; fixtures cover a copied contract, false premise, safe split, coupled signature/caller, unsplittable blocker, preserved checked task, risk note without keyword false positives, and advisory module drift; `check_rules.py --area TSK` passes for the listed baseline rules.
     - In the clause above, the four rejections are checks of T-026 (00004), run again on this task's fixtures; the check this task owns is `placement-drift`. The false-premise fixture shows the planning half: a task that deletes or rewrites on observed state carries its premise. The re-check is `implementation-false-premise` of T-035.
-    - Inside this spec: `check_rules.py --area TSK` passes for the baseline rules; `test_checks.py`: `placement-drift` warns; `test_routing_names_only_files_that_exist` passes with the shortened list.
+    - Inside this spec: `check_rules.py --area TSK` passes for the baseline rules; `test_phase_checks.py`: `placement-drift` warns; `test_routing_names_only_files_that_exist` passes with the shortened list.
     - Sessions written: `tasks-planning`, `tasks-replan`; assertions added to `working-practices` and `shared-dialogue`. Two of them, on `tasks-planning`: a task cites a prerequisite spec's criterion in the cross-spec form, and tasks approval is refused while an upstream marker is unaccepted. The scenario clauses above are assertions in eval records on the sessions this task writes; T-057 (00009) scores them on the three hosts.
 
 - [ ] T-035 Implement implementation instructions
@@ -214,7 +214,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 - [ ] T-039 Implement bugfix validation rules
   - Requirements: ART-005; 00004 VAL-001 criteria 2, 4
   - Depends on: T-038
-  - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py`, `tests/specflow/contract/test_checks.py`, `tests/specflow/fixtures/specs/`
+  - Location: `plugins/specflow/skills/spec-workflow/scripts/specflow_helper/phase_checks.py`, `tests/specflow/contract/test_phase_checks.py`, `tests/specflow/fixtures/specs/`
   - Reuse: `CHECKS` of `specflow_helper/checks.py` (00004); the bugfix capture of T-027 (00004) under `tests/specflow/fixtures/kiro/`.
   - Contract: T-039 checks both bugfix definitions against the Kiro capture of T-027 before it registers them; the capture must pass.
   - Details:
@@ -224,7 +224,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Acceptance criteria: ART-005 criteria 2, 3, 4, 5, 7; 00004 VAL-001 criteria 2, 4
   - Verify:
     - the T-027 capture passes; seeded defects (missing section, SHALL in a Current clause, fix task before task 1, untraced `3.x`) each fail with a targeted message.
-    - `tests/specflow/contract/test_checks.py` holds one seeded defect per check under `tests/specflow/fixtures/specs/`: the four of the clause above, and a bugfix `design.md` without `## Hypothesized Root Cause` for `bugfix-design-sections`.
+    - `tests/specflow/contract/test_phase_checks.py` holds one seeded defect per check under `tests/specflow/fixtures/specs/`: the four of the clause above, and a bugfix `design.md` without `## Hypothesized Root Cause` for `bugfix-design-sections`.
 
 ## Completion criteria
 
