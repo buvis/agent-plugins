@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-039",
+  "session": "requirements-incomplete",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-report-export/requirements.md",
+      "pattern": "\\(guess\\)"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is every contract detail the developer did not give marked (guess), with no ambiguity resolved silently?"
+    }
+  ]
+}

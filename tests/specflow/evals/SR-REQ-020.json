@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-020",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-team-calendar/requirements.md",
+      "pattern": "(?i)minute"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-team-calendar/requirements.md",
+      "pattern": "WHEN .* SHALL "
+    }
+  ]
+}

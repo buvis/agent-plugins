@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-015",
+  "session": "requirements-incomplete",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-report-export/requirements.md",
+      "pattern": "(?m)^Sources: "
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-report-export/requirements.md",
+      "pattern": "(?im)^(profile|date|status):"
+    }
+  ]
+}

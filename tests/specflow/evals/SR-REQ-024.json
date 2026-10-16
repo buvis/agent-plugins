@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-024",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent steer the success criteria toward a measurable or behavioral test?"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-007",
+  "session": "requirements-incomplete",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-report-export/requirements.md",
+      "pattern": "(?s)## Assumptions(?:(?!\\n## ).)*\\S"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "When the spike started during requirements graduates, does the agent fold its ASSUMPTIONS into ## Assumptions and the Q&A log and resume the requirements questions, skipping the spike's own graduate step?"
+    }
+  ]
+}

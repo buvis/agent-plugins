@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-006",
+  "session": "requirements-incomplete",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)spike"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)keep answering"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)park"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "After the second non-answer to a contract question, does the agent offer exactly: spike it, keep answering, or park it under unresolved questions?"
+    }
+  ]
+}

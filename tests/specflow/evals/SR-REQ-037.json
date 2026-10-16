@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-037",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the requirements artifact follow templates/requirements.md rather than the shape of another spec in the repository?"
+    }
+  ]
+}

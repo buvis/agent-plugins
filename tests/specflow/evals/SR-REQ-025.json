@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-025",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "When the constraints are open, does the agent ask them as one multi-select question (backwards-compatible, no new dependency, a performance bound, other)?"
+    }
+  ]
+}

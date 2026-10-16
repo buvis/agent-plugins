@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-049",
+  "session": "late-profile-trigger",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)migrat"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-018",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-team-calendar/requirements.md",
+      "pattern": "(?s)## Out of scope(?:(?!\\n## ).)*(?i:dark mode)"
+    }
+  ]
+}

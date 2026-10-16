@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-011",
+  "session": "requirements-incomplete",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-report-export/requirements.md",
+      "pattern": "(?s)## Unresolved questions(?:(?!\\n## ).)*\\n- "
+    }
+  ]
+}

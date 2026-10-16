@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-041",
+  "session": "requirements-incomplete",
+  "assertions": [
+    {
+      "kind": "validation_passes",
+      "check": "requirement-ids"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent run validate on the requirements before asking for approval, and fix what it reports?"
+    }
+  ]
+}

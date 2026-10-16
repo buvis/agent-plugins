@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-051",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-team-calendar/requirements.md",
+      "pattern": "(?s)#### Acceptance criteria(?:(?!\\n## ).)*LISTEN/NOTIFY"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is PostgreSQL LISTEN/NOTIFY kept out of the acceptance criteria, recorded as a constraint with its source or left for the design, while the requirement states the behavior (changes appear within a minute)?"
+    }
+  ]
+}

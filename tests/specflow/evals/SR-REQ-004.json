@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-004",
+  "session": "requirements-incomplete",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specs/00001-report-export/requirements.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "After 'That's enough, write it up.', does the agent stop asking, draft from what exists, and list every unanswered topic under ## Unresolved questions?"
+    }
+  ]
+}

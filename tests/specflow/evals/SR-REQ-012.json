@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-012",
+  "session": "requirements-incomplete",
+  "assertions": [
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)spike skill|another skill"
+    }
+  ]
+}

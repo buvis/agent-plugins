@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-044",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-team-calendar/requirements.md",
+      "pattern": "(?i)v2|version 2"
+    }
+  ]
+}

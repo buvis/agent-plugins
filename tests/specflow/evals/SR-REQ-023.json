@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-023",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent ask where the scope stops, prompting with adjacent features, and put what falls outside under ## Out of scope?"
+    }
+  ]
+}
