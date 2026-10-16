@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "specId": "00005-behavior-rules",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "19db7c550715da823e3d0aeefecfc9afa5ec90cc743355ce9d7ac4af7cd69085",
+      "approvedSha256": "19db7c550715da823e3d0aeefecfc9afa5ec90cc743355ce9d7ac4af7cd69085",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "575c4d515a4ab30f1091fc0f878f27e6a9af9a9c560064bff987275bdd323d36",
+      "approvedSha256": "575c4d515a4ab30f1091fc0f878f27e6a9af9a9c560064bff987275bdd323d36",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900",
+      "upstreamSha256": {
+        "requirements": "19db7c550715da823e3d0aeefecfc9afa5ec90cc743355ce9d7ac4af7cd69085"
+      },
+      "approvedCode": {
+        "status": "captured",
+        "files": [
+          {
+            "path": ".github/workflows/validate.yml",
+            "sha256": "14831b561c8e1035aa6f07767b27085ba040f8f9694fac2cd0d460036b9698dd"
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/validation-rules.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
+            "sha256": "2406589fd4ceee0bd43d0459795de029b6ae5f5d79c53e14809fdc28047246c2"
+          },
+          {
+            "path": "tests/specflow/contract/test_checks.py",
+            "sha256": "12b0eb561028293d0a4abd453cc2fee1e0842d9bdd91395cbc7bfc788d0d6b8d"
+          },
+          {
+            "path": "tests/specflow/evals/examples/eval.json",
+            "missing": true
+          },
+          {
+            "path": "tests/specflow/evals/examples/session.json",
+            "missing": true
+          },
+          {
+            "path": "tests/specflow/evals/schemas/eval.schema.json",
+            "missing": true
+          },
+          {
+            "path": "tests/specflow/evals/schemas/session.schema.json",
+            "missing": true
+          },
+          {
+            "path": "tests/specflow/rules/test_check_rules.py",
+            "missing": true
+          },
+          {
+            "path": "tests/specflow/rules/test_eval_formats.py",
+            "missing": true
+          },
+          {
+            "path": "tools/specflow/check_rules.py",
+            "missing": true
+          },
+          {
+            "path": "tools/specflow/rules/criteria.json",
+            "missing": true
+          },
+          {
+            "path": "tools/specflow/rules/criteria.schema.json",
+            "missing": true
+          },
+          {
+            "path": "tools/specflow/rules/inventory.json",
+            "missing": true
+          },
+          {
+            "path": "tools/specflow/rules/inventory.schema.json",
+            "missing": true
+          }
+        ]
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "1b0f86646aa09b889cd03e169c6bbbd2303bf95672b89c09fee8d525415ec28b",
+      "approvedSha256": "1b0f86646aa09b889cd03e169c6bbbd2303bf95672b89c09fee8d525415ec28b",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900",
+      "upstreamSha256": {
+        "requirements": "19db7c550715da823e3d0aeefecfc9afa5ec90cc743355ce9d7ac4af7cd69085",
+        "design": "575c4d515a4ab30f1091fc0f878f27e6a9af9a9c560064bff987275bdd323d36"
+      }
+    }
+  }
+}

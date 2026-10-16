@@ -220,3 +220,12 @@ each landing exactly once.
 - This is a receipt, since no runtime exists: no canonical hash, no code
   baseline, and no `.specflow.json`. The tasks approval of 2026-10-06 stands:
   `tasks.md` gained only an Outcome line.
+
+## Recovery (2026-10-16)
+
+- Recovery mode (00004 design, reconciliation step 10 and the migration note) recorded the receipts above in `docs/dev/project-management/specs/00002-package-boundary/.specflow.json`, values copied from `validate_spec.py hash --json`.
+- Question: one question for specs 00002 to 00005 listing each artifact, its receipt date, and the blob check. Answer: "Record all (Recommended)".
+- Requirements: realises the re-approval of 2026-10-09; blob `aee0e31` unchanged.
+- Design: realises the re-approval of 2026-10-09; blob `7387064` unchanged. Code baseline `not_checked`: the spec was built before recovery, so the bytes at approval time are unknown.
+- Tasks: the approval of 2026-10-06 (blob `5f31e83`) no longer matched canonically: the current blob `bb77388` adds an `Outcome:` line under a completion criterion, which the canonical text keeps. Approved again at the current text in the same answer.
+- `reconcile` then reports phase `complete`.

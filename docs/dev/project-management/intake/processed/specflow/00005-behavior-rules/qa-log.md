@@ -205,3 +205,12 @@ each landing exactly once.
 - Outstanding questions: none.
 - Next action: implementation, in dependency order, starting with 00002 (T-001); once the helper of 00004 exists, recovery mode records these receipts as real approvals after the developer confirms each.
 - Verdict: COMPLETE (3 tasks planned; implementation not started).
+
+## Recovery (2026-10-16)
+
+- Recovery mode (00004 design, reconciliation step 10 and the migration note) recorded the receipts above in `docs/dev/project-management/specs/00005-behavior-rules/.specflow.json`, values copied from `validate_spec.py hash --json`.
+- Question: one question for specs 00002 to 00005 listing each artifact, its receipt date, and the blob check. Answer: "Record all (Recommended)".
+- Requirements: realises the re-approval of 2026-10-04 (commit `a4c09b3`); blob `c6d3d8b` unchanged.
+- Design: realises the re-approval of 2026-10-06; blob `d7cb95b` unchanged. Code baseline captured by `code-baseline` over the fifteen files of `## Module placement`, before any task starts.
+- Tasks: realises the approval of 2026-10-06; blob `ee0b911` unchanged.
+- `reconcile` then reports phase `implementation`, next task T-070.

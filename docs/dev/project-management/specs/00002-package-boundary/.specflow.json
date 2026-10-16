@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "specId": "00002-package-boundary",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "eacc20c0ec395894b4404cb250ba759beea655d46504be79e83a873dfe9fefd5",
+      "approvedSha256": "eacc20c0ec395894b4404cb250ba759beea655d46504be79e83a873dfe9fefd5",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "1223061b6ac99540195d80321d70c83f6c6e9d17380fc6378be33341080293dd",
+      "approvedSha256": "1223061b6ac99540195d80321d70c83f6c6e9d17380fc6378be33341080293dd",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900",
+      "upstreamSha256": {
+        "requirements": "eacc20c0ec395894b4404cb250ba759beea655d46504be79e83a873dfe9fefd5"
+      },
+      "approvedCode": {
+        "status": "not_checked",
+        "reason": "recovered from a receipt after implementation; the file bytes at approval time were not recorded"
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "d8d6ca666f9abc282f5f6e3efa35f98a0d311f85923af4c0817c69ba3c67d3e0",
+      "approvedSha256": "d8d6ca666f9abc282f5f6e3efa35f98a0d311f85923af4c0817c69ba3c67d3e0",
+      "approvedAt": "2026-10-16T18:12:31Z",
+      "approvedCommit": "392098d9f6a154dfa8e6f4a0daa64d4c0b734900",
+      "upstreamSha256": {
+        "requirements": "eacc20c0ec395894b4404cb250ba759beea655d46504be79e83a873dfe9fefd5",
+        "design": "1223061b6ac99540195d80321d70c83f6c6e9d17380fc6378be33341080293dd"
+      }
+    }
+  }
+}

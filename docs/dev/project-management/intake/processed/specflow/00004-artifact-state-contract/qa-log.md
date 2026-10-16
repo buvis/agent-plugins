@@ -413,3 +413,12 @@ Asked one at a time in the T-027 session, which did not see the cycle-5 edits be
 - Tasks: `tasks.md`, git blob `1f496decafbb3b9098350bac2ec01683a0ca8f2e` (commit `183380c`), unchanged; canonical hash under the cycle-10 code `5346f6c67e0f7f1e640d393816985ab17bfe2868012f2310d18c888883c9fc38`. Decision: approved by the developer, in the same answer. Scope: the whole artifact as it reads now; the review 00004-10 fixes are recorded in `reviews/00004-artifact-state-contract-review-10.md`. Upstream markers: none open.
 - Requirements: still approved at blob `fef2213` (cycle 6); not touched by cycle 10.
 - This is a receipt: no `.specflow.json` exists for this spec.
+
+## Recovery (2026-10-16)
+
+- Recovery mode (design, reconciliation step 10 and the migration note) recorded the receipts above in `docs/dev/project-management/specs/00004-artifact-state-contract/.specflow.json`, values copied from `validate_spec.py hash --json`.
+- Question: one question for specs 00002 to 00005 listing each artifact, its receipt date, and the blob check. Answer: "Record all (Recommended)".
+- Requirements: realises the re-approval of cycle 6 (2026-10-13); blob `fef2213` unchanged.
+- Design: realises the re-approval of cycle 10 (2026-10-14); blob `061a3c8` unchanged. Code baseline `not_checked`: the spec was built before recovery, so the bytes at approval time are unknown.
+- Tasks: realises the re-approval of cycle 10 (2026-10-14); the current blob `ca05564` is canonically equal to blob `1f496de` (`5346f6c6…`).
+- `reconcile` then reports phase `complete`.
