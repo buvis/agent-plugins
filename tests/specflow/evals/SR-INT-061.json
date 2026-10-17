@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-061",
+  "session": "intake-bugfix",
+  "assertions": [
+    {
+      "kind": "one_question_per_message"
+    },
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)steps to reproduce|how do you reproduce"
+    },
+    {
+      "kind": "file_absent",
+      "path": ".kiro/specs/00001-discount-total/requirements.md"
+    },
+    {
+      "kind": "file_read",
+      "path": "src/checkout.py"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent ask only for the expected behavior and the constraints, one at a time, since the idea already gives the reproduction steps and the current behavior?"
+    }
+  ]
+}

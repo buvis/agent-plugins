@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-003",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "recommended_option_first"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "\\(Recommended\\)"
+    }
+  ]
+}

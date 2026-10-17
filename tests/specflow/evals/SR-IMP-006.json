@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-IMP-006",
+  "session": "implementation-scope-change",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-cart-total/requirements.md",
+      "pattern": "(?i)shipping"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent stop before coding, propose correcting the requirements, and change them only after the developer agrees, instead of adding shipping in code?"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-001",
+  "session": "intake-two-unknowns",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specflow/intake/new/00004-invoice-export/idea.md"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/new/00004-invoice-export/idea.md",
+      "pattern": "export the month's invoices as a CSV for our accounting system"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent save the free-text idea as idea.md of a new intake item before it asks any question or runs discovery?"
+    }
+  ]
+}

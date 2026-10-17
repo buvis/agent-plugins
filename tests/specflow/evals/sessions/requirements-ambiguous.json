@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "name": "requirements-ambiguous",
+  "fixture": "sessions/requirements-ambiguous",
+  "turns": [
+    {
+      "developer": "Continue spec 00001-team-calendar. The notes are in docs/calendar-notes.md."
+    },
+    {
+      "developer": "No, don't save an intake item; just go on.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Managers win: only managers change events; everyone else only views them.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Within a minute is fine. A nightly sync is not.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "A dark mode would be nice to have too.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Make dark mode its own spec later.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Use PostgreSQL LISTEN/NOTIFY for the updates.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "It blocks the holiday-planner work.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Draft it."
+    },
+    {
+      "developer": "Approve the requirements."
+    }
+  ]
+}

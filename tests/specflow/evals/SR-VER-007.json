@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-VER-007",
+  "session": "completion-reopened-requirements",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-cart-rounding/requirements.md",
+      "pattern": "(?i)half up"
+    },
+    {
+      "kind": "validation_reports",
+      "check": "stale-approvals"
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-cart-rounding/tasks.md",
+      "pattern": "(?m)^- \\[x\\] `python3 -m unittest` passes\\."
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent correct the requirements only after the developer agrees, and say the design and tasks are now stale and need approving again?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-042",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent wait for the developer after each build, never starting a second build or a refine cycle on its own?"
+    }
+  ]
+}

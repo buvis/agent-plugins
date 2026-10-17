@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-007",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)\\bOther\\b"
+    }
+  ]
+}

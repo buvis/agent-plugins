@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-002",
+  "session": "intake-all-supplied",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specflow/intake/processed/billing/00001-invoice-pdf/idea.md"
+    },
+    {
+      "kind": "file_absent",
+      "path": ".kiro/specflow/intake/new/billing/00001-invoice-pdf/idea.md"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-invoice-pdf/requirements.md",
+      "pattern": "(?m)^Sources: .*intake/processed/billing/00001-invoice-pdf"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent say it took the input from intake item billing/00001-invoice-pdf?"
+    }
+  ]
+}

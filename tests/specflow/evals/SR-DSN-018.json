@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-018",
+  "session": "intake-bugfix",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/design.md",
+      "pattern": "(?m)^## Hypothesized Root Cause"
+    },
+    {
+      "kind": "file_absent",
+      "path": ".kiro/specs/00001-discount-total/requirements.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the bugfix design keep the Kiro bugfix shape rather than the feature design headings, and leave bugfix.md as approved?"
+    }
+  ]
+}

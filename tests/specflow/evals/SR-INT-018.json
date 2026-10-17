@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-018",
+  "session": "intake-nested-project",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)api\\.py"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)ledger\\.py"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent ask about the integration points in one multi-select question whose choices come from the scan (the refund API, the ledger booking)?"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-014",
+  "session": "tasks-replan",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-price-import/tasks.md",
+      "pattern": "(?m)^- \\[x\\] T-001 Read the price list"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-price-import/tasks.md",
+      "pattern": "Outcome: 4 tests pass"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-price-import/tasks.md",
+      "pattern": "(?m)^- \\[ \\] T-003 "
+    }
+  ]
+}

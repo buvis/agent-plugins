@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "bugfix-refuted",
+  "fixture": "sessions/bugfix-refuted",
+  "turns": [
+    {
+      "developer": "Implement spec 00001-discount-total."
+    },
+    {
+      "developer": "Yes, revise the root cause in the design."
+    }
+  ]
+}

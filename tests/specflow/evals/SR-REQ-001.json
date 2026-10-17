@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-001",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Under standard, does the agent's question set cover every topic of the bank the intake item leaves open, and skip the ones it answers?"
+    }
+  ]
+}

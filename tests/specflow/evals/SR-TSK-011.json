@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-011",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent keep the orders_in signature change and its two callers in one task, keep the test with its code, and split only independent outcomes?"
+    }
+  ]
+}

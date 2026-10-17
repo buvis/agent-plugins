@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-014",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-import-retries/.specflow.json",
+      "pattern": "\"approvedSha256\""
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent start the design only after the developer approved the requirements?"
+    }
+  ]
+}

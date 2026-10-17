@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-035",
+  "session": "spike-branch",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the spike skip specflow's tests and approvals while still validating input it takes from outside, such as a malformed SKU?"
+    }
+  ]
+}

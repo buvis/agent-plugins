@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-VER-005",
+  "session": "completion-failure",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-cart-rounding/tasks.md",
+      "pattern": "(?m)^- \\[ \\] T-001 "
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-cart-rounding/tasks.md",
+      "pattern": "(?m)^  - Outcome: .*(?i:fail)"
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-cart-rounding/tasks.md",
+      "pattern": "(?m)^- \\[x\\] `python3 -m unittest` passes\\."
+    }
+  ]
+}

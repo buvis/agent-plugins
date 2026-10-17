@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "name": "intake-two-unknowns",
+  "fixture": "sessions/intake-two-unknowns",
+  "turns": [
+    {
+      "developer": "New idea, call it invoice-export: export the month's invoices as a CSV for our accounting system. The details are in notes.md."
+    },
+    {
+      "developer": "Use docs/notes.md.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "The accounting system is Acme Ledger; its import format is in docs/ledger-format.md, and the format must not change.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Tests first.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00004-invoice-export.",
+      "expects": "\\?\\s*$"
+    }
+  ]
+}

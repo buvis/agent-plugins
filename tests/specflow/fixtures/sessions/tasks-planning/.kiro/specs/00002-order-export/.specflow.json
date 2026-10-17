@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "specId": "00002-order-export",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "2745fb5610c898feb78aa613955f276948b8fd0876be842f41568a411b6bb1fb",
+      "approvedSha256": "2745fb5610c898feb78aa613955f276948b8fd0876be842f41568a411b6bb1fb",
+      "approvedAt": "2026-10-15T09:00:00Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "f98174a228bb5b11df80c767a427d1a64bb4e523a8f1fdaa0e239dfff5edf1a8",
+      "approvedSha256": "f98174a228bb5b11df80c767a427d1a64bb4e523a8f1fdaa0e239dfff5edf1a8",
+      "approvedAt": "2026-10-15T09:00:00Z",
+      "upstreamSha256": {
+        "requirements": "2745fb5610c898feb78aa613955f276948b8fd0876be842f41568a411b6bb1fb"
+      },
+      "acceptedMarkers": [
+        {
+          "artifact": "requirements",
+          "line": "2. THE SYSTEM SHALL export at most 10,000 orders per file (guess)."
+        }
+      ],
+      "approvedCode": {
+        "status": "not_checked",
+        "reason": "session fixture without Git history"
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "missing"
+    }
+  }
+}

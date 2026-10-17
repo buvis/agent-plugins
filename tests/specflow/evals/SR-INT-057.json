@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-057",
+  "session": "intake-two-unknowns",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "docs/notes\\.md"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "ops/notes\\.md"
+    },
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specflow/intake/new/00004-invoice-export/notes.md"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/new/00004-invoice-export/notes.md",
+      "pattern": "one row per invoice"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent ask which notes.md is meant instead of picking one?"
+    }
+  ]
+}

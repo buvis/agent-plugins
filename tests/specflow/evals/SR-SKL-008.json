@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-008",
+  "session": "direct-review-entry",
+  "assertions": [
+    {
+      "kind": "file_read",
+      "path": ".kiro/specs/00001-csv-export/requirements.md",
+      "before_turn": 2
+    },
+    {
+      "kind": "file_read",
+      "path": ".kiro/specs/00001-csv-export/.specflow.json",
+      "before_turn": 2
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Before its first finding or question, does the agent state the spec's phase and approvals as the files and the helper's status show them, and the action it intends, without relying on any earlier conversation?"
+    }
+  ]
+}

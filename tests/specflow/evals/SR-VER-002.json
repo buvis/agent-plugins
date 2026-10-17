@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-VER-002",
+  "session": "completion-spike-code",
+  "assertions": [
+    {
+      "kind": "file_absent",
+      "path": ".kiro/specflow/intake/processed/00001-cart-rounding/spike/prototype.py"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-cart-rounding/idea.md",
+      "pattern": "Round cart totals"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "At complete, does the agent offer to delete the spike, name the exact folder, and delete it only after the developer confirms?"
+    }
+  ]
+}

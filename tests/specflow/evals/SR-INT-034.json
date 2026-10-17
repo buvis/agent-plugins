@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-034",
+  "session": "spike-branch",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the spike leave the real price service alone, using a stand-in rather than live calls or production data?"
+    }
+  ]
+}

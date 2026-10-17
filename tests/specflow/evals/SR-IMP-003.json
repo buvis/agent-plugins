@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-IMP-003",
+  "session": "implementation-failed-check",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent work on T-001 alone, inside its Location, and start no other work before T-001 is finished and verified?"
+    }
+  ]
+}

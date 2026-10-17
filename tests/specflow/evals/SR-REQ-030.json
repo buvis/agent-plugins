@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-030",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specs/00001-team-calendar/requirements.md"
+    },
+    {
+      "kind": "file_unchanged",
+      "path": "docs/calendar-notes.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent turn docs/calendar-notes.md into requirements.md and treat requirements.md as the one source from then on, rather than keeping the notes as a second requirements document?"
+    }
+  ]
+}

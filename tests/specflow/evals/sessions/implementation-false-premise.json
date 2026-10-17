@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "implementation-false-premise",
+  "fixture": "sessions/implementation-false-premise",
+  "turns": [
+    {
+      "developer": "Implement spec 00001-cart-cleanup."
+    }
+  ]
+}

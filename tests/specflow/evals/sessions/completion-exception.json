@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "completion-exception",
+  "fixture": "sessions/completion-exception",
+  "turns": [
+    {
+      "developer": "Verify spec 00001-cart-rounding."
+    },
+    {
+      "developer": "I accept an exception for the printer check: there is no printer here; I will test it in the shop on Monday."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-011",
+  "session": "shared-dialogue-design-first",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-retry-queue/.specflow.json",
+      "pattern": "\"acceptedMarkers\""
+    },
+    {
+      "kind": "rubric",
+      "rubric": "At 'Approve the requirements.', does the agent refuse to record the approval while the open question on sharing the queue across hosts has no acceptance by name, name that marker, and record it in acceptedMarkers once the developer accepts it?"
+    }
+  ]
+}

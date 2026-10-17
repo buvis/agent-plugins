@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-037",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)to run it|run:|python3 "
+    }
+  ]
+}

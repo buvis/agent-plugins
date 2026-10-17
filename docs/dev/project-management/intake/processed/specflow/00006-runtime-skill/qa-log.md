@@ -228,3 +228,25 @@ each landing exactly once.
 - Outstanding questions: none.
 - Next action: implementation, in dependency order, starting with 00002 (T-001); once the helper of 00004 exists, recovery mode records these receipts as real approvals after the developer confirms each.
 - Verdict: COMPLETE (11 tasks planned; implementation not started).
+
+## Recovery (2026-10-16)
+
+- Recovery mode (00004 design, reconciliation step 10 and the migration note) recorded the receipts above in `docs/dev/project-management/specs/00006-runtime-skill/.specflow.json`, values copied from `validate_spec.py hash --json`.
+- Question: one question listing each artifact, its receipt date, and the blob check. Answer: "Record all (Recommended)".
+- Requirements: realises the approval of 2026-10-04 (commit `b6112ad`); blob `fb01bd9` unchanged.
+- Design: realises the re-approval of 2026-10-06; blob `0ee0586` unchanged. Code baseline captured by `code-baseline` over the eighteen files of `## Module placement`, before any task starts. Left out, since `code-baseline` refuses a folder: `tests/specflow/fixtures/sketch/`, `tests/specflow/fixtures/specs/`, and the per-task patterns `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `tests/specflow/evals/SR-<area>-NNN.json`.
+- Tasks: realises the approval of 2026-10-06; blob `339b97c` unchanged.
+- `reconcile` then reports phase `implementation`, next task T-030.
+
+## Design edit: helper check placement (2026-10-16)
+
+- Found before T-072: the seven checks of this spec (`sketch-screens`, `placement-drift`, the five bugfix checks) would take `specflow_helper/checks.py` from 753 lines to about 1020, and `tests/specflow/contract/test_checks.py` (653) past 800, the repository's file limit. The handoff gotcha asked for this to be raised before building.
+- Edited, the 00005 precedent (`structural.py`): `design.md` places the checks in a new `specflow_helper/phase_checks.py`, registered in `CHECKS` through one import in `specflow_helper/__init__.py`, and their tests in a new `tests/specflow/contract/test_phase_checks.py`. That covers three placement rows (T-072, T-034, T-039), the paragraph of `### Checks added to the helper`, three rows of the testing table, and the reuse inventory line. `tasks.md`: the `Location:` and `Verify:` lines of T-072, T-034, and T-039 name the new files. No requirement and no check definition changes.
+- This edit staled the design approval and the tasks approval with it; requirements stay approved.
+
+## Re-approvals, design edit (2026-10-16)
+
+- Question: "Do you re-approve 00006's design.md and tasks.md with this edit?" (the edit above, uncommitted when asked). Answer: "Approve the edit (Recommended)".
+- Design: `design.md`, git blob `b6077b64c6f5fa17081f48a320d55cb9aa85317e`, canonical `6ad73b7b…`. The code baseline is captured again by `code-baseline` over the nineteen files of `## Module placement`, now with `phase_checks.py`, `__init__.py`, and `test_phase_checks.py` in place of `checks.py` and `test_checks.py`. It holds the bytes as of commit `0793254`, after T-030 and T-031. Upstream: requirements blob `fb01bd9`, unchanged. Upstream markers: none open.
+- Tasks: `tasks.md`, git blob `3863f4b49ffc81bde11e466bdef6a0e0078c690d`, canonical `d839553c…`; T-030 and T-031 stay checked with their `Outcome:` lines. Upstream markers: none open.
+- `validate --phase design` and `--phase tasks` reported only the two stale approvals being replaced. Values copied from `validate_spec.py hash --json` and `code-baseline`; `reconcile` then reports phase `implementation`, next task T-072.

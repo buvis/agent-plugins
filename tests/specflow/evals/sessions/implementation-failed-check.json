@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "name": "implementation-failed-check",
+  "fixture": "sessions/implementation-failed-check",
+  "turns": [
+    {
+      "developer": "Implement spec 00001-cart-rounding.",
+      "edit": {
+        "path": "README.md",
+        "text": "# cart\n\nCart totals (`src/cart.py`). Tests: `python3 -m unittest`.\n\nDraft note: not committed yet.\n"
+      }
+    },
+    {
+      "developer": "What now?"
+    }
+  ]
+}

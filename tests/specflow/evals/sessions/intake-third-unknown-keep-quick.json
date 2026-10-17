@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "name": "intake-third-unknown-keep-quick",
+  "fixture": "sessions/intake-third-unknown",
+  "turns": [
+    {
+      "developer": "Create a spec from intake item 00001-saved-carts. Keep it quick."
+    },
+    {
+      "developer": "A saved cart lasts 30 days.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Only signed-in customers can save a cart.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Keep it quick. Ask the one question that matters most, and defer anything after that as unresolved.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Show the current price, and mark any item whose price changed since it was saved.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Yes: a feature, requirements-first, quick profile. Name the spec folder 00001-saved-carts.",
+      "expects": "\\?\\s*$"
+    }
+  ]
+}

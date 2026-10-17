@@ -1,0 +1,3 @@
+[submodule "vendor/partner-sdk"]
+	path = vendor/partner-sdk
+	url = https://example.invalid/partner-sdk.git

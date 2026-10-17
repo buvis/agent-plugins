@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-041",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-todo-calendar/spike/SPEC.md",
+      "pattern": "(?i)all-day"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "On 'Refine', does the agent fold the answer into SPEC.md and rebuild in place?"
+    }
+  ]
+}

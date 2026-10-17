@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-013",
+  "session": "intake-existing-code",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-order-webhooks/requirements.md",
+      "pattern": "(?s)## Assumptions(?:(?!\\n## ).)*src/"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does a finding the requirements rely on appear under ## Assumptions with its source, with no separate discovery document written?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-010",
+  "session": "requirements-incomplete",
+  "assertions": [
+    {
+      "kind": "validation_passes",
+      "check": "placeholders"
+    }
+  ]
+}

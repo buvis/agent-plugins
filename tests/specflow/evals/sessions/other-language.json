@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "other-language",
+  "fixture": "sessions/other-language",
+  "turns": [
+    {"developer": "Vytvoř specifikaci z intake položky 00001-overdue-reminder."},
+    {"developer": "Ano: feature, requirements-first, profil quick. Složka 00001-overdue-reminder.", "expects": "\\?\\s*$"},
+    {"developer": "Upomínka jde jen čtenáři, ne rodičům. Žádné SMS.", "expects": "\\?\\s*$"},
+    {"developer": "Ano, takhle to sedí. Napiš požadavky."},
+    {"developer": "Schvaluji požadavky."},
+    {"developer": "Zvyš profil na standard: e-mailová adresa čtenáře jsou osobní údaje."}
+  ]
+}

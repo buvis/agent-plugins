@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "name": "requirements-incomplete",
+  "fixture": "sessions/requirements-incomplete",
+  "turns": [
+    {
+      "developer": "Continue spec 00001-report-export."
+    },
+    {
+      "developer": "I don't know.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Whatever you think.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Spike it.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Graduate.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "That's enough, write it up.",
+      "expects": "\\?\\s*$"
+    }
+  ]
+}

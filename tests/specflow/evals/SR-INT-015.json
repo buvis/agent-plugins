@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-015",
+  "session": "intake-third-unknown-raise",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-saved-carts/.specflow.json",
+      "pattern": "\"profile\": \"standard\""
+    },
+    {
+      "kind": "rubric",
+      "rubric": "After two content questions under quick, does the agent explain what still needs asking and propose standard before it asks the third content question?"
+    }
+  ]
+}

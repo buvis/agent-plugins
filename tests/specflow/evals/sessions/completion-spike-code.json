@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "name": "completion-spike-code",
+  "fixture": "sessions/completion-spike-code",
+  "turns": [
+    {
+      "developer": "Verify spec 00001-cart-rounding."
+    },
+    {
+      "developer": "Move what is needed into src/cart.py properly, then verify again."
+    },
+    {
+      "developer": "Yes, delete the spike folder."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-003",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is the number of content questions within about 3 to 12, with no question asked only to reach a count?"
+    }
+  ]
+}

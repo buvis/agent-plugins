@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-004",
+  "session": "intake-all-supplied",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)clarity"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)complexity"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent rate requirement clarity, scope breadth, codebase impact, and problem complexity before recommending a profile?"
+    }
+  ]
+}

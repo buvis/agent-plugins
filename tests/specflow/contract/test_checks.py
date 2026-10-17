@@ -148,13 +148,13 @@ class SeededDefectTest(ChecksTest):
         (spec / "requirements.md").write_text(cut)
         self.assert_seeded(spec, "requirement-ids")
 
-    def test_requirement_ids_bugfix_clause_pattern_and_numbering(self) -> None:
+    def test_bugfix_clause_pattern_and_numbering(self) -> None:
         spec = self.copy("00102-bugfix-sample")
         self.edit(spec / "bugfix.md", "2.1 WHEN", "2.2 WHEN")
-        self.assert_seeded(spec, "requirement-ids")
+        self.assert_seeded(spec, "bugfix-clauses")
         spec = self.copy("00102-bugfix-sample", "00104-copy")
         self.edit(spec / "bugfix.md", "SHALL CONTINUE TO import", "SHALL import")
-        self.assert_seeded(spec, "requirement-ids")
+        self.assert_seeded(spec, "bugfix-clauses")
 
     def test_design_sections_missing_section_and_empty_reason(self) -> None:
         spec = self.copy("00101-feature-sample")

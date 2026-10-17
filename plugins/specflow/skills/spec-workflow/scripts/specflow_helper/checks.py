@@ -30,7 +30,6 @@ from .findings import Finding, finding
 from .numbers import NUMBER, number_clashes
 from .schema import check_content
 from .spec_text import (
-    CLAUSE,
     CROSS_SPEC,
     REQUIREMENT_HEADING,
     known_ids,
@@ -104,15 +103,6 @@ SHARED_SECTIONS = (
     "Error handling",
     "Testing strategy",
     "Open decisions",
-)
-BUGFIX_SECTIONS = (
-    ("### Current Behavior (Defect)", 1, r"WHEN .+ THEN (?i:the system) "),
-    ("### Expected Behavior (Correct)", 2, r"WHEN .+ THEN (?i:the system) SHALL "),
-    (
-        "### Unchanged Behavior (Regression Prevention)",
-        3,
-        r"WHEN .+ THEN (?i:the system) SHALL CONTINUE TO ",
-    ),
 )
 
 
@@ -300,8 +290,8 @@ def requirement_ids_check(ctx: Context) -> list[Finding]:
     text = read_text(path)
     if text is None:
         return []
-    if path.name == "bugfix.md":
-        return bugfix_findings(ctx, path, text)
+    if path.name == "bugfix.md":  # bugfix-sections and bugfix-clauses (phase_checks.py)
+        return []
     found = partial(error, ctx, path, "requirement-ids")
     findings = []
     seen: set[str] = set()
@@ -332,38 +322,6 @@ def requirement_ids_check(ctx: Context) -> list[Finding]:
     if not seen:
         fix = "Add requirements under ## Requirements."
         findings.append(found("no requirement with a stable ID", fix))
-    return findings
-
-
-def bugfix_findings(ctx: Context, path: Path, text: str) -> list[Finding]:
-    lines = [line for _, line in prose(text)]
-    found = partial(error, ctx, path, "requirement-ids")
-    findings = []
-    for heading, number, pattern in BUGFIX_SECTIONS:
-        if heading not in lines:
-            fix = "Keep Kiro's three behavior sections."
-            findings.append(found(f"missing section {heading}", fix))
-            continue
-        start = lines.index(heading) + 1
-        end = next(
-            (i for i in range(start, len(lines)) if lines[i].startswith("#")),
-            len(lines),
-        )
-        clauses = [line for line in lines[start:end] if CLAUSE.match(line)]
-        if not clauses:
-            fix = f"Add a clause numbered {number}.1."
-            findings.append(found(f"{heading} has no clause", fix))
-        for index, clause in enumerate(clauses, start=1):
-            if not clause.startswith(f"{number}.{index} "):
-                message = f"clause out of sequence: {clause}"
-                fix = f"Number this section's clauses {number}.1, {number}.2, and on."
-                findings.append(found(message, fix))
-            elif not re.match(rf"^{number}\.{index} {pattern}", clause):
-                message = f"clause does not follow the pattern: {clause}"
-                fix = (
-                    "Use WHEN <condition> THEN the system ..., as the section requires."
-                )
-                findings.append(found(message, fix))
     return findings
 
 

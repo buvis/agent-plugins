@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "name": "intake-third-unknown-raise",
+  "fixture": "sessions/intake-third-unknown",
+  "turns": [
+    {
+      "developer": "Create a spec from intake item 00001-saved-carts. Keep it quick."
+    },
+    {
+      "developer": "A saved cart lasts 30 days.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Only signed-in customers can save a cart.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Yes, raise it to standard.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Show the current price, and mark any item whose price changed since it was saved.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-saved-carts.",
+      "expects": "\\?\\s*$"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-052",
+  "session": "resume-after-intake",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-invoice-pdf/.config.kiro",
+      "pattern": "\"workflowType\": \"design-first\""
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-invoice-pdf/.specflow.json",
+      "pattern": "\"workflowOrder\": \"requirements-first\""
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)quick"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)design-first|disagree|conflict"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "In the new conversation, does the agent find the type, order, and profile in the spec's files, report that .config.kiro and .specflow.json disagree on the order, and rewrite neither?"
+    }
+  ]
+}

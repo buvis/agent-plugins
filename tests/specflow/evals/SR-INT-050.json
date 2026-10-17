@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-050",
+  "session": "intake-existing-code",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-order-webhooks/requirements.md",
+      "pattern": "(?i)docs/partner-api\\.md"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-order-webhooks/requirements.md",
+      "pattern": "(?i)must not change|unchanged|stay"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent ask how to learn about the partner's warehouse system and what must not change there, and record what must not change in this repository from what the code shows?"
+    }
+  ]
+}
