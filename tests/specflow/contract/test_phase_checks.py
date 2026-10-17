@@ -161,5 +161,127 @@ class PlacementDriftTest(ChecksTest):
                 self.assertIn(rule, self.rules(spec, "tasks"))
 
 
+class BugfixChecksTest(ChecksTest):
+    """The five bugfix checks (T-039, ART-005)."""
+
+    RULES = frozenset(
+        {
+            "bugfix-sections",
+            "bugfix-clauses",
+            "bugfix-design-sections",
+            "bugfix-task-order",
+            "bugfix-clause-trace",
+        }
+    )
+
+    def messages(self, spec: Path, rule: str) -> list[str]:
+        return [f["message"] for f in validate(self.repo, spec) if f["rule"] == rule]
+
+    def test_kiro_capture_and_template_sample_pass(self) -> None:
+        capture = self.specs / "kiro-bugfix"
+        shutil.copytree(support.FIXTURES / "kiro" / "bugfix", capture)
+        for spec in (capture, self.copy("00102-bugfix-sample")):
+            with self.subTest(spec=spec.name):
+                self.assertEqual(self.rules(spec) & self.RULES, set())
+
+    def test_missing_behavior_section_fails_once(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        text = (spec / "bugfix.md").read_text()
+        cut = text.split("### Unchanged Behavior")[0]
+        (spec / "bugfix.md").write_text(cut)
+        self.assertEqual(
+            self.messages(spec, "bugfix-sections"),
+            [
+                (
+                    "missing section ### Unchanged Behavior (Regression Prevention)"
+                    " under ## Bug Analysis"
+                )
+            ],
+        )
+        self.assertNotIn("requirement-ids", self.rules(spec))
+
+    def test_shall_in_a_current_behavior_clause_fails(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        self.edit(spec / "bugfix.md", "the system skips", "the system SHALL skip")
+        [message] = self.messages(spec, "bugfix-clauses")
+        self.assertTrue(
+            message.startswith("a Current Behavior clause uses SHALL: 1.1 WHEN"),
+            message,
+        )
+
+    def test_design_without_hypothesized_root_cause_fails(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        self.edit(
+            spec / "design.md", "## Hypothesized Root Cause", "## Suspected Cause"
+        )
+        self.assertEqual(
+            self.messages(spec, "bugfix-design-sections"),
+            ["missing section ## Hypothesized Root Cause"],
+        )
+
+    def test_bug_condition_may_sit_in_bugfix_md(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        self.edit(spec / "design.md", "### Bug Condition", "### Trigger")
+        self.assertEqual(
+            self.messages(spec, "bugfix-design-sections"),
+            ["no Bug Condition heading in design.md or bugfix.md"],
+        )
+        bugfix = spec / "bugfix.md"
+        bugfix.write_text(
+            bugfix.read_text()
+            + "\n### Bug Condition\n\nA file without a final newline.\n"
+        )
+        self.assertEqual(self.messages(spec, "bugfix-design-sections"), [])
+
+    def test_fix_task_before_task_1_fails(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        path = spec / "tasks.md"
+        head, rest = path.read_text().split("- [ ] 1. ", 1)
+        first_two, rest = rest.split("- [ ] 3. ", 1)
+        fix, checkpoint = rest.split("- [ ] 4. ", 1)
+        path.write_text(
+            f"{head}- [ ] 3. {fix}- [ ] 1. {first_two}- [ ] 4. {checkpoint}"
+        )
+        messages = self.messages(spec, "bugfix-task-order")
+        self.assertIn(
+            "the first top-level task is not 'Write bug condition exploration test'...:"
+            " 3. Fix the reader",
+            messages,
+        )
+
+    def test_untraced_unchanged_clause_fails(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        bugfix = spec / "bugfix.md"
+        clause = "3.2 WHEN a source file is empty THEN the system SHALL CONTINUE TO import nothing\n"
+        bugfix.write_text(bugfix.read_text() + "\n" + clause)
+        self.assertEqual(
+            self.messages(spec, "bugfix-clause-trace"),
+            [
+                (
+                    "clause 3.2 is traced by no _Requirements: line of task 1, task 2,"
+                    " or a subtask of task 3"
+                )
+            ],
+        )
+
+    def test_trace_on_the_checkpoint_does_not_count(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        path = spec / "tasks.md"
+        self.edit(path, "  - _Requirements: 3.1_\n", "")
+        self.edit(path, "    - _Requirements: 2.1, 3.1_", "    - _Requirements: 2.1_")
+        self.edit(
+            path,
+            "- [ ] 4. Checkpoint - Ensure all tests pass",
+            "- [ ] 4. Checkpoint - Ensure all tests pass\n  - _Requirements: 3.1_",
+        )
+        [message] = self.messages(spec, "bugfix-clause-trace")
+        self.assertTrue(message.startswith("clause 3.1 is traced by no"), message)
+
+    def test_checks_skip_a_feature_spec(self) -> None:
+        self.assertEqual(
+            self.rules(self.copy("00101-feature-sample")) & self.RULES, set()
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
