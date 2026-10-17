@@ -33,6 +33,7 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: task-planning instructions (`references/phases/tasks.md`): contracts copied from the design, premises, owned verification, risk notes, the five sizing checks, re-planning that keeps checked tasks, and the planning summary; `validate` warns when two or more task `Location:` paths are missing from the design's placement (`placement-drift`).
 - **specflow**: implementation instructions (`references/phases/implementation.md`): build only on an open implementation gate, one task at a time, re-check a task's premise first, keep unrelated changes, check a task only after its own verification, and send an upstream error back through the requirements or design.
 - **specflow**: verification and completion instructions (`references/phases/verification.md`): failed checks mapped to tasks and requirements, a checked task unchecked when its final check fails, exceptions only on the developer's word, no completion box ticked over a failure or a stale approval, no spike code in the change, and the offer to delete the spike at `complete`.
+- **specflow**: a host-neutral status and handoff summary taken only from `validate_spec.py status --json`, with the Python 3 hint when the helper cannot run; a spec on hold shows its reason and date and is never offered as next work.
 
 ### Fixed
 

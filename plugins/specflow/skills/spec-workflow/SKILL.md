@@ -61,7 +61,7 @@ Phases, in order: `intake`, `requirements`, `design`, `tasks`, `implementation`,
 
 Record an approval by the procedure in `references/state-contract.md`. A spec is complete only when every required task is checked and verification has passed.
 
-A spec on hold or abandoned keeps its derived phase. Show the hold, and never offer the spec as next work until the developer clears it.
+- [SR-SKL-016] A spec on hold or abandoned keeps its derived phase. Show the hold with its reason and date, and never offer the spec as next work, nor start a task of it, until the developer clears the hold.
 
 - [SR-SKL-007] Before implementation starts, check the spec's `Depends on:` line through `status`: each prerequisite must be complete. When a prerequisite is not complete, or a reference is invalid or part of a cycle, start no task, name the prerequisite and the reason the helper gives, and leave both specs' files as they are.
 
@@ -71,6 +71,10 @@ A spec on hold or abandoned keeps its derived phase. Show the hold, and never of
 - [SR-SKL-013] When a `quick` spec shows, after intake, a change that is security-sensitive, architectural, a data migration, a public API, cross-component, about concurrency or timing, must match an existing implementation, invents an algorithm or a predicate, or is destructive, propose raising it to `standard` and say which trigger you saw. Raise it only when the developer agrees.
 - [SR-SKL-014] When the paths a spec affects become known or change, before you draft or edit that work, revisit which repository instructions apply to them (the instruction rule in `references/phases/intake.md`): read the newly relevant ones, update the discovery coverage, and when the spec's constraints change, correct the upstream artifact so the normal staling follows.
 - [SR-SKL-006] Write the structure of every artifact in English whatever language the developer uses: headings, IDs, field names, EARS keywords, markers such as `(guess)`, and file names. Prose may follow the developer's language.
+
+## Status and handoff summary
+
+- [SR-SKL-015] Every status answer, resume summary, and handoff reports, per spec, what `validate_spec.py status --json` holds and nothing it does not: the profile, the phase, the approval of each artifact, the stale files, the task progress (checked of total, and the next task), the hold, conflicts and other problems, specs-folder problems, the next action, and the question that blocks it, if any. Compute nothing yourself. Word it the same on every host, with no host-specific command. When the helper cannot run, say so, report what the files show, and add that installing Python 3 enables the full status and approvals.
 
 ## Conflicts and recovery
 
