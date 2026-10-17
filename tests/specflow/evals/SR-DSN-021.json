@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-021",
+  "session": "intake-bugfix",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/design.md",
+      "pattern": "(?m)^## Correctness Properties$"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/design.md",
+      "pattern": "(?m)^## Fix Implementation$"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/design.md",
+      "pattern": "(?m)^## Testing Strategy$"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/design.md",
+      "pattern": "(?m)^\\*\\*Validates: Requirements 2\\.1"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/design.md",
+      "pattern": "(?m)^### Preservation Checking$"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the design give the bug condition, a hypothesized root cause with its evidence, a fix property naming the 2.x clauses, a preservation property naming the 3.x clauses, the fix, and exploration, fix, and preservation checking?"
+    }
+  ]
+}

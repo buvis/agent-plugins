@@ -8,3 +8,9 @@ Load this reference to build an approved task plan, with `references/aws/impleme
 - [SR-IMP-004] Preserve every change in the working tree that the task did not make: never revert, overwrite, stage, or commit it, and stop to ask when it overlaps the task's files.
 - [SR-IMP-005] Check a task only after its own `Verify:` succeeds, and write the observed result in its `Outcome:` line. A failed or unrunnable check leaves the task unchecked; report the evidence and the requirement it touches. Only the developer can accept an exception, recorded in an `Exception:` line with its rationale.
 - [SR-IMP-006] When building shows that a requirement or the design is wrong or incomplete, stop and say so. With the developer's agreement, correct that upstream artifact; its change stales what depends on it, and implementation waits until the plan is approved again. Never widen or narrow the scope silently in code.
+
+## Bugfix specs
+
+- [SR-IMP-007] Finish tasks 1 and 2, each with its observed result in an `Outcome:` line, before any change to production code. Task 1 is done when its test fails on the unfixed code for the reason the bug condition gives; task 2 is done when its tests pass on the unfixed code.
+- [SR-IMP-008] When the task 1 test passes on the unfixed code, or fails for another reason, the root-cause hypothesis is refuted. Record what you observed in task 1's `Outcome:` line, leave the task unchecked, and stop; never change the test to force the predicted failure, and change no production code. With the developer, revise `## Hypothesized Root Cause` in `design.md`; that edit stales the design and the tasks, and the fix waits until both are approved again.
+- [SR-IMP-009] When a task 2 preservation test fails after a fix change, the fix reaches too far: narrow the fix until the test passes again, and never edit the preservation test. When narrowing needs a design change, revise `design.md` by SR-IMP-008.

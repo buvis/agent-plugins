@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "specId": "00001-discount-total",
+  "specType": "bugfix",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "bugfix.md",
+      "status": "approved",
+      "sha256": "d89d686cf4a3a04ffa1ae7a7c1c14e051d65e569fbd12873b238d1d89141cb43",
+      "approvedSha256": "d89d686cf4a3a04ffa1ae7a7c1c14e051d65e569fbd12873b238d1d89141cb43",
+      "approvedAt": "2026-10-15T09:00:00Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "cb4981e3252643626f40918feb22995cf3e9542cd20136e864025d96ee97f45f",
+      "approvedSha256": "cb4981e3252643626f40918feb22995cf3e9542cd20136e864025d96ee97f45f",
+      "approvedAt": "2026-10-15T09:00:00Z",
+      "upstreamSha256": {
+        "requirements": "d89d686cf4a3a04ffa1ae7a7c1c14e051d65e569fbd12873b238d1d89141cb43"
+      },
+      "approvedCode": {
+        "status": "not_checked",
+        "reason": "session fixture without Git history"
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "missing"
+    }
+  }
+}

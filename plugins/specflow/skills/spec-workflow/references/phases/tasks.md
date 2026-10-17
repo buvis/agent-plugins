@@ -22,6 +22,10 @@ Load this reference to plan or re-plan `tasks.md`. Questions follow the shared d
 - [SR-TSK-017] Among tasks with no dependency between them, follow the working practices the requirements record: a thin end-to-end slice first when the developer chose one, and each test before or after its code as chosen. A bugfix plan keeps its fixed test order whatever the practices say.
 - [SR-TSK-015] The last tasks cover end-to-end verification, documentation, compatibility, and cleanup. End the plan with `## Completion criteria` (checkboxes), then `## Unresolved questions` when any are left. The checkboxes in `tasks.md` are the one record of progress; `.specflow.json` never stands in for them.
 
+## Bugfix plans
+
+- [SR-TSK-019] A bugfix plan is the four top-level tasks of `templates/bugfix/tasks.md`, in this order, under Kiro numbering (`1.`, `3.1`): 1, the bug condition exploration test, which MUST FAIL on the unfixed code; 2, the preservation tests, written by observing the unfixed code, which MUST PASS on it; 3, the fix, whose subtasks make the change and then re-run the same task 1 and task 2 tests; 4, the checkpoint that runs the full test suite. Only the subtasks of task 3 vary. Each task traces its clauses in a `_Requirements: <clause numbers>_` line, and every `2.x` and `3.x` clause is traced by task 1, task 2, or a subtask of task 3. Working practices do not change this order (SR-TSK-017).
+
 ## Sizing
 
 - [SR-TSK-011] Check every task with the five sizing checks:

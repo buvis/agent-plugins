@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-020",
+  "session": "intake-bugfix",
+  "assertions": [
+    {
+      "kind": "file_read",
+      "path": "src/checkout.py"
+    },
+    {
+      "kind": "file_read",
+      "path": "tests/test_checkout.py"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/design.md",
+      "pattern": "src/checkout\\.py"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Before drafting the design, does the agent read total() and its tests, and name what it read in the design's Bug Details?"
+    }
+  ]
+}

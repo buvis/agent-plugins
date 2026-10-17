@@ -66,6 +66,11 @@ The bank, one topic per question:
 - [SR-REQ-049] While drafting, check each requirement against the triggers that force `standard`: security-sensitive, architectural, a data migration, a public API, cross-component, concurrency or timing, an equivalence obligation, an invented algorithm or predicate, or a destructive change. In a `quick` spec, a trigger draws the proposal of SR-SKL-013.
 - [SR-REQ-052] In a Design-First spec, draft the requirements from the approved design and the intake item, and give each requirement a `Design:` line naming the design elements that realize it; the design is not edited.
 
+## Bugfix specs
+
+- [SR-REQ-053] A bugfix spec writes `bugfix.md` from `templates/bugfix/bugfix.md`, never `requirements.md`, and keeps Kiro's shape as it is: `## Introduction` (what breaks, where, the impact, then the `Sources:` line), and `## Bug Analysis` with `### Current Behavior (Defect)`, `### Expected Behavior (Correct)`, and `### Unchanged Behavior (Regression Prevention)`. Draft it from the four bug inputs intake collected; the constraints become the unchanged-behavior clauses. It passes through the same approval as `requirements.md`, and the design waits for it.
+- [SR-REQ-054] Write each clause on one line in its section's pattern and numbering: `1.x WHEN <condition> THEN the system <incorrect behavior>`, with no `SHALL`; `2.x WHEN <condition> THEN the system SHALL <correct behavior>`; `3.x WHEN <condition> THEN the system SHALL CONTINUE TO <existing behavior>`. Number each section from `.1`, with no gap.
+
 ## Before approval
 
 - [SR-REQ-041] Before saving, walk the template's headings against the draft, then run `validate_spec.py validate <spec-dir> --phase requirements` and fix what it reports.

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-IMP-008",
+  "session": "bugfix-refuted",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/tasks.md",
+      "pattern": "(?m)^- \\[ \\] 1\\. "
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/tasks.md",
+      "pattern": "(?m)^  - Outcome: .*(?i:pass)"
+    },
+    {
+      "kind": "file_unchanged",
+      "path": "src/checkout.py"
+    },
+    {
+      "kind": "file_unchanged",
+      "path": "src/cart.py"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/design.md",
+      "pattern": "(?s)## Hypothesized Root Cause(?:(?!\\n## ).)*discount_rate"
+    },
+    {
+      "kind": "validation_reports",
+      "check": "stale-approvals"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "When the task 1 test passes on the unfixed code, does the agent record it, stop without changing the test or any production code, revise the root cause only after the developer agrees, and say the design and tasks need approving again?"
+    }
+  ]
+}

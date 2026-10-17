@@ -14,4 +14,5 @@ Load this reference once every task is checked, with `references/validation-rule
 ## Completion
 
 - [SR-VER-004] Completion is ticking the boxes under `## Completion criteria`. Tick none while a required task is unchecked, a check fails, or an approval is stale; ticking the last box is what makes the spec complete. A Kiro-native plan without that section goes straight from implementation to complete, and this phase does not run.
+- [SR-VER-009] A bugfix plan has no `## Completion criteria`: the spec is in verification while task 4, the checkpoint, is its only unchecked task. Run the full test suite and `validate`; check task 4, with the result in its `Outcome:` line, only when both pass, and that makes the spec complete. A failure maps to the task and the clause it touches, as above.
 - [SR-VER-002] When the spec reaches `complete`, offer to delete its spike folder or branch, naming each exact target; delete only after the developer confirms.

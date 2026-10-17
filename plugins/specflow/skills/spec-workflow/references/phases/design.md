@@ -26,6 +26,11 @@ Load this reference to draft or revise `design.md`, with `references/aws/design.
 - [SR-DSN-011] Each risk line has impact, likelihood, mitigation, and fallback, and the section adds two or three likely next changes, with what limits each one.
 - [SR-DSN-019] `## Requirement traceability` maps each material design element and test to the criterion IDs it covers, in a column headed `Criteria`. A Design-First design reads `Not applicable: Design-First` there, since its requirements name the design elements instead.
 
+## Bugfix designs
+
+- [SR-DSN-020] Before drafting a bugfix design, under either profile, read the code around the defect: the function the reproduction reaches, its callers, and its tests. Name what you read in `## Bug Details`.
+- [SR-DSN-021] Write the bugfix design from `templates/bugfix/design.md`, in its shape: the bug condition (here, or already in `bugfix.md`), `## Hypothesized Root Cause` with the evidence for each cause, `## Correctness Properties` with a fix property whose `Validates:` line names the `2.x` clauses and a preservation property naming the `3.x` clauses, `## Fix Implementation`, and `## Testing Strategy` covering exploration, fix checking, and preservation checking. The root cause stays a hypothesis that task 1 tests. Under `quick`, trim the prose, never a section.
+
 ## Approval
 
 Run `validate_spec.py validate <spec-dir> --phase design` and fix what it reports. When the review references are installed, hand the draft to the design pre-pass and the interactive design review before the approval summary; a repair edits this design and reopens its gate, and no copy of the design is made. Review minutes go to the intake item's `qa-log.md`.
