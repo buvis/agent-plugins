@@ -8,7 +8,7 @@ All notable changes to this plugin are documented here. The format follows
 
 ### Added
 
-- **specflow**: package manifest and a placeholder `spec-workflow` skill.
+- **specflow**: package manifest.
 - **specflow**: Claude Code compatibility manifest.
 - **specflow**: AWS AI-DLC source record and profile mapping (`references/aws/adaptation.md`).
 - **specflow**: license and attribution of the AWS sources, and a provenance section in the README.
@@ -83,3 +83,5 @@ All notable changes to this plugin are documented here. The format follows
 - **specflow**: `validate` reads a task's `Requirements:` and `Acceptance criteria:` lines token by token, so stray words, dates, ranges or a note after a criteria list no longer raise a false unknown-citation error, and an ID that only starts like one the spec holds (`REQ-0010`) is reported.
 - **specflow**: `validate` also warns on a root-level absolute path such as `/tmp` or `/config.json` and on a `$HOME/` path.
 - **specflow**: `status` lists an unaccepted upstream marker once per dependent approval, no longer a second time as a validation error.
+- **specflow**: `sketch-screens` counts only regular files as mockups and reports a mockup page it cannot read as UTF-8 instead of skipping its links; `bugfix-clauses` rejects a `SHALL CONTINUE TO` clause filed under Expected Behavior.
+- **specflow**: the `spec-workflow` rules read right in both workflow orders and name their sources: the status summary says which fields come from `status --json`, which count comes from `tasks.md`, and how the next action and blocking question follow from them; the repository's own instruction files are read for constraints; a secret in the first message stays out of the intake item; the requirements-phase gates are qualified for Design-First; and the AWS requirements guidance defers to the phase rules on a choice left to the agent.

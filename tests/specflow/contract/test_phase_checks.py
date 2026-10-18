@@ -88,6 +88,51 @@ class SketchScreensTest(ChecksTest):
         (spec / "spike" / "mockups" / "orders.html").unlink()
         self.assertNotIn("sketch-screens", self.rules(spec))
 
+    def test_reserved_screen_id_index_fails(self) -> None:
+        item = self.sketch()
+        self.edit(
+            item / "spike" / "journey.md",
+            "checkout -->|Pay| done(Order placed)\n",
+            "checkout -->|Pay| done(Order placed)\n    index[Home]\n",
+        )
+        self.assertEqual(
+            self.messages(item), ["screen ID index is reserved for the navigation file"]
+        )
+
+    def test_journey_without_a_flowchart_screen_fails(self) -> None:
+        item = self.sketch()
+        (item / "spike" / "journey.md").write_text("# Journeys\n\nNone drawn yet.\n")
+        self.assertIn("spike/journey.md holds no flowchart screen", self.messages(item))
+
+    def test_missing_or_unreadable_journey_fails(self) -> None:
+        for case, content in (("missing", None), ("unreadable", b"\xff\xfe")):
+            with self.subTest(case=case):
+                item = self.sketch()
+                journey = item / "spike" / "journey.md"
+                journey.unlink()
+                if content is not None:
+                    journey.write_bytes(content)
+                self.assertEqual(
+                    self.messages(item), ["spike/journey.md is missing or unreadable"]
+                )
+                shutil.rmtree(item)
+
+    def test_directory_named_like_a_mockup_is_no_mockup(self) -> None:
+        item = self.sketch()
+        orders = item / "spike" / "mockups" / "orders.html"
+        orders.unlink()
+        orders.mkdir()
+        self.assertEqual(
+            self.messages(item), ["screen orders has no spike/mockups/orders.html"]
+        )
+
+    def test_unreadable_mockup_is_reported_once(self) -> None:
+        item = self.sketch()
+        (item / "spike" / "mockups" / "login.html").write_bytes(b"\xff\xfe<a>")
+        self.assertEqual(
+            self.messages(item), ["spike/mockups/login.html cannot be read as UTF-8"]
+        )
+
 
 class PlacementDriftTest(ChecksTest):
     """placement-drift on the task plan, and the T-026 rejections on the same plan (T-034)."""
@@ -280,6 +325,64 @@ class BugfixChecksTest(ChecksTest):
     def test_checks_skip_a_feature_spec(self) -> None:
         self.assertEqual(
             self.rules(self.copy("00101-feature-sample")) & self.RULES, set()
+        )
+
+    def test_missing_introduction_fails(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        self.edit(spec / "bugfix.md", "## Introduction", "## Summary")
+        self.assertEqual(
+            self.messages(spec, "bugfix-sections"), ["missing section ## Introduction"]
+        )
+
+    def test_missing_bug_analysis_fails_with_its_sections(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        self.edit(spec / "bugfix.md", "## Bug Analysis", "## Analysis")
+        messages = self.messages(spec, "bugfix-sections")
+        self.assertEqual(messages[0], "missing section ## Bug Analysis")
+        self.assertEqual(len(messages), 4)
+
+    def test_behavior_section_without_a_clause_fails(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        text = (spec / "bugfix.md").read_text()
+        kept, _ = text.split("3.1 WHEN", 1)
+        (spec / "bugfix.md").write_text(kept)
+        self.assertEqual(
+            self.messages(spec, "bugfix-sections"),
+            ["### Unchanged Behavior (Regression Prevention) has no clause"],
+        )
+
+    def test_preservation_clause_under_expected_behavior_fails(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        self.edit(
+            spec / "bugfix.md",
+            "SHALL import its last row",
+            "SHALL CONTINUE TO import its last row",
+        )
+        [message] = self.messages(spec, "bugfix-clauses")
+        self.assertTrue(
+            message.startswith("clause does not follow the pattern: 2.1 WHEN"), message
+        )
+
+    def test_fewer_than_four_top_level_tasks_fails(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        path = spec / "tasks.md"
+        kept, _ = path.read_text().split("- [ ] 4. ", 1)
+        path.write_text(kept)
+        self.assertEqual(
+            self.messages(spec, "bugfix-task-order"),
+            ["3 top-level tasks; a bugfix plan has four"],
+        )
+
+    def test_second_third_and_last_task_mismatches_are_each_named(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        path = spec / "tasks.md"
+        self.edit(path, "2. Write preservation property tests", "2. Preservation tests")
+        self.edit(path, "3. Fix the reader", "3. Repair the reader")
+        self.edit(path, "4. Checkpoint - Ensure", "4. Final - Ensure")
+        messages = self.messages(spec, "bugfix-task-order")
+        self.assertEqual(
+            [m.split(" top-level task")[0] for m in messages],
+            ["the second", "the third", "the last"],
         )
 
 

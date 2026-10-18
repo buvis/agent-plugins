@@ -140,7 +140,7 @@
     {"id": "SR-REQ-039", "file": "phases/requirements.md", "kind": "behavioral", "check": "evals/SR-REQ-039.json", "sources": ["A:PRD-15"]},
     {"id": "SR-REQ-040", "file": "phases/requirements.md", "kind": "behavioral", "check": "evals/SR-REQ-040.json", "sources": ["A:PRD-28"]},
     {"id": "SR-REQ-041", "file": "phases/requirements.md", "kind": "behavioral", "check": "evals/SR-REQ-041.json", "sources": ["A:PRD-29"]},
-    {"id": "SR-REQ-042", "file": "phases/requirements.md", "kind": "behavioral", "check": "evals/SR-REQ-042.json", "sources": ["A:PRD-30"]},
+    {"id": "SR-REQ-042", "file": "phases/requirements.md", "kind": "behavioral", "check": "evals/SR-REQ-042.json", "sources": ["A:PRD-30", "R:WF-002.8"]},
     {"id": "SR-REQ-043", "file": "phases/requirements.md", "kind": "behavioral", "check": "evals/SR-REQ-043.json", "sources": ["A:PRD-37"]},
     {"id": "SR-REQ-044", "file": "phases/requirements.md", "kind": "behavioral", "check": "evals/SR-REQ-044.json", "sources": ["A:PRD-39"]},
     {"id": "SR-REQ-045", "file": "phases/requirements.md", "kind": "behavioral", "check": "evals/SR-REQ-045.json", "sources": ["A:PRD-43"]},

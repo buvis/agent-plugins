@@ -228,7 +228,7 @@ The agent performs these steps; `validate_spec.py next-number` only reads.
 
 - [SR-DLG-008] `Answer:` holds the developer's own words, caveats included; the agent's interpretation goes on a `Reading:` line. Classify a caveat by its meaning, never by words such as "for now": a definite choice for this release stays a requirement, a later revisit that does not affect this spec is a `Follow-up:` line in the entry, and only the part still undecided for this spec goes under `## Unresolved questions`, with what would resolve it. When it is unclear whether a caveat affects this spec, ask, or keep it marked uncertain; never guess a settled choice, and never hide a current dependency in a follow-up.
 - [SR-DLG-005] The log is append-only, each entry written right after its answer, so it survives a lost conversation: a changed answer is a new entry that names the one it replaces, and the earlier entry stays as it was.
-- [SR-DLG-013] A secret in an answer (a key, a password, a token, a copied environment value) is left out of the log, the artifacts, and `.specflow.json`, and the omission noted where it was left out.
+- [SR-DLG-013] A secret in an answer (a key, a password, a token, a copied environment value) is left out of the log, the intake item, the artifacts, and `.specflow.json`, and the omission noted where it was left out.
 
 ## Shared dialogue
 

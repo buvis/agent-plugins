@@ -25,7 +25,7 @@
     },
     {
       "kind": "rubric",
-      "rubric": "Does the status give, per spec, the profile, the phase, each approval, the stale files, the task progress and next task, the hold, problems, the next action, and the blocking question, as status --json holds them, with nothing computed by the agent and no host-specific command?"
+      "rubric": "Does the status give, per spec, the profile, the phase, each approval, the stale files, the next task, the hold, the blockers and problems as status --json holds them, the task progress counted from tasks.md, and the next action and the blocking question by the rule's own mapping (hold, then blocker, then the phase's step), with nothing else added by the agent and no host-specific command?"
     }
   ]
 }

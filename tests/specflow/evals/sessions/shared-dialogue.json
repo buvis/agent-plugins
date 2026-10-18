@@ -20,8 +20,8 @@
     {"developer": "Looks okay so far, I guess."},
     {"developer": "Approve the requirements."},
     {"developer": "Continue with the design."},
-    {"developer": "Approve the design."},
+    {"developer": "Accept the open questions on the failure budget, on-call paging, and the undecided answer as they stand. Approve the design."},
     {"developer": "Continue with the tasks."},
-    {"developer": "Approve the tasks."}
+    {"developer": "Accept those same three open questions for the plan as well. Approve the tasks."}
   ]
 }

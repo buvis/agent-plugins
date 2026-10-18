@@ -36,7 +36,11 @@ PLACEMENT = re.compile(r"placement|file|fix implementation", re.IGNORECASE)
 BUG_ANALYSIS = "## Bug Analysis"
 BUGFIX_SECTIONS = (
     ("### Current Behavior (Defect)", 1, r"WHEN .+ THEN (?i:the system) "),
-    ("### Expected Behavior (Correct)", 2, r"WHEN .+ THEN (?i:the system) SHALL "),
+    (
+        "### Expected Behavior (Correct)",
+        2,
+        r"WHEN .+ THEN (?i:the system) SHALL (?!CONTINUE TO)",
+    ),
     (
         "### Unchanged Behavior (Regression Prevention)",
         3,
@@ -116,6 +120,22 @@ def sketch_screens(ctx: Context) -> list[Finding]:
             )
         ]
     screens, edges, bad = parse_journey(text)
+    files = (
+        {p.name for p in mockups.iterdir() if p.is_file()}
+        if mockups.is_dir()
+        else set()
+    )
+    return [
+        *journey_findings(found, screens, bad),
+        *mockup_findings(ctx, found, mockups, screens, files),
+        *link_findings(ctx, found, mockups, edges),
+    ]
+
+
+def journey_findings(
+    found: partial[Finding], screens: set[str], bad: list[tuple[int, str]]
+) -> list[Finding]:
+    """A line of no accepted kind, a journey with no screen, and the reserved ID."""
     findings = [
         found(
             f"line {n}: {line} is not a flowchart header, a node, an edge, or a %% comment",
@@ -138,15 +158,25 @@ def sketch_screens(ctx: Context) -> list[Finding]:
                 "Rename the screen.",
             )
         )
-    files = {p.name for p in mockups.iterdir()} if mockups.is_dir() else set()
-    for screen in sorted(screens - {INDEX}):
-        if f"{screen}.html" not in files:
-            findings.append(
-                found(
-                    f"screen {screen} has no spike/mockups/{screen}.html",
-                    f"Write spike/mockups/{screen}.html.",
-                )
-            )
+    return findings
+
+
+def mockup_findings(
+    ctx: Context,
+    found: partial[Finding],
+    mockups: Path,
+    screens: set[str],
+    files: set[str],
+) -> list[Finding]:
+    """A screen with no mockup file, and a mockup file that belongs to no screen."""
+    findings = [
+        found(
+            f"screen {screen} has no spike/mockups/{screen}.html",
+            f"Write spike/mockups/{screen}.html.",
+        )
+        for screen in sorted(screens - {INDEX})
+        if f"{screen}.html" not in files
+    ]
     for name in sorted(files - {f"{s}.html" for s in screens} - {f"{INDEX}.html"}):
         findings.append(
             error(
@@ -157,8 +187,27 @@ def sketch_screens(ctx: Context) -> list[Finding]:
                 "Delete it, or add its screen to the journey.",
             )
         )
+    return findings
+
+
+def link_findings(
+    ctx: Context, found: partial[Finding], mockups: Path, edges: list[Edge]
+) -> list[Finding]:
+    """A source page that cannot be read, then each edge its source page does not link."""
+    pages = {source: read_text(mockups / f"{source}.html") for _, source, _, _ in edges}
+    findings = [
+        error(
+            ctx,
+            mockups / f"{source}.html",
+            "sketch-screens",
+            f"spike/mockups/{source}.html cannot be read as UTF-8",
+            "Save it as UTF-8 text.",
+        )
+        for source in sorted(pages)
+        if pages[source] is None and (mockups / f"{source}.html").is_file()
+    ]
     for n, source, action, target in edges:
-        page = read_text(mockups / f"{source}.html")
+        page = pages[source]
         if page is not None and f"{target}.html" not in HREF.findall(page):
             findings.append(
                 found(
@@ -291,7 +340,10 @@ def bugfix_clause_patterns(ctx: Context) -> list[Finding]:
                 fix = f"Number this section's clauses {number}.1, {number}.2, and on."
             elif number == 1 and SHALL.search(clause):
                 message = f"a Current Behavior clause uses SHALL: {clause}"
-                fix = "Describe the defect as it happens: WHEN <condition> THEN the system <incorrect behavior>."
+                fix = (
+                    "Describe the defect as it happens: WHEN <condition> THEN the"
+                    " system <incorrect behavior>."
+                )
             elif not re.match(rf"^{number}\.{index} {pattern}", clause):
                 message = f"clause does not follow the pattern: {clause}"
                 fix = (
@@ -337,7 +389,10 @@ def bugfix_task_order(ctx: Context) -> list[Finding]:
     path, text = tasks
     found = partial(error, ctx, path, "bugfix-task-order")
     top = [item for item in task_items(text) if item["parent"] is None]
-    fix = "Keep the four tasks of templates/bugfix/tasks.md in their order: exploration test, preservation tests, fix, checkpoint."
+    fix = (
+        "Keep the four tasks of templates/bugfix/tasks.md in their order:"
+        " exploration test, preservation tests, fix, checkpoint."
+    )
     if len(top) < len(BUGFIX_TASKS):
         return [found(f"{len(top)} top-level tasks; a bugfix plan has four", fix)]
     # ponytail: tasks Kiro adds between the fix and the checkpoint are allowed, as in the T-027 capture.

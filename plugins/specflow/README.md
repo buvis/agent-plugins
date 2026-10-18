@@ -6,7 +6,7 @@ writes Kiro-compatible spec artifacts.
 ## Status
 
 Unreleased. The `spec-workflow` skill holds the workflow's entry point, gates,
-and shared contracts; its phase references are still being written.
+shared contracts, and phase references; the review references are next.
 
 ## Package
 

@@ -4,9 +4,9 @@ Load this reference for a new idea or a bug, before the spec folder exists. Ques
 
 ## The input
 
-- [SR-INT-001] When the developer starts from a free-text idea, save it first, verbatim, as `idea.md` of a new intake item under `<root>/intake/new/`, before any question or discovery. The item claims the spec number.
+- [SR-INT-001] When the developer starts from a free-text idea, save it first, verbatim except a secret (left out and noted, SR-DLG-013), as `idea.md` of a new intake item under `<root>/intake/new/`, before any question or discovery. The item claims the spec number.
 - [SR-INT-002] Look for the input in this order: what the developer names in the request, then an intake item under `<root>/intake/new/`, then an existing spec folder, then the conversation. Use the first that holds it, and say which one you used. An item in a group folder keeps that group when it moves to `processed/`.
-- [SR-INT-057] Take an input file only from one explicit path. When the path is missing, or the name matches more than one file, ask which one; never pick a match. Copy the file into the intake item; for one that is binary, too large to read, or outside the repository, record its location in `idea.md` and say what could not be read.
+- [SR-INT-057] Take an input file only from one explicit path. When the path is missing, or the name matches more than one file, ask which one; never pick a match. Copy the file into the intake item; for one that is binary, too large to read, outside the repository, or holding a secret (SR-DLG-013), record its location in `idea.md` and say what was not copied.
 - [SR-INT-003] Pull the problem, the requirements, the constraints, the success criteria, and the open questions out of the input, and skip every question the input already answers.
 - [SR-INT-014] A new item's number is one more than the highest five-digit prefix in use; get it from `validate_spec.py next-number`, never by counting yourself.
 - [SR-INT-019] The number scan covers `<root>/intake/new/`, `<root>/intake/processed/`, the specs folder, and the `numberScan` folders of `.agents/specflow.json`, and nothing else.
