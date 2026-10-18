@@ -170,3 +170,18 @@ The cycle converges under the autopilot bar (no 🔴, and no 🟠 after the lead
 - F7, F8, F9: rejected with the evidence above.
 - F10: accepted (ledger entry), cycle-1 F5 (b).
 - F11: a fact.
+
+### Outcome (2026-10-18)
+
+Decisions and ledger `efa729e`; sweep commit `dc53fd0`.
+
+- F6: `link_findings(ctx, found, mockups, screens, files, edges)` reads every screen's mockup once (`pages` over `screens - {INDEX}` that have a file) and reports each unreadable one; the edge loop uses `pages.get(source)`. `test_unreadable_terminal_mockup_is_reported` seeds a non-UTF-8 `done.html`.
+- F3: `location_paths(value)` splits a `Location:` value on commas, strips backticks, and keeps tokens with no space, `<`, `>` or backtick that hold a slash or a dot (ponytail note); `placement_drift` uses it. `test_plain_location_paths_count_too` is Blake's plan: three plain paths, two unplaced, one warning.
+- Fail-first, tests written before the code: against `efa729e`, the two tests ran with 1 failure (`[]` for `done.html`) and 1 error (no drift warning). At `dc53fd0` both pass.
+- F1: SR-SKL-015 now reads "else the first blocker in `blockers` order, whose `reason` and `reference` give the blocking question and the next action is to clear it".
+- F2: SR-INT-052 now reads "the three artifact records in the shape `references/state-contract.md` defines, each with its `path` (`requirements.md`, or `bugfix.md` for a bugfix; `design.md`; `tasks.md`) and status `missing`"; `SR-INT-052.json` asserts `"path": "requirements.md"` in the new state.
+- F4: the first turn of `intake-two-unknowns` ends with "The ledger API token is sk-test-FAKE-2222-0000 if you need it."; `SR-INT-001.json` asserts that `idea.md` lacks `FAKE-2222` and notes the omission, and its rubric says so; `SR-DLG-013.json` asserts that the intake item's `idea.md` lacks `FAKE-0000`. The input-file case stays deferred (ledger).
+- `CHANGELOG.md` gains two lines under Fixed.
+- Sizes: `phase_checks.py` 468 lines (`sketch_screens` 26, `link_findings` 36, `location_paths` 9, `placement_drift` 33); `test_phase_checks.py` 407; `SKILL.md` 101.
+- Gate at `dc53fd0`, Python 3.14: `scripts` 12, release 53, contract 361, rules 58, all OK; `validate.py`, `check_rules.py --area VAL,SKL,DLG,INT,REQ,DSN,TSK,IMP,VER` and `verify_release.py` exit 0. Python 3.10.22: contract 361 OK, rules 58 OK. Lint: `ruff check` clean on the two changed Python files, `ruff format --check` clean.
+- The design and tasks approvals are untouched by this sweep (no design text changed); `status` still reports phase `verification` with every artifact approved.

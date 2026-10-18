@@ -240,13 +240,14 @@ def placed_paths(design: str) -> set[str]:
 
 
 def location_paths(value: str) -> list[str]:
-    """The paths of a Location: value, in inline code or as plain comma-separated tokens."""
-    # ponytail: a plain token is a path when it has no space and holds a slash or a dot.
-    tokens = (token.strip().strip("`") for token in value.split(","))
-    return [
+    """The paths of a Location: value: each inline-code span, then plain comma-separated tokens."""
+    spans = CODE_SPAN.findall(value)
+    # ponytail: a plain token is a path when it has no space and holds a slash or an extension.
+    rest = (t.strip().rstrip(".;:)") for t in CODE_SPAN.sub(",", value).split(","))
+    return spans + [
         t
-        for t in tokens
-        if t and not re.search(r"[\s<>`]", t) and re.search(r"[/.]", t)
+        for t in rest
+        if t and not re.search(r"[\s<>`]", t) and re.search(r"/|\.\w+$", t)
     ]
 
 
