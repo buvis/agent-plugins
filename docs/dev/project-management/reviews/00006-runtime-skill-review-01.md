@@ -201,3 +201,23 @@ The developer ruled on each finding in turn and took the lead's proposed ruling 
 - F19: fix. Line 3 of `requirements.md` points at `## Bugfix specs`. Queued.
 - F20: fix with F1. The two strings are wrapped. Queued.
 - F21: accepted by design (ledger entry added). No host placeholder by T-030; 00008 proves the install on real hosts.
+
+### Outcome (2026-10-18)
+
+Decisions and ledger `93139f4` (with the F13 design edit and its qa-log entry); fix commit `de90b0e`; the re-approvals and this record in the commit after it.
+
+- F1 + F8 + F20: `sketch_screens` is 24 lines and calls `journey_findings` (27), `mockup_findings` (27) and `link_findings` (27). `files` holds regular files only, so a directory named `<screen>.html` leaves its screen without a mockup; a source page that exists but is not UTF-8 is reported once (`spike/mockups/<source>.html cannot be read as UTF-8`) and its edges are skipped. The two long `fix` strings are wrapped.
+- F11 (ii): the Expected Behavior pattern is `WHEN .+ THEN (?i:the system) SHALL (?!CONTINUE TO)`.
+- F9: eight tests, one per branch (the reserved `index`, no flowchart screen, a missing and an unreadable journey, a missing `## Introduction`, a missing `## Bug Analysis` with its three sections, a section with no clause, three top-level tasks, and the second, third and last-task mismatches). `test_phase_checks.py` is 390 lines.
+- Fail-first, tests written before the code: against `93139f4`, the two classes ran 29 tests with 2 failures and 1 error (the directory mockup, the unreadable page, the `SHALL CONTINUE TO` clause under 2.x); the eight F9 tests pass there, as coverage of branches that already existed. At `de90b0e` all 29 pass.
+- F3: SR-SKL-015 names the fields taken from `status --json` as they are, the count from the task list of `tasks.md`, and the mapping for the next action and the blocking question (a hold, then a blocker, then the phase's own step). The SR-SKL-015 eval rubric says the same. `SKILL.md` stays at 101 lines.
+- F6, F7, F12, F19: one clause on SKILL.md:12; SR-REQ-014 and SR-REQ-053 qualified for Design-First; SR-DLG-013 names the intake item, and SR-INT-001 and 057 point at it; `requirements.md` line 3 points at `## Bugfix specs`.
+- F5: `aws/requirements.md` line 3 gives the specflow rules precedence (the artifact contract and the phase reference), and the Adaptation at line 125 treats a choice left to the agent as a non-answer under SR-REQ-005 and 006.
+- F10: SR-REQ-042's sources are `A:PRD-30` and `R:WF-002.8`.
+- F2: the README says the phase references are in place and the review references are next; the CHANGELOG's first line no longer mentions the placeholder skill.
+- F14: turns 23 and 25 of `shared-dialogue` accept the three open questions by name before each approval.
+- F13: the design row was corrected in `93139f4`; the code is unchanged.
+- `CHANGELOG.md` gains two lines under Fixed: the `sketch-screens` and `bugfix-clauses` fixes, and the rule-text corrections.
+- Gate at `de90b0e`, Python 3.14: `scripts` 12, release 53, contract 359, rules 58, all OK; `validate.py`, `check_rules.py --area VAL,SKL,DLG,INT,REQ,DSN,TSK,IMP,VER` and `verify_release.py` exit 0. Python 3.10.22: contract 359 OK, rules 58 OK. Lint: `ruff check` is clean on the two changed Python files, and `ruff format --check` passes.
+- Re-approvals: design at blob `cc2badd` (canonical `8a6e8f7d…`) and tasks at blob `8fc762b` (canonical `d839553c…`), approved by the developer ("Approve both (Recommended)") and recorded in `.specflow.json` with a fresh code baseline over the 19 placement files at `de90b0e`; `reconcile` reports phase `verification`, and `status` shows no stale artifact, no blocker and no warning (qa-log "Re-approvals, review 00006-01").
+- Next: cycle 2, incremental since `fe24340`, with the ledger and this file's findings handed to the reviewers.

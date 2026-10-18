@@ -256,3 +256,10 @@ each landing exactly once.
 - The cycle-1 walkthrough (`reviews/00006-runtime-skill-review-01.md`, minutes) decided F13, which changes design text. No requirement changes.
 - Edited: the `bugfix-task-order` row of the check table in `design.md` now says the check recognizes the first three and the last of the fixed tasks, in order, and that tasks Kiro adds between the fix and the checkpoint pass, as the T-027 capture (six top-level tasks) shows. The old row said "exactly the four", which the same table's requirement that the capture passes contradicted. The code is unchanged.
 - This edit stales the design approval recorded on 2026-10-16, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval after the fix commit; requirements stay approved.
+
+## Re-approvals, review 00006-01 (2026-10-18)
+
+- Question: "Re-approve 00006's design.md at blob cc2badd (canonical 8a6e8f7d…, the F13 bugfix-task-order row only) and tasks.md at blob 8fc762b (canonical d839553c…, unchanged, stale only through its upstream), with a fresh code baseline over the 19 files of ## Module placement as of the fix commit de90b0e?" Answer: "Approve both (Recommended)".
+- Design: `design.md`, git blob `cc2badd82b8af32a7c2b66a55c273fc03cbfb1af` (commit `93139f4`), canonical `8a6e8f7d…`. Code baseline captured by `code-baseline` over the nineteen files of `## Module placement`, bytes as of `de90b0e`. Upstream: requirements blob `fb01bd9`, unchanged. Upstream markers: none open.
+- Tasks: `tasks.md`, git blob `8fc762b0033542febe209b77ce9db49ee9b2b498`, canonical `d839553c…`, unchanged since 2026-10-16 and stale only through its upstream. Upstream markers: none open.
+- `validate --phase tasks` reported only the two stale approvals being replaced, with the progress-fields warnings a stale plan draws. Values copied from `validate_spec.py hash --json` and `code-baseline`; `reconcile` then reports phase `verification`, and `status` shows every artifact approved, no stale file, no blocker, no warning, `nextTask` null.
