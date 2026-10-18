@@ -237,7 +237,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 
 ## Completion criteria
 
-- [ ] Every task above is checked, each with its `Outcome:` line.
-- [ ] On the final commit, the pull request's CI run is green (before a pull request exists, the step commands pass in a fresh clone of the commit): the repository validator, the contract tests, the release check with the shell's sentence forbidden, and `check_rules.py` for areas `SKL`, `DLG`, `INT`, `REQ`, `DSN`, `TSK`, `IMP`, and `VER`.
-- [ ] `SKILL.md` is within the size limit T-030 confirmed, and the list of routed files not written yet in `test_skill.py` holds only the `review/` files of 00007.
-- [ ] Each of the 38 sessions the design names exists, with a valid eval record for every behavioral rule of this spec; their scores on the three hosts are T-057's (00009).
+- [x] Every task above is checked, each with its `Outcome:` line.
+- [x] On the final commit, the pull request's CI run is green (before a pull request exists, the step commands pass in a fresh clone of the commit): the repository validator, the contract tests, the release check with the shell's sentence forbidden, and `check_rules.py` for areas `SKL`, `DLG`, `INT`, `REQ`, `DSN`, `TSK`, `IMP`, and `VER`.
+- [x] `SKILL.md` is within the size limit T-030 confirmed, and the list of routed files not written yet in `test_skill.py` holds only the `review/` files of 00007.
+- [x] Each of the 38 sessions the design names exists, with a valid eval record for every behavioral rule of this spec; their scores on the three hosts are T-057's (00009).
