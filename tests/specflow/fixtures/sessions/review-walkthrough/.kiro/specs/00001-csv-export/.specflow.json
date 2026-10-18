@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "specId": "00001-csv-export",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "7a831ec0d396284cb31bdbf774fa6cd1307ee1b446469a92266e447ccef01565",
+      "approvedSha256": "7a831ec0d396284cb31bdbf774fa6cd1307ee1b446469a92266e447ccef01565",
+      "approvedAt": "2026-10-15T09:00:00Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "missing"
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "missing"
+    }
+  }
+}

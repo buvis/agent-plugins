@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-051",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "Severity: (Blocking|Non-blocking|Question)"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the severities taken from the four, with blocking findings fixed or disputed before approval, non-blocking ones allowing the next phase, and questions coming from genuine ambiguity?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-021",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are the Question findings limited to ambiguities a competent reader could misread, with no stylistic preference raised as a finding?"
+    }
+  ]
+}

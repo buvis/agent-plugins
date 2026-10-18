@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-039",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is any lens or item the agent does not apply marked not applicable with a one-line reason, never skipped in silence?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-001",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Before its first finding, does the agent load references/review/core.md and then references/review/requirements.md, and raise no finding before both are loaded?"
+    }
+  ]
+}

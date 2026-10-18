@@ -2,7 +2,7 @@
 
 The first sub-bullets of `Details:` and `Verify:` are carried from the source plan in intake item 00001. In them, `design §n` means the source design, `.kiro/specs` means the specs folder, and a task ID may belong to another spec; `docs/dev/project-management/reviews/2026-10-04-specflow-split-map.md` names the spec that now holds each section and each task. Lines written for this plan name a task of another spec with its spec, as in `T-030 (00006)`.
 
-- [ ] T-073 Write the shared review core
+- [x] T-073 Write the shared review core
   - Requirements: REV-001
   - Depends on: none
   - Location: `plugins/specflow/skills/spec-workflow/references/review/core.md`, `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `.github/workflows/validate.yml`, `tests/specflow/contract/test_skill.py`, `tools/specflow/rules/inventory.json`, `tests/specflow/evals/SR-<area>-NNN.json`
@@ -17,6 +17,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - `check_rules.py --area RVC` passes; a scenario fixture shows the edit landing before the next card, the minutes line written, and a disputed finding not raised on the next run.
     - The scenario clauses above are assertions in eval records on the sessions this task writes; T-057 (00009) scores them on the three hosts. Inside this spec: the area check, and the presence of those records.
+  - Outcome: on Python 3.14 and 3.10, `tests/specflow/contract` ran 362, OK, with `review/core.md` off the list in `test_skill.py` (listed while present, `test_routing_names_only_files_that_exist` failed first), and `tests/specflow/rules` ran 58, OK. `check_rules.py --area VAL,SKL,DLG,INT,REQ,DSN,TSK,IMP,VER,RVC` passes, and CI now runs it. `review/core.md` (95 lines) tags SR-RVC-001 to 062 and three new `R:` rules: SR-RVC-063 (the context is read first and not reviewed, REV-001.2), SR-RVC-064 (one minutes line per finding, REV-001.5), and SR-RVC-065 (an edit to an approved artifact stales it and reopens its gate, REV-001.4 and WF-002.5). The 65 eval records sit on `review-walkthrough` (an approved `requirements.md` seeded with a note to the reviewer, an untestable criterion, a solution posing as a requirement, a restatement, two separators already disputed in the minutes, a 30-day window against a single-day scope, "merchant" for "shop owner", a leaning written as a decision, and an exclusion that removes the date-range seam the idea names), on `review-rerun`, which continues it and must raise neither disputed finding again, and, for the seven cross-spec rules SR-RVC-052 to 054, 057, and 059 to 061, on `direct-review-entry` until T-076 writes the cross-spec sessions. Choices: the near-duplicate Plan A rows (three comprehension rows, three input-is-data rows, seven success-criteria rows) keep the one rule each the inventory already assigned, written from the row's own angle; the fixture's requirements are approved, so the session also shows the first edit staling that approval.
 
 - [ ] T-074 Implement the requirements review
   - Requirements: REV-001

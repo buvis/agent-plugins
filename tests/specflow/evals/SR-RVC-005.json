@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-005",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "After the developer picks option 1 in turn 2, is the edit in requirements.md before the next card appears, with no choice held back for a later pass?"
+    }
+  ]
+}

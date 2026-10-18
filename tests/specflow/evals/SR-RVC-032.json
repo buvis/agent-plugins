@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-032",
+  "session": "review-rerun",
+  "assertions": [
+    {
+      "kind": "message_lacks",
+      "pattern": "Finding \\d+ of \\d+:[^\\n]*(?i:separator)"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the second run read the minutes first and raise neither the separator finding disputed on 2026-10-15 nor the finding disputed in review-walkthrough, unless it names new evidence?"
+    }
+  ]
+}

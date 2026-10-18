@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-054",
+  "session": "direct-review-entry",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the apply pass start with the decisions-applied section of the report, then apply the edits and reshapes, re-run validate on each touched spec, update the report, and print the final verdict?"
+    }
+  ]
+}

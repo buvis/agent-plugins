@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-008",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "Lens: (Completeness|Coherence|Integrity|Feasibility|Evolvability)"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "Impact if unresolved:"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does each requirements-review card carry a Lens line after the title, a one-paragraph body of about three sentences (what, evidence, why a defect), and an impact line after the body?"
+    }
+  ]
+}

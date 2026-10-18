@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-033",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "With fewer than fifteen findings, does the agent walk them all in one session without offering a split, and would it offer a split by severity at fifteen or more?"
+    }
+  ]
+}

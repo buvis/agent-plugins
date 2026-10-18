@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-024",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "When no concrete edit can be proposed for a finding, is it downgraded to a question whose option 1 is to answer in chat and have the answer written into the artifact?"
+    }
+  ]
+}

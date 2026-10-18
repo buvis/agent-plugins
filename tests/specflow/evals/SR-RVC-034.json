@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-034",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "Location: "
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does every finding cite a section, heading, line, or quoted phrase of requirements.md, with no uncited finding?"
+    }
+  ]
+}

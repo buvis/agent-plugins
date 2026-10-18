@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-026",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the requirements review apply each edit immediately, the one timing every review of this skill uses?"
+    }
+  ]
+}

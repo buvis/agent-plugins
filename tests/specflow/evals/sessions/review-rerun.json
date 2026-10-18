@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "name": "review-rerun",
+  "continues": "review-walkthrough",
+  "turns": [
+    {"developer": "Review the requirements for 00001-csv-export again.", "expects": "\\?\\s*$"},
+    {"developer": "Stop here and recap."}
+  ]
+}
