@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-035",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are lock-ins flagged only with named evidence (the idea's later SMS), never a hypothetical, with a cheap seam as the resolution?"
+    }
+  ]
+}

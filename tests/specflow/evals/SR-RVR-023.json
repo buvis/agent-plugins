@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-023",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)to be decided"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the 'still to be decided' threshold assumption raised as a buried blocking question to move under ## Unresolved questions, which lists none?"
+    }
+  ]
+}

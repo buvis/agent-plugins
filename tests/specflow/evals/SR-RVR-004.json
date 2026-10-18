@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-004",
+  "session": "requirements-review-quick",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)which spec",
+      "turn": 1
+    },
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)absolute path|/Users/"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Asked to review requirements with no spec named, does the agent ask which spec by number or title, as one question, without picking the only spec itself or asking for a path?"
+    }
+  ]
+}

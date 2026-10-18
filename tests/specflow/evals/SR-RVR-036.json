@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-036",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Do the options of each card take the shape of its lens, keyed to the sections of requirements.md and the phases of the skill?"
+    }
+  ]
+}

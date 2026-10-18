@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-014",
+  "session": "requirements-review-quick",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent raise no finding for the missing non-functional requirements, risks, assumptions, and unresolved questions sections of the quick artifact?"
+    }
+  ]
+}

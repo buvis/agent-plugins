@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-001",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)absolute path"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the target resolved from the spec named (00001-stock-alerts) to its requirements.md, with no file path asked for or accepted?"
+    }
+  ]
+}

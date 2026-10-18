@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-005",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent check that the spec folder and requirements.md exist before reading, and would it re-ask quoting the error if they were missing?"
+    }
+  ]
+}

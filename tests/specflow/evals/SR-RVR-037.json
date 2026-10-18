@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-037",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "Severity: Blocking"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the contradiction, the unverifiable criterion, and the one-way door marked blocking?"
+    }
+  ]
+}

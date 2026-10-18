@@ -326,6 +326,7 @@
     {"id": "SR-RVR-039", "file": "review/requirements.md", "kind": "behavioral", "check": "evals/SR-RVR-039.json", "sources": ["A:RDD-46"]},
     {"id": "SR-RVR-040", "file": "review/requirements.md", "kind": "behavioral", "check": "evals/SR-RVR-040.json", "sources": ["A:RDD-51"]},
     {"id": "SR-RVR-041", "file": "review/requirements.md", "kind": "behavioral", "check": "evals/SR-RVR-041.json", "sources": ["A:RDD-54"]},
+    {"id": "SR-RVR-042", "file": "review/requirements.md", "kind": "behavioral", "check": "evals/SR-RVR-042.json", "sources": ["R:REV-001.2"]},
     {"id": "SR-RVD-001", "file": "review/design/triage.md", "kind": "behavioral", "check": "evals/SR-RVD-001.json", "sources": ["A:RDS-02"]},
     {"id": "SR-RVD-002", "file": "review/design/triage.md", "kind": "behavioral", "check": "evals/SR-RVD-002.json", "sources": ["A:RDS-07"]},
     {"id": "SR-RVD-003", "file": "review/design/triage.md", "kind": "behavioral", "check": "evals/SR-RVD-003.json", "sources": ["A:RDS-08"]},

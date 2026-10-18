@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-019",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)per product"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the shop-wide threshold assumption raised as drift from the Q1 answer (per product), quoting both?"
+    }
+  ]
+}

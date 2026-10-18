@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-024",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)export.*import|import.*export"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is REQ-002.2 (export and import) raised as a bundled requirement to split?"
+    }
+  ]
+}

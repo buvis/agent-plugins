@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-030",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent ask whether the problem is big enough for the requirement count, as a finding on the set?"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-022",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)Rust"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is 'written in Rust' raised as a preference smuggled in as a constraint, with options to move it to assumptions or drop it?"
+    }
+  ]
+}

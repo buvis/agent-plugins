@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-018",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)SMS"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the clash between REQ-001.4 (SMS) and the out-of-scope exclusion of any channel but email raised as a misplacement?"
+    }
+  ]
+}

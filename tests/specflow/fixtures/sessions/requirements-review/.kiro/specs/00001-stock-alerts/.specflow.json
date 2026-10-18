@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "specId": "00001-stock-alerts",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {"path": "requirements.md", "status": "draft"},
+    "design": {"path": "design.md", "status": "missing"},
+    "tasks": {"path": "tasks.md", "status": "missing"}
+  }
+}

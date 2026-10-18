@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-034",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)assume email|any channel but email"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the exclusion 'the alert code may assume email' raised as removing the SMS seam the idea names for later?"
+    }
+  ]
+}

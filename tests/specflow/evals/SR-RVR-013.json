@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-013",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Under standard, does completeness also check non-functional requirements, assumptions naming their sources, risks, and the unresolved questions section?"
+    }
+  ]
+}

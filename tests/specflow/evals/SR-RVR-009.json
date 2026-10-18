@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-009",
+  "session": "requirements-review-quick",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is the quick artifact not faulted for the sections only standard needs?"
+    }
+  ]
+}
