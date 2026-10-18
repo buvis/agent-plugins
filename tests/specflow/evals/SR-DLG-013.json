@@ -29,6 +29,11 @@
       "pattern": "FAKE-0000"
     },
     {
+      "kind": "file_lacks",
+      "path": ".kiro/specflow/intake/processed/00001-import-retries/idea.md",
+      "pattern": "FAKE-0000"
+    },
+    {
       "kind": "file_matches",
       "path": ".kiro/specflow/intake/processed/00001-import-retries/qa-log.md",
       "pattern": "(?i)omit|left out|redact"

@@ -14,6 +14,11 @@
       "pattern": "\"workflowOrder\": \"requirements-first\""
     },
     {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-invoice-pdf/.specflow.json",
+      "pattern": "\"path\": \"requirements.md\""
+    },
+    {
       "kind": "message_matches",
       "pattern": "(?i)quick"
     },

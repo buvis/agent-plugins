@@ -4,7 +4,7 @@
   "fixture": "sessions/intake-two-unknowns",
   "turns": [
     {
-      "developer": "New idea, call it invoice-export: export the month's invoices as a CSV for our accounting system. The details are in notes.md."
+      "developer": "New idea, call it invoice-export: export the month's invoices as a CSV for our accounting system. The details are in notes.md. The ledger API token is sk-test-FAKE-2222-0000 if you need it."
     },
     {
       "developer": "Use docs/notes.md.",

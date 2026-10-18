@@ -133,6 +133,13 @@ class SketchScreensTest(ChecksTest):
             self.messages(item), ["spike/mockups/login.html cannot be read as UTF-8"]
         )
 
+    def test_unreadable_terminal_mockup_is_reported(self) -> None:
+        item = self.sketch()
+        (item / "spike" / "mockups" / "done.html").write_bytes(b"\xff\xfe<p>")
+        self.assertEqual(
+            self.messages(item), ["spike/mockups/done.html cannot be read as UTF-8"]
+        )
+
 
 class PlacementDriftTest(ChecksTest):
     """placement-drift on the task plan, and the T-026 rejections on the same plan (T-034)."""
@@ -154,6 +161,16 @@ class PlacementDriftTest(ChecksTest):
         [warning] = self.drift(spec)
         self.assertIn("src/report/rate.py, src/report/mail.py", warning["message"])
         self.assertNotIn("placement-drift", self.rules(spec, "tasks"))
+
+    def test_plain_location_paths_count_too(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(
+            spec / "tasks.md",
+            "`src/import/log.py`",
+            "src/import/log.py, src/report/rate.py, src/report/mail.py",
+        )
+        [warning] = self.drift(spec)
+        self.assertIn("src/report/rate.py, src/report/mail.py", warning["message"])
 
     def test_one_module_absent_does_not_warn(self) -> None:
         spec = self.copy("00101-feature-sample")

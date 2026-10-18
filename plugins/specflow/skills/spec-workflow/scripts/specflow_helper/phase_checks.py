@@ -128,7 +128,7 @@ def sketch_screens(ctx: Context) -> list[Finding]:
     return [
         *journey_findings(found, screens, bad),
         *mockup_findings(ctx, found, mockups, screens, files),
-        *link_findings(ctx, found, mockups, edges),
+        *link_findings(ctx, found, mockups, screens, files, edges),
     ]
 
 
@@ -191,23 +191,32 @@ def mockup_findings(
 
 
 def link_findings(
-    ctx: Context, found: partial[Finding], mockups: Path, edges: list[Edge]
+    ctx: Context,
+    found: partial[Finding],
+    mockups: Path,
+    screens: set[str],
+    files: set[str],
+    edges: list[Edge],
 ) -> list[Finding]:
-    """A source page that cannot be read, then each edge its source page does not link."""
-    pages = {source: read_text(mockups / f"{source}.html") for _, source, _, _ in edges}
+    """A screen's mockup that cannot be read, then each edge its source page does not link."""
+    pages = {
+        screen: read_text(mockups / f"{screen}.html")
+        for screen in sorted(screens - {INDEX})
+        if f"{screen}.html" in files
+    }
     findings = [
         error(
             ctx,
-            mockups / f"{source}.html",
+            mockups / f"{screen}.html",
             "sketch-screens",
-            f"spike/mockups/{source}.html cannot be read as UTF-8",
+            f"spike/mockups/{screen}.html cannot be read as UTF-8",
             "Save it as UTF-8 text.",
         )
-        for source in sorted(pages)
-        if pages[source] is None and (mockups / f"{source}.html").is_file()
+        for screen, page in pages.items()
+        if page is None
     ]
     for n, source, action, target in edges:
-        page = pages[source]
+        page = pages.get(source)
         if page is not None and f"{target}.html" not in HREF.findall(page):
             findings.append(
                 found(
@@ -230,6 +239,17 @@ def placed_paths(design: str) -> set[str]:
     }
 
 
+def location_paths(value: str) -> list[str]:
+    """The paths of a Location: value, in inline code or as plain comma-separated tokens."""
+    # ponytail: a plain token is a path when it has no space and holds a slash or a dot.
+    tokens = (token.strip().strip("`") for token in value.split(","))
+    return [
+        t
+        for t in tokens
+        if t and not re.search(r"[\s<>`]", t) and re.search(r"[/.]", t)
+    ]
+
+
 @check("placement-drift", TASKS_ON)
 def placement_drift(ctx: Context) -> list[Finding]:
     """Two or more Location paths the design's placement does not name (ART-004.15)."""
@@ -238,12 +258,11 @@ def placement_drift(ctx: Context) -> list[Finding]:
     placed = placed_paths(design or "")
     if not placed or tasks is None:
         return []
-    # ponytail: Location paths count only in inline code; plain-text lists are not parsed.
     named = dict.fromkeys(
         path
         for _, line in prose(tasks)
         if (location := LOCATION.match(line))
-        for path in CODE_SPAN.findall(location[1])
+        for path in location_paths(location[1])
     )
     absent = [
         path
