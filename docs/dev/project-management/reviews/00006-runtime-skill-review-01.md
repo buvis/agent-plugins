@@ -175,3 +175,29 @@ R13: pass
 Verdict: 21 findings
 
 Tests: 471 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-18)
+
+The developer ruled on each finding in turn and took the lead's proposed ruling on every row. The cycle's one 🟠 (F3) is fixed, so the rework is followed by an incremental cycle 2 under the autopilot bar.
+
+- F1: fix. `sketch_screens` splits into three helpers (journey findings, mockup-file findings, link findings), behavior unchanged. Queued.
+- F2: fix. The README status and the placeholder CHANGELOG line. Queued.
+- F3: fix. SR-SKL-015 is reworded: the helper's status document stays the only source of the derived facts, and the rule names where the rest comes from (the task count from `tasks.md`; the next action and the blocking question from `phase`, `gates`, `blockers` and `nextTask` by one fixed mapping written into the rule). No design edit: `design.md:246` lists the fields only, and the "computes nothing itself" sentence is T-037's Reuse note in `tasks.md`, which stays as written. The SR-SKL-015 eval rubric follows the wording. Queued.
+- F4: accepted by plan (ledger entry added). The routing names 00007's files on purpose, and `test_skill.py` fails when its NOT_WRITTEN_YET list goes stale. Correction to the row above: `design.md` has no "when installed" wording either (its routing row at line 118 reads as SKILL.md's), so there was nothing in the design to copy. The entry lapses when 00007 lands.
+- F5: fix. `aws/requirements.md:125`: a choice the developer leaves to the agent is a non-answer under SR-REQ-005 and 006. Line 3: where the two differ, the specflow rules (artifact contract and phase references) win. 00003's file, recorded here. Queued.
+- F6: fix. One clause on SKILL.md:12: the repository's own instruction files are read for constraints as the intake reference says. Queued.
+- F7: fix. SR-REQ-014 and SR-REQ-053 are qualified with the workflow order. Queued.
+- F8: fix with F1. Regular files only, and an existing mockup that cannot be read is reported. Queued.
+- F9: fix. One seeded-defect test per untested branch. Queued.
+- F10: trace it, accept the scope (ledger entry added). SR-REQ-042 gains the source `R:WF-002.8`; the approved design places the offer in the requirements phase, where `(guess)` markers live. Queued (the source line).
+- F11: fix (ii) only. The Expected Behavior pattern excludes `SHALL CONTINUE TO`. (i) is by the design table and (iii) by SR-IMP-007, with the template kept in Kiro's shape (one ledger entry for both). Queued.
+- F12: fix. SR-DLG-013 also names the intake item; SR-INT-001's verbatim save and SR-INT-057's copy leave a secret out as SR-DLG-013 says. Queued.
+- F13: fix by design edit. `design.md:259` now says the first three and the last of the fixed tasks, in order, with tasks Kiro adds between the fix and the checkpoint allowed, as the T-027 capture shows. The code stays. Recorded in the 00006 qa-log ("Review 00006-01 design edits"); the edit stales the design and tasks approvals, which are asked again after the fix.
+- F14: fix. Turns 23 and 25 of `shared-dialogue` accept the three open questions by name before each approval. Queued.
+- F15: accepted as facts. The positive siblings pin the change, and a negative guard exists to catch over-firing. No seeded controls this time: 00005 F1 had three reviewers behind it, this row only the replay.
+- F16: accepted as a fact.
+- F17: accepted (ledger entry added). 00003's text, ambiguity only.
+- F18: accepted. Fixture scenery.
+- F19: fix. Line 3 of `requirements.md` points at `## Bugfix specs`. Queued.
+- F20: fix with F1. The two strings are wrapped. Queued.
+- F21: accepted by design (ledger entry added). No host placeholder by T-030; 00008 proves the install on real hosts.

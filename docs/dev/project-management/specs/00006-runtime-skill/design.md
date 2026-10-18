@@ -256,7 +256,7 @@ T-072, T-034, and T-039 register these in `CHECKS` of 00004, from `specflow_help
 | `bugfix-sections` | T-039 | error | `bugfix.md` has `## Introduction`, `## Bug Analysis`, and under it `### Current Behavior (Defect)`, `### Expected Behavior (Correct)`, and `### Unchanged Behavior (Regression Prevention)`, each with one clause or more |
 | `bugfix-clauses` | T-039 | error | each clause matches its section's pattern and numbering (`1.x`, `2.x`, `3.x`); no `SHALL` in a Current Behavior clause |
 | `bugfix-design-sections` | T-039 | error | the bugfix `design.md` has `## Hypothesized Root Cause`, `## Correctness Properties`, `## Fix Implementation`, and `## Testing Strategy`; a Bug Condition heading is in `design.md` or in `bugfix.md`. Every other heading of the shape is optional |
-| `bugfix-task-order` | T-039 | error | exactly the four top-level tasks of the bugfix shape, in order, recognized by the start of their fixed titles; no other top-level task before task 1 |
+| `bugfix-task-order` | T-039 | error | the fixed top-level tasks of the bugfix shape, recognized by the start of their titles and in order: the first three (exploration test, preservation tests, fix) and the last (checkpoint); tasks Kiro adds between the fix and the checkpoint pass, as the T-027 capture shows; no other top-level task before task 1 |
 | `bugfix-clause-trace` | T-039 | error | every `2.x` and `3.x` number appears in a `_Requirements:` tag of task 1, of task 2, or of a subtask of task 3 |
 
 T-039 checks both bugfix definitions against the Kiro capture of T-027 before it registers them; the capture must pass.

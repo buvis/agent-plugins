@@ -1,0 +1,47 @@
+[
+  {
+    "cycle": 1,
+    "ref": "F4",
+    "disposition": "accepted",
+    "severity": "🟡",
+    "issue": "SKILL.md routes the review requirements, review design and review specs intents (SR-SKL-001 to 003) to references/review/core.md, requirements.md, design/ and cross-spec.md, which do not exist yet, and an unfiltered check_rules.py fails on the SR-RVC and SR-RVD rules",
+    "file": "plugins/specflow/skills/spec-workflow/SKILL.md",
+    "reason": "by plan: 00007 writes those files; test_skill.py pins them in NOT_WRITTEN_YET and fails once one exists, and completion criterion 3 requires that list to hold only the 00007 files; the design has no 'when installed' wording to copy; lapses when 00007 lands; walkthrough 2026-10-18"
+  },
+  {
+    "cycle": 1,
+    "ref": "F10",
+    "disposition": "accepted",
+    "severity": "🟡",
+    "issue": "WF-002.8 (the spike, resolve or save offer for a draft with three or more (guess) markers or contract-bearing open questions) is implemented only in the requirements phase (SR-REQ-042); the design, tasks and bugfix flows carry no such offer",
+    "file": "plugins/specflow/skills/spec-workflow/references/phases/design.md",
+    "reason": "by design: design.md:403 maps WF-002.8 to phases/requirements.md and T-030 scoped the offer to T-032, where (guess) markers are defined (ART-002.10, ART-002.15); design and task drafts carry open decisions, which SR-SKL-011, SR-DSN-015 and SR-TSK-009 gate at approval; the fix adds R:WF-002.8 to SR-REQ-042's sources so the criterion is traced; walkthrough 2026-10-18"
+  },
+  {
+    "cycle": 1,
+    "ref": "F11",
+    "disposition": "accepted",
+    "severity": "🟡",
+    "issue": "bugfix-design-sections never checks the Validates: lines of the correctness properties, and templates/bugfix/tasks.md has no Outcome: slot under tasks 1 and 2",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/phase_checks.py",
+    "reason": "the design table (design.md:258) scopes the check to the four headings and the Bug Condition; SR-IMP-007 has the agent write the Outcome: line when tasks 1 and 2 finish, and the template keeps Kiro's native shape; the third part of the finding (the 2.x pattern accepting SHALL CONTINUE TO) was fixed; walkthrough 2026-10-18"
+  },
+  {
+    "cycle": 1,
+    "ref": "F17",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "references/aws/implementation.md:87 says the full suite runs when the task is done, before it is checked, while ART-004.9 and SR-TSK-005 say a task's Verify: names only the checks it owns",
+    "file": "plugins/specflow/skills/spec-workflow/references/aws/implementation.md",
+    "reason": "00003's text; an ambiguity, not a conflict: the suite run is in addition to the task's own checks; walkthrough 2026-10-18"
+  },
+  {
+    "cycle": 1,
+    "ref": "F21",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "SKILL.md:10 says every path is relative to the skill folder and the helper runs from the repository root, with no rule for finding the skill folder on a host that installs the skill elsewhere",
+    "file": "plugins/specflow/skills/spec-workflow/SKILL.md",
+    "reason": "by design: T-030 forbids a host placeholder (design.md, choices listed for approval); 00008 proves the install on real hosts; walkthrough 2026-10-18"
+  }
+]

@@ -250,3 +250,9 @@ each landing exactly once.
 - Design: `design.md`, git blob `b6077b64c6f5fa17081f48a320d55cb9aa85317e`, canonical `6ad73b7b…`. The code baseline is captured again by `code-baseline` over the nineteen files of `## Module placement`, now with `phase_checks.py`, `__init__.py`, and `test_phase_checks.py` in place of `checks.py` and `test_checks.py`. It holds the bytes as of commit `0793254`, after T-030 and T-031. Upstream: requirements blob `fb01bd9`, unchanged. Upstream markers: none open.
 - Tasks: `tasks.md`, git blob `3863f4b49ffc81bde11e466bdef6a0e0078c690d`, canonical `d839553c…`; T-030 and T-031 stay checked with their `Outcome:` lines. Upstream markers: none open.
 - `validate --phase design` and `--phase tasks` reported only the two stale approvals being replaced. Values copied from `validate_spec.py hash --json` and `code-baseline`; `reconcile` then reports phase `implementation`, next task T-072.
+
+## Review 00006-01 design edits (2026-10-18)
+
+- The cycle-1 walkthrough (`reviews/00006-runtime-skill-review-01.md`, minutes) decided F13, which changes design text. No requirement changes.
+- Edited: the `bugfix-task-order` row of the check table in `design.md` now says the check recognizes the first three and the last of the fixed tasks, in order, and that tasks Kiro adds between the fix and the checkpoint pass, as the T-027 capture (six top-level tasks) shows. The old row said "exactly the four", which the same table's requirement that the capture passes contradicted. The code is unchanged.
+- This edit stales the design approval recorded on 2026-10-16, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval after the fix commit; requirements stay approved.
