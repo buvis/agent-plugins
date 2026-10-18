@@ -26,7 +26,11 @@ ROUTED = re.compile(r"`(references/[^`\s]+)`")
 
 
 def routed() -> set[str]:
-    return set(ROUTED.findall((SKILL / "SKILL.md").read_text(encoding="utf-8")))
+    """The references the routing table names; a mention in prose routes nothing."""
+    text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+    table = text.split("## Reference routing", 1)[1]
+    rows = [line for line in table.splitlines() if line.startswith("|")]
+    return set(ROUTED.findall("\n".join(rows)))
 
 
 class SkillTest(unittest.TestCase):
