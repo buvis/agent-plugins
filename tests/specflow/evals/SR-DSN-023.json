@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-023",
+  "session": "design-reuse",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-retry-uploads/design.md",
+      "pattern": "(?s)## Data and control flow\\s*\\n\\s*[^#\\s]"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does ## Data and control flow say how data moves through the retry change and who calls whom, in order, from the entry point to the result?"
+    }
+  ]
+}
