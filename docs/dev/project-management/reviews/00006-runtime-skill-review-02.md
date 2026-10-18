@@ -156,3 +156,17 @@ R13: pass
 Verdict: 11 findings
 
 Tests: 482 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-18)
+
+The cycle converges under the autopilot bar (no 🔴, and no 🟠 after the lead's checks). The developer confirmed the two downgrades ("Downgrades stand, converge (Recommended)") and ruled F5 "Accept by design (Recommended)"; the other rows take the lead's dispositions. The rework is the Medium/Low sweep, and no cycle 3 runs.
+
+- F1: fix. SR-SKL-015 takes the next action and the blocking question from the first blocker in `blockers` order, built from its `reason` and `reference`. Queued.
+- F2: fix. SR-INT-052 names the three records' paths, `bugfix.md` for a bugfix, and points at the state contract's record shape; the SR-INT-052 eval asserts the `path` field. Queued.
+- F3: fix. `placement-drift` reads plain comma-separated `Location:` paths as well as inline code; fail-first test with Blake's plan. Queued.
+- F4: fix in part. The first turn of `intake-two-unknowns` carries a synthetic key; SR-INT-001's eval asserts that `idea.md` lacks it and notes the omission; SR-DLG-013's eval asserts that the intake item's `idea.md` lacks the mid-dialogue secret. The input-file case (SR-INT-057) needs a session of its own: deferred (ledger entry).
+- F5: accepted by design (ledger entry). The approved design maps SEC-002.4 to the spike path; the skill itself deletes only spikes and, with approval, spec folders (SR-SKL-012); a developer's destructive task carries its premise (SR-TSK-004, SR-TSK-006) and runs under the premise re-check of `phases/implementation.md`.
+- F6: fix. The readability pass reads every screen's mockup once; fail-first test with a non-UTF-8 terminal page. Queued.
+- F7, F8, F9: rejected with the evidence above.
+- F10: accepted (ledger entry), cycle-1 F5 (b).
+- F11: a fact.
