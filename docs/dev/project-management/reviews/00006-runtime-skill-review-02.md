@@ -185,3 +185,12 @@ Decisions and ledger `efa729e`; sweep commit `dc53fd0`.
 - Sizes: `phase_checks.py` 468 lines (`sketch_screens` 26, `link_findings` 36, `location_paths` 9, `placement_drift` 33); `test_phase_checks.py` 407; `SKILL.md` 101.
 - Gate at `dc53fd0`, Python 3.14: `scripts` 12, release 53, contract 361, rules 58, all OK; `validate.py`, `check_rules.py --area VAL,SKL,DLG,INT,REQ,DSN,TSK,IMP,VER` and `verify_release.py` exit 0. Python 3.10.22: contract 361 OK, rules 58 OK. Lint: `ruff check` clean on the two changed Python files, `ruff format --check` clean.
 - The design and tasks approvals are untouched by this sweep (no design text changed); `status` still reports phase `verification` with every artifact approved.
+
+### Per-task patch review (2026-10-18)
+
+Pat (Sonnet lane) reviewed `efa729e..dc53fd0` with the five findings verbatim in the task description (`docs/dev/tmp/pat-output-00006c2.txt`). Verdicts: CLOSURE resolved for F1, F2, F3, F4 and F6; one MEDIUM and two LOWs, all three confirmed by reading and fixed in `e3378d7` with their own fail-first tests:
+
+- MEDIUM `phase_checks.py:244`: `location_paths` dropped an inline-code path whose comma-separated token held anything else (`` `src/a.py` (new) ``, `` `src/a.py` and `src/b.py` ``), a regression against the old `CODE_SPAN.findall`. Fixed: the spans are taken first, and only the remainder (spans replaced by commas) is split for plain tokens. `test_prose_around_code_spans_keeps_the_spans` drew no warning before the fix and one warning after.
+- LOW `phase_checks.py:244`: a plain token kept trailing punctuation (`src/a.py.`) and any dotted word counted. Fixed: trailing `.;:)` are stripped, and a plain token needs a slash or a file extension. `test_plain_location_paths_count_too` now ends its plan line with a period and asserts the message ends with `mail.py`; it failed before the fix (`mail.py.`).
+- LOW `SR-INT-052.json:18`: the pattern assumed a space after the colon. Fixed: `"path"\s*:\s*"requirements\.md"`. The `bugfix.md` variant has no eval of its own (the session is a feature spec).
+- Gate at `e3378d7`, Python 3.14: `scripts` 12, release 53, contract 362, rules 58, all OK; `validate.py`, `check_rules.py` over the nine areas and `verify_release.py` exit 0. Python 3.10.22: contract 362 OK. `ruff check` and `ruff format --check` clean on the two Python files. `CHANGELOG.md`'s `placement-drift` line names the prose and punctuation cases.
