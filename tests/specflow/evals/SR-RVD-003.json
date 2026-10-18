@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-003",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is requirements.md loaded without asking, and are the intake item's other inputs asked for only when the design cites them?"
+    }
+  ]
+}

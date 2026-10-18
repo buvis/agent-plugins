@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-042",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item migration and rollout (no migration script, no backout plan) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

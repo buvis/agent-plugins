@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-118",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)blocker|cardinal sin",
+      "turn": 4
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-order-webhooks/.specflow.json",
+      "pattern": "(?s)\"design\": \\{[^}]*\"status\": \"approved\""
+    },
+    {
+      "kind": "rubric",
+      "rubric": "When the developer says 'Approve the design' in turn 4 with a blocker still open, is the approval refused, naming the open blockers, and are the remaining concerns and questions walked afterwards?"
+    }
+  ]
+}

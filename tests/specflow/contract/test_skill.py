@@ -15,7 +15,6 @@ SIZE_LIMIT = 500
 # Routed files a later task writes. Each task takes its own off the list; a
 # listed file that exists fails, so the list cannot go stale.
 NOT_WRITTEN_YET = {
-    "references/review/design/",  # 00007
     "references/review/cross-spec.md",  # 00007
 }
 # A record and a license, not guidance.

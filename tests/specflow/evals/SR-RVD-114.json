@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-114",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent run the adversarial pre-pass inside this review before walking any finding, through an isolated reviewer where the host offers one?"
+    }
+  ]
+}

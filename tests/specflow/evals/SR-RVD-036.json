@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-036",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item failure modes and resilience (the relay outage, the dying worker, the missing retry policy) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

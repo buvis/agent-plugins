@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "specId": "00001-order-webhooks",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "29b3034c8c9c54be1dffd628f367ed2037528299400b41aae87b9a8ffe7cd0b6",
+      "approvedSha256": "29b3034c8c9c54be1dffd628f367ed2037528299400b41aae87b9a8ffe7cd0b6",
+      "approvedAt": "2026-10-15T09:00:00Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "draft"
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "missing"
+    }
+  }
+}

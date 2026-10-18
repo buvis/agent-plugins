@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-023",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are the signal-driven techniques added for the signals the design shows (the vague 'simple enough', the acclaimed relay, the persistent data, the one-way doors)?"
+    }
+  ]
+}

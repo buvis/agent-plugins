@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-077",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent apply the negative space audit (per-dependency failure modes, the deletion path, the exit from the vendor), and cite the design where it yields a finding?"
+    }
+  ]
+}

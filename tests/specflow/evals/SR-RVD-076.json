@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-076",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent apply the cognitive bias scan, with citations (the stand-up agreement, the familiar relay), and cite the design where it yields a finding?"
+    }
+  ]
+}

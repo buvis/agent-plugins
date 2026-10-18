@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-092",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "At Tier 3, does the agent apply Aristotle's four causes, with the final cause stated in one sentence, and cite the design where it yields a finding?"
+    }
+  ]
+}

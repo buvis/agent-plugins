@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-030",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item alternatives considered (none written down) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

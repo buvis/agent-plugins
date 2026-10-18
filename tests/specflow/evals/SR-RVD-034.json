@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-034",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item concurrency, consistency, and semantics (the in-memory queue and the worker thread) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

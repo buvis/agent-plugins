@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-052",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)cardinal sin"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the cardinal sins raised as blockers whatever the justification, walked first, and left blocking the approval until fixed or disputed with a reason?"
+    }
+  ]
+}

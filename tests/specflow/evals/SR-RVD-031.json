@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-031",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item architecture and component design (the queue, the worker, the relay) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

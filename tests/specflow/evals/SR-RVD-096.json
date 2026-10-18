@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-096",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "At Tier 3, does the agent apply Jain anekantavada, testing each absolute claim from other perspectives, and cite the design where it yields a finding?"
+    }
+  ]
+}

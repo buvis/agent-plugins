@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-068",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are the anti-patterns present (the vague 'simple enough', the deferred concerns, the decision by team preference, the missing failure-mode story for the relay) flagged explicitly with their lines?"
+    }
+  ]
+}

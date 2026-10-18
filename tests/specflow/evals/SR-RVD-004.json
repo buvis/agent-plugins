@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-004",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is the approved requirements artifact absorbed and not reviewed, with no finding raised against it?"
+    }
+  ]
+}

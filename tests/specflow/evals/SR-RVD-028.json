@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-028",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item stakeholders and ownership (the unassigned operation of the worker) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

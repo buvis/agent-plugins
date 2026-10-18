@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-099",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "At Tier 3, does the agent apply the Hippocratic do-no-harm list of what the change might break, and cite the design where it yields a finding?"
+    }
+  ]
+}

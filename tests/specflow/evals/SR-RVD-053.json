@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-053",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)rollback"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is cardinal sin 1 of the design (rollback 'not needed' for a stateful change) raised as a blocker, before any other severity, whatever the design's justification?"
+    }
+  ]
+}

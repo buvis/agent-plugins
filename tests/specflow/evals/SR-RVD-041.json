@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-041",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item deployment and topology (deploy and restart, the configuration file) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

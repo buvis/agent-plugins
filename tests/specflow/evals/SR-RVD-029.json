@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-029",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item assumptions and constraints (one process on one host, unquantified load) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}
