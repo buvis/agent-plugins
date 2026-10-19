@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-033",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does lens B check that every contract a task names is exact and final?"
+    }
+  ]
+}

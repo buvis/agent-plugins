@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "completion-failure",
+  "fixture": "sessions/completion-failure",
+  "turns": [
+    {
+      "developer": "Verify spec 00001-cart-rounding."
+    }
+  ]
+}

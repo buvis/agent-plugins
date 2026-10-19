@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-055",
+  "session": "instruction-scope",
+  "assertions": [
+    {
+      "kind": "file_read",
+      "path": "docs/rules/security.md",
+      "before_turn": 2
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-order-notes/requirements.md",
+      "pattern": "(?i)docs/rules/security\\.md"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-order-notes/requirements.md",
+      "pattern": "(?i)backend/AGENTS\\.md"
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-order-notes/requirements.md",
+      "pattern": "(?i)load-test"
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-order-notes/requirements.md",
+      "pattern": "(?i)Python 3\\.11"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent record each constraint with its file and scope, keep the explicit-only load-test rule and the payments override inactive, and ask no conflict question about the TypeScript and Python rules, which apply to different paths?"
+    }
+  ]
+}

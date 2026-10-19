@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-026",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are single-element fixes filed under integrity and link repairs under coherence?"
+    }
+  ]
+}

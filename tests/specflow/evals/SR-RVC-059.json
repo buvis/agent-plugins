@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-059",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is the cross-spec verdict earned only after every lens of the review ran, with the surprise test assessed across them?"
+    }
+  ]
+}

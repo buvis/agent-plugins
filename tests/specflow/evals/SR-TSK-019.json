@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-019",
+  "session": "bugfix-confirmed",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/tasks.md",
+      "pattern": "(?m)^- \\[.\\] 1\\. Write bug condition exploration test"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/tasks.md",
+      "pattern": "(?m)^- \\[.\\] 2\\. Write preservation property tests"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/tasks.md",
+      "pattern": "(?m)^  - \\[.\\] 3\\.1 "
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/tasks.md",
+      "pattern": "(?m)^- \\[.\\] 4\\. Checkpoint"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/tasks.md",
+      "pattern": "_Requirements: [^_]*3\\.2"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Although the Q&A log records tests after the code and a thin slice first, does the plan keep the four bugfix tasks in their fixed order (exploration test, preservation tests, fix with re-runs, checkpoint) and trace every 2.x and 3.x clause?"
+    }
+  ]
+}

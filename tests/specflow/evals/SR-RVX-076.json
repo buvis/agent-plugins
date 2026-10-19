@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-076",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does grounding run one spec per isolated sub-task where the host has them, else one spec at a time with a summary before the next, with lenses E to H never in a sub-task?"
+    }
+  ]
+}

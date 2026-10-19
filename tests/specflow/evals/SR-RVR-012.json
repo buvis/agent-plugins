@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-012",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the completeness lens check the purpose, at least one requirement with a story and criterion, the scope and a populated out-of-scope section, the Sources line, and the assumptions and unresolved questions?"
+    }
+  ]
+}

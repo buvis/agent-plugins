@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-059",
+  "session": "intake-two-unknowns",
+  "assertions": [
+    {
+      "kind": "one_question_per_message"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "question 1 of about 2"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "question 2 of about 2"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Do the outside-system question and the test-order question share one count, with no question about facts docs/notes.md already gives?"
+    }
+  ]
+}

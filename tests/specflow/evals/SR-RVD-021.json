@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-021",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)tier 3"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the design reviewed at Tier 3, since its payload is a public contract and it introduces vendor lock-in?"
+    }
+  ]
+}

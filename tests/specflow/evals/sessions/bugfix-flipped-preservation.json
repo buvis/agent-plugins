@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "bugfix-flipped-preservation",
+  "fixture": "sessions/bugfix-flipped-preservation",
+  "turns": [
+    {
+      "developer": "Continue spec 00001-discount-total. I already made the change for task 3.1 in src/checkout.py; finish task 3 from there."
+    }
+  ]
+}

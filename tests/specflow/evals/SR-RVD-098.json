@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-098",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "At Tier 3, does the agent apply Pyrrhonian suspension of judgment where the evidence is balanced, and cite the design where it yields a finding?"
+    }
+  ]
+}

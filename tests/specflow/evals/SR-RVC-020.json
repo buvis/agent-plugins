@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-020",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)leaning|stream"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the line 'We are leaning towards streaming the rows' raised as a finding about an ambiguous decision status, with options to commit, mark it open, or drop it?"
+    }
+  ]
+}

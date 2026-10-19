@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-052",
+  "session": "shared-dialogue-design-first",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-retry-queue/requirements.md",
+      "pattern": "(?m)^Design: "
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the requirements of 00002-retry-queue drafted from the approved design and the intake item, each naming the design elements that realize it, with design.md left as approved?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-043",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does lens D spot-check the assumption that orders_in returns today's orders against src/orders.py?"
+    }
+  ]
+}

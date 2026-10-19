@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-027",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does lens A check that requirement and task IDs are stable and unique?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-027",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the feasibility lens judge the five requirements against the purpose and demote the inessential ones?"
+    }
+  ]
+}

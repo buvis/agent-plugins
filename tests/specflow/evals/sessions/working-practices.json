@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "name": "working-practices",
+  "fixture": "sessions/working-practices",
+  "turns": [
+    {
+      "developer": "Create a spec from intake item 00001-csv-import."
+    },
+    {
+      "developer": "Yes, build a thin end-to-end slice first.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-csv-import.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Go ahead and draft."
+    },
+    {
+      "developer": "Approve the requirements."
+    },
+    {
+      "developer": "Continue with the design."
+    },
+    {
+      "developer": "Approve the design."
+    },
+    {
+      "developer": "Continue with the tasks."
+    }
+  ]
+}

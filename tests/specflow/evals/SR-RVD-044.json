@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-044",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the timeline item check only the phasing that constrains the design, leaving milestones and estimates to tasks.md?"
+    }
+  ]
+}

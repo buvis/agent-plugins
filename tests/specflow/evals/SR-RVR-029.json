@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-029",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)forecast"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is REQ-005.1 raised for assuming an inventory forecast service that does not exist, with the repository search cited?"
+    }
+  ]
+}

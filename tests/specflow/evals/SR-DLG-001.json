@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-001",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "one_question_per_message"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does every clarifying question concern something that would materially change scope or behavior?"
+    }
+  ]
+}

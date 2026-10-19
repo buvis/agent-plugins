@@ -228,3 +228,38 @@ each landing exactly once.
 - Outstanding questions: none.
 - Next action: implementation, in dependency order, starting with 00002 (T-001); once the helper of 00004 exists, recovery mode records these receipts as real approvals after the developer confirms each.
 - Verdict: COMPLETE (11 tasks planned; implementation not started).
+
+## Recovery (2026-10-16)
+
+- Recovery mode (00004 design, reconciliation step 10 and the migration note) recorded the receipts above in `docs/dev/project-management/specs/00006-runtime-skill/.specflow.json`, values copied from `validate_spec.py hash --json`.
+- Question: one question listing each artifact, its receipt date, and the blob check. Answer: "Record all (Recommended)".
+- Requirements: realises the approval of 2026-10-04 (commit `b6112ad`); blob `fb01bd9` unchanged.
+- Design: realises the re-approval of 2026-10-06; blob `0ee0586` unchanged. Code baseline captured by `code-baseline` over the eighteen files of `## Module placement`, before any task starts. Left out, since `code-baseline` refuses a folder: `tests/specflow/fixtures/sketch/`, `tests/specflow/fixtures/specs/`, and the per-task patterns `tests/specflow/evals/sessions/<name>.json`, `tests/specflow/fixtures/sessions/<name>/`, `tests/specflow/evals/SR-<area>-NNN.json`.
+- Tasks: realises the approval of 2026-10-06; blob `339b97c` unchanged.
+- `reconcile` then reports phase `implementation`, next task T-030.
+
+## Design edit: helper check placement (2026-10-16)
+
+- Found before T-072: the seven checks of this spec (`sketch-screens`, `placement-drift`, the five bugfix checks) would take `specflow_helper/checks.py` from 753 lines to about 1020, and `tests/specflow/contract/test_checks.py` (653) past 800, the repository's file limit. The handoff gotcha asked for this to be raised before building.
+- Edited, the 00005 precedent (`structural.py`): `design.md` places the checks in a new `specflow_helper/phase_checks.py`, registered in `CHECKS` through one import in `specflow_helper/__init__.py`, and their tests in a new `tests/specflow/contract/test_phase_checks.py`. That covers three placement rows (T-072, T-034, T-039), the paragraph of `### Checks added to the helper`, three rows of the testing table, and the reuse inventory line. `tasks.md`: the `Location:` and `Verify:` lines of T-072, T-034, and T-039 name the new files. No requirement and no check definition changes.
+- This edit staled the design approval and the tasks approval with it; requirements stay approved.
+
+## Re-approvals, design edit (2026-10-16)
+
+- Question: "Do you re-approve 00006's design.md and tasks.md with this edit?" (the edit above, uncommitted when asked). Answer: "Approve the edit (Recommended)".
+- Design: `design.md`, git blob `b6077b64c6f5fa17081f48a320d55cb9aa85317e`, canonical `6ad73b7b…`. The code baseline is captured again by `code-baseline` over the nineteen files of `## Module placement`, now with `phase_checks.py`, `__init__.py`, and `test_phase_checks.py` in place of `checks.py` and `test_checks.py`. It holds the bytes as of commit `0793254`, after T-030 and T-031. Upstream: requirements blob `fb01bd9`, unchanged. Upstream markers: none open.
+- Tasks: `tasks.md`, git blob `3863f4b49ffc81bde11e466bdef6a0e0078c690d`, canonical `d839553c…`; T-030 and T-031 stay checked with their `Outcome:` lines. Upstream markers: none open.
+- `validate --phase design` and `--phase tasks` reported only the two stale approvals being replaced. Values copied from `validate_spec.py hash --json` and `code-baseline`; `reconcile` then reports phase `implementation`, next task T-072.
+
+## Review 00006-01 design edits (2026-10-18)
+
+- The cycle-1 walkthrough (`reviews/00006-runtime-skill-review-01.md`, minutes) decided F13, which changes design text. No requirement changes.
+- Edited: the `bugfix-task-order` row of the check table in `design.md` now says the check recognizes the first three and the last of the fixed tasks, in order, and that tasks Kiro adds between the fix and the checkpoint pass, as the T-027 capture (six top-level tasks) shows. The old row said "exactly the four", which the same table's requirement that the capture passes contradicted. The code is unchanged.
+- This edit stales the design approval recorded on 2026-10-16, and the tasks approval with it (WF-002.5-6). Both need the developer's re-approval after the fix commit; requirements stay approved.
+
+## Re-approvals, review 00006-01 (2026-10-18)
+
+- Question: "Re-approve 00006's design.md at blob cc2badd (canonical 8a6e8f7d…, the F13 bugfix-task-order row only) and tasks.md at blob 8fc762b (canonical d839553c…, unchanged, stale only through its upstream), with a fresh code baseline over the 19 files of ## Module placement as of the fix commit de90b0e?" Answer: "Approve both (Recommended)".
+- Design: `design.md`, git blob `cc2badd82b8af32a7c2b66a55c273fc03cbfb1af` (commit `93139f4`), canonical `8a6e8f7d…`. Code baseline captured by `code-baseline` over the nineteen files of `## Module placement`, bytes as of `de90b0e`. Upstream: requirements blob `fb01bd9`, unchanged. Upstream markers: none open.
+- Tasks: `tasks.md`, git blob `8fc762b0033542febe209b77ce9db49ee9b2b498`, canonical `d839553c…`, unchanged since 2026-10-16 and stale only through its upstream. Upstream markers: none open.
+- `validate --phase tasks` reported only the two stale approvals being replaced, with the progress-fields warnings a stale plan draws. Values copied from `validate_spec.py hash --json` and `code-baseline`; `reconcile` then reports phase `verification`, and `status` shows every artifact approved, no stale file, no blocker, no warning, `nextTask` null.

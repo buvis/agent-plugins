@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-028",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-todo-calendar/spike/SPEC.md",
+      "pattern": "\\(guess\\)"
+    }
+  ]
+}

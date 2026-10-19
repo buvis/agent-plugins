@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-011",
+  "session": "design-reuse",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-retry-uploads/design.md",
+      "pattern": "(?s)## Risks and edge cases(?:(?!\\n## ).)*impact [hml]"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does ## Risks and edge cases name two or three likely next changes and what limits each one?"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-006",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)raised",
+      "turn": 5
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the recap in turn 5 give the findings raised, resolved by edit, disputed, deferred, and open, by severity, name any skipped lens, and feed the approval summary without recording an approval?"
+    }
+  ]
+}

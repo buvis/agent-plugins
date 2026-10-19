@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-020",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are the Tier 2 conditions (the persistent store, the downstream consumers, the rollback) recognised in the design?"
+    }
+  ]
+}

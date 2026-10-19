@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-022",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "Severity: "
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "Location: "
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "Why: "
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "Edit: "
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does each card follow the canonical shape: title, severity, location, one paragraph, up to three options with Why and Edit lines, then option 4 No edit?"
+    }
+  ]
+}

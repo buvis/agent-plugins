@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-032",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": "todo.md",
+      "pattern": "Dentist 2026-11-03 09:30"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent put the standalone build inside the intake item's spike/ folder and nowhere else in the repository?"
+    }
+  ]
+}

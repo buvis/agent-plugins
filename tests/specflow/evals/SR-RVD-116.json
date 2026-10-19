@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-116",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are the pre-pass severities applied as defined, with cardinal sins and blockers kept apart from non-blockers and questions and no ordinary concern inflated to a blocker?"
+    }
+  ]
+}

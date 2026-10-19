@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-IMP-001",
+  "session": "implementation-scope-change",
+  "assertions": [
+    {
+      "kind": "file_unchanged",
+      "path": "src/cart.py"
+    },
+    {
+      "kind": "validation_reports",
+      "check": "stale-approvals"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "While the requirements change stales the design and the tasks, does the agent build nothing, and say the plan needs approving again?"
+    }
+  ]
+}

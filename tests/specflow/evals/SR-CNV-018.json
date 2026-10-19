@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-018",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00012-order-tags/qa-log.md",
+      "pattern": "## Obligation map \\d{4}-\\d{2}-\\d{2}"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)Redis"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the obligation map carry M1, M2, M3, A1, A2, and N1 to a destination clause or an approved change, resolve N1 one by one, and surface the Redis storage as a solution to keep out of the requirements?"
+    }
+  ]
+}

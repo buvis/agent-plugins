@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-042",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "When unsure whether the author answered something, does the agent ask a well-formed question instead of asserting a defect?"
+    }
+  ]
+}

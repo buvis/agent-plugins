@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-045",
+  "session": "intake-all-supplied",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are the quick requirements concise, leaving to the design and tasks what the requirements need not say?"
+    }
+  ]
+}

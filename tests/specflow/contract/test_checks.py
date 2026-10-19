@@ -148,13 +148,13 @@ class SeededDefectTest(ChecksTest):
         (spec / "requirements.md").write_text(cut)
         self.assert_seeded(spec, "requirement-ids")
 
-    def test_requirement_ids_bugfix_clause_pattern_and_numbering(self) -> None:
+    def test_bugfix_clause_pattern_and_numbering(self) -> None:
         spec = self.copy("00102-bugfix-sample")
         self.edit(spec / "bugfix.md", "2.1 WHEN", "2.2 WHEN")
-        self.assert_seeded(spec, "requirement-ids")
+        self.assert_seeded(spec, "bugfix-clauses")
         spec = self.copy("00102-bugfix-sample", "00104-copy")
         self.edit(spec / "bugfix.md", "SHALL CONTINUE TO import", "SHALL import")
-        self.assert_seeded(spec, "requirement-ids")
+        self.assert_seeded(spec, "bugfix-clauses")
 
     def test_design_sections_missing_section_and_empty_reason(self) -> None:
         spec = self.copy("00101-feature-sample")
@@ -605,6 +605,82 @@ class SeededDefectTest(ChecksTest):
         self.assert_seeded(spec, "spec-dependencies")
         self.assert_seeded(spec, "spec-dependencies", "implementation")
         self.assertNotIn("spec-dependencies", self.rules(spec, "design"))
+
+
+RECEIPT = """
+## Conversion receipt 2026-10-18
+
+- Source: docs/prds/00101-import-retries.md
+- Destination: .kiro/specs/00101-feature-sample/
+- Number, type, folders: 00101, feature, requirements-first
+- Obligation coverage: 3 of 3
+- Decisions and public-behavior changes: none
+- Implementation evidence: none; nothing is built
+- Gates: requirements approved; design approved; tasks draft
+- Review outcomes: one pre-pass, one walkthrough
+- Checks run and limits: validate --phase tasks
+- Outstanding questions: none
+- Next action: approve the tasks
+- Verdict: AWAITING_DECISION (the tasks gate)
+"""
+
+
+class ConversionReceiptTest(ChecksTest):
+    """conversion-receipt reads the last receipt of the intake log the Sources: line names (T-080)."""
+
+    def spec_and_log(self, text: str) -> Path:
+        spec = self.copy("00101-feature-sample")
+        item = (
+            self.repo
+            / "docs/dev/project-management/intake/processed/00101-import-retries"
+        )
+        item.mkdir(parents=True)
+        (item / "qa-log.md").write_text("# Q&A log: 00101\n" + text, encoding="utf-8")
+        return spec
+
+    def test_a_spec_with_no_receipt_block_draws_no_finding(self) -> None:
+        spec = self.spec_and_log('\n## Q1 - Size (2026-10-18)\n\n- Answer: "small"\n')
+        self.assertNotIn("conversion-receipt", self.rules(spec))
+
+    def test_a_receipt_with_every_label_and_a_known_verdict_passes(self) -> None:
+        spec = self.spec_and_log(RECEIPT)
+        self.assertNotIn("conversion-receipt", self.rules(spec))
+
+    def test_a_receipt_missing_a_label_is_an_error(self) -> None:
+        gates = "- Gates: requirements approved; design approved; tasks draft\n"
+        spec = self.spec_and_log(RECEIPT.replace(gates, ""))
+        self.assert_seeded(spec, "conversion-receipt")
+        messages = [
+            f["message"]
+            for f in validate(self.repo, spec)
+            if f["rule"] == "conversion-receipt"
+        ]
+        self.assertEqual(messages, ["the last conversion receipt lacks Gates:"])
+
+    def test_a_receipt_with_an_unknown_verdict_is_an_error(self) -> None:
+        spec = self.spec_and_log(
+            RECEIPT.replace("AWAITING_DECISION (the tasks gate)", "DONE")
+        )
+        self.assert_seeded(spec, "conversion-receipt")
+
+    def test_a_complete_receipt_after_a_broken_one_passes(self) -> None:
+        broken = RECEIPT.replace("- Verdict: AWAITING_DECISION (the tasks gate)\n", "")
+        spec = self.spec_and_log(broken + RECEIPT.replace("2026-10-18", "2026-10-19"))
+        self.assertNotIn("conversion-receipt", self.rules(spec))
+
+    def test_a_broken_receipt_after_a_complete_one_is_an_error(self) -> None:
+        broken = RECEIPT.replace("- Verdict: AWAITING_DECISION (the tasks gate)\n", "")
+        spec = self.spec_and_log(RECEIPT + broken.replace("2026-10-18", "2026-10-19"))
+        self.assert_seeded(spec, "conversion-receipt")
+
+    def test_a_receipt_inside_a_fence_is_not_read(self) -> None:
+        fenced = (
+            "\n```markdown"
+            + RECEIPT.replace("AWAITING_DECISION (the tasks gate)", "DONE")
+            + "```\n"
+        )
+        spec = self.spec_and_log(fenced)
+        self.assertNotIn("conversion-receipt", self.rules(spec))
 
 
 class AsciiDigitsTest(unittest.TestCase):

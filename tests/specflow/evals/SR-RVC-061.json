@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-061",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the recap name every skipped lens, unverified grounding claim, script that could not run, or failed isolated sub-task, instead of defaulting to a verdict?"
+    }
+  ]
+}

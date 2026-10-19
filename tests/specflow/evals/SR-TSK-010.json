@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-010",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-order-export/tasks.md",
+      "pattern": "export_month\\(month: str\\) -> Path"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-order-export/tasks.md",
+      "pattern": "(?m)^  - Location: .*src/export\\.py"
+    }
+  ]
+}

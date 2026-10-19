@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-008",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)section_weight_audit|claim_ladder_scan|adversarial_signal_scan|skipped the scans|no command runtime"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent run the three scans by their skill-relative paths and cite their output, or say in the recap that the host could not run them?"
+    }
+  ]
+}

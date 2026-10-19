@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-049",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item the reversibility check (the public payload and the vendor as one-way doors) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

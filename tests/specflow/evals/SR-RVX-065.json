@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-065",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Would a merge need explicit approval, land in the lowest number, and keep the absorbed intake items?"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "requirements-review",
+  "fixture": "sessions/requirements-review",
+  "turns": [
+    {"developer": "Review the requirements for 00001-stock-alerts.", "expects": "\\?\\s*$"},
+    {"developer": "1", "expects": "\\?\\s*$"},
+    {"developer": "1", "expects": "\\?\\s*$"},
+    {"developer": "Take your recommendation.", "expects": "\\?\\s*$"},
+    {"developer": "1", "expects": "\\?\\s*$"},
+    {"developer": "Stop here. Recap and show the approval summary."}
+  ]
+}

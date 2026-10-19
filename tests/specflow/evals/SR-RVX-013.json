@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-013",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are claims about the repository (orders_in in src/orders.py, the two callers in src/admin.py) checked against the code before they are believed?"
+    }
+  ]
+}

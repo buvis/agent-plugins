@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-065",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)stale"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Before the first edit, does the agent say that editing the approved requirements stales their approval and reopens the gate, apply the edit, and ask the re-approval after the recap rather than during the walkthrough?"
+    }
+  ]
+}

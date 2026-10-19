@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-036",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are only findings that would block approval marked blocking, with the restatement and the direction-versus-decision line kept non-blocking?"
+    }
+  ]
+}

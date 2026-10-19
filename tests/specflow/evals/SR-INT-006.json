@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-006",
+  "session": "intake-third-unknown-keep-quick",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-saved-carts/.specflow.json",
+      "pattern": "\"profile\": \"quick\""
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-saved-carts/.specflow.json",
+      "pattern": "\"approvedSha256\""
+    },
+    {
+      "kind": "rubric",
+      "rubric": "When the developer keeps quick against the agent's proposal, does the agent keep quick, record it, and treat that choice as no approval of anything?"
+    }
+  ]
+}

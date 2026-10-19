@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-047",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent say the real implementation goes through design, tasks, implementation, and verification, built anew rather than copied from the spike?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-022",
+  "session": "convert-prd-adopted",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the adopted plan keep the three checked tasks, name each task's location, contract, and check, and execute nothing?"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "name": "instruction-scope",
+  "fixture": "sessions/instruction-scope",
+  "turns": [
+    {
+      "developer": "Create a spec from intake item 00001-order-notes."
+    },
+    {
+      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-order-notes.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Also show the notes on the order page in the frontend (frontend/src/OrderPage.tsx)."
+    },
+    {
+      "developer": "Go ahead and draft."
+    }
+  ]
+}

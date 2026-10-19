@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-033",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)fixed list"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the fixed channel list ('email, and nothing else') raised as a closed list where the idea implies growth?"
+    }
+  ]
+}

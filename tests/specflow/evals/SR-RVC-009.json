@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-009",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)no edit"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the picker the host's structured-question tool or a numbered plain-text question, with an explicit No edit option and an Other for a free-form answer on every card?"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-023",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)no edit"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does every card carry an explicit No edit option, whatever the host's picker offers?"
+    }
+  ]
+}

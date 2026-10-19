@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-003",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specs/00012-order-tags/requirements.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "From the requirements step on, does the agent load ../spec-workflow/SKILL.md and follow its create path, with the gates, the state, and the routing the workflow skill's and not restated?"
+    }
+  ]
+}

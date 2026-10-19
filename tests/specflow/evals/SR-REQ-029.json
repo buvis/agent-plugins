@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-029",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)wins"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)do not conflict|don't conflict|not in conflict"
+    }
+  ]
+}

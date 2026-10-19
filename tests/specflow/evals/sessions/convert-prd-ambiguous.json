@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "convert-prd-ambiguous",
+  "fixture": "sessions/convert-prd-ambiguous",
+  "turns": [
+    {"developer": "Convert the export PRD into specflow.", "expects": "\\?\\s*$"},
+    {"developer": "docs/prds/00008-export-api.md", "expects": "\\?\\s*$"},
+    {"developer": "Stop here and write the receipt."}
+  ]
+}

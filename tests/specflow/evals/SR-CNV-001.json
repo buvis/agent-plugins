@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-001",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the request to convert docs/prds/00012-order-tags.md activate the conversion, taking the authored PRD as the source rather than treating it as a spike to graduate?"
+    }
+  ]
+}

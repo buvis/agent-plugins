@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-017",
+  "session": "working-practices",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "With tests-first and a thin end-to-end slice recorded in the requirements, does the plan put the thin slice first among independent tasks and each test before its code?"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-csv-import/tasks.md",
+      "pattern": "(?m)^- \\[ \\] T-001 "
+    }
+  ]
+}

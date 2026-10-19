@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-002",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is requirements.md the artifact reviewed, with idea.md and the Q&A log read as context only?"
+    }
+  ]
+}

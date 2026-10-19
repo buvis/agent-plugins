@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-017",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are the scans treated as advisory, with the reviewer deciding which flagged items become findings?"
+    }
+  ]
+}

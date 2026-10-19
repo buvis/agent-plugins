@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-006",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the premise of the task that deletes src/legacy_export.py say what to look at and what must be true, so a skip is unambiguous?"
+    }
+  ]
+}

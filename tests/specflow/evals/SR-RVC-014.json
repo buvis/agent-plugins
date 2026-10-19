@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-014",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does each confusion note name where, what is unclear, and why a reader could misread it, and do the Question findings come from those notes?"
+    }
+  ]
+}

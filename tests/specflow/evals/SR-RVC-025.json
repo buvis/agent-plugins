@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-025",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "recommended_option_first"
+    },
+    {
+      "kind": "message_lacks",
+      "pattern": "[23] \\(Recommended\\)"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Do the card and the picker use the same labels in the same order, with (Recommended) on option 1 only and numbers rather than letters?"
+    }
+  ]
+}

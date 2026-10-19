@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-040",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item cost and operational burden (the relay's cost, the on-call handoff) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

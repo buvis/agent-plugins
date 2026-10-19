@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-040",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)refine"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)graduate"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)discard"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "After each build, does the agent ask one question with exactly the three choices refine, graduate, and discard?"
+    }
+  ]
+}

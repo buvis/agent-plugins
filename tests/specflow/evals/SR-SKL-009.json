@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-009",
+  "session": "shared-dialogue-design-first",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-retry-queue/.specflow.json",
+      "pattern": "\"workflowOrder\": \"design-first\""
+    },
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specs/00002-retry-queue/requirements.md"
+    },
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specs/00002-retry-queue/tasks.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent draft design.md from the intake item first, requirements.md only after the design is approved, and tasks.md only after both are approved?"
+    }
+  ]
+}

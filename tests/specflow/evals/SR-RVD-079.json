@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-079",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent apply the hidden coupling map (the shared process, the shared database, the shared on-call), and cite the design where it yields a finding?"
+    }
+  ]
+}

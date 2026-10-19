@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-016",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)dark mode"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is REQ-004 (dark mode) raised as unmotivated by the purpose, asking whether it is scope creep or an unstated assumption?"
+    }
+  ]
+}

@@ -12,10 +12,14 @@ Structural rules: the files alone prove each one, so the helper enforces it and 
 
 ## Artifact structure
 
-- [SR-VAL-006] Each requirement starts with a stable ID heading, used once, and holds at least one numbered acceptance criterion; a `bugfix.md` holds its three behavior sections, each with clauses numbered in sequence and in the pattern of its section. (`requirement-ids`, error)
+- [SR-VAL-006] Each requirement starts with a stable ID heading, used once, and holds at least one numbered acceptance criterion. A `bugfix.md` is checked by the bugfix checks below instead. (`requirement-ids`, error)
 - [SR-VAL-007] Each task has a stable ID used once and a well-formed checkbox, depends only on tasks above it, and carries `Requirements:` and `Verify:` lines. (`task-structure`, error)
 - [SR-VAL-008] Every requirement is cited by at least one task, and a task cites only requirements and criteria its spec holds. (`requirement-coverage`, error)
 - [SR-VAL-009] The artifacts the phase needs exist and read as UTF-8 text, and an intake item holds its `idea.md`. (`required-files`, error)
+- [SR-VAL-020] A template design keeps every section heading of `templates/design.md`, a `Not applicable:` carries a non-empty reason, and `## Requirement traceability` cites only criteria its spec holds; a Kiro-native design keeps its own headings and is not checked. (`design-sections`, error)
+- [SR-VAL-019] A task plan whose `Location:` lines name two or more modules the design's placement section does not place gets a warning, since the tasks drifted from the design; one unplaced module does not. (`placement-drift`, warning)
+
+A bugfix spec keeps Kiro's shape, and five checks, each an error, hold it there: `bugfix.md` has `## Introduction` and `## Bug Analysis` with its three behavior sections, each with a clause (`bugfix-sections`); each clause follows its section's pattern and `1.x`, `2.x`, `3.x` numbering, with no `SHALL` in a Current Behavior clause (`bugfix-clauses`); the design has `## Hypothesized Root Cause`, `## Correctness Properties`, `## Fix Implementation`, and `## Testing Strategy`, and a Bug Condition heading sits in it or in `bugfix.md` (`bugfix-design-sections`); the plan's first three top-level tasks are the exploration test, the preservation tests, and the fix, and its last is the checkpoint (`bugfix-task-order`); every `2.x` and `3.x` clause is traced by a `_Requirements:` line of task 1, task 2, or a subtask of task 3 (`bugfix-clause-trace`).
 
 ## Numbers, sources, and folders
 
@@ -31,3 +35,5 @@ Structural rules: the files alone prove each one, so the helper enforces it and 
 - [SR-VAL-016] `.specflow.json` passes the state schema of its version, so each approval records its time, its hash, and the commit when one exists. (`state-valid`, error)
 - [SR-VAL-017] The status output names each unfinished or invalid prerequisite as an implementation blocker, with its reference and reason, and offers no next task while one remains. (helper tests)
 - [SR-VAL-018] The status output reports a change to the design's placement files as an advisory warning that closes no gate. (helper tests)
+
+A converted spec has one more check, `conversion-receipt`, defined in the conversion skill (`../../convert-prd/references/conversion.md`, SR-CNV-026).

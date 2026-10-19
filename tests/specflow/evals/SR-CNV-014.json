@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-014",
+  "session": "convert-prd-adopted",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)implementation:? (is )?complete"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the three checked tasks kept checked, is no reimplementation scheduled, and are implementation completion and workflow approval reported as two separate facts?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-080",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent apply the falsifiability check on the design's claims, and cite the design where it yields a finding?"
+    }
+  ]
+}

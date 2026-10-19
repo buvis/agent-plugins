@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-042",
+  "session": "requirements-incomplete",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "With three or more (guess) markers or contract-bearing open questions in the draft, does the agent offer to spike them, resolve them now, or save them under ## Unresolved questions, before asking for approval?"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-119",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)pass",
+      "turn": 5
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the recap state the number of passes, the findings by severity, the fixes applied, the open blockers, and the unresolved concerns, with no named model or external command required?"
+    }
+  ]
+}

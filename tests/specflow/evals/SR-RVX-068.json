@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-068",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the report hold the verdict, the spec map, the findings with spec, lens, location, and mechanism, the reshapes, the gaps, the end state, and the decisions applied?"
+    }
+  ]
+}

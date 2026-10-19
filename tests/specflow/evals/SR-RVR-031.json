@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-031",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent recommend a split only for a set too large for one spec, and not for this short artifact?"
+    }
+  ]
+}

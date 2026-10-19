@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-046",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item open questions and risks (a risk with no mitigation and no fallback) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

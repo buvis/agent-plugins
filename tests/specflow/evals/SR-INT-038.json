@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-038",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "ASSUMPTIONS:"
+    }
+  ]
+}

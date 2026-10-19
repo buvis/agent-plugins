@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-013",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the planning summary give the task count, the order, the ambiguities, any derived order, each requirements/design conflict with both sides, and the reason each coupled multi-file task stays whole?"
+    }
+  ]
+}

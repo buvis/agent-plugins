@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-VER-003",
+  "session": "completion-failure",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "REQ-001"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "test_round"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent report the failed test_round against T-001 and REQ-001 criterion 1?"
+    }
+  ]
+}

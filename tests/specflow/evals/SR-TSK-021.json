@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-021",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Where the design gives no decomposition or order, does the agent derive one unit per requirement, order it by the design's data flow and stated dependencies, otherwise none, and say so in the planning summary?"
+    }
+  ]
+}

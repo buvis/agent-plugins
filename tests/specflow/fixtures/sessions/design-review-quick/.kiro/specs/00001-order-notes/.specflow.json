@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "specId": "00001-order-notes",
+  "specType": "feature",
+  "profile": "quick",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "d4e9b6e327caf8a2b774559545dc3c945249246ba272e0f36151254f0ebc046d",
+      "approvedSha256": "d4e9b6e327caf8a2b774559545dc3c945249246ba272e0f36151254f0ebc046d",
+      "approvedAt": "2026-10-15T09:00:00Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "draft"
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "missing"
+    }
+  }
+}

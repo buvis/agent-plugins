@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-008",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "With two specs and an intake item present, does the agent review them rather than report nothing to review?"
+    }
+  ]
+}

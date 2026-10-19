@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-060",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is every blocking cross-spec finding applied as an edit or reshape, or waived by the developer with the waiver recorded, and none dropped silently?"
+    }
+  ]
+}

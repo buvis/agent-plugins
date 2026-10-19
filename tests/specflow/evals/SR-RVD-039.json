@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-039",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item privacy and compliance (order payloads kept forever with no deletion path) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

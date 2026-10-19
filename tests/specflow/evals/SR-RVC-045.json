@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-045",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is the 'leaning towards streaming' line treated as a defect (a direction written where a decision belongs) rather than a style point?"
+    }
+  ]
+}

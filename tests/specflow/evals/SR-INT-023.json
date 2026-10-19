@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-023",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specs/00001-todo-calendar/requirements.md"
+    },
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)create-prd"
+    }
+  ]
+}

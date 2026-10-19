@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-054",
+  "session": "intake-existing-code",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-order-webhooks/qa-log.md",
+      "pattern": "(?m)^## Discovery \\d{4}-\\d{2}-\\d{2}"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-order-webhooks/qa-log.md",
+      "pattern": "(?i)read in full"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-order-webhooks/qa-log.md",
+      "pattern": "(?i)skimmed"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-order-webhooks/qa-log.md",
+      "pattern": "(?i)not looked at"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-order-webhooks/qa-log.md",
+      "pattern": "\\bD1\\b"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)vendor/partner-sdk"
+    },
+    {
+      "kind": "file_absent",
+      "path": "vendor/partner-sdk/.git"
+    }
+  ]
+}

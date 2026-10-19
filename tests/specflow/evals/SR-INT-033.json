@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-033",
+  "session": "spike-branch",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": "src/report.py",
+      "pattern": "uncommitted: a note I am still writing"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent build on a branch spike/00001-price-cache in a separate worktree, since the working tree has an uncommitted change, and leave the current branch and that change alone?"
+    }
+  ]
+}

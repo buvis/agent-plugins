@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-064",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is the reshape (merge 00002 into 00001, keep them separate with a cross-reference, or split) walked as a finding with the core's card?"
+    }
+  ]
+}

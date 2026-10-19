@@ -5,8 +5,9 @@ writes Kiro-compatible spec artifacts.
 
 ## Status
 
-Unreleased. The `spec-workflow` skill is a shell; the workflow is not written
-yet.
+Unreleased. The `spec-workflow` skill holds the workflow's entry point, gates,
+shared contracts, phase references, and review references; the `convert-prd`
+skill adopts an existing PRD or legacy intake item into them.
 
 ## Package
 

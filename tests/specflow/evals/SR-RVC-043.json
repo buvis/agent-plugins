@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-043",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)fast"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is 'produce the file fast' (REQ-001.2) raised as a placeholder with the claim ladder: the observable behaviour, the measurement, and the commitment the artifact should make?"
+    }
+  ]
+}

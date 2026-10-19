@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-034",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does lens B raise a task that depends on a credential or an unreachable service as a verification risk?"
+    }
+  ]
+}

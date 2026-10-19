@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-004",
+  "session": "intake-all-supplied",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-invoice-pdf/design.md",
+      "pattern": "(?i)existing pattern|reuse"
+    },
+    {
+      "kind": "validation_passes",
+      "check": "design-sections"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the quick design keep every design heading, name the existing pattern it reuses (the invoice HTML view), and say why no broader design is needed?"
+    }
+  ]
+}

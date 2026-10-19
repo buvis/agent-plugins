@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-011",
+  "session": "intake-existing-code",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-order-webhooks/qa-log.md",
+      "pattern": "(?i)pytest"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the discovery note the naming, file layout, and testing approach in use (pytest, tests before code)?"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-054",
+  "session": "intake-bugfix",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/bugfix.md",
+      "pattern": "(?m)^1\\.1 WHEN .+ THEN the system (?!SHALL)"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/bugfix.md",
+      "pattern": "(?m)^2\\.1 WHEN .+ THEN the system SHALL (?!CONTINUE TO)"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/bugfix.md",
+      "pattern": "(?m)^3\\.1 WHEN .+ THEN the system SHALL CONTINUE TO "
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-discount-total/bugfix.md",
+      "pattern": "(?m)^1\\.\\d+ .*SHALL"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is each clause on one line, in its section's pattern, numbered from .1 with no gap?"
+    }
+  ]
+}

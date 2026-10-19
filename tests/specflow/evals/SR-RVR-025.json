@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-025",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)Twilio"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is REQ-001.4 (Twilio SMS API) raised as a solution posing as a requirement, with the behaviour kept and the choice routed to the design through the Q&A log or kept as a sourced constraint?"
+    }
+  ]
+}

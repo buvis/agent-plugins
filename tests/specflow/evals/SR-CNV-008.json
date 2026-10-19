@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-008",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00012-order-tags/idea.md",
+      "pattern": "Tags are stored in Redis, for speed\\."
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00012-order-tags/idea.md",
+      "pattern": "Can a tag be removed after the order is packed\\?"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the PRD preserved verbatim as idea.md of the intake item numbered 00012, with nothing edited out?"
+    }
+  ]
+}

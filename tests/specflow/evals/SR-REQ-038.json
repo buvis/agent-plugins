@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-038",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-team-calendar/requirements.md",
+      "pattern": "(?m)^### REQ-001: "
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-team-calendar/requirements.md",
+      "pattern": "\\*\\*User story:\\*\\*"
+    }
+  ]
+}

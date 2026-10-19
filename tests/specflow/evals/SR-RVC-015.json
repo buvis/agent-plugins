@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-015",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)no edit"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is every card followed by its picker, offering the card's options in the card's order and then No edit, through the host's tool or a numbered plain-text question?"
+    }
+  ]
+}

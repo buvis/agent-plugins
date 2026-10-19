@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-012",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)blocker|cardinal sin",
+      "turn": 5
+    },
+    {
+      "kind": "rubric",
+      "rubric": "When the developer stops, does the recap name the cardinal sins and blockers still open as blocking the design approval?"
+    }
+  ]
+}

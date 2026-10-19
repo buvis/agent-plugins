@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-090",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent apply decision quality against outcome quality, and cite the design where it yields a finding?"
+    }
+  ]
+}

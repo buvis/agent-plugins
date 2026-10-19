@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-095",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "At Tier 3, does the agent apply the Nyaya pramanas, labelling the basis of each load-bearing claim, and cite the design where it yields a finding?"
+    }
+  ]
+}

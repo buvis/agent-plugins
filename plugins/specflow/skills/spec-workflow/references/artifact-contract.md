@@ -226,5 +226,21 @@ The agent performs these steps; `validate_spec.py next-number` only reads.
 - 1 | Blocking | No rollback for the schema change | option 1 applied | resolved
 ```
 
-- `Answer:` holds the developer's own words, caveats included; the agent's interpretation goes on a `Reading:` line.
-- The log is append-only: a changed answer is a new entry that names the one it replaces. A secret in an answer is left out and the omission noted.
+- [SR-DLG-008] `Answer:` holds the developer's own words, caveats included; the agent's interpretation goes on a `Reading:` line. Classify a caveat by its meaning, never by words such as "for now": a definite choice for this release stays a requirement, a later revisit that does not affect this spec is a `Follow-up:` line in the entry, and only the part still undecided for this spec goes under `## Unresolved questions`, with what would resolve it. When it is unclear whether a caveat affects this spec, ask, or keep it marked uncertain; never guess a settled choice, and never hide a current dependency in a follow-up.
+- [SR-DLG-005] The log is append-only, each entry written right after its answer, so it survives a lost conversation: a changed answer is a new entry that names the one it replaces, and the earlier entry stays as it was.
+- [SR-DLG-013] A secret in an answer (a key, a password, a token, a copied environment value) is left out of the log, the intake item, the artifacts, and `.specflow.json`, and the omission noted where it was left out.
+
+## Shared dialogue
+
+These rules hold in every phase and every review, at intake and in Design-First too. Load them before the first question or approval summary of any conversation; phase and review references point here and add only their own question banks and summaries. The Q&A log rules above are part of this section.
+
+- [SR-DLG-001] Ask a clarifying question only when the missing answer would materially change scope or behavior, and ask one question per message.
+- [SR-DLG-002] Offer the choices of a question as a numbered list in plain text, or through the host's structured-question tool when it has one. Never depend on one host's tool.
+- [SR-DLG-003] Put the recommended choice first, marked `(Recommended)`, with a one-line reason. When the choices are a toss-up, say so and recommend none.
+- [SR-DLG-007] Every multiple-choice question also offers "Other", for an answer in the developer's own words.
+- [SR-DLG-010] Every clarifying question also offers "Not decided yet". That choice records an unresolved question in the artifact, which a dependent approval needs accepted by name.
+- [SR-DLG-009] Say where the questioning stands in each question, for example "question 3 of about 8", counting what is left across every topic, so the developer can judge whether to stop early.
+- [SR-DLG-011] Use the developer's words in questions. Define a term of art in plain words the first time it appears.
+- [SR-DLG-004] Do not ask what the intake item, the repository, or an earlier answer already shows. Use that answer, name its source (the file, or the Q&A entry), and list it under `## Assumptions` until the developer confirms it.
+- [SR-DLG-012] After asking questions, play back your reading of the answers as a short list before drafting from them. Clear, unambiguous answers need no further confirmation: recap and draft. A material interpretation or an unresolved conflict needs the developer's confirmation or correction before you draft from it; ask it with a confirmation you already need, such as the intake choices, and stop separately only when no such confirmation is left. A playback never stands in for an artifact approval or a marker accepted by name.
+- [SR-DLG-006] When an artifact is ready for approval, summarize its material decisions, the risks left open, what you assumed without asking, the recap of any review (raised, resolved, disputed), and the phase that follows. Then ask for approval and stop: never start the next phase on your own. Approval leaves an assumption an assumption; it stays listed as one.

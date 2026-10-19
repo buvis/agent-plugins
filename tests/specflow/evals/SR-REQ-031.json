@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-031",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)intake item"
+    },
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specflow/intake/processed/00001-team-calendar/qa-log.md"
+    },
+    {
+      "kind": "file_absent",
+      "path": ".kiro/specflow/intake/new/00001-team-calendar/idea.md"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-010",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the recap assess the surprise test and actionability, and name every lens skipped and every finding deferred by name?"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "implementation-scope-change",
+  "fixture": "sessions/implementation-scope-change",
+  "turns": [
+    {
+      "developer": "Implement spec 00001-cart-total. One thing first: the total must also include shipping."
+    },
+    {
+      "developer": "Yes, change the requirements."
+    }
+  ]
+}

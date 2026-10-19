@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-034",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent pull the problem and the constraints out of the intake item and README instead of asking for them?"
+    }
+  ]
+}

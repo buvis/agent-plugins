@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-008",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-order-export/tasks.md",
+      "pattern": "00001 REQ-001 criterion 1"
+    },
+    {
+      "kind": "validation_passes",
+      "check": "cross-spec-references"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-022",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent run the spike with nothing beyond Git and the developer's attention, asking for no other tool or service?"
+    }
+  ]
+}

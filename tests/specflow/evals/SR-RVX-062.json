@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-062",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)READY|FIX|RESHAPE|NOT READY"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does each spec get a verdict of READY, FIX, RESHAPE, or NOT READY with its reason, with the artifact statuses left as status derives them?"
+    }
+  ]
+}

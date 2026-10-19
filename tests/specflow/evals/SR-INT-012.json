@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-012",
+  "session": "intake-existing-code",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-order-webhooks/qa-log.md",
+      "pattern": "(?i)create_order|emit"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the discovery name the functions that would change, such as create_order and emit?"
+    }
+  ]
+}

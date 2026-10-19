@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-026",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent treat dark mode, which the developer wants as its own spec, as a separate spec with its own number, not part of this one?"
+    }
+  ]
+}

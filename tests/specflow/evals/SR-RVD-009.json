@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-009",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is the findings list produced from the tier's content: the checklist, the cardinal sins, the premortem, and the Tier 3 additions?"
+    }
+  ]
+}

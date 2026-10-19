@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-024",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent treat SPEC.md as a guess the build tests, and say that nothing from the spike ships?"
+    }
+  ]
+}

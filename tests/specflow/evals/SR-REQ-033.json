@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-033",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "file_read",
+      "path": "docs/calendar-notes.md",
+      "before_turn": 3
+    }
+  ]
+}

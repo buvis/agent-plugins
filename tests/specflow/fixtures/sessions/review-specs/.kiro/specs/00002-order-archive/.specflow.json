@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "specId": "00002-order-archive",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {"path": "requirements.md", "status": "draft"},
+    "design": {"path": "design.md", "status": "missing"},
+    "tasks": {"path": "tasks.md", "status": "missing"}
+  }
+}

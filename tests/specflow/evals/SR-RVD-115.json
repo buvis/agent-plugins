@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-115",
+  "session": "design-review-inline",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the inline pre-pass use one package (the current design.md, a summary of the approved requirements, the full cardinal-sin list with the severity definitions), return findings only in the severity, title, evidence, suggested fix shape anchored to a section or file:symbol, and approve nothing?"
+    }
+  ]
+}

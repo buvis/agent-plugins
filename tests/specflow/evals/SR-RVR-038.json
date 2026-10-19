@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-038",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "Severity: Non-blocking"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are weaker points that let the design proceed marked non-blocking?"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-060",
+  "session": "intake-bugfix",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/.config.kiro",
+      "pattern": "\"specType\": \"bugfix\""
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/.specflow.json",
+      "pattern": "\"workflowOrder\": \"requirements-first\""
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent recommend the bugfix type and the requirements-first order, each with its basis, before the developer confirms?"
+    }
+  ]
+}

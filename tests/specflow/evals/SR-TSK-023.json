@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-023",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are the tasks shaped like the examples: a model, endpoint, refactor, or bug-fix task naming its location, its copied contracts, and its verification, with the coupled signature-and-callers change kept as one task and the summary saying what a split would break?"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-019",
+  "session": "design-review-quick",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)tier 1"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the quick design reviewed at Tier 1 with the checklist skimmed, the cardinal sins checked, and a one-paragraph premortem, and without the techniques, stress tests, anti-patterns, or lenses?"
+    }
+  ]
+}

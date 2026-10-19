@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-012",
+  "session": "convert-prd-adopted",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Would a preserved native shape that fails a runtime check be reported with the check and the file, stopping at that gate, rather than reshaped to pass?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-060",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does lens H trace each spec to the intake item its Sources line names and flag a dropped must-have as blocking?"
+    }
+  ]
+}

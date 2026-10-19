@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-017",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent check that each criterion tests its own requirement and that no success measure is orphaned?"
+    }
+  ]
+}

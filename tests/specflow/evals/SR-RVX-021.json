@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-021",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is a vague contract that would let an agent implementing from tasks.md alone invent a wrong shape named as the wrong-contract lock-in mechanism?"
+    }
+  ]
+}

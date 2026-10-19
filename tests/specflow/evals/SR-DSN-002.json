@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-002",
+  "session": "design-reuse",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-retry-uploads/design.md",
+      "pattern": "(?s)## Alternatives considered(?:(?!\\n## ).)*(?i:smallest)"
+    }
+  ]
+}

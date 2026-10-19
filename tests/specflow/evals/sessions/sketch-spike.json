@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "name": "sketch-spike",
+  "fixture": "sessions/sketch-spike",
+  "turns": [
+    {
+      "developer": "Spike a sketch of a newsletter sign-up flow, call it newsletter-signup."
+    },
+    {
+      "developer": "Readers and the editor who approves new subscribers.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Refine: add a screen that asks the reader to confirm by email.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Graduate.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-newsletter-signup.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Go ahead and draft."
+    }
+  ]
+}

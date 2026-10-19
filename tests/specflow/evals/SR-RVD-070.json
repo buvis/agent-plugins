@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-070",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "For load-bearing claims, does the agent pick the probing move that matches the gap (Socratic, five whys, claim ladder) instead of asserting the conclusion is wrong?"
+    }
+  ]
+}

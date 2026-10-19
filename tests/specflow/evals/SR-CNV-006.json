@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-006",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent look for an existing spec folder with the number 00012 before creating one, and treat any complete spec it meets as context only?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "name": "requirements-review-quick",
+  "fixture": "sessions/requirements-review-quick",
+  "turns": [
+    {"developer": "Review the requirements.", "expects": "\\?\\s*$"},
+    {"developer": "00001-order-notes.", "expects": "\\?\\s*$"},
+    {"developer": "1", "expects": "\\?\\s*$"},
+    {"developer": "Stop here and recap."}
+  ]
+}

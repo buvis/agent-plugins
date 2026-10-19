@@ -1,0 +1,24 @@
+# Implementation Plan
+
+- [ ] 1. Write bug condition exploration test
+  - **Property 1: Bug Condition** - the discount comes off before tax
+  - **CRITICAL**: This test MUST FAIL on unfixed code - failure confirms the bug exists
+  - **DO NOT attempt to fix the test or the code when it fails**
+  - In `tests/test_discount.py`, assert `total(100, 0.10) == 99.0`, and run `python3 -m unittest tests.test_discount` on the unfixed code
+  - **EXPECTED OUTCOME**: Test FAILS (110.0 != 99.0)
+  - Document counterexamples found
+  - _Requirements: 1.1, 2.1_
+- [ ] 2. Write preservation property tests (BEFORE implementing fix)
+  - **Property 2: Preservation** - totals without a discount
+  - Observe: `total(100, 0)` and `total(19.99, 0)` on unfixed code
+  - In `tests/test_preservation.py`, assert the observed 110.0 and 21.99, and run `python3 -m unittest tests.test_preservation`
+  - **EXPECTED OUTCOME**: Tests PASS (confirms baseline behavior to preserve)
+  - _Requirements: 3.1, 3.2_
+- [ ] 3. Fix the discount in the checkout total
+  - [ ] 3.1 Take the discount off the price before tax in `src/checkout.py`
+    - _Bug_Condition: discount > 0_ _Expected_Behavior: the discounted price plus tax, rounded to two decimals_ _Preservation: totals without a discount unchanged_
+    - _Requirements: 2.1, 3.1, 3.2_
+  - [ ] 3.2 Verify bug condition exploration test now passes (re-run the SAME tests from task 1)
+  - [ ] 3.3 Verify preservation tests still pass (re-run the SAME tests from task 2)
+- [ ] 4. Checkpoint - Ensure all tests pass
+  - Run `python3 -m unittest`

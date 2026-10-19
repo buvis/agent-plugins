@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-010",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)raised|recap",
+      "turn": 5
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the recap give the findings by severity, the tier, and the skipped scripts, and enter the design approval summary without recording an approval?"
+    }
+  ]
+}

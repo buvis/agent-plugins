@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-011",
+  "session": "review-rerun",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "When the review runs again, does the agent resume from the files alone: the edits applied in review-walkthrough do not reappear as findings, and the disputed finding is taken from the minutes, with nothing recovered from the earlier conversation?"
+    }
+  ]
+}

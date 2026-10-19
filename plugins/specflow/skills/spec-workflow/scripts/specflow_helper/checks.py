@@ -30,7 +30,6 @@ from .findings import Finding, finding
 from .numbers import NUMBER, number_clashes
 from .schema import check_content
 from .spec_text import (
-    CLAUSE,
     CROSS_SPEC,
     REQUIREMENT_HEADING,
     known_ids,
@@ -104,15 +103,6 @@ SHARED_SECTIONS = (
     "Error handling",
     "Testing strategy",
     "Open decisions",
-)
-BUGFIX_SECTIONS = (
-    ("### Current Behavior (Defect)", 1, r"WHEN .+ THEN (?i:the system) "),
-    ("### Expected Behavior (Correct)", 2, r"WHEN .+ THEN (?i:the system) SHALL "),
-    (
-        "### Unchanged Behavior (Regression Prevention)",
-        3,
-        r"WHEN .+ THEN (?i:the system) SHALL CONTINUE TO ",
-    ),
 )
 
 
@@ -300,8 +290,8 @@ def requirement_ids_check(ctx: Context) -> list[Finding]:
     text = read_text(path)
     if text is None:
         return []
-    if path.name == "bugfix.md":
-        return bugfix_findings(ctx, path, text)
+    if path.name == "bugfix.md":  # bugfix-sections and bugfix-clauses (phase_checks.py)
+        return []
     found = partial(error, ctx, path, "requirement-ids")
     findings = []
     seen: set[str] = set()
@@ -332,38 +322,6 @@ def requirement_ids_check(ctx: Context) -> list[Finding]:
     if not seen:
         fix = "Add requirements under ## Requirements."
         findings.append(found("no requirement with a stable ID", fix))
-    return findings
-
-
-def bugfix_findings(ctx: Context, path: Path, text: str) -> list[Finding]:
-    lines = [line for _, line in prose(text)]
-    found = partial(error, ctx, path, "requirement-ids")
-    findings = []
-    for heading, number, pattern in BUGFIX_SECTIONS:
-        if heading not in lines:
-            fix = "Keep Kiro's three behavior sections."
-            findings.append(found(f"missing section {heading}", fix))
-            continue
-        start = lines.index(heading) + 1
-        end = next(
-            (i for i in range(start, len(lines)) if lines[i].startswith("#")),
-            len(lines),
-        )
-        clauses = [line for line in lines[start:end] if CLAUSE.match(line)]
-        if not clauses:
-            fix = f"Add a clause numbered {number}.1."
-            findings.append(found(f"{heading} has no clause", fix))
-        for index, clause in enumerate(clauses, start=1):
-            if not clause.startswith(f"{number}.{index} "):
-                message = f"clause out of sequence: {clause}"
-                fix = f"Number this section's clauses {number}.1, {number}.2, and on."
-                findings.append(found(message, fix))
-            elif not re.match(rf"^{number}\.{index} {pattern}", clause):
-                message = f"clause does not follow the pattern: {clause}"
-                fix = (
-                    "Use WHEN <condition> THEN the system ..., as the section requires."
-                )
-                findings.append(found(message, fix))
     return findings
 
 
@@ -725,6 +683,78 @@ def sources_line(ctx: Context) -> list[Finding]:
         fix = "Name this spec's own intake item, or renumber the newer of the two."
         return [found(message, fix)]
     return []
+
+
+RECEIPT_HEADING = re.compile(r"^## Conversion receipt\b")
+RECEIPT_LABELS = (
+    "Source:",
+    "Destination:",
+    "Number, type, folders:",
+    "Obligation coverage:",
+    "Decisions and public-behavior changes:",
+    "Implementation evidence:",
+    "Gates:",
+    "Review outcomes:",
+    "Checks run and limits:",
+    "Outstanding questions:",
+    "Next action:",
+    "Verdict:",
+)
+RECEIPT_VERDICTS = ("COMPLETE", "AWAITING_DECISION", "INCOMPLETE")
+
+
+def last_receipt(log_text: str) -> list[str] | None:
+    """The lines of the last ## Conversion receipt block, outside fences; None when there is none."""
+    found: list[str] | None = None
+    current: list[str] | None = None
+    for _, line in prose(log_text):
+        if line.startswith("## "):
+            current = [] if RECEIPT_HEADING.match(line) else None
+            found = current if current is not None else found
+        elif current is not None:
+            current.append(line)
+    return found
+
+
+@check("conversion-receipt", SPEC_PHASES)
+def conversion_receipt(ctx: Context) -> list[Finding]:
+    """The last conversion receipt of the intake log holds every label and one of the three verdicts."""
+    path = artifact_paths(ctx.spec_dir, ctx.state)["requirements"]
+    text = read_text(path)
+    value = sources_value(text, bugfix=path.name == "bugfix.md") if text else None
+    if not value:
+        return []
+    item = PurePosixPath(value.split(",")[0].strip().strip("`").rstrip("/"))
+    if item.is_absolute() or ".." in item.parts:
+        return []  # portable-links and sources-line report the path itself
+    log = ctx.repo / item / "qa-log.md"
+    log_text = read_text(log)
+    block = last_receipt(log_text) if log_text is not None else None
+    if block is None:
+        return []
+    found = partial(error, ctx, log, "conversion-receipt")
+    lines = [line.strip().removeprefix("- ").strip() for line in block]
+    missing = [
+        label
+        for label in RECEIPT_LABELS
+        if not any(line.startswith(label) for line in lines)
+    ]
+    findings = []
+    if missing:
+        fix = "Append a new receipt block holding every label; the last block counts."
+        findings.append(
+            found("the last conversion receipt lacks " + ", ".join(missing), fix)
+        )
+    verdicts = [
+        line.removeprefix("Verdict:").split()
+        for line in lines
+        if line.startswith("Verdict:")
+    ]
+    if verdicts and (verdicts[-1][:1] or [""])[0] not in RECEIPT_VERDICTS:
+        fix = "Append a new receipt block whose verdict is one of the three."
+        message = f"the verdict is not COMPLETE, AWAITING_DECISION, or INCOMPLETE: {' '.join(verdicts[-1])}"
+        findings.append(found(message, fix))
+    return findings
 
 
 def selected(phases: frozenset[str], phase: str | None) -> bool:

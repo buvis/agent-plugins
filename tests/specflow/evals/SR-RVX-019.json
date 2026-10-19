@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-019",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)00001-order-export"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)00002-order-archive"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the spec map give each spec's number, title, profile, phase, artifact approvals, subsystems, and dependencies, with the confusion notes kept?"
+    }
+  ]
+}
