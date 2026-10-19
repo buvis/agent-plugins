@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "rule": "SR-RVC-053",
-  "session": "direct-review-entry",
+  "session": "review-specs",
   "assertions": [
     {
       "kind": "rubric",

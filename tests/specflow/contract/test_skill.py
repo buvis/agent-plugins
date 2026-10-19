@@ -14,9 +14,7 @@ REFERENCES = SKILL / "references"
 SIZE_LIMIT = 500
 # Routed files a later task writes. Each task takes its own off the list; a
 # listed file that exists fails, so the list cannot go stale.
-NOT_WRITTEN_YET = {
-    "references/review/cross-spec.md",  # 00007
-}
+NOT_WRITTEN_YET: set[str] = set()
 # A record and a license, not guidance.
 NOT_ROUTED = {"references/aws/adaptation.md", "references/aws/LICENSE"}
 ROUTED = re.compile(r"`(references/[^`\s]+)`")

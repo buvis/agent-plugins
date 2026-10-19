@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-028",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)T-004"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does lens A flag a task whose Verify line is no command, test, or file check (T-004) and check that each task names its requirement IDs?"
+    }
+  ]
+}

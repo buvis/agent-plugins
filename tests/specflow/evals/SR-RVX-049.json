@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-049",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does lens F judge whether either spec is too big for one spec and propose a split only at loosely coupled seams?"
+    }
+  ]
+}

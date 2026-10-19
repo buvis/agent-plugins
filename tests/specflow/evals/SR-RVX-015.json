@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-015",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the hygiene check cover the NNNNN-<title> folder names and the artifacts each phase needs?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-039",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does lens C check the scope boundary and the one-value-per-name rule across each spec's artifacts?"
+    }
+  ]
+}

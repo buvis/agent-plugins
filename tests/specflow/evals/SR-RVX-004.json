@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-004",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the review stay with cross-spec fit and task readiness, re-litigating neither the requirements nor the design of a spec?"
+    }
+  ]
+}

@@ -43,7 +43,7 @@ jobs:
         run: python3 -m unittest discover -s tests/specflow/review
 
       - name: Check specflow rule inventory
-        run: python3 tools/specflow/check_rules.py --area VAL,SKL,DLG,INT,REQ,DSN,TSK,IMP,VER,RVC,RVR,RVD
+        run: python3 tools/specflow/check_rules.py --area VAL,SKL,DLG,INT,REQ,DSN,TSK,IMP,VER,RVC,RVR,RVD,RVX
 
       - name: Verify specflow release boundary
         run: python3 tools/specflow/verify_release.py

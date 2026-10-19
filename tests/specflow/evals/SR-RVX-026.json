@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-026",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does lens A check each artifact against its template, headings present and in order, and judge the fit of the profile?"
+    }
+  ]
+}

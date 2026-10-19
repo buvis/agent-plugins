@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-003",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the review place itself after the drafted task plan of 00001 and before its approval, as the last look before work starts?"
+    }
+  ]
+}

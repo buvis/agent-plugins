@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-024",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "reviews/\\d{4}-\\d{2}-\\d{2}-cross-spec-review\\.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the report written to <root>/reviews/YYYY-MM-DD-cross-spec-review.md from the template before the walkthrough, and never inside a spec folder?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-002",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the review judge each spec as a set an agent could resume from disk and the set as a whole for the shape it leaves the project in?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-011",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent read the templates and contracts of the skill at review time rather than from memory or from other specs?"
+    }
+  ]
+}

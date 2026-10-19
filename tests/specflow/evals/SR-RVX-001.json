@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-001",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)00003-bulk-refunds|bulk-refunds"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the review take 00001-order-export, 00002-order-archive, and the intake item 00003-bulk-refunds as its target, and nothing else?"
+    }
+  ]
+}

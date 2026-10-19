@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "specId": "00001-order-export",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "f45779164518b7e636d5eed4211b289e3e76e7a10bbbe318a7849f0ba5646457",
+      "approvedSha256": "f45779164518b7e636d5eed4211b289e3e76e7a10bbbe318a7849f0ba5646457",
+      "approvedAt": "2026-10-15T09:00:00Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "ede424f2f77fc7205bc431402f06fc013c7b6f0d21e44847a399ee019fb5d4a3",
+      "approvedSha256": "ede424f2f77fc7205bc431402f06fc013c7b6f0d21e44847a399ee019fb5d4a3",
+      "approvedAt": "2026-10-15T10:00:00Z",
+      "upstreamSha256": {
+        "requirements": "f45779164518b7e636d5eed4211b289e3e76e7a10bbbe318a7849f0ba5646457"
+      },
+      "approvedCode": {"status": "not_checked", "reason": "the fixture is not a Git repository"}
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "draft"
+    }
+  }
+}

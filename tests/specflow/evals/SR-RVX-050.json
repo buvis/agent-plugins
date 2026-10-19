@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-050",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is 00002, a single mechanical export, judged too small, with the quick profile first and a merge only by explicit approval?"
+    }
+  ]
+}

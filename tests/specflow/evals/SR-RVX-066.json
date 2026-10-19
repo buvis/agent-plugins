@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-066",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Would a split keep the original number for the first part and give each further part a new number and its own intake item?"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-032",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)T-004|spreadsheet"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is T-004's manual verification ('opens in a spreadsheet') raised, with an accepted exception as the non-blocking way out?"
+    }
+  ]
+}

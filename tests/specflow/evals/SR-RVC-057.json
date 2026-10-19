@@ -1,8 +1,12 @@
 {
   "schemaVersion": 1,
   "rule": "SR-RVC-057",
-  "session": "direct-review-entry",
+  "session": "review-specs",
   "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "Spec: "
+    },
     {
       "kind": "message_matches",
       "pattern": "Lens: [A-H]"

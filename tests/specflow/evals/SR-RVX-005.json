@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-005",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is compliance judged against the skill's artifact contract, templates, and validation rules, never against another spec?"
+    }
+  ]
+}

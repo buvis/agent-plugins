@@ -532,6 +532,8 @@
     {"id": "SR-RVX-076", "file": "review/cross-spec.md", "kind": "behavioral", "check": "evals/SR-RVX-076.json", "sources": ["A:RPB-28"]},
     {"id": "SR-RVX-077", "file": "review/cross-spec.md", "kind": "behavioral", "check": "evals/SR-RVX-077.json", "sources": ["A:RPB-78"]},
     {"id": "SR-RVX-078", "file": "scripts/check_links.py", "kind": "structural", "check": "test:tests/specflow/review/test_check_links.py::test_warns_on_wiki_links_and_never_resolves_them", "sources": ["A:RPB-C2"]},
-    {"id": "SR-RVX-079", "file": "scripts/check_links.py", "kind": "structural", "check": "test:tests/specflow/review/test_check_links.py::test_warns_on_home_and_absolute_paths_and_never_resolves_them", "sources": ["A:RPB-C3"]}
+    {"id": "SR-RVX-079", "file": "scripts/check_links.py", "kind": "structural", "check": "test:tests/specflow/review/test_check_links.py::test_warns_on_home_and_absolute_paths_and_never_resolves_them", "sources": ["A:RPB-C3"]},
+    {"id": "SR-RVX-080", "file": "review/cross-spec.md", "kind": "behavioral", "check": "evals/SR-RVX-080.json", "sources": ["R:REV-001.5", "R:REV-001.8"]},
+    {"id": "SR-RVX-081", "file": "review/cross-spec.md", "kind": "behavioral", "check": "evals/SR-RVX-081.json", "sources": ["R:ART-004.5", "R:ART-004.13"]}
   ]
 }

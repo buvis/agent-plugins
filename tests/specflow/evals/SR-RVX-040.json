@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-040",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)orders_in"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does lens D check that the files and symbols the specs name exist now (orders_in, its two callers), and that src/export.py is a planned new file?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-048",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does lens E raise cross-invalidation (00002 depends on the orders_in that 00001 widens) and terminology drift across the set?"
+    }
+  ]
+}

@@ -38,7 +38,7 @@ The developer speaks in their own words; invocation syntax differs per host and 
 | "What's the status of X?" | `status`: steps 1 to 4 above, then stop |
 | "Review the requirements for X" | `review requirements` |
 | "Review the design for X" | `review design` |
-| "Are my specs ready?" | `review specs` |
+| "Are my specs ready?" | `review specs`: the cross-spec readiness review of `references/review/cross-spec.md` |
 | "Put X on hold", "Abandon X", "Resume X" | `hold` |
 | "Implement spec X" | `implement` |
 | "Verify spec X" | `verify` |
