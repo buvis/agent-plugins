@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-021",
+  "session": "convert-prd-adopted",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is the adopted design grounded in src/export.py and src/admin.py as they are, rather than in the PRD's prose alone?"
+    }
+  ]
+}

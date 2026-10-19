@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-019",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "one_question_per_message"
+    },
+    {
+      "kind": "recommended_option_first"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is one material question asked per turn with the consequences in plain words, the artifact and the minutes edited right after the answer, and the work stopped at the gate with the document, scope, blockers, and next action shown?"
+    }
+  ]
+}

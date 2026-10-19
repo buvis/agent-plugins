@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "convert-prd-new",
+  "fixture": "sessions/convert-prd-new",
+  "turns": [
+    {"developer": "Convert docs/prds/00012-order-tags.md into specflow.", "expects": "\\?\\s*$"},
+    {"developer": "Take your recommendation.", "expects": "\\?\\s*$"},
+    {"developer": "Stop here and write the receipt."}
+  ]
+}

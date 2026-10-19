@@ -35,3 +35,5 @@ A bugfix spec keeps Kiro's shape, and five checks, each an error, hold it there:
 - [SR-VAL-016] `.specflow.json` passes the state schema of its version, so each approval records its time, its hash, and the commit when one exists. (`state-valid`, error)
 - [SR-VAL-017] The status output names each unfinished or invalid prerequisite as an implementation blocker, with its reference and reason, and offers no next task while one remains. (helper tests)
 - [SR-VAL-018] The status output reports a change to the design's placement files as an advisory warning that closes no gate. (helper tests)
+
+A converted spec has one more check, `conversion-receipt`, defined in the conversion skill (`../../convert-prd/references/conversion.md`, SR-CNV-026).

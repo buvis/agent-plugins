@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-002",
+  "session": "convert-prd-ambiguous",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)which|path",
+      "turn": 1
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Asked to convert 'the export PRD' with two matching documents, does the agent ask for the path as one question and wait, without picking one?"
+    }
+  ]
+}

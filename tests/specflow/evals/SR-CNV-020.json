@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-020",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00012-order-tags/requirements.md",
+      "pattern": "### REQ-001"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Do the converted requirements get stable IDs and testable criteria, with the open question kept marked as unresolved?"
+    }
+  ]
+}
