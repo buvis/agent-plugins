@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-051",
+  "session": "intake-empty-repository",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)\\bempty\\b"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-habit-tracker/requirements.md",
+      "pattern": "(?i)JavaScript framework"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-habit-tracker/requirements.md",
+      "pattern": "(?i)SQLite"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-habit-tracker/requirements.md",
+      "pattern": "(?i)pytest"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does each prohibition in the requirements carry its reason and the allowed alternative (no JavaScript framework because nobody can maintain one, server-rendered HTML instead; no cloud services, SQLite instead), and did the agent ask for an example to follow?"
+    }
+  ]
+}

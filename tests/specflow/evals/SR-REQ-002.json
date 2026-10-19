@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-002",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "After the questions, does the agent find the two contradictions in the notes (who changes events; real time against a nightly sync) and ask one resolution question for each?"
+    }
+  ]
+}

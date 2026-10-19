@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "name": "design-open-marker",
+  "fixture": "sessions/design-open-marker",
+  "turns": [
+    {
+      "developer": "Continue spec 00001-csv-import-errors."
+    },
+    {
+      "developer": "Approve the design."
+    },
+    {
+      "developer": "I accept the guess 'at most 1,000 rows' by name."
+    },
+    {
+      "developer": "Approve the design."
+    }
+  ]
+}

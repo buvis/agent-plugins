@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-002",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "validation_passes",
+      "check": "task-structure"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the tasks in topological order, each with Requirements:, Depends on: naming only earlier tasks, and Verify:?"
+    }
+  ]
+}

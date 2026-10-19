@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-VER-008",
+  "session": "completion-success",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-cart-rounding/tasks.md",
+      "pattern": "(?m)^- \\[x\\] `python3 -m unittest` passes\\."
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent run the completion criteria, validate, and the tests the change calls for, and no unrelated ritual?"
+    }
+  ]
+}

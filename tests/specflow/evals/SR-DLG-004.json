@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-004",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-import-retries/requirements.md",
+      "pattern": "(?s)## Assumptions(?:(?!\\n## ).)*(README|src/importer\\.py)"
+    },
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)what time does the (nightly )?import run"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent take the 02:00 UTC schedule and the skipped-rows file from the repository instead of asking, and name README.md or src/importer.py as the source?"
+    }
+  ]
+}

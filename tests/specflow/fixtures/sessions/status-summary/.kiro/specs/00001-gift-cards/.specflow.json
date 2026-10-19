@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "specId": "00001-gift-cards",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "ff8eedf432c2045c770b0081e511382aedb4215e9c370d7f981a367f69d77362",
+      "approvedSha256": "ff8eedf432c2045c770b0081e511382aedb4215e9c370d7f981a367f69d77362",
+      "approvedAt": "2026-10-15T09:00:00Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "bbd3774793115503a6e14ebf95bf01e12c71e7890d6ff631df1685329aeb0ba2",
+      "approvedSha256": "bbd3774793115503a6e14ebf95bf01e12c71e7890d6ff631df1685329aeb0ba2",
+      "approvedAt": "2026-10-15T09:00:00Z",
+      "upstreamSha256": {
+        "requirements": "ff8eedf432c2045c770b0081e511382aedb4215e9c370d7f981a367f69d77362"
+      },
+      "approvedCode": {
+        "status": "not_checked",
+        "reason": "session fixture without Git history"
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "d46257af707a0fee3642da15c37e155e3c13bf283603f1146b8307cc37a9f3bc",
+      "approvedSha256": "d46257af707a0fee3642da15c37e155e3c13bf283603f1146b8307cc37a9f3bc",
+      "approvedAt": "2026-10-15T09:00:00Z",
+      "upstreamSha256": {
+        "requirements": "ff8eedf432c2045c770b0081e511382aedb4215e9c370d7f981a367f69d77362",
+        "design": "bbd3774793115503a6e14ebf95bf01e12c71e7890d6ff631df1685329aeb0ba2"
+      }
+    }
+  },
+  "hold": {
+    "status": "on_hold",
+    "reason": "waiting for the payment provider's gift-card API",
+    "since": "2026-10-10"
+  }
+}

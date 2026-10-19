@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-010",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)not decided yet"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the question the developer answered 'Not decided yet.' recorded under ## Unresolved questions in requirements.md?"
+    }
+  ]
+}

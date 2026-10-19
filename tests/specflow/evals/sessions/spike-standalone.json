@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "name": "spike-standalone",
+  "fixture": "sessions/spike-standalone",
+  "turns": [
+    {
+      "developer": "Spike this, call it todo-calendar: turn my todo.md into a calendar file."
+    },
+    {
+      "developer": "Any calendar app should open it; I use the one on my phone.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Refine: a date without a time becomes an all-day event.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Graduate.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Yes: a feature, requirements-first, quick profile. Name the spec folder 00001-todo-calendar.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Go ahead and draft."
+    }
+  ]
+}

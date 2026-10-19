@@ -1,0 +1,4 @@
+[project]
+name = "shop-backend"
+version = "2.0.0"
+dependencies = ["fastapi==0.115.0"]

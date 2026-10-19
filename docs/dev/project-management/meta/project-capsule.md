@@ -4,7 +4,7 @@ Generated: 2026-10-16
 
 ## Key Invariants
 
-- specflow is dogfooded on itself: nine specs (00001-00009) under `docs/dev/project-management/specs/`, the folder `.agents/specflow.json` names. Since 2026-10-16, 00002-00005 record approvals in `.specflow.json`, written by recovery mode from the `qa-log.md` receipts after the developer confirmed them, with values copied from `validate_spec.py hash --json`. 00001 and 00006-00009 still hold receipts only; recover each before its work starts.
+- specflow is dogfooded on itself: nine specs (00001-00009) under `docs/dev/project-management/specs/`, the folder `.agents/specflow.json` names. Since 2026-10-16, 00002-00006 record approvals in `.specflow.json`, written by recovery mode from the `qa-log.md` receipts after the developer confirmed them, with values copied from `validate_spec.py hash --json`. 00001 and 00007-00009 still hold receipts only; recover each before its work starts.
 - A criterion has one home spec; other specs cite it as `00004 WF-004 criterion 8` (decision 2026-10-04 #9). Pointer lines ("Criterion 6: see 00006.") are not gaps.
 - Editing an approved `requirements.md`/`design.md` stales its approval: needs a new receipt in `qa-log.md` (precedent: 2026-10-09 #2, #3). `tasks.md` gaining only `Outcome:` lines does not.
 - Shipped code under `plugins/specflow/` is stdlib-only Python 3.10 and cannot import repo code (`scripts/validate.py`); copy patterns as ideas. Tests live in `tests/specflow/`, never in the package; the release check forbids it.
@@ -22,8 +22,8 @@ Generated: 2026-10-16
 
 ## Active Work
 
-- 00002, 00003, and 00004 complete and merged (PR #1 to #3). `validate_spec.py status` shows them `complete`.
-- 00005 on `feature/specflow-00005` (2026-10-16): T-070, T-071, and T-069 built, each with its `Outcome:` line. Next: the pull request and CI, the two completion-criteria boxes, then the completion review in a fresh session.
+- 00002 to 00005 complete and merged (PR #1 to #4; 00005 merged 2026-10-16 as `f53085c` after its cycle-1 review converged). `validate_spec.py status` shows them `complete`.
+- 00006 on `feature/specflow-00006` (2026-10-16): approvals recovered into `.specflow.json`; next T-030. Carries two 00005 deferrals: the approval procedure refuses while `validate` reports an error (F8); each reference task appends its area to the CI `check_rules.py --area` step (F10).
 - Python target is 3.10 (CI). The user's global ruff config does not pin a target, so `ruff check --fix` rewrites code to 3.11+ APIs (UP017 broke the helper once). Run the contract tests on `mise exec python@3.10.22` after any ruff fix.
 - Intake `new/00010-split-long-validator-functions/` is pending (numbered 2026-10-16).
 
@@ -38,7 +38,7 @@ Generated: 2026-10-16
 
 ## GitHub State
 
-- 0 open issues, no releases. PR #3 (00004) merged 2026-10-15; the 00005 PR follows.
+- 0 open issues, no releases. PR #4 (00005) merged 2026-10-16; the 00006 PR follows.
 
 ## Project Health
 

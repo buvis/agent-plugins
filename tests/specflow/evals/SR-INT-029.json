@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-029",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Given only a phrase, does the agent ask at most one question before the first build and guess the rest?"
+    }
+  ]
+}

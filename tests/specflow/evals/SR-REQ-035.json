@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-035",
+  "session": "intake-all-supplied",
+  "assertions": [
+    {
+      "kind": "validation_passes",
+      "check": "requirement-ids"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the quick spec use the same requirements shape as a standard one, only shorter?"
+    }
+  ]
+}

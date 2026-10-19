@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "name": "late-profile-trigger",
+  "fixture": "sessions/late-profile-trigger",
+  "turns": [
+    {
+      "developer": "Continue spec 00001-tag-filter."
+    },
+    {
+      "developer": "One more thing: the tags already in the database must be migrated to lowercase as part of this.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Yes, raise it to standard."
+    }
+  ]
+}

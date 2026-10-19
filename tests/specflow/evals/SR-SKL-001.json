@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-001",
+  "session": "direct-review-entry",
+  "assertions": [
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)review-discovery-doc|create-prd"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Asked to review the requirements of 00001-csv-export, does the agent run that review itself, inside spec-workflow, without sending the developer to another skill or command?"
+    }
+  ]
+}

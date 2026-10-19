@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-VER-006",
+  "session": "completion-exception",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-cart-rounding/tasks.md",
+      "pattern": "(?m)^  - Exception: .*(?i:printer)"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent treat the printer check as a failure until the developer accepts the exception, then record it with the rationale?"
+    }
+  ]
+}

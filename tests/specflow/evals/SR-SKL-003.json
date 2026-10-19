@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-003",
+  "session": "direct-review-entry",
+  "assertions": [
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)run-autopilot|review-prd-backlog"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Asked 'Are my specs ready?', does the agent review readiness across the specs that are not complete (here 00001-csv-export), instead of one artifact, and without handing off to another tool?"
+    }
+  ]
+}

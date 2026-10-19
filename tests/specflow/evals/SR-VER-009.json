@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-VER-009",
+  "session": "bugfix-confirmed",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/tasks.md",
+      "pattern": "(?m)^- \\[x\\] 4\\. Checkpoint"
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-discount-total/tasks.md",
+      "pattern": "(?m)^## Completion criteria"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "With tasks 1 to 3 checked and task 4 alone open, does the agent treat the spec as in verification, run the full suite and validate, check task 4 with its Outcome line only when both pass, and report the spec complete?"
+    }
+  ]
+}

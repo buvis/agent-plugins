@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-001",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-order-export/tasks.md",
+      "pattern": "(?m)^  - Depends on: "
+    }
+  ]
+}

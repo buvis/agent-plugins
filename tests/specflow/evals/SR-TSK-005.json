@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-005",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00002-order-export/tasks.md",
+      "pattern": "(?i)(all|whole|full) (test )?suite|\\d+ tests pass"
+    }
+  ]
+}

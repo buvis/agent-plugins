@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-005",
+  "session": "requirements-incomplete",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent treat 'I don't know.' and 'Whatever you think.' as non-answers that decide nothing, rather than as a choice?"
+    }
+  ]
+}

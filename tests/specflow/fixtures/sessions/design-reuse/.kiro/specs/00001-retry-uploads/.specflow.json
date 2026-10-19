@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "specId": "00001-retry-uploads",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "40019fb292087c97e5fcf0ae8999867644fd63f7d976c937efd1256b7e1258d3",
+      "approvedSha256": "40019fb292087c97e5fcf0ae8999867644fd63f7d976c937efd1256b7e1258d3",
+      "approvedAt": "2026-10-14T09:00:00Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "missing"
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "missing"
+    }
+  }
+}

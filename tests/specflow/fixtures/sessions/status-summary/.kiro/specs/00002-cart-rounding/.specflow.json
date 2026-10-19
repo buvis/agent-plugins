@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "specId": "00002-cart-rounding",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "c5a1be739c0ece3e845b671be436aa64bc3e4a3099e03ab41d966391c3b8a85d",
+      "approvedSha256": "c5a1be739c0ece3e845b671be436aa64bc3e4a3099e03ab41d966391c3b8a85d",
+      "approvedAt": "2026-10-15T09:00:00Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "12120f02f715e347b8d8055d3388cea41ff13c9641ce3df154d9a0c87617e2ea",
+      "approvedSha256": "12120f02f715e347b8d8055d3388cea41ff13c9641ce3df154d9a0c87617e2ea",
+      "approvedAt": "2026-10-15T09:00:00Z",
+      "upstreamSha256": {
+        "requirements": "c5a1be739c0ece3e845b671be436aa64bc3e4a3099e03ab41d966391c3b8a85d"
+      },
+      "approvedCode": {
+        "status": "not_checked",
+        "reason": "session fixture without Git history"
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "efe6427321c33442c9a9df8edf8631c5951608b7252138353750993795b65c8d",
+      "approvedSha256": "efe6427321c33442c9a9df8edf8631c5951608b7252138353750993795b65c8d",
+      "approvedAt": "2026-10-15T09:00:00Z",
+      "upstreamSha256": {
+        "requirements": "c5a1be739c0ece3e845b671be436aa64bc3e4a3099e03ab41d966391c3b8a85d",
+        "design": "12120f02f715e347b8d8055d3388cea41ff13c9641ce3df154d9a0c87617e2ea"
+      }
+    }
+  }
+}

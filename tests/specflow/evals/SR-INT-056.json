@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-056",
+  "session": "working-practices",
+  "assertions": [
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)before or after the code"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)slice"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-csv-import/requirements.md",
+      "pattern": "(?i)tests?[^\\n]*before"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-csv-import/requirements.md",
+      "pattern": "(?i)slice"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-013",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "When an answer leaves doubt, does the agent ask rather than assume a requirement?"
+    }
+  ]
+}

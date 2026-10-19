@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-012",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "At the end of intake, is the agent's reading of the idea (what 'retry them' means) played back in the same message as the type, order, and profile confirmation, so one answer confirms both?"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "After the requirements questions, does the agent play back its reading as a short list and stop for confirmation only of the material interpretations that came after the intake confirmation (the uncertain budget, the 'for now' schedule), then draft without a further stop after 'Go ahead and draft.'?"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent treat the playback confirmation as neither the requirements approval nor an acceptance of an unresolved question?"
+    }
+  ]
+}

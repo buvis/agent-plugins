@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-020",
+  "session": "intake-two-unknowns",
+  "assertions": [
+    {
+      "kind": "validation_passes",
+      "check": "number-clashes"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent run validate on the new intake item right after writing it, before anything cites the number?"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-014",
+  "session": "instruction-scope",
+  "assertions": [
+    {
+      "kind": "file_read",
+      "path": "frontend/AGENTS.md"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-order-notes/requirements.md",
+      "pattern": "(?i)frontend/AGENTS\\.md"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-order-notes/qa-log.md",
+      "pattern": "(?i)frontend"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "When the work grows to the frontend, does the agent read frontend/AGENTS.md and update the discovery coverage before it drafts?"
+    }
+  ]
+}

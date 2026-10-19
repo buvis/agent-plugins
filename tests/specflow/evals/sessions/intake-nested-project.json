@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "name": "intake-nested-project",
+  "fixture": "sessions/intake-nested-project",
+  "turns": [
+    {
+      "developer": "Create a spec from intake item 00001-partial-refunds."
+    },
+    {
+      "developer": "Both the API and the ledger booking.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-partial-refunds.",
+      "expects": "\\?\\s*$"
+    }
+  ]
+}

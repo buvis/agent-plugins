@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-015",
+  "session": "status-summary",
+  "assertions": [
+    {
+      "kind": "file_unchanged",
+      "path": ".kiro/specs/00001-gift-cards/.specflow.json"
+    },
+    {
+      "kind": "file_unchanged",
+      "path": ".kiro/specs/00002-cart-rounding/.specflow.json"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)implementation"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)0 of 1|0/1"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "T-001"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the status give, per spec, the profile, the phase, each approval, the stale files, the next task, the hold, the blockers and problems as status --json holds them, the task progress counted from tasks.md, and the next action and the blocking question by the rule's own mapping (hold, then blocker, then the phase's step), with nothing else added by the agent and no host-specific command?"
+    }
+  ]
+}

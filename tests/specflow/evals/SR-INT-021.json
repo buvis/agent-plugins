@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-021",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent take 'Spike this' as the spike path inside spec-workflow, at intake and before any requirements, without sending the developer to another skill?"
+    }
+  ]
+}

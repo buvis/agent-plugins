@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-VER-004",
+  "session": "completion-success",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-cart-rounding/tasks.md",
+      "pattern": "(?m)^- \\[x\\] Every task above is checked"
+    },
+    {
+      "kind": "validation_passes",
+      "check": "stale-approvals"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent tick the completion boxes only after every check passed, and report the spec complete?"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-014",
+  "session": "intake-two-unknowns",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specflow/intake/new/00004-invoice-export/idea.md"
+    },
+    {
+      "kind": "file_absent",
+      "path": ".kiro/specflow/intake/new/00001-invoice-export/idea.md"
+    },
+    {
+      "kind": "file_absent",
+      "path": ".kiro/specflow/intake/new/00002-invoice-export/idea.md"
+    }
+  ]
+}

@@ -12,10 +12,20 @@ Structural rules: the files alone prove each one, so the helper enforces it and 
 
 ## Artifact structure
 
-- [SR-VAL-006] Each requirement starts with a stable ID heading, used once, and holds at least one numbered acceptance criterion; a `bugfix.md` holds its three behavior sections, each with clauses numbered in sequence and in the pattern of its section. (`requirement-ids`, error)
+- [SR-VAL-006] Each requirement starts with a stable ID heading, used once, and holds at least one numbered acceptance criterion. A `bugfix.md` is checked by the bugfix checks below instead. (`requirement-ids`, error)
 - [SR-VAL-007] Each task has a stable ID used once and a well-formed checkbox, depends only on tasks above it, and carries `Requirements:` and `Verify:` lines. (`task-structure`, error)
-- [SR-VAL-008] Every requirement is cited by at least one task, and a task cites only requirements and criteria its spec holds. (`requirement-coverage`, error)
+- [SR-VAL-008] Every requirement is cited by at least one task, and a task cites only requirements and criteria its spec holds; in a bugfix spec, a task cites only clauses `bugfix.md` holds. (`requirement-coverage`, error)
 - [SR-VAL-009] The artifacts the phase needs exist and read as UTF-8 text, and an intake item holds its `idea.md`. (`required-files`, error)
+- [SR-VAL-019] An intake item's sketch has one `spike/mockups/<screen>.html` per screen of `spike/journey.md` and no `.html` file that belongs to no screen; each edge's source page links its target's file; and every line of a journey flowchart is a header, a node, an edge, or a `%%` comment. (`sketch-screens`, error)
+- [SR-VAL-020] Two or more task `Location:` paths that the design's placement section does not name get a warning, which closes no gate. (`placement-drift`, warning)
+
+A bugfix spec keeps Kiro's shape, and five checks, each an error, hold it there:
+
+- [SR-VAL-021] `bugfix.md` has `## Introduction` and `## Bug Analysis` with its three behavior sections, each with a clause. (`bugfix-sections`, error)
+- [SR-VAL-022] Each clause follows its section's pattern and `1.x`, `2.x`, `3.x` numbering, with no `SHALL` in a Current Behavior clause. (`bugfix-clauses`, error)
+- [SR-VAL-023] The design has `## Hypothesized Root Cause`, `## Correctness Properties`, `## Fix Implementation`, and `## Testing Strategy`, and a Bug Condition heading sits in it or in `bugfix.md`. (`bugfix-design-sections`, error)
+- [SR-VAL-024] The plan's first three top-level tasks are the exploration test, the preservation tests, and the fix, and its last is the checkpoint. (`bugfix-task-order`, error)
+- [SR-VAL-025] Every `2.x` and `3.x` clause is traced by a `_Requirements:` line of task 1, task 2, or a subtask of task 3. (`bugfix-clause-trace`, error)
 
 ## Numbers, sources, and folders
 

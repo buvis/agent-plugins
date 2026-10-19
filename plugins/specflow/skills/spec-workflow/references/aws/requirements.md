@@ -1,6 +1,6 @@
 # AWS guidance: requirements
 
-Adaptation: Read this file in the requirements phase. Each passage under a source line is AWS AI-DLC text, copied verbatim with cuts shown as `[...]`; each `Adaptation:` line is specflow's own. Where the two differ, the specflow artifact contract wins. Read only the passages marked with the active profile or `[both]`.
+Adaptation: Read this file in the requirements phase. Each passage under a source line is AWS AI-DLC text, copied verbatim with cuts shown as `[...]`; each `Adaptation:` line is specflow's own. Where the two differ, the specflow rules win: the artifact contract and the phase reference loaded with this file. Read only the passages marked with the active profile or `[both]`.
 
 ## Analyze the request
 
@@ -122,7 +122,7 @@ When contradictions are detected:
     a test coverage threshold) instead of meeting it
 [...]
 
-Adaptation: When the developer's answer is itself uncertain, record it as an unresolved question with what would resolve it, and keep a definite current choice apart from a later follow-up. When the developer leaves a choice to you, pick the option that best fits what they said, and say in one line what you chose.
+Adaptation: When the developer's answer is itself uncertain, record it as an unresolved question with what would resolve it, and keep a definite current choice apart from a later follow-up. A choice the developer leaves to you is a non-answer (SR-REQ-005): it decides nothing, and after a second one SR-REQ-006 applies.
 
 > Source: A1 `core/aidlc-common/protocols/stage-protocol.md` > 3. Question Format > Consuming grounded artifacts @ v2.11.0 (6a378b5) [both]
 

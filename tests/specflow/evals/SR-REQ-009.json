@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-009",
+  "session": "intake-all-supplied",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specs/00001-invoice-pdf/.config.kiro"
+    },
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specs/00001-invoice-pdf/requirements.md"
+    }
+  ]
+}

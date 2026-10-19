@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "status-summary",
+  "fixture": "sessions/status-summary",
+  "turns": [
+    {
+      "developer": "What's the status of my specs?"
+    },
+    {
+      "developer": "What should I work on next?"
+    }
+  ]
+}

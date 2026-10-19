@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-005",
+  "session": "other-language",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-overdue-reminder/.specflow.json",
+      "pattern": "\"profile\": \"standard\""
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-overdue-reminder/.specflow.json",
+      "pattern": "\"status\": \"approved\""
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-overdue-reminder/qa-log.md",
+      "pattern": "(?i)standard"
+    },
+    {
+      "kind": "validation_passes",
+      "check": "stale-approvals"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "When the developer raises the profile, does the agent write it, note it in the Q&A log, keep the requirements approval, and ask the later questions at standard depth?"
+    }
+  ]
+}

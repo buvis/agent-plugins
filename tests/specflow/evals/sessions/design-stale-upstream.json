@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "name": "design-stale-upstream",
+  "fixture": "sessions/design-stale-upstream",
+  "turns": [
+    {
+      "developer": "Continue spec 00001-search-filters with the design."
+    },
+    {
+      "developer": "Just draft the design anyway."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-006",
+  "session": "other-language",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-overdue-reminder/requirements.md",
+      "pattern": "(?m)^## Requirements$"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-overdue-reminder/requirements.md",
+      "pattern": "(?m)^### REQ-001: "
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-overdue-reminder/requirements.md",
+      "pattern": "WHEN .* SHALL "
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-overdue-reminder/requirements.md",
+      "pattern": "(?m)^#+ Požadavky"
+    },
+    {
+      "kind": "validation_passes",
+      "check": "requirement-ids"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the prose of requirements.md in Czech, the developer's language, while its headings, IDs, field names, EARS keywords, and markers are English?"
+    }
+  ]
+}

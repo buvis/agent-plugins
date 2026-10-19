@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-IMP-002",
+  "session": "implementation-false-premise",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-cart-cleanup/tasks.md",
+      "pattern": "(?m)^- \\[ \\] T-001 "
+    },
+    {
+      "kind": "file_unchanged",
+      "path": "src/cart.py"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)premise"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent check the premise first, find that src/cart.py defines no old_total, skip the task, and report what it found?"
+    }
+  ]
+}

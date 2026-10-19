@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-008",
+  "session": "intake-existing-code",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Under standard, does the discovery cover the pattern scan, the dependency map, the conventions, and the integration surface, not only the files the idea names?"
+    }
+  ]
+}

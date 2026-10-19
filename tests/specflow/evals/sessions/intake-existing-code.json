@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "name": "intake-existing-code",
+  "fixture": "sessions/intake-existing-code",
+  "turns": [
+    {
+      "developer": "Create a spec from intake item 00001-order-webhooks."
+    },
+    {
+      "developer": "Learn about the partner from docs/partner-api.md. Their payload must stay exactly as it is documented there.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "A webhook that fails is retried three times, a minute apart.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-order-webhooks.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Go ahead and draft."
+    }
+  ]
+}

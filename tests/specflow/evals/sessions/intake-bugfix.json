@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "name": "intake-bugfix",
+  "fixture": "sessions/intake-bugfix",
+  "turns": [
+    {
+      "developer": "Create a spec from intake item 00001-discount-total."
+    },
+    {
+      "developer": "Expected: the discount comes off first and tax is added after, so 90 plus 9 tax, a total of 99.00.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "A total without a discount must stay exactly as it is today, and the receipt format must not change.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Yes: a bugfix, requirements-first, standard profile. Name the spec folder 00001-discount-total.",
+      "expects": "\\?\\s*$"
+    },
+    {
+      "developer": "Go ahead and draft bugfix.md."
+    },
+    {
+      "developer": "Approve it."
+    },
+    {
+      "developer": "Continue with the design."
+    }
+  ]
+}

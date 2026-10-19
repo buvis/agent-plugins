@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-027",
+  "session": "spike-standalone",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-todo-calendar/spike/SPEC.md",
+      "pattern": "(?m)^## Smallest end-to-end outcome"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does SPEC.md name the smallest end-to-end outcome, such as one todo line turned into one event a calendar app opens?"
+    }
+  ]
+}

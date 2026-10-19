@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-016",
+  "session": "intake-existing-code",
+  "assertions": [
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)which (web )?framework|what language"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent state what the code shows (FastAPI, the event hook) with its source instead of asking about it?"
+    }
+  ]
+}

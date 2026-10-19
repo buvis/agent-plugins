@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-016",
+  "session": "status-summary",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)on hold"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)payment provider"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Asked what to work on next, does the agent offer 00002-cart-rounding, report 00001-gift-cards as on hold with its reason and date, and not offer it?"
+    }
+  ]
+}

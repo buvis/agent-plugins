@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-040",
+  "session": "requirements-ambiguous",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Would the agent propose a split had the draft passed about 200 lines or held loosely coupled parts, and does it keep the calendar as one spec since it does neither?"
+    }
+  ]
+}

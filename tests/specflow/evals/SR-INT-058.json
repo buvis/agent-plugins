@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-058",
+  "session": "sketch-spike",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specflow/intake/processed/00001-newsletter-signup/spike/journey.md"
+    },
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specflow/intake/processed/00001-newsletter-signup/spike/mockups/index.html"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-newsletter-signup/spike/journey.md",
+      "pattern": "```mermaid"
+    },
+    {
+      "kind": "validation_passes",
+      "check": "sketch-screens"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-newsletter-signup/spike/mockups/index.html",
+      "pattern": "(?i)mockup, not functional"
+    },
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specflow/intake/processed/00001-newsletter-signup/spike/mockups/index.html",
+      "pattern": "(?i)<script|https?://"
+    },
+    {
+      "kind": "question_count_at_most",
+      "count": 4
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does every screen mockup say 'mockup, not functional' at the top, carry a one-line accessibility note (heading level, landmarks, keyboard entry point) that claims no conformance, use no script or network resource, and link each action in the edge's words?"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent reuse the design system and the WCAG 2.2 AA target from AGENTS.md without asking about them, ask at most one content question for the phrase-only idea, record the other choices as (guess) or open questions, and run validate before showing the mockups?"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the confirm-by-email screen added on 'Refine' get its own mockup, and does the editor's journey reuse a screen ID wherever it shows the same screen as the reader's?"
+    }
+  ]
+}

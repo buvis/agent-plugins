@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-003",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is every task's verification a command, a test, or a file check?"
+    }
+  ]
+}

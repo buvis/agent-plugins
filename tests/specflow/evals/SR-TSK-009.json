@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-009",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00002-order-export/.specflow.json",
+      "pattern": "\"tasks\"[^}]*\"acceptedMarkers\""
+    },
+    {
+      "kind": "rubric",
+      "rubric": "At the first 'Approve the tasks.', does the agent refuse while the (guess) of REQ-001 has no acceptance by name for the tasks approval, and does it report that 'The export should be fast.' is a contract too vague to plan against?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-022",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is the problem behind the idea (rows skipped and never looked at) validated, from the intake item or by a question?"
+    }
+  ]
+}

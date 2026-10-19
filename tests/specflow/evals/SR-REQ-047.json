@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-047",
+  "session": "shared-dialogue",
+  "assertions": [
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00001-import-retries/requirements.md",
+      "pattern": "(?im)^## (appendix|glossary|references)"
+    }
+  ]
+}

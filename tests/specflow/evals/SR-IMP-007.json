@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-IMP-007",
+  "session": "bugfix-confirmed",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/tasks.md",
+      "pattern": "(?m)^- \\[x\\] 1\\. "
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/tasks.md",
+      "pattern": "(?m)^  - Outcome: .*(?i:fail)"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/tasks.md",
+      "pattern": "(?m)^  - Outcome: .*(?i:pass|OK)"
+    },
+    {
+      "kind": "file_exists",
+      "path": "tests/test_discount.py"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are tasks 1 and 2 finished, with Outcome lines showing task 1's test failing for the bug condition and task 2's tests passing on the unfixed code, before src/checkout.py is changed?"
+    }
+  ]
+}

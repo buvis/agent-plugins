@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-013",
+  "session": "late-profile-trigger",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)migrat"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)standard"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-tag-filter/.specflow.json",
+      "pattern": "\"profile\": \"standard\""
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-tag-filter/.specflow.json",
+      "pattern": "\"status\": \"approved\""
+    },
+    {
+      "kind": "validation_passes",
+      "check": "stale-approvals"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-tag-filter/qa-log.md",
+      "pattern": "(?i)standard"
+    }
+  ]
+}

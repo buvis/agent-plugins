@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-INT-043",
+  "session": "spike-branch",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specflow/intake/new/00001-price-cache/idea.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "On 'Discard', does the agent name the exact branch and worktree it will delete, delete them only after 'Yes, delete it.', and keep the intake item in new/?"
+    }
+  ]
+}

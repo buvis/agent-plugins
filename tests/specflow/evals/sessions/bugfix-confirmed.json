@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "name": "bugfix-confirmed",
+  "fixture": "sessions/bugfix-confirmed",
+  "turns": [
+    {
+      "developer": "Plan the tasks for spec 00001-discount-total."
+    },
+    {
+      "developer": "Approve the task plan."
+    },
+    {
+      "developer": "Implement the spec."
+    },
+    {
+      "developer": "Carry on until it is done."
+    }
+  ]
+}

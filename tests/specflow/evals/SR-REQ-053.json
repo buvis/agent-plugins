@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-053",
+  "session": "intake-bugfix",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/bugfix.md",
+      "pattern": "(?m)^## Introduction$"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/bugfix.md",
+      "pattern": "(?m)^### Current Behavior \\(Defect\\)$"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/bugfix.md",
+      "pattern": "(?m)^### Expected Behavior \\(Correct\\)$"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00001-discount-total/bugfix.md",
+      "pattern": "(?m)^### Unchanged Behavior \\(Regression Prevention\\)$"
+    },
+    {
+      "kind": "file_absent",
+      "path": ".kiro/specs/00001-discount-total/requirements.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent write bugfix.md in Kiro's shape from the template, drafted from the four bug inputs with the constraints as 3.x clauses, and start the design only after the developer approves it?"
+    }
+  ]
+}

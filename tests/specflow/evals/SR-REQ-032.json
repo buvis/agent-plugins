@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-REQ-032",
+  "session": "requirements-incomplete",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Do the requirements start from what the spike's build showed rather than from the questions asked before it?"
+    }
+  ]
+}
