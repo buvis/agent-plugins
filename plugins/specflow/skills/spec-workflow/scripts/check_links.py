@@ -35,7 +35,7 @@ CITATION = re.compile(r"(?<![\d/.-])(\d{5})-")
 # [SR-RVX-071] A token holding a glob, a template slot, an ellipsis, or an NNNNN, XXXX, or YYYY placeholder is skipped; trailing punctuation is stripped before the lookup.
 PLACEHOLDER = re.compile(r"[*?<>{}$]|\.\.\.|NNNNN|XXXX|YYYY")
 WAIVER = "link-ok:"
-# [SR-RVX-075] The tests of this script are unittest cases under tests/specflow/review/, run on the local fixture tests/specflow/fixtures/cross-spec/; no other framework and no fixture outside the repository.
+# [SR-RVX-075] The tests of this script are unittest cases run on a fixture tree inside the repository that holds them; no other framework and no fixture outside that repository.
 
 
 # [SR-RVX-069] Only the configured specs folder and `<root>/intake/` are scanned, read through the workspace config; the filtering is in code, not left to the reviewer.
