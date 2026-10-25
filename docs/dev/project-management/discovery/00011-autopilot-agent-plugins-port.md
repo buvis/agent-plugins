@@ -20,7 +20,7 @@ The assessment considered three outcomes. The revised plan selects Autopilot/con
 
 The ownership and delivery plan below implement independent stateful plugin use plus optional orchestration and presentation. A format-only conversion can stop after packaging and Claude compatibility verification; it does not require migrating state, replacing hooks with MCP, or adopting OVCAQ.
 
-The best initial execution targets are Claude Code and Codex, because OVCAQ already implements both drivers. Other clients may load the skills, but unattended execution must remain unavailable until their required capabilities pass the same tests. A host without reviewer isolation must not substitute an inline self-review.
+Claude Code and Codex are the existing OVCAQ driver baseline. The user selected Codex + Gemini for Claude-free certification on 2026-10-25: AP 00014 supplies native host support, OV 00059 adds the Gemini driver, and AP 00017 records real standalone/managed certificates with OV 00060 supervision evidence. Codex implements and Gemini supplies the independent doubt voice; every required role and fresh-session boundary remains. Other clients may load the skills, but execution remains unavailable until required capabilities pass. A host without reviewer isolation must not substitute an inline self-review.
 
 ## Evidence
 
@@ -195,6 +195,7 @@ The retirement PRD is [source PRD 00370, held](../../../../../claude-autopilot/d
 - [ ] P11: eligibility, frontmatter and resume fixtures retain their behavior, including explicit cap defaults.
 - [ ] Every principal/expanded behavior row, configuration/state-field mapping and source regression disposition has an implemented owner, current verification evidence and user-facing documentation; unavailable features do not satisfy retirement. The frozen expected ID set prevents omitted rows or renamed headings from hiding a drop.
 - [ ] Fresh-session review, code-owned lane routing, reviewer isolation and mandatory lenses pass on every advertised execution host.
+- [ ] Real Codex + Gemini standalone and managed certificates pass under AP 00017's Claude-free isolation and exact-artifact evidence rules; fake hosts or mixed Codex-build/Claude-review cannot satisfy this gate.
 - [ ] The consumer table has no remaining active dependency on the source package; historical citations may remain explicitly historical.
 - [ ] Each new batch uses Autopilot's controller as its only workflow writer; no legacy batch remains in flight and no unrequested importer has been added.
 - [ ] Target release checks and the source-removal CI are green; the replacement has been installed and exercised through its actual distribution path.

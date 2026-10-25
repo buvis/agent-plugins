@@ -7,7 +7,7 @@ plan_expansion: allow
 ---
 # Autopilot package and review artifact contracts
 
-Source: [three-layer design](../../designs/00011-autopilot-standalone-design.md). Revised 2026-10-25. Implementation specification only; no publication, live installation, migration or source retirement. Corrected after the 2026-10-25 completeness review: re-read the amended design and reconcile any work already started before accepting this PRD.
+Source: [three-layer design](../../designs/00011-autopilot-standalone-design.md). Revised 2026-10-25. Implementation specification only; no publication, live installation, migration or source retirement. Corrected after the 2026-10-25 completeness review; the amended design passed its fresh review gate the same day (result: ok). Reconcile any work started against the pre-correction design before accepting this PRD; pre-correction contract drafts are quarantined under docs/dev/tmp/autopilot/scratch-v1/ and must not be used.
 
 ## Overview
 

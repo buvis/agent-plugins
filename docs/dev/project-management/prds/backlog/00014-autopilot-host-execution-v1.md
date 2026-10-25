@@ -29,6 +29,8 @@ The named behavior scenarios pass, and source-map evidence assigns every affecte
 - **Outputs**: Isolated worker/reviewer results with raw artifacts and completed cleanup.
 - **Behavior**: Implement native session identity and explicitly permitted in-session delegation. In managed mode cross-session/cross-driver jobs become controller job intents consumed by OVCAQ; never spawn headless provider CLI children inside plugin scripts. In standalone mode emit next-session instructions for manual launch. Preserve bounded recursion and permissions. Characterize Sonnet effort and require the intended effort in job metadata; actual CLI forwarding is OV 00059. Native child cancellation stays host-scoped. Keep role IDs independent of provider/model names; record actual native sessions and resolved input digests for controller evidence. No coordinator relaunch, scheduler or TUI.
 
+Required Claude-free profile: Codex implements; Gemini provides independent doubt review, with every policy-required role in isolated Codex or Gemini contexts. Implement applicable native identity/input/guard support for those roles; Claude cannot be a fallback. AP 00017 owns real certification, OV 00059 owns managed Gemini process launch. A missing mandatory host capability remains an explicit blocker to this profile's certification.
+
 ### Capability: Enforcement
 
 #### Feature: Client-native guards
@@ -112,7 +114,7 @@ Plugin 00012/00013 completed. Recheck pinned hook/runner behavior and target own
 **Goal**: Prove public behavior and document capability evidence.
 
 **Tasks**:
-- [ ] Add headless probes in isolated plugin/project locations and record unavailable hosts honestly. (depends on: Phase 1) — Acceptance: relocated_host_probe, shared_core_without_claude and missing_guard_refused verify real invocation/resources/identity/interception and report denied mandatory capabilities; no availability result is converted into a success claim.
+- [ ] Add headless probes in isolated plugin/project locations and record unavailable hosts honestly. (depends on: Phase 1) — Acceptance: relocated_host_probe, shared_core_without_claude, codex_gemini_role_capabilities and missing_guard_refused verify real invocation/resources/identity/interception for the selected roles and report denied mandatory capabilities; no availability result is converted into a success claim.
 - [ ] Update the source map and changelog for supported and still-unavailable client duties. (depends on: Phase 2 task 1) — Acceptance: no_coordinator_runtime_in_plugin rejects supervisor/queue implementations in the distributed package.
 
 **Exit Criteria**: The named integration scenarios and `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` and `python3 scripts/validate.py` pass. Record real-host unavailability explicitly; it does not certify execution. No publishing or cutover occurs.

@@ -1,6 +1,6 @@
 # Project Capsule: buvis agent-plugins
 
-Generated: 2026-10-16
+Generated: 2026-10-25
 
 ## Key Invariants
 
@@ -46,3 +46,13 @@ Generated: 2026-10-16
 
 - Fix misfiring buvis guard hooks at their source repo with a test, never bypass.
 - Check `~/.kiro/crew/workspace/ai-age-repo-structure.md` before recommending homes for skills, links, or agent-private dirs.
+
+## Autopilot foundation refresh
+
+Active work: AP 00012 package and review contracts on master; seven ordered tasks. Pinned source exists; no package is present. Superseded test_contract.py needs reconciliation against amended design; scratch-v1 is quarantined. Source inventory must precede destination mapping.
+
+GitHub: no issues or PRs; latest master Validate succeeded.
+
+Related context: engram repo hits AP 00012 and discovery inventory; portfolio adds historical session evidence. Topic: Autopilot package and review artifact contracts. Existing specflow memory loaded.
+
+Catchup gap: engram index failed with read-only SQLite; existing query results may be stale. Portfolio status reports stale/dead rows (including 61 stale code rows); no fresh index is claimed.

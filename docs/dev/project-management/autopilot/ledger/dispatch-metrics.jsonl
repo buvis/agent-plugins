@@ -2,3 +2,13 @@
 {"id":"d82a6a9d","kind":"tess","task":"1","queued_at":1792953666,"prompt_bytes":17635}
 {"id":"d82a6a9d","ended_at":1792954605,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
 {"kind":"handoff","site":"build","edge":"leave","at":1792954605,"phase":"done","prd":"00012-autopilot-package-contract-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1792968036,"phase":"build","prd":"00012-autopilot-package-contract-v1.md"}
+{"id":"2bf63f6d","kind":"ivan","task":"1","queued_at":1792968158,"prompt_bytes":23050}
+{"id":"2bf63f6d","ended_at":1792968214,"elapsed_s":56,"outcome":"ok","detail":null}
+{"id":"5c87ee44","kind":"ivan","task":"1","queued_at":1792968214,"prompt_bytes":23970}
+{"id":"5c87ee44","ended_at":1792968275,"elapsed_s":null,"outcome":"lost","detail":"open at build/resume handoff"}
+{"kind":"handoff","site":"build","edge":"resume","at":1792968275,"phase":"build","prd":"00012-autopilot-package-contract-v1.md"}
+{"id":"5c87ee44","ended_at":1792968760,"elapsed_s":null,"outcome":"ok","detail":"spans handoff; "}
+{"id":"c7422613","kind":"tess","task":"2","queued_at":1792968820,"prompt_bytes":46996}
+{"id":"c7422613","ended_at":1792968886,"elapsed_s":66,"outcome":"ok","detail":"No edits: exact nested contract declarations missing"}
+{"kind":"handoff","site":"build","edge":"leave","at":1792968955,"phase":"paused","prd":"00012-autopilot-package-contract-v1.md"}

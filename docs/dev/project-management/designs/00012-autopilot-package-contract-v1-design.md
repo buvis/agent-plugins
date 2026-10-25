@@ -128,6 +128,21 @@ source_bindings, reviewer_jobs and policy_digest. Source bindings include
 pinned path, section and content digest. Reviewer IDs describe roles; provider
 and native agent names belong to adapters and explicit execution profiles.
 
+`procedure.lanes` is a map keyed by lane name (`full`, `fast-track`, `solo`).
+Each lane entry declares these fields:
+
+| Field | Contract |
+| --- | --- |
+| `required_reviewer_jobs` | Ordered list of mandatory logical reviewer job IDs for the lane, resolved from the lane table below. Empty is never valid for full or fast-track; solo's single zero-context job is explicit, not absent. |
+| `required_artifact_kinds` | Artifact kinds that must be present in evidence for the lane (e.g. `review-file`). |
+| `required_rubric_sets` | Rubric namespaces and rule IDs each resolved job must return verdicts for (e.g. doubt D1-D5 for the doubt job), with source anchors. |
+| `rework_policy` | Retry limits, escalation rules and the lane's cap policy as stated below. |
+
+Golden fixtures and the evidence schema reference these exact field names;
+evidence validation resolves the lane entry from the expected context's lane
+and rejects evidence whose covered jobs, artifacts or rubric verdicts do not
+satisfy the lane's required sets.
+
 The lane rules are normative:
 
 | Lane | Mandatory roles | Conditional roles and engine | Evidence and boundary |
@@ -138,7 +153,10 @@ The lane rules are normative:
 
 The full-lane rework-cycle cap defaults to two, overridden only by the
 validated source configuration. Do not invent a separate full-lane default
-of three. Fast-track's bounded delta and solo's one pass/limited repair are
+of three. Note: the source `state-schema.md` example JSON shows
+`"rework_cap": 3`; that value is illustrative (an explicit PRD frontmatter
+override), not the default — the authoritative default of two comes from
+`phase-review.md` and `frontmatter.py`. Fast-track's bounded delta and solo's one pass/limited repair are
 different policies, not three copies of the full-lane loop cap.
 
 Policy declares exact required rubric sets, input exclusions, artifact kinds,
@@ -153,14 +171,24 @@ capability may skip only a source-optional role under its documented rule.
 A required lens needs a supported replacement or refusal, never silent
 omission. Preserve failed, retried and unavailable attempts in evidence.
 Role identity, provider identity and independent-context identity are distinct.
-The source-parity profile retains its implementor-diversity guard; a separate
-certified execution profile must state any user-approved provider-policy
-redesign explicitly.
+The source-parity profile retains its implementor-diversity guard. The user
+selected Codex + Gemini for Claude-free certification on 2026-10-25: Codex
+implements; Gemini supplies the independent provider's doubt voice, including
+Eve whenever required. All other resolved roles run in isolated Codex or Gemini
+contexts. Carl's availability predicate still applies; no mandatory lens or
+fresh-session boundary is removed. This changes provider bindings, not review
+semantics. Codex-only is not a certified completion profile. AP 00014 owns
+native host support; AP 00017 owns real standalone and managed certification;
+OV 00059/00060 supply the managed driver and supervision evidence.
 
 Canonical digest: SHA-256 of UTF-8 json.dumps(policy_without_policy_digest,
-sort_keys=True, separators=(",", ":")); remove only the top-level digest key.
-The export and committed policy must agree. All policy-affecting content or
-referenced content digests participate; relocation cannot change the result.
+sort_keys=True, separators=(",", ":"), ensure_ascii=True); remove only the
+top-level digest key. Policy JSON values are restricted to the finite JSON
+domain: no NaN, Infinity or -Infinity, and non-integer numbers are not used
+anywhere in the policy. The export and committed policy must agree. All
+policy-affecting content or referenced content digests participate; relocation
+cannot change the result. Two independent implementations serializing the same
+policy content must produce the same digest.
 
 ### Review evidence
 
@@ -185,8 +213,9 @@ Required top-level fields:
 | verification | Actual command argv, exit code, output artifact, code identity and outcome; or policy-permitted not-applicable with reason |
 
 Each reviewer result records result_id, role_id, job_ref, attempt,
-native_session_ref, source_binding_digest, artifact_ids, outcome
-(clean, findings, failed, unavailable), finding_ids and failure/skip reason.
+native_session_ref, source_binding_digest, received_input_refs, artifact_ids,
+outcome (clean, findings, failed, unavailable), finding_ids and failure/skip
+reason.
 A clean result has zero finding_ids and a real output artifact. A findings
 result references existing findings attributed to that result. Failed or
 unavailable required roles do not satisfy coverage. Duplicate role/job/attempt
@@ -224,6 +253,14 @@ do not write a general JSON Schema interpreter. Required cases:
 - Changed policy binding, unknown lane and wrong execution profile.
 - Changed PRD, code/tree, card scope or input manifest with unchanged policy.
 - Blind reviewer receiving prohibited context, and reused builder-session identity.
+  Both cases are expressed through the expected_context's permitted-inputs and
+  the per-result input records: each reviewer result additionally records
+  `received_input_refs` (the input identities actually supplied to that job).
+  The blind-context case supplies a blind result whose `received_input_refs`
+  contain an identity outside the allowed-input manifest and expects rejection;
+  the reused-identity case supplies two results whose `native_session_ref`
+  values are identical where the policy requires independent contexts and
+  expects rejection. AP 00020 binds these references to actual launch facts.
 
 Later controller fixtures additionally prove untrusted context, nonexistent
 jobs, live jobs and forged native identity cannot authorize review.close.
@@ -237,8 +274,9 @@ python3 <package>/scripts/autopilot.py --list-capabilities
 python3 <package>/scripts/autopilot.py --export-policy [--out PATH]
 ~~~
 
-Capabilities identify policy/evidence formats; they do not claim a controller,
-executable skills or host support. Export recomputes/checks the policy digest
+Capabilities identify the policy, evidence and fixtures contract formats
+(`review-policy-v1`, `review-evidence-v1`, `review-fixtures-v1`); they do not
+claim a controller, executable skills or host support. Export recomputes/checks the policy digest
 and returns an error on mismatch. No state mutation, fetch or supervisor.
 Unimplemented skill entry points refuse before invoking old scripts.
 
@@ -377,4 +415,9 @@ dispatch 3 (codex): all 3 dispatch-2 blockers verified RESOLVED; cardinal-sin 0,
 
 Historical result: ok (pre-amendment only)
 
-result: failed (the amended contract requires a new design review)
+result: ok (2026-10-25 second amendment: N1 blocker resolved by normative
+procedure.lanes field table; N2 digest determinism pinned with
+ensure_ascii=True and the finite JSON domain; N3 blind-context/reused-identity
+cases made expressible via received_input_refs; N4 facade advertises
+review-fixtures-v1. Targeted N1 re-verification the same day: resolved, with
+checks 1-3 passed against cited normative lines.)
