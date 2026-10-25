@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-043",
+  "session": "requirements-review-bugfix",
+  "assertions": [
+    {
+      "kind": "message_lacks",
+      "pattern": "(?m)^(?:Finding \\d+ of \\d+|Location):[^\\n]*(?i:purpose|user story|out of scope|non-functional|risks section)"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does completeness read bugfix.md in Kiro's shape (a concrete Introduction, the three behavior sections each with a clause, the Sources line, each intake constraint as an Unchanged Behavior clause), and raise no finding for a missing Purpose, user story, Scope, Out of scope, or standard-only feature section?"
+    }
+  ]
+}

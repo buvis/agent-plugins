@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-045",
+  "session": "requirements-review-bugfix",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)full price"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the contradiction between 2.1 (tax on the discounted price) and 3.3 (tax on the full price before any discount) raised as a blocking finding citing both clauses, with the Introduction, not a missing Purpose, taken as the source each clause traces to?"
+    }
+  ]
+}

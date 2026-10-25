@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-044",
+  "session": "requirements-review-bugfix",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)works? correctly"
+    },
+    {
+      "kind": "message_lacks",
+      "pattern": "(?m)^Finding \\d+ of \\d+:[^\\n]*(?i:pattern|numbering|out of sequence|heading|EARS)"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is clause 2.3 ('SHALL work correctly') raised as an unverifiable clause with no observable result and marked blocking, and is no finding raised on a clause's heading, numbering, or pattern, which the helper checks?"
+    }
+  ]
+}
