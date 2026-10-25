@@ -2,6 +2,8 @@
 
 Reviewed 2026-10-25. Verdict: **revise the foundation design before implementing its contracts; the planned work does not yet establish Claude independence or complete behavior coverage.**
 
+Follow-up: the user authorized corrections. [Resolution record](00011-autopilot-port-corrections.md) tracks the amended plans and remaining provider-policy decision. Findings and line numbers below describe the audited revision, whose hash is recorded under Evidence; they are not claims that the amended text is unchanged.
+
 The three-layer architecture is coherent. The immediate defects are in its translation into the active AP 00012 design and in the completion evidence. This is a planning audit, not a runtime certification or the fresh-session PRD work-completion review. No existing plan, implementation, installation or consumer was changed.
 
 ## Evidence and scope
@@ -44,7 +46,7 @@ Required correction: separate source-based provenance generation from ordinary t
 
 ### F4 — HIGH: the planned coverage mechanism does not cover the behavior inventory
 
-Evidence: [AP 00012 PRD](../prds/wip/00012-autopilot-package-contract-v1.md), line 31, requires an acceptance owner for every asset/helper/behavior row. Its [design](../designs/00012-autopilot-package-contract-v1-design.md), lines 78–129 and 502–511, instead defines a file-based map with three generic acceptance-test names. Preserved content is checked by heading equality; gated-unavailable rows are excluded from the content existence assertion. There is no binding from the 1,034 expanded IDs to destination operations, delivery PRDs and behavioral evidence.
+Evidence at audit: [AP 00012 PRD](../prds/hold/00012-autopilot-package-contract-v1.md), then in wip at line 31, requires an acceptance owner for every asset/helper/behavior row. Its [design](../designs/00012-autopilot-package-contract-v1-design.md), then lines 78–129 and 502–511, instead defines a file-based map with three generic acceptance-test names. Preserved content is checked by heading equality; gated-unavailable rows are excluded from the content existence assertion. There is no binding from the 1,034 expanded IDs to destination operations, delivery PRDs and behavioral evidence.
 
 AP 00015 and AP 00017 promise later source-behavior coverage, so the intent exists. The frozen foundation data model does not provide the ledger those checks need. A document can retain every heading while losing a default, failure rule, option or mandatory instruction. Likewise, an indefinitely unavailable capability can remain represented without ever being delivered.
 

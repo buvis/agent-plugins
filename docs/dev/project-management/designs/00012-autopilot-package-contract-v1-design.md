@@ -375,4 +375,6 @@ dispatch 2 (codex): cardinal-sin 0, blocker 3, non-blocker 2, question 2
 
 dispatch 3 (codex): all 3 dispatch-2 blockers verified RESOLVED; cardinal-sin 0, blocker 0, non-blocker 1, question 0
 
-result: ok
+Historical result: ok (pre-amendment only)
+
+result: failed (the amended contract requires a new design review)

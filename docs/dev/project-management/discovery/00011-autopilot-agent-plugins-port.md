@@ -180,7 +180,7 @@ The plugin owns stateful lifecycle but never automatic cross-session spawning. O
 
 ## Retirement
 
-The retirement PRD belongs to `/Users/bob/git/src/github.com/buvis/claude-autopilot`, alongside planning of the final port phase. It removes the old package only after the complete matrix above and its expanded surface inventory are satisfied. Neither the earlier Specflow plan nor this assessment retires it now.
+The retirement PRD is [source PRD 00370, held](../../../../../claude-autopilot/docs/dev/project-management/prds/hold/00370-retire-source-package-v1.md). It removes the old package only after the complete matrix, expanded inventory, regression dispositions, real-host certificates and consumer cutover receipts are satisfied and its exact target ledger is authorized. Neither the earlier Specflow plan nor this assessment activates retirement.
 
 - [ ] P01: the same design fixtures retain reuse, placement, interface, risk and test-strategy content.
 - [ ] P02: task contracts retain dependency ordering, sizing evidence, acceptance criteria and verification instructions.
