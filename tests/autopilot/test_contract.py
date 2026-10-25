@@ -7,7 +7,8 @@ import hashlib
 import json
 import re
 import unittest
-from pathlib import Path
+from collections import Counter
+from pathlib import Path, PurePosixPath
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACTS = ROOT / "plugins" / "autopilot" / "contracts"
@@ -26,8 +27,25 @@ GOLDEN = {
     "unknown-lane": {"invalid": "unknown_lane"},
     "missing-artifact": {"invalid": "missing_required_artifact_kind"},
 }
+SEVERE = {"critical", "high"}
+
+
+def is_hex64(value: str) -> bool:
+    return re.fullmatch(r"[0-9a-f]{64}", value) is not None
+
+
+def is_relative_path(value: str) -> bool:
+    path = PurePosixPath(value)
+    return (
+        "\\" not in value
+        and not path.is_absolute()
+        and ".." not in path.parts
+        and not re.match(r"[A-Za-z]:", value)
+    )
+
+
 ENTRY_SHAPES = {
-    "artifacts": {"kind": None, "path": None, "sha256": None},
+    "artifacts": {"kind": None, "path": is_relative_path, "sha256": is_hex64},
     "findings": {
         "id": None,
         "severity": {"critical", "high", "medium", "low"},
@@ -65,9 +83,13 @@ def entry_ok(entry: object, shape: dict) -> bool:
     for field, rule in shape.items():
         value = entry.get(field)
         if rule is list:
-            if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
+            if not isinstance(value, list) or not all(isinstance(v, str) and v for v in value):
                 return False
-        elif not isinstance(value, str) or (rule is not None and value not in rule):
+        elif not isinstance(value, str) or not value:
+            return False
+        elif isinstance(rule, set) and value not in rule:
+            return False
+        elif callable(rule) and not rule(value):
             return False
     return True
 
@@ -124,12 +146,30 @@ def lane_shape_errors(name: str, lane: object) -> list[str]:
         return [f"lane {name}"]
     errors = []
     for cap in ("default_cap", "rework_cap_default"):
-        if type(lane.get(cap)) is not int:
+        if type(lane.get(cap)) is not int or lane[cap] < 1:
             errors.append(f"lane {name} {cap}")
     for kind in ("required_reviewer_jobs", "required_artifact_kinds"):
         value = lane.get(kind)
         if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
             errors.append(f"lane {name} {kind}")
+    return errors
+
+
+def reviewer_job_errors(jobs: object, lanes: dict) -> list[str]:
+    if not isinstance(jobs, list) or not jobs or not all(
+        entry_ok(j, {"id": None, "role": None}) and type(j.get("blind")) is bool for j in jobs
+    ):
+        return ["reviewer_jobs"]
+    errors = []
+    ids = [job["id"] for job in jobs]
+    if len(ids) != len(set(ids)):
+        errors.append("reviewer_jobs duplicate id")
+    if any(job["blind"] is not (job["role"] == "blind") for job in jobs):
+        errors.append("reviewer_jobs blind/role")
+    for name, lane in lanes.items():
+        required = lane.get("required_reviewer_jobs") if isinstance(lane, dict) else None
+        if isinstance(required, list) and any(job not in ids for job in required):
+            errors.append(f"lane {name} undeclared reviewer job")
     return errors
 
 
@@ -145,23 +185,22 @@ def policy_shape_errors(policy: object) -> list[str]:
     for name, lane in lanes.items():
         errors.extend(lane_shape_errors(name, lane))
     digest = policy.get("policy_digest")
-    if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+    if not isinstance(digest, str) or not is_hex64(digest):
         errors.append("policy_digest format")
     elif digest != policy_digest(policy):
         errors.append("policy_digest mismatch")
     bindings = policy.get("source_bindings")
-    if not isinstance(bindings, list) or not all(
+    if not isinstance(bindings, list) or not bindings or not all(
         entry_ok(b, {"capability": None, "source_path": None}) for b in bindings
     ):
         errors.append("source_bindings")
-    jobs = policy.get("reviewer_jobs")
-    if not isinstance(jobs, list) or not all(
-        entry_ok(j, {"id": None, "role": None}) and type(j.get("blind")) is bool for j in jobs
-    ):
-        errors.append("reviewer_jobs")
+    errors.extend(reviewer_job_errors(policy.get("reviewer_jobs"), lanes))
     if has_key_anywhere(policy, "accepted_phase"):
         errors.append("accepted_phase")
     return errors
+
+
+ROLES = {"alice": "consensus", "blake": "blind", "bob": "doubt"}
 
 
 def make_policy(
@@ -180,10 +219,14 @@ def make_policy(
         },
         "source_bindings": [{"capability": "review", "source_path": "skills/review/SKILL.md"}],
         "reviewer_jobs": [
-            {"id": "alice", "role": "consensus", "blind": False},
-            {"id": "blake", "role": "blind", "blind": True},
+            {"id": job, "role": ROLES.get(job, "lens"), "blind": ROLES.get(job) == "blind"}
+            for job in dict.fromkeys(("alice", "blake", "bob") + tuple(jobs))
         ],
     }
+    return restamp(policy)
+
+
+def restamp(policy: dict) -> dict:
     policy["policy_digest"] = policy_digest(policy)
     return policy
 
@@ -204,6 +247,59 @@ def make_evidence(policy: dict, reviewers: tuple = ("alice", "blake", "bob")) ->
         "rubric_verdicts": [{"rule_id": "R1", "verdict": "pass", "reviewer": "trent"}],
         "verification": {"verified_by": "victor", "outcome": "confirmed", "finding_id": "F1"},
     }
+
+
+def complete_cycle_errors(policy: dict, evidence: object) -> list[str]:
+    """Why evidence is not a full, resolved, bound review cycle; [] when it is."""
+    if review_defects(policy, evidence):
+        return ["defects"]
+    lane = policy["procedure"]["lanes"].get("full")
+    if evidence["lane"] != "full" or not lane["required_reviewer_jobs"] or not lane["required_artifact_kinds"]:
+        return ["full lane"]
+    errors = [f"empty {field}" for field in CONTENT_FIELDS if not evidence.get(field)]
+    if errors:
+        return errors
+    ids = [finding["id"] for finding in evidence["findings"]]
+    if len(ids) < 2:
+        errors.append("too few findings")
+    if len(ids) != len(set(ids)):
+        errors.append("duplicate finding id")
+    groups = evidence["groups"]
+    if len({g["id"] for g in groups}) != len(groups):
+        errors.append("duplicate group id")
+    if any(not g["finding_ids"] or len(set(g["finding_ids"])) != len(g["finding_ids"]) for g in groups):
+        errors.append("group finding_ids")
+    if sum(len(g["finding_ids"]) for g in groups) < 2:
+        errors.append("too few grouped findings")
+    reviewers = {finding["reviewer"] for finding in evidence["findings"]}
+    if not set(lane["required_reviewer_jobs"]) <= reviewers:
+        errors.append("uncovered reviewer job")
+    if evidence["verification"]["finding_id"] not in ids:
+        errors.append("verification finding_id")
+    if any(f["severity"] in SEVERE and f["disposition"] == "open" for f in evidence["findings"]):
+        errors.append("open severe finding")
+    if any(verdict["verdict"] == "fail" for verdict in evidence["rubric_verdicts"]):
+        errors.append("failing rubric verdict")
+    return errors
+
+
+def changed_aspects(base: dict, case: dict) -> int:
+    """Count policy swaps, changed scalars and dict keys, and changed list entries."""
+    count = int(case["policy"] != base["policy"])
+    old, new = base["input"], case["input"]
+    for key in set(old) | set(new):
+        a, b = old.get(key), new.get(key)
+        if a == b:
+            continue
+        if isinstance(a, list) or isinstance(b, list):
+            a, b = (Counter(json.dumps(e, sort_keys=True) for e in v or []) for v in (a, b))
+            count += max(sum((a - b).values()), sum((b - a).values()))
+        elif isinstance(a, dict) or isinstance(b, dict):
+            a, b = a or {}, b or {}
+            count += sum(a.get(k) != b.get(k) for k in set(a) | set(b))
+        else:
+            count += 1
+    return count
 
 
 def load(path: Path) -> object:
@@ -348,6 +444,84 @@ class ValidatorTest(unittest.TestCase):
                 evidence["groups"].append({"id": "G2", "finding_ids": ids, "rationale": "r"})
                 self.assertEqual(review_defects(policy, evidence), expected)
 
+    def test_review_schema_rejects_bad_hashes_unsafe_paths_and_empty_strings(self) -> None:
+        policy = make_policy()
+        evidence = make_evidence(policy)
+        evidence["artifacts"][0]["path"] = "docs/dev/r.md"
+        self.assertEqual(validate_review(policy, evidence), "valid")
+        for field, key, bad in (
+            ("artifacts", "sha256", "not-a-hash"),
+            ("artifacts", "sha256", "0" * 63),
+            ("artifacts", "sha256", "A" * 64),
+            ("artifacts", "path", ""),
+            ("artifacts", "path", "/etc/passwd"),
+            ("artifacts", "path", "../../../x"),
+            ("artifacts", "path", "docs/../../x"),
+            ("artifacts", "path", "C:/x"),
+            ("artifacts", "path", "docs\\x"),
+            ("artifacts", "kind", ""),
+            ("findings", "id", ""),
+            ("findings", "title", ""),
+            ("findings", "reviewer", ""),
+            ("groups", "rationale", ""),
+            ("rubric_verdicts", "rule_id", ""),
+            ("rubric_verdicts", "reviewer", ""),
+        ):
+            with self.subTest(field=field, key=key, value=bad):
+                evidence = make_evidence(policy)
+                evidence[field][0][key] = bad
+                self.assertEqual(validate_review(policy, evidence), {"invalid": MALFORMED})
+        for key in ("verified_by", "finding_id"):
+            with self.subTest(verification=key):
+                evidence = make_evidence(policy)
+                evidence["verification"][key] = ""
+                self.assertEqual(validate_review(policy, evidence), {"invalid": MALFORMED})
+
+    def test_review_schema_complete_cycle_check_rejects_duplicates_dangling_and_unresolved(self) -> None:
+        policy = make_policy()
+        self.assertEqual(complete_cycle_errors(policy, make_evidence(policy)), [])
+        for path, value, error in (
+            (("groups", 0, "finding_ids"), ["F1", "F1"], "group finding_ids"),
+            (("groups", 0, "finding_ids"), [], "group finding_ids"),
+            (("verification", "finding_id"), "F999", "verification finding_id"),
+            (("findings", 0, "disposition"), "open", "open severe finding"),
+            (("rubric_verdicts", 0, "verdict"), "fail", "failing rubric verdict"),
+        ):
+            with self.subTest(path=path, value=value):
+                evidence = make_evidence(policy)
+                target = evidence
+                for step in path[:-1]:
+                    target = target[step]
+                target[path[-1]] = value
+                self.assertIn(error, complete_cycle_errors(policy, evidence))
+        for field, error in (("findings", "duplicate finding id"), ("groups", "duplicate group id")):
+            with self.subTest(duplicate=field):
+                evidence = make_evidence(policy)
+                evidence[field].append(dict(evidence[field][0]))
+                self.assertIn(error, complete_cycle_errors(policy, evidence))
+        lone = make_policy(jobs=("alice",))
+        self.assertIn("too few findings", complete_cycle_errors(lone, make_evidence(lone, ("alice",))))
+        self.assertEqual(complete_cycle_errors(policy, make_evidence(policy, ("alice", "blake"))), ["defects"])
+
+    def test_review_schema_one_aspect_diff_counts_each_changed_entry(self) -> None:
+        policy = make_policy()
+        base = {"policy": policy, "input": make_evidence(policy)}
+        self.assertEqual(changed_aspects(base, copy.deepcopy(base)), 0)
+        relabeled = copy.deepcopy(base)
+        relabeled["input"]["findings"][2]["reviewer"] = "alice"
+        self.assertEqual(changed_aspects(base, relabeled), 1)
+        dropped = copy.deepcopy(base)
+        del dropped["input"]["artifacts"]
+        self.assertEqual(changed_aspects(base, dropped), 1)
+        bare = copy.deepcopy(base)
+        bare["input"]["findings"] = []
+        self.assertEqual(changed_aspects(base, bare), 3)
+        two = copy.deepcopy(base)
+        two["input"]["lane"] = "solo"
+        two["input"]["verification"]["finding_id"] = "F2"
+        self.assertEqual(changed_aspects(base, two), 2)
+        self.assertEqual(changed_aspects(base, dict(base, policy=make_policy(kinds=("ledger",)))), 1)
+
 
 class FixtureFileTest(unittest.TestCase):
     def setUp(self) -> None:
@@ -358,7 +532,7 @@ class FixtureFileTest(unittest.TestCase):
         self.assertIsInstance(self.cases, list)
         names = [case["name"] for case in self.cases]
         self.assertEqual(len(names), len(set(names)))
-        self.assertLessEqual(set(GOLDEN), set(names))
+        self.assertEqual(set(names), set(GOLDEN))
         for name, expect in GOLDEN.items():
             with self.subTest(case=name):
                 self.assertEqual(self.by_name[name]["expect"], expect)
@@ -370,6 +544,7 @@ class FixtureFileTest(unittest.TestCase):
                 self.assertEqual(policy_shape_errors(case["policy"]), [])
 
     def test_review_schema_every_case_validates_to_its_expect_with_one_defect(self) -> None:
+        base = self.by_name["complete-cycle"]
         for case in self.cases:
             with self.subTest(case=case["name"]):
                 defects = review_defects(case["policy"], case["input"])
@@ -378,27 +553,37 @@ class FixtureFileTest(unittest.TestCase):
                     self.assertEqual(defects, [])
                 else:
                     self.assertEqual(defects, [case["expect"]["invalid"]])
+                    self.assertEqual(changed_aspects(base, case), 1)
                 self.assertEqual(validate_review(case["policy"], case["input"]), case["expect"])
 
     def test_review_schema_complete_cycle_populates_every_content_field(self) -> None:
         case = self.by_name["complete-cycle"]
-        evidence, lane = case["input"], case["policy"]["procedure"]["lanes"].get("full")
-        self.assertEqual(evidence["lane"], "full")
-        self.assertIsNotNone(lane)
-        self.assertTrue(lane["required_reviewer_jobs"])
-        self.assertTrue(lane["required_artifact_kinds"])
-        for field in CONTENT_FIELDS:
-            with self.subTest(field=field):
-                self.assertTrue(evidence.get(field))
-        self.assertGreater(len(evidence["findings"]), 1)
-        self.assertGreater(sum(len(g["finding_ids"]) for g in evidence["groups"]), 1)
+        self.assertEqual(complete_cycle_errors(case["policy"], case["input"]), [])
 
-    def test_review_schema_lens_and_artifact_cases_reuse_the_complete_cycle_policy(self) -> None:
-        base = self.by_name["complete-cycle"]["policy"]
-        for name in ("missing-lens", "missing-artifact"):
+    def test_review_schema_invalid_cases_reuse_the_complete_cycle_policy(self) -> None:
+        base = self.by_name["complete-cycle"]
+        for name, expect in GOLDEN.items():
+            if expect == "valid" or name == "stale-binding":
+                continue
             with self.subTest(case=name):
-                self.assertEqual(self.by_name[name]["policy"], base)
+                self.assertEqual(self.by_name[name]["policy"], base["policy"])
+        for name in ("missing-lens", "malformed-group", "missing-artifact"):
+            with self.subTest(case=name):
                 self.assertEqual(self.by_name[name]["input"]["lane"], "full")
+
+    def test_review_schema_stale_binding_case_binds_a_different_real_policy(self) -> None:
+        base, case = self.by_name["complete-cycle"], self.by_name["stale-binding"]
+        self.assertEqual(case["input"], base["input"])
+        bound = case["input"]["policy_binding"]["policy_digest"]
+        self.assertTrue(isinstance(bound, str) and is_hex64(bound))
+        self.assertEqual(bound, policy_digest(base["policy"]))
+        self.assertNotEqual(policy_digest(case["policy"]), bound)
+        for kind in ("required_reviewer_jobs", "required_artifact_kinds"):
+            with self.subTest(requirement=kind):
+                self.assertEqual(
+                    case["policy"]["procedure"]["lanes"]["full"][kind],
+                    base["policy"]["procedure"]["lanes"]["full"][kind],
+                )
 
     def test_review_schema_unknown_lane_case_names_a_lane_absent_from_its_policy(self) -> None:
         case = self.by_name["unknown-lane"]
@@ -409,10 +594,17 @@ class FixtureFileTest(unittest.TestCase):
 
 class ContractFileTest(unittest.TestCase):
     def test_review_schema_policy_contract_is_well_formed_and_self_digested(self) -> None:
-        self.assertEqual(policy_shape_errors(load(POLICY_FILE)), [])
+        policy = load(POLICY_FILE)
+        self.assertEqual(policy_shape_errors(policy), [])
+        lane = policy["procedure"]["lanes"].get("full")
+        self.assertIsNotNone(lane)
+        self.assertTrue(lane["required_reviewer_jobs"])
+        self.assertTrue(lane["required_artifact_kinds"])
 
     def test_review_schema_evidence_contract_is_valid_against_the_policy_contract(self) -> None:
-        self.assertEqual(validate_review(load(POLICY_FILE), load(EVIDENCE_FILE)), "valid")
+        policy, evidence = load(POLICY_FILE), load(EVIDENCE_FILE)
+        self.assertEqual(validate_review(policy, evidence), "valid")
+        self.assertEqual(complete_cycle_errors(policy, evidence), [])
 
     def test_review_schema_no_contract_carries_accepted_phase(self) -> None:
         for path in (POLICY_FILE, EVIDENCE_FILE, FIXTURES_FILE):
@@ -425,6 +617,28 @@ class ContractFileTest(unittest.TestCase):
         stale = dict(policy, policy_digest=policy_digest(make_policy(jobs=("alice",))))
         self.assertEqual(policy_shape_errors(stale), ["policy_digest mismatch"])
         self.assertEqual(policy_shape_errors(dict(policy, policy_digest="abc")), ["policy_digest format"])
+
+    def test_review_schema_policy_shape_check_rejects_empty_undeclared_and_contradictory_jobs(self) -> None:
+        def lane(policy: dict) -> dict:
+            return policy["procedure"]["lanes"]["full"]
+
+        for mutate, error in (
+            (lambda p: lane(p)["required_reviewer_jobs"].append("carl"), "lane full undeclared reviewer job"),
+            (lambda p: p["reviewer_jobs"].append(dict(p["reviewer_jobs"][0])), "reviewer_jobs duplicate id"),
+            (lambda p: p["reviewer_jobs"][1].update(blind=False), "reviewer_jobs blind/role"),
+            (lambda p: p["reviewer_jobs"][0].update(role="blind"), "reviewer_jobs blind/role"),
+            (lambda p: p["reviewer_jobs"][0].update(id=""), "reviewer_jobs"),
+            (lambda p: p.update(reviewer_jobs=[]), "reviewer_jobs"),
+            (lambda p: p.update(source_bindings=[]), "source_bindings"),
+            (lambda p: p["source_bindings"][0].update(capability=""), "source_bindings"),
+            (lambda p: lane(p).update(default_cap=0), "lane full default_cap"),
+            (lambda p: lane(p).update(rework_cap_default=-1), "lane full rework_cap_default"),
+            (lambda p: lane(p).update(default_cap=True), "lane full default_cap"),
+        ):
+            with self.subTest(error=error):
+                policy = make_policy()
+                mutate(policy)
+                self.assertEqual(policy_shape_errors(restamp(policy)), [error])
 
 
 if __name__ == "__main__":
