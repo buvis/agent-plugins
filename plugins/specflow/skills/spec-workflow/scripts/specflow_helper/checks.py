@@ -703,7 +703,7 @@ RECEIPT_LABELS = (
     "Next action:",
     "Verdict:",
 )
-RECEIPT_VERDICTS = ("COMPLETE", "AWAITING_DECISION", "INCOMPLETE")
+RECEIPT_VERDICT = re.compile(r"(COMPLETE|AWAITING_DECISION|INCOMPLETE)(\s*\([^()]*\))?")
 
 
 def last_receipt(log_text: str) -> list[str] | None:
@@ -749,13 +749,13 @@ def conversion_receipt(ctx: Context) -> list[Finding]:
             found("the last conversion receipt lacks " + ", ".join(missing), fix)
         )
     verdicts = [
-        line.removeprefix("Verdict:").split()
+        line.removeprefix("Verdict:").strip()
         for line in lines
         if line.startswith("Verdict:")
     ]
-    if verdicts and (verdicts[-1][:1] or [""])[0] not in RECEIPT_VERDICTS:
+    if verdicts and not RECEIPT_VERDICT.fullmatch(verdicts[-1]):
         fix = "Append a new receipt block whose verdict is one of the three."
-        message = f"the verdict is not COMPLETE, AWAITING_DECISION, or INCOMPLETE: {' '.join(verdicts[-1])}"
+        message = f"the verdict is not COMPLETE, AWAITING_DECISION, or INCOMPLETE: {verdicts[-1]}"
         findings.append(found(message, fix))
     return findings
 

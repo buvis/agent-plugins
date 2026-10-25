@@ -663,6 +663,43 @@ class ConversionReceiptTest(ChecksTest):
         )
         self.assert_seeded(spec, "conversion-receipt")
 
+    def test_the_unfilled_verdict_template_line_is_an_error(self) -> None:
+        spec = self.spec_and_log(
+            RECEIPT.replace(
+                "AWAITING_DECISION (the tasks gate)",
+                "COMPLETE | AWAITING_DECISION | INCOMPLETE",
+            )
+        )
+        self.assert_seeded(spec, "conversion-receipt")
+
+    def test_a_verdict_followed_by_free_text_is_an_error(self) -> None:
+        spec = self.spec_and_log(
+            RECEIPT.replace(
+                "AWAITING_DECISION (the tasks gate)",
+                "COMPLETE, but the design is unreviewed",
+            )
+        )
+        self.assert_seeded(spec, "conversion-receipt")
+
+    def test_a_sources_path_outside_the_repo_draws_no_receipt_finding(self) -> None:
+        outside = self.tmp / "outside"
+        outside.mkdir()
+        broken = RECEIPT.replace("AWAITING_DECISION (the tasks gate)", "DONE")
+        (outside / "qa-log.md").write_text(broken, encoding="utf-8")
+        for value in (str(outside), "../outside"):
+            with self.subTest(value=value):
+                spec = self.copy("00101-feature-sample", f"00101-{len(value)}")
+                self.edit(
+                    spec / "requirements.md",
+                    "Sources: docs/dev/project-management/intake/processed/00101-import-retries",
+                    f"Sources: {value}",
+                )
+                self.assertNotIn("conversion-receipt", self.rules(spec))
+
+    def test_a_sources_item_with_no_qa_log_draws_no_finding(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.assertNotIn("conversion-receipt", self.rules(spec))
+
     def test_a_complete_receipt_after_a_broken_one_passes(self) -> None:
         broken = RECEIPT.replace("- Verdict: AWAITING_DECISION (the tasks gate)\n", "")
         spec = self.spec_and_log(broken + RECEIPT.replace("2026-10-18", "2026-10-19"))

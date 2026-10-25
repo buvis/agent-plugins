@@ -29,7 +29,7 @@ class BoundaryTests(unittest.TestCase):
                     self.fail(f"{name}: not valid JSON: {error}")
                 self.assertNotEqual(manifest.get("name"), "specflow")
 
-    def test_convert_prd_ships_and_no_cnv_rule_names_a_maintainer_path(self) -> None:
+    def test_convert_prd_ships_and_every_cnv_rule_points_inside_it(self) -> None:
         skill = PACKAGE / "skills/convert-prd"
         tracked = subprocess.run(
             ["git", "-C", str(ROOT), "ls-files", "-z", "--", str(skill)],
