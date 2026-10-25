@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-062",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)restat|repeat"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is REQ-001.4 raised as a non-blocking restatement finding whose options trim or replace it with a pointer, cutting no acceptance criterion?"
+    }
+  ]
+}

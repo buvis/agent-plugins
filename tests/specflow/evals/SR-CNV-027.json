@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-027",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)paused|waits|waiting",
+      "turn": 3
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the handoff report completion, evidence, approvals, open questions, and the next action as separate lines, say the work is paused on the named gate, and keep the question in the visible reply?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-048",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item the overengineering check (the hosted relay for a few orders a day) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-027",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the problem-framing item check the traceability of design elements to REQ IDs and the outcome served, without re-litigating the requirements?"
+    }
+  ]
+}

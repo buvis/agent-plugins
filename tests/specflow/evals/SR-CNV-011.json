@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-011",
+  "session": "convert-prd-adopted",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00005-csv-export/tasks.md",
+      "pattern": "\\[x\\]"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the PRD's task IDs and checked boxes preserved in the adopted plan, and would an existing type marker precede any inference from file names?"
+    }
+  ]
+}

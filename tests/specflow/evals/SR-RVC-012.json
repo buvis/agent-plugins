@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-012",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the review run with only a one-question-at-a-time dialogue and edits to requirements.md, requiring no isolated sub-task, named model, or command runtime?"
+    }
+  ]
+}

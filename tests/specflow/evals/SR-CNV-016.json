@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-016",
+  "session": "convert-prd-adopted",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Would an adopted bugfix keep Kiro's exact Current Behavior (Defect) heading with a nearby note that the description is historical?"
+    }
+  ]
+}

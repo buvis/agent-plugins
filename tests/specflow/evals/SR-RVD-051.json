@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-051",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)src/webhooks|src/orders|src/admin"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the design-versus-reality check run against the code the design names (the key already in src/webhooks.py, create_order in src/orders.py), citing what was read?"
+    }
+  ]
+}

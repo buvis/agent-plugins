@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-058",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "file_read",
+      "path": "README.md",
+      "before_turn": 2
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does lens H read the README and the repository's instruction files, the history, and the complete specs as goal sources?"
+    }
+  ]
+}

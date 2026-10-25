@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-064",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-csv-export/qa-log.md",
+      "pattern": "## Review: requirements\\.md \\d{4}-\\d{2}-\\d{2}"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-csv-export/qa-log.md",
+      "pattern": "- \\d+ \\| (Blocking|Non-blocking|Question) \\| [^|\\n]+ \\| [^|\\n]+ \\| (resolved|disputed|deferred|open)"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is one minutes line appended right after each decision, with the severity, title, decision, and status?"
+    }
+  ]
+}

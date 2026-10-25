@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-015",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)22:00|nightly"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the contradiction between REQ-001.2 (within one minute) and REQ-003.1 (one email at 22:00) raised as a blocking finding citing both?"
+    }
+  ]
+}

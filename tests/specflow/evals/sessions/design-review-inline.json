@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "name": "design-review-inline",
+  "fixture": "sessions/design-review",
+  "turns": [
+    {"developer": "Review the design for 00001-order-webhooks. This host cannot run an isolated reviewer, so do the pre-pass inline.", "expects": "\\?\\s*$"},
+    {"developer": "Stop here and recap."}
+  ]
+}

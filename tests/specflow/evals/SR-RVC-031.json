@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-031",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00001-csv-export/qa-log.md",
+      "pattern": "disputed:"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the dispute of turn 3 recorded with the developer's stated reason, and would a blocker dropped without a reason be counted as open in the recap?"
+    }
+  ]
+}

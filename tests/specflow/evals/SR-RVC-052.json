@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-052",
+  "session": "review-specs-report-only",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "After writing the cross-spec report, does the chat hold three sentences and the verdict, with the findings and the map left to the report?"
+    }
+  ]
+}

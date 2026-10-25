@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-010",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "file_unchanged",
+      "path": "docs/prds/00012-order-tags.md"
+    },
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specflow/intake/processed/00012-order-tags/idea.md",
+      "pattern": "docs/prds/00012-order-tags\\.md"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the native PRD left in place under docs/prds/, its text copied into the intake item, and both paths recorded as provenance?"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-005",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)domain|maturity"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent name the domain (a web service with a hosted relay) and the maturity (a draft for approval) before the pre-pass?"
+    }
+  ]
+}

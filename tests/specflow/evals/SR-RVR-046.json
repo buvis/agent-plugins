@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-046",
+  "session": "requirements-review-bugfix",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)seems slow"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is clause 1.2 ('sometimes seems slow') raised as a blocking guess the reproduction does not show, with options that ask for the observed behavior or drop the clause, and none that writes an observation the developer did not give?"
+    }
+  ]
+}

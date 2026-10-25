@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-006",
+  "session": "design-review-quick",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is the quick spec reviewed at Tier 1, with the tier raised and the profile proposal drawn only by a trigger that forces standard, while a Tier 2 condition alone (such as a write to an existing store) leaves it at Tier 1?"
+    }
+  ]
+}

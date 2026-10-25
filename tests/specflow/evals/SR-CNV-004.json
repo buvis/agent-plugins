@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-004",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specs/00012-order-tags/.specflow.json"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the hashes, the state, and the validation taken from validate_spec.py, with no improvised validator, no invented workflow version, and no approval claimed that the runtime did not record?"
+    }
+  ]
+}

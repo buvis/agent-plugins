@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-056",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)merchant"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is 'merchant' in REQ-003 raised as terminology drift against 'shop owner' used everywhere else?"
+    }
+  ]
+}

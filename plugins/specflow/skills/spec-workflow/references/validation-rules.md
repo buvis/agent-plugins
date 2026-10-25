@@ -18,6 +18,7 @@ Structural rules: the files alone prove each one, so the helper enforces it and 
 - [SR-VAL-009] The artifacts the phase needs exist and read as UTF-8 text, and an intake item holds its `idea.md`. (`required-files`, error)
 - [SR-VAL-019] An intake item's sketch has one `spike/mockups/<screen>.html` per screen of `spike/journey.md` and no `.html` file that belongs to no screen; each edge's source page links its target's file; and every line of a journey flowchart is a header, a node, an edge, or a `%%` comment. (`sketch-screens`, error)
 - [SR-VAL-020] Two or more task `Location:` paths that the design's placement section does not name get a warning, which closes no gate. (`placement-drift`, warning)
+- [SR-VAL-026] A template design keeps every section heading of `templates/design.md`, a `Not applicable:` carries a non-empty reason, and `## Requirement traceability` cites only criteria its spec holds; a Kiro-native design keeps its own headings and is not checked. (`design-sections`, error)
 
 A bugfix spec keeps Kiro's shape, and five checks, each an error, hold it there:
 
@@ -41,3 +42,5 @@ A bugfix spec keeps Kiro's shape, and five checks, each an error, hold it there:
 - [SR-VAL-016] `.specflow.json` passes the state schema of its version, so each approval records its time, its hash, and the commit when one exists. (`state-valid`, error)
 - [SR-VAL-017] The status output names each unfinished or invalid prerequisite as an implementation blocker, with its reference and reason, and offers no next task while one remains. (helper tests)
 - [SR-VAL-018] The status output reports a change to the design's placement files as an advisory warning that closes no gate. (helper tests)
+
+A converted spec has one more check, `conversion-receipt`, defined in the conversion skill (`../../convert-prd/references/conversion.md`, SR-CNV-026).

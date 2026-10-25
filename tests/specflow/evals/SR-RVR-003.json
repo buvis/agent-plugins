@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-003",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)reviewing `?00001-stock-alerts",
+      "turn": 1
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the first message confirm the spec under review with a 'wrong spec, say so' line and go on without waiting?"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-041",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "Finding \\d+ of \\d+:"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "Impact if unresolved:"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does every card follow the anchor: lens, severity, location, a body of about three sentences, the impact line, the options, and No edit?"
+    }
+  ]
+}

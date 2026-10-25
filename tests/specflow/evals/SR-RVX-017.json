@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-017",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)00009"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the dangling citation 00009-retention in 00002's requirements raised as a blocking finding, with the forward-reference and link-ok: exemptions applied where they hold?"
+    }
+  ]
+}

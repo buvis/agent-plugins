@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-013",
+  "session": "convert-prd-adopted",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)3f2a9c1"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent recover the implementation commit, the checked tasks, and the test file as facts with where each was read, and avoid claiming a fresh test run it did not make?"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-045",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)overlap|duplicate"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the overlap between 00001's range export (REQ-002) and 00002's monthly export (REQ-001) raised under lens E?"
+    }
+  ]
+}

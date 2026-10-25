@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-005",
+  "session": "convert-prd-adopted",
+  "assertions": [
+    {
+      "kind": "file_unchanged",
+      "path": "src/export.py"
+    },
+    {
+      "kind": "file_unchanged",
+      "path": "tests/test_export.py"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the adoption start no implementation, install nothing, commit nothing, push nothing, and edit no other project's specs, with only evidence reads during discovery?"
+    }
+  ]
+}

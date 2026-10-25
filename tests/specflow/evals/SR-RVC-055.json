@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-055",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)30 days|last 30"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the 30-day window of the non-functional requirement raised against the single-day scope as two values for one name?"
+    }
+  ]
+}

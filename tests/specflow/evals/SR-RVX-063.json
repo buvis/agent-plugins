@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-063",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)NO-GO|waived"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the set verdict NO-GO while a blocking finding is open, is the waiver of turn 3 recorded with its reason in the decisions-applied section so that finding no longer forces NO-GO, and is a NO-GO never softened?"
+    }
+  ]
+}

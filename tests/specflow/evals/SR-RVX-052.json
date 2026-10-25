@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-052",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does lens G look for producer and consumer holes across the specs, such as the archive/ folder nobody creates?"
+    }
+  ]
+}

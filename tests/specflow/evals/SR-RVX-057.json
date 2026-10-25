@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-057",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)intake item"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is a strategic gap noted with the suggestion of a new intake item, with no spec invented?"
+    }
+  ]
+}

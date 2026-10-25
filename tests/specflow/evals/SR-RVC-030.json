@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-030",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "recommended_option_first"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is option 1 the option with the best ratio of stakes addressed to reversibility cost, the more reversible one on a tie, then the simpler one?"
+    }
+  ]
+}

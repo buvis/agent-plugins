@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-020",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Before the first task, does the agent extract the capabilities (one per requirement ID), the module structure from the placement rows, the dependency graph, the phases, and the reuse patterns, and plan from that extraction?"
+    }
+  ]
+}

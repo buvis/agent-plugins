@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-057",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "Spec: "
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "Lens: [A-H]"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does each cross-spec card carry Spec and Lens lines after the title and an impact line after the body, naming the failure prevented for a blocking finding?"
+    }
+  ]
+}

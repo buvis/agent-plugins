@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-084",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent apply the persona walkthrough, every applicable persona at Tier 3, and cite the design where it yields a finding?"
+    }
+  ]
+}

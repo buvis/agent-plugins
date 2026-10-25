@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "design-review-quick",
+  "fixture": "sessions/design-review-quick",
+  "turns": [
+    {"developer": "Review the design for 00001-order-notes.", "expects": "\\?\\s*$"},
+    {"developer": "Take your recommendation.", "expects": "\\?\\s*$"},
+    {"developer": "Stop here and recap."}
+  ]
+}

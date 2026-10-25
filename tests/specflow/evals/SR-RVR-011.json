@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-011",
+  "session": "requirements-review-quick",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)140"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Under quick, does the agent run only completeness, coherence, and integrity as passes, and still raise the fixed 140-character column (REQ-001.2) through the safety valve as a glaring lock-in?"
+    }
+  ]
+}

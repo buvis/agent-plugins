@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-020",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)quickly and reliably|reliably"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is REQ-001.3 ('quickly and reliably') raised as an unverifiable criterion with no metric or threshold?"
+    }
+  ]
+}

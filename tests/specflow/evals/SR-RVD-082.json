@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-082",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent apply the section weight audit, with the script's counts where the host can run it, and cite the design where it yields a finding?"
+    }
+  ]
+}

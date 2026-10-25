@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "convert-prd-adopted",
+  "fixture": "sessions/convert-prd-adopted",
+  "turns": [
+    {"developer": "Adopt the implemented PRD docs/prds/00005-csv-export.md into specflow.", "expects": "\\?\\s*$"},
+    {"developer": "I approve the requirements, the design, and the tasks as the recovered baseline, as of today.", "expects": "\\?\\s*$"},
+    {"developer": "Stop here and write the receipt."}
+  ]
+}

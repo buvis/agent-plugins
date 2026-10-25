@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-038",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does lens C check the EARS form of the criteria and that success measures are numbers or observable behaviour?"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-002",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)reviewing `?00001-order-webhooks",
+      "turn": 1
+    },
+    {
+      "kind": "message_lacks",
+      "pattern": "(?i)absolute path"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the spec resolved from its name and confirmed in the first message, with no file path asked for?"
+    }
+  ]
+}

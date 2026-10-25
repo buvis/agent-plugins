@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-026",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)Solid|Concern|Missing|Not applicable"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does each checklist item get a verdict with cited reasoning, and each Not applicable a one-line reason?"
+    }
+  ]
+}

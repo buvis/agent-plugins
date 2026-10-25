@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-039",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "Severity: Question"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are genuine ambiguities from the confusion notes raised as questions?"
+    }
+  ]
+}

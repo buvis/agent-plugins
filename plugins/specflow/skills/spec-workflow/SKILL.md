@@ -33,12 +33,13 @@ The developer speaks in their own words; invocation syntax differs per host and 
 | The developer says | Intent |
 |---|---|
 | "Create a spec for X", "Fix bug X" | `create`: intake, which recommends spec type, workflow order, and profile |
+| "Convert PRD X", "Adopt PRD X", "Graduate PRD X" | `convert`: the `convert-prd` skill of this package |
 | "Spike X", "Prototype this idea" | `spike`: the spike path in `references/phases/intake.md` |
 | "Continue spec X" | `continue`: resume at the derived phase |
 | "What's the status of X?" | `status`: steps 1 to 4 above, then stop |
 | "Review the requirements for X" | `review requirements` |
 | "Review the design for X" | `review design` |
-| "Are my specs ready?" | `review specs` |
+| "Are my specs ready?" | `review specs`: the cross-spec readiness review of `references/review/cross-spec.md` |
 | "Put X on hold", "Abandon X", "Resume X" | `hold` |
 | "Implement spec X" | `implement` |
 | "Verify spec X" | `verify` |
@@ -46,6 +47,7 @@ The developer speaks in their own words; invocation syntax differs per host and 
 - [SR-SKL-001] A request to review a spec's requirements runs the `review requirements` intent inside this skill: the requirements review of the spec named, through the review references. There is no separate review skill to call.
 - [SR-SKL-002] A request to review a spec's design runs the `review design` intent inside this skill: the design review of the spec named, with each accepted edit applied to `design.md` before the next finding.
 - [SR-SKL-003] A question whether the specs are ready, before implementation, runs the `review specs` intent: a cross-spec readiness review of the specs not yet complete in the specs folder. It hands off to no other tool.
+- [SR-SKL-017] A request to convert, adopt, or graduate a PRD or a legacy intake item runs the `convert-prd` skill of this package, never this skill's `create` intent; that skill re-enters this one at the requirements step.
 - [SR-SKL-004] specflow has no unattended mode. Every gate waits for the developer: never record an approval, start the next phase, or chain one intent into the next on your own.
 
 When the spec named does not exist, say so and offer to create it. Never pick another folder or spec silently.

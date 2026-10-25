@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-028",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)own spec|separate spec|new spec"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is dark mode (REQ-004) raised as a separate feature whose resolution is its own spec?"
+    }
+  ]
+}

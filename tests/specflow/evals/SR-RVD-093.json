@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-093",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "At Tier 3, does the agent apply Aristotle's mean, naming both extremes of each major choice, and cite the design where it yields a finding?"
+    }
+  ]
+}

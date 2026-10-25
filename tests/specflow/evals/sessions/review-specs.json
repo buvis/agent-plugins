@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "name": "review-specs",
+  "fixture": "sessions/review-specs",
+  "turns": [
+    {"developer": "Are my specs ready?", "expects": "\\?\\s*$"},
+    {"developer": "1", "expects": "\\?\\s*$"},
+    {"developer": "No edit. I waive it: the archive spec folds into the export spec later, and I accept the overlap until then.", "expects": "\\?\\s*$"},
+    {"developer": "Take your recommendation.", "expects": "\\?\\s*$"},
+    {"developer": "Stop here and recap."}
+  ]
+}

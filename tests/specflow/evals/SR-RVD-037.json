@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-037",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item observability (no metrics or logs for deliveries) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

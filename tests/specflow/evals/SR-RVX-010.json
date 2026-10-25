@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-010",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does every blocking finding name the mechanism it prevents (a gate that cannot pass, a resume that fails on another host, an implementation that cannot start, a goal reversed), and is a finding with no mechanism kept non-blocking?"
+    }
+  ]
+}

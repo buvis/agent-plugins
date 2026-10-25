@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "name": "requirements-review-bugfix",
+  "fixture": "sessions/requirements-review-bugfix",
+  "turns": [
+    {"developer": "Review the bugfix requirements for 00001-discount-total.", "expects": "\\?\\s*$"},
+    {"developer": "1", "expects": "\\?\\s*$"},
+    {"developer": "1", "expects": "\\?\\s*$"},
+    {"developer": "1"},
+    {"developer": "Stop here. Recap and show the approval summary."}
+  ]
+}

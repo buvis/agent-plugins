@@ -2,13 +2,13 @@
 
 ## Verdict
 
-<One line: the specs fit together, or what must change first.>
+<GO, or NO-GO with the shortest list of actions that reaches GO.>
 
 ## Spec map
 
-| Spec | Phase | Depends on | Touches |
-|---|---|---|---|
-| <NNNNN-title> | <phase> | <specs> | <areas> |
+| Spec | Profile | Phase | Approvals | Depends on | Touches | Verdict |
+|---|---|---|---|---|---|---|
+| <NNNNN-title> | <quick or standard> | <phase> | <each artifact's status> | <specs, stated and inferred> | <subsystems and files> | <READY, FIX, RESHAPE, or NOT READY with its reason> |
 
 ## Findings
 

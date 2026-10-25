@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-007",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "file_exists",
+      "path": ".kiro/specs/00012-order-tags/.config.kiro"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent use the workspace defaults, create no .kiro/specs link, and inspect the dotfiles?"
+    }
+  ]
+}

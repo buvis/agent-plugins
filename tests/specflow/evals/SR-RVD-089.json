@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-089",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent apply the asymmetric risk audit (the vendor bet), and cite the design where it yields a finding?"
+    }
+  ]
+}

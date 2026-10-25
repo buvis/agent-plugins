@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-097",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "At Tier 3, does the agent apply the Buddhist tetralemma on the hosted-relay-or-direct-posting binary, and cite the design where it yields a finding?"
+    }
+  ]
+}

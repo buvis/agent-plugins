@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-081",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)T-001"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)T-002"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)T-004|T-005"
+    },
+    {
+      "kind": "message_lacks",
+      "pattern": "Finding \\d+ of \\d+:[^\\n]*\\bT-003\\b"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are T-001 (bundled outcomes), T-002 (an edit to src/orders.py outside its slice that no dependency covers), and the T-004/T-005 split (T-004 cannot pass its check without T-005) each cited with the failing sizing check, while the coupled T-003 is not flagged for its three files?"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "name": "design-review",
+  "fixture": "sessions/design-review",
+  "turns": [
+    {"developer": "Review the design for 00001-order-webhooks.", "expects": "\\?\\s*$"},
+    {"developer": "1", "expects": "\\?\\s*$"},
+    {"developer": "1", "expects": "\\?\\s*$"},
+    {"developer": "Approve the design.", "expects": "\\?\\s*$"},
+    {"developer": "Stop here and recap."}
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-043",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item testability (unit tests with a fake relay only) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

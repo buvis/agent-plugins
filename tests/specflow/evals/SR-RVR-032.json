@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-032",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)CSV"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the forever-appended CSV history (REQ-002.1) raised as a one-way door at its origin?"
+    }
+  ]
+}

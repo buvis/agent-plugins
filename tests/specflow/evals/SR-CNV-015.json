@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-015",
+  "session": "convert-prd-adopted",
+  "assertions": [
+    {
+      "kind": "file_matches",
+      "path": ".kiro/specs/00005-csv-export/.specflow.json",
+      "pattern": "\"approvedAt\": \"20"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the approvals recorded only after the developer's explicit answer in turn 2, dated when received, each against the current content, with no earlier time invented?"
+    }
+  ]
+}

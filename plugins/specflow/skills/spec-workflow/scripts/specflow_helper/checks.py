@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 from collections.abc import Callable
@@ -686,6 +687,86 @@ def sources_line(ctx: Context) -> list[Finding]:
         fix = "Name this spec's own intake item, or renumber the newer of the two."
         return [found(message, fix)]
     return []
+
+
+RECEIPT_HEADING = re.compile(r"^## Conversion receipt\b")
+RECEIPT_LABELS = (
+    "Source:",
+    "Destination:",
+    "Number, type, folders:",
+    "Obligation coverage:",
+    "Decisions and public-behavior changes:",
+    "Implementation evidence:",
+    "Gates:",
+    "Review outcomes:",
+    "Checks run and limits:",
+    "Outstanding questions:",
+    "Next action:",
+    "Verdict:",
+)
+RECEIPT_VERDICT = re.compile(
+    r"(COMPLETE|AWAITING_DECISION|INCOMPLETE)(\s*\([^()]*\))?\.?"
+)
+
+
+def last_receipt(log_text: str) -> list[str] | None:
+    """The lines of the last ## Conversion receipt block, outside fences; None when there is none."""
+    found: list[str] | None = None
+    current: list[str] | None = None
+    for _, line in prose(log_text):
+        if line.startswith("## "):
+            current = [] if RECEIPT_HEADING.match(line) else None
+            found = current if current is not None else found
+        elif current is not None:
+            current.append(line)
+    return found
+
+
+@check("conversion-receipt", SPEC_PHASES)
+def conversion_receipt(ctx: Context) -> list[Finding]:
+    """The last conversion receipt of the intake log holds every label and one of the three verdicts."""
+    path = artifact_paths(ctx.spec_dir, ctx.state)["requirements"]
+    text = read_text(path)
+    value = sources_value(text, bugfix=path.name == "bugfix.md") if text else None
+    if not value:
+        return []
+    item = PurePosixPath(value.split(",")[0].strip().strip("`").rstrip("/"))
+    if item.is_absolute() or ".." in item.parts:
+        return []  # portable-links and sources-line report the path itself
+    log = ctx.repo / item / "qa-log.md"
+    # realpath, not resolve(): a link loop raises RuntimeError on Python 3.10.
+    if not Path(os.path.realpath(log)).is_relative_to(os.path.realpath(ctx.repo)):
+        return []  # a link out of the repository is never read
+    log_text = read_text(log)
+    block = last_receipt(log_text) if log_text is not None else None
+    if block is None:
+        return []
+    found = partial(error, ctx, log, "conversion-receipt")
+    lines = [line.strip().removeprefix("- ").strip() for line in block]
+    missing = [
+        label
+        for label in RECEIPT_LABELS
+        if not any(line.startswith(label) for line in lines)
+    ]
+    findings = []
+    if missing:
+        fix = "Append a new receipt block holding every label; the last block counts."
+        findings.append(
+            found("the last conversion receipt lacks " + ", ".join(missing), fix)
+        )
+    verdicts = [
+        line.removeprefix("Verdict:").strip()
+        for line in lines
+        if line.startswith("Verdict:")
+    ]
+    if verdicts and not RECEIPT_VERDICT.fullmatch(verdicts[-1]):
+        fix = (
+            "Append a new receipt block whose verdict is one of the three, with an"
+            " optional parenthetical note and full stop, as in COMPLETE (short note)."
+        )
+        message = f"the verdict is not COMPLETE, AWAITING_DECISION, or INCOMPLETE: {verdicts[-1]}"
+        findings.append(found(message, fix))
+    return findings
 
 
 def selected(phases: frozenset[str], phase: str | None) -> bool:

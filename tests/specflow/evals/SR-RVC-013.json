@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-013",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_lacks",
+      "pattern": "~/\\.agents|/Users/"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the review references loaded by their paths relative to the skill folder, with no home or absolute path and no guidance read outside the package?"
+    }
+  ]
+}

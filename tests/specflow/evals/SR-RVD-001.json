@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-001",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "file_read",
+      "path": ".kiro/specs/00001-order-webhooks/requirements.md",
+      "before_turn": 2
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is design.md the target, with the approved requirements, the Q&A log, and the code the design names read as context?"
+    }
+  ]
+}

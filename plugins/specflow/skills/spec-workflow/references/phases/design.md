@@ -25,6 +25,8 @@ Load this reference to draft or revise `design.md`, with `references/aws/design.
 - [SR-DSN-007] `## Risks and edge cases` lists each technical risk with its mitigation.
 - [SR-DSN-011] Each risk line has impact, likelihood, mitigation, and fallback, and the section adds two or three likely next changes, with what limits each one.
 - [SR-DSN-019] `## Requirement traceability` maps each material design element and test to the criterion IDs it covers, in a column headed `Criteria`. A Design-First design reads `Not applicable: Design-First` there, since its requirements name the design elements instead.
+- [SR-DSN-022] The design is `design.md` in the spec folder, written from `templates/design.md`; no design file is written anywhere else, and a design note the developer offers elsewhere is folded into it.
+- [SR-DSN-023] `## Data and control flow` says how data moves through the change and who calls whom, in order, from the entry point to the stored or returned result; a diagram is optional, the prose is not.
 
 ## Bugfix designs
 
@@ -33,6 +35,6 @@ Load this reference to draft or revise `design.md`, with `references/aws/design.
 
 ## Approval
 
-Run `validate_spec.py validate <spec-dir> --phase design` and fix what it reports. When the review references are installed, hand the draft to the design pre-pass and the interactive design review before the approval summary; a repair edits this design and reopens its gate, and no copy of the design is made. Review minutes go to the intake item's `qa-log.md`.
+Run `validate_spec.py validate <spec-dir> --phase design` and fix what it reports. Then hand the draft to the design review before the approval summary: the pre-pass of `references/review/design/pre-pass.md` first, then the interactive walkthrough of `references/review/core.md` with the tier's files in `references/review/design/` (`triage.md` picks them). A repair edits this design and reopens its gate, and no copy of the design is made. Review minutes go to the intake item's `qa-log.md`.
 
 - [SR-DSN-013] At the design approval in a Git repository, pass the explicit file paths of `## Module placement` (or the matching placement section of a native or bugfix design) to `code-baseline`, and record the result as `approvedCode`, by step 3 of the approval procedure. On resume and before implementation, report the code-drift warnings `status` gives, path by path; they close no gate. Never refresh the baseline without a new design approval.

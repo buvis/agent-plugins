@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-057",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)metrics|logs|observab"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is cardinal sin 5 of the design (no metrics or logs for deliveries) raised as a blocker, before any other severity, whatever the design's justification?"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-007",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)CSV"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the review stay with the WHAT, flagging the forever-CSV history (REQ-002.1) as a requirement-level lock-in while raising no architecture or failure-mode finding?"
+    }
+  ]
+}

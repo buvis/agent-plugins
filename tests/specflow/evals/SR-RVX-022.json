@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-022",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is an ambiguous acceptance criterion named as the verification-dispute mechanism?"
+    }
+  ]
+}

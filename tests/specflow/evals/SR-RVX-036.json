@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-036",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)archive|import"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is the archive import in T-001, which no requirement motivates (importing is out of scope), raised under lens C?"
+    }
+  ]
+}

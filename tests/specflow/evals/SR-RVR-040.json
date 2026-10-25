@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-040",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)raised",
+      "turn": 6
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the recap feed the approval summary, naming each unresolved question added and each blocking finding still open?"
+    }
+  ]
+}

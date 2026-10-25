@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-009",
+  "session": "review-specs-report-only",
+  "assertions": [
+    {
+      "kind": "message_lacks",
+      "pattern": "Finding \\d+ of \\d+"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)GO|NO-GO"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Asked for a report only, does the agent write the report and skip the walkthrough, leaving the decisions-applied section empty?"
+    }
+  ]
+}

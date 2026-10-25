@@ -1,0 +1,5 @@
+# Stress tests
+
+Loaded at Tier 2 and Tier 3.
+
+- [SR-RVD-069] Before the walkthrough, run the design through these ten scenarios in thought; any the design cannot answer becomes a finding, cited at the section that should have answered it: traffic grows tenfold overnight (what breaks first, and what the recovery costs); a critical dependency is down for four hours (the user-visible behaviour and the on-call playbook); the change is reverted in three months (what is irreversible by then, which data shapes lock us in); the team that built it leaves (can a new team operate it from the design and the code alone); a security incident requires changing behaviour today (can a fix ship in hours); a new engineer asks where the source of truth for X is (is there one clear answer); the cost doubles unexpectedly (which knob to turn, and is the knob-to-cost relation legible); a regulator or auditor asks for evidence of a control (is the audit log sufficient, tamper-evident, and queryable); a new feature needs a breaking schema change (how the system absorbs it without downtime); a noisy neighbour consumes every resource (is there isolation, throttling, or a quota).

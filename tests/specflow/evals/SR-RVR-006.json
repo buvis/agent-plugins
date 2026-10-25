@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-006",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the review run on the draft before the approval, feed its recap into the approval summary, and record no approval?"
+    }
+  ]
+}

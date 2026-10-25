@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-069",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are the ten stress scenarios run in thought, with each one the design cannot answer (the relay down for four hours, the revert in three months, the breaking schema change) becoming a finding?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-071",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent apply Socratic questioning, asking rather than asserting where the gap is uncertain, and cite the design where it yields a finding?"
+    }
+  ]
+}

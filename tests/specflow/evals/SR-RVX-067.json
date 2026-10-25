@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-067",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent touch no spec in implementation or complete, move rather than copy, ask before any folder change, and re-run validate on touched specs?"
+    }
+  ]
+}

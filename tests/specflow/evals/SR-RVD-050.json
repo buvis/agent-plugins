@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-050",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item the six-months-later test (the undocumented choice of the relay) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

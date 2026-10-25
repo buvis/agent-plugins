@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-017",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)requirements-first"
+    },
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)standard|quick"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent recommend the spec type, the profile, and the workflow order with a one-line reason each?"
+    }
+  ]
+}

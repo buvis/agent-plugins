@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-022",
+  "session": "tasks-planning",
+  "assertions": [
+    {
+      "kind": "file_lacks",
+      "path": ".kiro/specs/00002-order-export/tasks.md",
+      "pattern": "(?i)T-\\d+ (Implement the (feature|whole|export)|Wire everything)"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is every task one verifiable outcome in a bounded file slice with its own Verify line, with no 'implement the feature' or 'wire everything up' task?"
+    }
+  ]
+}

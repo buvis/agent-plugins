@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-006",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)check_links"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent run scripts/check_links.py --root <repo> --json and read its findings, warnings, and scan errors, or say the host could not run it?"
+    }
+  ]
+}

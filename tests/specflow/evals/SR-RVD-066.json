@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-066",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)HOOKRELAY_KEY|hr_live"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Is cardinal sin 14 of the design (the hardcoded relay key in the design and in src/webhooks.py) raised as a blocker, before any other severity, whatever the design's justification?"
+    }
+  ]
+}

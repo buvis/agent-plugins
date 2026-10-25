@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-077",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is sizing judged against three artifacts and three gates: 00002 too small for its ceremony, 00001 not too big?"
+    }
+  ]
+}

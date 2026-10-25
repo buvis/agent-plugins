@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-086",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent apply the counterfactual constraints, the full set at Tier 3, and cite the design where it yields a finding?"
+    }
+  ]
+}

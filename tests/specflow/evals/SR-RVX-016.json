@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVX-016",
+  "session": "review-specs",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent check that spec numbers are unique across the specs folder and the intake tree and that each spec shares its number with its intake item?"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-046",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent check the success criteria before showing the approval summary, and say which was missed and why if one was?"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "name": "review-specs-report-only",
+  "fixture": "sessions/review-specs",
+  "turns": [
+    {"developer": "Are my specs ready? Report only, no walkthrough."}
+  ]
+}

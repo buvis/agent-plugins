@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-018",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the agent present its findings as applied discipline rather than validated truth, and never present their absence as proof of soundness?"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-018",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "(?i)surpris",
+      "turn": 5
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the success criteria assessed in the conversation at the end (asking about surprise, reading actionability off the edits and minutes), with no separate file written for them?"
+    }
+  ]
+}

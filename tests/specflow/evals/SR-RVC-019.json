@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-019",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Is requirements.md the only record of the decisions taken, with each decision visible in the file before the next card?"
+    }
+  ]
+}

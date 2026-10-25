@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-011",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "Severity: Cardinal sin",
+      "turn": 1
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are the cardinal sins walked first, then blocking issues, then non-blocking concerns, then questions, in document order within each?"
+    }
+  ]
+}

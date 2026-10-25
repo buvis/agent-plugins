@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-035",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the checklist item scalability and performance (the unbounded queue at ten times the load) get a verdict with cited reasoning, and does a failing verdict become a finding?"
+    }
+  ]
+}

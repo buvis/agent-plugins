@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVC-058",
+  "session": "review-walkthrough",
+  "assertions": [
+    {
+      "kind": "one_question_per_message"
+    },
+    {
+      "kind": "recommended_option_first"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Does each card draw exactly one question, with (Recommended) on option 1 and its one-line reason?"
+    }
+  ]
+}

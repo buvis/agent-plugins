@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-025",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Are the mid-review upgrade triggers (unmentioned persistent data, hidden cross-team coordination, emerging lock-in, compliance scope, false reversibility) watched for?"
+    }
+  ]
+}

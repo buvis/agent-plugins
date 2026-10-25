@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVR-042",
+  "session": "requirements-review",
+  "assertions": [
+    {
+      "kind": "file_read",
+      "path": ".kiro/specflow/intake/processed/00001-stock-alerts/idea.md",
+      "before_turn": 2
+    },
+    {
+      "kind": "file_read",
+      "path": ".kiro/specflow/intake/processed/00001-stock-alerts/qa-log.md",
+      "before_turn": 2
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Are idea.md and the Q&A log read before judging and left unreviewed and unedited, and would an approved design in a Design-First spec be treated the same way?"
+    }
+  ]
+}

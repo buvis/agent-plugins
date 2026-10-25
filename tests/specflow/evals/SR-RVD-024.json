@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-RVD-024",
+  "session": "design-review",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Would a tier upgrade be stated in chat as 'Upgraded Tier N to Tier M because ...' and repeated in the approval summary?"
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "specId": "00007-reviews-and-conversion",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "383135c31b8241bed1df1059f789d9cef8af87e24832b4d5089aedb7bd6bb28c",
+      "approvedSha256": "383135c31b8241bed1df1059f789d9cef8af87e24832b4d5089aedb7bd6bb28c",
+      "approvedAt": "2026-10-18T20:59:46Z",
+      "approvedCommit": "15ce4fdfe713ee015c75b493038849bc2279a32a"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "1acd16eb9135358cff323239c42c1f73e94e88085ee1e92f7c4260f5f27f0542",
+      "approvedSha256": "1acd16eb9135358cff323239c42c1f73e94e88085ee1e92f7c4260f5f27f0542",
+      "approvedAt": "2026-10-18T20:59:47Z",
+      "approvedCommit": "15ce4fdfe713ee015c75b493038849bc2279a32a",
+      "upstreamSha256": {
+        "requirements": "383135c31b8241bed1df1059f789d9cef8af87e24832b4d5089aedb7bd6bb28c"
+      },
+      "approvedCode": {
+        "status": "captured",
+        "files": [
+          {
+            "path": ".github/workflows/validate.yml",
+            "sha256": "fb24ee1e14f532e7a119b3c59ac3dea24c0151713763adc87f4cebb4bcb173fb"
+          },
+          {
+            "path": "plugins/specflow/skills/convert-prd/SKILL.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/convert-prd/references/conversion.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/SKILL.md",
+            "sha256": "7d58276a7ed705aad8712799010f91032a356a18bff74a50873bf0dca8b9280a"
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/artifact-contract.md",
+            "sha256": "e2dd2562af32a940eb1370f65cd446fad7271a319e5f92fbe29a84380dcb6918"
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/phases/design.md",
+            "sha256": "6b72837fc105df19c6a07afe035218702e0bb46e96001c576152f2a455f305a2"
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/phases/tasks.md",
+            "sha256": "2576f78ab8e83fd3968348dea122effb43305b454ed0713f04e9a11f0ab7b9da"
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/review/core.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/review/cross-spec.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/review/design/anti-patterns.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/review/design/cardinal-sins.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/review/design/checklist.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/review/design/lenses.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/review/design/pre-pass.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/review/design/stress-tests.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/review/design/techniques.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/review/design/triage.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/references/review/requirements.md",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/scripts/check_links.py",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/scripts/review/adversarial_signal_scan.py",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/scripts/review/claim_ladder_scan.py",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/scripts/review/section_weight_audit.py",
+            "missing": true
+          },
+          {
+            "path": "plugins/specflow/skills/spec-workflow/scripts/specflow_helper/checks.py",
+            "sha256": "f495daf8a5ec460292ad14cecff9e6581180d2cb3fc5dcc147bd5a6f5126c9e0"
+          },
+          {
+            "path": "tests/specflow/contract/test_checks.py",
+            "sha256": "e92644bef6eaaca018f0c315753be007126ce3a182de4def9beb48f2a7526155"
+          },
+          {
+            "path": "tests/specflow/contract/test_skill.py",
+            "sha256": "b1af7d2d7993f48a5b1a35fceab7b2ec6e386c54a35e49ee7e36f363f92a808f"
+          },
+          {
+            "path": "tests/specflow/release/test_boundary.py",
+            "sha256": "f890aed9a0a83939ecbc7788b6393b7d9727d9b62106ec2dfbf4f36a787b37cf"
+          },
+          {
+            "path": "tests/specflow/review/test_adversarial_signal_scan.py",
+            "missing": true
+          },
+          {
+            "path": "tests/specflow/review/test_check_links.py",
+            "missing": true
+          },
+          {
+            "path": "tests/specflow/review/test_claim_ladder_scan.py",
+            "missing": true
+          },
+          {
+            "path": "tests/specflow/review/test_section_weight_audit.py",
+            "missing": true
+          },
+          {
+            "path": "tools/specflow/rules/inventory.json",
+            "sha256": "5d74c2ff45820659b0329d7ce136c198a6df78ddec1bdd437220092d3e495a6d"
+          }
+        ]
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "930bb872e71abfaced08a09910f2ff2f50151ec74224959306689cda06068c34",
+      "approvedSha256": "930bb872e71abfaced08a09910f2ff2f50151ec74224959306689cda06068c34",
+      "approvedAt": "2026-10-18T20:59:48Z",
+      "approvedCommit": "15ce4fdfe713ee015c75b493038849bc2279a32a",
+      "upstreamSha256": {
+        "requirements": "383135c31b8241bed1df1059f789d9cef8af87e24832b4d5089aedb7bd6bb28c",
+        "design": "1acd16eb9135358cff323239c42c1f73e94e88085ee1e92f7c4260f5f27f0542"
+      }
+    }
+  }
+}
