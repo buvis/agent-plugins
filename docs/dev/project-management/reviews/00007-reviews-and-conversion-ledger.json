@@ -1,0 +1,29 @@
+[
+  {
+    "cycle": 1,
+    "ref": "F2",
+    "disposition": "refuted",
+    "severity": "⚪",
+    "issue": "the pytest fail-first replay lists test_id_tokens_are_not_measurements as passing at base",
+    "file": "tests/specflow/review/test_claim_ladder_scan.py",
+    "reason": "a subTest artifact: under unittest the test errors in all six subtests at base, since the ported script does not exist there, and the T-077 outcome records 9 failures against the installed sources; it pins the ID-token fix; walkthrough 2026-10-25"
+  },
+  {
+    "cycle": 1,
+    "ref": "F7",
+    "disposition": "accepted",
+    "severity": "⚪",
+    "issue": "blank_fences is copied in the three design-review scans and only the first copy carries the SR-RVD-103 tag",
+    "file": "plugins/specflow/skills/spec-workflow/scripts/review/claim_ladder_scan.py",
+    "reason": "a recorded choice of the T-077 outcome: each scan runs standalone by python3 <path> with the standard library only, so the three copies stay; walkthrough 2026-10-25"
+  },
+  {
+    "cycle": 1,
+    "ref": "F16",
+    "disposition": "accepted",
+    "severity": "🟡",
+    "issue": "four touched conversion-receipt tests pass against the pre-change code",
+    "file": "tests/specflow/contract/test_checks.py",
+    "reason": "a fact, as 00006 F15: they are passing-direction cases, and the three seeded defects of the same class fail at base (T-080 outcome: 7 run, 3 failed with the check unregistered); walkthrough 2026-10-25"
+  }
+]

@@ -171,3 +171,22 @@ R13: pass
 Verdict: 18 findings
 
 Tests: 525 passed, 0 failed, 0 skipped (suite run this cycle)
+
+## Walkthrough minutes (2026-10-25)
+
+The lead ruled on each finding under the developer's standing authorization (review findings are the agent's to adjudicate; no ruling edits an approved artifact). The developer may overturn any ruling before cycle 2. The cycle's one 🟠 (F3) is fixed, so the rework is followed by an incremental cycle 2 under the autopilot bar. Before the rework, `master` (the PR 5 fix `583829c`) was merged into the branch: its SR-VAL-019 to 025 collided with T-079's SR-VAL-019 and 020, so `placement-drift` is folded into SR-VAL-020 with both sources and `design-sections` is renumbered SR-VAL-026.
+
+- F1: fix. The verdict check compares the whole value after `Verdict:` with the three verdicts, allowing only the parenthetical note the passing test uses; the unfilled template line and `COMPLETE, but ...` are reported. Queued.
+- F2: refuted (ledger entry added). The unittest replay errors in all six subtests at base; the pytest row is a `subTest` artifact.
+- F3: fix. The requirements review branches by artifact type: for `bugfix.md` the completeness lens reads Kiro's shape (`## Introduction`, `## Bug Analysis` with its three behavior sections, each with a clause, the `Sources:` line) and the integrity lens applies the clause patterns (no `SHALL` in Current Behavior, `WHEN ... THEN THE SYSTEM SHALL` in Expected, `SHALL CONTINUE TO` in Unchanged) in place of the feature shapes of SR-RVR-012 and the EARS test of SR-RVR-020; SR-RVR-037 then blocks on an unverifiable clause as written. A bugfix review session with its eval records is added. No design edit: `design.md:89` already names `bugfix.md` as the target and `design.md:129` leaves the lens calibration to the reference. Queued.
+- F4: fix. The intent table gains a `convert` row ("Convert PRD X", "Adopt PRD X", "Graduate PRD X") that names the `convert-prd` skill of this package, with a one-line routing rule and its eval record on a conversion session. Queued.
+- F5: fix. The test is renamed to what it checks (the CNV rules' file and check prefixes); the shipped-text scan is `verify_release.py`'s. Queued.
+- F6: fix. One test for the absolute or `..` `Sources:` path and one for a named `qa-log.md` that does not exist, each expecting no finding. Queued.
+- F7: accepted (ledger entry added). The T-077 outcome records the copy as a choice: each scan runs standalone by `python3 <path>`.
+- F8 and F15: fix by rule text, one reading. SR-RVD-006 follows `design.md:99` literally: a `quick` design starts at Tier 1 and rises only when a WF-003.6 trigger holds (security, architecture, a data migration, a public API, cross-component work, concurrency, an equivalence obligation, an invented algorithm, a destructive change), which also draws the profile proposal of WF-003.14; the Tier 2 and Tier 3 conditions of SR-RVD-020 and 021 decide a `standard` spec's tier. REV-001.6 then holds as written. The `design-review-quick` design writes an existing unused column (its README), no migration and no trigger, so SR-RVD-019's Tier 1 assertion stands. Neither approved artifact is edited. Queued.
+- F9: fix. SR-RVD-012 writes one minutes line (severity, title, "not walked", open) for each non-blocker or question left unwalked when the developer stops, so ART-003.11's remaining findings reach the log; the eval rubric follows. Queued.
+- F10, F11, F12, F18: fix, one test each. The containment check runs before an intake folder is indexed; traversal errors from `os.walk()` and `iterdir()` become scan errors instead of a traceback or silence; `[[...]]` spans are excluded from citation matching; the two base folders enter `seen`. Queued.
+- F13: fix. SR-RVC-013's last clause is scoped to the review's own guidance files; the artifacts, intake logs, and code a review must read are not in it. Queued.
+- F14: fix. SR-RVC-054 and its eval keep only the validation re-run on every touched spec, the report update, and the final verdict after the walkthrough; each accepted edit and approved reshape lands before the next card, as SR-RVC-016, 026, and 053 say. The same wording in `cross-spec.md`, where present, follows. Queued.
+- F16: accepted as a fact (ledger entry added). The four tests are passing-direction cases; the three seeded defects fail at base (T-080 outcome), as 00006 F15.
+- F17: fix. `phases/requirements.md` hands the validated draft to the requirements review before the approval summary, as `phases/design.md:38` does for the design. Queued.
