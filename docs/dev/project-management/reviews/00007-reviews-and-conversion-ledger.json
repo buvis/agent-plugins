@@ -25,5 +25,41 @@
     "issue": "four touched conversion-receipt tests pass against the pre-change code",
     "file": "tests/specflow/contract/test_checks.py",
     "reason": "a fact, as 00006 F15: they are passing-direction cases, and the three seeded defects of the same class fail at base (T-080 outcome: 7 run, 3 failed with the check unregistered); walkthrough 2026-10-25"
+  },
+  {
+    "cycle": 2,
+    "ref": "F13",
+    "disposition": "accepted",
+    "severity": "🟡",
+    "issue": "four touched receipt tests pass against the pre-change code (sources-outside, no-qa-log, free-text, note-and-full-stop)",
+    "file": "tests/specflow/contract/test_checks.py",
+    "reason": "a fact: the two F6 tests cover branches that existed, the free-text test is a guard the old first-token check already met, and the full-stop test fails at f7a93b4, the commit it guards (cycle-1 outcome); walkthrough 2026-10-25"
+  },
+  {
+    "cycle": 2,
+    "ref": "F14",
+    "disposition": "accepted",
+    "severity": "🟡",
+    "issue": "two touched phase-check tests pass against the pre-change code",
+    "file": "tests/specflow/contract/test_phase_checks.py",
+    "reason": "a fact: both come from master 583829c (PR 5), reviewed there, and reach this range only through the merge 0207afb; walkthrough 2026-10-25"
+  },
+  {
+    "cycle": 2,
+    "ref": "F15",
+    "disposition": "accepted",
+    "severity": "🟡",
+    "issue": "fixture test test_header_row passes against the pre-change code",
+    "file": "tests/specflow/fixtures/sessions/convert-prd-adopted/tests/test_export.py",
+    "reason": "a fact: a session fixture touched only by ruff format (4cb02f5), not a test of the helper; walkthrough 2026-10-25"
+  },
+  {
+    "cycle": 2,
+    "ref": "F16",
+    "disposition": "accepted",
+    "severity": "🟡",
+    "issue": "renamed boundary test passes against the pre-change code",
+    "file": "tests/specflow/release/test_boundary.py",
+    "reason": "a fact: the cycle-1 F5 fix renamed it without changing its body; walkthrough 2026-10-25"
   }
 ]
