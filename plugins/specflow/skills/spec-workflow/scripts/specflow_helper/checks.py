@@ -32,6 +32,7 @@ from .schema import check_content
 from .spec_text import (
     CROSS_SPEC,
     REQUIREMENT_HEADING,
+    bugfix_clauses,
     known_ids,
     prose,
     requirement_ids,
@@ -437,24 +438,26 @@ def task_structure(ctx: Context) -> list[Finding]:
 @check("requirement-coverage", TASKS_ON)
 def requirement_coverage(ctx: Context) -> list[Finding]:
     paths = artifact_paths(ctx.spec_dir, ctx.state)
-    if paths["requirements"].name == "bugfix.md":
-        return []
     requirements, tasks = read_text(paths["requirements"]), read_text(paths["tasks"])
     if requirements is None or tasks is None:
         return []
-    traced = traced_ids(tasks)
-    fix = "Reference the requirement on a task's Requirements: line."
+    bugfix = paths["requirements"].name == "bugfix.md"
     found = partial(error, ctx, paths["tasks"], "requirement-coverage")
-    held = requirement_ids(requirements)
-    missing = [
-        found(f"no task references {ident}", fix)
-        for ident in held
-        if ident not in traced
-    ]
+    held = bugfix_clauses(requirements) if bugfix else requirement_ids(requirements)
+    missing = []
+    if not bugfix:  # a bugfix clause is traced by bugfix-clause-trace instead
+        traced = traced_ids(tasks)
+        fix = "Reference the requirement on a task's Requirements: line."
+        missing = [
+            found(f"no task references {ident}", fix)
+            for ident in held
+            if ident not in traced
+        ]
     fix = "Cite a requirement and criterion this spec holds, or fix the typo."
     return missing + [
         found(
-            f"line {n}: cites {cite}, which {paths['requirements'].name} does not hold",
+            f"line {n}: cites {cite.replace(' criterion ', '.') if bugfix else cite},"
+            f" which {paths['requirements'].name} does not hold",
             fix,
         )
         for n, cite in unheld_citations(tasks, held)

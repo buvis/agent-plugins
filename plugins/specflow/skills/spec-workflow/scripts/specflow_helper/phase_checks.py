@@ -6,6 +6,7 @@ import re
 from functools import partial
 from pathlib import Path
 
+from .canonical import FENCE
 from .checks import (
     DESIGN_ON,
     SPEC_PHASES,
@@ -21,18 +22,19 @@ from .spec_text import CLAUSE, prose, sections
 from .state import artifact_paths, task_items
 
 SCREEN = r"[A-Za-z][\w-]*"
-LABEL = r"(?:\[[^\]\n]*\]|\([^)\n]*\)|\{[^}\n]*\})"
+# Every Mermaid node shape: one opening bracket, then its closing run ([x], ([x]), [[x]], ((x)), {{x}}, >x]).
+LABEL = r"(?:\[[^\]\n]*\]+|\([^)\n]*\)+|\{[^}\n]*\}+|>[^\]\n]*\])"
 END = rf"({SCREEN}){LABEL}?"
 HEADER = re.compile(r"^(?:flowchart|graph)(?:\s+(?:TB|TD|BT|RL|LR))?$")
 NODE = re.compile(rf"^{END}$")
 EDGE = re.compile(rf"^{END}\s*(?:-->\s*\|([^|\n]+)\|\s*|--\s+(.+?)\s+-->\s*){END}$")
-HREF = re.compile(r"""href\s*=\s*["'](?:\./)?([^"'#?]+)""", re.IGNORECASE)
+HREF = re.compile(r"""href\s*=\s*["']?(?:\./)?([^"'#?\s>]+)""", re.IGNORECASE)
 INDEX = "index"
 Edge = tuple[int, str, str, str]  # line, source, action, target
 CODE_SPAN = re.compile(r"`([^`\s]+)`")
-LOCATION = re.compile(r"^\s*- Location:\s*(.*)$")
+LOCATION = re.compile(r"^\s*[-*+]\s+Location:\s*(.*)$")
 # The template's ## Module placement, or a native or bugfix design's section that names files.
-PLACEMENT = re.compile(r"placement|file|fix implementation", re.IGNORECASE)
+PLACEMENT = re.compile(r"placement|\bfiles?\b|fix implementation", re.IGNORECASE)
 BUG_ANALYSIS = "## Bug Analysis"
 BUGFIX_SECTIONS = (
     ("### Current Behavior (Defect)", 1, r"WHEN .+ THEN (?i:the system) "),
@@ -65,23 +67,31 @@ BUGFIX_TASKS = (
 TRACE = re.compile(r"_Requirements:([^_]*)_")
 
 
+def flowchart(block: list[tuple[int, str]]) -> list[tuple[int, str]]:
+    """The block's lines when its first non-comment line is a flowchart header; else none."""
+    first = next((t for _, t in block if not t.startswith("%%")), "")
+    return block if HEADER.match(first) else []
+
+
 def journey_lines(text: str) -> list[tuple[int, str]]:
     """(line number, stripped line) inside each fenced mermaid flowchart or graph block."""
     lines: list[tuple[int, str]] = []
     block: list[tuple[int, str]] | None = None
+    opener = ""
     for n, raw in enumerate(text.splitlines(), start=1):
         line = raw.strip()
+        fence = FENCE.match(line)
         if block is None:
-            if line.startswith("```") and line[3:].strip() == "mermaid":
-                block = []
-        elif line.startswith("```"):
-            first = next((t for _, t in block if not t.startswith("%%")), "")
-            if HEADER.match(first):
-                lines += block
+            # A fence of backticks or tildes whose info string starts with mermaid.
+            if fence and line[fence.end() :].split()[:1] == ["mermaid"]:
+                block, opener = [], fence[1]
+        elif fence and fence[1][0] == opener[0] and len(fence[1]) >= len(opener):
+            lines += flowchart(block)
             block = None
         elif line:
             block.append((n, line))
-    return lines
+    # An unclosed fence runs to the end of the file, as Markdown renders it.
+    return lines + flowchart(block or [])
 
 
 def parse_journey(text: str) -> tuple[set[str], list[Edge], list[tuple[int, str]]]:
@@ -121,7 +131,7 @@ def sketch_screens(ctx: Context) -> list[Finding]:
         ]
     screens, edges, bad = parse_journey(text)
     files = (
-        {p.name for p in mockups.iterdir() if p.is_file()}
+        {p.name for p in mockups.iterdir() if p.is_file() and p.suffix == ".html"}
         if mockups.is_dir()
         else set()
     )
@@ -229,25 +239,24 @@ def link_findings(
 
 
 def placed_paths(design: str) -> set[str]:
-    """Inline-code paths of the design's placement sections; empty when it has none."""
+    """Paths of the design's placement sections, inline code or plain; empty when it has none."""
     return {
         path
         for heading, lines in sections(design).items()
         if PLACEMENT.search(heading)
         for line in lines
-        for path in CODE_SPAN.findall(line)
+        for path in location_paths(line)
     }
 
 
 def location_paths(value: str) -> list[str]:
-    """The paths of a Location: value: each inline-code span, then plain comma-separated tokens."""
+    """The paths of a line: each inline-code span, then each plain word that reads as a path."""
     spans = CODE_SPAN.findall(value)
-    # ponytail: a plain token is a path when it has no space and holds a slash or an extension.
-    rest = (t.strip().rstrip(".;:)") for t in CODE_SPAN.sub(",", value).split(","))
+    # ponytail: a plain word is a path when it holds a slash or ends with an extension;
+    # a trailing comma, period, or closing parenthesis (an annotation such as "(new)") is not part of it.
+    words = (w.rstrip(".,;:)") for w in CODE_SPAN.sub(" ", value).split())
     return spans + [
-        t
-        for t in rest
-        if t and not re.search(r"[\s<>`]", t) and re.search(r"/|\.\w+$", t)
+        w for w in words if not re.search(r"[<>`]", w) and re.search(r"/|\.\w+$", w)
     ]
 
 
@@ -357,7 +366,10 @@ def bugfix_clause_patterns(ctx: Context) -> list[Finding]:
         for index, clause in enumerate(clauses.get(heading, []), start=1):
             if not clause.startswith(f"{number}.{index} "):
                 message = f"clause out of sequence: {clause}"
-                fix = f"Number this section's clauses {number}.1, {number}.2, and on."
+                fix = (
+                    f"Number this section's clauses {number}.1, {number}.2, and on,"
+                    " or move the clause to the section its number names."
+                )
             elif number == 1 and SHALL.search(clause):
                 message = f"a Current Behavior clause uses SHALL: {clause}"
                 fix = (

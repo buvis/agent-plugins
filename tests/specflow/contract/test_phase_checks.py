@@ -8,6 +8,7 @@ from pathlib import Path
 
 import support
 from specflow_helper.checks import validate
+from specflow_helper.phase_checks import parse_journey
 from test_checks import ChecksTest
 
 SKETCH = support.FIXTURES / "sketch"
@@ -18,7 +19,7 @@ class SketchScreensTest(ChecksTest):
 
     def sketch(self, *overlays: str) -> Path:
         item = self.repo / ".kiro" / "specflow" / "intake" / "new" / "00107-carts"
-        shutil.copytree(SKETCH / "good", item / "spike")
+        shutil.copytree(SKETCH / "good", item / "spike", dirs_exist_ok=True)
         (item / "idea.md").write_text("Let customers save a cart.\n")
         for overlay in overlays:
             shutil.copytree(
@@ -115,7 +116,48 @@ class SketchScreensTest(ChecksTest):
                 self.assertEqual(
                     self.messages(item), ["spike/journey.md is missing or unreadable"]
                 )
-                shutil.rmtree(item)
+
+    def test_non_html_files_in_mockups_are_no_orphans(self) -> None:
+        item = self.sketch()
+        (item / "spike" / "mockups" / ".DS_Store").write_bytes(b"\x00")
+        self.assertEqual(self.messages(item), [])
+
+    def test_unquoted_href_links_the_target(self) -> None:
+        item = self.sketch()
+        self.edit(
+            item / "spike" / "mockups" / "cart.html",
+            'href="checkout.html"',
+            "href=checkout.html",
+        )
+        self.assertEqual(self.messages(item), [])
+
+    def test_every_mermaid_node_shape_is_a_screen(self) -> None:
+        text = (
+            "```mermaid\nflowchart LR\n"
+            "    a((Start)) -->|Go| b([Stadium])\n"
+            "    c[[Sub]] -- Next --> d[(Store)]\n"
+            "    e{{Hex}}\n    f>Flag]\n```\n"
+        )
+        screens, edges, bad = parse_journey(text)
+        self.assertEqual(bad, [])
+        self.assertEqual(screens, set("abcdef"))
+        self.assertEqual(len(edges), 2)
+
+    def test_every_fence_form_opens_a_flowchart(self) -> None:
+        body = "flowchart LR\n    a[Start] -->|Go| b[End]\n"
+        cases = {
+            "tildes": f"~~~mermaid\n{body}~~~\n",
+            "four backticks": f"````mermaid\n{body}````\n",
+            "info string": f'```mermaid title="Shopper"\n{body}```\n',
+            "unclosed": f"```mermaid\n{body}",
+            "other language": f"```python\n{body}```\n",
+        }
+        for case, text in cases.items():
+            with self.subTest(case=case):
+                screens, _, bad = parse_journey(text)
+                self.assertEqual(bad, [])
+                expected = set() if case == "other language" else {"a", "b"}
+                self.assertEqual(screens, expected)
 
     def test_directory_named_like_a_mockup_is_no_mockup(self) -> None:
         item = self.sketch()
@@ -204,10 +246,54 @@ class PlacementDriftTest(ChecksTest):
         self.assertEqual(self.drift(spec), [])
 
     def test_design_without_a_placement_section_is_not_checked(self) -> None:
+        for heading in ("## Layout", "## Profile"):
+            with self.subTest(heading=heading):
+                spec = self.copy("00101-feature-sample", f"00101-{heading[3:]}")
+                self.edit(spec / "design.md", "## Module placement", heading)
+                self.edit(
+                    spec / "tasks.md", "`src/import/log.py`", "`src/a.py`, `src/b.py`"
+                )
+                self.assertEqual(self.drift(spec), [])
+
+    def test_plain_placement_table_paths_count(self) -> None:
         spec = self.copy("00101-feature-sample")
-        self.edit(spec / "design.md", "## Module placement", "## Layout")
-        self.edit(spec / "tasks.md", "`src/import/log.py`", "`src/a.py`, `src/b.py`")
+        self.edit(
+            spec / "design.md", "| `src/import/retry.py` |", "| src/import/retry.py |"
+        )
+        self.edit(
+            spec / "design.md", "| `src/import/log.py` |", "| src/import/log.py |"
+        )
         self.assertEqual(self.drift(spec), [])
+        self.edit(
+            spec / "tasks.md",
+            "`src/import/log.py`",
+            "`src/import/log.py`, `src/a.py`, `src/b.py`",
+        )
+        [warning] = self.drift(spec)
+        self.assertTrue(warning["message"].endswith("src/a.py, src/b.py"), warning)
+
+    def test_annotated_plain_paths_count(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(
+            spec / "tasks.md",
+            "`src/import/log.py`",
+            "src/import/log.py (edit), src/report/rate.py (new), src/report/mail.py (new)",
+        )
+        [warning] = self.drift(spec)
+        self.assertTrue(
+            warning["message"].endswith("src/report/rate.py, src/report/mail.py"),
+            warning["message"],
+        )
+
+    def test_location_under_any_bullet_marker_counts(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(
+            spec / "tasks.md",
+            "  - Location: `src/import/log.py`",
+            "  * Location: `src/import/log.py`, `src/a.py`, `src/b.py`",
+        )
+        [warning] = self.drift(spec)
+        self.assertIn("src/a.py, src/b.py", warning["message"])
 
     def test_task_plan_defects_are_rejected(self) -> None:
         cases = {
@@ -391,6 +477,27 @@ class BugfixChecksTest(ChecksTest):
         [message] = self.messages(spec, "bugfix-clauses")
         self.assertTrue(
             message.startswith("clause does not follow the pattern: 2.1 WHEN"), message
+        )
+
+    def test_clause_numbered_for_another_section_offers_a_move(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        self.edit(spec / "bugfix.md", "2.1 WHEN", "3.1 WHEN")
+        [found] = [
+            f for f in validate(self.repo, spec) if f["rule"] == "bugfix-clauses"
+        ]
+        self.assertTrue(
+            found["message"].startswith("clause out of sequence: 3.1 WHEN"), found
+        )
+        self.assertIn("move the clause", found["fix"])
+
+    def test_citation_of_a_clause_bugfix_md_does_not_hold_fails(self) -> None:
+        spec = self.copy("00102-bugfix-sample")
+        self.edit(
+            spec / "tasks.md", "_Requirements: 2.1, 3.1_", "_Requirements: 2.1, 2.9_"
+        )
+        self.assertEqual(
+            self.messages(spec, "requirement-coverage"),
+            ["line 18: cites 2.9, which bugfix.md does not hold"],
         )
 
     def test_fewer_than_four_top_level_tasks_fails(self) -> None:
