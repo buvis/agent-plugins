@@ -173,6 +173,78 @@ class CheckLinksTest(unittest.TestCase):
         self.assertEqual(refused.returncode, 1)
         self.assertIn("is absolute", json.loads(refused.stdout)["scan_errors"][0])
 
+    def test_a_linked_intake_folder_outside_the_root_is_never_indexed(self) -> None:
+        with support.temp_folder() as folder:
+            root = copy_fixture(folder)
+            outside = Path(folder) / "outside"
+            (outside / "00042-elsewhere").mkdir(parents=True)
+            os.symlink(outside, root / "docs/pm/intake/new/group")
+            (root / "docs/pm/specs/00001-alpha/requirements.md").write_text(
+                "cites 00042-elsewhere\n", encoding="utf-8"
+            )
+            result = load().run(root)
+        self.assertEqual(targets(result), ["00042- (no spec or intake item)"])
+        self.assertEqual(len(result["scan_errors"]), 1)
+        self.assertIn(
+            "leads outside the repository, not read", result["scan_errors"][0]
+        )
+
+    @unittest.skipIf(os.geteuid() == 0, "root reads a folder without permission")
+    def test_an_unreadable_intake_item_folder_is_a_scan_error(self) -> None:
+        temp = support.temp_folder()
+        self.addCleanup(temp.cleanup)
+        root = copy_fixture(temp.name)
+        item = root / "docs/pm/intake/processed/00003-gamma"
+        item.chmod(0)
+        self.addCleanup(item.chmod, 0o755)
+        result = support.run(SCRIPT, "--root", str(root), "--json")
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertEqual(result.returncode, 1)
+        errors = json.loads(result.stdout)["scan_errors"]
+        self.assertEqual(len(errors), 1, errors)
+        self.assertIn("docs/pm/intake/processed/00003-gamma: unreadable", errors[0])
+
+    @unittest.skipIf(os.geteuid() == 0, "root reads a folder without permission")
+    def test_an_unreadable_folder_under_the_scanned_tree_is_a_scan_error(
+        self,
+    ) -> None:
+        temp = support.temp_folder()
+        self.addCleanup(temp.cleanup)
+        root = copy_fixture(temp.name)
+        spec = root / "docs/pm/specs/00003-gamma"
+        spec.chmod(0)
+        self.addCleanup(spec.chmod, 0o755)
+        result = support.run(SCRIPT, "--root", str(root), "--json")
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertEqual(result.returncode, 1)
+        errors = json.loads(result.stdout)["scan_errors"]
+        self.assertEqual(len(errors), 1, errors)
+        self.assertIn("docs/pm/specs/00003-gamma: unreadable", errors[0])
+
+    def test_a_numbered_wiki_link_is_a_warning_and_never_a_citation(self) -> None:
+        with support.temp_folder() as folder:
+            root = copy_fixture(folder)
+            (root / "docs/pm/specs/00001-alpha/requirements.md").write_text(
+                "[[00009-missing]]\n", encoding="utf-8"
+            )
+            result = support.run(SCRIPT, "--root", str(root), "--json")
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["findings"], [])
+        self.assertEqual(
+            [w["target"] for w in payload["warnings"]], ["[[00009-missing]]"]
+        )
+        self.assertEqual(result.returncode, 0)
+
+    def test_a_link_back_to_a_base_folder_scans_its_files_once(self) -> None:
+        with support.temp_folder() as folder:
+            root = copy_fixture(folder)
+            (root / "docs/pm/specs/index.md").write_text(
+                "Dangling: 00009-nope.\n", encoding="utf-8"
+            )
+            os.symlink(root / "docs/pm/specs", root / "docs/pm/intake/new/specs")
+            result = load().run(root)
+        self.assertEqual(targets(result), ["00009- (no spec or intake item)"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -61,7 +61,14 @@ def sources(root: Path, config: dict) -> tuple[list[Path], list[str]]:
     for base in (root / str(config["specsDir"]), root / str(config["root"]) / "intake"):
         if not base.is_dir():
             continue
-        for here, folders, names in os.walk(base, followlinks=True):
+        seen.add(base.resolve())
+        for here, folders, names in os.walk(
+            base,
+            onerror=lambda error: errors.append(
+                f"{Path(error.filename).relative_to(root).as_posix()}: unreadable ({error})"
+            ),
+            followlinks=True,
+        ):
             for name in sorted(folders):
                 folder = Path(here) / name
                 if outside(folder) or folder.resolve() in seen:
@@ -77,20 +84,28 @@ def sources(root: Path, config: dict) -> tuple[list[Path], list[str]]:
 # [SR-RVX-070] A citation resolves when a spec folder or an intake item under `new/` or `processed/` (in a group folder too) starts with its five digits.
 # [SR-RVX-074] The folders are listed once per run and the numbers kept, so a citation repeated a hundred times costs one directory walk.
 @functools.cache
-def resolvable_numbers(root: Path, specs_dir: str, workspace: str) -> frozenset[str]:
+def resolvable_numbers(
+    root: Path, specs_dir: str, workspace: str
+) -> tuple[frozenset[str], tuple[str, ...]]:
     numbers: set[str] = set()
-    folders = [root / specs_dir]
+    errors: list[str] = []
+    real_root = root.resolve()
     intake = root / workspace / "intake"
-    for bucket in ("new", "processed"):
-        if (intake / bucket).is_dir():
-            folders.append(intake / bucket)
-            folders += [p for p in (intake / bucket).iterdir() if p.is_dir()]
+    folders = [root / specs_dir, intake / "new", intake / "processed"]
     for folder in folders:
-        if folder.is_dir():
-            numbers |= {
-                p.name[:5] for p in folder.iterdir() if re.match(r"\d{5}-", p.name)
-            }
-    return frozenset(numbers)
+        try:
+            if not folder.is_dir() or not folder.resolve().is_relative_to(real_root):
+                continue
+            entries = list(folder.iterdir())
+            if folder.parent == intake:
+                folders += [p for p in entries if p.is_dir()]
+        except OSError as error:
+            errors.append(
+                f"{folder.relative_to(root).as_posix()}: unreadable ({error})"
+            )
+            continue
+        numbers |= {p.name[:5] for p in entries if re.match(r"\d{5}-", p.name)}
+    return frozenset(numbers), tuple(errors)
 
 
 def scan_file(
@@ -106,8 +121,9 @@ def scan_file(
     for number, line in enumerate(lines, start=1):
         if WAIVER in line:
             continue
-        for match in CITATION.finditer(line):
-            token = line[match.start() :].split()[0].rstrip(".,;:!?)`")
+        cited = WIKI_LINK.sub(lambda wiki: " " * len(wiki[0]), line)
+        for match in CITATION.finditer(cited):
+            token = cited[match.start() :].split()[0].rstrip(".,;:!?)`")
             if PLACEHOLDER.search(token):
                 continue
             if match[1] not in numbers:
@@ -146,7 +162,10 @@ def run(root: Path) -> dict:
         return result
     files, errors = sources(root, config)
     result["scan_errors"] += errors
-    numbers = resolvable_numbers(root, str(config["specsDir"]), str(config["root"]))
+    numbers, errors = resolvable_numbers(
+        root, str(config["specsDir"]), str(config["root"])
+    )
+    result["scan_errors"] += [e for e in errors if e not in result["scan_errors"]]
     for path in files:
         findings, warnings, errors = scan_file(path, root, numbers)
         result["findings"] += findings
