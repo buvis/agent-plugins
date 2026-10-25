@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-017",
+  "session": "convert-prd-new",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Asked to convert docs/prds/00012-order-tags.md into specflow, does the agent take the convert-prd skill's path (the PRD kept as the intake item, its obligations traced) and not start the create intent's intake interview?"
+    }
+  ]
+}

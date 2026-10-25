@@ -18,6 +18,7 @@
     {"id": "SR-SKL-014", "file": "SKILL.md", "kind": "behavioral", "check": "evals/SR-SKL-014.json", "sources": ["D:2026-10-03#12", "D:2026-10-04#5", "R:WF-003.17"], "criteria": ["WF-003.17"]},
     {"id": "SR-SKL-015", "file": "SKILL.md", "kind": "behavioral", "check": "evals/SR-SKL-015.json", "sources": ["R:WF-004.7", "R:STATE-003.3", "B:DSN-13"]},
     {"id": "SR-SKL-016", "file": "SKILL.md", "kind": "behavioral", "check": "evals/SR-SKL-016.json", "sources": ["R:WF-001.8"]},
+    {"id": "SR-SKL-017", "file": "SKILL.md", "kind": "behavioral", "check": "evals/SR-SKL-017.json", "sources": ["R:CNV-001.2", "R:CNV-001.6"]},
     {"id": "SR-DLG-001", "file": "artifact-contract.md", "kind": "behavioral", "check": "evals/SR-DLG-001.json", "sources": ["A:ELI-16", "D:2026-10-03#14"]},
     {"id": "SR-DLG-002", "file": "artifact-contract.md", "kind": "behavioral", "check": "evals/SR-DLG-002.json", "sources": ["A:ELI-17"]},
     {"id": "SR-DLG-003", "file": "artifact-contract.md", "kind": "behavioral", "check": "evals/SR-DLG-003.json", "sources": ["A:ELI-18"]},

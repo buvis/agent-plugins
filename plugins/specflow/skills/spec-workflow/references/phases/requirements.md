@@ -75,4 +75,7 @@ The bank, one topic per question:
 
 - [SR-REQ-041] Before saving, walk the template's headings against the draft, then run `validate_spec.py validate <spec-dir> --phase requirements` and fix what it reports.
 - [SR-REQ-042] When the draft carries three or more `(guess)` markers or contract-bearing open questions, offer, before asking for approval: spike them, resolve them now, or save with them listed under `## Unresolved questions`.
+
+Then hand the validated draft to the requirements review before the approval summary: the interactive walkthrough of `references/review/core.md` with `references/review/requirements.md`. A repair edits this draft, and no copy of it is made. Review minutes go to the intake item's `qa-log.md`.
+
 - [SR-REQ-014] Then show the shared approval summary and ask for approval. In Requirements-First, the design starts only after the developer approves the requirements; in Design-First it is already approved (SR-SKL-009).

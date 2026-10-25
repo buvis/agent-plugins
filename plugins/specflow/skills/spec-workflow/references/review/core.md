@@ -5,7 +5,7 @@ The walkthrough every review shares: `review requirements`, `review design`, and
 ## Before the first finding
 
 - [SR-RVC-001] Load this file before the first finding of any review, and then the review's own file; a finding raised before both are loaded is not a review finding.
-- [SR-RVC-013] Every file a review loads is named by its path relative to the skill folder, as the routing table in `SKILL.md` gives it; no review reads a home path, an absolute path, or a file outside the package.
+- [SR-RVC-013] Every file a review loads is named by its path relative to the skill folder, as the routing table in `SKILL.md` gives it; no review loads its guidance from a home path, an absolute path, or a file outside the package.
 - [SR-RVC-012] A review runs on any host that can ask one question at a time and apply an edit to the reviewed artifact. Those two are the whole host contract: no isolated sub-task, named model, or command runtime is required, and a review's own file says what it does when an optional one is absent.
 - [SR-RVC-063] Read the review's context first and do not review it: each review's own file names its context (the intake item and `qa-log.md`, the approved upstream artifact, the code the design names, each spec's state). A defect seen in the context is reported to the developer as a note with its location, never as a finding of the artifact under review, and never edited by this review.
 - [SR-RVC-050] Read every artifact under review end to end before the first finding; in a cross-spec review, every spec not complete and every item under `<root>/intake/new/`.
@@ -82,7 +82,7 @@ The walkthrough every review shares: `review requirements`, `review design`, and
 - [SR-RVC-032] A later review reads the minutes of the earlier ones before its first finding and does not raise a disputed finding again without new evidence. When it has new evidence, the card names it and the earlier dispute.
 - [SR-RVC-006] At the end, give the recap in chat: findings raised, resolved by an edit, disputed, deferred, and open, by severity, with the skipped lenses named. The recap feeds the approval summary of the shared dialogue rules; it records no approval itself.
 - [SR-RVC-052] After the cross-spec report is written, the chat holds three sentences and the verdict; the findings, the map, and the decisions live in the report, not in the message.
-- [SR-RVC-054] The cross-spec apply pass starts with the decisions in the report's decisions-applied section, then applies the accepted edits and the approved reshapes, re-runs `validate_spec.py validate` on every spec it touched, updates the report, and prints the final verdict.
+- [SR-RVC-054] The accepted edits and the approved reshapes land during the walkthrough, each before the next card. The cross-spec apply pass after the walkthrough applies nothing more: it re-runs `validate_spec.py validate` on every spec a decision touched, completes the report's decisions-applied section, updates the report, and prints the final verdict.
 
 ## Success criteria
 

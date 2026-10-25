@@ -5,7 +5,7 @@
   "assertions": [
     {
       "kind": "rubric",
-      "rubric": "Does the quick spec start at Tier 1, and would a Tier 2 or Tier 3 condition raise the tier and draw the profile proposal?"
+      "rubric": "Is the quick spec reviewed at Tier 1, with the tier raised and the profile proposal drawn only by a trigger that forces standard, while a Tier 2 condition alone (such as a write to an existing store) leaves it at Tier 1?"
     }
   ]
 }

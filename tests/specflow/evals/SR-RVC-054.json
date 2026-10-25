@@ -5,7 +5,7 @@
   "assertions": [
     {
       "kind": "rubric",
-      "rubric": "After the walkthrough, does the apply pass start with the decisions-applied section of the report, then apply the edits and reshapes, re-run validate on each touched spec, update the report, and print the final verdict?"
+      "rubric": "Do the accepted edits and approved reshapes land during the walkthrough, each before the next card, and does the apply pass after it apply nothing more, only re-running validate on every spec a decision touched, completing the decisions-applied section, updating the report, and printing the final verdict?"
     }
   ]
 }
