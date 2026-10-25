@@ -217,6 +217,19 @@ class PlacementDriftTest(ChecksTest):
             warning["message"],
         )
 
+    def test_plain_paths_split_on_a_comma_without_a_space(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        self.edit(
+            spec / "tasks.md",
+            "`src/import/log.py`",
+            "src/import/log.py,src/report/rate.py,src/report/mail.py",
+        )
+        [warning] = self.drift(spec)
+        self.assertTrue(
+            warning["message"].endswith("src/report/rate.py, src/report/mail.py"),
+            warning["message"],
+        )
+
     def test_prose_around_code_spans_keeps_the_spans(self) -> None:
         spec = self.copy("00101-feature-sample")
         self.edit(

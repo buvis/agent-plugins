@@ -245,6 +245,30 @@ class CheckLinksTest(unittest.TestCase):
             result = load().run(root)
         self.assertEqual(targets(result), ["00009- (no spec or intake item)"])
 
+    def test_a_numbered_intake_link_outside_the_root_never_resolves(self) -> None:
+        with support.temp_folder() as folder:
+            root = copy_fixture(folder)
+            outside = Path(folder) / "outside"
+            outside.mkdir()
+            os.symlink(outside, root / "docs/pm/intake/new/00042-elsewhere")
+            (root / "docs/pm/specs/00001-alpha/requirements.md").write_text(
+                "cites 00042-elsewhere\n", encoding="utf-8"
+            )
+            result = load().run(root)
+        self.assertEqual(targets(result), ["00042- (no spec or intake item)"])
+
+    def test_a_link_from_the_specs_tree_to_the_intake_base_scans_its_files_once(
+        self,
+    ) -> None:
+        with support.temp_folder() as folder:
+            root = copy_fixture(folder)
+            (root / "docs/pm/intake/index.md").write_text(
+                "Dangling: 00009-nope.\n", encoding="utf-8"
+            )
+            os.symlink(root / "docs/pm/intake", root / "docs/pm/specs/intake")
+            result = load().run(root)
+        self.assertEqual(targets(result), ["00009- (no spec or intake item)"])
+
 
 if __name__ == "__main__":
     unittest.main()

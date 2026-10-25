@@ -39,7 +39,7 @@ The obligations of a conversion, as rules. The artifact shapes, the state, the r
 - [SR-CNV-023] Use the installed helper for every hash, approval, invalidation, and validation; preserve unknown fields of an existing state file, compare the hash read before each write, and leave an existing state file as it is while reporting it unreconciled when an edit may have invalidated it.
 - [SR-CNV-024] The conversion is complete when provenance and obligations are preserved, requirements and design are approved, and a reviewed task plan is approved or delivered as the draft the developer asked for. A delivered draft is not an approval; implementation, runtime validation, and cross-host compatibility stay distinct outcomes, each reported on its own.
 - [SR-CNV-025] Record the obligation map and the receipt as blocks in the intake item's `qa-log.md`, in the shapes below; the log is append-only, so each stop writes a new receipt, and the last one counts. A pending gate is an honest deliverable: the receipt says what waits and why.
-- [SR-CNV-026] `validate_spec.py validate` reads the last `## Conversion receipt` block of the intake log named by the spec's `Sources:` line, from the requirements phase on, and reports an error when one of the labels below is missing or the verdict is not `COMPLETE`, `AWAITING_DECISION`, or `INCOMPLETE`; a spec with no receipt block was not converted and draws no finding. (`conversion-receipt`, error)
+- [SR-CNV-026] `validate_spec.py validate` reads the last `## Conversion receipt` block of the intake log named by the spec's `Sources:` line, from the requirements phase on, and reports an error when one of the labels below is missing or the verdict is not `COMPLETE`, `AWAITING_DECISION`, or `INCOMPLETE`, optionally followed by one parenthetical note and a full stop (`COMPLETE (short note).`), and nothing else; a spec with no receipt block was not converted and draws no finding. (`conversion-receipt`, error)
 
 ```markdown
 ## Obligation map <date>
@@ -57,5 +57,5 @@ The obligations of a conversion, as rules. The artifact shapes, the state, the r
 - Checks run and limits: <...>
 - Outstanding questions: <...>
 - Next action: <...>
-- Verdict: COMPLETE | AWAITING_DECISION | INCOMPLETE
+- Verdict: <COMPLETE, AWAITING_DECISION, or INCOMPLETE; an optional (note) and full stop>
 ```

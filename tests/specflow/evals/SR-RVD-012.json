@@ -10,7 +10,7 @@
     },
     {
       "kind": "rubric",
-      "rubric": "When the developer stops, does the recap name the cardinal sins and blockers still open as blocking the design approval, and does each non-blocking concern or question left unwalked get its own minutes line (severity, title, not walked, open)?"
+      "rubric": "When the developer stops, does the recap name the cardinal sins and blockers still open as blocking the design approval, and does every finding left without a decision, a cardinal sin or blocker shown but not answered included, get its own minutes line (severity, title, not walked, open)?"
     }
   ]
 }

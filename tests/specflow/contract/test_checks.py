@@ -676,6 +676,15 @@ class ConversionReceiptTest(ChecksTest):
         spec = self.spec_and_log(
             RECEIPT.replace(
                 "AWAITING_DECISION (the tasks gate)",
+                "<COMPLETE, AWAITING_DECISION, or INCOMPLETE; an optional (note) and full stop>",
+            )
+        )
+        self.assert_seeded(spec, "conversion-receipt")
+
+    def test_the_three_verdicts_as_alternatives_are_an_error(self) -> None:
+        spec = self.spec_and_log(
+            RECEIPT.replace(
+                "AWAITING_DECISION (the tasks gate)",
                 "COMPLETE | AWAITING_DECISION | INCOMPLETE",
             )
         )
@@ -704,6 +713,17 @@ class ConversionReceiptTest(ChecksTest):
                     f"Sources: {value}",
                 )
                 self.assertNotIn("conversion-receipt", self.rules(spec))
+
+    def test_a_sources_item_linked_outside_the_repo_is_not_read(self) -> None:
+        outside = self.tmp / "outside"
+        outside.mkdir()
+        broken = RECEIPT.replace("AWAITING_DECISION (the tasks gate)", "DONE")
+        (outside / "qa-log.md").write_text(broken, encoding="utf-8")
+        spec = self.copy("00101-feature-sample")
+        processed = self.repo / "docs/dev/project-management/intake/processed"
+        processed.mkdir(parents=True)
+        (processed / "00101-import-retries").symlink_to(outside)
+        self.assertNotIn("conversion-receipt", self.rules(spec))
 
     def test_a_sources_item_with_no_qa_log_draws_no_finding(self) -> None:
         spec = self.copy("00101-feature-sample")

@@ -30,7 +30,7 @@ ADVERSARIAL_PATTERNS = [
     ),
     (r"\bapprove this (?:design|proposal|doc|RFC)\b", "imperative: approve directive"),
     (
-        r"\byou are (?:now|a) (?:a different|another) (?:reviewer|assistant|agent)\b",
+        r"\byou are (?:now|a) (?:[\w-]+ ){0,2}(?:reviewer|assistant|agent)\b",
         "role-change",
     ),
     (

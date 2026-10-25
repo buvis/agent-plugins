@@ -733,6 +733,8 @@ def conversion_receipt(ctx: Context) -> list[Finding]:
     if item.is_absolute() or ".." in item.parts:
         return []  # portable-links and sources-line report the path itself
     log = ctx.repo / item / "qa-log.md"
+    if not log.resolve().is_relative_to(ctx.repo.resolve()):
+        return []  # a link out of the repository is never read
     log_text = read_text(log)
     block = last_receipt(log_text) if log_text is not None else None
     if block is None:
@@ -756,7 +758,10 @@ def conversion_receipt(ctx: Context) -> list[Finding]:
         if line.startswith("Verdict:")
     ]
     if verdicts and not RECEIPT_VERDICT.fullmatch(verdicts[-1]):
-        fix = "Append a new receipt block whose verdict is one of the three."
+        fix = (
+            "Append a new receipt block whose verdict is one of the three, with an"
+            " optional parenthetical note and full stop, as in COMPLETE (short note)."
+        )
         message = f"the verdict is not COMPLETE, AWAITING_DECISION, or INCOMPLETE: {verdicts[-1]}"
         findings.append(found(message, fix))
     return findings

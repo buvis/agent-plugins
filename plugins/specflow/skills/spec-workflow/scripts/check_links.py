@@ -48,7 +48,6 @@ def sources(root: Path, config: dict) -> tuple[list[Path], list[str]]:
     files: list[Path] = []
     errors: list[str] = []
     real_root = root.resolve()
-    seen: set[Path] = set()
 
     def outside(path: Path) -> bool:
         if path.resolve().is_relative_to(real_root):
@@ -58,10 +57,16 @@ def sources(root: Path, config: dict) -> tuple[list[Path], list[str]]:
         )
         return True
 
-    for base in (root / str(config["specsDir"]), root / str(config["root"]) / "intake"):
-        if not base.is_dir():
-            continue
-        seen.add(base.resolve())
+    bases = [
+        base
+        for base in (
+            root / str(config["specsDir"]),
+            root / str(config["root"]) / "intake",
+        )
+        if base.is_dir()
+    ]
+    seen = {base.resolve() for base in bases}
+    for base in bases:
         for here, folders, names in os.walk(
             base,
             onerror=lambda error: errors.append(
@@ -104,7 +109,13 @@ def resolvable_numbers(
                 f"{folder.relative_to(root).as_posix()}: unreadable ({error})"
             )
             continue
-        numbers |= {p.name[:5] for p in entries if re.match(r"\d{5}-", p.name)}
+        numbers |= {
+            p.name[:5]
+            for p in entries
+            # realpath, not resolve(): a link loop raises RuntimeError on Python 3.10.
+            if re.match(r"\d{5}-", p.name)
+            and Path(os.path.realpath(p)).is_relative_to(real_root)
+        }
     return frozenset(numbers), tuple(errors)
 
 
@@ -174,7 +185,7 @@ def run(root: Path) -> dict:
     return result
 
 
-# [SR-RVX-073] Exit 0 when clean and 1 on a finding or a scan error; `--json` prints `findings`, `warnings`, and `scan_errors`, and an unreadable file is a scan error, not a crash.
+# [SR-RVX-073] Exit 0 when clean and 1 on a finding or a scan error; `--json` prints `findings`, `warnings`, and `scan_errors`, and an unreadable file or folder is a scan error, not a crash.
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     parser.add_argument(

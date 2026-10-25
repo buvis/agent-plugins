@@ -252,9 +252,9 @@ def placed_paths(design: str) -> set[str]:
 def location_paths(value: str) -> list[str]:
     """The paths of a line: each inline-code span, then each plain word that reads as a path."""
     spans = CODE_SPAN.findall(value)
-    # ponytail: a plain word is a path when it holds a slash or ends with an extension;
-    # a trailing comma, period, or closing parenthesis (an annotation such as "(new)") is not part of it.
-    words = (w.rstrip(".,;:)") for w in CODE_SPAN.sub(" ", value).split())
+    # ponytail: a plain word, split on whitespace and commas, is a path when it holds a slash or
+    # ends with an extension; a trailing period or closing parenthesis (an annotation such as "(new)") is not part of it.
+    words = (w.rstrip(".;:)") for w in re.split(r"[\s,]+", CODE_SPAN.sub(" ", value)))
     return spans + [
         w for w in words if not re.search(r"[<>`]", w) and re.search(r"/|\.\w+$", w)
     ]
