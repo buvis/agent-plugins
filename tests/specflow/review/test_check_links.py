@@ -245,6 +245,15 @@ class CheckLinksTest(unittest.TestCase):
             result = load().run(root)
         self.assertEqual(targets(result), ["00009- (no spec or intake item)"])
 
+    def test_a_looped_markdown_link_is_not_a_crash(self) -> None:
+        with support.temp_folder() as folder:
+            root = copy_fixture(folder)
+            loop = root / "docs/pm/specs/loop.md"
+            os.symlink(loop, loop)
+            result = support.run(SCRIPT, "--root", str(root), "--json")
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertEqual(json.loads(result.stdout)["findings"], [])
+
     def test_a_numbered_intake_link_outside_the_root_never_resolves(self) -> None:
         with support.temp_folder() as folder:
             root = copy_fixture(folder)

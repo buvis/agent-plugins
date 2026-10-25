@@ -50,7 +50,8 @@ def sources(root: Path, config: dict) -> tuple[list[Path], list[str]]:
     real_root = root.resolve()
 
     def outside(path: Path) -> bool:
-        if path.resolve().is_relative_to(real_root):
+        # realpath, not resolve(): a link loop raises RuntimeError on Python 3.10.
+        if Path(os.path.realpath(path)).is_relative_to(real_root):
             return False
         errors.append(
             f"{path.relative_to(root).as_posix()}: leads outside the repository, not read"

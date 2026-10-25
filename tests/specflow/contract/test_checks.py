@@ -725,6 +725,14 @@ class ConversionReceiptTest(ChecksTest):
         (processed / "00101-import-retries").symlink_to(outside)
         self.assertNotIn("conversion-receipt", self.rules(spec))
 
+    def test_a_looped_sources_item_draws_no_finding_and_no_crash(self) -> None:
+        spec = self.copy("00101-feature-sample")
+        processed = self.repo / "docs/dev/project-management/intake/processed"
+        processed.mkdir(parents=True)
+        loop = processed / "00101-import-retries"
+        loop.symlink_to(loop)
+        self.assertNotIn("conversion-receipt", self.rules(spec))
+
     def test_a_sources_item_with_no_qa_log_draws_no_finding(self) -> None:
         spec = self.copy("00101-feature-sample")
         self.assertNotIn("conversion-receipt", self.rules(spec))

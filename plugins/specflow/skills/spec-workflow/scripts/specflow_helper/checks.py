@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 from collections.abc import Callable
@@ -733,7 +734,8 @@ def conversion_receipt(ctx: Context) -> list[Finding]:
     if item.is_absolute() or ".." in item.parts:
         return []  # portable-links and sources-line report the path itself
     log = ctx.repo / item / "qa-log.md"
-    if not log.resolve().is_relative_to(ctx.repo.resolve()):
+    # realpath, not resolve(): a link loop raises RuntimeError on Python 3.10.
+    if not Path(os.path.realpath(log)).is_relative_to(os.path.realpath(ctx.repo)):
         return []  # a link out of the repository is never read
     log_text = read_text(log)
     block = last_receipt(log_text) if log_text is not None else None
