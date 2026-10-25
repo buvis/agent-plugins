@@ -136,7 +136,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 
 ## Completion criteria
 
-- [ ] Every task above is checked, each with its `Outcome:` line.
-- [ ] On the final commit, the pull request's CI run is green (before a pull request exists, the step commands pass in a fresh clone of the commit): the repository validator, the contract and review tests, the release check, and `check_rules.py` with areas `RVC`, `RVR`, `RVD`, `RVX`, and `CNV` added to those of 00005 and 00006.
-- [ ] `python3 tools/specflow/check_rules.py` passes with no `--area`.
-- [ ] The list of routed files not written yet in `test_skill.py` is empty, and `inventory.json` holds both port plans.
+- [x] Every task above is checked, each with its `Outcome:` line.
+- [x] On the final commit, the pull request's CI run is green (before a pull request exists, the step commands pass in a fresh clone of the commit): the repository validator, the contract and review tests, the release check, and `check_rules.py` with areas `RVC`, `RVR`, `RVD`, `RVX`, and `CNV` added to those of 00005 and 00006.
+- [x] `python3 tools/specflow/check_rules.py` passes with no `--area`.
+- [x] The list of routed files not written yet in `test_skill.py` is empty, and `inventory.json` holds both port plans.
