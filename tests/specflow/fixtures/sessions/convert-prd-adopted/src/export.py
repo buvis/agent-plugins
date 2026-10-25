@@ -5,7 +5,9 @@ import io
 
 
 def write_csv(db, day: str) -> bytes:
-    rows = db.execute("select id, day, total from orders where day = ?", (day,)).fetchall()
+    rows = db.execute(
+        "select id, day, total from orders where day = ?", (day,)
+    ).fetchall()
     out = io.StringIO()
     writer = csv.writer(out)
     writer.writerow(["id", "day", "total"])
