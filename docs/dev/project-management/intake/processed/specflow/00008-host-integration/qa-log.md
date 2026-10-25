@@ -215,3 +215,14 @@ each landing exactly once.
 - Scope: the whole artifact. Re-approved rather than left standing, since an approval now binds the exact upstream text (review 00004-05 F4).
 - Upstream markers accepted by name: none.
 - This is a receipt: no `.specflow.json` exists for this spec.
+
+## Recovery (2026-10-25)
+
+- Question: "Approve all three documents and this baseline for state recovery?" Answer: "yes".
+- Reading: confirm the existing requirements, design, and tasks receipts as approvals of their current text, with the displayed code baseline. Retain the feature type, requirements-first order, and standard profile from the intake decisions. The install-route uncertainties remain deferred to the host tests named in the approved plan.
+- Recorded in `docs/dev/project-management/specs/00008-host-integration/.specflow.json`, with values copied from `validate_spec.py hash --json` at commit `b1e05c75d6f0dad01db35258baf565ecaf5a77ad` and UTC timestamp `2026-10-25T22:09:26Z`.
+- Requirements: confirms the receipt of 2026-10-04; unchanged blob `181560fb257b913bce418aaed6a5a580264ac91e`; canonical SHA-256 `74b92ee7388e37c40d58c0ed9ea6ae17202b92e0118e393b9b1d513cbb060985`.
+- Design: confirms the re-approval of 2026-10-12; unchanged blob `7fb52d0001f3a3b154665ec900732614a231bb5c`; canonical SHA-256 `268685ba9c743229ad978481e23fd865698ef8ba81ba8d2c1163e019b51058c6`. The `code-baseline` covers all 12 distinct paths in Module placement: six existing files hashed and six not yet written recorded as missing, before any task starts.
+- Tasks: confirms the re-approval of 2026-10-12; unchanged blob `59664a60f1246cb04261e5daf73c163e044125c6`; canonical SHA-256 `9b034e391fccb02fc2b859a61d8beb6bde15222c602b7a53341339845685e758`.
+- All three artifact validations passed. The sole validation warning names the documented Kiro installation path `~/.kiro/powers/installed/<name>/`; it is a host path, not a repository link. Upstream markers accepted by name: none.
+- `reconcile --dry-run`, `reconcile`, and `status --json` report phase `implementation`, all approvals valid, all gates open, next task T-040, and no stale files, hold, blockers, warnings, or specs-folder problems. Dependencies 00002 and 00006 are complete. Implementation-phase validation passed with the same host-path warning.

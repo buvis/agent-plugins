@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "specId": "00008-host-integration",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "74b92ee7388e37c40d58c0ed9ea6ae17202b92e0118e393b9b1d513cbb060985",
+      "approvedSha256": "74b92ee7388e37c40d58c0ed9ea6ae17202b92e0118e393b9b1d513cbb060985",
+      "approvedAt": "2026-10-25T22:09:26Z",
+      "approvedCommit": "b1e05c75d6f0dad01db35258baf565ecaf5a77ad"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "268685ba9c743229ad978481e23fd865698ef8ba81ba8d2c1163e019b51058c6",
+      "approvedSha256": "268685ba9c743229ad978481e23fd865698ef8ba81ba8d2c1163e019b51058c6",
+      "approvedAt": "2026-10-25T22:09:26Z",
+      "approvedCommit": "b1e05c75d6f0dad01db35258baf565ecaf5a77ad",
+      "upstreamSha256": {
+        "requirements": "74b92ee7388e37c40d58c0ed9ea6ae17202b92e0118e393b9b1d513cbb060985"
+      },
+      "approvedCode": {
+        "status": "captured",
+        "files": [
+          {
+            "path": ".claude-plugin/marketplace.json",
+            "missing": true
+          },
+          {
+            "path": ".github/workflows/validate.yml",
+            "sha256": "1f28b6931707239d058d56b722f2d377a370d21f5d4cad86f92ac2b6886eaf6c"
+          },
+          {
+            "path": "AGENTS.md",
+            "sha256": "474ac7e26a214c8e6ba9fc6cebe0a72e9c57469b4ecde9cb592d239d50066e15"
+          },
+          {
+            "path": "CONTRIBUTING.md",
+            "sha256": "815956b63f6a31b9ff7548e4275fce7b9530e49c5970a5a3adcbe68c91d891d6"
+          },
+          {
+            "path": "README.md",
+            "sha256": "ed3ab526ef01d8a73c11d568247fcf880ff4fce4f17cf1ca71b196bbd05a58b9"
+          },
+          {
+            "path": "docs/dev/project-management/specs/00008-host-integration/design.md",
+            "sha256": "268685ba9c743229ad978481e23fd865698ef8ba81ba8d2c1163e019b51058c6"
+          },
+          {
+            "path": "plugins/specflow/README.md",
+            "sha256": "f0a40f4502124ba6437752b56ca03b43d957f770b42f717dc53ecd069bcfdbb5"
+          },
+          {
+            "path": "scripts/generate_marketplace.py",
+            "missing": true
+          },
+          {
+            "path": "scripts/test_generate_marketplace.py",
+            "missing": true
+          },
+          {
+            "path": "tests/specflow/compatibility/claude-code.md",
+            "missing": true
+          },
+          {
+            "path": "tests/specflow/compatibility/codex.md",
+            "missing": true
+          },
+          {
+            "path": "tests/specflow/compatibility/kiro-ide.md",
+            "missing": true
+          }
+        ]
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "9b034e391fccb02fc2b859a61d8beb6bde15222c602b7a53341339845685e758",
+      "approvedSha256": "9b034e391fccb02fc2b859a61d8beb6bde15222c602b7a53341339845685e758",
+      "approvedAt": "2026-10-25T22:09:26Z",
+      "approvedCommit": "b1e05c75d6f0dad01db35258baf565ecaf5a77ad",
+      "upstreamSha256": {
+        "requirements": "74b92ee7388e37c40d58c0ed9ea6ae17202b92e0118e393b9b1d513cbb060985",
+        "design": "268685ba9c743229ad978481e23fd865698ef8ba81ba8d2c1163e019b51058c6"
+      }
+    }
+  }
+}
