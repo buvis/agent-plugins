@@ -160,3 +160,14 @@ The lead ruled on each finding under the developer's standing authorization, as 
 - F11: fix. `conversion_receipt` skips a log whose resolved path leaves the repository, as `config.py` and `deps.py` do; one test.
 - F12: fix. SR-RVX-006 and the SR-RVX-073 tag say "unreadable files or folders".
 - F13 to F16: accepted as facts (ledger entries added), each with its cause in the run notes.
+
+### Outcome (2026-10-25)
+
+Decisions and ledger `89acab3`; sweep `e7bd417` (F1 to F12); loop fix `76a3ee6` (Pat's MEDIUM); this record in the commit after it. The loop converged at cycle 2: no 🔴 or 🟠 and the codex guard not fired, so no cycle 3 runs.
+
+- Fail-first: the five code tests of the sweep each failed before the fix (`test_a_numbered_intake_link_outside_the_root_never_resolves`, `test_a_link_from_the_specs_tree_to_the_intake_base_scans_its_files_once`, `test_plain_paths_split_on_a_comma_without_a_space`, `test_any_you_are_now_role_is_a_role_change`, `test_a_sources_item_linked_outside_the_repo_is_not_read`).
+- F1: the template line became a placeholder, `<COMPLETE, AWAITING_DECISION, or INCOMPLETE; an optional (note) and full stop>`; the template-line test asserts it is an error, and the old pipe form keeps its own test (`test_the_three_verdicts_as_alternatives_are_an_error`).
+- F3: the number filter uses `os.path.realpath`, not `resolve()`, since a link loop raises `RuntimeError` on Python 3.10; a 3.10 probe with a self-looping intake item ran without a traceback.
+- F7: the profile limit is written into SR-RVD-019, 020 and 021; SR-RVD-013 is unchanged, as ruled.
+- Pat (patch review of `89acab3..e7bd417`, sonnet): CLOSURE resolved for all twelve findings. MEDIUM, confirmed and fixed in `76a3ee6`: the new `conversion-receipt` guard called `Path.resolve()`, which raises on a symlink loop under 3.10. The bug-fix sweep found the same call in `check_links.py`'s `outside()`, which crashed on a looped `.md` link. Both use `realpath` now, each with a test that errored on 3.10 before the fix. LOW, rejected: the widened role-change pattern also takes "you are a trusted reviewer", which is a role assignment in SR-RVC-044's sense, and the scan is advisory (SR-RVD-017).
+- Gates at `76a3ee6`, Python 3.14 and 3.10: scripts 12, release 54, contract 387, rules 58, review 41, all OK; `validate.py`, `check_rules.py` with the CI areas and with none, and `verify_release.py` pass; ruff reports only the three pre-existing ISC004 hits; `status` reports 00007 at `verification`, `stale` empty, every gate open.
