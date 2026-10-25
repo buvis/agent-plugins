@@ -703,7 +703,9 @@ RECEIPT_LABELS = (
     "Next action:",
     "Verdict:",
 )
-RECEIPT_VERDICT = re.compile(r"(COMPLETE|AWAITING_DECISION|INCOMPLETE)(\s*\([^()]*\))?")
+RECEIPT_VERDICT = re.compile(
+    r"(COMPLETE|AWAITING_DECISION|INCOMPLETE)(\s*\([^()]*\))?\.?"
+)
 
 
 def last_receipt(log_text: str) -> list[str] | None:

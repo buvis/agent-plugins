@@ -646,6 +646,15 @@ class ConversionReceiptTest(ChecksTest):
         spec = self.spec_and_log(RECEIPT)
         self.assertNotIn("conversion-receipt", self.rules(spec))
 
+    def test_a_verdict_with_a_note_and_a_full_stop_passes(self) -> None:
+        spec = self.spec_and_log(
+            RECEIPT.replace(
+                "AWAITING_DECISION (the tasks gate)",
+                "COMPLETE (7 tasks planned; implementation not started).",
+            )
+        )
+        self.assertNotIn("conversion-receipt", self.rules(spec))
+
     def test_a_receipt_missing_a_label_is_an_error(self) -> None:
         gates = "- Gates: requirements approved; design approved; tasks draft\n"
         spec = self.spec_and_log(RECEIPT.replace(gates, ""))
