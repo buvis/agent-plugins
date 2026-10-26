@@ -62,3 +62,23 @@ Catchup gap: engram index failed with read-only SQLite; existing query results m
 AP 00012 Task 1 committed source inventory and map. Normative wire shapes were reviewed and committed in 199b00a. Task 2 replaces superseded schema tests before defining the three review contracts. Review base b1e05c7 remains unchanged.
 
 GitHub: no open issues, PRs or releases; latest master Validate succeeded. PR #6 is merged. Related context: repo/portfolio query returned AP 00012 and inventory/port discovery. Engram index failed (read-only SQLite); portfolio reports memory stale=24/dead=1 and code stale=61/dead=1466. Native Claude task restore has no task directory; authoritative autopilot tasks remain intact.
+
+## 2026-10-26 replan budget check
+
+AP 00012's 75,000-token replan budget cannot admit the required 110,179-byte
+state-schema reference under the installed estimator (82,545 tokens before
+task prose). File/capability splitting cannot retain its single-file byte-copy
+acceptance criterion. See `autopilot/reports/00012-replan-1-budget.md` for the
+measurement and mandatory oversized-task recovery. Existing inventory, partial
+tests and archived attempt provenance remain available.
+
+GitHub refresh: no issues, PRs or releases; latest master Validate succeeded.
+Engram repository index succeeded this session. Repo query hits: AP 00012
+`prds/wip/00012-autopilot-package-contract-v1.md:8` (0.0328), inventory discovery
+`discovery/00011-autopilot-agent-plugins-port.md:96` (0.0161), and AP 00013
+`prds/backlog/00013-autopilot-session-helpers-v1.md:42` (0.0161). Portfolio
+adds historical cellar transcripts. Topic: Autopilot package and review
+artifact contracts. Portfolio stamp: memory stale=24/dead=1, code
+stale=61/dead=1466, PRD stale=9/dead=3079. Review harvest partially succeeded;
+older reviews without frontmatter remain parse failures. Task restore reports
+no_tasks_dir; no native task restoration was needed.

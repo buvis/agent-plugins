@@ -1,0 +1,12 @@
+{
+  "batch_id": "202610250001",
+  "items": [
+    {
+      "type": "stall",
+      "site": "oversized_task",
+      "detail": "Required 110179-byte state-schema.md reference estimates at least 82545 tokens under the installed formula; file/capability split cannot satisfy byte-identical single-file acceptance under 75000-token replan budget; reports/00012-replan-1-budget.md",
+      "op_id": "90ea9adeb4fa",
+      "prd": "00012-autopilot-package-contract-v1.md"
+    }
+  ]
+}

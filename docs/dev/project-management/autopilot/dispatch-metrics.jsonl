@@ -25,3 +25,5 @@
 {"id":"b01fd68e","ended_at":1793003195,"elapsed_s":68,"outcome":"error","detail":"blocked:prompt_overrun_after_trim_no_dispatch"}
 {"kind":"handoff","site":"build","edge":"leave","at":1793003285,"phase":"paused","prd":"00012-autopilot-package-contract-v1.md"}
 {"kind":"handoff","site":"build","edge":"leave","at":1793022869,"phase":"build","prd":"00012-autopilot-package-contract-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793022879,"phase":"build","prd":"00012-autopilot-package-contract-v1.md"}
+{"kind":"handoff","site":"build","edge":"leave","at":1793023417,"phase":"build","prd":"00012-autopilot-package-contract-v1.md"}
