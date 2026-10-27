@@ -1,0 +1,10 @@
+2026-10-27T20:46:18.805692Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: [Fact-Forcing Gate]
+
+Before the first Bash command this session, present these facts:
+
+1. The current user request in one sentence
+2. What this specific command verifies or produces
+
+Present the facts, then retry the same operation.. Command: pwd && cat /Users/bob/.claude/AGENTS.md && cat AGENTS.md && cat /Users/bob/.claude/plugins/cache/buvis-plugins/autopilot/0.10.0/skills/run-autopilot/SKILL.md
+2026-10-27T20:49:15.408959Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/meta/project-capsule.md:
+no native task restoration was needed.

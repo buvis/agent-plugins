@@ -992,3 +992,17 @@ dispatch 3 (codex): cardinal-sin 0, blocker 0, non-blocker 4, question 1
 
 result: ok (2026-10-27 task-slice amendment: no open blockers; prior committed
 test intent and all normative case expectations retained.)
+
+Dispatch 1 engagement quality retry was completed later in this build after
+the coordinator noticed that the first slot's single finding triggered the
+mandatory sharper retry despite its five anchored checks. The fresh isolated
+native `gpt-6.1-sol` / high reviewer read the complete current draft and
+taxonomy. It returned no findings and seven concrete section-anchored checks:
+engagement PASS, not WEAK. This is the one permitted quality retry of slot 1,
+not a fourth cross-model dispatch. It changed no interface or implementation.
+Full result: `reviews/00012-heading-amendment-engagement-retry.txt`.
+
+dispatch 1 (claude): cardinal-sin 0, blocker 0, non-blocker 0, question 0
+
+result: ok (2026-10-27 engagement retry complete; no open cardinal sins or
+blockers, no weak dispatches.)

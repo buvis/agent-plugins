@@ -1,0 +1,15 @@
+Findings: none within this amendment.
+
+Counts: cardinal-sin 0, blocker 0, non-blocker 0, question 0.
+
+Checked correct:
+
+- § Wire shapes (normative): shared notation, closed objects, anchor resolution and canonical JSON remain defined explicitly despite heading promotion.
+- § review-policy-v1.json → Lanes: required jobs, conditional activation/exclusion, delta rosters and per-job rubric namespaces remain specified; dependency closure includes committed inventory and packaged rubric assets.
+- § review-evidence-v1.json: structural constraints belong to draft 2020-12; uniqueness and cross-reference checks explicitly belong to semantic validation.
+- § Validation result → attempt_sequence_invalid: distinct values must equal 1..max; duplicates remain exclusively duplicate_job_result, consistent with full-duplicate-result.
+- § Validation result → retry_limit_exceeded: fallback substitution starts another adapter count; full-bob-fallback-retry consistently permits three sequential attempts.
+- § review-fixtures-v1.json: every case embeds complete context/evidence; v1-alt changes description and digest without weakening normative policy values.
+- § Fixture cases → solo-escalation: failed attempts can retain default raw artifacts; its sole expected defect remains required_job_failed.
+
+Engagement verdict: PASS — all five requested contract areas examined concretely. No implementation or execution certification is implied.

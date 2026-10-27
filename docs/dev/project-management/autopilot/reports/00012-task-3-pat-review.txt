@@ -1,0 +1,3 @@
+LOW | plugins/autopilot/contracts/review-evidence-v1.json:51 | The delta/initial `if/then/else` that types `source_bindings.prior_evidence_sha256` appears twice, in the root `allOf` and in `expected_context.allOf` (about line 321). The two copies have the same body. | Define it once under `$defs` (for example `prior_digest_by_pass`) and `$ref` it from both `allOf` lists.
+
+LOW | tests/autopilot/test_contract_schema_wire.py:136 | `assert_pairs` rewrites row paths with a nested conditional comprehension, then flips lane or profile per variant. A failing subTest is hard to trace back to its row. | Split it into two helpers: one that expands `reviewer_results` paths over the four results, and one that applies a value at a path. Keep the variant loop in the caller.

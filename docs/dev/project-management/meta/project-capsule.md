@@ -37,8 +37,9 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 ## Active Work
 
-- specflow track: 00002-00006 complete/merged (PR #1-#5), `feature/specflow-00007` open as PR #6 (reviews/conversion skill, rework landed 2026-10-25). Python target 3.10 (CI); `ruff check --fix` rewrites to 3.11+ APIs, re-run contract tests on `mise exec python@3.10.22` after any ruff fix.
+- specflow track: 00002-00007 merged (PR #1-#6). Python target 3.10 (CI); `ruff check --fix` rewrites to 3.11+ APIs, re-run contract tests on `mise exec python@3.10.22` after any ruff fix.
 - New autopilot-port track (00011/00012+): porting the `claude-autopilot` plugin content into `plugins/autopilot/` as a standalone, OVCAQ-independent package. Design doc `designs/00011-autopilot-standalone-design.md` plus three reviews (`boundary-correction`, `split-design`, `three-layer`) already landed; discovery docs `00011-autopilot-agent-plugins-{inventory,port}.md` map the source. PRD 00012 (this run) is Phase 0 of that port: pin the source commit (`e960ef1` in `claude-autopilot`), port assets 1:1, and define the plugin-owned review-evidence/policy contracts — no runtime wiring, no publishing. Later PRDs (00013-00021) build the controller/TUI on top.
+- AP 00012 now has 3/16 tasks complete: restored inventory/map, review policy, and closed evidence schema. Thirteen tasks remain; golden fixtures are next. Narrow gates pass (6 policy tests, 17 standalone schema tests). Native context headroom triggered a clean build-to-build handoff, not a completion-review transition. Source inventory and initial ownership assignments stay completed; delivered asset receipts/new-file ownership still need final verification. Review base stays `b1e05c7`.
 
 ## Related context
 

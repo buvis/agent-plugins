@@ -117,3 +117,89 @@ temporary discarded candidates, self-deslop's no-op, design reviewers and
 read-only Pat are not additional implementation contributions. All worker
 ASSUMPTIONS footers are none. No full-suite, schema/fixture completion or
 completion-review claim is made by this policy task.
+
+## 2026-10-27 task 3 closed evidence schema
+
+Task base: `01e4077625cd62055c6f33a7409cd7021c8a20b0`. Source route is
+backend logical Opus. Initial test authors used native `gpt-6.1-sol` / high:
+Tess `2586d0f9` (22,617 bytes), session
+`01a17f3d-487a-7282-a513-ac05ef2d5cc7`, then quality retry `55bcd7aa`
+(16,987 bytes), session `01a17f42-6c88-7272-b049-c3217356bf89`.
+Observed metadata is retained in `00012-task-3-tess-native-metadata.jsonl`
+and `00012-task-3-tess-quality-native-metadata.jsonl`. The source object was
+rechecked in the actual `claude-autopilot` repository: `git -C ... cat-file -t
+e960ef1...` returned commit. Its absence from the target repository's separate
+object database was not a failed premise or a repin.
+
+New standalone tests cover the wire contract before golden fixtures exist.
+The older golden-dependent test file stayed byte-identical, SHA-256
+`f4466e359a936aa27873f2fd04e35064733a51406cae57b7f756fbddf5030cfa`.
+Initial quality review required scalar/enum/path/array boundary assertions;
+the strengthened 17-test suite committed in `b4db9df`. Mechanical tautology
+and style gates passed. Initial runs were expected red because schema JSON
+did not exist; no golden-dependent test was skipped as a claimed pass.
+
+Devon `e3351427` (27,511 bytes), session
+`01a17f48-b7f5-7571-99b6-a2c5bde4b763`, proved eight independently passing
+wrong schemas: uppercase B-F digests, unvalidated first reviewer fields,
+an unauthorized two-reviewer maximum, unvalidated fresh per_job keys,
+an incomplete custom-lane escape, carriage-return/Unicode whitespace in
+input references, missing not-applicable fields, and deep path traversal.
+Each returned 17 passed (0.66–1.20 seconds). Devon overwrote its sole schema
+target with the required placeholder. No second Devon dispatch ran.
+
+This concrete failed Opus test-author check triggered the host-authorized
+next bounded `gpt-6-astra` / high attempt. The contributing Sol test attempt
+is retained as escalated in state, not rewritten as Astra. Logical tier
+remains Opus; the task-local effective native model override dies with this
+task. No Fable, cap increase or unsupported-provider fallback was used.
+Both models are OpenAI and have a supported independent Anthropic review
+route in the host driver.
+
+Astra Tess `47ce7af6` (19,528 bytes), session
+`01a17f51-eb95-73a3-9ce8-8d70ca481b85`, returned all eight numbered
+strengthened dispositions. Tests now cover every reviewer position, 0/1/2/3/7
+rows, generated lane variants including custom-lane and Unicode, all uppercase
+hex letters and mixed case, new per_job keys, whitespace variants, missing
+alternative fields, and traversal at depths 2/3/7/16. Commit `ec4e26e`
+contains this single allowed adversarial strengthening. Standalone file:
+19,671 bytes; both test files: 30,008 bytes; retry prompt plus both files:
+49,536 bytes, below the unchanged 50,000-byte limit. All 17 prior methods and
+old golden-test assertions remain. Shape/style gates passed. Red-check:
+17 JSON-decode setup errors from the cleaned placeholder, exit 1.
+
+Astra Ivan `fa738a46` (33,285 bytes), session
+`01a17f57-4e12-7e93-9104-951c55a17766`, wrote only
+`review-evidence-v1.json` and package changelog. Actual observed model/effort
+for both Astra contributors are preserved in
+`00012-task-3-tess-astra-native-metadata.jsonl` and
+`00012-task-3-ivan-astra-native-metadata.jsonl`. The first self-run had 16
+passed, 1 failed: an extra delta-roster restriction was removed because
+roster policy is semantic, not this structural schema. No test changed.
+Final self-run: 17 passed in 1.97 seconds. Implementation/changelog commit:
+`86e4932`. Post-commit Python 3.12 uv gate targeting only
+`test_contract_schema_wire.py`: exit 0, 17 passed in 1.75 seconds.
+
+Fresh Astra self-deslop `ed402089` (18,182 bytes) returned no slop found.
+Final style and split-hygiene gates are clean. Pat `7d731f1e` ran a real
+tool-less Claude Sonnet/high review over `01e4077..86e4932`; full prompt
+48,905 bytes. Parsed output has two LOW observations only: duplicate prior
+digest condition data, and the test mutation helper's nested comprehension.
+Retained in `00012-task-3-pat-review.txt` for completion review; source policy
+does not retry LOW-only findings. Every ASSUMPTIONS footer is none.
+
+The complete task received Devon exactly once; the Astra repair group reuses
+that adversarial evidence and therefore records lean for the second attempt
+rather than claiming another full Devon run. Completion review must include
+both contributing actual models, Sol and Astra, including all test writers.
+Discarded Devon schema candidates, no-op self-deslop and read-only Pat are
+not additional implementation providers.
+
+The native task-boundary headroom check fired after task 3. Its calculation
+uses the observed Codex 475,000-token window, actual context growth from this
+task's start, and the source's 1.25 margin; it does not copy Claude's 500K cap
+or change any setting. Exact measurements are in `00012-native-headroom.json`.
+The clean same-build handoff leaves 3/16 tasks complete and 13 pending, with
+fixtures next. No full-suite or completion-review claim is made. The build
+continues in a fresh process; source inventory/map work stays completed and
+the review base remains `b1e05c75d6f0dad01db35258baf565ecaf5a77ad`.
