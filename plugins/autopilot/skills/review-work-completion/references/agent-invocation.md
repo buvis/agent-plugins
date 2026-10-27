@@ -1,0 +1,147 @@
+# Agent Invocation
+
+Every persona below is sourced from the agent registry (`${CLAUDE_PLUGIN_ROOT}/agents/`).
+Assembly rules, the placeholder table, and the fail-closed contract live in
+`references/agent-registry.md`; this file covers only how each lane is
+dispatched once its prompt is assembled.
+
+## Alice (Claude subagent)
+
+Alice runs as a direct subagent (not a nested CLI invocation - `claude -p` inside a subagent doesn't work).
+
+```
+Task tool:
+  subagent_type: autopilot:alice
+  description: "Alice reviews work against PRD requirements"
+  prompt: |
+    {run inputs — the substituted context/diff paths for this cycle}
+```
+
+`agents/alice.md` supplies the persona as the subagent's system prompt, so the
+Task prompt carries only the run inputs. Her `tools` pin (`Read, Bash`) is
+declared in that file: `rg` for search, since the Grep/Glob tools are absent in
+this build, and no Edit/Write ever.
+
+## Bob (Codex)
+
+Run codex as a **direct background Bash command - do NOT wrap it in a Task subagent.** A subagent that shells out to a CLI hangs: the CLI spawns its own child process the subagent wrapper never gets a completion signal from, so the subagent yields "codex still running" and the reviewer never reports. That is the recurring Phase 4 review thrash-halt (playground 00007, 2026-06-30). Run codex directly and the harness tracks the background process. **In an interactive session** this re-invokes you when it finishes; **in headless/loop mode (`$_AUTOPILOT_LOOP` set) it does not** — headless `claude -p` kills background Bash ~5s after your turn ends, so ending the turn to "wait" for Bob kills him mid-review (2026-07-15 loop death, PRD 00062 cycle 3: the CLI reviewers killed with empty output). Dispatch the Watcher subagent from SKILL.md step 5 in the same message, or you will not be re-invoked.
+
+Write the prompt to a temp file, then dispatch (**absolute paths** - relative `docs/dev/project-management/` paths get misresolved).
+
+**Citation line.** Bob's assembled prompt (SKILL.md step 4's persona plus appendices) ends with the sentence every consensus persona carries, so the consolidator's file gate sees one citation shape from every lens: `Cite files repo-relative as path:line (for example skills/work/SKILL.md:166), never absolute and never with a "(lines a-b)" suffix.` A finding that spans files cites the first file as its `File:` value, never `N/A (a.py:77, b.py:91)`: `consolidate_findings.py` reads the first path out of that shape, but a bare `N/A` matches nothing.
+
+**Full review (cycle 1)** - capture Bob's codex session thread id so later cycles can resume it:
+
+```
+Bash tool (run_in_background: true):
+  ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh -f "{bob_prompt_file_absolute_path}" -o "{abs_repo_path}/docs/dev/tmp/bob-output-{id}.txt" --emit-thread-id "{abs_repo_path}/docs/dev/tmp/bob-thread-{id}.txt"
+```
+
+**Incremental review (rework cycle) with a prior `codex_thread_id`** (step 3 read it from the previous review file) - same command plus `--resume-thread` so Bob verifies fixes against his own cycle-1 critique instead of re-reviewing from zero:
+
+```
+Bash tool (run_in_background: true):
+  ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh -f "{bob_prompt_file_absolute_path}" -o "{abs_repo_path}/docs/dev/tmp/bob-output-{id}.txt" --emit-thread-id "{abs_repo_path}/docs/dev/tmp/bob-thread-{id}.txt" --resume-thread "{prior_codex_thread_id}"
+```
+
+`--emit-thread-id` records the codex session id (from the `thread.started` event) to `bob-thread-{id}.txt`; step 8 stamps it into the review-file frontmatter as `codex_thread_id`, and the next cycle's step 3 reads it back. `--resume-thread` continues that session; an empty/expired thread degrades to a fresh run with a loud stderr note (never a blocked cycle), and it composes with `--emit-thread-id` (re-writing the same id keeps the sidecar fresh for the following cycle). **Never add `--ephemeral` to the cycle-1 dispatch - it disables resume.** `-o` writes codex's review text straight to the file step 6 consolidates - no manual save, no Agent round-trip. When the background command completes, read `bob-output-{id}.txt`. `{bob_prompt_file_absolute_path}` is always the inlined prompt built per retry-policy.md § Inlined prompt (Bob's first dispatch), so there is no non-inlined first run left to refuse on lack of input. On a non-zero exit, retry once per retry-policy.md § Retry Mechanism; only a failed retry makes Bob a failed reviewer, and a single failed CLI reviewer does not block the cycle.
+
+**Exit routing takes precedence over that retry.** SKILL.md step 5's Bob-fallback rules own exits 3 and 4, and neither takes a CLI retry: exit 3 (codex unavailable) dispatches Bob's Claude fallback straight away, and exit 4 (codex ran but failed) first checks the `codex-review-last.jsonl` sidecar for a complete review to salvage, dispatching the Claude fallback only when nothing complete is there. The one CLI retry above applies to every other non-zero exit: it re-dispatches the same inlined prompt file, amended per retry-policy.md § Format Compliance / § Per-Rule Verdict Completeness — the prompt's inlined shape does not change between the two dispatches, only the correction instruction appended to it.
+
+## Carl (Gemini)
+
+Carl is the frontend & design specialist (persona: `agents/carl.md`, which carries the frontend & design appendix). Like Bob, run gemini as a **direct background Bash command, NOT a Task subagent** - a subagent wrapping a CLI hangs (see Bob above).
+
+Write the prompt to a temp file, then dispatch (**absolute paths**):
+
+```
+Bash tool (run_in_background: true):
+  ${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh -f "{carl_prompt_file_absolute_path}" -o "{abs_repo_path}/docs/dev/tmp/carl-output-{id}.txt"
+```
+
+`-o` saves Carl's stdout after failure classification; capture stderr separately
+in the background command's log for backend/model selection and failure reasons.
+On exit 0, read `carl-output-{id}.txt`, require non-empty reviewer text, and record
+the backend/model from stderr in Carl's review section (including any native
+fallback). On exit 4, record **Carl: permanently unavailable** with the rejected
+backend/model and stderr reason in the review file and user summary. Do not
+retry unchanged configuration: the helper already attempted an eligible native
+fallback. Exit 3 means nested dispatch refused. Other non-zero exits, including
+quota, are one-off runtime failures; record the code/reason and follow
+`retry-policy.md`. All failures let the other reviewers proceed, but none counts
+as a completed Carl review. On exit 4 no new `-o` file is published; an existing
+file is untouched and must never be consolidated as this run's result.
+
+## Blake: Test gate
+
+The staged context carries a `## Test gate` section with this cycle's
+`Tests:` line (`review_stage.run_gate_line`, PRD 00270). Blake's run inputs
+include it unchanged whenever it is present (`review_stage._run_inputs`
+reads it with `_section(context_text, "Test gate")`); a context with no such
+section — a direct `render_roster()` call outside `stage()` — adds nothing.
+`agents/blake.md` carries the matching instruction: when his run inputs carry
+this block, it is the cycle's full-suite result at HEAD, so he must not rerun
+the full suite — a narrow run of one test file to check a specific spec claim
+stays fine.
+
+## Blake: Filesystem notes
+
+Blake locates the code himself, and he sweeps with `rg --files`, which does not
+descend into dot-directories and does not follow symlinks. On a project like
+`~/.claude` — a dot-directory whose `docs/dev/project-management` is a symlink — that makes real
+files invisible to him, and he reports them as missing (PRD 00141: a 31 KB log
+filed as "does not exist on disk", refuted at the cost of a verification
+round).
+
+**Trigger.** One deterministic check, run from the project root: `test -L
+docs/dev/project-management` succeeds, **OR** the project root's basename starts with `.`. When
+either holds, prepend this block to Blake's run inputs; when neither does, add
+nothing.
+
+```
+## Filesystem notes
+Project root: <absolute path>
+`docs/dev/project-management` realpath: <absolute realpath>
+`rg --files` does not descend into dot-directories or follow this symlink; list or Read the realpath directly.
+```
+
+Substitute the two paths and nothing else. This is the whole addition: no
+diff, no changed-file list, no review history — those are what make a blind
+lens blind, and a project root plus a realpath tells him where to look, not
+what was written there. `agents/blake.md` is untouched by this; the block is a
+run input, so the persona stays identical across every project.
+
+## Eve (Fable 5)
+
+Eve runs Claude Fable 5 as a **native Task subagent** (like Alice - NOT a background-Bash CLI like Bob/Carl). There is no `fable-run.sh` wrapper and none is needed: the Task/Agent tool's `model` parameter accepts `"fable"` directly (the same tier alias as `"sonnet"`/`"opus"`/`"haiku"`; Fable 5 is model id `claude-fable-5`), so Eve dispatches in-process with native Read/Bash access (`rg` for search; Grep/Glob absent in this build) - no CLI shell-out, no `-o` output file, no background-Bash hang risk. Eve is a skeptical, high-scrutiny reviewer suited to final doubt review.
+
+Eve's persona is `agents/eve.md`, which is also the base Bob's doubt appendix is cut from - one source, so a future edit to the doubt lens reaches every reviewer that carries it. She takes five appended inputs: the PRD content, the diff range (`<base>..HEAD`), the changed-file list, the pack's Findings precedent section, which fills the `{PACK_FINDINGS}` placeholder in her persona body, and the two mechanical test-check blocks step 3 computed (tautological test shapes, fail-first replay). When the cycle produced no pack, pass the sentinel `(no pack available this cycle)` for that fourth input instead, matching the fallback SKILL.md step 3 prescribes for `{PACK_FILE}`/`{PACK_FINDINGS}`. The fifth input is the blocks verbatim, `replay: skipped (...)` lines included - a skipped replay is a fact she should know, not a blank.
+
+```
+Task tool:
+  subagent_type: autopilot:eve
+  description: "Eve doubt-reviews the work against the PRD"
+  prompt: |
+    ## PRD
+    {PRD content}
+
+    ## Diff range
+    {base}..HEAD
+
+    ## Changed files
+    {changed-file list, one path per line}
+
+    ## Findings precedent
+    {PACK_FINDINGS}
+
+    ## Mechanical test checks
+    {the two step-3 blocks: tautological test shapes, then the fail-first replay}
+```
+
+`agents/eve.md` supplies the persona as the system prompt and pins `model: fable` in its own frontmatter, so no `model` argument is passed here. Do NOT fork or modify `eve.md` for one lane - it already prescribes the full output contract, and any edit to it must apply to every reviewer carrying the doubt lens (the codex path, its Claude fallback, and Eve).
+
+Eve's output must satisfy the doubt-review contract exactly (PRD 00016 — no coverage block):
+- **FIX / VERIFY / KNOWN** sections, one finding per line; an empty bucket emits its header and `- (none)`.
+- The five doubt-rubric verdict lines `D1:`-`D5:`, each `pass` or `fail`, emitted verbatim (a rule that cannot be evaluated is `fail`; never omit a line).
+
+If Eve's dispatch fails or times out, treat her as a failed reviewer - she retries Alice-style (the native-Task-reviewer branch of `retry-policy.md`, message the running agent again) and, after the one-retry budget is spent, is marked unavailable while the other reviewers proceed (graceful degradation, per `retry-policy.md`). The failure is legible and distinguishable from a valid empty-findings response; a single failed reviewer does not block the cycle. When the codex doubt-roster guard is active, being marked unavailable is not the end: a Claude Task subagent is dispatched as her substitute per SKILL.md step 5, so a non-codex doubt voice still exists. Absent that guard, Eve is an opt-in fifth lens and her failure really is just the graceful degradation described above.
