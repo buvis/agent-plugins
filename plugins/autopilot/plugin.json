@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "autopilot",
+  "version": "0.10.0",
+  "description": "PRD-driven autonomous build and multi-lens review pipeline. Portable assets only; execution is unavailable pending host certification.",
+  "author": {
+    "name": "buvis"
+  },
+  "license": "MIT"
+}

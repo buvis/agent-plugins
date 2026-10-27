@@ -1,0 +1,421 @@
+---
+name: plan-tasks
+description: Use when breaking a PRD into granular, sequenced implementation tasks ready for the work skill. Triggers on "plan tasks", "create tasks from PRD", "implement PRD", "break down the spec".
+compatibility: "Requires Bob personal Claude/autoclaude environment or equivalent host adapters for sub-agents, state, and review handoffs."
+---
+
+## Portable entry point — unavailable
+
+**STOP — unavailable. Refuse this entry point before any old script invocation.** This portable package does not provide executable host support for this skill. Report the skill as unavailable and stop; do not follow the retained procedure below, invoke scripts or tools, dispatch agents, or read or write workflow state. The original frontmatter, compatibility metadata, and procedure are retained for AP 00015 procedure adaptation. AP 00014 owns native host support; AP 00017 owns real-host certification. This package version unconditionally refuses execution. Source checkout paths and historical citations are informational provenance only; never read them to supply missing runtime content.
+
+
+# Plan Tasks from PRD
+
+Create implementation tasks from PRD documents.
+
+## Dependencies
+
+- Personal skills (files read at runtime): `work` - its `SKILL.md` "Gemini-first tasks" list is the single source of truth for the UI/backend split that sets `qwen_eligible`, and `references/qwen-integration.md` carries the qwen infra preflight (absent: qwen counts as unavailable and the eligibility trigger is skipped)
+- State contract with `run-autopilot`: `docs/dev/project-management/autopilot/state.json`, `docs/dev/project-management/autopilot/replan-context.md`
+- Optional: `pi` binary plus a reachable llama.cpp endpoint (gated by the preflight, never fatal)
+
+## Workflow
+
+### 1. List available PRDs
+
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/skills/plan-tasks/scripts/list-prds.sh
+```
+
+Or manually list PRDs (the native `Glob` tool is absent in this build; see rules/tools.md):
+```bash
+ls docs/dev/project-management/prds/wip
+ls docs/dev/project-management/prds/backlog
+```
+
+If no PRDs found, inform user and stop.
+
+### 2. Select PRD
+
+- **1 PRD in wip** → auto-select it, don't ask
+- **0 PRDs in wip** → present backlog list, ask user to pick
+- **2+ PRDs in wip** → present list (wip + backlog), ask user to pick
+
+### 2.5. Detect replan mode
+
+Before reading the PRD, check for `docs/dev/project-management/autopilot/replan-context.md`. If present, this invocation is a **replan** triggered by `/autopilot:run-autopilot` Phase 0's abort handler — the prior Work session aborted on a too-big task and autopilot wants the remaining scope re-split into smaller chunks.
+
+When `replan-context.md` exists:
+
+1. Read it. The file lists completed-work entries (tasks already done, code already shipped — do NOT re-plan these), an aborted task (the trigger), and a `Budget:` line.
+2. Read the `Budget: {n} tokens per task` line from the file. Use that value as the per-task budget for the rest of this invocation — treat it as the hard threshold in step 4.6's split logic, not 150K. If the line is absent, fall back to 75 000.
+3. Treat the PRD scope as "everything the PRD asks for **minus** the completed-work entries." When analyzing the PRD in step 3 and decomposing in step 4, skip capabilities already listed under "Completed work" in `replan-context.md`.
+4. After all `task-add` calls in step 4 succeed (planning completes without stalling), delete `replan-context.md` — it's consumed. Do NOT delete on stall.
+
+When `replan-context.md` is absent → normal first-pass planning. Use the 150K threshold.
+
+### 3. Analyze PRD
+
+Read the full PRD. Also load existing codebase architecture context (AGENTS.md, agent_docs/, `docs/dev/project-management/` architecture notes) to cross-reference. Identify reusable existing code before creating tasks.
+
+**Design doc (when present).** Check `state.design_doc` in `docs/dev/project-management/autopilot/state.json`; if it is unset, fall back to the glob `docs/dev/project-management/designs/<prd-stem>-design.md` (`<prd-stem>` = the selected PRD's filename minus `.md`). When a design doc exists, read it — it refines the PRD with the implementation design (the HOW): `## Interfaces & contracts` (exact signatures/types/enums), `## Module placement` (file targets), and `## Reuse inventory` (existing helpers). These seed the task `Contract`, `Location`, and `Reuse:` fields in step 4. When no design doc exists, plan from the PRD alone, as today. This detection works unchanged in replan mode.
+
+Extract:
+- Capabilities and features
+- Module structure
+- Dependency graph
+- Implementation phases
+- Existing patterns/utilities that implementers should reuse
+
+**When the PRD has no Functional Decomposition or Dependency Graph section** (many PRDs state only `## Requirements` + `## Acceptance`): do NOT treat the split (step 4.6) and dependency (step 5) inputs as undefined. **Derive** both from the Requirements — treat each requirement (R1, R2, …) as a decomposition unit, and infer ordering from explicit `depends on`/`after`/`blocked by` wording and from data-flow (a requirement that consumes another's output sequences after it); default to no dependency when none is stated. Steps 4.6 and 5 then use this derived structure exactly as they would a stated one. **Note the derivation in the step-6 planning summary** so the reviewer knows the sequencing is inferred, not PRD-pinned.
+
+### 4. Create tasks
+
+Persist each task with statectl — the sole writer for state.json (never hand-edit with Read/Write/Edit):
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json task-add <task-json-file>
+```
+
+Build one JSON object per task and write it to `<task-json-file>` with the Write tool — a task body carries backticks, quotes and newlines, which break as an inline shell argument. Required key: `"name"` (the task title). The body composed per the "Task description format" below goes in `"description"`; every other field this skill assigns (`files` - the task's expected implementor-writable repo-relative paths, the same slice step 4.7 writes to `plan-<n>-files.txt` - persisted on every task; `blocked_by` in step 5, `estimated_tokens` and `est_context_peak` in step 4.5, `model`, `tier_reason`, `qwen_eligible` and `qwen_excluded_reason` in step 4.7) is a top-level key on the same object — flattened, never nested under a `metadata` key. `task-add` assigns the id and prints it to stdout; capture it (`id=$(python3 …/statectl.py docs/dev/project-management/autopilot/state.json task-add /tmp/task-3.json)`) so later tasks in this same pass can name it in their own `blocked_by` array. Create the tasks in the PRD's dependency/phase order (earlier phases first, so every blocker exists before the tasks it blocks), which is what makes those captured ids available when step 5 builds each `blocked_by` array.
+
+To fix a task after creation (not the normal create path): `task-set-body <task-id> <body-file>` replaces `description` verbatim from a raw text file, and `task-set-meta <task-id> <meta-json-file>` merges JSON keys onto the task entry (a `null` value deletes that key).
+
+Follow these rules:
+
+**Task qualities**:
+- **Atomic**: Single focused change
+- **Self-contained**: All context in description
+- **Sequenced**: Dependencies explicit
+- **Unambiguous**: No decisions left to implementer
+
+**Task description format**:
+```
+{What to do}
+
+Location: {file paths or how to find them}
+
+Reuse: {existing patterns, utilities, or modules to build on — if any}
+
+Premise: {observed-state facts this task depends on; re-verify before acting}
+
+Contract (verbatim — from the design doc's `## Interfaces & contracts` when a design doc exists, else from the PRD; copy exact names, do NOT paraphrase):
+- {every exact field name, enum value, type shape, API signature, file/hook
+   kind, and threshold the PRD specifies for this task}
+
+Details:
+- {specific requirement 1}
+- {specific requirement 2}
+
+Acceptance criteria:
+- {the PRD's per-task "Acceptance:" clause(s), copied verbatim}
+
+Verify: {how to confirm it's done}
+```
+
+**The `Contract` and `Acceptance criteria` sections are mandatory and must be
+copied verbatim from the PRD — never paraphrased, never summarized.** `/autopilot:work`
+hands each task to a test author (Tess) who writes tests *from the task
+description alone*, having never seen the PRD. If the task says "write the
+atlas JSON" instead of naming the exact keys (`head_sha`, `surveyed_at`,
+`error_style`, …), Tess invents a plausible-but-wrong schema, the implementer
+builds to those tests, and TDD locks in the wrong contract — a self-consistent
+failure that only surfaces at the PRD-level review, after every task is "done".
+When the PRD pins a name, an enum value, a type, a file kind ("Stop hook" vs
+"PostToolUse hook"), or a numeric threshold, that exact string goes into the
+task. This is what the "Unambiguous" and "Self-contained" task qualities above
+mean in practice. If the PRD itself is vague on a contract the task needs,
+surface it in step 6 as an ambiguity — do not let the implementer guess.
+
+**The `Premise:` line is optional and PRD-owned.** When the PRD states a
+premise for a task (observed-state facts its action rests on), copy it
+**verbatim** into the `Premise:` line — same discipline as `Contract`, never
+paraphrased. The implementor must re-verify the premise before acting and treat
+a false premise as a blocker: stop, report, do not proceed. In loop mode this
+feeds PRD 00017's stall path (`run-autopilot/references/recovery.md`
+"Loop-mode stall procedure") — a premise failure is never resolved by
+assumption. When the PRD states no premise, omit the line entirely: no new
+behavior, nothing inferred or invented.
+
+**Contract source when a design doc exists.** When a design doc is present
+(detected in step 3), the task `Contract` is copied **verbatim from the design
+doc's `## Interfaces & contracts`** entries — byte-identical, not paraphrased —
+because the design doc is the architecturally-vetted refinement of the PRD's
+contract. `Acceptance criteria` is **ALWAYS** copied verbatim from the **PRD**;
+the design doc never owns acceptance criteria — those stay PRD-owned. Seed each
+task's file placement / `Location` from the design doc's `## Module placement`
+and its `Reuse:` lines from `## Reuse inventory`. When NO design doc exists, the
+`Contract` comes from the PRD as described above. **On a PRD-vs-design contract
+conflict, the design doc wins** (it refines the PRD): use the design doc's
+contract and log the conflict in the step-6 planning summary. This rule works
+unchanged in replan mode.
+
+**If a `task-add` call fails mid-plan** (a statectl error — NOT the oversize stall handled in step 4.6): stop creating tasks and **roll back cleanly**. Run `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json tasks-clear`, which empties the whole task array in one write (same cleanup as the oversize stall below) so no orphan tasks survive to make the next PRD's Phase 2 skip planning. Then record the cause via statectl — `set stall_reason '{"stalled": "taskcreate_failed", "detail": "<the statectl error>"}'` — and report the failure. `/autopilot:run-autopilot` Phase 2 reads a non-`oversized_task` stall as a plan-tasks failure (PAUSE interactive; loop mode re-invokes once, then stalls the PRD `sub_skill_fail`); the rollback guarantees the retry starts from a clean tracker. Do NOT move the PRD to `hold/` — a transient `task-add` failure is not an un-splittable PRD.
+
+**On successful completion of all `task-add` calls, clear a stale failure marker:** `statectl get stall_reason` → if it reads `"taskcreate_failed"` (a prior attempt failed and this retry succeeded), `statectl del stall_reason`. Otherwise leave it untouched — an `oversized_task` marker is owned by step 4.6, and a fresh plan usually has no marker (do NOT blind-`del`; statectl errors on an absent key).
+
+### 4.5. Estimate per-task context budget
+
+For each task, compute an estimate so `/autopilot:work` stays under the work-tier model's standard context ceiling (200K on the current tiers).
+
+**Formula:**
+
+```
+estimated_tokens = sum(file_bytes/4 for file in task.files_touched)
+                 + prd_slice_bytes/4
+                 + plan_text_bytes/4
+                 + 55000
+```
+
+- `file_bytes/4`: ~4 chars per token, accurate within ±20% for code (less accurate for prose-heavy markdown; round up when in doubt).
+- `prd_slice_bytes`: bytes of the PRD section(s) this task references.
+- `plan_text_bytes`: bytes of the task's own description/details.
+- `55000`: overhead constant for system prompt + tool defs + skill texts on the current work-tier model (see "Overhead re-derivation" under Estimator caveats for provenance).
+
+**Threshold:** 150 000 tokens normally; in replan mode, the value from `replan-context.md`'s `Budget:` line (step 2.5). `est_context_peak = estimated_tokens + 20000` (20K headroom for response generation).
+
+**Persist** both values as top-level keys in the task's `task-add` JSON payload (flattened, not nested under a `metadata` key):
+
+```json
+{"estimated_tokens": 87000, "est_context_peak": 107000}
+```
+
+**Worked example:** a task touches three files (80KB, 40KB, 20KB) with a 25KB PRD slice and a 3KB plan text.
+
+```
+sum(file_bytes/4)   = (80000 + 40000 + 20000) / 4 = 35 000
+prd_slice_bytes/4   = 25000 / 4                   =  6 250
+plan_text_bytes/4   = 3000 / 4                    =    750
+overhead            =                              55 000
+                                                  ───────
+estimated_tokens    =                              97 000
+est_context_peak    = 97 000 + 20 000           = 117 000
+```
+
+Below the 150K threshold → task ships as-is.
+
+### 4.6. Split tasks (context + eligibility)
+
+Step 4.6 has **two independent split triggers**. The existing context-budget trigger is unchanged; the eligibility trigger pushes separable backend work toward the qualified single-file shape that `/autopilot:work` can route to qwen (PRD 00174).
+
+- **Context-budget trigger** (always active): when `estimated_tokens > THRESHOLD` (150K normally; replan-context.md budget in replan mode), the task is too big for a single context window.
+- **Eligibility trigger** (infra-gated, see the qwen infra preflight subsection below): a **backend** task (UI/backend definition: see step 4.7 — UI matches the "Gemini-first tasks" list in `${CLAUDE_PLUGIN_ROOT}/skills/work/SKILL.md`, everything else is backend) touching `>=2` files may split into one-file pieces so each subtask can route to qwen. The split is valid only when **cleanly separable** — judged from the PRD's Functional Decomposition and Dependency Graph, with each resulting piece required to independently compile and carry its own passing tests (no piece depends on a symbol another piece introduces). **A trait definition cannot be split from its implementations.** Correlated implementation/test, interface/implementation, and implementation/caller edits remain together and route above Qwen; do not manufacture a task boundary to gain eligibility.
+
+An inseparable two-file task stays one task and is Qwen-ineligible (`files`); a separable two-file task may become two independently gated one-file tasks. Count only expected implementor writes: Tess-owned tests that Ivan must only read are outside that write set, while tests Ivan must edit count as writes.
+
+When **both** triggers apply to the same task, a **single split pass** satisfies both — do not run two passes. After splitting, each subtask is re-estimated per step 4.5 and re-classified per step 4.7 (so `qwen_eligible` reflects the new file count).
+
+**Qwen infra preflight (gates the eligibility trigger only):**
+
+Before applying the eligibility split trigger, `plan-tasks` runs the qwen infra preflight defined in `${CLAUDE_PLUGIN_ROOT}/skills/work/references/qwen-integration.md` (PRD 00031) — `pi` on PATH, the llama.cpp endpoint reachable, the configured model id present, and a real 1-token completion succeeding (the only check that proves the inference worker actually spawns). It is cheap on the common path; it exists so the eligibility split is only paid for when qwen can actually consume the result — a backend that lists the model but can't serve a token (`completion_failed`) skips the split rather than marking tasks qwen-eligible that would only fall back at dispatch.
+
+- **Healthy** → the eligibility trigger is active for this PRD's tasks.
+- **Unhealthy, or the probe is unavailable** (any failure mode reported by the probe — see `${CLAUDE_PLUGIN_ROOT}/skills/work/references/qwen-integration.md` for the current check list; absence of that file itself, e.g. before PRD 00031 has landed, also counts as unavailable) → the eligibility trigger is **skipped entirely**; tasks keep their original shape and route to Claude.
+
+The **context-budget trigger is not gated** by the preflight and remains active regardless of qwen's status. The **step-4.7 `qwen_eligible` computation is not gated** either — it is always computed and persisted on every task (staying inert until `work` reads it).
+
+**Risk exemption (skips the eligibility trigger only):**
+
+A task carrying either risk fact (`contract_edit` or `algorithmic_risk`) is **not split for eligibility**. A risk fact normally lands the task on `opus`, which is never qwen-eligible, so the split would buy nothing. The exemption holds either way, and does not depend on that tier landing: a test-only or packaging-only slice pins `sonnet` before either fact is read. Judge both facts under step 4.7's evidence rules before splitting, and reuse the same values there. The exemption short-circuits the eligibility trigger and the task keeps its original shape. The context-budget trigger is unaffected: a risky task that also exceeds the context budget is still split for that reason.
+
+The existing context-budget split mechanics, the one-split-attempt rule, and the stall behavior below are **unchanged** by the eligibility trigger — both triggers share them:
+
+1. **File boundary first.** Split into one task per file. The PRD slice prorates equally; the 55K overhead applies once per task. Re-estimate each subtask.
+2. **Capability boundary second.** If a task touches only one file and still exceeds the threshold, split along capability boundaries inside the PRD's Functional Decomposition section (or the decomposition derived from the Requirements in step 3 when the PRD states none).
+3. **One split attempt only.** If a task still exceeds the threshold after splitting, mark the PRD as stalled (use the threshold value in the stall_reason).
+
+**Stall behavior:**
+
+When unable to split below the threshold (150K standard, 75K in replan mode), **merge** a `stall_reason` key into the existing `docs/dev/project-management/autopilot/state.json` via statectl — the sole writer for state.json (never hand-edit with Read/Write/Edit; see `/autopilot:run-autopilot`):
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json set stall_reason '{"stalled": "oversized_task", "task": "<task-id>", "estimated_tokens": <int>}'
+```
+
+statectl merges the key and preserves the existing `phase`, `phases_completed`, `tasks`, `batch`, etc.
+
+**Then delete every task you already created** for this PRD with a single call: `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json tasks-clear`. `/autopilot:plan-tasks` calls `task-add` before the per-task budget check, so by the time the stall fires there are orphan tasks in the tracker. Cleaning up here makes the stall self-contained: any caller (not just `/autopilot:run-autopilot`) gets the same post-stall state. `/autopilot:run-autopilot` Phase 2 also performs this cleanup as a backstop.
+
+After both writes succeed, end the session's work with the stall recorded (the `stall_reason` key in state.json IS the observable stall signal — a model-followed skill has no exit code); `/autopilot:run-autopilot` Phase 2 reads it, detects the stall, moves the PRD from `docs/dev/project-management/prds/wip/` to `docs/dev/project-management/prds/hold/` (creating the directory if missing), clears the stall key from state, and proceeds to the next backlog item without user prompt. See `/autopilot:run-autopilot` Phase 2 for the consumer-side contract.
+
+### Estimator caveats
+
+The bytes/4 heuristic is accurate within ±20% for source code, less accurate for prose-heavy markdown. When the largest input is markdown (PRD prose, docs), round up. When estimates land within 10% of the threshold (150K standard / 75K replan), prefer splitting — the runtime context cap hook (Phase 2 of PRD 00024) will abort tasks that overrun anyway, and a planned split is cheaper than a runtime abort.
+
+**Overhead re-derivation:** The constant is measured by reading `input_tokens + cache_read_input_tokens + cache_creation_input_tokens` from the first `message.usage` line in a fresh Work-phase transcript on the current work-tier model (zero task context loaded — just the system prompt, tool defs, and active skills). Re-derive when upgrading the model or adding/removing skills: start an empty `/autopilot:work` session, read the first usage line from `~/.claude/projects/<hash>/<session>.jsonl`, sum the three token fields. Update the constant and the worked example if the new value differs by more than 5K. Provenance of the current 55K (2026-07-11): five fresh headless opus-4.8 work-phase transcripts measured 74,560-74,809 (~74.7K), minus PRD 00043's measured always-loaded reduction (run-autopilot SKILL.md 33.0K → 7.3K core, +5.4K gate file read back in ≈ −20K net) ≈ 55K, rounded. Those transcripts predate the 00043 restructure; re-measure directly at the next batch and correct if the fresh number moves more than 5K.
+
+**Pending re-derivation (PRD 00084 R3, LIVE):** the 55K/150K constants are measured on `opus-4.8`, but PRD 00076 ended Opus as the default autopilot **build**-phase model: build sessions now launch Sonnet-first and promote to `claude-opus-5` only when the build-model routing (`build_model` in run-autopilot's `cli/routing.py`, since PRD 00106) finds difficulty evidence for the PRD. `_AUTOPILOT_MODEL_BUILD` is an operator env override / kill-switch, not a hardcoded constant. That makes this trigger live: re-derive per the mandate above on real Sonnet build transcripts once a few Sonnet build batches exist, not from a single ad-hoc session or a non-build transcript.
+
+### 4.7. Assign per-task model tier
+
+For each task, `classify_tier.py` decides the model tier. Persist what it prints as top-level `model: "haiku"|"sonnet"|"opus"` and `tier_reason` keys, so `/autopilot:work` dispatches each subagent at the right tier (PRD 00025) and every reader of the plan can see why that tier was chosen (PRD 00160).
+
+**Inputs, per task:** that task's file slice, its title plus description, its estimated lines-changed (rough: pull from the task plan or estimate from the file slice), and the two facts below. Neither the PRD body nor `estimated_tokens` is an input any more, because size and vocabulary stopped deciding tiers with PRD 00160.
+
+**Two per-task facts.** Judge these booleans once per task, from that task's own `Contract`, `Location`, `Details` and file slice, before the step-4.6 split, then reuse the same values here. Both default to false; assert one only on the evidence named:
+
+- `contract_edit` is true only when the task itself changes an exported API signature, a persisted schema, a wire format or a hook registration shape. Calling or documenting a contract does not count.
+- `algorithmic_risk` is true only when the task's own `Details` name a new algorithm it implements (not one it calls), shared mutable state across threads, processes or async tasks, or a transform of persisted data (a migration). Words in the PRD body, the PRD title or the task name alone never qualify, and neither do `design`, `architect`, `introduce`, `refactor across`, file count or `estimated_tokens`.
+
+**Run the classifier, once per task.** Write the task's file slice to `docs/dev/tmp/plan-<n>-files.txt` (one repo-relative path per line) and its title plus description to `docs/dev/tmp/plan-<n>-text.txt`, with `<n>` the task's position in this pass, then run:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/plan-tasks/scripts/classify_tier.py --files-file docs/dev/tmp/plan-<n>-files.txt --text-file docs/dev/tmp/plan-<n>-text.txt --lines <lines-changed> [--contract-edit] [--algorithmic-risk] [--default-model <floor>]
+```
+
+Pass `--contract-edit` only when that task's `contract_edit` is true, `--algorithmic-risk` only when its `algorithmic_risk` is true, and `--default-model <floor>` only when the PRD frontmatter sets one (see the override below). Task-authored prose crosses as files, never as shell words.
+
+The command prints one JSON line, `{"model": "<tier>", "tier_reason": "<reason>"}`. Take `model` and `tier_reason` from that line exactly as printed and persist both on this task's payload (see **Persist** below).
+
+**Legal `tier_reason` values.** The classifier emits exactly one of `test_port`, `packaging`, `contract`, `algorithmic_risk`, `mechanical`, `default` or `floor`; any other value in a plan is corrupt state, not a new reason.
+
+**What the classifier does with those inputs**, in precedence order: a file slice that is all test paths gives `sonnet` / `test_port`, and a slice that is all test or packaging paths gives `sonnet` / `packaging`. Then `contract_edit` gives `opus` / `contract`, and `algorithmic_risk` gives `opus` / `algorithmic_risk`. Then the mechanical row gives `haiku` / `mechanical`, and everything left gives `sonnet` / `default`. Last, the `default_model` floor raises the tier when the floor is higher, reporting `floor` when it does.
+
+**The mechanical signal list was widened once and the widening was withdrawn (PRD 00075).**
+See `references/design-rationale.md` for the counterexamples and why a future widening must move a different axis than the verb.
+
+**Row selection (`_PLAN_TASKS_FLOOR`).** An optional `_PLAN_TASKS_FLOOR` value names which mechanical row this run treats as current. It is a prose-only knob: `classify_tier.py` does not read it, and it does not compose into the `final_tier = max(...)` formula in "PRD frontmatter override" below, which is unchanged either way. `_PLAN_TASKS_FLOOR` is an environment variable, read at step 4.7 entry: run `python3 -c 'import os;print(os.environ.get("_PLAN_TASKS_FLOOR",""))'`. Apply the row-selection table below to whatever value comes back, including the empty string (it takes the current row).
+
+| `_PLAN_TASKS_FLOOR` | Mechanical row applied |
+|---|---|
+| `legacy` | The pre-00075 row verbatim: `files_touched ≤ 2` AND est. lines-changed `≤ 50` AND task text matches one of exactly these nine signals: `add log`, `rename`, `add test for`, `port`, `mirror`, `inline`, `extract constant`, `update import`, `bump version` |
+| `sonnet` | Alias for `legacy` |
+| absent, empty, or any other value | The current mechanical row. An invalid non-empty value logs one warning line before falling back to it |
+
+**The knob is currently a no-op, deliberately.** Because the widening was withdrawn (above), the `legacy` row and the current mechanical row are identical, so every `_PLAN_TASKS_FLOOR` value names the same row. It ships anyway as the kill-switch the next widening attempt will need: the moment a defensible widened row lands, `_PLAN_TASKS_FLOOR=legacy` reverts to the nine signals above without editing rules. Do not delete it as dead config, and do not assume it is exercised: it has no behavioral test until a widening exists to revert.
+
+**Examples**:
+
+- "rename `foo` to `bar` in `module/x.rs`" (1 file, ~10 lines, both facts false) → `haiku` / `mechanical`.
+- "add a `--json` flag to the export CLI and change the shape of the emitted record" (2 files, ~90 lines): the task itself changes a wire format, so `contract_edit` is true → `opus` / `contract`.
+- "add POST /users endpoint with email validation" (3 files, ~80 lines, both facts false): too many files and lines for the mechanical row, and nothing earlier fires → `sonnet` / `default`.
+
+**PRD frontmatter override**
+
+PRD frontmatter accepts an optional `default_model: haiku|sonnet|opus` field that acts as a **floor** on the classifier output — never a demotion. Parse it from the YAML block at the top of the PRD using the same approach `/autopilot:run-autopilot` Phase 0 uses for `catchup:` (look for `---` delimiters, parse the YAML, accept `haiku`/`sonnet`/`opus`). Behavior:
+
+- **Absent frontmatter or unset `default_model:`** → no override (silent; omit `--default-model` and the classifier's tier passes through unchanged). This is what keeps `haiku` reachable without requiring every PRD to opt in explicitly — and matches `/autopilot:run-autopilot` Phase 6's `[D]` follow-up behavior.
+- **Malformed frontmatter or invalid `default_model:` value** → no override AND log a one-line warning. The classifier output passes through. `fable` is deliberately not in the accepted set: it is human-gated — use the rescue flow (PRD 00076, `run-autopilot/references/model-ladder.md` § Fable rescue), never a frontmatter floor. Warn with that reason rather than a bare "invalid value" so the omission reads as policy.
+- **Valid value (`haiku`/`sonnet`/`opus`)** → pass it as `--default-model` and the floor below applies. The floor is all this key does: `default_model: opus` never picks the orchestrator, a PRD that wants an opus build session declares `session_model: opus` beside it (PRD 00200; `run-autopilot/references/state-schema.md` § Build-Session Model Promotion Signals).
+
+`classify_tier.py` applies the floor itself, after its own rules have produced a tier, by taking the maximum across the precedence `haiku < sonnet < opus` (only when `default_model` is a valid value):
+
+```
+final_tier = max(classifier_tier, default_model)
+```
+
+This guarantees:
+
+- `default_model: opus` raises every task to `opus`: a `haiku` or `sonnet` classification is clamped up, an `opus` classification stands. Matches PRD 00025's Critical Scenarios "PRD frontmatter override" test.
+- `default_model: sonnet` clamps `haiku` up to `sonnet` and leaves `sonnet` and `opus` alone.
+- `default_model: haiku` is a no-op (`haiku` is already the floor of the precedence; classifier output stands as-is).
+- An `opus` classification is never demoted by any `default_model` value.
+- Review-rework `[D]` tasks take this floor only when they carry a 🔴 finding (`run-autopilot/references/phase-review.md` Phase 6).
+
+**`qwen_eligible` computation**
+
+After the classifier has settled `final_tier` (the floor above included), compute the `qwen_eligible` boolean that `/autopilot:work` (PRD 00031) reads to decide qwen routing. The formula (widened by PRD 00019) is:
+
+```
+qwen_eligible = task is backend (not UI) AND model in {haiku, sonnet} AND files_touched == 1 AND task edits no public contract
+```
+
+- `model` is the tier the classifier printed (the same value persisted as the top-level `model` key).
+- Here `files_touched` counts distinct, non-empty expected implementor-writable file paths, excluding read-only context and Tess-owned tests; it does not change the step-4.5 context estimate or the classifier's inputs. Empty or missing file slices are ineligible (`files`).
+- **UI** = the task matches the **"Gemini-first tasks"** list in `${CLAUDE_PLUGIN_ROOT}/skills/work/SKILL.md`. Anything not matching that list is **backend**. Reuse `work`'s list as the single source of truth so producer and consumer agree by construction — do not restate the list here; if it changes in `work`, this rule inherits the change.
+- **Public contract** = the `contract_edit` fact judged above under its evidence rule. Reuse that value as the single source of truth so the tier and this flag cannot disagree; do not restate the definition here and do not widen its evidence. `contract_edit` false means the task edits no public contract.
+
+Each of the following yields `qwen_eligible = false` independently, with the named `qwen_excluded_reason` code:
+
+- The task matches the UI list (Gemini's domain, not qwen's) → `ui`.
+- `model == "opus"` (opus tier is never qwen-eligible) → `tier`.
+- The task edits a public contract, meaning `contract_edit` is true → `contract`.
+- `files_touched >= 2` or `files_touched == 0` (outside the measured single-file scope) → `files`.
+
+**`qwen_excluded_reason`**: on **every** ineligible task, also persist `qwen_excluded_reason` — one of `ui` / `tier` / `files` / `contract`. When several conditions fail, record the FIRST failing one in the order above (`ui` → `tier` → `contract` → `files`). `contract` is recorded ahead of `files` because the codex rung's fence (`run-autopilot/references/model-ladder.md` § Codex rung) admits `files` but must exclude `contract`, so a task that both spans many files and edits a public contract has to record `contract`, keeping it off codex. Eligible tasks omit the key. This makes under-routing auditable per batch: the Phase 9 Implementor Mix render counts exclusions by reason (PRD 00019).
+
+**`qwen_excluded_reason: contract` is unreachable on new plans, except on test-only and packaging-only slices.** A task that edits a public contract carries `contract_edit`, the classifier turns that into `opus`, and `tier` is recorded ahead of `contract`, so such a task records `tier` instead. The exception is precedence: when a task's file slice is all test paths, or all test or packaging paths (a packaging-only slice included), that row fires first and pins the tier to `sonnet` before `contract_edit` is read, so `contract` is recorded after all. The code stays documented because readers still meet it on plans made before PRD 00160, and the Phase 9 mix render should read a zero or near-zero `contract` count as expected rather than as an under-count. The codex fence is unaffected: opus is never intercepted.
+
+The flag is computed **from** the classifier output; it does **not** alter the tier.
+
+**Persist** `model`, `tier_reason`, the `qwen_eligible` flag, and (on ineligible tasks) the `qwen_excluded_reason` alongside the existing token estimate as top-level keys in the task's `task-add` JSON payload, e.g.:
+
+A one-file backend task → `qwen_eligible: true`; a two-file backend task → `qwen_eligible: false`, `qwen_excluded_reason: "files"` (both Sonnet, no public-contract edit):
+
+```json
+{"files": ["src/export.py"], "estimated_tokens": 72000, "est_context_peak": 92000, "model": "sonnet", "tier_reason": "default", "qwen_eligible": true}
+```
+
+```json
+{"files": ["src/export.py", "src/cli.py"], "estimated_tokens": 90000, "est_context_peak": 110000, "model": "sonnet", "tier_reason": "default", "qwen_eligible": false, "qwen_excluded_reason": "files"}
+```
+
+`qwen_eligible` is persisted on **every** task `plan-tasks` creates. `/autopilot:work` retains that classification and reconciles the concrete `FILE_PATHS` write set before routing, so stale multi-file eligibility cannot bypass the single-file fence (see `${CLAUDE_PLUGIN_ROOT}/skills/work/SKILL.md`).
+
+On legacy plans created before PRD 00025, `state.tasks[i].model` is simply absent — `/autopilot:work` falls back to omitting the Agent `model` parameter so subagents inherit the session model (backwards-compatible). Likewise, on legacy plans created before PRD 00032, `state.tasks[i].qwen_eligible` is absent and `/autopilot:work` treats it as `false` (routes to Claude at the task's tier); plans created before PRD 00019 lack `qwen_excluded_reason`, which readers treat as `unknown` — never an error. Plans created before PRD 00160 lack `tier_reason`; readers render the tier as unexplained rather than failing.
+
+### 5. Set dependencies
+
+Dependencies are set **inline at creation**, not in a follow-up pass. `task-add` prints each new task's id, and step 4 creates tasks in the PRD's phase order (earlier phases first), so a later task's blockers are already-captured ids by the time its payload is built — put them straight in that task's `"blocked_by"` array (array of ints).
+
+Follow PRD's dependency graph:
+- Phase 0 tasks: no blockers
+- Phase 1 tasks: blocked by Phase 0
+- etc.
+
+**Correctness rule:** before you put a task id in a `blocked_by` array, that blocker must already have been created — its id captured from an earlier `task-add` call in this same pass. Never guess an id for a task that does not exist yet (statectl validates `blocked_by` as a list of ints, not that the ids resolve, so a guessed id lands on disk unchallenged). If a dependency only surfaces after its task already exists — a step-4.6 split, or creation order that ends up not matching phase order — add it afterwards with `task-set-meta <task-id> <meta-json-file>`, the file holding `{"blocked_by": [...]}`.
+
+### 5.5. Check the plan against the plan-expansion gate (F5)
+
+Once the task list is persisted, run:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py check-plan --prd docs/dev/project-management/prds/wip/<state.prd>
+```
+
+It counts `state.tasks` itself and reads the PRD's task lines, frontmatter and `### Repository Structure` tree. It stalls on three rules: planned tasks over the loop ceiling (`planned > 15`); an expansion ratio over 3.0 with more than 8 planned tasks (`expansion > 3.0`, where expansion is planned tasks divided by the PRD's `- [ ]` task lines); and 2 or more unlisted modules (directories of planned `files` the PRD's Repository Structure tree never names). On a stall it writes a split note grouped by module to `docs/dev/project-management/autopilot/split-notes/<prd-stem>.md` and prints the stall instruction.
+
+- **Exit 0** - under every rule, continue to step 6. A `plan-expansion: unfiled=<n>; drift=checked|skipped (no Repository Structure)` stderr line is a diagnostic naming tasks without `files` or a PRD without a tree; fix the payloads, it is not a stall.
+- **Exit 3** - loop mode (`$_AUTOPILOT_LOOP` set): stall the PRD via `references/recovery.md`'s loop-mode stall procedure with `--site plan_expansion` and the printed detail (`<reasons>; note <path>`) as `--detail`; do NOT start the build; the batch continues with the next PRD. Interactive: print the warning and continue; the gate is advice here.
+- **Exit 2** - state or PRD unreadable. Fail loud; do not treat it as a pass.
+
+`plan_expansion: allow` in the PRD frontmatter skips the gate (exit 0 with one stderr line saying so).
+
+An operator who intentionally admits an oversized plan sets `rework_cap: 3` explicitly alongside `plan_expansion: allow` before an unattended resume. Neither the gate nor the frontmatter parser changes the cap automatically. Set both lines in the PRD frontmatter before resuming:
+
+```yaml
+---
+plan_expansion: allow
+rework_cap: 3
+---
+```
+
+Why: PRD 00077 planned to 28 tasks, then burned 15 sessions / 21.5h / $351
+without converging and halted the batch for four days. PRD 00071 (22 tasks)
+did land, so the ceiling is conservative on purpose — it stalls for a human
+rather than refusing to plan. Override per-run with `--ceiling N`. PRD 00167 declared 4 task lines and one module and planned to 21 tasks across five (28 sessions, $345); the thresholds live in `cli/policy.py` and are pinned by its tests.
+
+### 6. Report summary
+
+Output:
+- Total tasks created
+- Execution order (phases)
+- Any PRD ambiguities needing clarification
+- **Derived-structure note**: when step 3 derived the Functional Decomposition or Dependency Graph from the Requirements (the PRD stated neither), say so — one line naming what was derived, so the reviewer treats the sequencing as inferred rather than PRD-pinned.
+- **Irreducible-coupling reports**: for every backend task with two or more expected implementor-writable files kept whole because step 4.6's eligibility trigger judged it not cleanly separable, report the task and the coupling. The task routes above Qwen through the existing Codex/Claude fences — surface why so the planner sees the routing consequence.
+- **PRD-vs-design contract conflicts**: when a design doc was consumed (step 3) and any task's `Contract` was taken from the design doc over a conflicting PRD statement, list each conflict (the PRD's version vs the design doc's, and which task). The design doc won; surface the divergence so the planner can confirm the design's refinement was intended.
+
+## Granularity Guide
+
+| Too coarse | Properly granular |
+|------------|-------------------|
+| "Add user authentication" | "Create User model with email, passwordHash in src/models/" |
+| "Build the API" | "Add POST /users endpoint accepting {email, password}, return 201" |
+| "Handle errors" | "Add try/catch in UserService.create(), throw ServiceError on failure" |
+
+See `references/task-examples.md` for more examples.
+
+## Reference Files
+
+- `references/task-examples.md` - Good vs bad task examples
+- `references/design-rationale.md` - incident history behind the rules (non-normative)
