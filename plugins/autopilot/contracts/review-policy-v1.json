@@ -1,0 +1,929 @@
+{
+  "schema_version": 1,
+  "procedure": {
+    "lanes": {
+      "full": {
+        "required_reviewer_jobs": [
+          "alice",
+          "blake",
+          "bob"
+        ],
+        "conditional_reviewer_jobs": [
+          {
+            "job_id": "carl",
+            "predicate_id": "gemini_cli_available"
+          },
+          {
+            "job_id": "eve",
+            "predicate_id": "doubt_reviewer_fable"
+          },
+          {
+            "job_id": "eve",
+            "predicate_id": "implementor_codex_present"
+          }
+        ],
+        "delta_reviewer_jobs": [],
+        "required_artifact_kinds": [
+          "review-file",
+          "reviewer-output"
+        ],
+        "required_rubric_sets": [
+          {
+            "job_id": "alice",
+            "namespace": "R",
+            "rule_ids": [
+              "R1",
+              "R2",
+              "R3",
+              "R4",
+              "R6",
+              "R7",
+              "R8",
+              "R9",
+              "R10",
+              "R11",
+              "R12",
+              "R13"
+            ],
+            "anchor": "consensus-rubric"
+          },
+          {
+            "job_id": "bob",
+            "namespace": "R",
+            "rule_ids": [
+              "R1",
+              "R2",
+              "R3",
+              "R4",
+              "R6",
+              "R7",
+              "R8",
+              "R9",
+              "R10",
+              "R11",
+              "R12",
+              "R13"
+            ],
+            "anchor": "consensus-rubric"
+          },
+          {
+            "job_id": "carl",
+            "namespace": "R",
+            "rule_ids": [
+              "R1",
+              "R2",
+              "R3",
+              "R4",
+              "R6",
+              "R7",
+              "R8",
+              "R9",
+              "R10",
+              "R11",
+              "R12",
+              "R13"
+            ],
+            "anchor": "consensus-rubric"
+          },
+          {
+            "job_id": "blake",
+            "namespace": "B",
+            "rule_ids": [
+              "B1",
+              "B2",
+              "B3",
+              "B4",
+              "B5",
+              "B6",
+              "B7",
+              "B8",
+              "B9",
+              "B10",
+              "B11",
+              "B12",
+              "B13",
+              "B14",
+              "B15",
+              "B16",
+              "B17",
+              "B18",
+              "B19"
+            ],
+            "anchor": "blind-rubric"
+          },
+          {
+            "job_id": "bob",
+            "namespace": "D",
+            "rule_ids": [
+              "D1",
+              "D2",
+              "D3",
+              "D4",
+              "D5"
+            ],
+            "anchor": "doubt-rubric"
+          },
+          {
+            "job_id": "eve",
+            "namespace": "D",
+            "rule_ids": [
+              "D1",
+              "D2",
+              "D3",
+              "D4",
+              "D5"
+            ],
+            "anchor": "doubt-rubric"
+          }
+        ],
+        "input_exclusions": [
+          {
+            "job_id": "blake",
+            "excluded_input_kinds": [
+              "diff",
+              "file-list",
+              "plan",
+              "history",
+              "implementation-audit",
+              "sibling-findings",
+              "context-pack",
+              "mech-facts"
+            ],
+            "anchor": "rwc-prompts"
+          },
+          {
+            "job_id": "eve",
+            "excluded_input_kinds": [
+              "plan"
+            ],
+            "anchor": "rwc-context"
+          }
+        ],
+        "independent_contexts": true,
+        "fresh_coordinator_review": true,
+        "verification_not_applicable_reasons": [
+          "docs-only"
+        ],
+        "rework_policy": {
+          "cycle_cap_default": 2,
+          "cap_override_source": "prd_frontmatter.rework_cap",
+          "reviewer_retry_limit": 1,
+          "escalation_rules": [
+            {
+              "signal": "critical_unresolved_at_cap",
+              "action": "stall_or_pause",
+              "anchor": "review-cap-check"
+            },
+            {
+              "signal": "high_unresolved_at_cap_interactive",
+              "action": "stall_or_pause",
+              "anchor": "review-cap-pause"
+            },
+            {
+              "signal": "high_unresolved_at_cap_loop",
+              "action": "defer",
+              "anchor": "review-cap-check"
+            },
+            {
+              "signal": "high_regression_at_cap_loop",
+              "action": "stall_or_pause",
+              "anchor": "review-cap-check"
+            },
+            {
+              "signal": "cap_check_failed",
+              "action": "retry_once",
+              "anchor": "review-cap-check"
+            },
+            {
+              "signal": "doubt_constraint_unmet",
+              "action": "treat_as_critical",
+              "anchor": "review-outcomes"
+            },
+            {
+              "signal": "reviewer_failed_after_retry",
+              "action": "mark_unavailable",
+              "anchor": "retry-policy"
+            }
+          ]
+        }
+      },
+      "fast-track": {
+        "required_reviewer_jobs": [
+          "alice",
+          "blake",
+          "eve",
+          "bob"
+        ],
+        "conditional_reviewer_jobs": [
+          {
+            "job_id": "carl",
+            "predicate_id": "gemini_cli_available"
+          }
+        ],
+        "delta_reviewer_jobs": [
+          "eve"
+        ],
+        "required_artifact_kinds": [
+          "review-file",
+          "reviewer-output"
+        ],
+        "required_rubric_sets": [
+          {
+            "job_id": "alice",
+            "namespace": "R",
+            "rule_ids": [
+              "R1",
+              "R2",
+              "R3",
+              "R4",
+              "R6",
+              "R7",
+              "R8",
+              "R9",
+              "R10",
+              "R11",
+              "R12",
+              "R13"
+            ],
+            "anchor": "consensus-rubric"
+          },
+          {
+            "job_id": "bob",
+            "namespace": "R",
+            "rule_ids": [
+              "R1",
+              "R2",
+              "R3",
+              "R4",
+              "R6",
+              "R7",
+              "R8",
+              "R9",
+              "R10",
+              "R11",
+              "R12",
+              "R13"
+            ],
+            "anchor": "consensus-rubric"
+          },
+          {
+            "job_id": "carl",
+            "namespace": "R",
+            "rule_ids": [
+              "R1",
+              "R2",
+              "R3",
+              "R4",
+              "R6",
+              "R7",
+              "R8",
+              "R9",
+              "R10",
+              "R11",
+              "R12",
+              "R13"
+            ],
+            "anchor": "consensus-rubric"
+          },
+          {
+            "job_id": "blake",
+            "namespace": "B",
+            "rule_ids": [
+              "B1",
+              "B2",
+              "B3",
+              "B4",
+              "B5",
+              "B6",
+              "B7",
+              "B8",
+              "B9",
+              "B10",
+              "B11",
+              "B12",
+              "B13",
+              "B14",
+              "B15",
+              "B16",
+              "B17",
+              "B18",
+              "B19"
+            ],
+            "anchor": "blind-rubric"
+          },
+          {
+            "job_id": "bob",
+            "namespace": "D",
+            "rule_ids": [
+              "D1",
+              "D2",
+              "D3",
+              "D4",
+              "D5"
+            ],
+            "anchor": "doubt-rubric"
+          },
+          {
+            "job_id": "eve",
+            "namespace": "D",
+            "rule_ids": [
+              "D1",
+              "D2",
+              "D3",
+              "D4",
+              "D5"
+            ],
+            "anchor": "doubt-rubric"
+          }
+        ],
+        "input_exclusions": [
+          {
+            "job_id": "blake",
+            "excluded_input_kinds": [
+              "diff",
+              "file-list",
+              "plan",
+              "history",
+              "implementation-audit",
+              "sibling-findings",
+              "context-pack",
+              "mech-facts"
+            ],
+            "anchor": "rwc-prompts"
+          },
+          {
+            "job_id": "eve",
+            "excluded_input_kinds": [
+              "plan"
+            ],
+            "anchor": "rwc-context"
+          }
+        ],
+        "independent_contexts": true,
+        "fresh_coordinator_review": true,
+        "verification_not_applicable_reasons": [
+          "docs-only"
+        ],
+        "rework_policy": {
+          "cycle_cap_default": 1,
+          "cap_override_source": null,
+          "reviewer_retry_limit": 1,
+          "escalation_rules": [
+            {
+              "signal": "critical_or_high_survives_delta",
+              "action": "branch_and_park",
+              "anchor": "fast-track-exit"
+            },
+            {
+              "signal": "consensus_workflow_unavailable",
+              "action": "fallback_native_consensus",
+              "anchor": "fast-track-roster"
+            }
+          ]
+        }
+      },
+      "solo": {
+        "required_reviewer_jobs": [
+          "alice"
+        ],
+        "conditional_reviewer_jobs": [],
+        "delta_reviewer_jobs": [
+          "alice"
+        ],
+        "required_artifact_kinds": [
+          "review-file",
+          "reviewer-output"
+        ],
+        "required_rubric_sets": [
+          {
+            "job_id": "alice",
+            "namespace": "R",
+            "rule_ids": [
+              "R1",
+              "R2",
+              "R3",
+              "R4",
+              "R6",
+              "R7",
+              "R8",
+              "R9",
+              "R10",
+              "R11",
+              "R12",
+              "R13"
+            ],
+            "anchor": "consensus-rubric"
+          }
+        ],
+        "input_exclusions": [],
+        "independent_contexts": true,
+        "fresh_coordinator_review": false,
+        "verification_not_applicable_reasons": [
+          "docs-only"
+        ],
+        "rework_policy": {
+          "cycle_cap_default": 1,
+          "cap_override_source": null,
+          "reviewer_retry_limit": 1,
+          "escalation_rules": [
+            {
+              "signal": "unnamed_path",
+              "action": "escalate_full",
+              "anchor": "solo-escalation"
+            },
+            {
+              "signal": "security_diff",
+              "action": "escalate_full",
+              "anchor": "solo-escalation"
+            },
+            {
+              "signal": "check_failed",
+              "action": "escalate_full",
+              "anchor": "solo-escalation"
+            },
+            {
+              "signal": "critical_finding",
+              "action": "escalate_full",
+              "anchor": "solo-disposition"
+            },
+            {
+              "signal": "high_unresolved",
+              "action": "escalate_full",
+              "anchor": "solo-disposition"
+            },
+            {
+              "signal": "suite_red",
+              "action": "escalate_full",
+              "anchor": "solo-disposition"
+            },
+            {
+              "signal": "review_failed",
+              "action": "escalate_full",
+              "anchor": "solo-review"
+            },
+            {
+              "signal": "review_invalid",
+              "action": "retry_once",
+              "anchor": "solo-review"
+            }
+          ]
+        }
+      }
+    },
+    "conditional_predicates": {
+      "gemini_cli_available": {
+        "capability": "gemini_cli",
+        "expected_value": true,
+        "description": "Dispatch Carl when the Gemini CLI is available.",
+        "anchor": "rwc-prereqs"
+      },
+      "doubt_reviewer_fable": {
+        "capability": "doubt_reviewer",
+        "expected_value": "fable",
+        "description": "Dispatch Eve when the configured doubt reviewer is Fable.",
+        "anchor": "rwc-prereqs"
+      },
+      "implementor_codex_present": {
+        "capability": "implementor_codex_present",
+        "expected_value": true,
+        "description": "Dispatch Eve when a Codex implementor participated.",
+        "anchor": "rwc-prereqs"
+      }
+    }
+  },
+  "reviewer_jobs": [
+    {
+      "job_id": "alice",
+      "role_id": "consensus",
+      "lenses": [
+        "consensus"
+      ],
+      "anchor": "rwc-reviewers"
+    },
+    {
+      "job_id": "blake",
+      "role_id": "blind",
+      "lenses": [
+        "blind"
+      ],
+      "anchor": "blind-rubric"
+    },
+    {
+      "job_id": "bob",
+      "role_id": "doubt",
+      "lenses": [
+        "consensus",
+        "doubt",
+        "de-slop"
+      ],
+      "anchor": "rwc-reviewers"
+    },
+    {
+      "job_id": "carl",
+      "role_id": "ui",
+      "lenses": [
+        "consensus",
+        "ui"
+      ],
+      "anchor": "rwc-prereqs"
+    },
+    {
+      "job_id": "eve",
+      "role_id": "doubt",
+      "lenses": [
+        "doubt",
+        "de-slop"
+      ],
+      "anchor": "eve-two-lenses"
+    }
+  ],
+  "rubric_sets": {
+    "R": {
+      "rule_ids": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R6",
+        "R7",
+        "R8",
+        "R9",
+        "R10",
+        "R11",
+        "R12",
+        "R13"
+      ],
+      "anchor": "consensus-rubric"
+    },
+    "B": {
+      "rule_ids": [
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "B8",
+        "B9",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "B17",
+        "B18",
+        "B19"
+      ],
+      "anchor": "blind-rubric"
+    },
+    "D": {
+      "rule_ids": [
+        "D1",
+        "D2",
+        "D3",
+        "D4",
+        "D5"
+      ],
+      "anchor": "doubt-rubric",
+      "de_slop_anchor": "eve-de-slop"
+    }
+  },
+  "doubt_label_map": {
+    "R1": "D1",
+    "R2": "D2",
+    "R3": "D3",
+    "R4": "D4",
+    "R5": "D5"
+  },
+  "execution_profiles": {
+    "source-parity": {
+      "description": "Provider adapters and fallbacks matching the pinned source review workflow.",
+      "implementor_providers": [
+        "anthropic",
+        "openai"
+      ],
+      "implementor_diversity_guard": true,
+      "role_bindings": {
+        "alice": {
+          "provider": "anthropic",
+          "adapters": [
+            "native-subagent",
+            "review-fanout-workflow"
+          ],
+          "fallback": null
+        },
+        "blake": {
+          "provider": "anthropic",
+          "adapters": [
+            "native-subagent"
+          ],
+          "fallback": null
+        },
+        "bob": {
+          "provider": "openai",
+          "adapters": [
+            "codex-cli"
+          ],
+          "fallback": {
+            "provider": "anthropic",
+            "adapters": [
+              "native-fallback"
+            ]
+          }
+        },
+        "carl": {
+          "provider": "google",
+          "adapters": [
+            "gemini-cli"
+          ],
+          "fallback": null
+        },
+        "eve": {
+          "provider": "anthropic",
+          "adapters": [
+            "native-subagent"
+          ],
+          "fallback": {
+            "provider": "anthropic",
+            "adapters": [
+              "native-fallback"
+            ]
+          }
+        }
+      }
+    },
+    "codex-gemini": {
+      "description": "Codex CLI reviewers with Gemini CLI for Carl and Eve, without fallback adapters.",
+      "implementor_providers": [
+        "openai"
+      ],
+      "implementor_diversity_guard": true,
+      "role_bindings": {
+        "alice": {
+          "provider": "openai",
+          "adapters": [
+            "codex-cli"
+          ],
+          "fallback": null
+        },
+        "blake": {
+          "provider": "openai",
+          "adapters": [
+            "codex-cli"
+          ],
+          "fallback": null
+        },
+        "bob": {
+          "provider": "openai",
+          "adapters": [
+            "codex-cli"
+          ],
+          "fallback": null
+        },
+        "carl": {
+          "provider": "google",
+          "adapters": [
+            "gemini-cli"
+          ],
+          "fallback": null
+        },
+        "eve": {
+          "provider": "google",
+          "adapters": [
+            "gemini-cli"
+          ],
+          "fallback": null
+        }
+      }
+    }
+  },
+  "artifact_kinds": [
+    "review-file",
+    "reviewer-output",
+    "verification-log"
+  ],
+  "input_kinds": [
+    "prd",
+    "card",
+    "repo-tree",
+    "rubric",
+    "diff",
+    "file-list",
+    "plan",
+    "history",
+    "implementation-audit",
+    "sibling-findings",
+    "context-pack",
+    "mech-facts",
+    "test-results"
+  ],
+  "source_bindings": [
+    {
+      "binding_id": "rwc-reviewers",
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "section": "reviewers",
+      "blob_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "section_sha256": "e3c9f2f2a19eb4aef7164610d0330d32b95eeb536963b8dac7d5ae0b59f37527"
+    },
+    {
+      "binding_id": "rwc-prereqs",
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "section": "1-validate-prerequisites",
+      "blob_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "section_sha256": "2ef113e9c82792e87cb3eef977368afc113b9c8a9b6e7b18aa7be54cba33165c"
+    },
+    {
+      "binding_id": "rwc-context",
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "section": "3-gather-context",
+      "blob_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "section_sha256": "cd110d5ca68e8be9b89dd5a08dce6a515c5936d2908512d10832628ea690f1c1"
+    },
+    {
+      "binding_id": "rwc-prompts",
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "section": "4-prepare-agent-prompts",
+      "blob_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "section_sha256": "f6b535e411a9ed68433b6da169476c1707bbaa2cf8cdccace917e0f494b841fe"
+    },
+    {
+      "binding_id": "rwc-dispatch",
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "section": "5-run-agent-review",
+      "blob_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "section_sha256": "9ec997f51b551a24ac615f2171cf41d91f49f03580e219655522259e18505228"
+    },
+    {
+      "binding_id": "rwc-consolidate",
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "section": "6-consolidate-findings",
+      "blob_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "section_sha256": "dd7619b8a170661c3d9ecb4ca68a4597d9b10d69ac67ac161e96a5e394ac059f"
+    },
+    {
+      "binding_id": "consensus-rubric",
+      "source_path": "skills/review-work-completion/references/rubric.md",
+      "section": "rules",
+      "blob_sha256": "f3c03933a8f40a9f1934d4b7e9e8c87e6d5664f31c6814897e215f26442c717d",
+      "section_sha256": "f0d37063ac29c6a446f110f602e14647d563d2599ac4a0da8bc7fbd9ed0e094c"
+    },
+    {
+      "binding_id": "blind-rubric",
+      "source_path": "skills/review-blindly/references/rubric.md",
+      "section": "rules",
+      "blob_sha256": "e0636e0c2f5332e02e43bc9a42ca1917852e67ed675dbcf9dba5688afe7a9576",
+      "section_sha256": "e0c2e7ec2c5717d1cb95fe2693c20b78302b0a2049adcee6596087d248562433"
+    },
+    {
+      "binding_id": "doubt-rubric",
+      "source_path": "skills/run-autopilot/references/doubt-review-rubric.md",
+      "section": "rules",
+      "blob_sha256": "b793ce17b0df1c9772d8899d5b24a554bdb8af2cb6318fd1caab92be73beadd0",
+      "section_sha256": "3b286d4ca645d4a5ec5b3f7dd2d9e0b8cf887d3e5a1b0d088a4ddceae3b6e319"
+    },
+    {
+      "binding_id": "eve-two-lenses",
+      "source_path": "agents/eve.md",
+      "section": "two-lenses-applied-to-every-changed-file",
+      "blob_sha256": "7c8dd78adfb49e6f1d448b4f87e210c17b5d8c8daa291cf3d94cc40d139b88ec",
+      "section_sha256": "26ce60ba12cda756d230afe2360b6503455a8c8b36b193aae2a481e6d938fa6b"
+    },
+    {
+      "binding_id": "eve-de-slop",
+      "source_path": "agents/eve.md",
+      "section": "2-de-slop-lens-quality",
+      "blob_sha256": "7c8dd78adfb49e6f1d448b4f87e210c17b5d8c8daa291cf3d94cc40d139b88ec",
+      "section_sha256": "3e153240f2494bef8eba9bcf4190d042c1b2ba566b904613b1d0c6983f0195ec"
+    },
+    {
+      "binding_id": "eve-verdicts",
+      "source_path": "agents/eve.md",
+      "section": "rubric-verdicts-required--emit-verbatim-one-per-line",
+      "blob_sha256": "7c8dd78adfb49e6f1d448b4f87e210c17b5d8c8daa291cf3d94cc40d139b88ec",
+      "section_sha256": "f24b8d0dddf348d54e71ddf451200189b62f187193b3dfc3eaf443d23cd78da0"
+    },
+    {
+      "binding_id": "bob-persona",
+      "source_path": "agents/bob.md",
+      "section": null,
+      "blob_sha256": "97e5a1264a7069176ebb79209dd022c7396d01948073c5a445eb9b2ae82191a2",
+      "section_sha256": null
+    },
+    {
+      "binding_id": "retry-policy",
+      "source_path": "skills/review-work-completion/references/retry-policy.md",
+      "section": "when-to-retry",
+      "blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28",
+      "section_sha256": "ff1438cc9cc14569458392a4e56afb9c078570a13e49f3b2fcc2f10655ddbb3a"
+    },
+    {
+      "binding_id": "verdict-completeness",
+      "source_path": "skills/review-work-completion/references/retry-policy.md",
+      "section": "per-rule-verdict-completeness",
+      "blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28",
+      "section_sha256": "f8715d49a43e95eb755bbb7e147f854b90cc71d1901c1ff13d2887f0bb398461"
+    },
+    {
+      "binding_id": "review-cap-check",
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "section": "cap-check--evaluate-after-reading-review-before-rework-dispatch",
+      "blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+      "section_sha256": "e19ad9120a52effe5132f50a9eb9af28dd38f489f6fec1f151085a4c78222495"
+    },
+    {
+      "binding_id": "review-cap-pause",
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "section": "cap-pause-behavior",
+      "blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+      "section_sha256": "ea8f50689101384dbd6cab23ff88cc6c5c33d40101d3a306333f1af804708f90"
+    },
+    {
+      "binding_id": "review-outcomes",
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "section": "outcomes",
+      "blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+      "section_sha256": "9decc5203a04794a9669be01aaae559684020886321c6a468a6d32ce3aafa617"
+    },
+    {
+      "binding_id": "review-de-slop",
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "section": "de-slop-is-part-of-the-doubt-lens",
+      "blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+      "section_sha256": "806585fe2a4bfea01c989b1a901b5d81db6474794451c67875838f7f22e77669"
+    },
+    {
+      "binding_id": "fast-track-roster",
+      "source_path": "skills/fast-track/SKILL.md",
+      "section": "roster",
+      "blob_sha256": "608277a9b273e98289d1818eead2c5d22cf4404ef4d4af43dd653396c7ce7227",
+      "section_sha256": "5f359d84ab179a8acd3ac4f23fbed4102679636ff9d04c71f63f84010c91f0dc"
+    },
+    {
+      "binding_id": "fast-track-rework",
+      "source_path": "skills/fast-track/SKILL.md",
+      "section": "rework",
+      "blob_sha256": "608277a9b273e98289d1818eead2c5d22cf4404ef4d4af43dd653396c7ce7227",
+      "section_sha256": "7c550f3108d774ce4391c93ba9bd7ca8a938f48b18bf10404df830af7e5e8451"
+    },
+    {
+      "binding_id": "fast-track-delta",
+      "source_path": "skills/fast-track/SKILL.md",
+      "section": "delta",
+      "blob_sha256": "608277a9b273e98289d1818eead2c5d22cf4404ef4d4af43dd653396c7ce7227",
+      "section_sha256": "492d793cf929d7f735169e5df7b691ea5f511f87a10b420e46a2a6b74d67761a"
+    },
+    {
+      "binding_id": "fast-track-exit",
+      "source_path": "skills/fast-track/SKILL.md",
+      "section": "exit",
+      "blob_sha256": "608277a9b273e98289d1818eead2c5d22cf4404ef4d4af43dd653396c7ce7227",
+      "section_sha256": "ba292662e19d3b7a8c4a9e786adede67874e9080ccac6ab845f072a7cdded2f9"
+    },
+    {
+      "binding_id": "solo-escalation",
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "section": "4-escalation-checks",
+      "blob_sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e",
+      "section_sha256": "4726114e2833be569de432d9c155445c09079e0f5f5e0d92b23ba7fa9d941581"
+    },
+    {
+      "binding_id": "solo-review",
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "section": "5-review",
+      "blob_sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e",
+      "section_sha256": "146015a14d6fb2db51269605f24840c110424a7161a6f75d8ee4ec4a3ae4a99c"
+    },
+    {
+      "binding_id": "solo-disposition",
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "section": "disposition",
+      "blob_sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e",
+      "section_sha256": "50489d2cfb23fc19880631c31c7f8183e7914f0e2b8109dcc82c014dc95fbd56"
+    },
+    {
+      "binding_id": "review-file-format",
+      "source_path": "skills/review-work-completion/references/review-coverage-format.md",
+      "section": null,
+      "blob_sha256": "3b5f0b9597f57cba784001919f732d30a70b85d57df7f579d6615b0df72942e4",
+      "section_sha256": null
+    },
+    {
+      "binding_id": "frontmatter-defaults",
+      "source_path": "skills/run-autopilot/cli/frontmatter.py",
+      "section": null,
+      "blob_sha256": "ba49ad50a6f810e27a723b7c744ff6ee21c1baba87fb655bb564125beb2e5c8b",
+      "section_sha256": null
+    },
+    {
+      "binding_id": "lane-routing",
+      "source_path": "skills/run-autopilot/cli/lane.py",
+      "section": null,
+      "blob_sha256": "40f20beec4c3d4f11d8fca156bbee77c0f97b9f8bd97e812031dcbea1ab20687",
+      "section_sha256": null
+    }
+  ],
+  "policy_digest": "cfd9fd5aa477a211973cc6449fb31f901ad3fa06e534132a5d141c00295f5afc"
+}
