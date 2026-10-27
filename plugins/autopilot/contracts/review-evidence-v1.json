@@ -1,0 +1,340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "review-evidence-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "lane",
+    "review_pass",
+    "policy_binding",
+    "source_bindings",
+    "reviewer_results",
+    "artifacts",
+    "findings",
+    "groups",
+    "rubric_verdicts",
+    "verification"
+  ],
+  "properties": {
+    "schema_version": {"type":"integer","const":1},
+    "lane": {"$ref":"#/$defs/nonempty_string"},
+    "review_pass": {"enum":["initial","delta"]},
+    "policy_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_digest","execution_profile"],
+      "properties": {
+        "policy_digest": {"$ref":"#/$defs/hex64"},
+        "execution_profile": {"$ref":"#/$defs/nonempty_string"}
+      }
+    },
+    "source_bindings": {"$ref":"#/$defs/source_bindings"},
+    "reviewer_results": {"type":"array","items":{"$ref":"#/$defs/reviewer_result"}},
+    "artifacts": {"type":"array","items":{"$ref":"#/$defs/artifact"}},
+    "findings": {"type":"array","items":{"$ref":"#/$defs/finding"}},
+    "groups": {"type":"array","items":{"$ref":"#/$defs/group"}},
+    "rubric_verdicts": {"type":"array","items":{"$ref":"#/$defs/rubric_verdict"}},
+    "verification": {"$ref":"#/$defs/verification"}
+  },
+  "allOf": [
+    {
+      "if": {"properties":{"review_pass":{"const":"delta"}}},
+      "then": {
+        "properties": {"source_bindings":{"properties":{"prior_evidence_sha256":{"$ref":"#/$defs/hex64"}}}}
+      },
+      "else": {"properties":{"source_bindings":{"properties":{"prior_evidence_sha256":{"type":"null"}}}}}
+    }
+  ],
+  "$defs": {
+    "nonempty_string": {"type":"string","minLength":1},
+    "nullable_string": {"type":["string","null"],"minLength":1},
+    "hex64": {"type":"string","pattern":"^[0-9a-f]{64}$","minLength":64,"maxLength":64},
+    "hex40": {"type":"string","pattern":"^[0-9a-f]{40}$","minLength":40,"maxLength":40},
+    "input_ref": {"type":"string","pattern":"^[a-z][a-z-]*:[^\\s]+(?![\\s\\S])"},
+    "source_bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prd_sha256",
+        "base_sha",
+        "head_sha",
+        "tree_sha",
+        "scope",
+        "allowed_input_manifest_sha256",
+        "prior_evidence_sha256"
+      ],
+      "properties": {
+        "prd_sha256": {"$ref":"#/$defs/hex64"},
+        "base_sha": {"$ref":"#/$defs/hex40"},
+        "head_sha": {"$ref":"#/$defs/hex40"},
+        "tree_sha": {"$ref":"#/$defs/hex40"},
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind","refs"],
+          "properties": {
+            "kind": {"enum":["prd","task","card"]},
+            "refs": {
+              "type": "array",
+              "items": {"$ref":"#/$defs/nonempty_string"},
+              "uniqueItems": true,
+              "minItems": 1
+            }
+          }
+        },
+        "allowed_input_manifest_sha256": {"$ref":"#/$defs/hex64"},
+        "prior_evidence_sha256": {"anyOf":[{"$ref":"#/$defs/hex64"},{"type":"null"}]}
+      }
+    },
+    "reviewer_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result_id",
+        "job_ref",
+        "role_id",
+        "provider",
+        "adapter",
+        "attempt",
+        "native_session_ref",
+        "source_binding_digest",
+        "received_input_refs",
+        "artifact_ids",
+        "outcome",
+        "finding_ids",
+        "reason"
+      ],
+      "properties": {
+        "result_id": {"$ref":"#/$defs/nonempty_string"},
+        "job_ref": {"$ref":"#/$defs/nonempty_string"},
+        "role_id": {"enum":["consensus","blind","doubt","ui"]},
+        "provider": {"$ref":"#/$defs/nonempty_string"},
+        "adapter": {"$ref":"#/$defs/nonempty_string"},
+        "attempt": {"type":"integer","minimum":1},
+        "native_session_ref": {"$ref":"#/$defs/nullable_string"},
+        "source_binding_digest": {"$ref":"#/$defs/hex64"},
+        "received_input_refs": {"type":"array","items":{"$ref":"#/$defs/input_ref"},"uniqueItems":true},
+        "artifact_ids": {"type":"array","items":{"$ref":"#/$defs/nonempty_string"},"uniqueItems":true},
+        "outcome": {"enum":["clean","findings","failed","unavailable"]},
+        "finding_ids": {"type":"array","items":{"$ref":"#/$defs/nonempty_string"},"uniqueItems":true},
+        "reason": {"$ref":"#/$defs/nullable_string"}
+      },
+      "allOf": [
+        {
+          "if": {"properties":{"outcome":{"enum":["clean","findings"]}}},
+          "then": {"properties":{"native_session_ref":{"$ref":"#/$defs/nonempty_string"}}}
+        },
+        {
+          "if": {"properties":{"outcome":{"const":"clean"}}},
+          "then": {"properties":{"finding_ids":{"maxItems":0}}}
+        },
+        {
+          "if": {"properties":{"outcome":{"const":"findings"}}},
+          "then": {"properties":{"finding_ids":{"minItems":1}}}
+        },
+        {
+          "if": {"properties":{"outcome":{"enum":["failed","unavailable"]}}},
+          "then": {"properties":{"reason":{"$ref":"#/$defs/nonempty_string"}}}
+        }
+      ]
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id","kind","path","sha256","result_id"],
+      "properties": {
+        "artifact_id": {"$ref":"#/$defs/nonempty_string"},
+        "kind": {"$ref":"#/$defs/nonempty_string"},
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "anyOf": [
+              {"pattern":"^/"},
+              {"pattern":"\\\\"},
+              {"pattern":"^[A-Za-z]:"},
+              {"pattern":"(^|/)\\.\\.(/|(?![\\s\\S]))"}
+            ]
+          }
+        },
+        "sha256": {"$ref":"#/$defs/hex64"},
+        "result_id": {"$ref":"#/$defs/nullable_string"}
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["finding_id","result_id","severity","title","file","task_ref","evidence"],
+      "properties": {
+        "finding_id": {"$ref":"#/$defs/nonempty_string"},
+        "result_id": {"$ref":"#/$defs/nonempty_string"},
+        "severity": {"enum":["critical","high","medium","low"]},
+        "title": {"$ref":"#/$defs/nonempty_string"},
+        "file": {"$ref":"#/$defs/nullable_string"},
+        "task_ref": {"$ref":"#/$defs/nullable_string"},
+        "evidence": {"$ref":"#/$defs/nonempty_string"}
+      }
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["group_id","finding_ids","rationale"],
+      "properties": {
+        "group_id": {"$ref":"#/$defs/nonempty_string"},
+        "finding_ids": {"type":"array","items":{"$ref":"#/$defs/nonempty_string"},"uniqueItems":true,"minItems":1},
+        "rationale": {"$ref":"#/$defs/nonempty_string"}
+      }
+    },
+    "rubric_verdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result_id","namespace","rule_id","verdict","evidence"],
+      "properties": {
+        "result_id": {"$ref":"#/$defs/nonempty_string"},
+        "namespace": {"enum":["R","B","D"]},
+        "rule_id": {"type":"string","pattern":"^[RBD][0-9]+(?![\\s\\S])"},
+        "verdict": {"enum":["pass","fail"]},
+        "evidence": {"$ref":"#/$defs/nonempty_string"}
+      },
+      "allOf": [
+        {
+          "if": {"properties":{"namespace":{"const":"R"}}},
+          "then": {"properties":{"rule_id":{"pattern":"^R"}}}
+        },
+        {
+          "if": {"properties":{"namespace":{"const":"B"}}},
+          "then": {"properties":{"rule_id":{"pattern":"^B"}}}
+        },
+        {
+          "if": {"properties":{"namespace":{"const":"D"}}},
+          "then": {"properties":{"rule_id":{"pattern":"^D"}}}
+        }
+      ]
+    },
+    "verification": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status","argv","exit_code","output_artifact_id","code_identity","outcome"],
+          "properties": {
+            "status": {"const":"ran"},
+            "argv": {"type":"array","items":{"$ref":"#/$defs/nonempty_string"},"minItems":1},
+            "exit_code": {"type":"integer"},
+            "output_artifact_id": {"$ref":"#/$defs/nonempty_string"},
+            "code_identity": {"$ref":"#/$defs/hex40"},
+            "outcome": {"enum":["passed","failed"]}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status","reason"],
+          "properties": {"status":{"const":"not-applicable"},"reason":{"$ref":"#/$defs/nonempty_string"}}
+        }
+      ]
+    },
+    "observed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability","value"],
+      "properties": {
+        "capability": {"$ref":"#/$defs/nonempty_string"},
+        "value": {"type":["string","boolean"],"minLength":1}
+      }
+    },
+    "activation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["predicate_id","observed"],
+      "properties": {"predicate_id":{"$ref":"#/$defs/nonempty_string"},"observed":{"$ref":"#/$defs/observed"}}
+    },
+    "roster_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["job_id","role_id","required","activation"],
+      "properties": {
+        "job_id": {"$ref":"#/$defs/nonempty_string"},
+        "role_id": {"enum":["consensus","blind","doubt","ui"]},
+        "required": {"type":"boolean"},
+        "activation": {"anyOf":[{"$ref":"#/$defs/activation"},{"type":"null"}]}
+      },
+      "if": {"properties":{"required":{"const":true}}},
+      "then": {"properties":{"activation":{"type":"null"}}},
+      "else": {"properties":{"activation":{"$ref":"#/$defs/activation"}}}
+    },
+    "expected_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lane",
+        "review_pass",
+        "execution_profile",
+        "consensus_engine",
+        "policy_digest",
+        "source_bindings",
+        "resolved_roster",
+        "excluded_jobs",
+        "allowed_inputs",
+        "session_identities"
+      ],
+      "properties": {
+        "lane": {"enum":["full","fast-track","solo"]},
+        "review_pass": {"enum":["initial","delta"]},
+        "execution_profile": {"$ref":"#/$defs/nonempty_string"},
+        "consensus_engine": {"enum":["legacy","workflow","shadow"]},
+        "policy_digest": {"$ref":"#/$defs/hex64"},
+        "source_bindings": {"$ref":"#/$defs/source_bindings"},
+        "resolved_roster": {"type":"array","items":{"$ref":"#/$defs/roster_entry"},"minItems":1},
+        "excluded_jobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["job_id","predicate_id","observed"],
+            "properties": {
+              "job_id": {"$ref":"#/$defs/nonempty_string"},
+              "predicate_id": {"$ref":"#/$defs/nonempty_string"},
+              "observed": {"$ref":"#/$defs/observed"}
+            }
+          }
+        },
+        "allowed_inputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["manifest_sha256","input_refs","per_job"],
+          "properties": {
+            "manifest_sha256": {"$ref":"#/$defs/hex64"},
+            "input_refs": {"type":"array","items":{"$ref":"#/$defs/input_ref"},"uniqueItems":true},
+            "per_job": {
+              "type": "object",
+              "propertyNames": {"$ref":"#/$defs/nonempty_string"},
+              "additionalProperties": {"type":"array","items":{"$ref":"#/$defs/input_ref"}}
+            }
+          }
+        },
+        "session_identities": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["builder_session_refs","independent_contexts_required"],
+          "properties": {
+            "builder_session_refs": {"type":"array","items":{"$ref":"#/$defs/nonempty_string"}},
+            "independent_contexts_required": {"type":"boolean"}
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties":{"review_pass":{"const":"delta"}}},
+          "then": {
+            "properties": {"source_bindings":{"properties":{"prior_evidence_sha256":{"$ref":"#/$defs/hex64"}}}}
+          },
+          "else": {
+            "properties": {"source_bindings":{"properties":{"prior_evidence_sha256":{"type":"null"}}}}
+          }
+        }
+      ]
+    }
+  }
+}
