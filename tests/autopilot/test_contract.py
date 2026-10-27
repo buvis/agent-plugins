@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import copy
 import hashlib
 import json
 import unittest
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft202012Validator
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTRACTS = ROOT / "plugins" / "autopilot" / "contracts"
