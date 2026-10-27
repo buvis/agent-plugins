@@ -11,7 +11,7 @@ from typing import Any
 from jsonschema import Draft202012Validator, ValidationError
 
 
-def documents() -> tuple[dict[str, Any], dict[str, Any]]:
+def documents(count: int = 4) -> tuple[dict[str, Any], dict[str, Any]]:
     source = dict(prd_sha256="a" * 64, base_sha="b" * 40, head_sha="c" * 40,
         tree_sha="d" * 40, scope={"kind": "task", "refs": ["T1", "T2"]},
         allowed_input_manifest_sha256="e" * 64, prior_evidence_sha256=None)
@@ -22,7 +22,7 @@ def documents() -> tuple[dict[str, Any], dict[str, Any]]:
             provider=f"p{i}", adapter=f"a{i}", attempt=i, native_session_ref=f"s{i}",
             source_binding_digest=str(i) * 64, received_input_refs=["prd:a", "diff:b"],
             artifact_ids=[f"a{i}"], outcome="findings", finding_ids=[f"f{i}"], reason=None)
-            for i in (1, 2)],
+            for i in range(1, count + 1)],
         artifacts=[dict(artifact_id=f"a{i}", kind="review", path=f"docs/{i}.md",
             sha256=str(i) * 64, result_id=f"r{i}") for i in (1, 2)],
         findings=[dict(finding_id=f"f{i}", result_id=f"r{i}", severity="low",
@@ -43,6 +43,10 @@ def documents() -> tuple[dict[str, Any], dict[str, Any]]:
         session_identities=dict(builder_session_refs=["builder1", "builder2"],
             independent_contexts_required=True))
     return evidence, context
+
+
+def uppercase_digests(size: int) -> list[str]:
+    return [v for c in "ABCDEF" for v in (c * size, "a" * (size // 2) + c + "b" * (size // 2 - 1))]
 
 
 def objects(value: Any, path: tuple = ()) -> Any:
@@ -74,21 +78,27 @@ class EvidenceWireTest(unittest.TestCase):
 
     def test_requires_all_fields_and_closes_every_declared_object(self) -> None:
         for context, original in enumerate(documents()):
-            self.check(original, context)
-            for path, node in objects(original):
-                for key in (*node, "extra"):
-                    changed = copy.deepcopy(original)
-                    target = changed
-                    for part in path:
-                        target = target[part]
-                    if key == "extra":
-                        target[key] = "value"
-                    else:
-                        del target[key]
-                    with self.subTest(context=context, path=path, key=key):
-                        self.check(changed, context, False)
+            lanes = ("full", "fast-track", "solo") if context else (
+                "full", *(f"{p}-lane" for p in ("future", "custom", "canary")), "λ")
+            for lane in lanes:
+                original["lane"] = lane
+                self.check(original, context)
+                for path, node in objects(original):
+                    for key in (*node, "extra"):
+                        changed = copy.deepcopy(original)
+                        target = changed
+                        for part in path:
+                            target = target[part]
+                        if key == "extra":
+                            target[key] = "value"
+                        else:
+                            del target[key]
+                        with self.subTest(context=context, lane=lane, path=path, key=key):
+                            self.check(changed, context, False)
 
     def test_accepts_empty_arrays_and_rejects_bad_digest(self) -> None:
+        for count in (0, 1, 2, 3, 7):
+            self.check(documents(count)[0])
         evidence, _ = documents()
         for key in ("reviewer_results", "artifacts", "findings", "groups", "rubric_verdicts"):
             evidence[key] = []
@@ -98,9 +108,10 @@ class EvidenceWireTest(unittest.TestCase):
         self.check(evidence, valid=False)
 
     def test_enforces_result_outcome_conditions(self) -> None:
-        for outcome in ("clean", "findings", "failed", "unavailable"):
+        for index, outcome in ((i, o) for i in range(4)
+                for o in ("clean", "findings", "failed", "unavailable")):
             evidence, _ = documents()
-            result = evidence["reviewer_results"][1]
+            result = evidence["reviewer_results"][index]
             result.update(outcome=outcome, finding_ids=["f2"] if outcome == "findings" else [],
                 reason="missing tool" if outcome in ("failed", "unavailable") else None)
             self.check(evidence)
@@ -130,6 +141,8 @@ class EvidenceWireTest(unittest.TestCase):
                 self.check(context, 1, valid=required != active)
 
     def assert_pairs(self, context: int, rows: list) -> None:
+        rows = [((path[0], i, *path[2:]) if path[0] == "reviewer_results" and len(path) > 1 else path, a, r)
+            for path, a, r in rows for i in (range(4) if path[0] == "reviewer_results" and len(path) > 1 else (0,))]
         for path, accepted, rejected in rows:
             for variant in (0, 1):
                 original = documents()[context]
@@ -231,7 +244,7 @@ class EvidenceWireTest(unittest.TestCase):
                     (("artifacts", 1, "sha256"), 64), (("verification", "code_identity"), 40)]
             self.assert_pairs(context, [
                 (path, ["0" * size, "abcdef0123456789" * (size // 16) + "a" * (size % 16)],
-                    ["", "a" * (size - 1), "a" * (size + 1), "A" * size, "g" * size,
+                    ["", "a" * (size - 1), "a" * (size + 1), *uppercase_digests(size), "g" * size,
                      "a" * size + "\n", None, 3, True, []])
                 for path, size in paths
             ])
@@ -259,20 +272,22 @@ class EvidenceWireTest(unittest.TestCase):
     def test_input_refs_require_kind_payload_and_uniqueness(self) -> None:
         accepted = [[], ["prd:alpha", "git-diff:beta"]]
         malformed = [[""], ["prd:"], [":a"], ["Prd:a"], ["prd1:a"], ["1prd:a"],
-            ["prd:a b"], ["prd:a\tb"], ["prd:a\nb"], [None], [7], [True], "prd:a", None]
+            ["prd:a b"], ["prd:a\tb"], ["prd:a\nb"], *([f"prd:a{w}b"] for w in "\r\f\v\u00a0\u2003\u2028\u2029"), [None], [7], [True], "prd:a", None]
         self.assert_pairs(0, [
             (("reviewer_results", 1, "received_input_refs"), accepted,
                 [*malformed, ["prd:a", "prd:a"]]),
         ])
         self.assert_pairs(1, [
             (("allowed_inputs", "input_refs"), accepted, [*malformed, ["prd:a", "prd:a"]]),
-            (("allowed_inputs", "per_job", "j2"), accepted, malformed),
+            *((("allowed_inputs", "per_job", key), accepted, [*malformed, {}])
+                for key in ("j1", "j2", "new-job")),
         ])
 
     def test_artifact_paths_allow_embedded_dots_and_reject_unsafe_paths(self) -> None:
         self.assert_pairs(0, [
             (("artifacts", 1, "path"), ["docs/a..b.md", "other/review.json", "review.md"],
                 ["", "/review.md", "../review.md", "docs/../review.md", "docs/..",
+                 *("docs/" * depth + suffix for depth in (2, 3, 7, 16) for suffix in ("../review.md", "..")),
                  "..", "C:/review.md", "z:review.md", "docs\\review.md", "\\server\\review",
                  None, 1, True, []]),
         ])
@@ -323,6 +338,7 @@ class EvidenceWireTest(unittest.TestCase):
             evidence["verification"]["exit_code"] = 0
             self.check(evidence, valid=False)
         self.assert_pairs(0, [
+            (("verification",), [], [{}, {"status": "not-applicable"}, {"reason": "docs only"}]),
             (("verification", "status"), ["ran"], ["run", "Ran", "", None, True]),
         ])
 
@@ -333,7 +349,7 @@ class EvidenceWireTest(unittest.TestCase):
                 original["review_pass"] = "delta"
                 original["source_bindings"]["prior_evidence_sha256"] = digest
                 self.check(original, context)
-                for bad in ("", "a" * 63, "a" * 65, "A" * 64, "g" * 64, True, 1, None):
+                for bad in ("", "a" * 63, "a" * 65, *uppercase_digests(64), "g" * 64, True, 1, None):
                     original["source_bindings"]["prior_evidence_sha256"] = bad
                     self.check(original, context, False)
             original = documents()[context]
