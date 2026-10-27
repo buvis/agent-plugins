@@ -1,4 +1,10 @@
-"""Frozen source inventory and destination assignments remain usable offline."""
+"""Frozen source inventory and destination assignments remain usable offline.
+
+The positive audit of the exact pin and source-object/digest mutation audits
+are separate maintainer gates. Snapshot digests cannot construct a complete
+Git fixture with that commit identity; these offline tests never substitute
+another pin or require the maintainer's source checkout.
+"""
 
 from __future__ import annotations
 
@@ -259,7 +265,8 @@ class ExplicitSourceAuditTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
             env = dict(os.environ, HOME=directory, XDG_CONFIG_HOME=directory)
-            for name in ("source", "source-near-miss"):
+            arbitrary = Path(tempfile.mkdtemp(prefix="unrelated-", dir=directory)).name
+            for name in ("source", "source-near-miss", arbitrary):
                 with self.subTest(source_root=name):
                     source = base / name
                     subprocess.run(["git", "init", "--quiet", str(source)],
@@ -271,6 +278,52 @@ class ExplicitSourceAuditTest(unittest.TestCase):
                     )
                     self.assertNotEqual(result.returncode, 0)
                     self.assertTrue((result.stdout + result.stderr).strip())
+
+    def test_audit_rejects_nonempty_source_repository_without_the_pinned_commit(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(tempfile.mkdtemp(prefix="history-", dir=directory))
+            env = dict(os.environ, HOME=directory, XDG_CONFIG_HOME=directory)
+            subprocess.run(["git", "init", "--quiet", str(source)],
+                           env=env, check=True, capture_output=True, timeout=60)
+            subprocess.run(
+                ["git", "-C", str(source), "-c", "user.name=Offline fixture",
+                 "-c", "user.email=fixture@example.invalid", "commit", "--quiet",
+                 "--allow-empty", "-m", "Unrelated source history"],
+                env=env, check=True, capture_output=True, timeout=60,
+            )
+            missing = subprocess.run(
+                ["git", "-C", str(source), "cat-file", "-e", f"{PIN}^{{commit}}"],
+                env=env, capture_output=True, timeout=60,
+            )
+            self.assertNotEqual(missing.returncode, 0, "Fixture unexpectedly contains the pin")
+            result = subprocess.run(
+                [sys.executable, str(TOOLS / "check-source.py"), "--source-root", str(source)],
+                cwd=directory, env=env, capture_output=True, text=True, timeout=60,
+            )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertTrue((result.stdout + result.stderr).strip())
+
+    def test_audit_rejects_empty_explicit_root_even_when_cwd_has_history(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            source = base / "explicit-empty"
+            cwd = base / "unrelated-current-directory"
+            env = dict(os.environ, HOME=directory, XDG_CONFIG_HOME=directory)
+            for repository in (source, cwd):
+                subprocess.run(["git", "init", "--quiet", str(repository)],
+                               env=env, check=True, capture_output=True, timeout=60)
+            subprocess.run(
+                ["git", "-C", str(cwd), "-c", "user.name=Offline fixture",
+                 "-c", "user.email=fixture@example.invalid", "commit", "--quiet",
+                 "--allow-empty", "-m", "Unrelated working directory history"],
+                env=env, check=True, capture_output=True, timeout=60,
+            )
+            result = subprocess.run(
+                [sys.executable, str(TOOLS / "check-source.py"), "--source-root", str(source)],
+                cwd=cwd, env=env, capture_output=True, text=True, timeout=60,
+            )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertTrue((result.stdout + result.stderr).strip())
 
 
 if __name__ == "__main__":
