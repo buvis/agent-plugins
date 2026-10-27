@@ -35,3 +35,85 @@ Cause: the `autocodex` shell function ran the driver bare, so codex inherited `~
 Three sessions ran after the signing recovery: eefb14ce replanned (c25d9af), df17222a parked the PRD in `hold/` as `oversized_task` because the 110 179-byte `state-schema.md` copy estimates 82 545 tokens against the 75 000-token replan budget (e6ae4c9, `reports/00012-replan-1-budget.md`), and 0ec5287e found no selectable PRD (every backlog PRD requires 00012 in `done/`) and drained the batch (939aefb). The wrapper then paused with `build skipped the fresh review handoff`: a false positive in `~/.config/autocodex/adapter.py`, whose guard had no exemption for the source's `("build", "drained")` transition after a park; fixed with a test (dotfiles patch via warrant).
 
 Root cause of the task 2 overrun: every pre-replan task body (54-55 KB each, `reports/00012-pre-replan-1-state.json`) embedded the design doc's whole `## Interfaces & contracts` section (lines 54-781, about 55 KB) instead of the task's own entries, and task 2's three test files total 66 KB, so no Devon prompt for that scope can fit 50 000 bytes. Recovery: PRD moved `hold/` -> `backlog/` (SKILL.md "Un-park a sidelined PRD"); `phase`/`next_phase` reset to `build`, `pause_reason` cleared, `work_start_sha` restored to `b1e05c75d6f0dad01db35258baf565ecaf5a77ad` (the original review base named in `00012-replan-1-budget.md`); planning constraints for the next session in `docs/dev/project-management/plans/00012-replan-scope.md`, to be passed with `autocodex --scope`. `resume-target` prints `build: catchup then planning`; normal mode, 150 000-token budget, no replan-context.md.
+
+## 2026-10-27 normal plan and task 2 policy
+
+Normal planning created fifteen remaining tasks and restored the original
+completed inventory/map task, including its unchanged actual-model attempt.
+The original test-author abort is retained once on task 2; its test contribution
+also supplies the current schema/fixture/integration tasks. This is a split of
+remaining work, not a recapture of completed provenance. The exact plan is in
+`00012-normal-plan.json`; `plan_expansion: allow` passed the executable gate.
+The design amendment has its three required review dispatches and no open
+blocker. Planning/lifecycle artifacts committed as `468adca`.
+
+Task 2 acquired one extra writable file, package `CHANGELOG.md`, to satisfy
+the source's feature-commit rule. Other contract tasks remain separately
+scoped. Native source route is backend Opus, row 2; actual host mapping is
+`gpt-6.1-sol` / high. Driver `model_provider` and `review_providers` support
+its independent Anthropic completion-review route. No unsupported-provider
+fallback or model escalation fired.
+
+Tess `c85ce0c1`, native `/root/tess_policy`, session
+`01a17f29-7fb3-72e3-9b68-83afa9435ecd`, wrote the split tests. Observed model
+and effort are preserved verbatim in `00012-task-2-tess-native-metadata.jsonl`.
+Prompt: 42,577 bytes. Policy-owned tests: 14,989 bytes before cleanup, within
+the 15,000-byte planned test budget; task body plus 8,000-byte persona reserve
+and own tests stays below 50,000. Schema tests moved unchanged to
+`test_contract_schema.py`; all original methods/assertions passed an AST
+comparison to commit `044dfdd`. New assertions compare all 29 source bindings
+to exact committed inventory digests. Tautology gate found no flagged shapes;
+main-session output/edge/contract checks and style gate passed. Initial test
+run: six setup errors because policy JSON was absent. Tests committed in
+`13918a3` before Devon or Ivan.
+
+Devon `ea635d07`, session `01a17f2d-8b45-7d03-ac20-bae5029ac474`, received a
+26,482-byte prompt. Two candidates each passed six tests: duplicate root
+members with the same parsed last value, and contradictory free descriptions
+with unchanged machine fields. Tess `22334558` (29,253-byte prompt) adjudicated
+both explicitly in-contract: duplicate-member rejection and canonical
+description prose are not specified. No assertion was weakened or changed.
+Devon cleaned its sole temporary target to the prescribed placeholder.
+The coordinator red-check then produced six JSON-decode setup errors, exit 1.
+The stray `f8c693a5` row measured an old scratch prompt after a failed render;
+it was closed error and no agent was dispatched from it. It did not change
+the plan or prompt cap.
+
+Ivan `27dbd8af`, native `/root/ivan_policy`, session
+`01a17f30-ecfb-7f20-b25a-53654750861e`, received a 31,306-byte prompt and wrote
+only policy JSON, test requirements and changelog. Actual observed model is
+`gpt-6.1-sol` / high, preserved in `00012-task-2-ivan-native-metadata.jsonl`.
+Commit `b5364fa` contains the implementation and changelog. Policy digest:
+`cfd9fd5aa477a211973cc6449fb31f901ad3fa06e534132a5d141c00295f5afc`.
+Post-commit narrow gate: the PRD's Python 3.12 uv/requirements command targeting
+`test_contract.py`, exit 0, six passed in 0.05 seconds.
+
+Fresh self-deslop `8c8bc8e3` (30,352 bytes) returned `no slop found`. Style
+limits passed. Split hygiene found two dead imports, removed by bounded native
+cleanup `c8adb3c1` (7,459 bytes), session
+`01a17f35-427b-7551-bfe8-067f4273c691`, observed `gpt-6.1-sol` / high in
+`00012-task-2-cleanup-native-metadata.jsonl`. Commit `ea95077` deletes exactly
+those imports, no assertions. Same narrow test command: six passed in 0.02
+seconds. Final style gate passed. The checker still reports EVIDENCE_FILE and
+FIXTURES_FILE as locally unused; these are required exports imported by
+schema/fixture/semantic sibling tests. Retained the raw failed-check marker
+with that false-positive disposition rather than breaking preserved tests.
+
+Pat `fe87c42c` ran via real use-sonnet, tool-less, high effort, on the whole
+task range `468adca..ea95077`. Its external CLI prompt is 77,763 bytes because
+it includes the committed diff; the source's 50,000-byte Agent-tool dispatch
+cap is unchanged and every native dispatch above satisfies it. Parsed output
+is preserved in `00012-task-2-pat-review.txt`. MEDIUM rubric-pair ordering is
+rejected: the normative field requires one entry per (job, namespace), while
+only required_reviewer_jobs is explicitly ordered. User-owned specification
+test `test_contract.py:172` deliberately uses assertCountEqual for rubric
+pairs; each rule_ids array remains exact and source-ordered. A different
+serialization changes its own checked digest, not contract validity. No
+stricter ordered assertion is invented. The LOW blank-line observation is
+retained for completion review, per the source's LOW-only no-retry rule.
+
+All current task-2 contributors have OpenAI actual-model evidence. Devon's
+temporary discarded candidates, self-deslop's no-op, design reviewers and
+read-only Pat are not additional implementation contributions. All worker
+ASSUMPTIONS footers are none. No full-suite, schema/fixture completion or
+completion-review claim is made by this policy task.
