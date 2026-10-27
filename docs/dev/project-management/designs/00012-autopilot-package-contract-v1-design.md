@@ -286,7 +286,7 @@ table is a structural error (`additionalProperties: false`). An `anchor` is a
 Canonical JSON, used by every digest below: UTF-8 bytes of
 `json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)`.
 
-#### review-policy-v1.json
+### review-policy-v1.json
 
 | Field | Type and rule |
 | --- | --- |
@@ -482,7 +482,7 @@ A binding no `anchor` field names (for example `frontmatter-defaults`, the
 origin of the cap default of two) is provenance for `check-source.py`; it is
 valid and stays in the digest.
 
-#### review-evidence-v1.json
+### review-evidence-v1.json
 
 A JSON Schema (draft 2020-12). Its root is the evidence document; `$defs`
 holds `expected_context`, `source_bindings`, `reviewer_result`, `artifact`,
@@ -575,7 +575,7 @@ or `{"status": "not-applicable", "reason": string}`.
 `allowed_inputs.manifest_sha256` is the canonical digest of
 `{"input_refs": <input_refs sorted>, "per_job": <per_job with every value list sorted and deduplicated>}`.
 
-#### Validation result and defect codes
+### Validation result and defect codes
 
 `validate_review(policy, expected_context, evidence)` returns
 `{"outcome": "accepted"}` or `{"outcome": "rejected", "defects": [code, ...]}`
@@ -600,7 +600,7 @@ conditional jobs; `required_rubric_sets` apply to those jobs only, and
 | `source_binding_mismatch` | `evidence.source_bindings` ≠ `expected_context.source_bindings` (deep equality); a result's `source_binding_digest` ≠ the canonical digest of `evidence.source_bindings`; or a `ran` verification's `code_identity` ≠ `source_bindings.head_sha` |
 | `duplicate_id` | a repeated `result_id`, `artifact_id`, `finding_id` or `group_id`, or two rubric verdicts with the same (`result_id`, `namespace`, `rule_id`) |
 | `duplicate_job_result` | two results share (`job_ref`, `attempt`), or a result that is not its job's highest attempt has outcome `clean` or `findings` |
-| `attempt_sequence_invalid` | a job's `attempt` values are not exactly `1..n` (a lone attempt `2`, or a gap, hides history) |
+| `attempt_sequence_invalid` | a job's distinct `attempt` values are not exactly `1..max(attempt)` (a lone attempt `2`, or a gap, hides history); duplicate values are covered only by `duplicate_job_result` |
 | `result_misattributed` | a result's `job_ref` is not in `resolved_roster`; its `role_id` ≠ that job's policy `role_id`; or a rubric verdict's (`result_id` → job, `namespace`) is not one of the lane's `required_rubric_sets` for that job |
 | `profile_binding_mismatch` | a result's (`provider`, `adapter`) is neither the primary nor the fallback binding of its job in `execution_profiles[expected_context.execution_profile]`; it is the fallback binding while no lower-numbered attempt of that job has outcome `failed` or `unavailable`; or, under a profile whose `alice` binding lists the engine adapters, it is an `alice` result whose adapter the consensus engine binding above does not permit (`review-fanout-workflow` under `legacy`/`shadow`, or `native-subagent` under `workflow` without a lower-numbered `unavailable` workflow attempt) |
 | `retry_limit_exceeded` | a job has more than `reviewer_retry_limit + 1` results with the same `adapter` (in-kind retries); a fallback substitution starts its own count |
@@ -637,7 +637,7 @@ Severity, consensus and disposition never enter this result; a rejected
 evidence is one that cannot be read as a complete review, an accepted one still
 awaits the controller's decision.
 
-#### review-fixtures-v1.json
+### review-fixtures-v1.json
 
 ~~~text
 {
@@ -941,3 +941,54 @@ second returned cardinal-sin 0, blocker 0, non-blocker 0, question 0.
 result: ok (2026-10-26 wire-shapes amendment: every blocker from the three
 dispatches and the first re-verification is fixed in § Wire shapes; the
 second targeted re-verification found nothing open.)
+
+### 2026-10-27 task-slice heading amendment
+
+Promoted the four normative wire subsections from `####` to `###`, with no
+contract-text changes in that amendment. Per-file tasks include the shared
+Wire shapes definitions verbatim; policy/schema dependencies remain explicit.
+
+Dispatch 1 used the host-native OpenAI worker (`gpt-6.1-sol`, high), not
+Anthropic; the pinned `claude` summary token below is the source schema label.
+It verified the exact four-line diff and found one non-blocking reminder to
+carry shared definitions in every dependent task slice.
+
+dispatch 1 (claude): cardinal-sin 0, blocker 0, non-blocker 1, question 0
+
+Dispatch 2 used the real use-sonnet wrapper (`sonnet`, high; external Claude,
+tool-less). Raw output: `docs/dev/tmp/ap12-design-heading-review-claude.txt`.
+It found two blockers, seven non-blockers and two questions. The attempt-number
+wording is clarified above to match the existing committed oracle's distinct
+set check; no assertion or fixture expectation changes. The missing inventory
+wire-table blocker is rejected: those three artifacts were already completed
+in `f39d95e`/`a8a7e4c`, and their committed exact shapes are inputs, not new
+schemas for this amendment. Source bindings name existing keys, and raw blob
+digests are already verified against pinned git blob bytes. Re-planning them
+would violate the operator's completed-work constraint.
+
+Non-blockers/questions are retained in that output: shared preamble scoping,
+fixture dispatch size/generator placement, additional branch fixtures,
+controller-owned provider enforcement, duplicate names/enums, v2 evolution,
+amendment recording, doubt-label mapping and sort collation. The current plan
+carries the preamble, measures all slices, consumes committed policy/schema
+files and keeps the existing semantic oracle. Provider enforcement remains
+explicitly owned by AP 00017/00020, as the prior review ruled. No semantic
+expansion or test weakening is authorized by these advisory findings.
+
+dispatch 2 (codex): cardinal-sin 0, blocker 2, non-blocker 7, question 2
+
+Dispatch 3 used the same external Claude transport in a fresh process. It
+confirmed the attempt-number clarification, inventory-blocker rejection and
+heading amendment: no open cardinal sins or blockers. Four advisory notes
+(preamble scoping, log labels, generated slice checks, inventory lookup) and
+one pre-existing question (failed-attempt raw artifacts) remain recorded in
+`reviews/00012-heading-amendment-verification-claude.txt`. Failed outcomes do
+not prohibit raw artifacts; the existing `solo-escalation` fixture tests keep
+them, so its expected defects are unchanged. Source `codex` labels for
+dispatches 2/3 describe the logical slot; actual transport/provider is Claude
+via use-sonnet, not Codex.
+
+dispatch 3 (codex): cardinal-sin 0, blocker 0, non-blocker 4, question 1
+
+result: ok (2026-10-27 task-slice amendment: no open blockers; prior committed
+test intent and all normative case expectations retained.)

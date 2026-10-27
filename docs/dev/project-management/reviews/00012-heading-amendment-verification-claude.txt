@@ -1,0 +1,60 @@
+**Verdict:** cardinal-sin 0, blocker 0, non-blocker 4, question 1. I agree with the inventory rejection and with the heading amendment.
+
+I could not diff bytes. Only the post-amendment text is inline, so "four lines changed" rests on dispatch 1's verification. I checked that the resulting structure is consistent.
+
+## Checked correct
+
+1. **`attempt_sequence_invalid` wording** (§ Validation result) matches the fixtures. "Distinct values exactly `1..max`" gives these results:
+   - `full-attempt-gap`: {2} is invalid, so only `attempt_sequence_invalid` fires.
+   - `full-duplicate-result`: {1,1} reduces to {1}, which is valid, so only `duplicate_job_result` fires.
+   - `full-bob-fallback-retry`: {1,2,3} is valid.
+   - `solo-escalation`: {1,2} is valid.
+
+   I did not see the committed tests, so the claim that the wording matches them rests on your statement.
+2. **Inventory blocker rejection is sound.** `source-inventory.json` and `source-map.json` are described in prose (§ Source identity, § Source-to-destination mapping) and are existing inputs. `source_binding` only cites their keys. "Wrong or unbuildable" does not apply, because the shapes can be read from the committed files. See N4 for a traceability gap.
+3. **Heading amendment is structurally clean.** The four promoted headings are `review-policy-v1.json`, `review-evidence-v1.json`, `Validation result and defect codes` and `review-fixtures-v1.json`. Each is a self-contained unit, and their slugs don't collide with `Review policy`, `Review evidence` or `Golden cases`. "Normative policy data", "Fixture cases" and similar are bold paragraphs, not headings, so they stay inside their parent slice.
+4. **Cardinal-sin sweep.** None applies.
+   - Contracts are versioned: `schema_version` is 1, file names carry `-v1`, and objects are closed.
+   - The facade is local and read-only.
+   - There are no secrets and no stateful production path.
+   - External owners are named with their PRDs, so there is no "later" owner.
+
+## Findings
+
+**N1 [non-blocker] `§ Wire shapes` references and the "this section governs" clause now point at a preamble-only heading.**
+- **Evidence:**
+  - After promotion, `### Wire shapes (normative)` holds only the notation, the closed-object rule, the anchor definition and canonical JSON.
+  - The four typed sections are now siblings.
+  - "Where an earlier paragraph names a field and this section types it, this section governs" now literally governs nothing.
+  - § Golden cases says "fixed in § Wire shapes below (Fixture cases)", but that content is now under `### review-fixtures-v1.json`.
+  - The status paragraph and the review log also cite `§ Wire shapes`.
+- **Fix:** Add one sentence to the preamble: "Wire shapes comprises this section and the four sections through review-fixtures-v1.json." Repoint the Golden cases pointer to `§ review-fixtures-v1.json`. This is a text edit, so do it deliberately; the amendment says nothing else changed.
+
+**N2 [non-blocker] The document's status and log bookkeeping is stale.**
+- **Evidence:**
+  - The header says the wire-shapes amendment's "own review is the last `## Review log` entry". The last entry is now the 2026-10-27 heading amendment.
+  - That entry has no closing `result:` line, unlike every earlier entry.
+  - Dispatch 1 is labeled `(claude)` but ran on OpenAI, and dispatch 2 is labeled `(codex)` but ran on Claude Sonnet. Only dispatch 1 is footnoted.
+- **Fix:**
+  - Mention the 10-27 amendment in the header, or reword "last entry".
+  - Add the `result:` line after this dispatch.
+  - Footnote the label inversion for dispatch 2.
+
+**N3 [non-blocker] Byte-identical slices duplicate shared text and can drift.**
+- **Evidence:**
+  - Every slice needs the preamble: `hex64`, `T?`, closed objects, `anchor` and canonical JSON.
+  - The validator oracle slice also needs the policy lane tables and the evidence shapes, because `validate_review` reads `delta_reviewer_jobs`, `verification_not_applicable_reasons` and `input_exclusions`.
+  - The fixtures slice needs the defect codes.
+  - Hand-copied slices will diverge after the next amendment, and the 50000-byte limit applies to the largest combination, not each section alone.
+- **Fix:** Generate slices from the design file with a script. Assert each slice is a byte-substring concatenation of design sections, and assert each is under 50000 bytes. Record the largest slice's size in the plan.
+
+**N4 [non-blocker] The inventory shape dependency is implicit.**
+- **Evidence:** `source_binding` relies on `assets[]`, `source_files[]`, `sections[].anchor` and `sections[].sha256` in `source-inventory.json`. Nothing says which collection holds code files such as `lane.py` and `frontmatter.py`. A task slice never shows the committed shapes.
+- **Fix:** Add one line to `source_binding`: "inventory field names are those of `tools/autopilot/source-inventory.json` at `a8a7e4c`". Do not re-plan the inventory. The rejection stands.
+
+**Q1 [question, pre-existing, not from this amendment] Do failed attempts carry `reviewer-output` artifacts?**
+- **Evidence:**
+  - `solo-escalation` expects only `required_job_failed`. The solo lane requires a `reviewer-output` artifact, and alice is the only job, with both attempts `failed`.
+  - If failed attempts carry no artifact, as in `full-bob-fallback`'s "no artifacts", `missing_required_artifact` also fires.
+  - The fixture defaults imply every result has its own artifact, but nothing states it for `failed` results.
+- **Fix:** State in the fixture deviation that `solo-escalation`'s failed attempts keep their raw `reviewer-output` artifacts. Otherwise change the expected defects to include `missing_required_artifact`.

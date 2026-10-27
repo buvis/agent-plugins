@@ -1,0 +1,145 @@
+## Review: PRD 00012 design (heading-promotion amendment)
+
+I read the inline text only. I could not see the diff, so I did not verify that the four promotions are the only edit. The sections `review-policy-v1.json`, `review-evidence-v1.json`, `Validation result and defect codes` and `review-fixtures-v1.json` are now `###` siblings of `### Wire shapes (normative)`. No `####` heading remains.
+
+**Cardinal sins: none triggered.**
+- **Deferred authorization:** it is deferred to AP 00018/00020 by named PRD. This design has no actor, write path or state, and it says "A valid evidence artifact does not itself authorize a phase transition".
+- **Versioning:** it exists (`schema_version`, `-v1` file names, policy digest pinning). N6 covers the missing evolution rule.
+- **Alternatives:** they are recorded in "Reuse and alternatives" and the dated user ruling.
+
+### Findings
+
+```yaml
+- severity: blocker
+  title: attempt_sequence_invalid reading makes full-duplicate-result expect the wrong defect set
+  evidence: >
+    Wire shapes, "Validation result and defect codes": attempt_sequence_invalid fires when a job's
+    attempt values "are not exactly 1..n". The fixture full-duplicate-result has two alice results,
+    both attempt 1, and expects only [duplicate_job_result]. Read literally, [1,1] is not 1..2, so
+    attempt_sequence_invalid also fires.
+  suggested_fix: >
+    Define it on distinct values: the set of distinct attempt values must equal {1..max}.
+    Duplicates are then duplicate_job_result only. Add a one-line note to the code table.
+
+- severity: blocker
+  title: source-inventory.json, source-pin.json and source-map.json have no wire table, yet policy tests consume their keys
+  evidence: >
+    source_binding says source_path/blob_sha256 "equal an assets[] or source_files[] row" and the
+    section anchor equals "sections[].anchor", with section_sha256 equal to that section's "sha256".
+    No field table exists for the inventory. assets[] vs source_files[] is never distinguished.
+    blob_sha256 is not defined (SHA-256 of file bytes, or of the git object). The ID formats
+    (P01..., R01..., BEH-248) and the source-map types (disposition enum, acceptance_cases) are
+    prose only. This is the failure that triggered the amendment: a test author stops on
+    undeclared nested fields.
+  suggested_fix: >
+    Add a short closed-shape table to Wire shapes for the inventory (assets, source_files, sections,
+    ID collections), pin and map. State that blob_sha256 is SHA-256 of the raw file bytes at the pin.
+    Put the table in its own ### section so it slices cleanly.
+
+- severity: non-blocker
+  title: Promotion detaches the notation and precedence preamble from its four child sections
+  evidence: >
+    The preamble under "Wire shapes (normative)" holds the notation (string/int/hex64/hex40/T?/[T]/enum),
+    the "anchor" definition, "Canonical JSON, used by every digest below", and the rule "this section
+    governs". Those phrases now scope only to the preamble. "Fixed in § Wire shapes below (Fixture cases)"
+    and the Status line "§ Wire shapes" now name a section that contains no fixtures. A per-file slice
+    for review-evidence-v1.json has no definition of hex64 or the canonical digest.
+  suggested_fix: >
+    Make the preamble a mandatory prefix of every slice that uses wire types (about 2 KB, a byte-identical
+    copy). Reword "this section governs" to "§ Wire shapes (the five ### sections through
+    review-fixtures-v1.json) governs". Alternatively prefix the four headings with "Wire shapes: ".
+
+- severity: non-blocker
+  title: Fixture and validator slices may exceed 50000 bytes; no home for validate_review or a fixture generator
+  evidence: >
+    review-fixtures-v1.json needs the fixtures table, the expected_context/evidence shapes, the defect
+    table and the policy values (rule_ids, bindings, lanes). These are about 14 KB, 8 KB, 11 KB and
+    14 KB by my estimate (not measured), so roughly 47-50 KB before the preamble. Each of the ~55 cases
+    is a complete document with computed digests (policy_digest, manifest_sha256, source_binding_digest,
+    artifact sha256). Module placement lists no fixture builder. It also has no module for
+    validate_review(policy, expected_context, evidence) or for policy self-validation (the "policy breaks
+    a rule of its own table" check), beyond "semantic checks in tests".
+  suggested_fix: >
+    Measure the slices. Have the fixture task read the committed policy file instead of re-embedding the
+    policy tables. Name a generator (for example tools/autopilot/build-fixtures.py) and a test-support
+    module for validate_review, and add both to Module placement.
+
+- severity: non-blocker
+  title: Cross-reviewer shared-session branch of shared_session_identity has no fixture
+  evidence: >
+    The earlier Golden cases paragraph requires "two results whose native_session_ref values are identical".
+    The only fixture is full-reused-builder-session (alice equals a builder ref). The same-session-across-
+    different-jobs branch is untested, and the Wire section says unlisted cases are not required.
+    Other single-branch coverage: lane_mismatch appears only beside unknown_lane, the code_identity branch
+    of source_binding_mismatch is unexercised (full-changed-tree binds the evidence value), and so is the
+    output_artifact_id branch of unknown_reference.
+  suggested_fix: >
+    Add full-shared-reviewer-session (blake and alice share a ref, expect shared_session_identity) and
+    fast-track-lane-mismatch. Optionally add a verification code_identity case.
+
+- severity: non-blocker
+  title: Claude-free diversity guard is not enforced by the validator under codex-gemini
+  evidence: >
+    implementor_providers and implementor_diversity_guard are "informational for this validator".
+    Eve is conditional via implementor_codex_present, and that observation is caller-supplied. Under
+    codex-gemini (implementors ["openai"]) a consistent expected_context can observe false and exclude Eve.
+    The result is accepted with no Gemini doubt voice, contradicting the 2026-10-25 ruling. The
+    controller (AP 00020) may catch it, but the golden contract does not.
+  suggested_fix: >
+    Add an invalid_expected_context rule. For a profile whose implementor_providers is exactly ["openai"],
+    eve must be resolved via implementor_codex_present=true. Add a rejected fixture. Otherwise record
+    the dependency on AP 00020/00017 explicitly.
+
+- severity: non-blocker
+  title: Name and enum duplication invites drift
+  evidence: >
+    source_bindings is an array of rows in the policy and an object (prd_sha256...) in the evidence and
+    expected_context. $defs/expected_context.lane hard-codes enum(full|fast-track|solo), duplicating the
+    policy's lane keys. roster_entry.role_id is not checked against the policy's role_id.
+  suggested_fix: >
+    Rename the policy field (for example source_anchors) or call out the collision in the preamble.
+    Add a test that the lane enum equals the policy keys, and a roster role_id check to
+    invalid_expected_context.
+
+- severity: non-blocker
+  title: No evolution rule for closed v1 schemas
+  evidence: >
+    All objects use additionalProperties:false and policy_digest covers everything, so any added field is
+    breaking. There is no statement of how v2 is introduced or how consumers negotiate it.
+    capabilities only names the v1 formats.
+  suggested_fix: >
+    One sentence: a shape change creates a new -v2 file and capability ID, and v1 files are never edited in
+    place after release.
+
+- severity: non-blocker
+  title: The amendment is not recorded in the Review log
+  evidence: >
+    The Status line says the amendment's own review is the last log entry, and that entry ends "nothing open".
+    The heading promotion came afterward. If any plan or task state pins a hash of the design doc, it has changed.
+  suggested_fix: >
+    Append a one-line log entry: "Heading levels only, 4 lines, text unchanged". Confirm with a diff that
+    only those four lines changed.
+
+- severity: question
+  title: Does the doubt_label_map R1..R5 -> D1..D5 identity have any evidence?
+  evidence: >
+    It is declared "by rule meaning", has no source_bindings row (the rule lives in the global AGENTS.md),
+    and is informational. The prose promises "Tests compare the mapped rules and their source text".
+  suggested_fix: >
+    Say whether a test checks the map, and against which text. If not, drop the promise from the prose.
+
+- severity: question
+  title: Sort order for allowed_inputs.manifest_sha256
+  evidence: >
+    The digest is over "<input_refs sorted>" and "every value list sorted and deduplicated". The collation
+    is unstated. Code-point order is the Python default, but another implementation could differ.
+  suggested_fix: Say "sorted by Unicode code point".
+```
+
+### Checked correct
+
+- **Fixture coverage (Validation result and defect codes, `review-fixtures-v1.json`):** All 29 defect codes appear in at least one fixture. I traced the expected sets by hand for `full-retry-exhausted`, `solo-escalation`, `full-bob-fallback-retry`, `solo-review-free`, `fast-track-delta-missing-eve`, `full-unknown-lane`, `full-finding-as-completion` and `full-findings-without-output`. Each matches the stated rules. The only mismatch is the `full-duplicate-result` reading above.
+- **Consensus engine binding (Wire shapes, `profile_binding_mismatch` and the engine paragraph):** The paragraph, the defect rule and the fixtures agree. `full-alice-workflow-unavailable` is accepted. `full-alice-workflow-failed-fallback` and `full-alice-engine-mismatch` are rejected. Under `codex-gemini` the engine must be `legacy`.
+- **Lane values between the prose and the wire tables:** Rework caps are 2/1/1. Rosters are alice/blake/bob, alice/blake/eve/bob and alice. The R set has no R5, so the doubt R1–R5 labels cannot collide with consensus R. The fast-track and solo escalation signals match the lane-routing prose.
+- **Canonical JSON (Review policy § digest, Wire preamble):** Both use the same `json.dumps` parameters. Wire types allow only integers, so digests are stable across implementations.
+- **Heading references:** No broken cross-references that I could find. Remaining references by name ("Reviewer jobs table", "Validation result", "Fixture cases") match existing text. The scoping words in N1 are the only casualty.

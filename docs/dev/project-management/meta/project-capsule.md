@@ -1,6 +1,21 @@
 # Project Capsule: buvis agent-plugins
 
-Generated: 2026-10-26
+Generated: 2026-10-27
+
+## 2026-10-27 AP 00012 normal planning
+
+The operator restored AP 00012 to normal planning (150,000-token estimates),
+retaining completed inventory/map commits and review base `b1e05c7`. No replan
+context applies. Each task copies only its own contract entries and must keep
+persona, body and tests below 50,000 bytes. Review policy, evidence schema and
+fixtures are separate tasks. Existing contract tests retain their intent.
+
+GitHub: no open issues, PRs or releases; latest master Validate succeeded.
+Related context: repo query hits AP 00012 (0.0328), port discovery (0.0161);
+portfolio adds historical cellar transcripts. Topic: Autopilot package and
+review artifact contracts. Repository indexing succeeded; portfolio still
+reports memory stale=24/dead=1, code stale=61/dead=1466 and PRD dead=3079.
+Review harvest completed; task restoration reports `no_tasks_dir`.
 
 ## Key Invariants
 
