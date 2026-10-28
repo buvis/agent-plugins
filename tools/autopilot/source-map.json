@@ -63,76 +63,87 @@
       "source_asset_id": "README.md",
       "destination_path": "plugins/autopilot/README.md",
       "source_blob_sha256": "de15bf433269ecd2b2a670ae694d8ab1176831e15c415a9117bc507fbae48b70",
-      "destination_blob_sha256": null,
+      "destination_blob_sha256": "060377125dd9e45a215e2d1c48d60d1611497d95b0a33305c7c904ec85005938",
       "adaptation_reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
-      "disposition": "planned",
+      "disposition": "adapted",
       "planned_disposition": "adapted",
       "section_plan": [
         {
           "source_anchor": "autopilot",
           "source_sha256": "de15bf433269ecd2b2a670ae694d8ab1176831e15c415a9117bc507fbae48b70",
           "action": "retain-semantics-adapt-runtime-references",
-          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point."
+          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
+          "delivery_note": "Preserved the complete source introduction as historical quoted content; added an unconditional gate and a separate current local facade section with no host certification claim."
         },
         {
           "source_anchor": "whats-inside",
           "source_sha256": "a2ab22291b7e286799940bf7cbf12d3f008512fda64278d3e2e735cfd083c930",
           "action": "retain-semantics-adapt-runtime-references",
-          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point."
+          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
+          "delivery_note": "Preserved all eleven source skills, eighteen agent/persona roles, and nine hook descriptions verbatim in historical quotes; explicitly denied current registrations and host execution."
         },
         {
           "source_anchor": "recursion-guard",
           "source_sha256": "d18eb65781e0e9b1b5a39b3844c35622b9f2698d10c1b52b40eda6d246018c40",
           "action": "retain-semantics-adapt-runtime-references",
-          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point."
+          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
+          "delivery_note": "Preserved runner refusal, markers, fallback history, and Gemini ceiling verbatim; distinguished failed/unavailable history from required evidence, which needs a complete permitted replacement or refusal."
         },
         {
           "source_anchor": "paths",
           "source_sha256": "52ab397372372cc3fd6b7debc86243e4814340b82c440470cf53305075c03ae0",
           "action": "retain-semantics-adapt-runtime-references",
-          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point."
+          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
+          "delivery_note": "Preserved source substitution and sibling-resolution rules verbatim as history; documented contained package resources and facade resolution with no source or author-home fallback."
         },
         {
           "source_anchor": "install",
           "source_sha256": "e590c066b14563fcc12bfe24edca885213c073ea7b9f512a91b74c737c68ab97",
           "action": "retain-semantics-adapt-runtime-references",
-          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point."
+          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
+          "delivery_note": "Preserved the original native marketplace and installation commands verbatim as unavailable historical examples; limited current use to the local facade."
         },
         {
           "source_anchor": "update",
           "source_sha256": "d3de14eff45b5315e2dba8efcf6b7a75865856c28f7708f64b771a0f9cfa6149",
           "action": "retain-semantics-adapt-runtime-references",
-          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point."
+          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
+          "delivery_note": "Preserved the source update command verbatim as unavailable history; clarified that replacing a local copy does not certify or enable a host."
         },
         {
           "source_anchor": "alternative-install-directly-from-this-repo",
           "source_sha256": "fd0289657757f606f4a6a90ef432fe7c5ff9fb4afede5ba313f412cf44f83150",
           "action": "retain-semantics-adapt-runtime-references",
-          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point."
+          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
+          "delivery_note": "Preserved the direct native marketplace example verbatim as unavailable history; distinguished a local clone from host certification or publication."
         },
         {
           "source_anchor": "what-intentionally-stays-out",
           "source_sha256": "b6e8955bfb632ba8d63941f3b13bd1098c9069ea7a42660d4cfbf77219748ddb",
           "action": "retain-semantics-adapt-runtime-references",
-          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point."
+          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
+          "delivery_note": "Preserved every source exclusion and fallback description verbatim as history; explicitly denied current external controllers, omitted helpers, or source/home loading."
         },
         {
           "source_anchor": "development",
           "source_sha256": "b8e8bffb5c9a1999198dbb3476aad83d37dc606e24c45a050adb780fa3e2bfb1",
           "action": "retain-semantics-adapt-runtime-references",
-          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point."
+          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
+          "delivery_note": "Preserved both source development and release commands verbatim as unavailable history; documented current repository validation/tests without publishing claims."
         },
         {
           "source_anchor": "license",
           "source_sha256": "d6b5dc11815211f77889bef8d8db6c0db50ab40f11f1fdf6c89a391ce846ea90",
           "action": "retain-semantics-adapt-runtime-references",
-          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point."
+          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
+          "delivery_note": "Preserved the complete source MIT license statement and link verbatim in its original section."
         },
         {
           "source_anchor": "autoclaude-role-effort",
           "source_sha256": "88b60c4fd3e20dfaa952e926ea0869768ae44531d61fa560e52d2ac50356aceb",
           "action": "retain-semantics-adapt-runtime-references",
-          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point."
+          "reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
+          "delivery_note": "Preserved every coordinator, worker, reviewer, model, and effort rule verbatim as historical documentation; denied current worker launch and development-host policy rewrites."
         }
       ],
       "entry_point_gate": {
@@ -144,9 +155,15 @@
         {
           "case_id": "asset-README.md",
           "expected_outcome": "Installed plugins/autopilot/README.md exists; every source section is retained or individually adapted with a stated reason; runtime-bound entry points refuse until certified",
-          "status": "planned"
+          "status": "passed"
         }
-      ]
+      ],
+      "evidence": {
+        "status": "passed",
+        "artifact_id": "plugins/autopilot/README.md",
+        "artifact_sha256": "060377125dd9e45a215e2d1c48d60d1611497d95b0a33305c7c904ec85005938",
+        "tested_package_revision": "c26dfc6df6c9a0eb1e7f1622a334265222bb9006"
+      }
     },
     {
       "source_asset_id": "agents/alice.md",
@@ -7216,7 +7233,7 @@
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/CHANGELOG.md",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "d2e81a930dee23beb956ae3c71bab2b6fba57e5c1c47f21a5cbc563b67c8a0ea",
+      "destination_blob_sha256": "ae39c5acaa0164467c3575b81999457bc367e3b523bb6eead3d83a3c3eb488b2",
       "adaptation_reason": "Newly authored AP00012 foundation file; no pinned source asset or source sections. Delivery-only evidence records packaged bytes, not runtime or profile certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7234,9 +7251,9 @@
       ],
       "evidence": {
         "status": "passed",
-        "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
-        "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
-        "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
+        "artifact_id": "plugins/autopilot/CHANGELOG.md",
+        "artifact_sha256": "ae39c5acaa0164467c3575b81999457bc367e3b523bb6eead3d83a3c3eb488b2",
+        "tested_package_revision": "c26dfc6df6c9a0eb1e7f1622a334265222bb9006"
       }
     },
     {
