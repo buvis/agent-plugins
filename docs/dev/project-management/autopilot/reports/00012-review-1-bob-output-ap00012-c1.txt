@@ -1,0 +1,43 @@
+[BOB] 🟡 No test checks the policy's rule IDs against the packaged rubric files. The design says to "parse the rule ids from the packaged … rubric.md … and require them to equal rule_ids" and to require that `eve.md` has the de-slop section. Instead, the R, B and D lists are hardcoded constants (`test_contract.py:28-30`), so a wrong list would still pass. The committed data is correct today: it matches R1-R4, R6-R13, B1-B19 and D1-D5 in the packaged files. | File: tests/autopilot/test_contract.py:121 | Task: 2
+[BOB] ⚪ `check-source.py` never reads `review-policy-v1.json`. The design says it recomputes the binding and anchor digests from the pinned blobs. Coverage holds only through two checks that must both run: normal tests compare policy to inventory, and the audit compares inventory to blobs. | File: tools/autopilot/check-source.py:263 | Task: 5
+[BOB] ⚪ `test_rejected_cases_have_exactly_the_specified_complete_semantic_defects` repeats `test_contract_semantics.py:299` for the rejected cases, and `test_package.py:406` runs the same oracle a third time. Lines 63-94 also re-check properties that the `validate_review == accepted` assert at line 42 already enforces. | File: tests/autopilot/test_contract_fixtures_adversarial.py:96 | Task: 17
+[BOB] ⚪ Changelog problems: a stray blank line splits the Added list, the bullets lack the `**autopilot**:` prefix that specflow and the changelog rule use, and no entry announces the 11 gated skills, 18 personas and 59 references. `test_package.py:203` pins the bullet text word for word, so any fix must update that test too. | File: plugins/autopilot/CHANGELOG.md:9 | Task: 16
+[BOB] ⚪ `ci_autopilot_wired` asserts the exact list of steps in the unrelated `plugins` job. The design says not to snapshot unrelated workflow content, and any future specflow CI step will fail the autopilot suite. An ordered-subsequence check would still prove the job is preserved. | File: tests/autopilot/test_package.py:444 | Task: 16
+[BOB] ⚪ The draft 2020-12 `"type":"integer"` accepts `1.0`, so `attempt: 1.0` passes the schema. The oracle's `range(1, highest + 1)` would then likely raise TypeError instead of returning a defect. The wire test covers 1.5 but not 1.0. | File: tests/autopilot/test_contract_semantics.py:160 | Task: 3
+[BOB] ⚪ Cannot statically verify: the autopilot suite, `python3 -m unittest discover -s scripts` and `python3 scripts/validate.py` pass. The test gate reports exit 0 with no counts, and the fail-first replay was skipped because `requirements-test.txt` does not exist at base. | File: N/A | Task: general
+[BOB] ⚪ The gated SKILL.md bodies keep `${CLAUDE_PLUGIN_ROOT}` and Claude-specific prose. This is known and out of scope: the content is preserved byte for byte behind the first-body refusal gate for AP 00015 to adapt. | File: plugins/autopilot/skills/run-autopilot/SKILL.md:13 | Task: 7
+[BOB] ⚪ The only semantic validator is the test oracle; there is no runtime one. This is by design: task 14 forbids a validator runtime, and AP 00020 owns it. | File: tests/autopilot/test_contract_semantics.py:269 | Task: 14
+
+R1: pass
+R2: pass
+R3: pass
+R4: pass
+R6: pass
+R7: pass
+R8: pass
+R9: fail
+R10: pass
+R11: pass
+R12: pass
+R13: pass
+
+FIX:
+- No test ties the rubric rule IDs to the packaged files — tests/autopilot/test_contract.py:121 — add a test that matches `^([RBD]\d+):` lines in `skills/review-work-completion/references/rubric.md`, `skills/review-blindly/references/rubric.md` and `skills/run-autopilot/references/doubt-review-rubric.md`. Assert each list equals `policy["rubric_sets"][ns]["rule_ids"]` in file order, and assert that `references/personas/eve.md` has the `2. De-slop lens` heading.
+- `check-source.py` does not audit the policy's source bindings — tools/autopilot/check-source.py:263 — in `_audit`, load `plugins/autopilot/contracts/review-policy-v1.json`. Require each binding's `blob_sha256` to equal `files[path]["blob_sha256"]`, and a non-null `section_sha256` to equal the matching `sections[path]` anchor's `sha256`.
+- Duplicate oracle test in the adversarial file — tests/autopilot/test_contract_fixtures_adversarial.py:96 — delete `test_rejected_cases_have_exactly_the_specified_complete_semantic_defects`, since `test_contract_semantics.py:299` already asserts every case's exact defect set.
+- Changelog list break and missing scope prefix — plugins/autopilot/CHANGELOG.md:9 — remove the blank line, prefix each bullet with `**autopilot**:`, add a bullet for the gated skill, persona and reference port, and update the pinned strings at tests/autopilot/test_package.py:203.
+- The CI test snapshots the unrelated `plugins` job — tests/autopilot/test_package.py:444 — replace the exact list equality with a check that the original commands appear in order within the job's run steps.
+
+VERIFY:
+- Schema accepts integral floats and the oracle may crash — deepcopy `full-clean` from `review-fixtures-v1.json`, set the alice result's `attempt` to `1.0`, and call `test_contract_semantics.validate_review(policies["v1"], ctx, ev)`. Expect a returned defect set; a TypeError confirms the bug.
+- Test gate unverified — run `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q`, `python3 -m unittest discover -s scripts` and `python3 scripts/validate.py`, and record the pass/fail/skip counts.
+
+KNOWN:
+- Claude placeholders kept in gated SKILL.md bodies — preserved byte for byte behind the refusal gate on purpose; AP 00015 owns adapting them.
+- No runtime semantic validator — task 14 forbids inventing one, and AP 00020 owns runtime validation; the test oracle is the specified reference.
+
+D1: pass
+D2: pass
+D3: pass
+D4: pass
+D5: pass

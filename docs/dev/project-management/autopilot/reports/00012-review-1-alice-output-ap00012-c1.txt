@@ -1,0 +1,20 @@
+[ALICE] 🟡 `plugins/autopilot/scripts/autopilot.py:41` re-walks the parsed policy by hand (lines 41-49) to find floats. Passing `parse_float` and `parse_constant` hooks that raise `ValueError` to the `json.loads` call at line 36 rejects fractions, exponents and NaN/Infinity while parsing. The behavior is the same, the 9-line loop goes away, and the existing `except ValueError` already turns the error into exit 1. | File: plugins/autopilot/scripts/autopilot.py:41 | Task: 14
+[ALICE] ⚪ `tests/autopilot/test_package.py:203` checks six CHANGELOG bullets word for word, so rewording the changelog breaks a test. The CHANGELOG bytes are already pinned by `destination_blob_sha256` in `test_content_roster` (`tests/autopilot/test_package.py:281`), so this check repeats one that exists and only adds a dependency on the wording. A check for the `## [Unreleased]` / `### Added` structure would be enough. | File: tests/autopilot/test_package.py:203 | Task: 19
+[ALICE] ⚪ A stray blank line at `plugins/autopilot/CHANGELOG.md:9` splits the `### Added` list into two loose lists. | File: plugins/autopilot/CHANGELOG.md:9 | Task: 14
+[ALICE] ⚪ `tools/autopilot/check-source.py:244` has three blank lines between `_audit_behaviors` and `_audit_regressions`. PEP 8 uses two (pycodestyle E303). | File: tools/autopilot/check-source.py:244 | Task: 5
+[ALICE] ⚪ `tests/autopilot/test_package.py:69` builds its target from `git archive HEAD`. A local run with uncommitted edits therefore tests the last commit, not the working tree, and can pass on stale bytes. The design asks for this ("committed target inputs"), but neither the module docstring nor the README's Development section says so. | File: tests/autopilot/test_package.py:69 | Task: 19
+
+Verified: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` gave 89 passed, 0 skipped. `python3 scripts/validate.py` reported "Validated 3 plugin package(s) and 15 skill(s)". `python3 tools/autopilot/check-source.py --source-root ../claude-autopilot` passed: 679 files, 92 assets, 1381 behaviors, 4950 regression cases. The policy lanes, rosters, escalation rules and rubric sets match the design tables, and the fixture file has all 55 named cases.
+
+R1: pass
+R2: pass
+R3: pass
+R4: pass
+R6: pass
+R7: pass
+R8: pass
+R9: pass
+R10: pass
+R11: pass
+R12: pass
+R13: pass

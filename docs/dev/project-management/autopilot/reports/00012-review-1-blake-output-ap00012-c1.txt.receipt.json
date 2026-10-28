@@ -1,0 +1,17 @@
+{
+  "provider": "claude",
+  "model_provider": "anthropic",
+  "lens": "blake",
+  "model": "opus",
+  "started": 1793155656.984595,
+  "completed": 1793156151.586941,
+  "output": "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/blake-output-ap00012-c1.txt",
+  "sha256": "37b35e3524b96f35c9a823649dd163bba08a03815490bfa3087e63d1c845458c",
+  "raw": "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/blake-output-ap00012-c1-e351b8af126646eeb252758f5b8dbf0e.jsonl",
+  "raw_sha256": "f68b62c7afc13691dd81c3d47d57483c4ec26369faa51e9f796831f4a9deceb9",
+  "thread_id": "175df69b-d8ca-41bb-aef3-284036ad3e4d",
+  "root": "/Users/bob/git/src/github.com/buvis/agent-plugins",
+  "prd": "00012-autopilot-package-contract-v1.md",
+  "cycle": 1,
+  "implementation_fingerprint": "aca7b85369e1924a6b5fc597c03d575cd5571be014af4d4a9eea00d595790bc9"
+}

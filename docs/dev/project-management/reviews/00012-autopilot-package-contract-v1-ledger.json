@@ -1,0 +1,146 @@
+[
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "`plugins/autopilot/scripts/autopilot.py:41` re-walks the parsed policy by hand (lines 41-49) to find floats. Passing `parse_float` and `parse_constant` hooks that raise `ValueError` to the `json.loads` call at line 36 rejects fractions, exponents and NaN/Infinity while parsing. The behavior is the same, the 9-line loop goes away, and the existing `except ValueError` already turns the error into exit 1.",
+    "file": "plugins/autopilot/scripts/autopilot.py:41",
+    "reason": "single-voice; the existing bounded walk is correct and the proposed parser-hook refactor changes no specified behavior."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "All 27 behavior rows assigned to 00012 (P03\u2013P05, R01, OPT-042, BEH-001..010, UTIL-*) still show evidence status \"planned\" with null artifact, sha and revision, and their acceptance cases are \"planned\". Nothing in the map links this PRD's own obligations to the contracts and tests it delivered, while asset rows carry \"passed\" receipts",
+    "file": "tools/autopilot/source-map.json",
+    "reason": "Discard: the contract explicitly says AP00012 validates completeness of assignments, not completion of future work. Planned behavior/profile evidence must not be upgraded to host certification from delivery tests."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "No test checks the policy's rule IDs against the packaged rubric files. The design says to \"parse the rule ids from the packaged \u2026 rubric.md \u2026 and require them to equal rule_ids\" and to require that `eve.md` has the de-slop section. Instead, the R, B and D lists are hardcoded constants (`test_contract.py:28-30`), so a wrong list would still pass. The committed data is correct today: it matches R1-R4, R6-R13, B1-B19 and D1-D5 in the packaged files.",
+    "file": "tests/autopilot/test_contract.py:121",
+    "reason": "single-voice; the current policy IDs are correct. Missing dynamic rubric-file comparison is retained as a test-coverage limitation, not silently claimed fixed."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`tests/autopilot/test_package.py:203` checks six CHANGELOG bullets word for word, so rewording the changelog breaks a test. The CHANGELOG bytes are already pinned by `destination_blob_sha256` in `test_content_roster` (`tests/autopilot/test_package.py:281`), so this check repeats one that exists and only adds a dependency on the wording. A check for the `## [Unreleased]` / `### Added` structure would be enough.",
+    "file": "tests/autopilot/test_package.py:203",
+    "reason": "Discard: the immutable pre-integration history check independently prevents coordinated metadata/history erasure, a proved Devon exploit. Removing it would weaken required test intent."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`tools/autopilot/check-source.py:244` has three blank lines between `_audit_behaviors` and `_audit_regressions`. PEP 8 uses two (pycodestyle E303).",
+    "file": "tools/autopilot/check-source.py:244",
+    "reason": "single-voice; whitespace-only suggestion."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`tests/autopilot/test_package.py:69` builds its target from `git archive HEAD`. A local run with uncommitted edits therefore tests the last commit, not the working tree, and can pass on stale bytes. The design asks for this (\"committed target inputs\"), but neither the module docstring nor the README's Development section says so.",
+    "file": "tests/autopilot/test_package.py:69",
+    "reason": "Discard: the module docstring explicitly says Committed target packages; archive HEAD is the specified target-only contract, not an accidental stale-working-tree test."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Four named acceptance scenarios have no test of that name: source_inventory_mapping, review_schema, reference_tree_preserved and package_self_contained. Tests under other names cover them (tests/autopilot/test_provenance.py:49, tests/autopilot/test_contract_semantics.py:299, tests/autopilot/test_package.py:286, tests/autopilot/test_package.py:371). The exit criterion \"the named task tests pass\" can only be checked by hand-mapping",
+    "file": "tests/autopilot/test_package.py:286",
+    "reason": "Discard: named acceptance scenarios are covered by the cited behavior tests. No contract requires Python function names to equal scenario labels."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The oracle rejects a review when an activated conditional reviewer (Carl) fails its last attempt (`required_job_failed`). The pinned retry policy says to mark the reviewer unavailable and continue (plugins/autopilot/skills/review-work-completion/references/retry-policy.md:9), and the policy encodes `reviewer_failed_after_retry \u2192 mark_unavailable`. Rejecting is right for mandatory jobs but stricter than the source for optional Carl, and no golden case covers that path",
+    "file": "tests/autopilot/test_contract_semantics.py:171",
+    "reason": "Discard: activated required jobs must produce complete evidence; unavailable remains incomplete for a promised profile. Source retry/unavailability history is preserved separately. AP00020 owns actual runtime provenance."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The README and CHANGELOG \"passed\" delivery receipts point at themselves: the artifact is the file itself, and the test checks `tested_package_revision` only with a regex. The receipt proves nothing beyond the file's hash",
+    "file": "tests/autopilot/test_package.py:122",
+    "reason": "Discard: these are delivery-only file/hash receipts, explicitly not execution certification. The build independently checked real Git revisions; self-contained artifact identity is not a claim of independent runtime proof."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "prerequisites.py counts only regular `NNNNN-<slug>.md` files, but the backlog `eligibility:` lines use `ls done/NNNNN-*`. The \"maintainer view of the same table\" can disagree with selection, for example on `00012-x.md.bak`",
+    "file": "tools/autopilot/prerequisites.py:35",
+    "reason": "Discard: completed PRDs are regular NNNNN-slug.md files by contract; backup files are not completion. The strict diagnostic intentionally refuses unrelated backups."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`doubt_label_map` ships in the portable policy, but it comes from the author's personal global AGENTS.md, not the pinned source, and has no source binding. It is author-home content inside a package meant to work without the author",
+    "file": "plugins/autopilot/contracts/review-policy-v1.json:594",
+    "reason": "Discard: the reviewed design explicitly specifies doubt_label_map. Committed policy data has no author-home runtime dependency; no forbidden live home read occurs."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`check-source.py` never reads `review-policy-v1.json`. The design says it recomputes the binding and anchor digests from the pinned blobs. Coverage holds only through two checks that must both run: normal tests compare policy to inventory, and the audit compares inventory to blobs.",
+    "file": "tools/autopilot/check-source.py:263",
+    "reason": "single-voice; the two passing checks provide transitive digest coverage. A direct policy read in the source auditor remains a coverage improvement, not a currently incorrect binding."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`test_rejected_cases_have_exactly_the_specified_complete_semantic_defects` repeats `test_contract_semantics.py:299` for the rejected cases, and `test_package.py:406` runs the same oracle a third time. Lines 63-94 also re-check properties that the `validate_review == accepted` assert at line 42 already enforces.",
+    "file": "tests/autopilot/test_contract_fixtures_adversarial.py:96",
+    "reason": "Discard: independent mutation/adversarial and isolated-archive assertions preserve committed specification intent. Do not remove tests merely because their golden-case oracle overlaps."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`ci_autopilot_wired` asserts the exact list of steps in the unrelated `plugins` job. The design says not to snapshot unrelated workflow content, and any future specflow CI step will fail the autopilot suite. An ordered-subsequence check would still prove the job is preserved.",
+    "file": "tests/autopilot/test_package.py:444",
+    "reason": "single-voice; the exact unrelated-job step snapshot is a genuine maintenance limitation retained in the ledger. The current workflow is correct."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The draft 2020-12 `\"type\":\"integer\"` accepts `1.0`, so `attempt: 1.0` passes the schema. The oracle's `range(1, highest + 1)` would then likely raise TypeError instead of returning a defect. The wire test covers 1.5 but not 1.0.",
+    "file": "tests/autopilot/test_contract_semantics.py:160",
+    "reason": "single-voice; confirmed by coordinator: full-clean input.reviewer_results[0].attempt=1.0 raises TypeError at history_defects line160. The canonical gate forbids single-voice medium/low fix tasks. Retain this concrete oracle limitation and reproduction, without claiming a repair."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Cannot statically verify: the autopilot suite, `python3 -m unittest discover -s scripts` and `python3 scripts/validate.py` pass. The test gate reports exit 0 with no counts, and the fail-first replay was skipped because `requirements-test.txt` does not exist at base.",
+    "file": "N/A",
+    "reason": "Discard as resolved verification: canonical run_gate recorded PASS89 FAIL0 SKIP0 EXIT0; validator12 tests and repository validation also passed. Replay remains explicitly skipped because the base lacks the new requirements file."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The gated SKILL.md bodies keep `${CLAUDE_PLUGIN_ROOT}` and Claude-specific prose. This is known and out of scope: the content is preserved byte for byte behind the first-body refusal gate for AP 00015 to adapt.",
+    "file": "plugins/autopilot/skills/run-autopilot/SKILL.md:13",
+    "reason": "Known intended gate: AP00015 owns adapting retained source prose. No runtime fallback to source or author-home is authorized."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The only semantic validator is the test oracle; there is no runtime one. This is by design: task 14 forbids a validator runtime, and AP 00020 owns it.",
+    "file": "tests/autopilot/test_contract_semantics.py:269",
+    "reason": "Known intended boundary: AP00020 owns runtime semantic validation; this PRD deliberately ships only a test oracle."
+  }
+]

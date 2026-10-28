@@ -1,0 +1,37 @@
+The package mostly matches the spec. One acceptance criterion fails: the `resource_closure` map leaves out many runtime script dependencies, and its test locks in that incomplete set.
+
+What I checked and found sound:
+- **Manifest:** schema URL, name `autopilot`, version 0.10.0, author `buvis` (same as the pinned `.claude-plugin/plugin.json`), MIT. LICENSE ships inside the package.
+- **Asset bytes:** I compared all 97 rows in `source-map.json` to `git show` at the pin. The 78 preserved files (59 references, 18 personas, LICENSE) are byte-identical. The 11 SKILL.md changes add only the refusal gate.
+- **Lane rosters:** the full, fast-track and solo rosters, conditional reviewers, input exclusions and caps (2 / 1 / 1) match the pinned source sections.
+- **Commands:** `check-source.py --source-root` passes at the pin (679 files, 92 assets, 1381 behaviors, 4950 regression cases). `scripts/validate.py` passes. `prerequisites.py --prd 00013` exits 1 with `{"missing":["00012"]}`.
+- **Tests:** I ran only `test_package.py` under Python 3.12 (8 passed). I did not rerun the full suite; the test gate reports it at exit 0 with no counts.
+- **CI:** the 3.12 autopilot job is wired, and the 3.10 plugins job keeps its pinned actions.
+
+[BLAKE] 🟠 resource_closure leaves out many runtime script dependencies. `resource_edges` has 202 rows, yet packaged skills call scripts that are neither packaged nor declared external: `consolidate_findings.py` (plugins/autopilot/skills/run-autopilot/references/lane-solo.md:168, plugins/autopilot/skills/review-work-completion/SKILL.md:386), `compute_mech_facts.py` (plugins/autopilot/skills/fast-track/SKILL.md:270), and also `render_prompt.py`/`record_dispatch.py` in fast-track, `detect_tautological_tests.py`, `check_review_file.py`, `await_reviewer_outputs.py`, `fast_track_plan.py`, `card.py`, `fablectl.py` and `parse_review.py`. The test locks the edge count and digest (tests/autopilot/test_package.py:331), so it cannot catch the gap. The unconditional skill gates block runtime harm today, but later PRDs that restore entry points will inherit this incomplete map | File: tools/autopilot/source-map.json | Task: Phase 1 task 2
+[BLAKE] 🟡 All 27 behavior rows assigned to 00012 (P03–P05, R01, OPT-042, BEH-001..010, UTIL-*) still show evidence status "planned" with null artifact, sha and revision, and their acceptance cases are "planned". Nothing in the map links this PRD's own obligations to the contracts and tests it delivered, while asset rows carry "passed" receipts | File: tools/autopilot/source-map.json | Task: Phase 0
+[BLAKE] ⚪ Four named acceptance scenarios have no test of that name: source_inventory_mapping, review_schema, reference_tree_preserved and package_self_contained. Tests under other names cover them (tests/autopilot/test_provenance.py:49, tests/autopilot/test_contract_semantics.py:299, tests/autopilot/test_package.py:286, tests/autopilot/test_package.py:371). The exit criterion "the named task tests pass" can only be checked by hand-mapping | File: tests/autopilot/test_package.py:286 | Task: general
+[BLAKE] ⚪ The oracle rejects a review when an activated conditional reviewer (Carl) fails its last attempt (`required_job_failed`). The pinned retry policy says to mark the reviewer unavailable and continue (plugins/autopilot/skills/review-work-completion/references/retry-policy.md:9), and the policy encodes `reviewer_failed_after_retry → mark_unavailable`. Rejecting is right for mandatory jobs but stricter than the source for optional Carl, and no golden case covers that path | File: tests/autopilot/test_contract_semantics.py:171 | Task: Phase 0
+[BLAKE] ⚪ The README and CHANGELOG "passed" delivery receipts point at themselves: the artifact is the file itself, and the test checks `tested_package_revision` only with a regex. The receipt proves nothing beyond the file's hash | File: tests/autopilot/test_package.py:122 | Task: Phase 2 task 2
+[BLAKE] ⚪ prerequisites.py counts only regular `NNNNN-<slug>.md` files, but the backlog `eligibility:` lines use `ls done/NNNNN-*`. The "maintainer view of the same table" can disagree with selection, for example on `00012-x.md.bak` | File: tools/autopilot/prerequisites.py:35 | Task: Phase 2 task 1
+[BLAKE] ⚪ `doubt_label_map` ships in the portable policy, but it comes from the author's personal global AGENTS.md, not the pinned source, and has no source binding. It is author-home content inside a package meant to work without the author | File: plugins/autopilot/contracts/review-policy-v1.json:594 | Task: Phase 0
+
+B1: fail
+B2: pass
+B3: pass
+B4: pass
+B5: pass
+B6: pass
+B7: pass
+B8: pass
+B9: pass
+B10: pass
+B11: pass
+B12: pass
+B13: pass
+B14: pass
+B15: fail
+B16: pass
+B17: pass
+B18: pass
+B19: pass
