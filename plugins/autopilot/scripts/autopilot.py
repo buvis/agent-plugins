@@ -11,6 +11,13 @@ import re
 import sys
 
 
+_ROOT_KEYS = {
+    "schema_version", "procedure", "reviewer_jobs", "rubric_sets",
+    "doubt_label_map", "execution_profiles", "artifact_kinds",
+    "input_kinds", "source_bindings", "policy_digest",
+}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(allow_abbrev=False)
     modes = parser.add_mutually_exclusive_group(required=True)
@@ -27,12 +34,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         policy_path = Path(__file__).resolve().parents[1] / "contracts" / "review-policy-v1.json"
         policy = json.loads(policy_path.read_text(encoding="utf-8"))
-        root_keys = {
-            "schema_version", "procedure", "reviewer_jobs", "rubric_sets",
-            "doubt_label_map", "execution_profiles", "artifact_kinds",
-            "input_kinds", "source_bindings", "policy_digest",
-        }
-        if not isinstance(policy, dict) or set(policy) != root_keys:
+        if not isinstance(policy, dict) or set(policy) != _ROOT_KEYS:
             raise ValueError("policy must contain exactly the review-policy-v1 root fields")
         if type(policy["schema_version"]) is not int or policy["schema_version"] != 1:
             raise ValueError("policy schema_version must be integer 1")
