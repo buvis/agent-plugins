@@ -32,7 +32,7 @@ def main() -> int:
     completed = set()
     if done.is_dir():
         for entry in done.iterdir():
-            match = re.fullmatch(r"([0-9]{5})-.+\.md", entry.name)
+            match = re.fullmatch(r"([0-9]{5})-.+\.md", entry.name, flags=re.DOTALL)
             if match and entry.is_file():
                 completed.add(match[1])
     missing = [item for item in PREDECESSORS[prd] if item not in completed]
