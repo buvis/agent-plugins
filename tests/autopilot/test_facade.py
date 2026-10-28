@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import uuid
 from pathlib import Path
 
 from test_contract import ROOT, load
@@ -60,16 +61,22 @@ class LocalFacadeTest(unittest.TestCase):
         self.policy = load(PACKAGE / POLICY)
         self.original = (PACKAGE / POLICY).read_bytes()
 
-    def run_cli(self, script: Path, *arguments: str) -> subprocess.CompletedProcess:
+    def run_cli(self, script: Path, *arguments: str, cwd: Path | None = None,
+                home: Path | None = None) -> subprocess.CompletedProcess:
         self.assertTrue(script.is_file(), f"Public CLI executable is missing: {script}")
+        env = dict(self.env)
+        if home is not None:
+            for key in ("HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME"):
+                env[key] = str(home)
         return subprocess.run(
-            [sys.executable, str(script), *arguments], cwd=self.cwd,
-            env=self.env, capture_output=True, timeout=60,
+            [sys.executable, str(script), *arguments], cwd=cwd or self.cwd,
+            env=env, capture_output=True, timeout=60,
         )
 
     def assert_success(self, result: subprocess.CompletedProcess, expected: bytes) -> None:
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
         self.assertEqual(result.stdout, expected)
+        self.assertEqual(result.stderr, b"")
 
     def assert_failure(self, result: subprocess.CompletedProcess) -> None:
         self.assertNotEqual(result.returncode, 0)
@@ -84,9 +91,14 @@ class LocalFacadeTest(unittest.TestCase):
     def test_capabilities_are_exact_contract_formats_without_runtime_side_effects(self) -> None:
         before = {p.relative_to(self.package): (p.stat().st_size, p.stat().st_mtime_ns)
                   for p in self.package.rglob("*") if p.is_file()}
-        for script in (PACKAGE / "scripts" / "autopilot.py", self.facade):
-            with self.subTest(script=script):
-                self.assert_success(self.run_cli(script, "--list-capabilities"), CAPABILITIES)
+        homes = (self.home, self.base / "clean config root", self.base / uuid.uuid4().hex)
+        for home in homes:
+            home.mkdir(exist_ok=True)
+            for script in (PACKAGE / "scripts" / "autopilot.py", self.facade):
+                with self.subTest(script=script, home=home):
+                    self.assert_success(self.run_cli(script, "--list-capabilities", home=home),
+                                        CAPABILITIES)
+            self.assertEqual(list(home.iterdir()), [])
         after = {p.relative_to(self.package): (p.stat().st_size, p.stat().st_mtime_ns)
                  for p in self.package.rglob("*") if p.is_file()}
         self.assertEqual(after, before)
@@ -96,8 +108,12 @@ class LocalFacadeTest(unittest.TestCase):
     def test_policy_export_reproducible_across_relocation_and_unrelated_cwd(self) -> None:
         self.assertEqual(sign(self.policy), self.policy)
         expected = canonical(self.policy) + b"\n"
+        working_dirs = (self.cwd, self.base / "another launch directory",
+                        self.base / f"cwd-{uuid.uuid4().hex}")
+        for directory in working_dirs:
+            directory.mkdir(exist_ok=True)
         # Same-named data in cwd and HOME must not shadow packaged data.
-        for directory in (self.cwd, self.home):
+        for directory in (*working_dirs, self.home):
             decoy = directory / POLICY
             decoy.parent.mkdir()
             decoy.write_text('{"policy_digest":"wrong"}', encoding="utf-8")
@@ -107,11 +123,12 @@ class LocalFacadeTest(unittest.TestCase):
         before = {p.relative_to(self.distribution) for p in self.distribution.rglob("*")}
         for script in (PACKAGE / "scripts" / "autopilot.py", self.facade,
                        EXPORTER, self.exporter):
-            for repeat in range(2):
-                with self.subTest(script=script, repeat=repeat):
-                    self.assert_success(self.run_cli(script, "--export-policy")
-                                        if script in (self.facade, PACKAGE / "scripts" / "autopilot.py")
-                                        else self.run_cli(script), expected)
+            for directory in working_dirs:
+                for repeat in range(2):
+                    with self.subTest(script=script, cwd=directory, repeat=repeat):
+                        self.assert_success(self.run_cli(script, "--export-policy", cwd=directory)
+                                            if script in (self.facade, PACKAGE / "scripts" / "autopilot.py")
+                                            else self.run_cli(script, cwd=directory), expected)
         self.assertEqual({p.relative_to(self.distribution)
                           for p in self.distribution.rglob("*")}, before)
         self.assertEqual((PACKAGE / POLICY).read_bytes(), self.original)
@@ -119,7 +136,9 @@ class LocalFacadeTest(unittest.TestCase):
 
     def test_export_out_writes_exact_bytes_to_each_passed_path_and_no_stdout(self) -> None:
         expected = canonical(self.policy) + b"\n"
-        paths = (self.cwd / "policy.json", self.base / "other policy.json")
+        paths = (self.cwd / "policy.json", self.base / "other policy.json",
+                 self.cwd / f"{uuid.uuid4().hex}.json",
+                 self.base / f"export {uuid.uuid4().hex}.data")
         for script in (self.facade, self.exporter):
             prefix = ("--export-policy",) if script == self.facade else ()
             for output in paths:
@@ -134,6 +153,10 @@ class LocalFacadeTest(unittest.TestCase):
             self.assert_success(result, b"")
             self.assertEqual((self.cwd / relative).read_bytes(), expected)
             (self.cwd / relative).unlink()
+            generated_relative = Path(f"{uuid.uuid4().hex}.bin")
+            self.assert_success(self.run_cli(script, *prefix, "--out", str(generated_relative)), b"")
+            self.assertEqual((self.cwd / generated_relative).read_bytes(), expected)
+            (self.cwd / generated_relative).unlink()
         self.assertEqual((self.package / POLICY).read_bytes(), self.original)
         self.assertEqual(list(self.home.iterdir()), [])
 
@@ -168,6 +191,22 @@ class LocalFacadeTest(unittest.TestCase):
         changed = copy.deepcopy(self.policy)
         changed["source_bindings"][-1]["section_sha256"] = "3" * 64
         corruptions.append(canonical(changed))
+        corruptions.append(canonical(sign({})))
+        required_keys = (
+            "schema_version", "procedure", "reviewer_jobs", "rubric_sets", "doubt_label_map",
+            "execution_profiles", "artifact_kinds", "input_kinds", "source_bindings",
+        )
+        for key in required_keys:
+            incomplete = copy.deepcopy(self.policy)
+            del incomplete[key]
+            corruptions.append(canonical(sign(incomplete)))
+        for version in (0, 2, -1, "1", True, None, 1.0):
+            unsupported = copy.deepcopy(self.policy)
+            unsupported["schema_version"] = version
+            corruptions.append(canonical(sign(unsupported)))
+        extra = copy.deepcopy(self.policy)
+        extra["unknown_root_field"] = "closed root"
+        corruptions.append(canonical(sign(extra)))
         for content in corruptions:
             (self.package / POLICY).write_bytes(content)
             self.check_failed_exports_preserve_files(content)
@@ -191,15 +230,26 @@ class LocalFacadeTest(unittest.TestCase):
 
     def test_nonfinite_and_fractional_numbers_are_rejected_recursively(self) -> None:
         # Re-sign invalid numeric values so a digest mismatch cannot mask this guard.
+        locations = (
+            ("procedure", "lanes", "full", "rework_policy", "cycle_cap_default"),
+            ("source_bindings", -1, "section"),
+            ("source_bindings", 0, "section"),
+            ("source_bindings", len(self.policy["source_bindings"]) // 2, "section"),
+            ("procedure", "lanes", "solo", "rework_policy", "reviewer_retry_limit"),
+            ("procedure", "lanes", "full", "required_reviewer_jobs", 0),
+            ("procedure", "lanes", "full", "required_reviewer_jobs", 1),
+            ("procedure", "lanes", "full", "required_reviewer_jobs", -1),
+            ("reviewer_jobs", 0, "lenses", 0),
+            ("rubric_sets", "D", "rule_ids", 1),
+        )
         for value in (float("nan"), float("inf"), float("-inf"), 0.5, -2.25, 1e-40):
-            for location in ("nested-object", "last-array-element"):
+            for location in locations:
                 with self.subTest(value=value, location=location):
                     policy = copy.deepcopy(self.policy)
-                    if location == "nested-object":
-                        policy["procedure"]["lanes"]["full"]["rework_policy"][
-                            "cycle_cap_default"] = value
-                    else:
-                        policy["source_bindings"][-1]["section"] = value
+                    target = policy
+                    for key in location[:-1]:
+                        target = target[key]
+                    target[location[-1]] = value
                     content = self.write_policy(sign(policy))
                     self.check_failed_exports_preserve_files(content)
         self.assertEqual((PACKAGE / POLICY).read_bytes(), self.original)
@@ -214,10 +264,22 @@ class LocalFacadeTest(unittest.TestCase):
             ("--export-policy-extra",), ("--export-policy", "--fetch"),
             ("--run",), ("--state", str(output)), ("--supervisor",),
             ("--native-host",), ("run-autopilot",),
+            ("--launch-runtime",), ("--export-policy", "--launch-runtime"),
+            ("--list-capabilities", "--launch-runtime"),
         )
         for arguments in invalid_arguments:
             with self.subTest(arguments=arguments):
                 self.assert_failure(self.run_cli(self.facade, *arguments))
+                self.assertEqual(output.read_bytes(), b"keep")
+        exporter_invalid_arguments = (
+            ("--out",), ("--launch-runtime",), ("--fetch",), ("--run",),
+            ("--state", str(output)), ("--supervisor",), ("--native-host",),
+            ("run-autopilot",), ("--export-policy-extra",),
+            ("--out", str(output), "--launch-runtime"),
+        )
+        for arguments in exporter_invalid_arguments:
+            with self.subTest(exporter_arguments=arguments):
+                self.assert_failure(self.run_cli(self.exporter, *arguments))
                 self.assertEqual(output.read_bytes(), b"keep")
         self.assertEqual((self.package / POLICY).read_bytes(), self.original)
         self.assertEqual(list(self.home.iterdir()), [])
