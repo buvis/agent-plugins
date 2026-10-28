@@ -1,0 +1,247 @@
+# Qwen Integration
+
+How to invoke local qwen for task implementation via the `~/.agents/skills/use-qwen/scripts/qwen-run.sh` helper, which wraps the `pi` agent against a llama.cpp-served model. Always pass the prompt with `-f <file>`. The qualified Qwen3.8 model is `unsloth/Qwen3.8-27B-GGUF:UD-Q6_K_XL`. An autopilot dispatch runs under `--approved-only`; preflight selects a live approved id and the dispatch must pass that same id with `-m`, so it does not rely on the external helper's default. Inference is local and free — no API cost, no token billing.
+
+Qwen is a speculative one-shot implementor. The last valid qualification is
+Qwen3.8's 6/6 single-file round; autonomous trust remains `single-file-only`.
+The 2026-09-03 multi-file eval in agent-skills reported Qwen 4/6 versus Sonnet
+6/6, but its first completion review found contaminated baselines and missing
+line-history checks. That comparison remains pending review and a clean rerun;
+it is not decision-grade evidence for widening trust. Sonnet remains the
+correctness fallback and reviewer.
+
+Planning and dispatch both require exactly one expected implementor-writable
+file, in addition to the backend, tier and no-public-contract predicates.
+Two-or-more-file tasks route above Qwen through the existing Codex/Claude
+fences; `work` reconciles stale planner flags against the concrete `FILE_PATHS`
+before selection. Empty write sets fail closed to Claude. Healthy preflight
+alone does not grant task eligibility.
+
+## Preflight
+
+A four-check probe MUST run before any qwen dispatch. The probe takes one of two terminal verdicts: **healthy** (proceed to dispatch) or **failed** with the specific failing check named. Checks short-circuit in order — the first failure is the verdict.
+
+The four checks, in order:
+
+1. **`pi` resolvable on PATH.** `command -v pi` exits 0. On failure: `preflight_outcome = "pi_missing"`.
+2. **llama.cpp `/v1/models` endpoint reachable.** An HTTP GET against the configured base URL's `/v1/models` returns a 2xx response within **2 seconds** (a healthy local llamacpp responds in tens of ms; 2s is conservative slack for a busy laptop). Read the base URL from `~/.pi/agent/models.json` at JSON path `.providers.llamacpp.baseUrl`. On any failure (connection refused, timeout ≥ 2s, non-2xx, missing config): `preflight_outcome = "endpoint_unreachable"`.
+3. **An APPROVED model id is live on the endpoint.** Parse the `/v1/models` JSON response (`data[].id` — a server can list SEVERAL ids, so check every entry, never just the first). At least one listed id must appear in the approved registry (`~/.agents/skills/use-qwen/scripts/approved-models.txt`); that approved id is the one check 4 probes and the dispatch runs. On absence: `preflight_outcome = "model_id_missing"`. **The registry, not the config, is the authority here.** This is exactly the gate `qwen-run.sh --approved-only` applies at dispatch, and the preflight MUST apply it too: a preflight that verdicts `healthy` on an unapproved-but-live engine sends `/autopilot:work` into a dispatch the script then refuses — which consumes the one-shot qwen attempt (see "Helper exits non-zero") on a task qwen never actually ran, and logs `preflight_outcome: "healthy"` for an attempt that never happened. The Fallback rule below is the intended path instead.
+4. **Real 1-token completion succeeds.** Checks 2-3 only enumerate configured models — LlamaBarn (and any on-demand server) lists the model straight from config and spawns the inference worker *lazily, on the first completion*. They pass even when the worker cannot start, so this is the only check that exercises the spawn. POST to `${baseUrl}/chat/completions` with body `{"model": <the approved id selected by check 3>, "messages": [{"role": "user", "content": "ping"}], "max_tokens": 1, "stream": false}`, timeout **120 seconds**. A 2xx response → the check passes (verdict `healthy`). Any non-2xx (e.g. `500 "failed to spawn server instance"`), connection error, or timeout → `preflight_outcome = "completion_failed"`. The 120s ceiling covers a cold model load (the ~18.5 GB GGUF takes tens of seconds the first time); the probe doubles as a warm-up, so the model is resident when the real dispatch follows — the load is not wasted. A backend that cannot emit one token in 120s would blow the task watchdog anyway: treat it as failed and fall back.
+
+**Inputs**: PATH, the llama.cpp server endpoint and its `/chat/completions` route (from `~/.pi/agent/models.json`'s `baseUrl`), the ids the endpoint actually reports at `/v1/models`, and the approved-model registry (`~/.agents/skills/use-qwen/scripts/approved-models.txt`).
+
+**The one-command probe**: `qwen-run.sh --preflight --approved-only` performs checks 1-4 exactly as written and exits 0 only on `healthy`. Prefer it over a hand-rolled probe — running the same script the dispatch runs is what keeps the preflight verdict and the dispatch decision from ever disagreeing.
+
+**Outputs**: Health verdict — `"healthy"`, or one of `"pi_missing"` / `"endpoint_unreachable"` / `"model_id_missing"` / `"completion_failed"`.
+
+**Fallback rule**: ANY preflight failure → fall back to Claude at the task's original tier (`haiku` → Haiku, `sonnet` → Sonnet). Behavior in this fallback is byte-for-byte identical to today's Claude dispatch for the same task; the only addition is the recorded `preflight_outcome` in the attempt log (see `references/attempt-logging.md`). A failed probe does NOT consume the one-shot qwen attempt budget — no qwen attempt happened.
+
+The preflight is **batch-scoped**, not per task: its verdict is cached in `state.qwen_preflight` under the batch id that produced it, so the first qwen-routed task of a batch pays for the probe and the rest reuse the verdict (§ Batch-scoped preflight below is the authority; it mirrors the `codex_probe` idiom). Two backend-health signals invalidate the cache mid-batch and force a re-probe: the Subagent Watchdog judging a qwen dispatch hung or lost, and `qwen-run.sh` itself failing at real dispatch time with an infra-shaped outcome despite a cached `"healthy"`. An ordinary step-5.5 gate failure on a healthy backend is deliberately NOT such a signal.
+
+The probe is skipped entirely when the qwen capability breaker (row 3) or the memory-pressure gate (row 4) reroutes a qwen-eligible task to Claude before it would run. That attempt records `preflight_outcome: null`, because the probe never ran. The preflight does NOT run on Claude or Gemini dispatches.
+
+**Script enforcement (PRD 00019)**: `qwen-run.sh` enforces the same deciding signal internally — every dispatch re-runs the 1-token completion probe after provider/model resolution and exits 1 with the failing outcome named on stderr (`completion_failed` / `endpoint_unreachable` / `model_id_missing` / `pi_missing`) BEFORE any `pi` spawn; its `/v1/models` probe is only the provider auto-detect fast pre-check. `qwen-run.sh --preflight --approved-only` runs the probe standalone (all four checks; the model id it completes against is the approved id the endpoint reports, not a config cross-check) and exits 0 only on a successful completion. Regression-tested by `~/.agents/skills/use-qwen/scripts/test_qwen_run.sh` (models-200/completion-500 → refuse, no dispatch). Every autopilot surface passes `--approved-only`, so an autonomous dispatch can never reach a model id outside the registry — that guarantee lives at the call sites, not in anything the script infers on its own.
+
+## Batch-scoped preflight
+
+Moved verbatim out of `SKILL.md` step 3 (PRD 00119-v2). SKILL.md keeps the
+routing table rows and the breaker-reset sentence; the batch-scope procedures
+live here. **Read this section before the first qwen dispatch of a batch.**
+
+**qwen capability breaker (routing-time consult, row 3 of SKILL.md step 3's routing table; the memory-pressure gate is row 4).**
+
+- **Batch-scope check, before any breaker read or write:** compute the effective batch id `(state.batch.id // "no-batch")` and compare to `qwen_breaker.batch_id`. Mismatch or field absent → new batch: reset `qwen_breaker = {tripped:false, after_task:null, failed_tasks:[], batch_id:<effective id>}` and `qwen_gate_failures_consecutive = 0`, then proceed. Match → preserve the breaker state. This is a lazy per-batch reset — no run-autopilot Phase 0/9 edit needed.
+- **Consult:** row 3 fires for a qwen-eligible backend task when `qwen_breaker.tripped == true` and `_AUTOPILOT_ESCALATION != "legacy"`. Per the routing-time order (`model-ladder.md` § Ordering), this consult happens BEFORE the memory-pressure gate and BEFORE the preflight probe, so a tripped breaker skips both. A breaker-skipped attempt's `preflight_outcome` records `null` (the probe never ran).
+- **Counter/latch update** happens later, at the step-5.5 gate — see `references/gate-failure.md`.
+
+**Qwen infra preflight — batch-scoped.** When (and only when) the routing table picks qwen, consult `state.qwen_preflight` instead of probing per task — the same lazy-reset batch-scope idiom `codex_probe` already uses (`references/codex-implementor.md` § Codex batch health probe):
+
+1. **Batch-scope check, before any read or write:** compute the effective batch id `(state.batch.id // "no-batch")` and compare it to `qwen_preflight.batch_id`.
+2. **Mismatch or field absent** → run the four-check probe defined in § Preflight above once (`qwen-run.sh --preflight --approved-only`), write the verdict via `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py <state.json> set qwen_preflight '{"batch_id": <effective id>, "verdict": <the verdict>, "detail": <the failing checks detail string, or null on healthy>, "checked_at": <ISO 8601>}'`, then proceed using that verdict.
+3. **Match** → reuse the cached verdict, skip the probe entirely.
+4. `"healthy"` → proceed with the qwen dispatch; any other verdict (`"pi_missing"` / `"endpoint_unreachable"` / `"model_id_missing"` / `"completion_failed"`) → fall back to Claude at the task's original tier, byte-for-byte identical to a normal Claude dispatch apart from the recorded `preflight_outcome`. Record the outcome for the attempt-log entry; the dispatch decision determines `implementor`. Preflight does NOT run on Claude or Gemini dispatches.
+5. **Re-probe trigger — scoped to backend-health signals, not task-outcome signals.** A qwen-routed task's step-5.5 gate failing on its own is NOT a re-probe trigger: ordinary task-difficulty failures on a healthy backend are expected and already handled by the one-shot-to-Sonnet escalation (§ One-shot attempt budget below) — treating every such failure as a health signal would degrade the cache toward "probe before every task." Only two signals invalidate the cache: (a) the Subagent Watchdog judges the qwen dispatch itself hung/lost, or (b) the qwen helper script's own exit reports an infra-shaped failure at dispatch time (`"pi_missing"` / `"endpoint_unreachable"` / `"model_id_missing"` / `"completion_failed"`), surfaced when `qwen-run.sh` (not the preflight probe) fails at the real dispatch despite a cached `"healthy"` verdict. On either trigger, run `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py <state.json> del qwen_preflight` immediately — the next qwen-eligible task's batch-scope check then sees "absent" and re-probes via the mismatch-or-absent path above. The field may already be absent (an earlier trigger this batch deleted it and no qwen-eligible task has re-probed since); treat a "key not found" exit from that call as success, not as an error to escalate.
+6. The per-task memory-pressure gate (routing row 4) is untouched — it stays a per-task host-memory check, independent of this cache.
+
+## One-shot attempt budget — and why it always escalates to Sonnet
+
+A qwen-routed task gets exactly one qwen attempt. If qwen's output fails the output guards below or the step-5.5 per-task test gate, the re-dispatch targets **Claude Sonnet** regardless of the task's original tier (`haiku` → Sonnet, `sonnet` → Sonnet). qwen never re-runs for the same task.
+
+The fixed-Sonnet target is intentional and asymmetric vs. the **preflight-failure** fallback (which keeps the original tier: `haiku` → Haiku, `sonnet` → Sonnet). Two different failure shapes, two different recoveries:
+
+- **Preflight failure** is an *infrastructure* signal — qwen was unreachable, couldn't spawn its inference worker, was missing a model, or had no resolvable `pi`. The task itself was never attempted; nothing observable suggests the task is harder than its plan-time tier said. Preserve the tier the planner picked.
+- **Step-5.5 gate failure after a qwen attempt** is a *correctness* signal — qwen produced code that did not pass the tests Tess wrote. The empirical evidence from this attempt says the task is harder than its qwen-eligible classification implied (qwen-eligible = non-UI + single-file + `haiku`/`sonnet` + no public-contract edit). A retry at the same tier on the same model family would be cheap but risk under-powering the retry; Sonnet is the conservative floor that any qwen-eligible task can re-run at. Escalating from `haiku` to `sonnet` here is the price of having tried qwen in the first place.
+
+The normal max-2 step-5.5 retry budget then applies to the Sonnet re-dispatches (not qwen). The qwen attempt does NOT consume a slot in that budget — it consumed the (single) qwen attempt instead.
+
+## Output guards
+
+`scripts/work_routing.py` is the pure decision model of step 3: pass Ivan's
+scratch file text as `route(..., file_paths=...)`; missing input fails closed.
+The caller supplies `task.is_test_only` in its effective copy from the step-2.7
+task classification, using `test_only_diff` on paths relative to the Git work
+tree. Never classify absolute path ancestors as part of the task's write set.
+The executable output guard calls its `qwen_attempt_outcome` classifier.
+
+Before dispatch, write the exact Tess-owned test paths to
+`docs/dev/tmp/qwen-<task-id>-tests.txt` (one absolute path per line), and run:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_qwen_output.py before --repo-root <git-work-tree> --test-commit <test_commit_sha> --files-file docs/dev/tmp/ivan-<task-id>-files.txt --tests-file docs/dev/tmp/qwen-<task-id>-tests.txt --snapshot docs/dev/tmp/qwen-<task-id>-snapshot.json
+```
+
+For a bare-backed project, also pass `--git-dir <bare-git-dir>`; the root is
+the Git work tree, not necessarily the project directory. For docs/config
+tasks without Tess, use an empty tests file and `<task_base_sha>` as the test
+commit. Test-only tasks retain the non-Qwen path. The guard requires a clean
+implementation slice and tests matching the canonical commit in both index
+and worktree. Preparation failure skips Qwen for Claude at tier without
+consuming an attempt. Foreign dirty paths are allowed and remain untouched.
+Qwen may edit only its named implementation file; it must not stage or commit.
+
+Immediately after Qwen exits 0, **before staging, committing, or step 5.5**, run:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_qwen_output.py after --snapshot docs/dev/tmp/qwen-<task-id>-snapshot.json
+```
+
+Exit 0 means a task-owned implementation diff survives Git's commit normalization (clean filters and filemode rules) and all Tess-owned paths
+match `<test_commit_sha>` in both index and worktree (disk contents and file modes are checked directly, even under Git index shortcuts); proceed to the normal
+commit/test gate. The implementation check probes staging in a temporary copy of
+the Git index; the live index and worktree stay untouched. Foreign edits never satisfy this check. Exit 1 prints the
+capability verdict: `qwen_test_mutation` takes precedence over `qwen_no_edit`.
+Consume the attempt and follow `gate-failure.md` § Qwen output rejection.
+Exit 2 is indeterminate: do not stage, commit, or execute the potentially
+modified tests; resolve the guard failure before accepting any work.
+
+After any non-success result, including nonzero exit or a watchdog stop, first
+verify the helper is gone, then run the same `after` command with
+`--tests-only`. A mutation still takes the same rejection/restoration path;
+exit 0 resumes the original failure handler (`next: "handle_failure"`) and
+never classifies an unsuccessful process as a no-edit success. The guard must
+run before every fallback so Sonnet never inherits an altered oracle.
+
+## Prompt Template
+
+The task placeholders below are sourced from the task's `state.tasks` entry, read
+directly — no native task-tool field is involved (there never was a real
+`acceptance_criteria` tool field). `{task.subject}` ← `tasks[i].name`;
+`{task.description}` ← `tasks[i].description` (full text);
+`{task.acceptance_criteria}` ← a **text-extraction** of the `Acceptance criteria:`
+section from `tasks[i].description`, falling back to the literal
+`"Complete the task as described"` string shown in the template when absent.
+
+```
+Task: {task.subject}
+
+Description:
+{task.description}
+
+Acceptance Criteria:
+{task.acceptance_criteria or "Complete the task as described"}
+
+Architecture:
+{relevant sections from AGENTS.md or agent_docs/architecture.md}
+
+Key invariants:
+{domain rules and boundaries from AGENTS.md or agent_docs/}
+
+Context:
+- Working directory: {cwd}
+- Relevant files: {list files if known}
+
+Instructions:
+1. Read existing code before making changes
+2. Follow existing patterns and conventions
+3. Run tests if available
+4. Keep changes minimal and focused
+```
+
+## Permission Modes
+
+All flags are passed to `qwen-run.sh`.
+
+**Every command line on this page is an autopilot dispatch, so every one carries `--approved-only`** — it restricts engine resolution to the eval-qualified allowlist (`use-qwen/scripts/approved-models.txt`), and an autonomous dispatch must never reach an unqualified model. There is no autopilot task type that omits it. Manual, unpinned use is a different surface and is documented in `use-qwen/SKILL.md`; a model override (`-m`) belongs there too, since under `--approved-only` an id outside the registry is refused by design.
+
+| Task type | Flags |
+|-----------|-------|
+| Analysis only | `-R --approved-only -f prompt.txt` (read-only — no file edits) |
+| Code changes | `--approved-only -f prompt.txt` (default — pi auto-approves edit tools) |
+| Structured output | `-j --approved-only -o /tmp/result.jsonl -f prompt.txt` |
+
+## Execution Modes
+
+| Mode | Flag | Use case |
+|------|------|----------|
+| Non-interactive | `--approved-only -f prompt.txt` | Scripted execution, exits after completion |
+| Resume recent session | `--approved-only -c` | Continue most recent session |
+| Resume specific session | `--approved-only -r <ID>` | Continue named session |
+
+## TDD Implementation Mode (Ivan)
+
+When tests already exist from step 2.7, use this prompt variant instead of the standard template:
+
+```
+Failing tests exist at: {test_file_paths}
+
+Make all failing tests pass.
+
+Architecture:
+{relevant sections from AGENTS.md or agent_docs/architecture.md}
+
+Key invariants:
+{domain rules and boundaries from AGENTS.md or agent_docs/}
+
+Context:
+- Working directory: {cwd}
+- Relevant files: {list files if known}
+
+Rules:
+1. Do NOT modify test files
+2. Read the tests to understand expected behavior
+3. Implement minimal code to pass all tests
+4. Follow existing patterns and conventions
+5. Run tests after implementation to verify
+```
+
+The task's acceptance criteria prose is intentionally omitted. Tests ARE the spec.
+
+## Common Issues
+
+### Under-coverage on multi-file tasks
+
+Qwen finishes one file and silently drops the rest of a multi-file task.
+
+**Fix**: the single-file predicate and dispatch-time `FILE_PATHS` fence reject multi-file tasks before Qwen runs. Only a clean multi-file eval and review can justify widening this boundary.
+
+### Over-claims completeness
+
+Qwen narrates "all tests pass" or "implementation complete" in its final report without having actually run anything to verify it.
+
+**Fix**: The per-task test gate at step 5.5 is the source of truth — qwen's self-report is never treated as a completion signal. Output that narrates actions instead of showing real tool calls (a `thought`/`<channel|>` block, a fabricated `$ pytest` run) is the visible symptom; the test gate is the backstop.
+
+### Slow dispatch
+
+Local inference is slow; a `qwen-run.sh` call can run for many minutes. The `use-qwen` skill prescribes background dispatch with `TaskOutput(task_id, block=true, timeout=600000)` (10-min wait; on a still-running return, re-issue the wait once, then treat a second timeout as a hang). `references/subagent-dispatch.md` documents the same 10-min × 2 watchdog pattern for qwen helper-script dispatches.
+
+### Wrong model loaded
+
+The llama.cpp server is running but serves a different model than `~/.pi/agent/models.json` declares.
+
+**Fix**: The preflight's third check (`model_id_missing`) catches this. The task falls back to Claude at its original tier.
+
+### Backend lists the model but can't serve it
+
+`/v1/models` returns 200 with the model id, but a real completion returns `500 "failed to spawn server instance"` (or similar). LlamaBarn spawns the llama.cpp worker lazily on first completion; that spawn can fail (missing/broken runtime after an app auto-update, OOM, bad launch args) while enumeration keeps working straight from config. **2026-06-19 (playground PRD 00001):** checks 1-3 all passed → verdict `healthy` → task 1 routed to qwen → `qwen-run.sh` exited 1 on the 500, with no fallback gate to catch it.
+
+**Fix**: the preflight's fourth check (`completion_failed`) catches this — a real 1-token completion is the only probe that exercises the worker spawn. The task falls back to Claude at its original tier. To restore qwen, fix the backend (LlamaBarn: re-download the model runtime or reinstall, then verify with a manual `curl ${baseUrl}/chat/completions`).
+
+### Helper exits non-zero
+
+`qwen-run.sh` returned a non-zero exit code.
+
+**Fix**: Verify the helper is gone and run the Output guards `after --tests-only` path before fallback; a test mutation must be restored or isolated first. Do not silently re-dispatch on qwen. The one-shot qwen attempt budget (see `SKILL.md` step 5.5) escalates the next attempt to Claude Sonnet — qwen failure consumes the attempt but does not consume a slot in the max-2 retry budget for the Claude Sonnet re-dispatches.
+
+## Scope (moved from SKILL.md step 3, PRD 00119-v2)
+
+qwen never sees `opus`-tier or UI tasks — `state.tasks[i].qwen_eligible` is already `false` for those upstream.

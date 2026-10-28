@@ -1,0 +1,107 @@
+# Test Author Prompt (Tess)
+
+Tess writes tests from requirements. She has NOT seen and must NOT think about implementation.
+
+## Prompt Template
+
+The prompt template lives in `work/references/tess-prompt.md` (single source
+of truth, registry-shaped single-brace placeholders — `render_prompt.py`
+consumes it directly; see `agent-registry.md` for the placeholder table).
+
+## Context Selection
+
+When building Tess's prompt, include:
+
+| Include | Why |
+|---------|-----|
+| Task description + acceptance criteria | The spec Tess tests against |
+| Public types/interfaces | So Tess knows the API surface |
+| One sample test file | So Tess follows project conventions |
+| Test framework config | So imports and assertions are correct |
+| `<dir>/tests/HARNESS_CONTRACT.md`, when it exists | The project's own harness rules, for each Contract path `<dir>/<file>` the task touches |
+
+| Exclude | Why |
+|---------|-----|
+| Architecture docs | Would leak implementation thinking |
+| AGENTS.md internals | Same - Tess doesn't need to know how things are built |
+| Implementation files | Defeats the entire purpose |
+| "How to build this" guidance | Tess is a test author, not an implementor |
+
+Moved verbatim out of `SKILL.md` step 2.7 (PRD 00119-v2) — the two lists the
+step used to spell out inline. **Read this section before the first Tess
+dispatch of a batch.**
+
+**Tess receives:**
+- Task description and acceptance criteria
+- The **exact file paths** the task touches — spelled **absolute** — and the **exact symbol names** to test, taken from the plan task — not "find the relevant file"
+- Public interfaces/types relevant to the task
+- The project's test-harness contract when one exists (PRD 00141): for each Contract path `<dir>/<file>`, `<dir>/tests/HARNESS_CONTRACT.md` joins the `PUBLIC_INTERFACES` `--set-cmd`, once per distinct file; no such file adds nothing. It carries harness rules, never implementation — a harness can make a test pass for reasons requirements cannot reveal (a `capture_main` that installs its own `sys.stdin`, so a "marker checked before stdin" test passes against the old code too)
+- Existing test patterns (one sample test file from the project)
+- Test framework and conventions used
+
+**Tess does NOT receive:**
+- Implementation strategy or architecture docs (loaded in step 2.5 for the main session and Ivan only)
+- "How to build this" context
+- Access to modify non-test files
+
+The stdout integer from step 2.7's render call **is** the Subagent Dispatch Budget measurement — no separate `wc -c`. `tess-prompt.md` bakes in the read-only-scope instruction, the dispatch prologue, the Assumptions footer and the size limits (rule 12: functions under 50 lines, files under 800) permanently (mirroring `ivan.md`), so nothing further needs adding to the prompt by hand — open-ended discovery is where subagents burn turns and stall, and keeping Tess scoped to the listed files/symbols is the template's job now. Dispatch the Agent tool with the file at `docs/dev/tmp/dispatch-tess-<task-id>.txt` as the prompt source. The template also embeds Simplicity/Think-Before-Coding/Surgical rules to prevent Tess from writing speculative tests or silently assuming input shape.
+
+## Quality gate (step 2.8)
+
+Moved verbatim out of `SKILL.md` step 2.8 (PRD 00119-v2). SKILL.md keeps the
+gate rule and the total-Tess budget; the rubric and the retry render live here.
+**Read this section before running the gate on Tess's first test file.**
+
+**Run the computed shape check first**, on every test file Tess wrote or changed:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/detect_tautological_tests.py <test file>...
+```
+
+It prints one `[MECH] {emoji} <test> <reason> | File: <path>:<line> | Task: general` line per test whose shape cannot fail (a constant or self-comparing assert, an `A or B` hedge, a swallowed exception, `raises(Exception)`, no assertion at all) and always exits 0. **Every `[MECH]` line is a check-4 failure**: copy it verbatim into the `QUALITY_FEEDBACK` file, then judge the four checks below by reading. The script sees shape only; a test that restates the code in a perfectly valid shape is still check 4's to catch by hand. The same script runs at review (`review-work-completion` step 3), so a shape that slips past here comes back as a `mech-check` finding and a rework cycle — cheaper to fix now.
+
+Before committing Tess's tests, review them in the main session against this checklist:
+
+1. **Behavior names?** Each test name describes a behavior ("rejects empty email"), not an implementation detail ("calls validateEmail")
+2. **Real assertions?** Assertions check outputs/effects, not mock internals
+3. **Edge cases?** Empty, null, boundary, error, and concurrent cases covered where relevant
+4. **No tautologies?** Tests don't just restate what the code obviously does
+5. **Exploit classes covered?** Every tested function has the six rule-6a assertions (two fixture values per asserted field, a near-miss negative, a multi-element and an empty input, an accept and a reject case of the same shape, a surfaced error, a dependency assertion); a missing one is a check-5 failure and names the class.
+
+If any check fails, dispatch Tess again with specific feedback about what's weak. Render the retry the same way as the initial dispatch — never author it by hand:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py ${CLAUDE_PLUGIN_ROOT}/skills/work/references/tess-retry-prompt.md \
+  --out docs/dev/tmp/dispatch-tess-<task-id>-retry-<n>.txt \
+  --set-file QUALITY_FEEDBACK=docs/dev/tmp/tess-<task-id>-gate-<n>.txt \
+  --set-file TASK_DESCRIPTION=<the same scratch file step 2.7 used> \
+  --set-file TASK_ACCEPTANCE_CRITERIA=docs/dev/tmp/tess-<task-id>-acceptance.txt --dispatch-kind tess --dispatch-task <task-id>
+```
+
+Write the gate findings (one per line) to the `QUALITY_FEEDBACK` scratch file with the Write tool. Max 2 quality gate retries.
+
+### Style limits on the test files
+
+Once the four checks pass, run the step-5.65 gate over the test files only, so an oversized test file is split by a Tess retry now (cheap, tests-only) instead of an Ivan style-fix dispatch after implementation (PRD 00197; `tess-prompt.md` rule 12 already tells her the limits). Build the diff the way `references/style-gate.md` § Diff construction does, over this task's test files alone: `git diff <task_base_sha> --output=${TMPDIR:-/tmp}/test-diff-<task-id>.txt -- <tracked test files>` (`--output=` goes before `--`; after it git reads it as a pathspec and prints the diff to stdout instead), then `git diff --no-index -- /dev/null <file> >> ${TMPDIR:-/tmp}/test-diff-<task-id>.txt` per untracked test file (exit 1 is the normal case; only exit ≥2 is a failure), then `mv ${TMPDIR:-/tmp}/test-diff-<task-id>.txt docs/dev/tmp/test-diff-<task-id>.txt`. Then:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_style_limits.py --diff docs/dev/tmp/test-diff-<task-id>.txt <each new or changed test file as an absolute path>
+```
+
+Exit 0 is clean. Exit 1 is a quality-gate failure: write the violation lines to the `QUALITY_FEEDBACK` scratch file and render the retry above; it counts toward the two quality-gate retries. Exit 2 (the script could not run) is not a Tess failure: name it in the task output and proceed, step 5.65 measures the same files again after implementation.
+
+## Retry Prompt (after quality gate failure)
+
+The retry template lives in `work/references/tess-retry-prompt.md` (single
+source of truth, registry-shaped single-brace placeholders — `render_prompt.py`
+consumes it directly; see `agent-registry.md` for the placeholder table). It
+takes `{QUALITY_FEEDBACK}`, `{TASK_DESCRIPTION}` and
+`{TASK_ACCEPTANCE_CRITERIA}`, and bakes in the same fixed guards the initial
+template carries (read-only scope, 100K abort line, dispatch prologue,
+ASSUMPTIONS footer).
+
+`{QUALITY_FEEDBACK}` is the step-2.8 gate's own findings, one per line, e.g.:
+
+- Test "handles validation" is too vague. Name the specific behavior.
+- Test 3 would pass with a function that always returns true. Add constraints.
+- No edge case for empty input.

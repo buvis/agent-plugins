@@ -1,0 +1,250 @@
+# Codex Implementor Mechanics
+
+Extracted verbatim from SKILL.md step 3 (2026-08-09; situational: consulted only
+when the codex rung interception can fire). SKILL.md § Codex rung interception
+decides WHETHER codex dispatches; this file owns HOW — the batch health probe,
+the dispatch checklist, and the hook-gate notice. Read it in full before the
+first codex probe or dispatch of a batch.
+
+## Codex rung interception
+
+Moved verbatim out of SKILL.md step 3 (PRD 00119-v2). SKILL.md keeps the
+one-line rule and the pointer; the six fences live here.
+
+> **Codex rung interception.** After SKILL.md step 3's deterministic routing table yields its verdict, when ALL
+> of the following hold, dispatch **codex** instead of the Claude implementor the
+> table named:
+>
+> 1. the table's verdict is "Claude at the task's tier" or "Claude at the task's
+>    ORIGINAL tier" (i.e. rows 3, 4, 6, or 7 fired — never rows 1, 2, or 5), and
+> 2. `codex_eligible(task)` per `model-ladder.md § Codex rung`, and
+> 3. `_WORK_CODEX_RUNG != "off"`, and
+> 4. `_AUTOPILOT_ESCALATION != "legacy"`, and
+> 5. the batch codex health probe verdict is `"healthy"`, and
+> 6. the task's own TERMINAL attempt (the last entry in `task.attempts`, if any)
+>    was not itself codex.
+>
+> The interception never fires for a `fable` task (that override outranks the
+> whole table), never for a UI task, and never for `opus` tier — fence 2 and the
+> `fable` rule already exclude all three. It also never re-fires on a task whose
+> terminal attempt was codex: per `run-autopilot/references/phase-review.md`
+> ("terminal attempt with `implementor: codex` -> re-dispatch Claude at the
+> task's same tier"), a review-flagged codex rework escalates to Claude at the
+> task's own tier, never back to codex.
+
+**Why fence 4 is required, not optional.** `model-ladder.md` promises that under `_AUTOPILOT_ESCALATION=legacy` the escalation machinery is byte-identical to pre-00065. The legacy branch of step 5.5 has no codex arm, so letting the interception fire under `legacy` would both falsify that promise and send a failing codex attempt into "escalate to the user" — in a headless loop, a stall with no defined `site:`, i.e. a new halt class. Gating the interception is cheaper than adding a codex carve-out to the legacy branch.
+
+**Routing row 3 (qwen breaker tripped) IS codex-eligible — stated intent.** The qwen capability breaker fences *qwen*, not the whole non-Claude family: it latches on two consecutive qwen test-gate failures, which is evidence about the local model, not about codex. A breakered batch is when the rung absorbs the most traffic.
+
+## Codex batch health probe
+
+Same placement and the same batch scope as the qwen preflight — one probe
+decides the codex rung for every task in the batch:
+
+```
+state.codex_probe = {
+  "batch_id":   "<state.batch.id, or \"no-batch\">",
+  "verdict":    "healthy" | "unhealthy",
+  "backend":    "codex" | "copilot",
+  "detail":     "<one-line cause on unhealthy, else null>",
+  "checked_at": "<ISO 8601>"
+}
+```
+
+**Batch-scope check, before any read or write** — the same lazy-reset idiom
+`qwen_breaker` already uses: compute the effective batch id
+`(state.batch.id // "no-batch")` and compare it to `codex_probe.batch_id`.
+Mismatch or field absent → re-probe and overwrite the slice. Match → reuse the
+cached verdict, never re-probe.
+
+**Doctor-first.** Once the batch-scope check above says a re-probe is needed,
+run the hook doctor before the live probe — a foreground Bash local file scan,
+no dispatch:
+
+```
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex_hook_doctor.py check
+```
+
+Exit 1 (a broken target exists): write `codex_probe.verdict: "unhealthy"`,
+`detail: "hook_doctor: <the first broken TSV line>"`, `hook_doctor: "<the
+doctor's own summary line>"`, and `backend` as resolved by `command -v
+codex` — then skip the live probe below entirely (no codex dispatch this
+batch, infra semantics, no escalation stamp).
+
+Exit 2 (the doctor itself could not run): on this path the doctor emits no
+per-target TSV line and no summary line — only a single `error: <reason>`
+line to stderr. Write `codex_probe.verdict: "unhealthy"`,
+`detail: "hook_doctor: <the doctor's stderr error line>"`,
+`hook_doctor: "doctor error: <config path>"`, and `backend` as resolved by
+`command -v codex` — then skip the live probe below entirely (no codex
+dispatch this batch, infra semantics, no escalation stamp). The causes: the
+config is missing, unreadable, not JSON, or has no `hooks` object; an event
+entry is malformed; a command does not tokenize; the plugin manifest has no
+`aegis@buvis-plugins` entry; a target I/O call failed. The stderr line names
+which.
+
+Exit 0 or 3: run the live probe unchanged below, and add
+`hook_doctor: "ok"` (exit 0) or `hook_doctor: "stale: <basenames>"` (exit 3,
+the stale/no_canonical targets' basenames) to the slice — a stale hook copy
+does not gate the rung by itself; the live probe below still decides
+`"healthy"`/`"unhealthy"`. **A batch never runs `repair`:** the unattended
+write fence denies writes under `~/.codex`, and `repair` is the operator's
+explicit command, never something a batch invokes on its own.
+
+**The probe must EXERCISE TOOL USE, not just completion.** Dispatch it exactly
+like a real implementor run:
+
+```
+Bash (run_in_background: true):
+  ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh -a \
+    -f <abs tmp prompt file> -o <abs tmp out file>
+then: TaskOutput(task_id, block=true, timeout=300000)
+```
+
+The probe writes only to `docs/dev/tmp/`, inside the repo's normal
+workspace. Do not widen the sandbox with `-d`.
+
+Prompt file contents: the TOOL-GATE NOTICE block from § Hook interaction
+verbatim, followed by these three lines with `<nonce>` substituted (a fresh
+per-probe value, e.g. `<batch_id>-<uuid4>`):
+
+```
+Create the file docs/dev/tmp/codex-probe-<nonce>.txt containing exactly: <nonce>
+Then run: git status --porcelain docs/dev/tmp/codex-probe-<nonce>.txt
+Reply with the single word: done
+```
+
+The notice is required for the same reason every real dispatch carries it: the
+probe performs exactly the two actions the gate intercepts (first `Write` to a
+path, first `Bash` of the session).
+
+Verdict is `"healthy"` iff ALL of: the helper exited 0, the `-o` file is
+non-empty, AND `docs/dev/tmp/codex-probe-<nonce>.txt` exists on disk with
+content equal to `<nonce>`. Delete the file after the verdict is written.
+**The nonce is load-bearing:** a fixed filename would still be on disk from a
+previous batch (`docs/dev/tmp/` is GC'd only at 7 days), so a fully
+hook-blocked run — exit 0, a non-empty `-o` explaining the deny, and last
+batch's leftover file — would satisfy every condition and report `healthy`.
+
+**Why a tool-less probe is rejected.** A prompt like "reply with the word ok"
+invokes zero tools, so it returns `"healthy"` in exactly the state that kills a
+real run. Measured, not hypothetical: a codex reviewer in this repo died on
+`Command blocked by PreToolUse hook: [Fact-Forcing Gate]`, retried until its
+run was exhausted, and emitted no findings — while a completion probe would
+have reported perfect health. Same trap the qwen stack taught one layer up.
+
+**Watchdog and cleanup (no new halt class).** Background-dispatched with a
+`TaskOutput` deadline like every other helper-script call — never a bare
+foreground CLI call, the canonical way to hang an unattended session. A timeout
+return is verdict `"unhealthy"`, `detail: "probe_timeout"`, followed by
+`TaskStop` on the probe task so it cannot outlive the decision. **300s, not
+120s:** the probe must survive two one-shot gate denials (restate facts, retry)
+plus a final reply — five-plus model round trips, against the qwen preflight's
+~2 min budget for a single 1-token completion. A `probe_timeout` is fail-safe
+(rung off, batch continues, no halt) but indistinguishable from real
+ill-health, so the batch-report probe-verdict line is the signal to re-tune it.
+
+**Backend check.** `codex-run.sh` silently falls back to `copilot` when `codex`
+is not on PATH, and a premium Copilot model once burned 25% of monthly Copilot
+quota in one run — the same quota the UI reviewer lens runs on. A
+cost-reduction rung that silently drains the UI reviewer inverts its own
+premise. Record the resolved backend (`command -v codex`) in
+`state.codex_probe.backend`; `backend == "copilot"` is verdict `"unhealthy"`,
+`detail: "copilot_fallback_not_authorized_for_implementor"`.
+
+**No exit-4 clause.** `codex-run.sh` has no exit 4 and writes no
+`codex-review-last.jsonl` — both belong to
+`run-autopilot/scripts/codex_review_run.py`, a wrapper the implementor path
+does not use. The real empty-output signal for this helper is its own "codex
+exited 0 but wrote no output" warning, already covered by the non-empty `-o`
+condition.
+
+**On `"unhealthy"`** — every codex interception is skipped for the rest of the
+batch; affected tasks take the Claude implementor the table already named, with
+**no** escalation stamp (infra semantics).
+
+## Codex dispatch
+
+Reuses `use-codex/references/dispatch-contract.md`, whose § Implementor-mode
+divergence records the three rules this path departs from (exit-code trust,
+contract-level retry, the `-a` grant) — that file wins on disagreement, so read
+the departures there, not here:
+
+- **No-edit probe: before-capture.** Immediately before this background Bash
+  dispatch, capture porcelain for the task's own file slice — never the whole
+  worktree, so a concurrent user edit elsewhere cannot mask this arm:
+  `git --git-dir=<bare-git-dir> --work-tree=<work-tree> status --porcelain -- <file slice>`;
+- background Bash, never Agent-wrapped (era invariant: a subagent that shells
+  out to a CLI hangs);
+- `-f <prompt file>` and `-o <output file>`, absolute paths. The prompt file
+  is step 3's render, `docs/dev/tmp/dispatch-ivan-<task-id>.txt` (opened with
+  the two telemetry flags), with § Hook interaction's TOOL-GATE NOTICE appended
+  in-session — Read the rendered file, then append with the Edit tool; a shell
+  redirect into `docs/dev/project-management/` is blocked — so the dispatch's row and id are the
+  render's;
+- `TaskOutput(task_id, block=true, timeout=600000)` as the watchdog;
+- **No-edit probe: after-capture.** Immediately after `TaskOutput` returns,
+  before step 4 hands off, capture porcelain again with the same command and
+  file slice. Latch the before/after comparison as `codex_no_edit` in the
+  attempt record — step 5.5 reads only this latched flag and never re-runs
+  `git status`. A non-zero exit on either capture is INDETERMINATE, not "no
+  change": do not latch `codex_no_edit`; record the exit code in
+  `codex_no_edit_probe_exit` instead and continue through the capability path
+  normally;
+- close the dispatch row when `TaskOutput` returns —
+  `record_dispatch.py end <id> --outcome ok`, `error` on a non-zero exit,
+  `lost` when the `-o` file is missing or empty, `timeout` after the second
+  deadline (`references/subagent-dispatch.md` § Dispatch telemetry). The
+  Claude fallback that re-sends that file keeps the id and closes it again
+  when it returns; a continuation brief re-rendered through gate-failure.md
+  § Retry render opens its own row through the render's flags;
+- completion judged by the `-o` file plus the step-5.5 test gate — **never by
+  exit code alone**;
+- **edit-enabled sandbox: `-a` (`--sandbox workspace-write`), never `-y`.**
+  `-y` maps to `--dangerously-bypass-approvals-and-sandbox`, i.e. no sandbox at
+  all; granting that to an unattended autonomous implementor is unbounded write
+  access for no added capability, and the dispatch contract requires an
+  explicit calling-skill grant before any unattended high-impact flag. **This
+  bullet is that grant, and it covers `-a` at this rung only** — never `-y`,
+  and never a reviewer dispatch.
+- Do not add a separate `-d` grant for `docs/dev/project-management/`; it
+  is a tracked directory inside the repo workspace.
+- **On a `TaskOutput` timeout, kill before falling back.** `TaskStop` the codex
+  background task and verify it is gone BEFORE dispatching the Claude
+  fallback, then capture `git status --porcelain`. An orphaned
+  `--sandbox workspace-write` codex keeps write access to the very files the
+  Claude implementor is about to edit; without the kill, its late writes either
+  get swept into that commit or land as unexplained foreign paths.
+- **Hook-coverage delta**: this dispatch runs under a weaker `Bash`-hook set
+  than a Claude implementor — see `model-ladder.md` § Codex rung ("Hook
+  coverage").
+
+## Hook interaction
+
+Codex's tool calls are gated by this host's own PreToolUse hooks, and this is
+the single largest execution risk in the rung: `~/.codex/hooks.json` registers
+PreToolUse hooks on codex's `Edit|Write|MultiEdit` and `Bash` matchers; the
+fact-forcing gate denies the FIRST `Edit`/`Write` to each distinct `file_path`
+and the FIRST `Bash` command of a session, and its deny text tells the agent to
+use Grep/Glob — tools codex does not have and which do not exist in this build
+at all. Observed consequence: a codex design reviewer burned its entire run
+retrying blocked commands and returned nothing.
+
+The gate is one-shot per path, so a run that understands it can proceed. Every
+codex implementor prompt therefore ends with this block:
+
+```
+TOOL-GATE NOTICE. This host runs PreToolUse hooks on your Edit/Write/Bash calls.
+A deny message beginning "[Fact-Forcing Gate]" is a ONE-SHOT gate, not a refusal:
+state the facts it asks for once, in plain text, then retry the IDENTICAL
+operation, which will then be allowed. Never retry more than once per operation
+and never loop. If a deny message names a preferred tool you do not have
+(Grep/Glob), use `rg` via Bash instead. If an operation is denied twice, stop and
+report the deny text verbatim as your result rather than continuing to retry.
+```
+
+This is a prompt-level mitigation for a host-level policy, so it is best-effort
+by construction — which is why the no-edit infra arm (`model-ladder.md` § Codex
+rung) exists as the backstop: if the notice fails, the run is classified infra,
+falls back to Claude at tier, and costs one wasted dispatch rather than a false
+capability verdict or a stalled loop.
