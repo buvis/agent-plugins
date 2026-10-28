@@ -155,11 +155,16 @@ class LocalPrerequisitesTest(unittest.TestCase):
                     with self.subTest(prd=prd, present=present):
                         for path in self.done.iterdir():
                             path.unlink()
+                        for index in range(64):
+                            self.complete("00000", f"unrelated-{index:03d}")
                         for completed in PREDECESSORS.keys() - set(predecessors):
                             self.complete(completed, "unrelated")
                         for completed in reversed(present):
                             self.complete(completed, "accepted")
                         missing = [item for item in predecessors if item not in present]
+                        self.assert_diagnostic(prd, missing)
+                        for completed in present:
+                            self.complete(completed, "another-completion")
                         self.assert_diagnostic(prd, missing)
 
     def test_completion_requires_exact_id_nonempty_slug_and_markdown_file(self) -> None:
@@ -170,13 +175,23 @@ class LocalPrerequisitesTest(unittest.TestCase):
                 f"x{prd}-done.md", f"{prd}0-done.md", f"{prd}.md",
                 f"{prd}-.md", f"{prd}-done.md.bak", f"{prd}-done.md~",
                 f"{prd}-done.MD", f"prefix-{prd}-done.md",
+                f"{prd}-done.md\n",
             ):
                 (self.done / name).write_text("done\n", encoding="utf-8")
             (self.done / f"{prd}-directory.md").mkdir()
+            (self.done / f"{prd}-dangling.md").symlink_to(
+                self.root / f"missing-{prd}"
+            )
         self.assert_diagnostic("00016", list(predecessors))
         for index, prd in enumerate(predecessors):
             self.complete(prd, f"real-{index}")
             self.assert_diagnostic("00016", list(predecessors[index + 1:]))
+        for slug in ("z", "release-2026.10", "notes_and_checks", "completed item"):
+            with self.subTest(slug=slug):
+                self.assert_diagnostic("00017", ["00016"])
+                self.complete("00016", slug)
+                self.assert_diagnostic("00017", [])
+                (self.done / f"00016-{slug}.md").unlink()
 
     def test_completion_uses_script_repository_instead_of_cwd_or_other_buckets(self) -> None:
         for base in (
@@ -207,7 +222,9 @@ class LocalPrerequisitesTest(unittest.TestCase):
                 (self.done / "00016-finished-despite-environment.md").unlink()
 
     def test_unknown_string_ids_preserve_input_and_missing_argument_is_usage_error(self) -> None:
-        for prd in ("", "12", "00011", "00022", "000120", "x00012", "00012-x"):
+        unknown_ids = ("", "12", "00011", "00022", "000120", "x00012", "00012-x")
+        unknown_ids += tuple(f"{40000 + index * 137:05d}" for index in range(16))
+        for prd in unknown_ids:
             with self.subTest(prd=prd):
                 result = self.invoke("--prd", prd)
                 self.assertEqual(result.returncode, 1, result.stderr)
@@ -216,8 +233,15 @@ class LocalPrerequisitesTest(unittest.TestCase):
                     json.dumps({"unknown_prd": prd}, sort_keys=True,
                                separators=(",", ":")) + "\n",
                 )
-        result = self.invoke()
-        self.assertNotEqual(result.returncode, 0)
+        for arguments in (
+            (), ("--prd",), ("--prd", "00012", "--bogus"),
+            ("--prd", "00012", "extra"),
+        ):
+            with self.subTest(arguments=arguments):
+                result = self.invoke(*arguments)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertEqual(result.stdout, "")
 
 
 if __name__ == "__main__":
