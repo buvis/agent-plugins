@@ -7,6 +7,13 @@
       "detail": "Required 110179-byte state-schema.md reference estimates at least 82545 tokens under the installed formula; file/capability split cannot satisfy byte-identical single-file acceptance under 75000-token replan budget; reports/00012-replan-1-budget.md",
       "op_id": "90ea9adeb4fa",
       "prd": "00012-autopilot-package-contract-v1.md"
+    },
+    {
+      "type": "stall",
+      "site": "oversized_task",
+      "detail": "Replan budget 75000 tokens. source-map.json is 13229895 bytes; required bytes/4 plus 55000 overhead gives at least 3362474 tokens before PRD and description. File split isolates the map; capability splits still touch the same 13.2MB file and exceed the cap. No worker dispatched, candidate unapplied. Historical work and review evidence retained in archived reports.",
+      "op_id": "0c4292dfaeab",
+      "prd": "00012-autopilot-package-contract-v1.md"
     }
   ]
 }

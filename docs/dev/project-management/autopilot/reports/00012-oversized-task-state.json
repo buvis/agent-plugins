@@ -1,0 +1,177 @@
+{
+  "phase": "build",
+  "next_phase": "build",
+  "schema_version": 1,
+  "batch": {
+    "id": "202610250001",
+    "mode": "autopilot",
+    "completed_prds": [],
+    "plugin_versions": {
+      "aegis@buvis-plugins": "0.4.1",
+      "warden@buvis-plugins": "0.14.1"
+    },
+    "catchup_completed_at": "2026-10-27T22:46:33.162268+00:00",
+    "catchup_head_sha": "1dea14634b6810191596274b04c718071712c488",
+    "parks_consecutive": 0,
+    "skips": [
+      {
+        "prd": "00013-autopilot-session-helpers-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00014-autopilot-host-execution-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* docs/dev/project-management/prds/done/00013-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00018-autopilot-controller-kernel-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00019-autopilot-controller-lifecycle-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00018-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00013-autopilot-session-helpers-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00014-autopilot-host-execution-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* docs/dev/project-management/prds/done/00013-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00018-autopilot-controller-kernel-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00019-autopilot-controller-lifecycle-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00018-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      }
+    ]
+  },
+  "prd": "00012-autopilot-package-contract-v1.md",
+  "catchup_mode": "run",
+  "doubt_reviewer": "codex",
+  "consensus_engine": "legacy",
+  "session_model": "sonnet",
+  "rework_cap": 3,
+  "lane": "full",
+  "lane_reason": "override",
+  "lane_effective": "full",
+  "catchup_probe": {
+    "batch_id": "202610250001",
+    "gh": "ok",
+    "engram": "ok",
+    "checked_at": "2026-10-25T22:40:48Z"
+  },
+  "tasks_total": 0,
+  "tasks_completed": 0,
+  "replan_count": 0,
+  "phases_completed": [],
+  "cycle": 1,
+  "applied_review_batches": [
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-01.md::decision-gate"
+  ],
+  "codex_probe": {
+    "batch_id": "202610250001",
+    "verdict": "unhealthy",
+    "backend": "codex",
+    "detail": "hook_doctor: missing /Users/bob/.codex/codex-hook",
+    "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
+    "checked_at": "2026-10-28T03:07:08.511437+00:00"
+  },
+  "contract_card": "step: PRD00012 stalled through canonical oversized_task recovery and verified in hold.\ninvariants: preserve completed work and historical implementation/review evidence; no worker dispatch, cap increase, or candidate application.\nnext: fresh build session selects the next eligible PRD; PRD00012 requires a budget-compliant planning strategy before resumption."
+}
