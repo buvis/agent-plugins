@@ -1,0 +1,406 @@
+# Build Gate (`phase: "build"`)
+
+Routed here when `state.phase` is `"build"`, `state.json` is missing, or the
+state is `"paused"`/aborted (the Phase 0 handlers below own that resume).
+`build` is ONE session — selection, catchup, design, planning, work — with no
+mid-build handoff; sub-steps skip by ARTIFACT, never by `phases_completed`
+membership. Core `SKILL.md` (always loaded) carries the shared mechanics and
+the test-pinned invariants this file references.
+
+## Phase 0: PRD Selection
+
+Read `docs/dev/project-management/autopilot/session-brief.md` if it exists (PRD 00201). Its Where section replaces the state reads below; open only the files its Read next section lists. When its phase disagrees with `state.json`, fall back to the state reads.
+
+### Enter in one call
+
+Run `autopilot enter` (one Bash call). It runs the whole documented Phase 0 step
+chain below and prints one JSON line whose `stop` names the first step that
+halted.
+
+When `stop` is null every step passed: print the PRD banner and go straight to
+Phase 1, using the `catchup` and `design` decisions the call returned,
+without re-running any of the Phase 0 steps below by hand.
+
+When the session brief has an `## Entry` section (PRD 00282: the loop already
+ran Phase 0 before launch), take `prd`, `catchup`, and `design` from it
+instead — running `autopilot enter` anyway replays the same stored line
+rather than re-running Phase 0.
+
+When `stop` is set, follow the table below: it maps each `stop` value to the
+existing section that owns that halt.
+
+| `stop` | owner |
+|---|---|
+| `fs_error` | § Ensure lifecycle directories exist when `detail` names the `mkdir`; the `--prds` flag when `detail` names a shallow path; the design-gate invariant's non-zero branch when `detail` names the design doc |
+| `park_halt` | § Handle park request: exit-code row 5 when `detail` says systemic halt; otherwise `detail` names an exit code outside the table's 0/3/4/5/9/10 rows (`do_park` returned something `enter.py` does not recognize) — PAUSE (`site: "sub_skill_fail"`, `detail` = the unmapped-exit-code message) |
+| `mv_verify` | § Handle park request row 4, or Normal PRD selection's verified move, whichever move failed |
+| `deferred_io` | routed by `detail`: `do_park exited 9: a deferred-record append failed` → § Handle park request row 9; an unreadable custody entry (`custody.CustodyError` from the pending-custody count) → § Handle pending custody's exit-9 branch, PAUSE in every mode with `site: "sub_skill_fail"` and the `detail` as the pause detail |
+| `stall_op_conflict` | § Handle park request row 10 |
+| `stall_op_malformed` | § Handle park request row 10's action — PAUSE for human reconciliation: a half-written `stall_op` (a missing required key, or a half-captured `cap_critical` range) that `autopilot park` refuses to reconcile. `state.json` is readable, so row 2's corrupted-state path does NOT apply and state is never deleted |
+| `park_precondition_failed` | `references/recovery.md`'s exit-code table row 2, second branch — the `detail` names the cause (a missing `batch.id`, or a failed `cap_critical` range capture): retry the stall ONCE, then PAUSE in every mode (`phase`/`next_phase: "paused"`, `site: "sub_skill_fail"`), PRD left in `wip/`, and never delete `state.json`. NOT § Handle park request row 2's corrupted-state row |
+| `replan` | § Handle Work-phase abort, the `subagent_prompt_overrun` bullet |
+| `escalation_exhausted` | § Handle Work-phase abort, the `escalation_exhausted` bullet |
+| `cap_pause` | § Handle Work-phase abort, the cap-pause bullet |
+| `custody` | § Handle pending custody |
+| `drained` | Normal PRD selection, the `drained` row |
+| `prd_not_found` | Normal PRD selection step 1, the named PRD is in neither `wip/` nor `backlog/` |
+| `batch_init` | Normal PRD selection step 3, then run `autopilot enter` again. A `state.batch` with no string `id` is ABSENT however many other keys it holds, and minting preserves any existing `batch.skips` rather than replacing the object |
+| `lane` | § 5.5. Route by lane |
+| `state_write_failed` | § Frontmatter parse, the state write failed; Error Handling's statectl row |
+| `design_review_log_empty` | the design-gate invariant's non-zero branch (Phase 1.5) |
+
+`autopilot enter` prints no banner of its own. It prints the one JSON line
+(frontmatter warnings go to stderr); every banner is still this skill's to
+print, from the fields that line returned.
+
+A non-null `parked` means `autopilot park` parked that PRD: print the STALLED
+banner and continue selection (§ Handle park request's exit-0 row).
+
+A non-zero `custody_pending` in loop mode (`$_AUTOPILOT_LOOP` set) is the cue
+to print `custody: <n> entries await an attended resume` (`<n>` =
+`custody_pending`) and continue (§ Handle pending custody's loop-mode branch).
+
+`enter` makes no capsule read: before Phase 1, read the Active Work section of
+`docs/dev/project-management/meta/project-capsule.md` yourself if it exists
+(§ Normal PRD selection step 6).
+
+A non-zero exit prints NO JSON line — the diagnostics go to stderr, so read
+stderr and the exit code instead of waiting for a `stop` value that never
+comes:
+
+| exit | cause |
+|---|---|
+| `1` | no autopilot dir above cwd and no `--state` given; this call runs before the `mkdir -p` block, so a from-nothing repo hits it on its very first call. Re-run with `--state <project>/docs/dev/project-management/autopilot/state.json` — `enter` builds the whole lifecycle tree itself from that path, so the dir need not exist yet. Running from the project root only helps once the tree is already there |
+| `2` | `state.json` is corrupt (`StateError`) — the corrupted-state row of core `SKILL.md` § Error Handling owns it |
+| `6` | a future `schema_version` stamp, refused rather than resumed blindly (the same preflight `autopilot resume-target` makes) |
+
+### Ensure lifecycle directories exist
+
+Before anything else — before the abort handlers and before PRD selection — run
+the lifecycle `mkdir -p` block from core `SKILL.md` § "Phase 0 invariants" as
+its own Bash call (idempotent; mandatory before any move can run). Then, right
+after it and as its own Bash call, run `autopilot ensure-store`:
+`python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py ensure-store --state <state.json>`.
+It ships the store's `docs/dev/project-management/.gitignore` idempotently and
+exits 0 either way. That file is written by code, never with the Write or Edit
+tool: `hooks/enforce_prd_location.py` rejects a top-level store file outside its
+keeper list for editor tools, and that refusal stays.
+
+`autopilot enter` runs both steps; the instructions below stay the hand-run
+reference.
+
+### Clear inherited hand-off markers
+
+Then, still before the abort handlers, run `autopilot markers --clear`:
+`python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py markers --clear handoff-requested cap-fired`
+(one Bash call; exits 1 only when no autopilot dir is found above cwd - an
+unlink failure is not caught today). It removes any `.handoff-requested` and
+`.cap-fired` beside `state.json`.
+A marker present when a session starts was written by an earlier session for a
+boundary that session never reached (a wall-cap kill, a crash, a plugin upgrade
+between sessions); it is never this session's to act on, and left in place it
+makes step 6.5 hand off after the first task (PRD 00210: a 1-byte marker from
+2026-09-14 did exactly that on 2026-09-20). Markers this session's own hook
+writes later are untouched: this is the session's first Bash call after the
+`mkdir`.
+
+`autopilot enter` runs this step; the instructions below stay the hand-run
+reference. Unlike the script above, `autopilot enter` names none of the removed
+markers on stderr — it clears them silently, so no removal time appears there.
+
+### Handle park request (FIRST abort-handler check)
+
+The wrapper parks a sick PRD by writing `docs/dev/project-management/autopilot/park-requested` (a
+one-line JSON `{"prd": "<basename>", "reason": "<one-line cause>"}`) and
+relaunching — never by editing `state.json` (state surgery stays in-skill). This
+handler runs BEFORE the `stall_reason` checks below. The pure decision core
+`park_decision(marker, wip_filenames, parks_consecutive)` in `cli/resume.py`
+encodes the classification (no marker / malformed / stale / park→continue /
+park→systemic-halt); `autopilot park` executes its verdict.
+(`scripts/resume_target.py` still re-exports it for callers that name that
+path.)
+
+Run `autopilot park` (one Bash call). It consumes the marker, reconciles any
+pending `stall_op` first, performs the verified `wip/`→`hold/` move, the
+deferred record, and a single-commit reset/increment/pause, then deletes the
+marker last. See `cli/records.py`'s `do_park` docstring for the full contract.
+The deferred record's `detail` is the marker's reason plus a
+`; lane=<lane_effective>` term when the parked PRD was lane-routed (PRD
+00205), so a solo PRD parked by the died-retry carries its lane.
+
+| Exit code | Meaning | Action |
+|---|---|---|
+| 3 | no/ignored/reconciled marker | fall through to the next abort handler / normal selection |
+| 0 | parked | print the STALLED banner, continue selection |
+| 5 | parked AND systemic halt | `pause_reason` is already written — print the PAUSE banner, end the turn |
+| 4 | move failed | PAUSE per the mv-verify invariant (`site: "mv_verify"`) |
+| 9 | deferred-record I/O failed | PAUSE (`site: "statectl_fail"` family) |
+| 10 | stall_op conflict | PAUSE for human reconciliation |
+| 2 | state unreadable | the corrupted-state row of Error Handling applies |
+
+`autopilot enter` runs this step; the instructions below stay the hand-run
+reference.
+
+### Handle Work-phase abort (from a prior session)
+
+Before anything else, read `docs/dev/project-management/autopilot/state.json` and check `stall_reason`:
+
+- `stall_reason.stalled` is `"subagent_prompt_overrun"` — the previous session's work aborted from a hook. The PRD is not broken; one task was scoped too big. **Follow `references/recovery.md` → "Work-phase abort: replan procedure"**, then STOP (the next session re-enters `build` at planning). This is the one surviving replan path.
+- `stall_reason.stalled` is `"escalation_exhausted"` — Phase 6 owns this inline; seeing it at Phase 0 means a crash landed mid-stall-move. **Follow `references/recovery.md` → "Crash recovery: escalation_exhausted seen at Phase 0"**, then fall through to Normal PRD selection.
+- `state.phase == "paused"` AND `state.cap_pause_reason` is set (the previous session's review-gate cap-pause behavior fired). The capped PRD is still in `docs/dev/project-management/prds/wip/`; do NOT treat it as fresh PRD selection. **Follow `references/recovery.md` → "Cap-Pause Resume Handler"** — it presents the recorded unresolved findings and cycle count via the `AskUserQuestion` tool and branches on resume/abandon.
+- `state.cap_rotations` has a new entry but none of the above holds — the previous session hit the Work-turn context cap and the cap hook rotated to a fresh session. The cap hook recorded the rotation (appended `cap_rotations`, reset the in-flight task to `pending`, set `next_phase: "build"`); that session then ended its turn and the loop wrapper relaunched on the non-empty `next_phase`. NOT a replan. A `cap_rotations` entry is **informational only** and needs no special handling here: the dead session's `.cap-fired` marker was already removed by § Clear inherited hand-off markers above, so it no longer de-duplicates this session's hook fires. Fall through to Normal PRD selection, which resumes `build` by artifact (capsule fresh → skip catchup; tasks exist → skip planning; `/autopilot:work` continues at the first non-completed task — the rotated task, now reset to `pending`).
+- None of the above (neither a recognised `stall_reason` value nor the cap-pause condition `phase == "paused"` + `cap_pause_reason`) — continue with Normal PRD selection below.
+
+Before acting on whichever branch matched, run `autopilot resume-target` (one Bash call) and compare its line to the handler you picked. It is the executable form of this same contract (`cli/resume.py`), so a disagreement means the prose and the encoding have drifted — follow the encoding and say so. The line adjudicates the abort handlers and the resume point only: `/work continues at first non-completed task <id>` means planning is done, not that Phase 1 is skipped; every build entry still runs § Batch cache check and takes the delta or full path it decides (PRD 00209). It also runs the schema-version preflight, refusing with exit 6 on a future-schema `state.json` rather than resuming it blindly. Exit 2 means there is no state file yet, which is a normal fresh start, not an error.
+
+`autopilot enter` runs this step; the instructions below stay the hand-run
+reference.
+
+### Handle pending custody
+
+A loop-mode `cap_critical` stall (`references/recovery.md` § Stall `site` slugs) leaves a custody entry behind: a CRITICAL shipped to master with its commit range recorded for an attended decision. Run `autopilot custody list` (one Bash call). It prints one JSON line per pending entry — the marker ∪ the journal, so a journal-only entry whose marker was trashed is still listed. No lines → nothing is pending; fall through to Normal PRD selection. Exit 9 → the marker or the journal is present but unreadable: PAUSE in every mode (`site: "sub_skill_fail"`, the stderr line as `detail`) — unreadable custody state must not be walked past.
+
+With entries listed:
+
+- **Interactive:** for each entry, ask via `AskUserQuestion` with the three choices — `revert` (revert the range on master), `branch-and-revert` (preserve the work on a branch, then revert master), `accept` (keep it on master, close custody) — then run `autopilot custody resolve --prd <stem> --choice <choice>` (one Bash call per entry). Exit 0 → next entry, then Normal PRD selection. Exit 1 → no pending entry, or a different choice was already recorded (cleanup still ran): report it and move on. Exit 5 → git refused or failed (wrong checkout, an unfinished revert/merge/cherry-pick, a partial revert, a conflict; custody retained): report git's message and STOP the turn — do not select a PRD while a revert is unfinished. The operator finishes or aborts it, then closes custody with `--choice accept` or re-runs the same choice. Exit 9 → ledger/marker/journal read or write failed: PAUSE as above.
+- **Loop mode (`$_AUTOPILOT_LOOP` set):** there is no human to answer, so this handler neither asks nor runs `custody resolve`. Print `custody: <n> entries await an attended resume` (`<n>` = the line count) and continue with Normal PRD selection.
+
+`autopilot enter` runs this step; the instructions below stay the hand-run
+reference.
+
+### Normal PRD selection
+
+1. If argument provided, find that PRD in `docs/dev/project-management/prds/wip/` or `docs/dev/project-management/prds/backlog/`. If found in backlog, move it to `wip/` under the **verified-move invariant** (core `SKILL.md` § "Phase 0 invariants"): confirm arrival, else pause with `site: "mv_verify"`; do not continue.
+2. Otherwise, auto-select (never ask the user). Run `autopilot select` (one Bash call). It reads `wip/` then `backlog/` and picks the lowest `00XXX-` sequence in the first that has one; it never scans `hold/` — `cli/selection.py`'s `select()` takes no hold argument at all, so the parked/deferred exclusion is structural rather than a rule to remember. It prints one JSON line, `{"prd": ..., "source": ...}`, and exits 0 in every case including drained. Do NOT list the lifecycle directories and re-derive the choice yourself.
+
+   | `source` | Action |
+   |---|---|
+   | `wip` | announce the PRD and resume it in place — no move |
+   | `backlog` | move it to `wip/` under the **verified-move invariant** above (confirm arrival, else PAUSE with `site: "mv_verify"`), then announce |
+   | `drained` | STOP: "No PRDs found. Create one with /create-prd." (Loop mode: first write the drained state per the Error Handling row "No PRDs anywhere" — which also covers the case where `state.json` does not exist yet, since `phase-done` cannot advance a file that is not there.) |
+
+   `select` decides only. The move stays here on purpose — it is the one step that must be verified, and `autopilot stall`/`park` own the other lifecycle moves.
+
+   **Eligibility gate (PRD 00137).** Before returning a `backlog` candidate, `select` runs that PRD's `eligibility:` frontmatter command, if it declares one. Exit 0 = eligible. Anything else — non-zero, unknown binary, timeout, an unusable cwd — is UNMET, and an unmet PRD is **skipped, never parked**: the file stays in `backlog/`, gets no session, and `select` moves to the next candidate. A later drain re-evaluates it, so an unblocked PRD unblocks itself with no human `mv`. Mechanics: the command runs from the **project root** (the directory holding `docs/dev/project-management/`) under a **30-second timeout**, with output captured and dropped; the convention is **read-only checks only**, which nothing enforces — these strings are PRD-authored and run through `subprocess` inside the CLI, where warden never sees them. `wip/` candidates are never gated: the check decides what to START, and a PRD already in flight is past that question.
+
+   The JSON line carries a third field, `skipped`, holding one record per skip — `{"prd", "command", "exit_code", "note", "at"}`, `[]` when nothing was skipped. `note` names the failure mode (`"timeout"`, `"error: <msg>"`) only when the command never got to answer; those exit `-1`, which no shell produces, so "the check said no" is distinguishable from "the check could not be run". When `state.json` already exists, `select` appends each record to `state.batch.skips[]` itself and exits 2 (naming the failure on stderr) if that write fails; the pick is printed first either way, so a bookkeeping failure never swallows it.
+3. Initialize `batch` in state file if not already present: `id: "<yyyymmddHHMM>"` (current timestamp), `mode: "autopilot"`, `completed_prds: []`, and **`plugin_versions`** — a pin of the enforcement plugins' resolved versions so the wrapper can refuse to run the batch on rotated enforcement code (PRD 00086 R3). Read `aegis` and `warden` versions from `~/.claude/plugins/installed_plugins.json` (`.plugins["aegis@buvis-plugins"][0].version`, `.plugins["warden@buvis-plugins"][0].version`) and write `plugin_versions: {"aegis@buvis-plugins": "<v>", "warden@buvis-plugins": "<v>"}` via statectl. (Extend the pinned set if other enforcement plugins are added.) The `autoclaude` wrapper's plugin-pin preflight compares these at each relaunch and halts loud on any drift. On a FRESH batch, also seed `batch.skips` from the `skipped` list step 2 printed: that pick ran before `state.json` existed, so `select` could not persist it itself, and this is the one hand-off the CLI cannot make. Write it with `statectl` as part of this same `batch` initialization; an empty list needs no write. **Already present** means `state.batch.id` holds a string, not that the `batch` key merely exists: a `batch` carrying only `skips` counts as absent and needs an `id` minted, and that mint writes the new keys INTO the existing object rather than replacing the whole `batch` — never replace it, or the `batch.skips` already persisted there are destroyed. If `state.batch` IS already present, apply the **batch-identity rollover invariant** (core `SKILL.md` § "Phase 0 invariants") — mint a fresh `batch.id` only for a genuinely closed surviving batch; every normal in-progress resume preserves `batch.id` unchanged (and its `plugin_versions` pin); a fresh rollover re-pins from the current install.
+   A closed-batch rollover also clears `batch.unavailable_reviewers` and
+   `batch.unavailable_reviewer_details` in the same state update as the new id,
+   per the core invariant. Normal resumes and per-PRD transitions preserve them.
+4. Write the selected PRD's basename to `state.prd` **before** the frontmatter call. On a multi-PRD batch `state.prd` still names the PREVIOUS PRD at this point — `more_prds` deliberately preserves it, and Phase 9 already moved that PRD to `done/` — so anything reading `state.prd` here reads a stale name pointing at a file no longer in `wip/`.
+5. Apply the PRD frontmatter with one `autopilot frontmatter` call (below).
+6. Read the Active Work section of `docs/dev/project-management/meta/project-capsule.md` if it exists. This contains PRD progress and operational context from previous sessions. Use it to inform work in this session.
+7. Update the remaining state fields for the selected PRD, preserve `batch` field
+8. Print progress:
+   ```
+   ── AUTOPILOT ── PRD {n}: {prd-name} ─────────────────────────────
+   ```
+   Where `{n}` = `len(batch.completed_prds) + 1`
+9. Write the `resume` handoff row, best-effort (`work/references/subagent-dispatch.md` § Dispatch telemetry): `python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py handoff --site build --edge resume --phase build --prd <state.prd>`. Its gap to the previous session's `leave` row is the handoff latency nothing else measures; it is written after selection so `<state.prd>` names this session's PRD.
+
+`autopilot enter` runs these steps except step 6 — it makes no capsule read, so
+the Active Work read stays this session's own (§ Enter in one call). The
+instructions above stay the hand-run reference.
+
+### Frontmatter parse (step 5)
+
+```bash
+autopilot frontmatter --prd docs/dev/project-management/prds/wip/<state.prd>
+```
+
+`<state.prd>` is correct here only because step 4 already wrote the selected
+basename. Run them in that order, or a multi-PRD batch reads the PREVIOUS
+PRD's path, finds nothing in `wip/`, and exits 1.
+
+One Bash call does all of it: parses the block, applies the Phase-0 defaults,
+writes every resulting field to `state.json` in ONE transaction, echoes the
+applied fields as JSON on stdout, and prints any warning to stderr. Do NOT
+read the PRD and derive these fields yourself, and do NOT write them with
+`statectl` — `cli/frontmatter.py` is the single definition of which fields are
+recognized, what values they accept, and what each defaults to.
+
+Fields it recognizes and their state targets: `catchup`→`catchup_mode`,
+`rework_cap`, `design`→`design_mode`, `design_gate`, `doubt_reviewer`,
+`consensus_engine`, `pause_on_ambiguity`, `session_model` (the build
+session's model, `sonnet` by default; PRD 00200). Three dispositions, and the
+difference between them matters when reading the output: an **invalid** value
+takes the default and warns naming the field; an **absent** field takes the
+default silently; a **malformed or missing block** takes every default and
+warns exactly once. It never crashes Phase 0 on a frontmatter problem.
+
+Frontmatter is the source of truth; once Phase 0 has applied it, do not
+re-parse it after Phase 0. (Exception by design: `default_model` belongs to
+`/autopilot:plan-tasks` and is re-read from the PRD at Phase 6 rework dispatch — Phase 0
+never touches it, and `frontmatter.py` deliberately does not recognize it. It
+floors the per-task tier only; the session's model is `session_model`, which
+`cli/routing.build_model` re-reads from the PRD at every launch.)
+
+`eligibility:` is likewise not recognized here, and deliberately so: it is not
+a state field. `cli/eligibility.py` reads it at **pick time** (step 2), one
+step before this call, and its answer decides whether there is a PRD to parse
+frontmatter for at all. Nothing about it reaches `state.json` except the skip
+records under `batch.skips[]`.
+
+Semantics the table cannot carry:
+
+- `catchup`: `run` honors the Phase 1 batch cache; `skip` bypasses catchup entirely; `force` ignores the cache at the PRD's first entry (no `state.tasks` yet) and reads as `run` on a same-PRD resume (PRD 00209).
+- `rework_cap` is consumed by the review gate's cap check (`references/phase-review.md` § Cap check).
+- `doubt_reviewer`: `fable` adds Eve to the review batch as a fifth lens; `codex` runs the standard roster.
+- `consensus_engine`: selects the engine behind Alice's consensus leg (`review-work-completion` step 1). `legacy` is today's single subagent; `workflow` makes the `review-fanout` workflow her leg; `shadow` runs both, with legacy gating and the workflow recorded as a non-gating observation.
+- `pause_on_ambiguity: true` — in loop mode a requirements ambiguity STALLS the PRD instead of being resolved by assumption; it never pauses the batch (see Phase 2).
+
+The same call also classifies the PRD's effort lane (`cli/lane.py`) and writes `lane`, `lane_reason` and `lane_effective` in the same transaction; step 5.5 reads them.
+
+`autopilot enter` runs this step; the instructions above stay the hand-run
+reference.
+
+### 5.5. Route by lane
+
+Read `state.lane_effective`, which step 5 wrote beside `state.lane` and `state.lane_reason` (`cli/lane.py` decides; three lanes: `solo`, `fast-track`, `full`). When it differs from `state.lane`, print
+
+```
+── AUTOPILOT ── lane: <lane> (<reason>), running full ──
+```
+
+Then branch on `state.lane_effective`:
+
+- `full`: continue to Phase 1.
+- `solo`: read `references/lane-solo.md` and follow it; Phases 1 to 3 do not run for this PRD. The runbook builds the PRD in this session, runs `autopilot lane-check`, takes one zero-context review pass and closes with `autopilot phase-done --outcome lane_reviewed`, or escalates into the full review gate with `--outcome tasks_done`.
+- `fast-track`: read `references/lane-fast-track.md` and follow it; Phases 1 to 3 do not run for this PRD unless the runbook falls back to full. The runbook renders one card per `lane.plan_cards` plan with `cards_from_prd.py` (an exit 2 there writes `lane_effective: "full"` and `lane_reason: "uncardable"` and continues to Phase 1), runs `/autopilot:fast-track` per card, consolidates the cards' tables into the review file and closes with `--outcome lane_reviewed`, or stalls a parked card with site `fast_track_blocked`.
+
+An unreleased lane (one outside `lane.RELEASED_LANES`) always reads `full` here, with the `running full` banner above; the lane is still recorded in the session rows and the batch report. `_AUTOPILOT_LANES=off` in the loop environment forces `full` for every PRD.
+
+`autopilot enter` runs this step; the instructions above stay the hand-run
+reference.
+
+## Phase 1: Catchup
+
+**Skip if:** the batch cache is fresh (the batch-cache freshness check below holds — the capsule is already current), OR `state.catchup_mode == "skip"`. The skip is by ARTIFACT (capsule freshness), not `phases_completed` membership.
+
+When skipped via `catchup_mode == "skip"`: do not invoke `/git-ferry:catchup`. Set `state.catchup_mode = "skipped"` (so subsequent re-entries also skip), keep `phase: "build"` and `next_phase: "build"`, and proceed to Phase 1.5 (Design).
+
+Otherwise, decide between **full catchup** and **delta refresh** using the batch cache.
+
+### Batch cache check
+
+The capsule (`docs/dev/project-management/meta/project-capsule.md`) is the persisted output of catchup: invariants, architecture decisions, GitHub state, project memories. Subsequent phases and their subagents read the capsule when they need that context — not `state.json`. Between PRDs in the same batch on the same branch, re-running the heavy gather phase costs ~60-95s and ~50K tokens with no information gain (`references/design-rationale.md` § Batch catchup cache).
+
+`state.batch.catchup_completed_at` (ISO 8601) and `state.batch.catchup_head_sha` (current branch HEAD when last full catchup completed) record the cache.
+
+**First-entry `force` rule (checked before the conditions below).** PRD frontmatter `catchup: force` overrides the cache at the PRD's first entry only, and ONLY when `state.tasks` is still empty or absent. A `state.tasks` that is not a list reads as absent (full catchup, the safe side). On that first entry, conditions 1-3 do not apply, condition 2's freshness check included: the result is delta iff a `batch.catchup_head_sha` is recorded AND every commit since it has committer `autopilot-loop/<batch.id>` (loop-only commits), full otherwise (including no recorded SHA, or a git failure).
+
+**Skip the full catchup and run a delta refresh** when ALL of the following hold:
+
+1. `state.catchup_mode != "force"`, OR `state.tasks` is a non-empty list (the first-entry `force` rule above covers the empty or absent case). Once planning has run for this PRD, this entry is a same-PRD resume (a task-boundary hand-off or a rotation, with the brief already read) and `force` is spent (PRD 00209): print `── AUTOPILOT ── catchup: force already spent on this PRD (tasks present) ──` and evaluate conditions 2 and 3 as for `run` — a spent `force` gets no loop-only shortcut of its own; a stale cache (condition 2) still returns `full` even when every commit since is loop-only, because condition 3's loop-only escape is reached only after condition 2 passes. Measured 2026-09-20: a forced re-run on a resume cost ~180K tokens and five minutes before the first task started.
+2. `state.batch.catchup_completed_at` is present AND less than 4 hours old.
+3. `state.batch.catchup_head_sha` matches the current `git rev-parse HEAD` on the active branch — **or**, when it does not match, every commit past `catchup_head_sha` has committer `autopilot-loop/<batch.id>` (loop-only commits): a moved HEAD that fails the exact-match test still reads delta in that case.
+
+If any condition fails → **full catchup**: before invoking `/git-ferry:catchup`, run `autopilot catchup-probe` (one Bash call). Its `skip` list names which of `github-state.sh`/the `gh` commands, and `engram`, to omit this run — pass that list to `/git-ferry:catchup` as "do not run `github-state.sh` or any `gh` command" / "do not run any `engram` command" per entry. Write one gap line per skipped step in the capsule's relevant section (GitHub State / Related context), same as today's manual skip-on-failure handling, just decided before the attempt instead of after a failed one. Then invoke `/git-ferry:catchup`. After completion, write `state.batch.catchup_completed_at = <now>` and `state.batch.catchup_head_sha = <current HEAD>`. These fields persist across PRDs in the batch (Phase 9 step 10 preserves them).
+
+If all conditions hold → **delta refresh** (no `/git-ferry:catchup` invocation):
+
+- Re-read all PRDs in `docs/dev/project-management/prds/wip/` (the active set has changed since last catchup; new PRDs may have entered, old ones moved to `done/`).
+- Update the Active Work section of `docs/dev/project-management/meta/project-capsule.md` with the current PRD list (use the same format Phase 9 step 8 uses). Leave Key Invariants, Architecture Decisions, Component Boundaries, GitHub State, Project Health, and Project Memories untouched — those reflect batch-stable knowledge.
+- Print a one-line note: `── AUTOPILOT ── catchup: delta refresh (cache <Xm> old, HEAD <sha7>) ──`
+
+`autopilot enter` runs this check and returns its verdict as the `catchup`
+decision; the instructions above stay the hand-run reference.
+
+After either path completes, proceed to Phase 1.5 (Design). Stay on `phase: "build"` and `next_phase: "build"`; do NOT add anything to `phases_completed`.
+
+## Phase 1.5: Design (build-gate sub-step)
+
+Between catchup (Phase 1) and planning (Phase 2), in the SAME build session. Design turns the PRD's requirements (the WHAT) into a reviewed implementation design doc (the HOW) before tasks are planned. This is a BUILD-GATE SUB-STEP: `state.phase` stays `"build"`, there is **no** new phase enum value, **no** `phases_completed` entry, and **no** session handoff. The skip is by ARTIFACT (the design doc), exactly like catchup's capsule-freshness skip.
+
+Let `<prd-stem>` = `state.prd` with its trailing `.md` removed. The design doc artifact path is `docs/dev/project-management/designs/<prd-stem>-design.md`.
+
+**Skip if `state.design_mode == "skip"`:** do not invoke `/autopilot:design-solution`. Set `state.design_mode = "skipped"`, leave `state.design_doc` unset, and proceed to Phase 2. (This skip also bypasses the empty-review-log gate — no doc exists by design.)
+
+**Skip if the artifact already exists:** when `docs/dev/project-management/designs/<prd-stem>-design.md` is already on disk (a manual `/autopilot:design-solution` run earlier, or a work-abort replan re-entering the build gate). Log a one-line reuse note (`── AUTOPILOT ── design: reusing existing <prd-stem>-design.md ──`), set `state.design_doc` to that path, then **run the empty-review-log gate** (core `SKILL.md` § "Design-gate invariant") **on the artifact-reuse path** — an existing doc from a manual or aborted run is exactly where a skipped review hides — and proceed to Phase 2 only if the gate passes; do NOT re-invoke the skill. This artifact-based skip is what lets work-abort replans reuse the design with no extra logic.
+
+`autopilot enter` runs the design-doc existence check and its empty-review-log
+gate, returning the verdict as the `design` decision (a failed gate stops it
+with `design_review_log_empty`); the instructions above stay the hand-run
+reference.
+
+**Otherwise, run design:**
+
+1. Invoke `/autopilot:design-solution` with the wip PRD path (`docs/dev/project-management/prds/wip/<state.prd>`).
+2. **On success (exit 0):** set `state.design_doc` to the artifact path it printed (`docs/dev/project-management/designs/<prd-stem>-design.md`). Log the design decision (chosen approach + any unresolved non-blockers from the doc's `## Review log`) to `state.autonomous_decisions` under the existing audit label `autonomous` — do NOT add a `design` audit label (the audit-log label set is closed). Then **run the empty-review-log gate** (core `SKILL.md` § "Design-gate invariant") **on the success path** before proceeding to Phase 2.
+3. **On failure (non-zero exit — unresolved cardinal sins/blockers after 3 reviewer dispatches):** treat as a sub-skill failure. PAUSE per the Error Handling table's "Sub-skill invocation fails outright" row — set `state.phase = "paused"` and `state.next_phase = "paused"`, write `state.pause_reason = {"site": "sub_skill_fail", "detail": "design-solution failed with open findings"}`, report the open findings, and do NOT proceed to planning.
+
+**Design gate (`state.design_gate == "user"`):** after a successful design (or an artifact reuse), and only when `state.design_gate == "user"`:
+
+- **Interactive:** PAUSE before planning — present the design doc summary plus any unresolved non-blockers from `## Review log` via `AskUserQuestion`, and proceed to Phase 2 only after the user answers. This is a mid-turn `AskUserQuestion` PAUSE; it does not end the turn, so no `phase` change is needed.
+- **Loop mode (`$_AUTOPILOT_LOOP` set):** there is no human to answer the gate — do NOT pause the batch. Follow the **Loop-mode stall procedure** (`references/recovery.md`) with `site: "design_gate"`, recording the design doc path in the deferred JSON `detail`, and continue the batch. On un-park (`hold/`→`backlog/`), the PRD re-enters the build gate and re-fires the design gate, reusing its existing design doc via the Phase 1.5 artifact skip — so a human resolves it interactively on the next manual run. (This is the new `design_gate` stall slug — `references/recovery.md` § Stall `site` slugs.)
+
+After design completes (run, skipped, or reused), stay on `phase: "build"` and `next_phase: "build"`; do NOT add anything to `phases_completed`. Then run the **gate-edge headroom check** below and, if it passes, proceed to Phase 2.
+
+### Gate-edge headroom check (design->plan and plan->work edges, PRD 00200)
+
+The cap hook's headroom rule never fires between tasks (no task is in progress, so there is no task boundary to hand off at), yet a design step alone has used 249 calls and 338K before planning started (PRD 00187), which left the plan or the first task to die at the hard cap or the tripwire. So the build gate applies the hook's own rule itself at its two pre-task edges, with the first-task estimates: read `docs/dev/project-management/autopilot/.turn-counts.json` with the Read tool and take `last.count` and `last.usage` (the hook's record of its latest fire: this session's tool-call count and context total). **Hand off to a fresh build session when `TURN_TRIPWIRE - count < FIRST_TASK_CALLS_ESTIMATE` (450 - count < 200) or `USAGE_CAP - total < FIRST_TASK_USAGE_ESTIMATE` (500000 - usage < 150000).** This edge deliberately stays unmargined: the hook's own `HEADROOM_MARGIN` (1.25x) guards a real measured last-task cost against task-to-task variance, but this pre-task check has no completed task yet to measure from and instead uses the fixed, already-conservative `FIRST_TASK_CALLS_ESTIMATE`/`FIRST_TASK_USAGE_ESTIMATE` constants, so margining an already-fixed estimate would not address the variance the margin exists for. The handoff is not a transition: `phase` and `next_phase` already read `"build"`, so run no `phase-done`; write the `leave` row `python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py handoff --site build --edge leave --phase build --prd <state.prd>` (best-effort), print `── AUTOPILOT ── PRD: {prd-name} ── headroom gone at the {design|plan} edge, handing off ──`, and STOP; the loop relaunches on the non-empty `next_phase` and the fresh session resumes by artifact (the design doc and the tasks that exist skip their sub-steps). A missing file or a missing `last` means the hook has not fired this session; continue. A null `usage` (no usage line in the transcript yet) drops only the usage comparison: the calls comparison stays in force. `last` always describes the running session: the hook rewrites it on every fire, including the fires a leftover `.cap-fired` marker de-duplicates after a rotation, so a dead session's exhausted values can never hand this one off. Interactive runs apply the same check and re-invoke `/autopilot:run-autopilot`.
+
+## Phase 2: Planning
+
+**Skip if:** `state.tasks` contains any pending or completed tasks (tasks already exist). This skip is by ARTIFACT (tasks exist), not `phases_completed` membership.
+
+### Replan mode
+
+Before invoking `/autopilot:plan-tasks`, check for `docs/dev/project-management/autopilot/replan-context.md`. If present, this is a replan triggered by a Phase 0 abort handler. Pass the file to `/autopilot:plan-tasks` (see `plan-tasks/SKILL.md` "Replan mode") so it scopes to remaining work and uses the tighter ≤75K per-task budget. `/autopilot:plan-tasks` deletes the file after successful planning.
+
+If `replan-context.md` is absent, run `/autopilot:plan-tasks` normally — first-pass planning for a fresh PRD.
+
+Invoke `/autopilot:plan-tasks` with the selected PRD, using the Skill tool in this session; never delegate planning to an Agent.
+
+**PAUSE site - requirements clarification.** When `/autopilot:plan-tasks` pauses autopilot with a requirements-ambiguity or clarification question:
+
+- **Interactive:** present it to the user and wait for the answer. Once answered, record the clarification and its resolution in `state.autonomous_decisions` (label `autonomous`) so the Phase 9 audit render captures it. Do not write `audit.md` here.
+- **Loop mode (`$_AUTOPILOT_LOOP` set, PRD 00017):** never end the batch on an ambiguity. Resolve it by the **simplest safe assumption** (the user's own global rule), record it in `state.autonomous_decisions` as `{"type": "assumed-ambiguity", "question": ..., "assumption": ...}`, AND run `autopilot defer --prd <filename> --batch <batch_id> --json '{"type": "assumed-ambiguity", "question": ..., "assumption": ...}'` so batch-end review shows it under "assumptions made". Exception: when the PRD frontmatter set `pause_on_ambiguity: true` (parsed at Phase 0 step 4), do not guess — stall the PRD instead (`references/recovery.md` → "Loop-mode stall procedure", `site: "clarification"`) and continue the batch. A premise failure is never resolved by assumption either — it always stalls (see `/autopilot:work`'s premise gate when present). Do not confuse the two gates: a task-level `Premise:` line is verified by `/autopilot:work` before dispatching an implementor and its failure **stalls** the PRD; a PRD-level `eligibility:` line is verified by `select` at pick time (Phase 0 step 2) and its failure **skips** the PRD, leaving it in `backlog/` untouched.
+
+### Handle plan-tasks stall (oversized task)
+
+`/autopilot:plan-tasks` exits non-zero with `state.stall_reason.stalled == "oversized_task"` when a task cannot be split below the per-task budget. When this happens, do NOT proceed to Phase 3 — **follow `references/recovery.md` → "plan-tasks stall: oversized task"** (deletes orphan tasks, moves the PRD to `docs/dev/project-management/prds/hold/`, advances to the next PRD).
+
+**Other outcomes from `/autopilot:plan-tasks`:**
+
+- **Exits zero**: no stall. Continue normally to the post-completion state update below.
+- **Exits non-zero without `stall_reason`** (or with a `stall_reason.stalled` value other than `"oversized_task"`): treat as a sub-skill failure. PAUSE and report the error per the "Sub-skill invocation fails" entry in the Error Handling table — also write `state.pause_reason = {"site": "plan_tasks_fail", "detail": "<one-line error>"}` alongside `phase="paused"`. Do NOT proceed to Phase 3 or move the PRD.
+
+After completion, `state.tasks` is already current — every `task-add` call `/autopilot:plan-tasks` made wrote it directly. Stay on `phase: "build"` and `next_phase: "build"`. Do NOT add anything to `phases_completed`. Then run the **gate-edge headroom check** (Phase 1.5 above) at this plan->work edge: hand off to a fresh build session when `TURN_TRIPWIRE - count < FIRST_TASK_CALLS_ESTIMATE` or `USAGE_CAP - total < FIRST_TASK_USAGE_ESTIMATE`, else flow continues DIRECTLY into Phase 3 (work) in this same session — there is no other planning→work handoff.
+
+## Phase 3: Work
+
+**Skip if:** All tasks completed, none pending (read directly from `state.tasks`). This skip is by ARTIFACT (all tasks done), not `phases_completed` membership. When all tasks are done, the build is complete → hand off to the review session (see below).
+
+`state.tasks` is already current — every producer (`task-add`/`task-start`/`task-done`/`task-set-meta`) writes it directly via `statectl`, so there is nothing to query or snapshot before invoking `/autopilot:work`.
+
+**Check work_start_sha** per core SKILL.md § "Phase 3 invariants": autopilot enter stamped it at selection, except on a bare-repo-backed root, where this step captures it in the repo's git context only if it is still unset; any other empty value stops the session.
+
+**Capture `repo_root` in the same step.** Run `git rev-parse --show-toplevel` in the work repo and write the absolute path to `state.repo_root`. Usually this equals the project root, but when the work repo is nested under a non-git project root (e.g. `${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot` under `~/.claude`), the review session needs it to run `git` (diff gathering, `head_sha` capture) in the right repo. **Bare-repo-backed project root** (the project root has no `.git` of its own because it is tracked by a bare repo with a separate work-tree, e.g. `~/.claude` under the `~/.buvis` bare repo with work-tree `$HOME`): a plain `git rev-parse --show-toplevel` from the project root FAILS, so do NOT default `repo_root` to the project dir (that silently mis-records it every PRD). Record the bare repo's work-tree root instead — `git --git-dir=<bare-git-dir> --work-tree=<work-tree> rev-parse --show-toplevel` (for `~/.buvis`-backed `$HOME` this resolves to `/Users/<you>`). The same step also writes `state.git_dir` — the `--git-dir` value it had to pass in that bare-repo case (`~/.buvis` → `/Users/<you>/.buvis`) — and leaves it unset when a plain `git rev-parse --show-toplevel` worked.
+
+Invoke `/autopilot:work` with the Skill tool in this session; never delegate work execution to an Agent. It runs until all tasks complete.
+
+While `/autopilot:work` runs (Phases 3 and 6), it uses these superpowers when available (all conditional — autopilot works without them, quality improves with them):
+
+| Superpower | Step | Purpose |
+|-----------|------|---------|
+| `test-driven-development` | 2.7 | Write failing tests before implementation |
+| `systematic-debugging` | 4.5 | Root-cause analysis on errors |
+| `requesting-code-review` | 5.7 | Per-task code review after commit |
+| `receiving-code-review` | 5.7 | Evaluate review feedback before acting on it |
+
+(Deliberately unused superpowers and the review-layering rationale: `references/design-rationale.md`.)
+
+After completion, `state.tasks` is already current — every task-lifecycle transition (`task-start`/`task-done`) wrote it directly during the phase. Then advance the gate with `autopilot phase-done --outcome tasks_done`, which sets `phase: "review"` and `next_phase: "review"` and adds nothing to `phases_completed` — the `build` gate leaves no membership marker; review-loop convergence is the only `phases_completed` entry.
+
+### Hand off to a fresh session for reviews
+
+After the build completes (all tasks done), do NOT continue into the review phases in the same session — the review surface spawns multiple cloud reviewers and needs a clean context window. Run the **Session handoff procedure** (core `SKILL.md` § Session Loop) with the **build → review** site row (its step 2 writes `python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py handoff --site build --edge leave --phase review --prd <state.prd>` here), and print:
+
+```
+── AUTOPILOT ── PRD: {prd-name} ── Build complete ──────────────────
+── AUTOPILOT ── handing off to fresh session for reviews ───────────
+```
+
+**STOP.** Do NOT invoke `/autopilot:review-work-completion` (or any review lens) in this session (the handoff procedure's step 3 discipline applies).
