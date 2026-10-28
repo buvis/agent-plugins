@@ -40,8 +40,9 @@ Other paths, all relative to this repository:
 - tools/autopilot/check-source.py: explicit maintainer provenance verification.
 - tools/autopilot/export-policy.py: deterministic export.
 - tools/autopilot/prerequisites.py: read-only dependency diagnostics.
-- tools/autopilot/requirements-test.txt: pytest>=8,<9 and jsonschema>=4.23,<5;
-  jsonschema is a test-only reference validator, not a runtime dependency.
+- tools/autopilot/requirements-test.txt: pytest>=8,<9, jsonschema>=4.23,<5
+  and PyYAML>=6,<7. The validators and YAML parser are test-only dependencies;
+  the package facade and repository validator retain standard-library runtimes.
 - tests/autopilot/test_contract.py, test_package.py, test_prerequisites.py:
   contracts, coverage/resource closure and prerequisite behavior.
 - .github/workflows/validate.yml: add Python 3.12 tests alongside the existing
@@ -50,6 +51,10 @@ Other paths, all relative to this repository:
 
 Every newly authored file has an acceptance owner in the map, with source
 identity explicitly null. Missing source provenance must never be fabricated.
+The `authored_file_owners` collection assigns that source-null ownership to
+foundation product files, including maintainer tools, tests and the map itself.
+Package delivery hashes remain in `assets`; ownership records do not introduce
+a recursive digest of the map. Workflow-store evidence is not a product asset.
 
 ## Interfaces & contracts
 

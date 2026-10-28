@@ -1,0 +1,17 @@
+{
+  "task": "16",
+  "package_revision": "c26dfc6df6c9a0eb1e7f1622a334265222bb9006",
+  "metadata_revision": "18044701beaa90d18264e85733a71e10b638998e",
+  "source_commit": "e960ef1cc43e72bf92593b2f16c7a37c71ea7e48",
+  "source_readme_sha256": "de15bf433269ecd2b2a670ae694d8ab1176831e15c415a9117bc507fbae48b70",
+  "historical_bodies": 11,
+  "reconstruction": "exact bytes: source heading text without trailing LF plus marked bodies after removing only > prefixes",
+  "changed_asset_rows": [
+    "plugins/autopilot/README.md",
+    "plugins/autopilot/CHANGELOG.md"
+  ],
+  "all_asset_hashes_verified": 97,
+  "git_artifact_revision_checks": "passed for both package artifacts",
+  "existing_ci_and_history": "exact prefixes preserved",
+  "real_host_certification": "unavailable; futureAP00014/AP00017"
+}

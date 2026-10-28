@@ -1,0 +1,5 @@
+LOW | tests/autopilot/test_prerequisites.py:245 | `assertNotEqual(result.returncode, 0)` is redundant, because the next line already asserts the exit code equals 2. | Delete the `assertNotEqual` line.
+
+LOW | tests/autopilot/test_prerequisites.py:131 | The partial-set test clears `done` and re-seeds 64 filler files for every combination. That is more setup than the assertion needs, since one filler file would show the same thing. | Seed one unrelated file, or seed once and add or remove only the predecessor files per combination.
+
+LOW | tools/autopilot/prerequisites.py:32 | The pattern `([0-9]{5})-.+\.md` has no `re.DOTALL`, so a real file whose slug contains a newline (`00012-a\nb.md`) is not counted as complete. The contract only asks for a nonempty slug. The trailing-newline case (`00012-done.md\n`) is correctly rejected by `fullmatch` either way. | Add `re.DOTALL`, which keeps the trailing-newline rejection. Optionally add a test case for an inner-newline slug.

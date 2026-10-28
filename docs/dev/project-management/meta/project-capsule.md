@@ -1,6 +1,29 @@
 # Project Capsule: buvis agent-plugins
 
-Generated: 2026-10-27
+Generated: 2026-10-28
+
+## Current AP 00012 handoff
+
+Build complete: 19/19 tasks, including bounded split children17/18 and
+delivery-metadata task19. The package has96 files:11 gated skills,
+18 preserved persona documents,59 preserved references,3 review contracts,
+the local facade and root metadata/documentation. No controller, host support,
+certification or publication is claimed. All11 historical README bodies
+reconstruct the pinned source exactly. Frozen92 source IDs,1381 behaviors,
+4950 regression mappings and all future owners/profiles remain intact.
+
+Full Python3.12 suite:89 passed in21.25s. Validator unit tests:12 passed;
+repository validation:3 packages/15 skills. Explicit source audit passed679
+files/92 assets/1381 behaviors/4950 cases. The source verifier returned3
+because it could not parse pytest's summary; no canonical verification receipt
+was written. Actual raw log and this limitation are durably retained.
+
+Next: fresh full-lane review, cycle1, unchanged rework cap3 and review base
+`b1e05c75d6f0dad01db35258baf565ecaf5a77ad`. Audited implementation models
+are OpenAI Sol/Astra; driver validates41 raw-line evidence rows across19
+tasks and requires Anthropic Opus/xhigh Alice, Blake and Bob. No completion
+review ran in this build session. Follow `autopilot/reports/00012-build-handoff.md`.
+Remote status below is historical; this build performed no new GitHub refresh.
 
 ## 2026-10-27 AP 00012 normal planning
 
@@ -39,7 +62,7 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 - specflow track: 00002-00007 merged (PR #1-#6). Python target 3.10 (CI); `ruff check --fix` rewrites to 3.11+ APIs, re-run contract tests on `mise exec python@3.10.22` after any ruff fix.
 - New autopilot-port track (00011/00012+): porting the `claude-autopilot` plugin content into `plugins/autopilot/` as a standalone, OVCAQ-independent package. Design doc `designs/00011-autopilot-standalone-design.md` plus three reviews (`boundary-correction`, `split-design`, `three-layer`) already landed; discovery docs `00011-autopilot-agent-plugins-{inventory,port}.md` map the source. PRD 00012 (this run) is Phase 0 of that port: pin the source commit (`e960ef1` in `claude-autopilot`), port assets 1:1, and define the plugin-owned review-evidence/policy contracts — no runtime wiring, no publishing. Later PRDs (00013-00021) build the controller/TUI on top.
-- AP 00012 now has 3/16 tasks complete: restored inventory/map, review policy, and closed evidence schema. Thirteen tasks remain; golden fixtures are next. Narrow gates pass (6 policy tests, 17 standalone schema tests). Native context headroom triggered a clean build-to-build handoff, not a completion-review transition. Source inventory and initial ownership assignments stay completed; delivered asset receipts/new-file ownership still need final verification. Review base stays `b1e05c7`.
+- AP 00012 has19/19 tasks complete and all build gates passed. Delivery receipts and21 source-null authored-file owners are complete. Independent completion review remains pending in a fresh session. Review base stays `b1e05c7`.
 
 ## Related context
 
@@ -63,7 +86,7 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 - Fix misfiring buvis guard hooks at their source repo with a test, never bypass.
 - Check `~/.kiro/crew/workspace/ai-age-repo-structure.md` before recommending homes for skills, links, or agent-private dirs.
 
-## Autopilot foundation refresh
+## Historical Autopilot foundation context (superseded)
 
 Active work: AP 00012 package and review contracts on master; seven ordered tasks. Pinned source exists; no package is present. Superseded test_contract.py needs reconciliation against amended design; scratch-v1 is quarantined. Source inventory must precede destination mapping.
 
@@ -98,3 +121,15 @@ artifact contracts. Portfolio stamp: memory stale=24/dead=1, code
 stale=61/dead=1466, PRD stale=9/dead=3079. Review harvest partially succeeded;
 older reviews without frontmatter remain parse failures. Task restore reports
 no_tasks_dir; no native task restoration was needed.
+
+## 2026-10-27 task 4 build resume
+
+AP 00012 resumes at 3/16 completed, task 4 golden fixtures in progress.
+The package stays gated; inventory/map and original review base remain fixed.
+GitHub refresh: zero open issues/PRs, no releases, latest master Validate passed.
+Related context: repository AP 00012 (0.0328), port retirement/inventory
+(0.0161/0.0159); portfolio additionally returns historical cellar transcripts.
+Topic: Autopilot package and review artifact contracts. Repository index refreshed.
+Portfolio staleness: memory 24/dead 1, code 66/dead 1466, PRD 1/dead 3079.
+Review harvest partially succeeded; older files lack frontmatter.
+Native task restoration returned no_tasks_dir; canonical workflow tasks stay intact.

@@ -1,0 +1,21 @@
+{
+  "kind": "committed-phase-control-receipt",
+  "transition": "phase-done --outcome tasks_done",
+  "at": "2026-10-28T02:43:35.496608+00:00",
+  "phase": "review",
+  "next_phase": "review",
+  "cycle": 1,
+  "rework_cap": 3,
+  "tasks_completed": 19,
+  "tasks_total": 19,
+  "work_start_sha": "b1e05c75d6f0dad01db35258baf565ecaf5a77ad",
+  "tested_product_head": "900cbc7d2ba05eb6d525b74cf7c7a7c48aaa2ddd",
+  "implementation_fingerprint": "aca7b85369e1924a6b5fc597c03d575cd5571be014af4d4a9eea00d595790bc9",
+  "required_review_providers": [
+    "anthropic"
+  ],
+  "canonical_test_receipt_written": false,
+  "build_runner_summary": "89 passed in21.25s",
+  "source_verifier_exit": 3,
+  "completion_review_run": false
+}

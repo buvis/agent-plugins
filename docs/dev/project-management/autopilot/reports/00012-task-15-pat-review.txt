@@ -1,0 +1,5 @@
+The LOW finding at `tools/autopilot/prerequisites.py:32` is resolved. The delta passes `flags=re.DOTALL` to `re.fullmatch`, so `.+` now matches an inner newline and `00012-a\nb.md` counts as complete. The trailing-newline case `00012-done.md\n` is still rejected. `fullmatch` needs the string to end in `.md`, and that name ends in `\n`.
+
+The delta adds no new problems.
+
+NO FINDINGS

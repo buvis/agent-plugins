@@ -1,0 +1,159 @@
+{
+  "pin": "e960ef1cc43e72bf92593b2f16c7a37c71ea7e48",
+  "cases": [
+    {
+      "name": "real-pin-from-unrelated-cwd",
+      "argv": [
+        "/opt/homebrew/opt/python@3.15/bin/python3.15",
+        "/Users/bob/git/src/github.com/buvis/agent-plugins/tools/autopilot/check-source.py",
+        "--source-root",
+        "/Users/bob/git/src/github.com/buvis/claude-autopilot"
+      ],
+      "cwd": "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/unrelated-cwd",
+      "exit_code": 0,
+      "expected": "accepted",
+      "stdout": "Source audit passed: e960ef1cc43e72bf92593b2f16c7a37c71ea7e48; 679 files, 92 assets, 1381 behaviors, 4950 regression cases\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "name": "copied-exact-pin-from-unrelated-cwd",
+      "argv": [
+        "/opt/homebrew/opt/python@3.15/bin/python3.15",
+        "/Users/bob/git/src/github.com/buvis/agent-plugins/tools/autopilot/check-source.py",
+        "--source-root",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/copied-exact-pin"
+      ],
+      "cwd": "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/unrelated-cwd",
+      "exit_code": 0,
+      "expected": "accepted",
+      "stdout": "Source audit passed: e960ef1cc43e72bf92593b2f16c7a37c71ea7e48; 679 files, 92 assets, 1381 behaviors, 4950 regression cases\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "name": "pin-present-later-blob-missing",
+      "argv": [
+        "/opt/homebrew/opt/python@3.15/bin/python3.15",
+        "/Users/bob/git/src/github.com/buvis/agent-plugins/tools/autopilot/check-source.py",
+        "--source-root",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/copied-exact-pin"
+      ],
+      "cwd": "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/unrelated-cwd",
+      "exit_code": 1,
+      "expected": "rejected",
+      "stdout": "",
+      "stderr": "Source audit failed: Pinned source Git read failed: fatal: bad object e960ef1cc43e72bf92593b2f16c7a37c71ea7e48:skills/work/scripts/work_routing.py\n",
+      "passed": true
+    },
+    {
+      "name": "same-size-later-source-object-corruption",
+      "argv": [
+        "/opt/homebrew/opt/python@3.15/bin/python3.15",
+        "/Users/bob/git/src/github.com/buvis/agent-plugins/tools/autopilot/check-source.py",
+        "--source-root",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/copied-exact-pin"
+      ],
+      "cwd": "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/unrelated-cwd",
+      "exit_code": 1,
+      "expected": "rejected",
+      "stdout": "",
+      "stderr": "Source audit failed: Git blob identity mismatch: skills/work/scripts/work_routing.py\n",
+      "passed": true
+    },
+    {
+      "name": "relocated-target-valid-snapshots",
+      "argv": [
+        "/opt/homebrew/opt/python@3.15/bin/python3.15",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/relocated-target/tools/autopilot/check-source.py",
+        "--source-root",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/copied-exact-pin"
+      ],
+      "cwd": "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/unrelated-cwd",
+      "exit_code": 0,
+      "expected": "accepted",
+      "stdout": "Source audit passed: e960ef1cc43e72bf92593b2f16c7a37c71ea7e48; 679 files, 92 assets, 1381 behaviors, 4950 regression cases\n",
+      "stderr": "",
+      "passed": true
+    },
+    {
+      "name": "changed-later-file-digest",
+      "argv": [
+        "/opt/homebrew/opt/python@3.15/bin/python3.15",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/changed-later-file-digest/tools/autopilot/check-source.py",
+        "--source-root",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/copied-exact-pin"
+      ],
+      "cwd": "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/unrelated-cwd",
+      "exit_code": 1,
+      "expected": "rejected",
+      "stdout": "",
+      "stderr": "Source audit failed: Source blob digest/size mismatch: skills/work/scripts/work_routing.py\n",
+      "passed": true
+    },
+    {
+      "name": "changed-section-digest",
+      "argv": [
+        "/opt/homebrew/opt/python@3.15/bin/python3.15",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/changed-section-digest/tools/autopilot/check-source.py",
+        "--source-root",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/copied-exact-pin"
+      ],
+      "cwd": "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/unrelated-cwd",
+      "exit_code": 1,
+      "expected": "rejected",
+      "stdout": "",
+      "stderr": "Source audit failed: Asset sections mismatch: README.md\n",
+      "passed": true
+    },
+    {
+      "name": "changed-behavior-anchor-digest",
+      "argv": [
+        "/opt/homebrew/opt/python@3.15/bin/python3.15",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/changed-behavior-anchor-digest/tools/autopilot/check-source.py",
+        "--source-root",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/copied-exact-pin"
+      ],
+      "cwd": "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/unrelated-cwd",
+      "exit_code": 1,
+      "expected": "rejected",
+      "stdout": "",
+      "stderr": "Source audit failed: Behavior source anchors mismatch: CODE-R31\n",
+      "passed": true
+    },
+    {
+      "name": "changed-regression-case-digest",
+      "argv": [
+        "/opt/homebrew/opt/python@3.15/bin/python3.15",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/changed-regression-case-digest/tools/autopilot/check-source.py",
+        "--source-root",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/copied-exact-pin"
+      ],
+      "cwd": "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/unrelated-cwd",
+      "exit_code": 1,
+      "expected": "rejected",
+      "stdout": "",
+      "stderr": "Source audit failed: Pinned regression identities, ranges, parameterization or digests mismatch\n",
+      "passed": true
+    },
+    {
+      "name": "changed-inventory-basis-digest",
+      "argv": [
+        "/opt/homebrew/opt/python@3.15/bin/python3.15",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/changed-inventory-basis-digest/tools/autopilot/check-source.py",
+        "--source-root",
+        "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/copied-exact-pin"
+      ],
+      "cwd": "/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap00012-provenance-c50cyjw_/unrelated-cwd",
+      "exit_code": 1,
+      "expected": "rejected",
+      "stdout": "",
+      "stderr": "Source audit failed: Inventory basis digest mismatch: expanded\n",
+      "passed": true
+    }
+  ],
+  "python_version": "3.15.2 (main, Oct 25 2026, 16:57:51) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "tested_revision": "70bd17f978c615b246fb852d633f59572de4a921",
+  "auditor_sha256": "71e6cfcd0ed5f246df3d808c1ba69cd7545d140093e8528fcd03f037ee54c6cd",
+  "verification_script_sha256": "88ee39b262470ee34f04f544f7a2e00c16c8e5d82d9ff711b387856b286b9679"
+}

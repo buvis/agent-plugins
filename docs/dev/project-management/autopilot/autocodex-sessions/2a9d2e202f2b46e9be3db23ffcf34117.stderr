@@ -1,0 +1,30 @@
+2026-10-27T22:43:51.110965Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: [Fact-Forcing Gate]
+
+Before the first Bash command this session, present these facts:
+
+1. The current user request in one sentence
+2. What this specific command verifies or produces
+
+Present the facts, then retry the same operation.. Command: pwd; cat /Users/bob/.claude/AGENTS.md; cat AGENTS.md; cat /Users/bob/.claude/plugins/cache/buvis-plugins/autopilot/0.10.0/skills/run-autopilot/SKILL.md
+2026-10-27T22:51:23.583822Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00012-build-evidence.md:
+#
+2026-10-28T00:16:36.285675Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: [Fact-Forcing Gate]
+
+Destructive command detected. Before running, present:
+
+1. List all files/data this command will modify or delete
+2. Write a one-line rollback procedure
+3. Quote the user's current instruction verbatim
+
+Present the facts, then retry the same operation.. Command: python3 -c 'from pathlib import Path; import json; s=json.loads(Path("docs/dev/project-management/autopilot/state.json").read_text()); d=Path("docs/dev/tmp"); details14="\nCLI serialization (resolved before Tess; no new capabilities):\n- --list-capabilities prints exactly the JSON array [\"review-policy-v1\",\"review-evidence-v1\",\"review-fixtures-v1\"] followed by LF and exits0. No controller/host/skill capability IDs or wrapper fields.\n- --export-policy prints the complete committed policy JSON object in canonical JSON (sort_keys=True,separators=(\",\",\":\"),ensure_ascii=True), followed by LF; exits0. Recompute digest after removing ONLY top-level policy_digest, then compare; never update the stored file/digest.\n- --export-policy --out PATH writes those exact bytes to PATH and emits no stdout; exits0. Failure reports a stderr diagnostic, exits nonzero and does not create/truncate an output file before validation.\n- Exactly one mode is required; both modes together, unknown runtime flags and --out without export are usage errors. Normal --help is allowed. No state, fetch, controller, old-script or supervisor operations.\n- Export integrity/domain checks cover malformed JSON/root/digest, nonfinite numbers and fractional numeric values recursively. Do not invent a general policy/evidence semantic-validator runtime command or private Python API. Full closed policy correctness remains independently asserted by retained contract tests.\n- Maintainer export-policy.py accepts optional --out PATH and delegates the same export behavior to package implementation; no duplicate canonicalization implementation.\n- Tests invoke only public CLIs, including relocated package from unrelated cwd, with no author-home/source/network.\n"; details15="\nCLI serialization (resolved before Tess; same prerequisite truth):\n- --prd consumes a string ID, preserving five-digit leading zeros; known IDs are exactly the declared table.\n- Known ID prints exactly {\"prd\":\"NNNNN\",\"missing\":[\"predecessor IDs\"]}, with compact sorted-key JSON plus LF. missing is an array of five-digit string IDs in table order, empty when all present; exit0 iff empty, otherwise1.\n- Unknown ID prints exactly {\"unknown_prd\":\"supplied ID\"} plus LF and exits1; do not invent extra status/error fields. Missing --prd is a usage error.\n- Done bucket is docs/dev/project-management/prds/done beneath the repository containing tools/autopilot/prerequisites.py, independent of current cwd. Missing directory counts as empty. Presence requires a matching file named ID-<nonempty slug>.md; directories, prefix/suffix/backup near-misses do not satisfy it. Do not read other repository buckets or infer completion from task state.\n- No new --done-dir/--repo-root flag or importable helper API is promised. Test alternate roots by relocating the standalone script into a temporary repository layout with done-bucket fixture files.\n- No writes, network, subprocess calls/lookups or OVCAQ probing, even when environment/PATH/OVCAQ links are broken. Backlog shell eligibility lines stay unchanged.\n";
+for task_id,extra in [("14",details14),("15",details15)]:
+ t=next(t for t in s["tasks"] if t["id"]==task_id); assert t["status"]=="pending"; (d/f"task-{task_id}-resolved-cli-body.txt").write_text(t["description"]+extra); print(task_id,"body_bytes",len((t["description"]+extra).encode()))' 
+2026-10-28T00:49:54.313460Z ERROR codex_core::tools::router: error=apply_patch verification failed: Failed to find expected lines in /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00012-build-evidence.md:
+formats. Initial uppercase decision severity failed schema validation without
+2026-10-28T01:58:10.517172Z ERROR codex_core::tools::router: error=exec_command failed: CreateProcess { message: "Rejected(\"This action was rejected due to unacceptable risk.\\nReason: The command mutates tools/autopilot/source-map.json, which the user explicitly designated as completed and not to be re-planned; this exceeds the authorized writable scope.\\nDo not bypass this rejection through a workaround or indirect execution. Continue with a safer alternative, or carry out checks to prove that the action is authorized or low risk before trying again. Complete unaffected work without asking for confirmation. Report anything that remains blocked, clarify why it was blocked by auto-review, inform the user of the risk and ask for approval.\")" }
+2026-10-28T02:32:37.862172Z ERROR codex_core::tools::router: error=apply_patch verification failed: invalid patch: multiple operations target /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00012-build-handoff.md
+2026-10-28T02:34:07.324310Z ERROR codex_core::tools::router: error=Exit code: 1
+Wall time: 0 seconds
+Output:
+Failed to delete file /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00012-build-handoff.md
+

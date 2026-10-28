@@ -1,0 +1,9 @@
+LOW | plugins/autopilot/scripts/autopilot.py:21 | `main` is about 45 lines. It mixes argument handling, a hardcoded root-key set (`_ROOT_KEYS`), the float walk, the digest check and the output write, all inside one `try`. | Move the load, check and serialize steps into a function that returns the output bytes. `main` then only parses arguments and writes. Behavior stays the same, and the exporter still delegates through `main`.
+
+LOW | plugins/autopilot/scripts/autopilot.py:63 | `args.out.write_bytes(output)` truncates and then writes in place. Validation already finished, so the contract holds. A write error such as a full disk leaves a truncated file at the target. | Write to a temp file in the same directory and `os.replace` it onto the target. Skip this if the contract only requires "no write before validation".
+
+LOW | plugins/autopilot/scripts/autopilot.py:38 | `json.loads` accepts duplicate object keys and keeps the last one. A policy file with duplicate keys therefore passes the digest check, because the digest is computed on the deduplicated value. A second implementation that rejects or keeps the first duplicate would compute a different digest, which conflicts with the "two independent implementations agree" requirement. | Pass `object_pairs_hook` that raises `ValueError` on a repeated key.
+
+LOW | tests/autopilot/test_facade.py:112 | In `test_policy_export_reproducible...`, the inline conditional that decides whether to add `--export-policy` is hard to read. The same prefix idiom is written out separately in other tests. | Use `prefix = ("--export-policy",) if script in (...) else ()` as the other tests do, or add a small `export_args(script)` helper.
+
+LOW | plugins/autopilot/CHANGELOG.md:7 | The new bullet is followed by a blank line before the next bullet. The other `### Added` bullets are contiguous. | Remove the blank line.

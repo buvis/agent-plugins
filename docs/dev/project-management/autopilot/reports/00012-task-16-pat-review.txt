@@ -1,0 +1,4 @@
+NO FINDINGS
+
+- **`tests/autopilot/test_package.py:132`, resolved.** The added comment above the `tested_package_revision` regex names the gap: the `.git`-free archive checks only the revision format, and `git show REV:path` was verified outside it. That is the first option my finding offered. The stale-revision case is still not checked in the test itself.
+- **`tests/autopilot/test_package.py:393`, resolved.** The delta adds `self.assertEqual(document["permissions"], {"contents": "read"})`. Removing or widening the workflow-level permissions now fails the test. The reported pass (8 passed, exit 0) shows the pinned value matches the current workflow.

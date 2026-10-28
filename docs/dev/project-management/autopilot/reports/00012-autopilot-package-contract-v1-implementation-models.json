@@ -1,0 +1,610 @@
+{
+  "fingerprint": "aca7b85369e1924a6b5fc597c03d575cd5571be014af4d4a9eea00d595790bc9",
+  "snapshot": {
+    "prd": "00012-autopilot-package-contract-v1.md",
+    "cycle": 1,
+    "work_start_sha": "b1e05c75d6f0dad01db35258baf565ecaf5a77ad",
+    "tasks": [
+      {
+        "id": "1",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "aborted"
+          },
+          {
+            "attempt": 2,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "3",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "escalated"
+          },
+          {
+            "attempt": 2,
+            "actual_model": "gpt-6-astra",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "4",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "aborted"
+          }
+        ]
+      },
+      {
+        "id": "5",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "6",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "7",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "8",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "9",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "10",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "11",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "12",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "13",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "14",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "escalated"
+          },
+          {
+            "attempt": 2,
+            "actual_model": "gpt-6-astra",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "15",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "escalated"
+          },
+          {
+            "attempt": 2,
+            "actual_model": "gpt-6-astra",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "16",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "escalated"
+          },
+          {
+            "attempt": 2,
+            "actual_model": "gpt-6-astra",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "17",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "18",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "19",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          },
+          {
+            "attempt": 2,
+            "actual_model": "gpt-6-astra",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "task": "1",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-worker-1-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "fd5a90a2fdc10ebcecc442363349356f6232840e8c1b6a677d523a13f5afcec5"
+    },
+    {
+      "task": "2",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-tess-2-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "f8079e4519f7c31804dd677fa1f4cb64ff2e38da7ea11fd434393fefdb1ee5c9"
+    },
+    {
+      "task": "2",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-2-tess-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "de10f4a5a4e8786bb56350b25feb64a0c18c88f07746144fc96c44c79be8d20e"
+    },
+    {
+      "task": "2",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-2-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "6449298bea11eb580217221687ebcb281622f9c96858b1517d44e8bb18d0f11e"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-tess-2-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "f8079e4519f7c31804dd677fa1f4cb64ff2e38da7ea11fd434393fefdb1ee5c9"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-3-tess-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "49df74f39952fdfb66f329f4c30c2d6caba57f21b3e5db2205c42a8a523f2bf7"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-3-tess-quality-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "d7f0e81ac50d27ce96142627013a74587bf8c285c18417b95b0bcf0468d79ae0"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-3-tess-astra-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "3f5e1127402bd497c56f6fe3b13bcf724a31031771c32b43a56d35c39c42a20c"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-3-ivan-astra-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "a25adccd78ff5d39e66b7d0fae3ec49b37050c49b66482309c12ac4b271708b4"
+    },
+    {
+      "task": "4",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-tess-2-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "f8079e4519f7c31804dd677fa1f4cb64ff2e38da7ea11fd434393fefdb1ee5c9"
+    },
+    {
+      "task": "4",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-17-tess-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "77f049df5e949ba16496a5593ce7c2b9d032706a7743c334a2022f4f010e8ef5"
+    },
+    {
+      "task": "4",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-18-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "f858b77f620c2bb6ff5ca63dc2545c6b1e84cb4df8786cbe9bb02e0819394a03"
+    },
+    {
+      "task": "5",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-5-tess-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "acf7091dc41cc6b84aa078e87edbba128b8470def2be1ad11d829f7f1df7aa3d"
+    },
+    {
+      "task": "5",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-5-tess-strengthen-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "0b62d25c5a6b9865f886b1613aaa81c0d9593bee0e745e9e238ffe207817d044"
+    },
+    {
+      "task": "5",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-5-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "8c33584f07da41b40ba0abc5e4cc5b16f034559a76cf4f4cb62e657dbfa0feba"
+    },
+    {
+      "task": "6",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-6-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "eafb0c9c84dd775f33bfd3edb11f5cd6882a262b78c6375a750f8cb03c170ee6"
+    },
+    {
+      "task": "7",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-7-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "db53a3c281acd8399ba6fc1decb08d8c8f01a8631badf8ee0084e3d4464321eb"
+    },
+    {
+      "task": "8",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-8-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "cc06800745449f9ac3c100a99e2143012228540177efbfddb0a25ca4a6815c93"
+    },
+    {
+      "task": "9",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-9-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "7536e7bd05ed476fddddf46de02403775f0303d1d512167483836487c39ebeb6"
+    },
+    {
+      "task": "10",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-10-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "fc8eecaf226f9f4831fe50f677bdf8f7adeac73856d6dbfce42210a66b3ecdfd"
+    },
+    {
+      "task": "11",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-11-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "3f519d85833c8aab1125c7d8a0490821c7d0ce4bb737ac99f65709647a89f131"
+    },
+    {
+      "task": "12",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-12-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "5423c3ad9c80054df6f403726e191f6d95333cc0857904d174fc681f8805b4c5"
+    },
+    {
+      "task": "13",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-13-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "aa8c3a17159e2268d5e9532f8de04828e434e60e9311286af78a445afb8c84fb"
+    },
+    {
+      "task": "14",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-14-tess-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "9c449e6f0fc0c53b3797b2aa564a52c3c001f1a9b7e739495bec312d8362bd29"
+    },
+    {
+      "task": "14",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-14-tess-astra-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "4033f94d02ac8d57f4fb032e2273f24a5728cce587df211ddcb3b8c16c7e3ff2"
+    },
+    {
+      "task": "14",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-14-ivan-astra-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "2e82d27b4342fc52611bc5934fa4dbd58cca224063c920204aa9dd8a8910ae0c"
+    },
+    {
+      "task": "14",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-14-style-astra-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "a9e7feed1b3c1c970702121a2a42228633144010a8474e330b9c72c94900e9d7"
+    },
+    {
+      "task": "15",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-15-tess-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "c872e72205f170702c1c96d630c115ec3175d2c4cfd9260218a404faf0d200d4"
+    },
+    {
+      "task": "15",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-15-tess-astra-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "c433d89be4d2ca8d398d45568886e52544d17d6a61e3809f7f1d480ade9a9718"
+    },
+    {
+      "task": "15",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-15-ivan-astra-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "1d165ccbea6a77b9b5ce42b045b0f5a6d5d1670db90076608375158adc72bd7c"
+    },
+    {
+      "task": "15",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-15-newline-astra-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "422cbca7f21d19e15cc4d8c25574dcd0364cde20aec6e989789be3143e26b48a"
+    },
+    {
+      "task": "16",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-16-tess-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "d618845b732b1f66e47ca1010ac54581b556f062628c900d1ba34ae62d64da0f"
+    },
+    {
+      "task": "16",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-16-tess-quality-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "343986a8f563a302407f39e7435fea66259e0019a9a6e96475906da7af5eca1a"
+    },
+    {
+      "task": "16",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-16-tess-astra-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "d3e0639f8255dcbe7d27268235582e5e3e7f99bc0ec3411dfa2f7758d814557b"
+    },
+    {
+      "task": "16",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-16-ivan-astra-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "b2d3dd00b91baad9fc6aec664be0dd6a4873c525fe5278c17409a7fe8e0c47cc"
+    },
+    {
+      "task": "16",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-16-tess-pat-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "f0da696c3b672ac7072c5c126a07a3bd5c4f0f7cf6fe38bb374621c9be89d1f9"
+    },
+    {
+      "task": "16",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-16-dependency-edit-native-metadata.jsonl",
+      "line": 1,
+      "sha256": "b8702c39b7f456c7e62c712ee11679f9000f43a25fc9ea7c13fad39751269bad"
+    },
+    {
+      "task": "17",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-17-tess-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "77f049df5e949ba16496a5593ce7c2b9d032706a7743c334a2022f4f010e8ef5"
+    },
+    {
+      "task": "18",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-18-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "f858b77f620c2bb6ff5ca63dc2545c6b1e84cb4df8786cbe9bb02e0819394a03"
+    },
+    {
+      "task": "19",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-19-ivan-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "8403c81c0dc321b86e0ef090153ca45f31ed411ceedb640d61b06a7dec5be4b0"
+    },
+    {
+      "task": "19",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-19-repair-astra-native-metadata.jsonl",
+      "line": 2,
+      "sha256": "b972053fbf3d2003c000985ea91318e560a757aef03c72a14168b0266d309145"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+LOW | tests/autopilot/test_package.py:132 | `assert_delivery_evidence` checks only that `tested_package_revision` is a 40-hex string. The task requires the receipt to be tested against a real package revision containing those bytes, and the archive test never checks that. A wrong or stale revision with a correct artifact hash would pass. | Keep the format check. Name the gap in the test comment, or add a check outside the archive (a full-clone CI step with `git cat-file`/`git show REV:path` hashed against `artifact_sha256`), if that is wanted.
+
+LOW | tests/autopilot/test_package.py:393 | The CI test asserts triggers, the `plugins` job steps and the `autopilot` job, but never checks the workflow-level `permissions` block. The task says to preserve permissions. | Add `self.assertEqual(document["permissions"], {...})` with the current value, so a removal or widening fails.
+
+LOW | tests/autopilot/test_package.py:215 | README content checks are loose keyword regexes, such as `r"(?is)(?:no|not|unavailable|uncertified)[^.]*\b(?:host|certif\w*)"` and the per-heading topic patterns. They would pass on prose that makes the opposite claim. The test comment says independent review covers this. | Assert the exact gating sentences, or the first-paragraph gate text, instead of topic keywords.
+
+LOW | tests/autopilot/test_package.py:196,300 | Two different heading regexes parse the same README: `[^\S\n]+` in `assert_readme_content` and `\s+` in the retention test. `\s+` can span lines. | Share one module-level `HEADING = re.compile(...)` and use it in both places.
+
+LOW | tests/autopilot/test_package.py:1 | The file is 461 lines, above the 200-400 typical target. It mixes the isolation guard, assignment and ownership validators, README checks and CI checks. | Move the assignment/ownership validators (`assert_assignments` and its helpers) into a sibling module, or keep as is if the single-archive fixture matters more.

@@ -1,0 +1,44 @@
+{
+  "session": "01a17f88-ae23-74f1-82b9-c39216049e6c",
+  "task_id": "13",
+  "phase": "build",
+  "source_transcript": "/Users/bob/.codex/sessions/2026/10/27/rollout-2026-10-27T23-43-46-01a17f88-ae23-74f1-82b9-c39216049e6c.jsonl",
+  "native_usage_field": "info.last_token_usage.input_tokens",
+  "native_window_field": "info.model_context_window",
+  "native_context_window": 475000,
+  "task_start_input": 374642,
+  "task_done_input": 390489,
+  "current_input": 390489,
+  "measured_task_context_cost": 15847,
+  "remaining": 84511,
+  "source_margin": 1.25,
+  "required_headroom": 19808.75,
+  "headroom_exhausted": false,
+  "start_event": {
+    "line": 1957,
+    "sha256": "cecc914c85b2385c24e73247b8425c2fa5d9bd4efbd1a9768ac07b702d1ea7a8",
+    "at": "2026-10-28T00:13:02.587Z"
+  },
+  "done_event": {
+    "line": 2087,
+    "sha256": "1d92104506ae6165264e9c666d594a2db4c9b697443d566d524835ae63e89b49",
+    "at": "2026-10-28T00:20:38.266Z"
+  },
+  "current_event": {
+    "line": 2087,
+    "sha256": "1d92104506ae6165264e9c666d594a2db4c9b697443d566d524835ae63e89b49",
+    "at": "2026-10-28T00:20:38.266Z"
+  },
+  "start_control": {
+    "line": 1970,
+    "sha256": "803c334e818da844b0828e70fa8e07dc3eb1aa397eec733592dc6c63e4108b7c",
+    "at": "2026-10-28T00:14:37.635Z"
+  },
+  "done_control": {
+    "line": 2077,
+    "sha256": "b278a0d37c511385407a1adde42cdab6029e3d449311b57a1b559bdfd6aa92f9",
+    "at": "2026-10-28T00:20:21.480Z"
+  },
+  "count_term": "not used: native batched orchestration exposes no Claude PostToolUse counter",
+  "note": "Actual native window only; no Claude setting, hard cap, planning budget or dispatch cap changed. Batched start-call measurement is conservative."
+}

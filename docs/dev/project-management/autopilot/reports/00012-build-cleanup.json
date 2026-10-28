@@ -1,0 +1,596 @@
+{
+  "kind": "recoverable-own-session-cleanup",
+  "archive": "/private/tmp/ap00012-build-scratch-3yrwlet4",
+  "files": [
+    {
+      "from": "docs/dev/tmp/tess-14-interfaces.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-14-interfaces.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-15-subject.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-15-subject.txt"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-13.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-13.json"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-14-ac.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-14-ac.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-13-files.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-13-files.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-14-description.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-14-description.txt"
+    },
+    {
+      "from": "docs/dev/tmp/tess-16-feedback.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-16-feedback.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-13-context.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-13-context.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-ivan-19.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-ivan-19.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-ivan-15-newline.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-ivan-15-newline.txt"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-15-escalated.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-15-escalated.json"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-16-rerun-2.md",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-16-rerun-2.md"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-9-checks.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-9-checks.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-15-files.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-15-files.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-9-context.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-9-context.txt"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-14-escalated.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-14-escalated.json"
+    },
+    {
+      "from": "docs/dev/tmp/tess-16-acceptance.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-16-acceptance.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-16-context.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-16-context.txt"
+    },
+    {
+      "from": "docs/dev/tmp/audit-implementation-models.py",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/audit-implementation-models.py"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-tess-16.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-tess-16.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-16-base.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-16-base.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-tess-15.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-tess-15.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-12-checks.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-12-checks.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-tess-14.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-tess-14.txt"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-12.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-12.json"
+    },
+    {
+      "from": "docs/dev/tmp/tess-15-interfaces.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-15-interfaces.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-16-ac.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-16-ac.txt"
+    },
+    {
+      "from": "docs/dev/tmp/tess-16-subject.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-16-subject.txt"
+    },
+    {
+      "from": "docs/dev/tmp/tess-15-subject.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-15-subject.txt"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-19.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-19.json"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-9.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-9.json"
+    },
+    {
+      "from": "docs/dev/tmp/task-16-meta.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-16-meta.json"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-12-files.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-12-files.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-15-newline-finding.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-15-newline-finding.txt"
+    },
+    {
+      "from": "docs/dev/tmp/tess-16-pat-feedback.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-16-pat-feedback.txt"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-16-escalated.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-16-escalated.json"
+    },
+    {
+      "from": "docs/dev/tmp/task-diff-8.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-diff-8.txt"
+    },
+    {
+      "from": "docs/dev/tmp/gate-900cbc7.log",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/gate-900cbc7.log"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-15.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-15.json"
+    },
+    {
+      "from": "docs/dev/tmp/tess-14-acceptance.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-14-acceptance.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-15-context.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-15-context.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-diff-9.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-diff-9.txt"
+    },
+    {
+      "from": "docs/dev/tmp/capture-native-metadata.py",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/capture-native-metadata.py"
+    },
+    {
+      "from": "docs/dev/tmp/task-19-repair-body.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-19-repair-body.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-14-files.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-14-files.txt"
+    },
+    {
+      "from": "docs/dev/tmp/tess-16-description.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-16-description.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-16-verification.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-16-verification.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-15-description.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-15-description.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-diff-19.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-diff-19.txt"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-14.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-14.json"
+    },
+    {
+      "from": "docs/dev/tmp/tess-15-acceptance.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-15-acceptance.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-10-context.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-10-context.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-10-checks.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-10-checks.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-16-final-body.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-16-final-body.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-9-files.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-9-files.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-16-prompt.md",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-16-prompt.md"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-19-files.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-19-files.txt"
+    },
+    {
+      "from": "docs/dev/tmp/pat-14-session.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/pat-14-session.txt"
+    },
+    {
+      "from": "docs/dev/tmp/tess-16-interfaces.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-16-interfaces.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-16-subject.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-16-subject.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-14-resolved-cli-body.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-14-resolved-cli-body.txt"
+    },
+    {
+      "from": "docs/dev/tmp/tess-16-quality.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-16-quality.txt"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-8.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-8.json"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-ivan-14-style.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-ivan-14-style.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-19-context.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-19-context.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-16-compact-context.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-16-compact-context.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-11-files.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-11-files.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-ivan-19-repair.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-ivan-19-repair.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-devon-14.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-devon-14.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-devon-15.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-devon-15.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-diff-16.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-diff-16.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-tess-16-strengthen.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-tess-16-strengthen.txt"
+    },
+    {
+      "from": "docs/dev/tmp/test-diff-16.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/test-diff-16.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-19-receipts-prepared.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-19-receipts-prepared.json"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-16-prior-2.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-16-prior-2.txt"
+    },
+    {
+      "from": "docs/dev/tmp/style-candidates-14.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/style-candidates-14.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-15-ac.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-15-ac.txt"
+    },
+    {
+      "from": "docs/dev/tmp/test-diff-14.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/test-diff-14.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-diff-14.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-diff-14.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-19-repair-checks.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-19-repair-checks.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-14-style-files.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-14-style-files.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-diff-15.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-diff-15.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-devon-16.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-devon-16.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-15-base.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-15-base.txt"
+    },
+    {
+      "from": "docs/dev/tmp/test-diff-15.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/test-diff-15.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-19-repair-base.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-19-repair-base.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-13-checks.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-13-checks.txt"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-16.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-16.json"
+    },
+    {
+      "from": "docs/dev/tmp/task-diff-11.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-diff-11.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-12-context.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-12-context.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-diff-10.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-diff-10.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-16-diff.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-16-diff.txt"
+    },
+    {
+      "from": "docs/dev/tmp/tess-14-description.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-14-description.txt"
+    },
+    {
+      "from": "docs/dev/tmp/native-headroom.py",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/native-headroom.py"
+    },
+    {
+      "from": "docs/dev/tmp/pat-16-session.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/pat-16-session.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-diff-12.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-diff-12.txt"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-19-repair.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-19-repair.json"
+    },
+    {
+      "from": "docs/dev/tmp/task-diff-13.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-diff-13.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-15-verification.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-15-verification.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-19-add.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-19-add.json"
+    },
+    {
+      "from": "docs/dev/tmp/task-diff-19-repair.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-diff-19-repair.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-14-subject.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-14-subject.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-15-prompt.md",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-15-prompt.md"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-deslop-9.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-deslop-9.txt"
+    },
+    {
+      "from": "docs/dev/tmp/tess-15-feedback.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-15-feedback.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-16-description.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-16-description.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-ivan-13.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-ivan-13.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-10-files.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-10-files.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-tess-15-strengthen.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-tess-15-strengthen.txt"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-11.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-11.json"
+    },
+    {
+      "from": "docs/dev/tmp/tess-15-description.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-15-description.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-ivan-12.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-ivan-12.txt"
+    },
+    {
+      "from": "docs/dev/tmp/pat-15-session.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/pat-15-session.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-deslop-8.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-deslop-8.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-deslop-15.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-deslop-15.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-ivan-10.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-ivan-10.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-11-context.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-11-context.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-11-checks.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-11-checks.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-16-meta-dependency.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-16-meta-dependency.json"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-16-full-prompt.md",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-16-full-prompt.md"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-ivan-11.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-ivan-11.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-deslop-14.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-deslop-14.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-14-context.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-14-context.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-deslop-10.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-deslop-10.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-ivan-15.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-ivan-15.txt"
+    },
+    {
+      "from": "docs/dev/tmp/prepare-package-ivan.py",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/prepare-package-ivan.py"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-tess-16-pat.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-tess-16-pat.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-16-concise-body.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-16-concise-body.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-ivan-14.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-ivan-14.txt"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-16-files.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-16-files.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-16-current-body.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-16-current-body.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-deslop-11.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-deslop-11.txt"
+    },
+    {
+      "from": "docs/dev/tmp/task-15-resolved-cli-body.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-15-resolved-cli-body.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-15-prior-2.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-15-prior-2.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-deslop-13.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-deslop-13.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-ivan-16.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-ivan-16.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-14-verification.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-14-verification.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-tess-16-quality.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-tess-16-quality.txt"
+    },
+    {
+      "from": "docs/dev/tmp/attempt-task-10.json",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/attempt-task-10.json"
+    },
+    {
+      "from": "docs/dev/tmp/ivan-19-checks.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/ivan-19-checks.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-15-rerun-2.md",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-15-rerun-2.md"
+    },
+    {
+      "from": "docs/dev/tmp/tess-14-subject.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/tess-14-subject.txt"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-ivan-9.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-ivan-9.txt"
+    },
+    {
+      "from": "docs/dev/tmp/prepare-delivery-task.py",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/prepare-delivery-task.py"
+    },
+    {
+      "from": "docs/dev/tmp/task-14-devon-feedback.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/task-14-devon-feedback.txt"
+    },
+    {
+      "from": "docs/dev/tmp/review-task-14-prompt.md",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/review-task-14-prompt.md"
+    },
+    {
+      "from": "docs/dev/tmp/dispatch-tess-14-strengthen.txt",
+      "to": "/private/tmp/ap00012-build-scratch-3yrwlet4/dispatch-tess-14-strengthen.txt"
+    }
+  ],
+  "rollback": "Move each archived file to its recorded original path",
+  "excluded": "Tracked files, older/unrelated scratch, live wrapper logs, unrelated worktree and operator planning scope remain unchanged"
+}

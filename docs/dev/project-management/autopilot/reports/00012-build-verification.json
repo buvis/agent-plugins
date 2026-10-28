@@ -1,0 +1,32 @@
+{
+  "kind": "observed-build-verification",
+  "tested_revision": "900cbc7d2ba05eb6d525b74cf7c7a7c48aaa2ddd",
+  "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q",
+  "test_process_exit": 0,
+  "runner_summary": "89 passed in 21.25s",
+  "source_verifier_exit": 3,
+  "canonical_receipt_written": false,
+  "reason": "Source verifier could not parse standard pytest summary; no last-verification.json was manufactured",
+  "raw_log": "docs/dev/project-management/autopilot/reports/00012-build-full-suite.txt",
+  "raw_log_sha256": "45d91c99d71483a657a52488a779a2ed10088d7b9418c75368b12f9ea566b66a",
+  "validator_tests": {
+    "command": "python3 -m unittest discover -s scripts",
+    "exit": 0,
+    "summary": "12 tests in0.021s; OK"
+  },
+  "validator": {
+    "command": "python3 scripts/validate.py",
+    "exit": 0,
+    "summary": "3 plugin packages;15 skills"
+  },
+  "explicit_source_audit": {
+    "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python tools/autopilot/check-source.py --source-root /Users/bob/git/src/github.com/buvis/claude-autopilot",
+    "exit": 0,
+    "source_commit": "e960ef1cc43e72bf92593b2f16c7a37c71ea7e48",
+    "source_files": 679,
+    "assets": 92,
+    "behaviors": 1381,
+    "regression_cases": 4950
+  },
+  "real_host_certification": "unavailable; no claim"
+}
