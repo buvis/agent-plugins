@@ -1,0 +1,935 @@
+{
+  "status": "unreviewed proposal; never apply wholesale",
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/state-schema.md",
+      "first": 285,
+      "last": 547
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/waves.md",
+      "first": 5,
+      "last": 249
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/use-codex/SKILL.md",
+      "first": 16,
+      "last": 94
+    }
+  ],
+  "source_context": [
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "lines": [
+        [
+          283,
+          "File: `docs/dev/project-management/autopilot/ledger/attempts.jsonl` (PRD 00143) - the durable per-repo record of every task attempt, written so that attempt outcomes outlive the per-PRD reset that drops `tasks[]` at PRD close. It sits in the same GC-exempt `ledger/` dir as `loop-metrics.jsonl`'s mirror and `fable-requests.json`, so it survives batch end and the 14d purge, and it is on the core `SKILL.md` \u00a7 Retention durable list."
+        ],
+        [
+          284,
+          ""
+        ],
+        [
+          285,
+          "**Writer.** `statectl.py <state> complete-prd <prd>` (Phase 9 step 4, `references/phase-done.md`) appends one row per entry of `state.tasks[].attempts[]` inside the same locked transaction as the close, BEFORE `batch.completed_prds` is appended and before the step-10 per-PRD reset. `cli/statectl.py`'s `append_attempt_rows` is the only writer: it creates `ledger/` and the file when absent, opens in append mode, never truncates, and writes a separating newline first when the existing file lacks a trailing one. A write failure (any `OSError`) is a `SchemaError`-class exit 1 (`rejected: ledger write failed: ...`) raised before `state.json` is touched: no `.bak` rotates, no record is appended, and the reset never runs without the rows. Zero attempts write nothing. The converse is not guarded: if the state write is rejected AFTER the rows landed (a schema failure or a disk error on `state.json` itself), the rows stay and a retried close appends them again, so readers dedupe on `(batch_id, prd, task_id, attempt.attempt)`."
+        ],
+        [
+          286,
+          ""
+        ],
+        [
+          287,
+          "One JSON object per line:"
+        ],
+        [
+          304,
+          "| `attempt` | object | The `tasks[i].attempts[j]` object verbatim (`tasks[].attempts` above), nothing added or normalized. |"
+        ],
+        [
+          305,
+          ""
+        ],
+        [
+          306,
+          "**Readers** (audit-qwen outside this plugin; `scripts/tune_routing.py`, PRD 00170, inside it) read the ledger instead of live state; an absent file means \"no closed PRDs yet\" and is never an error."
+        ],
+        [
+          307,
+          ""
+        ],
+        [
+          308,
+          "## Convergence rows"
+        ],
+        [
+          310,
+          "File: `docs/dev/project-management/autopilot/loop-metrics.jsonl` and its GC-exempt mirror `docs/dev/project-management/autopilot/ledger/loop-metrics.jsonl` (PRD 00188) - the `review_converged` event row that records, per PRD, how many review cycles it took to converge and under which cap, build models, attempt tiers and task counts. It shares the file with the per-session rows."
+        ],
+        [
+          311,
+          ""
+        ],
+        [
+          312,
+          "**Writer.** `cli/loop.py` `Loop._append_metrics` appends one row per PRD when a session launched as `review` exits with `next_phase: \"done\"`, after that session's own row and inside the same `try` as it, so it can never fail the loop; an unreadable or malformed `state.json` writes nothing (the session row already written stays). No skill prose writes it: PRD 00188 replaced the `phase-review.md` printf with this mechanical append."
+        ],
+        [
+          313,
+          ""
+        ],
+        [
+          314,
+          "One JSON object per row:"
+        ],
+        [
+          334,
+          "| `cycles` | object[] | One entry per cycle `n` in `1..state.cycle`, read from `docs/dev/project-management/reviews/<prd stem>-review-<n>.md` or its zero-padded twin `-review-<nn>.md`; a missing or unparseable file yields `null` in the three sub-keys below (never zeros: absence must not read as clean). |"
+        ],
+        [
+          335,
+          "| `cycles[].cycle` | int | `n`. |"
+        ],
+        [
+          336,
+          "| `cycles[].reviewers` | string[]? | The review file's frontmatter `reviewers:` line, comma-split (the same line `gate.py` reads). |"
+        ],
+        [
+          337,
+          "| `cycles[].verdict` | string \\| int? | Parsed with `gate.VERDICT_RE`: `\"converged\"` or the integer finding count. |"
+        ],
+        [
+          338,
+          "| `cycles[].findings` | object? | `{critical, high, medium, low}` counts of consensus table rows matching `^\\| \\[\\d+/\\d+\\] \\|`, bucketed by the first severity mark found in the row (\ud83d\udd34 critical, \ud83d\udfe0 high, \ud83d\udfe1 medium, \u26aa low). |"
+        ],
+        [
+          339,
+          ""
+        ],
+        [
+          340,
+          "**Readers**: `cli/render_metrics.load_event_rows` (the session loaders `load_rows` and `_ledger_rows` still drop event rows), `autopilot render report` (the `- Run conditions:` line; `no review_converged row` when the batch's file holds none for the PRD), and `scripts/tracon/model.py`. To answer the July-versus-August question (did the cap or the build model change the converged share?):"
+        ],
+        [
+          341,
+          ""
+        ],
+        [
+          342,
+          "```bash"
+        ],
+        [
+          375,
+          "| Field | Type | Description |"
+        ],
+        [
+          376,
+          "|-------|------|-------------|"
+        ],
+        [
+          377,
+          "| `status` | enum | Exactly one of `\"requested\"`, `\"approved\"`, `\"rejected\"`, `\"consumed\"`. The only legal transitions are `requested \u2192 approved`, `requested \u2192 rejected`, and `approved \u2192 consumed`; `rejected` and `consumed` are **terminal**. No other transition is legal, and the table is enforced in `fablectl.py`, not in prose. |"
+        ],
+        [
+          378,
+          "| `task_id` | string | The blocked task's id at request time. **Forensic only** (see below). |"
+        ],
+        [
+          379,
+          "| `task_name` | string | The blocked task's `state.tasks[i].name` at request time. **Forensic only** (see below). |"
+        ],
+        [
+          388,
+          "**`task_id` / `task_name` are forensic only.** Neither routes the retry: the stall handler clears `state.tasks` and the un-parked PRD replans from scratch, so no id or name recorded at request time survives. The retry is anchored to the PRD's next ladder exhaustion (`references/recovery.md` \u00a7 Rework escalation exhausted)."
+        ],
+        [
+          389,
+          ""
+        ],
+        [
+          390,
+          "**Reader tolerance.** An absent file means \"no requests\" and is never an error; `fablectl.py` creates it (and `ledger/`) on the first write. Unreadable JSON IS an error, not a silent reset: the file is never overwritten blind."
+        ],
+        [
+          391,
+          ""
+        ],
+        [
+          392,
+          "### `fablectl.py` - the sole writer"
+        ],
+        [
+          393,
+          ""
+        ],
+        [
+          394,
+          "`skills/run-autopilot/scripts/fablectl.py` is the only writer of the ledger (same advisory-lock + temp-file + `os.replace` idiom as the sibling `statectl.py`). Every verb takes the exclusive lock for the whole read-modify-write, so the latch check and the write are one atomic step."
+        ],
+        [
+          395,
+          ""
+        ],
+        [
+          396,
+          "```"
+        ],
+        [
+          397,
+          "python3 fablectl.py <ledger.json> request <prd> <task_id> <task_name> <batch_id> <justification-json>"
+        ],
+        [
+          398,
+          "python3 fablectl.py <ledger.json> decide  <prd> approved|rejected"
+        ],
+        [
+          399,
+          "python3 fablectl.py <ledger.json> consume <prd>"
+        ],
+        [
+          400,
+          "python3 fablectl.py <ledger.json> show    <prd>"
+        ],
+        [
+          401,
+          "```"
+        ],
+        [
+          402,
+          ""
+        ],
+        [
+          408,
+          "Exit codes: **0** success, **1** usage/bad argument, **2** unreadable ledger or an entry with a `status` outside `requested|approved|rejected|consumed`, **3** refused by the latch or the transition table, **4** an OS error (permission, unreachable path, disk), printed as a one-line diagnostic. Exit 3 is a *legitimate* outcome that callers branch on, never an error to retry; only 1, 2 and 4 mean something is broken."
+        ],
+        [
+          409,
+          ""
+        ],
+        [
+          410,
+          "**Backup and restore.** Every mutation first writes the previous bytes to `fable-requests.json.bak` inside the lock (one rotating backup, byte-for-byte, the same pattern `statectl.py` uses for `state.json`). The `.bak` lives in the same GC-exempt `ledger/` dir, so it survives batch end and the 14d purge alongside the ledger. Operator restore is a single move:"
+        ],
+        [
+          411,
+          ""
+        ],
+        [
+          412,
+          "```"
+        ],
+        [
+          416,
+          "then re-run the intended `autoclaude approve-fable <prd>` / `autoclaude reject-fable <prd>`."
+        ],
+        [
+          417,
+          ""
+        ],
+        [
+          418,
+          "**Operator fallback when `autoclaude` is unavailable.** Run every command below from the repo root: the ledger path is relative, and unlike `autoclaude approve-fable`/`reject-fable`, `fablectl.py` does not walk up the tree to find it, so any other cwd resolves to the wrong (or a missing) ledger. Invoke the sole writer by hand:"
+        ],
+        [
+          419,
+          ""
+        ],
+        [
+          420,
+          "```"
+        ],
+        [
+          421,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/fablectl.py docs/dev/project-management/autopilot/ledger/fable-requests.json decide <prd> approved"
+        ],
+        [
+          422,
+          "```"
+        ],
+        [
+          423,
+          ""
+        ],
+        [
+          515,
+          "## Build-Session Model Promotion Signals"
+        ],
+        [
+          516,
+          ""
+        ],
+        [
+          517,
+          "Governs which model launches a `build` (or empty, first-launch) phase session. Source: `build_model` in `cli/routing.py` (moved out of the bash wrapper by PRD 00106), called from the CLI loop's per-phase launch routing. This closes the promotion-signal half of the PRD's Phase 0 acceptance criterion \"Define `fable_request` and promotion-signal fields in state-schema.md\" (see \u00a7 Fable rescue ledger above for the `fable_request` half)."
+        ],
+        [
+          518,
+          ""
+        ],
+        [
+          519,
+          "**Precedence.** The `_AUTOPILOT_MODEL_BUILD` env override wins over everything: it is a kill switch \u2014 `route()` in `cli/routing.py` returns it without ever calling `build_model`, so no signal below can fire. Absent an override, any promotion signal firing launches `claude-opus-5[1m]`; with no override and no signal, the launch is `claude-sonnet-5[1m]`. Review-phase sessions always launch `claude-opus-5[1m]` at `xhigh` effort, and done-phase sessions always launch `claude-sonnet-5[1m]` at `medium` effort - separate branches of the same routing table, untouched by this per-PRD logic."
+        ],
+        [
+          520,
+          ""
+        ],
+        [
+          521,
+          "**Lanes (PRD 00205).** A solo-lane session (`references/lane-solo.md`) is a `build` session like any other: it runs at the session model this routing picks (`session_model`, default sonnet, or a promotion signal). `default_model` is inert in solo, which dispatches no implementor; `session_model: opus` is the author's tool for a solo PRD that needs the larger model."
+        ],
+        [
+          545,
+          "- `autopilot group-rework --findings <path>` \u2014 regroup rework tasks by file (see Phase 6 rework grouping)."
+        ],
+        [
+          546,
+          "- `autopilot review-stage --cycle-id <id> --gate-command <cmd> [--state <state.json>]` \u2014 stage a finished review file for the decision gate."
+        ],
+        [
+          547,
+          "- `autopilot cap-check --review-file <path> [--previous <path>] [--repo-root <path>]` \u2014 classify a review file's HIGH/CRITICAL findings as regressions introduced by the rework range between `--previous`'s `head_sha` and `--review-file`'s `head_sha` (`cli/cap_check.py`, PRD 00310). Prints one JSON line per classified row (`ref`, `severity`, `file`, `line`, `regression`, `commit`). Exit 1 when any row classifies `regression: true`, exit 0 otherwise (including when `--previous` is omitted or does not exist, or when no HIGH/CRITICAL row survives), exit 2 (`CapCheckError`, reason on stderr) on an unreadable file, a missing or malformed `head_sha`, or a git failure. Invoked by the loop-mode cap-out branch (`references/phase-review.md` Cap check) before a cap-overflow deferral."
+        ],
+        [
+          548,
+          ""
+        ],
+        [
+          549,
+          "## Skip Logic"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_sha256": "06fb468da688a4db0cd84a903d78bfc0aeb8e403aed36119a0645ec3255659c3",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/waves.md",
+      "lines": [
+        [
+          3,
+          "A wave runs several autopilot loops at once, one per **lane**: a slice of the PRD"
+        ],
+        [
+          4,
+          "backlog whose PRDs name no overlapping paths. `docs/dev/project-management/autopilot/wave.json` is"
+        ],
+        [
+          5,
+          "the whole control surface - `cli/wave.py` plans it, `cli/wave_launch.py` launches,"
+        ],
+        [
+          6,
+          "reports and aborts it, and nothing else reads or writes it (its shape:"
+        ],
+        [
+          7,
+          "`references/state-schema.md` \u00a7 Marker files). It is disposable at wave end,"
+        ],
+        [
+          179,
+          "lanes actually touched: `review_paths(wave)` writes that scoped list to"
+        ],
+        [
+          180,
+          "`docs/dev/project-management/autopilot/review-paths`, one repo-relative path"
+        ],
+        [
+          181,
+          "per line, and the nested loop's `gather-context.sh` filters on it instead of"
+        ],
+        [
+          182,
+          "gathering the whole repo."
+        ],
+        [
+          183,
+          ""
+        ],
+        [
+          241,
+          "An `autoclaude wave` alias for `autopilot wave run` exists at the"
+        ],
+        [
+          242,
+          "operator-shell layer, outside this PRD's scope: a one-line dotfiles change,"
+        ],
+        [
+          243,
+          "`caffeinate -is python3 \"$_skill/cli/__main__.py\" wave run \"$@\"`."
+        ],
+        [
+          244,
+          ""
+        ],
+        [
+          245,
+          "## Operator notes"
+        ],
+        [
+          247,
+          "**1. `WAVE_FORCE_SHARED` is this repo's own list.** The three paths it names -"
+        ],
+        [
+          248,
+          "`skills/run-autopilot/SKILL.md`, `skills/run-autopilot/references/state-schema.md`"
+        ],
+        [
+          249,
+          "and `skills/run-autopilot/cli/records.py` - are the files two PRDs edit at once"
+        ],
+        [
+          250,
+          "often enough that the cut refuses to split them across lanes: any two PRDs that"
+        ],
+        [
+          251,
+          "each touch one of the three are pulled into a single lane. In any other repo those"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_sha256": "eb6b977de437a1243454fb41e65a8ec5824bf42e0edcd85054c71367bc0a755b",
+      "destination_path": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "lines": [
+        [
+          14,
+          "# Codex Skill Guide"
+        ],
+        [
+          15,
+          ""
+        ],
+        [
+          16,
+          "Always run Codex through the `codex-run.sh` helper. The helper auto-detects its backend: it uses the native `codex` CLI when installed, and falls back to the `copilot` CLI otherwise. Always invoke the helper - never call `codex` or `copilot` directly - so backend detection and flag mapping stay correct."
+        ],
+        [
+          17,
+          ""
+        ],
+        [
+          18,
+          "- **codex backend** (preferred): OpenAI ChatGPT subscription, no per-request billing multiplier. Uses codex's own configured default model unless `-m` is passed."
+        ],
+        [
+          47,
+          ""
+        ],
+        [
+          48,
+          "1. Select the permission mode required for the task; default to no special flags (read-only) unless edits are necessary."
+        ],
+        [
+          49,
+          "2. Assemble the `codex-run.sh` command with appropriate helper flags:"
+        ],
+        [
+          50,
+          "   - `-m, --model MODEL` to override the model; on the copilot backend, ask the user first if the override is a higher-multiplier model"
+        ],
+        [
+          51,
+          "   - `-f, --file FILE` to pass the prompt (preferred - avoids shell escaping)"
+        ],
+        [
+          73,
+          "```bash"
+        ],
+        [
+          74,
+          "# Write prompt to temp file (see the shared dispatch contract), then run"
+        ],
+        [
+          75,
+          "bash ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh -f /tmp/codex-prompt.txt"
+        ],
+        [
+          76,
+          ""
+        ],
+        [
+          77,
+          "# With auto-approve tools"
+        ],
+        [
+          78,
+          "bash ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh -a -f /tmp/codex-prompt.txt"
+        ],
+        [
+          79,
+          ""
+        ],
+        [
+          80,
+          "# Override model (on copilot backend, only after user approval - higher multiplier may apply)"
+        ],
+        [
+          81,
+          "bash ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh -m gpt-5.5 -f /tmp/codex-prompt.txt"
+        ],
+        [
+          82,
+          ""
+        ],
+        [
+          83,
+          "# Full permissions"
+        ],
+        [
+          84,
+          "bash ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh -y -f /tmp/codex-prompt.txt"
+        ],
+        [
+          85,
+          ""
+        ],
+        [
+          86,
+          "# Capture output to file"
+        ],
+        [
+          87,
+          "bash ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh -a -o /tmp/result.txt -f /tmp/codex-prompt.txt"
+        ],
+        [
+          88,
+          "```"
+        ],
+        [
+          89,
+          ""
+        ],
+        [
+          90,
+          "Run `${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh --help` for all options."
+        ],
+        [
+          91,
+          ""
+        ],
+        [
+          92,
+          "## Hook doctor"
+        ],
+        [
+          93,
+          ""
+        ],
+        [
+          94,
+          "`${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex_hook_doctor.py` verdicts"
+        ],
+        [
+          95,
+          "every hook target registered in a codex `hooks.json` against the canonical"
+        ],
+        [
+          96,
+          "plugin source that owns it. It also treats every `*.py` file sitting"
+        ]
+      ]
+    }
+  ],
+  "proposed_rows": [
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 285,
+      "reference": "cli/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 285,
+      "reference": "statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 306,
+      "reference": "scripts/tune_routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "scripts/tune_routing.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 312,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/loop.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 336,
+      "reference": "gate.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "gate.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 340,
+      "reference": "scripts/tracon/model.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "scripts/tracon/model.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 377,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "fablectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 390,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "fablectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 392,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "fablectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 394,
+      "reference": "skills/run-autopilot/scripts/fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "skills/run-autopilot/scripts/fablectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 394,
+      "reference": "statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 397,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "fablectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 398,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "fablectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 399,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "fablectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 400,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "fablectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 410,
+      "reference": "statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 418,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "fablectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 421,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/fablectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 517,
+      "reference": "cli/routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/routing.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 519,
+      "reference": "cli/routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/routing.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 547,
+      "reference": "cli/cap_check.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/cap_check.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 5,
+      "reference": "cli/wave.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/wave.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 5,
+      "reference": "cli/wave_launch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/wave_launch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 181,
+      "reference": "gather-context.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "gather-context.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 243,
+      "reference": "$_skill/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "$_skill/cli/__main__.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 249,
+      "reference": "skills/run-autopilot/cli/records.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "skills/run-autopilot/cli/records.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 16,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 49,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 75,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 78,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 81,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 84,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 87,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 90,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 94,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex_hook_doctor.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex_hook_doctor.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    }
+  ],
+  "existing_rows": [
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 306,
+      "reference": "scripts/tune_routing.py",
+      "kind": "external-capability",
+      "status": "planned",
+      "capability": "scripts/tune_routing.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 340,
+      "reference": "scripts/tracon/model.py",
+      "kind": "external-capability",
+      "status": "planned",
+      "capability": "scripts/tracon/model.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 7,
+      "reference": "references/state-schema.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 132,
+      "reference": "references/recovery.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 25,
+      "reference": "references/dispatch-contract.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/use-codex/references/dispatch-contract.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    }
+  ]
+}

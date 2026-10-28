@@ -1,0 +1,207 @@
+{
+  "status": "unreviewed proposal; never apply wholesale",
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/state-schema.md",
+      "first": 198,
+      "last": 217
+    }
+  ],
+  "source_context": [
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "lines": [
+        [
+          196,
+          "| `tasks[].qwen_eligible` | bool? | Qwen routing eligibility (PRD 00174): backend (not UI) AND tier \u2208 {`haiku`, `sonnet`} AND exactly one non-empty expected implementor-writable file AND no public-contract edit. Empty or missing file slices are ineligible. Set by plan-tasks step 4.7's tier classifier; persisted directly in `state.tasks[]`. `/autopilot:work` reconciles this flag against concrete `FILE_PATHS` before routing, without rewriting the plan; absent (legacy plans) is treated as `false`. |"
+        ],
+        [
+          197,
+          "| `tasks[].qwen_excluded_reason` | string? | Why plan-tasks step 4.7 excluded the task from qwen routing: `\"ui\"`, `\"tier\"`, `\"contract\"`, or `\"files\"` (first failing condition in that order; `files` includes zero and two-or-more writable files). Set by plan-tasks step 4.7's tier classifier on every ineligible task (PRD 00019); persisted directly in `state.tasks[]`. Absent on eligible tasks and legacy plans \u2014 the Phase 9 Implementor Mix render counts an ineligible task with no reason as `unknown`, never an error. |"
+        ],
+        [
+          198,
+          "| `tasks[].tier_reason` | string? | Why the planner assigned the task its tier **at plan time**. Legal values: `\"test_port\"` (every path in the task's slice is a test path, pinned to `sonnet`), `\"packaging\"` (every path is a test or packaging path, pinned to `sonnet`), `\"contract\"` (the task itself edits a public contract, so `opus`), `\"algorithmic_risk\"` (the task's own Details name a new algorithm, shared mutable state, or a migration, so `opus`), `\"mechanical\"` (the haiku row), `\"default\"` (the `sonnet` fallback), and `\"floor\"` (the PRD frontmatter `default_model` floor raised the classified tier). Written once by `/autopilot:plan-tasks` step 4.7 from `classify_tier.py`'s output; persisted directly in `state.tasks[]` and **never rewritten afterwards**: a later escalation rewrites `model` only, and `attempts[]` carries that history, so `model: \"opus\"` with `tier_reason: \"mechanical\"` is an escalated task, not a corrupt record. No reason maps to `fable` (see the `tasks[].model` row). Absent on plans created before PRD 00160. |"
+        ],
+        [
+          199,
+          "| `tasks[].description` | string? | Free-form detail about what the task must achieve, beyond the one-line `name`. Validated by `cli/schema.py`: optional, and when present must be a `str` (any other type \u2014 including `bool` \u2014 is rejected as `tasks[<i>].description`). Absent on tasks that carry only a `name`. |"
+        ],
+        [
+          200,
+          "| `tasks[].blocked_by` | int[]? | Integer references to the tasks this one waits on. Validated by `cli/schema.py`: optional, and when present must be a `list` whose every element is a plain `int` \u2014 `bool` elements are rejected, matching the bool-is-not-int rule the int fields already use. An empty list is valid. Absent on tasks with no dependencies. |"
+        ],
+        [
+          201,
+          "| `tasks[].started_at` / `tasks[].done_at` | int? | Epoch-second wall-clock stamps alongside `usage_at_start`/`calls_at_start` and `usage_at_done`/`calls_at_done`: `started_at` is stamped by `autopilot_context_cap_hook.py`'s `record_task_bounds` on the same fire as the START pair (the first PostToolUse after the task turns `in_progress`), `done_at` on the same fire as the DONE pair (the first after it turns `completed`). Both are stamped once and never replaced afterwards, even across a session rotation. Absent until the matching fire occurs. |"
+        ],
+        [
+          202,
+          "| `tasks[].carry_refs` | string[]? | Upper-cased `Ref` cells of every consolidated-findings row that re-queued THIS task as `[C{cycle}]`, unioned across every cycle that re-flagged it (`references/phase-review.md` Phase 6 step 4 and `references/recovery.md` \u00a7 Rework escalation exhausted's Fable rescue gate both write it via `task-set-meta`). `autopilot review-close` (`cli/review_close.py` `_carry_unmatched`) is the sole reader: a `carry`-classified findings row is accepted only when its `ref`, upper-cased, appears here with the matching `carry_cycle`. Absent on a task never re-queued by a review flag. |"
+        ],
+        [
+          203,
+          "| `tasks[].carry_cycle` | int? | The review cycle whose `carry_refs` union is current \u2014 set alongside `carry_refs` on every write, always `state.cycle` at write time. `autopilot review-close` requires `carry_cycle == state.cycle` in addition to the ref match (a stale cycle's union does not back a later cycle's carry row). Absent on a task never re-queued by a review flag. |"
+        ],
+        [
+          204,
+          "| `task_aborts` | object[] | Per-task abort log: `{\"task_id\": string, \"turn\": int, \"total_input_tokens\": int, \"cause\": \"subagent_prompt_overrun\"}`. One writer: `/autopilot:work` Subagent Dispatch Budget appends a `cause: \"subagent_prompt_overrun\"` entry when an assembled subagent prompt exceeds 50K after one trim pass. (The context cap no longer writes here \u2014 it ROTATES, appending to `cap_rotations`.) Sets `turn: -1` when the actual turn is unknown (the assembly carries no turn counter). Empty array on fresh state. **`task_aborts[]` is ephemeral per-PRD state \u2014 Phase 9 step 10 clears it on PRD completion.** |"
+        ],
+        [
+          205,
+          "| `cap_rotations` | object[]? | Context-cap rotation log: `{\"task_id\": string, \"cycle\": int, \"phase\": \"build\"\\|\"review\"}` (`phase` since PRD 00196; entries written before it carry none and were all build rotations). Appended by `autopilot_context_cap_hook.py` when a Work turn during `build`, or during review-phase rework (`rework_task_ids` non-empty), exceeds the hard usage cap (`USAGE_CAP`, 500K) or the 450-call tripwire \u2014 a ROTATION, not a replan: the hook also sets `next_phase` to the phase it left and resets the in-flight task's status from `in_progress` to `pending` (so the fresh session's `/autopilot:work`, which iterates pending tasks, re-attempts it as the first non-completed task; a review session resumes at Phase 6 via Phase 4's third skip). The Stop hook then writes the `next` signal on STOP (the model writes no signal). Apart from the one in-flight task's `status`, leaves `tasks`, `phases_completed`, and `replan_count` untouched; writes no `stall_reason` and no `replan-context.md`. **Livelock guard:** if the last entry already names the in-flight task in the same phase, a second consecutive fire on the same task sets `stall_reason.stalled == \"oversized_task\"` (and `next_phase` to that phase) instead of appending another rotation (one oversized task costs at most two rotations before a loud stall); a build-era entry never counts against the task's fresh attempt in review. Ephemeral per-PRD state \u2014 Phase 9 step 10 clears it. Absent on fresh state and on plans created before this field existed. |"
+        ],
+        [
+          206,
+          "| `replan_count` | int? | Number of replans applied to the current PRD after Phase 0 saw a `subagent_prompt_overrun` stall (the one surviving replan trigger; a context-cap fire rotates instead and leaves `replan_count` unchanged). Incremented by Phase 0's replan procedure before each retry. Each replan tightens the per-task budget by halving (floored at 40K) \u2014 see `recovery.md` \"Budget floor guard\" for the `target_budget = max(40000, int(75000 / (2 ** (replan_count - 1))))` schedule. Phase 0 PAUSEs only when `replan_count > 5` AND the same task keeps aborting (genuinely execution-overflowing, not capability-bound). Reset to 0 by Phase 9 step 10 when the PRD completes. Absent or 0 means the current PRD has not been replanned. |"
+        ],
+        [
+          207,
+          "| `work_start_sha` | string? | Git `HEAD` SHA captured at Phase 3 start, immediately before `/autopilot:work` is dispatched. Bounds the commit range `work_start_sha..HEAD` produced by this PRD's `/autopilot:work` dispatches \u2014 read by Phase 8 to scope the codex doubt review's diff (`<work_start_sha>..HEAD`). Captured once per PRD; in a multi-PRD batch each PRD overwrites it with current HEAD at Phase 3 start, so ranges never overlap. **Empty-tree fallback (PRD 00084):** when `git rev-parse HEAD` fails at capture (unborn branch / no commits yet), this is set to the git empty-tree sentinel `4b825dc642cb6eb9a060e54bf8d69288fbee4904` so the review range spans the whole tree instead of being undefined (core `SKILL.md` \u00a7 Phase 3 invariants). Cleared by Phase 9 step 10 on PRD-to-PRD reset. Optional: absent on plans created before this field was introduced, and on PRDs where Phase 3 has not yet run. |"
+        ],
+        [
+          211,
+          "| `qwen_gate_failures_consecutive` | int? | Consecutive qwen capability failures (pre-commit output rejection or step-5.5 gate failure), counted among qwen attempts ONLY (PRD 00065) \u2014 a non-qwen task (Claude/Gemini) between two qwen failures leaves it UNCHANGED (neither reset nor incremented). Only a qwen gate PASS resets it to 0; batch rollover also resets it. Incremented per qwen gate failure. Latches the breaker at 2. Owned entirely by `/autopilot:work`. Legacy state lacking the field: readers treat it as 0. |"
+        ],
+        [
+          212,
+          "| `qwen_breaker` | object? | Qwen capability breaker state (PRD 00065): `{\"tripped\": bool, \"after_task\": \"<task-id>\"\\|null, \"failed_tasks\": [\"<id>\", ...], \"batch_id\": \"<batch.id>\"}`. `tripped:true` once the counter reaches 2. `after_task` = the task id whose failure tripped it; `failed_tasks` = the two consecutive failing ids; `batch_id` = the batch this breaker state belongs to. Batch-scoped: `/autopilot:work` resets the breaker lazily when `qwen_breaker.batch_id != state.batch.id` (fallback id `\"no-batch\"` for a manual `/autopilot:work` run with no `state.batch`). Once tripped, stays tripped for the rest of the batch. Legacy state lacking the field: readers treat it as `{tripped:false}`. |"
+        ],
+        [
+          213,
+          "| `codex_probe` | object? | Batch-scoped codex health probe result (PRD 00077): `{\"batch_id\": \"<state.batch.id>\"\\|\"no-batch\", \"verdict\": \"healthy\"\\|\"unhealthy\", \"backend\": \"codex\"\\|\"copilot\", \"detail\": \"<one-line cause>\"\\|null, \"checked_at\": \"<ISO 8601>\", \"hook_doctor?\": \"ok\"\\|\"stale: <basenames>\"\\|\"<doctor summary line>\"\\|\"doctor error: <config path>\"}`. Written once per batch by the codex batch health probe (`work` SKILL.md \u00a7 Batch codex health probe) and read by the step-3 routing interception before any codex dispatch. Batch-scoped with the same LAZY reset `qwen_breaker` uses: `/autopilot:work` re-probes and overwrites the slice when `codex_probe.batch_id != state.batch.id` (fallback id `\"no-batch\"` for a manual run with no `state.batch`); a match reuses the cached verdict and never re-probes. Writers MAY carry additional descriptive keys beyond these five (the live probe also stamps `model` and `note`); readers ignore unknown keys. Absent on legacy state files: readers treat absence as \"not yet probed\", never an error. **`hook_doctor`** (optional): the doctor-first sub-probe's own verdict (`work/references/codex-implementor.md` \u00a7 Codex batch health probe), from `codex_hook_doctor.py check` run before the live probe. `\"ok\"` when the doctor exits 0; `\"stale: <basenames>\"` when it exits 3 (the stale/no_canonical targets' basenames). On doctor exit 1 or 2 the live probe is skipped entirely and `verdict` is forced `\"unhealthy\"`, but the two exits document DIFFERENT `detail`/`hook_doctor` shapes because the doctor's own output differs on each path: on **exit 1** (a broken target exists) `hook_doctor` carries the doctor's own summary line (`\"<n> ok, <n> stale, <n> broken\"`) and `detail` carries `\"hook_doctor: <the first broken TSV line>\"`; on **exit 2** (the doctor itself could not run: the config is missing, unreadable, not JSON, or has no `hooks` object; an event entry is malformed; a command does not tokenize; the plugin manifest has no `aegis@buvis-plugins` entry; or a target I/O call failed. On this path it emits neither a TSV line nor a summary line, only a single `error: <reason>` line to stderr that names the cause) `hook_doctor` carries `\"doctor error: <config path>\"` and `detail` carries `\"hook_doctor: <the doctor's stderr error line>\"`. Absent on state files written before the doctor-first probe existed. |"
+        ],
+        [
+          214,
+          "| `qwen_preflight` | object? | Batch-scoped qwen preflight probe result (PRD 00093), mirroring `codex_probe`'s shape and idiom: `{\"batch_id\": \"<state.batch.id>\"\\|\"no-batch\", \"verdict\": \"healthy\"\\|\"pi_missing\"\\|\"endpoint_unreachable\"\\|\"model_id_missing\"\\|\"completion_failed\", \"detail\": \"<the failing check's own detail string>\"\\|null, \"checked_at\": \"<ISO 8601>\"}`. `verdict` reuses the four existing `preflight_outcome` strings directly \u2014 no separate `\"unhealthy\"` wrapper. Written once per batch by `work` SKILL.md \u00a7 Qwen infra preflight (step 3 routing row 5) and read there before every qwen-eligible dispatch. Batch-scoped with the same LAZY reset `codex_probe`/`qwen_breaker` use: `/autopilot:work` re-probes and overwrites the slice when `qwen_preflight.batch_id != state.batch.id` (fallback id `\"no-batch\"`); a match reuses the cached verdict and never re-probes. **Re-probe trigger is scoped to backend-health signals, not task-outcome signals** \u2014 an ordinary step-5.5 gate failure on a qwen attempt does NOT invalidate the cache (that is the one-shot-to-Sonnet escalation's job); only a Subagent Watchdog hang/lost-result on the qwen dispatch itself, or an infra-shaped exit from `qwen-run.sh` at real dispatch time despite a cached `\"healthy\"` verdict, deletes the field via `statectl del qwen_preflight`, so the next qwen-eligible task's batch-scope check re-probes. Absent on legacy state files: readers treat absence as \"not yet probed\", never an error. |"
+        ],
+        [
+          215,
+          "| `stall_reason` | object? | Signals a pending recovery action. Three shapes: `{\"stalled\": \"oversized_task\", \"task\": \"<id>\", ...}` (written by `/autopilot:plan-tasks` when a task can't be split below budget \u2014 carries `estimated_tokens?: int`; AND by `autopilot_context_cap_hook.py`'s livelock guard on a second consecutive cap fire for the same in-flight task \u2014 carries `total_input_tokens: int`; both trigger a stall move to `docs/dev/project-management/prds/hold/`); `{\"stalled\": \"subagent_prompt_overrun\", \"task\": \"<id>\", \"prompt_bytes\": int}` (written by `/autopilot:work` Subagent Dispatch Budget when an assembled subagent prompt exceeds 50K after one trim pass \u2014 triggers Phase 0's **replan procedure**, not a stall move; see `replan_count` and `/autopilot:run-autopilot` Phase 0 \"Handle Work-phase abort\"); `{\"stalled\": \"escalation_exhausted\", \"task\": \"<id>\"}` (written by `/autopilot:run-autopilot` Phase 6 when a task at tier `opus` fails rework \u2014 Phase 6 performs its own stall move inline); `{\"stalled\": \"taskcreate_failed\", \"detail\": \"<error>\"}` (written by `/autopilot:plan-tasks` step 4 when a `task-add` call fails mid-plan, after it rolls back the tasks it already created \u2014 PRD 00084; the `taskcreate_failed` value is a retained legacy key name, not a live tool reference; Phase 2 folds any non-`oversized_task` stall into its `plan_tasks_fail` PAUSE / loop re-invoke-once path, and `/autopilot:plan-tasks` clears this marker itself on a successful retry). **Merged** (not replacing) into state by the writer, then **cleared** by `/autopilot:run-autopilot`. Lifecycle handoff: Phase 2 handles `oversized_task` inline with a stall move; Phase 0 of the next session handles `subagent_prompt_overrun` via the replan procedure (no stall move \u2014 the PRD stays in `wip/`, planning re-runs with `replan-context.md`); Phase 6 handles `escalation_exhausted` inline (it owns the rework path and does its own move + clear before signaling \u2014 Phase 0 should never see this in normal operation, and treats it as crash recovery if it does). The context cap no longer writes `stall_reason` on a normal overrun \u2014 it ROTATES (see `cap_rotations`); only its livelock guard escalates to `oversized_task`. Absent in normal operation. |"
+        ],
+        [
+          216,
+          "| `cap_pause_reason` | object? | Set by Phase 5 when the rework cap is hit AND the current review did not converge (`cycle >= rework_cap` AND unresolved findings remain). A clean cycle-at-cap convergence does NOT trigger cap-pause \u2014 it falls through to Phase 7 hand-off. Records the unresolved review findings and the cycle count. Shape: `{\"cycle\": int, \"cap\": int, \"unresolved_findings\": object[]}`. **Distinct from `stall_reason`'s `oversized_task`, `subagent_prompt_overrun`, and `escalation_exhausted` shapes** \u2014 `cap_pause_reason` is a separate top-level state field, not another `stall_reason` discriminator. The authoritative, durable indicator of a cap pause is `phase == \"paused\"` PLUS this field \u2014 not `needs_attention`. Cleared by (a) the Phase 0 Cap-Pause Resume Handler on user \"resume\", (b) Phase 9 step 10's PRD-to-PRD reset, and (c) the per-PRD reset lists in `recovery.md`. Previously only (a) applied \u2014 a cap pause halts the flow before Phase 9, so Phase 9 step 10 never observed this field in normal operation \u2014 but (b) and (c) are now added as defense-in-depth against the residual-leakage path (a manual \"abandon\" followed by a manual PRD move, which falls outside the automated flow). Absent in normal operation. |"
+        ],
+        [
+          217,
+          "| `pause_reason` | object? | Set by every turn-ending PAUSE row alongside `phase == \"paused\"` / `next_phase == \"paused\"`. Shape: `{\"site\": string, \"detail\": string}`. `site` is a stable slug, one of: `\"sub_skill_fail\"`, `\"reviewer_fail\"`, `\"plan_tasks_fail\"`, `\"mv_verify\"`, `\"batch_end\"`, `\"replan_exhausted\"`, `\"work_incomplete\"`, `\"systemic_park\"`, `\"statectl_fail\"`. **`statectl_fail`** (PRD 00084; flow revised by PRD 00051 task 9) names a `statectl` state-write that failed twice (lock contention, python error, unreadable state). The model no longer hand-edits `state.json` to record it: after retry + `autopilot restore` the failure is signaled via the `state-write-failed` marker (\u00a7 Marker files) and the turn ends \u2014 the wrapper halts on the marker without needing a `pause_reason` write. The slug remains in this enum for states written by older sessions and for the loop-mode stall record that uses the same site. **`systemic_park`** (PRD 00066) is written by the Phase 0 park handler when `batch.parks_consecutive` reaches 2 (sanctioned-halt row 9). **Converted out of this enum by PRD 00066:** `blocking_escalation` and `scope_alarm` no longer write `pause_reason` \u2014 in loop mode a blocking escalation runs the Loop-mode stall procedure (deferred-JSON `type:\"stall\"`, `site:\"blocking_escalation\"`) and a scope alarm defers-and-continues; interactively both remain mid-turn `AskUserQuestion` prompts. `clarification` likewise pauses no batch: a Phase 2 ambiguity is assumed through, or stalls (`site:\"clarification\"`) under `pause_on_ambiguity: true`. `detail` is a one-line human-readable string; free-form, not parsed by any consumer. **Lifecycle invariant: `pause_reason` is present ONLY during an unresolved pause.** Cleared by (a) the pre-Phase-0 `### Resuming` session-start cleanup, unconditionally, on EVERY resume; (b) the Phase 9 step 10 PRD-to-PRD reset; and (c) every per-PRD reset list in `recovery.md`. NOT overwritten by normal phase progression \u2014 this is the difference from `phase` (which advances on every transition), and the reason the explicit clears above exist. Cap-pause keeps its own `cap_pause_reason` marker and does NOT write `pause_reason`. Read by the CLI loop's decision table (`cli/loop.py`; a pause marker stops the loop and surfaces `detail` in the notification). Absent on fresh state and whenever no pause is active. |"
+        ],
+        [
+          218,
+          "| `review_cycles` | object[] | History of each review cycle. Each entry: `{\"cycle\": int, \"review_file\": \"<path>\", \"agents\": {\"alice\": \"...\", \"bob\": \"...\", \"carl\": \"...\", \"diana\": \"...\"}, \"issues_found\": int, \"follow_up_tasks\": int, \"deferred\": int, \"recurring_issues\": string[]}`. Cycles 3+ may also carry `decision_gate`, `rework_commits`, `rework_notes`, `cycle3_fix_audit`, `test_run` written by user-override paths (see live state for examples). |"
+        ],
+        [
+          219,
+          "| `review_cycles[].recurring_issues` | string[] | Issue descriptions that appeared in a previous cycle |"
+        ]
+      ]
+    }
+  ],
+  "proposed_rows": [
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 198,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "classify_tier.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 199,
+      "reference": "cli/schema.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/schema.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 200,
+      "reference": "cli/schema.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/schema.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 201,
+      "reference": "autopilot_context_cap_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "autopilot_context_cap_hook.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 202,
+      "reference": "cli/review_close.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/review_close.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 205,
+      "reference": "autopilot_context_cap_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "autopilot_context_cap_hook.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 213,
+      "reference": "codex_hook_doctor.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "codex_hook_doctor.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 214,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "qwen-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 215,
+      "reference": "autopilot_context_cap_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "autopilot_context_cap_hook.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 217,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/loop.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    }
+  ],
+  "existing_rows": []
+}

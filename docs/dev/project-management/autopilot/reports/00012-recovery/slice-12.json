@@ -1,0 +1,150 @@
+{
+  "status": "unreviewed proposal; never apply wholesale",
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/state-schema.md",
+      "first": 182,
+      "last": 190
+    }
+  ],
+  "source_context": [
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "lines": [
+        [
+          180,
+          "| `consensus_engine` | enum? | Engine behind Alice's consensus leg for the current PRD. Parsed by Phase 0 step 4 from PRD frontmatter field `consensus_engine:`; accepted values `legacy` (default), `shadow`, `workflow`; defaults to `legacy` when absent, unrecognized, or on malformed frontmatter (one-line warning on the unrecognized-value / malformed path, none on plain absence). Read by `review-work-completion` step 1: `legacy` runs today's single review subagent unchanged; `workflow` makes the `review-fanout` workflow Alice's leg (dimension fan-out, dedup, adversarial verify); `shadow` runs both, legacy gating and the workflow recorded as a non-gating observation. Per-PRD scope, re-derived by Phase 0 step 4 from the next PRD's frontmatter on every PRD-to-PRD transition (default `legacy`), so it needs no explicit Phase 9 step 10 clear. The workflow's `runId` is NOT stored here \u2014 it is stamped into the review file's `consensus_run_id` frontmatter, because `resumeFromRunId` is same-session only. |"
+        ],
+        [
+          181,
+          "| `session_model` | enum? | Model the build session launches on for the current PRD (PRD 00200). Parsed by Phase 0 step 5 from PRD frontmatter field `session_model:`; accepted values `sonnet` (default) and `opus`; defaults to `sonnet` when absent (silently) or unrecognized (one-line warning). Read by `cli/routing.build_model` as promotion signal 1 (\u00a7 Build-Session Model Promotion Signals below), which re-reads the PRD's own frontmatter rather than this mirror. `default_model` is NOT this field: it floors the per-task tier for `/autopilot:plan-tasks` and no longer picks the orchestrator. Per-PRD scope, re-derived by Phase 0 from the next PRD's frontmatter on every PRD-to-PRD transition, so it is deliberately not in `records.PER_PRD_RESET_FIELDS`. Absent on state files written before this field existed. |"
+        ],
+        [
+          182,
+          "| `lane` | enum? | The effort lane `cli/lane.py` classified the current PRD into: `solo`, `fast-track` or `full`. Written by Phase 0 step 5 (the `frontmatter` verb) from the PRD text and its flat frontmatter pairs: a `lane:` override wins (`override`), else a hook path, a security-ish path, no named path or `design:` other than `skip` route to `full`, zero production paths to `solo`, a card-sized PRD to `fast-track`, the rest to `full` (PRD 00204). An invalid `lane:` value warns once and takes the classified lane; an absent key is silent. Re-derived per PRD at Phase 0, so it is NOT in `cli/records.PER_PRD_RESET_FIELDS`. Absent on plans created before this field existed. |"
+        ],
+        [
+          183,
+          "| `lane_reason` | string? | The first classifier rule that matched: `override`, `hook`, `security_path`, `unparsed`, `design`, `no_production_code`, `card_sized` or `uncardable`. Written beside `lane` by the same verb; rendered in the batch report's `- Lane:` line. Re-derived per PRD at Phase 0. |"
+        ],
+        [
+          184,
+          "| `lane_effective` | enum? | The lane that actually runs: `lane` when it is in `lane.RELEASED_LANES` (`full`, `solo` since PRD 00205, `fast-track` since PRD 00206) and `_AUTOPILOT_LANES` is not `off`, else `full` (an unreleased lane is recorded and rendered, acted on by nothing; step 5.5 prints the `running full` banner when it differs from `lane`). The fast-track runbook rewrites it to `full` with `lane_reason: \"uncardable\"` when `cards_from_prd.py` refuses the PRD. `_AUTOPILOT_LANES=off` in the loop environment forces `full` for every PRD; the `frontmatter` verb is that knob's one reader. Copied into every `loop-metrics.jsonl` session row and the closing `batch.completed_prds` record. Re-derived per PRD at Phase 0. |"
+        ],
+        [
+          185,
+          "| `lane_escalated` | object? | `{\"from\": <lane>, \"signal\": <slug>}` when a lane-routed build escalated into the full review gate (PRD 00205). Written by `autopilot lane-check` in the same transaction that sets `lane_effective: \"full\"`: `unnamed_path` (a hook or production path in `work_start_sha..HEAD`), `security_diff` (`lane.security_triggered` fired), `check_failed` (a git command failed; the check fails toward the expensive lane), or a session-determined `--signal` (`critical_finding`, `high_unresolved`, `suite_red`, `review_failed`). Rendered as `, escalated from <from>: <signal>` on the report's `- Lane:` line and copied into the closing `batch.completed_prds` record. Per-PRD work product, so it IS in `cli/records.PER_PRD_RESET_FIELDS` (its lane siblings are re-derived at Phase 0 instead). Absent when no escalation happened. |"
+        ],
+        [
+          186,
+          "| `tasks_total` | int | Total task count. Derived from the `tasks` snapshot: every writer of `tasks` recomputes `tasks_total = len(tasks)` in the same write (the pidash-era PostToolUse sync hook is retired, PRD 00063). |"
+        ],
+        [
+          187,
+          "| `tasks_completed` | int | Number of completed tasks. Derived with `tasks_total`: `tasks_completed = count(status == \"completed\")`, recomputed on every `tasks` write. |"
+        ],
+        [
+          188,
+          "| `tasks` | object[] | Canonical task list for the current PRD: `{\"id\": \"<task-id>\", \"name\": \"...\", \"status\": \"pending\\|in_progress\\|completed\", \"description\"?: string, \"blocked_by\"?: int[], \"model\"?: \"haiku\\|sonnet\\|opus\\|fable\", \"attempts\"?: object[]}`. Include `id` \u2014 state readers (tracon, the review phase, `rework_task_ids` targeting) key on it. The two optional entry fields `description` and `blocked_by` are detailed in the `tasks[].description` and `tasks[].blocked_by` rows below. |"
+        ],
+        [
+          189,
+          "| `tasks[].model` | enum? | Per-task model tier: `\"haiku\"`, `\"sonnet\"`, `\"opus\"`, `\"fable\"`. `\"fable\"` (PRD 00076) is reachable **only** via the Fable rescue gate (`references/recovery.md` \u00a7 Rework escalation exhausted, on a human-approved ledger entry), never by the plan-tasks tier classifier and never as a session model. Set by plan-tasks step 4.7's tier classifier (`classify_tier.py`) and rewritten by /autopilot:run-autopilot Phase 6 escalation (see `references/phase-review.md` Phase 6). The dashboard, the review phase, and `/autopilot:work` read this field. When absent (plans created before PRD 00025), `/autopilot:work` omits `model` and subagents inherit the session model. |"
+        ],
+        [
+          190,
+          "| `tasks[].attempts` | object[]? | Per-task execution log: `{\"attempt\": int, \"model\": string, \"outcome\": \"completed\"\\|\"aborted\"\\|\"review_flagged\"\\|\"rework_failed\"\\|\"escalated\", \"review_cycle\": int\\|null, \"cause\": string\\|null, \"implementor\": \"claude\"\\|\"gemini\"\\|\"qwen\"\\|\"codex\"\\|\"orchestrator\", \"preflight_outcome\": \"healthy\"\\|\"pi_missing\"\\|\"endpoint_unreachable\"\\|\"model_id_missing\"\\|\"completion_failed\"\\|null, \"pipeline\"?: \"minimal\"\\|\"lean\"\\|\"full\", \"self_deslop\"?: string, \"escalation_reason\"?: \"gate_failure\"\\|\"review_flag\"\\|\"fable_rescue\", \"escalated_from\"?: \"qwen\"\\|\"haiku\"\\|\"sonnet\"\\|\"opus\"\\|\"codex\", \"diagnosis\"?: \"spec_gap\"\\|\"solid_spec\", \"repair_used\"?: true, \"breaker_skipped\"?: true, \"qwen_gate_failed\"?: true, \"qwen_excluded_reason\"?: \"files\"\\|\"memory_pressure\"\\|\"memory_probe_failed\", \"codex_no_edit\"?: true, \"codex_no_edit_probe_exit\"?: int, \"micro_lane\"?: \"overrun\", \"reflow\"?: string, \"review\"?: string, \"style_gate\"?: string, \"devon\"?: \"skipped:prose\"\\|\"exploit_fixed\"\\|null, \"devon_exploit\"?: string, \"devon_weak_points\"?: int, \"devon_in_contract\"?: string[], \"split_hygiene\"?: string, \"verification\"?: string}`. Records each Work pass on the task. Appended by `/autopilot:work` at task exit (success or abort). The `implementor` field reflects what actually dispatched (NOT what step 3's routing table initially picked \u2014 a qwen pick that fell back to Claude on preflight failure records `\"claude\"`). The `preflight_outcome` field is set only for attempts on qwen-eligible tasks (effective eligibility after runtime write-set reconciliation); for non-qwen-eligible attempts (UI tasks, `opus`-tier tasks, backend tasks where `qwen_eligible` is `false` or absent) it is `null`. A qwen-eligible attempt that the breaker (row 3) or the memory-pressure gate (row 4) rerouted also records `null`, because the probe never ran. The `pipeline` field records the tier-gated pipeline depth the attempt ran \u2014 `\"minimal\"`/`\"lean\"`/`\"full\"` for `haiku`/`sonnet`/`opus`, `\"full\"` for `fable`, and `\"solo\"` for a task the solo lane's session edited itself (`references/lane-solo.md`, PRD 00205; always paired with `implementor: \"orchestrator\"`) (the rescue rung runs the deepest pipeline, like `opus`; absent/legacy `model` is treated as `sonnet` \u2192 `\"lean\"`), written at every task exit (PRD 00044) \u2014 the `?` in the signature marks read-side tolerance for pre-00044 rows only; new writes always include `pipeline`. **Cardinality (PRD 00065):** today `/autopilot:work` appends exactly one entry per task at exit. Under in-loop escalation the rule widens to one entry per rung/dispatch-group: each rung that dispatched writes its own entry when the task escalates away from it or exits on it. `attempt` numbers stay sequential across rungs (`len(existing)+1`). This is a widening, not a break \u2014 a task that never escalates still writes exactly one entry, byte-identical to today. **Six escalation fields (PRD 00065, all optional, absence = legacy / not-applicable):** `escalation_reason` (`\"gate_failure\"` stamped by `/autopilot:work` on the entry of the rung it escalated INTO (in-loop diagnosis); `\"review_flag\"` stamped by phase-review Phase 6 on its escalation path; `\"fable_rescue\"` (PRD 00076) stamped by the Fable rescue gate on the entry of the human-approved fable retry, always paired with `escalated_from: \"opus\"` and an entry `model` of `\"fable\"` (the rescue rung \u2014 the one tier `/autopilot:work` never selects on its own). Absent = none of the three (legacy / no escalation)); `escalated_from` (string?; normally a tier \u2014 on the entry of the rung escalated INTO, the immediate-prior rung it came from; the one exception is `\"codex\"` (PRD 00077), which names a BACKEND rather than a tier \u2014 stamped on the Claude entry a codex capability failure escalates into, the others are all tiers. Absent on non-escalated entries); `diagnosis` (string?; the 2nd-failure diagnosis verdict, stamped on the entry of the rung that was diagnosed); `repair_used` (bool?; `true` stamped on the entry of the same-tier attempt that ran after a task-description repair; absent otherwise, never written `false`); `breaker_skipped` (bool?; `true` stamped on a qwen-eligible attempt the breaker rerouted off qwen \u2014 to codex (PRD 00077) or to Claude at original tier (no preflight probe); absent otherwise); `qwen_gate_failed` (bool?; `true` stamped on an `implementor:\"qwen\"` entry whose pre-commit output guard or step-5.5 gate FAILED \u2014 the durable signal the qwen capability breaker keys on; absent otherwise). Runtime exclusions are described in the dedicated `tasks[].attempts[].qwen_excluded_reason` row below; planner metadata is unchanged. **Codex no-edit fields (PRD 00077, both optional):** `cause` gains the value `\"codex_no_edit\"` \u2014 the no-edit infra arm, stamped when the codex helper exited 0 with a non-empty output file but produced no working-tree change (the hook-blocked, prose-only case); classified as INFRA, so the attempt falls back to Claude at the task's own tier with no `escalation_reason` stamp. `codex_no_edit` (bool?; the LATCHED detector result, captured at the dispatch boundary \u2014 `work` SKILL.md step 4, before step 5's `git add` \u2014 by comparing the task's own file slice porcelain before and after the codex dispatch; step 5.5 reads this latched flag and never re-runs the detector. Absent on non-codex attempts and on attempts written before PRD 00077). `codex_no_edit_probe_exit` (int?; the detector's own exit code, recorded ONLY when the detector exited non-zero \u2014 a non-zero exit means the probe is INDETERMINATE, not \"no change\": `codex_no_edit` is NOT latched and the attempt continues on the capability path normally. Exists so a broken detector is visible in the record instead of silently reclassifying every real codex capability failure as infra. Absent when the detector ran cleanly and on attempts written before PRD 00077). The `\"escalated\"` outcome value is stamped on the entry for a rung the task was reset away from and escalated up; the final rung's entry carries the real terminal outcome (`completed`/`aborted`), and the escalated-away entry keeps its true `implementor` (a qwen rung escalated to Sonnet keeps `implementor:\"qwen\"`; likewise, a codex attempt records `model` at the task's own tier, e.g. `\"sonnet\"`, with `implementor: \"codex\"` carrying the backend identity \u2014 the same split the qwen rung already uses). **Micro-lane fields (PRD 00148, both optional):** `implementor` gains `\"orchestrator\"` \u2014 the one value meaning no implementor dispatched at all, stamped when a small rework task was edited in-session by the orchestrator (`work/references/rework-mode.md` \u00a7 Micro lane), which also records `red_check: \"n/a:micro-lane\"`. `micro_lane` (string?; `\"overrun\"` when the lane's post-edit ceiling fired, the edit was reverted and the task fell through to a normal dispatch \u2014 that attempt records the real dispatcher in `implementor`; absent otherwise). `reflow` (string?; `\"<path>:<hunks>\"`, `;`-joined for several, when `/autopilot:work` step 5's `check_reflow.py` flagged a staged file, or `\"failed:<stderr>\"` when the script could not run; absent when nothing was flagged). **Per-task review field (PRD 00159):** `review` (string?; `\"failed:<cause>\"` when the step-5.7 reviewer lane failed twice, `\"failed:invalid_output\"` when both replies broke the reporting contract and `parse_review.py` rejected each, `\"skipped:test-only\"` when every path in `<task_base_sha>..HEAD` was test or fixture code outside rework mode; may also carry a `medium-retry:fixed`/`medium-retry:unfixed` suffix from PRD 00140. Absent when the review ran cleanly or the haiku tier-gate skipped it). **Per-task style gate (PRD 00163):** `style_gate` (string?; the step-5.65 verdict on that task's own diff \u2014 `\"clean\"`, `\"fixed:<sha>\"` (one fix dispatch landed and the re-run was clean), `\"failed:<detail>\"` (the violation lines joined by `\"; \"`, or the script's stderr when the gate could not run), or `\"skipped:tier\"` for a `haiku` task. Absent on attempts written before PRD 00163, when the gate ran once per phase and stamped nothing per task). **Devon weak-point fields:** `devon` gains the value `\"exploit_fixed\"` \u2014 stamped when step 2.9's Devon broke the tests, Tess strengthened them once, and the task proceeded on the strengthened tests with no second Devon dispatch. `devon_exploit` (string?; Devon's one-line weak-point summary, stamped alongside `devon: \"exploit_fixed\"`; absent otherwise). `devon_weak_points` (int?; the count of weak points Devon's numbered `Weak points:` list named, stamped alongside `devon: \"exploit_fixed\"`; absent otherwise). `devon_in_contract` (string[]?; each `\"N. in-contract: ...\"` line Tess returned when answering Devon's weak points, stamped alongside `devon: \"exploit_fixed\"`; absent otherwise). **Per-task split-hygiene check (PRD 00166):** `split_hygiene` (string?; the step-5.65 verdict on the test files that task touched \u2014 `\"clean\"`, `\"fixed:<sha>\"` (one deletion-only fix dispatch landed and the re-run was clean), `\"failed:<detail>\"` (the reported lines joined by `\"; \"`, or the script's stderr when the check could not run), or `\"skipped:no-tests\"` when the task's candidate list held no test path. Distinct from `style_gate` because the two answer different questions on different file sets: one measures line spans over every `.py` file, the other reads bindings in test files only. Absent on attempts written before PRD 00166 and when the haiku tier-gate skipped step 5.65). **Verification stamp (PRD 00167):** `verification` (string?; `\"skipped:<cause>\"` when step 5.5's per-task test verification could not run at all, or `\"timeout:<command>\"` when step 5.5's narrow tests hit their 300000 ms Bash `timeout` budget and then hit the 600000 ms re-run too, leaving no verdict, per `work/references/subagent-dispatch.md` \u00a7 Foreground command budgets. `<command>` names the command that timed out. Two neighbouring timeouts are never stamped here: a step-2.95 red-check takes `red_check: \"skipped:<cause>\"` from its own ladder, and a step-7 timeout is recorded in the phase report, that suite running after every attempt entry has been appended. Absent when the task's tests ran). See `work/references/attempt-logging.md` for field semantics, the atomic write procedure, and the attribution row-ownership table. Outcome upgraded later by /autopilot:run-autopilot Phase 6: `review_flagged` at the start of escalation (step 2), then `rework_failed` if the chain exhausts at `opus` (or at `fable`, when a rescue attempt was spent \u2014 step 3's escalation-exhausted branch). Rework reads the last entry's `model` to determine the next tier. Absent on plans created before PRD 00025; `implementor`/`preflight_outcome` absent on attempts written before PRD 00031; `self_deslop` absent on attempts written before PRD 00041; `pipeline` absent on attempts written before PRD 00044; the six escalation fields and the `\"escalated\"` outcome value absent on attempts written before PRD 00065; the attempt-level `qwen_excluded_reason` absent on attempts written before PRD 00075; `codex_no_edit` and `codex_no_edit_probe_exit` absent on attempts written before PRD 00077. |"
+        ],
+        [
+          191,
+          "| `tasks[].attempts[].cause` | string? | Qwen pre-commit output causes: `\"qwen_no_edit\"` (no task-owned implementation diff) and `\"qwen_test_mutation\"` (Tess-owned tests differ from the test commit). Both record a rejected Qwen row with `outcome: \"escalated\"`, `qwen_gate_failed: true`; the new Sonnet row carries `escalation_reason: \"gate_failure\"`, `escalated_from: \"qwen\"`. Existing abort causes are unchanged; successful attempts use null. |"
+        ],
+        [
+          192,
+          "| `tasks[].attempts[].qwen_excluded_reason` | string? | Runtime exclusion: `\"files\"` for zero or stale multi-file `FILE_PATHS`, `\"memory_pressure\"` or `\"memory_probe_failed\"` for row 4. A write-set exclusion records `preflight_outcome: null` and preserves the plan-time task fields. Absent when no runtime exclusion fired. |"
+        ]
+      ]
+    }
+  ],
+  "proposed_rows": [
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 182,
+      "reference": "cli/lane.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/lane.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 184,
+      "reference": "cards_from_prd.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cards_from_prd.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 189,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "classify_tier.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 190,
+      "reference": "check_reflow.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "check_reflow.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 190,
+      "reference": "parse_review.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "parse_review.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    }
+  ],
+  "existing_rows": [
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 189,
+      "reference": "references/recovery.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 189,
+      "reference": "references/phase-review.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 190,
+      "reference": "references/lane-solo.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    }
+  ]
+}

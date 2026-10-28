@@ -1,0 +1,1033 @@
+{
+  "status": "unreviewed proposal; never apply wholesale",
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/fast-track/references/lane-dispatch.md",
+      "first": 271,
+      "last": 287
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/fast-track/references/spec-card.md",
+      "first": 9,
+      "last": 80
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/plan-tasks/SKILL.md",
+      "first": 22,
+      "last": 391
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/plan-tasks/references/design-rationale.md",
+      "first": 46,
+      "last": 46
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/review-blindly/SKILL.md",
+      "first": 16,
+      "last": 118
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/review-work-completion/SKILL.md",
+      "first": 38,
+      "last": 140
+    }
+  ],
+  "source_context": [
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_sha256": "0e363fb1ee7085e879274e9079ed6e87343e1c30c8321a5c00ef969e05809d38",
+      "destination_path": "plugins/autopilot/skills/fast-track/references/lane-dispatch.md",
+      "lines": [
+        [
+          269,
+          ""
+        ],
+        [
+          270,
+          "```bash"
+        ],
+        [
+          271,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py end <id> --outcome ok"
+        ],
+        [
+          272,
+          "```"
+        ],
+        [
+          273,
+          ""
+        ],
+        [
+          281,
+          ""
+        ],
+        [
+          282,
+          "```text"
+        ],
+        [
+          283,
+          "scripts/record_item.py --item <item> --card <path> --model <m> [--started <ts>] --outcome committed|branched|stopped --rework 0|1 --findings <json> --confirmed <n> [--cost <usd>]"
+        ],
+        [
+          284,
+          "```"
+        ],
+        [
+          285,
+          ""
+        ],
+        [
+          286,
+          "The script sits at"
+        ],
+        [
+          287,
+          "`${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/record_item.py`. Pass `--cost`"
+        ],
+        [
+          288,
+          "when a measured USD figure exists; an absent `--cost` records unmeasured, which"
+        ],
+        [
+          289,
+          "is a different fact from free."
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_sha256": "c51e86a7d492c690f5b4e537cd8c8cdb8d060ab7d2133936714b4a2ca510967a",
+      "destination_path": "plugins/autopilot/skills/fast-track/references/spec-card.md",
+      "lines": [
+        [
+          7,
+          "> string and the path silently becomes `/...`."
+        ],
+        [
+          8,
+          ""
+        ],
+        [
+          9,
+          "One card is the whole input to `/autopilot:fast-track`. `card.py` is the only"
+        ],
+        [
+          10,
+          "thing that reads it, and every rule below is one that parser enforces."
+        ],
+        [
+          11,
+          ""
+        ],
+        [
+          13,
+          ""
+        ],
+        [
+          14,
+          "```bash"
+        ],
+        [
+          15,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/card.py <card.md>"
+        ],
+        [
+          16,
+          "```"
+        ],
+        [
+          17,
+          ""
+        ],
+        [
+          18,
+          "Exit 0 prints the parsed card as JSON. Exit 2 prints"
+        ],
+        [
+          19,
+          "`card.py: <field>: <message>` on stderr and stops the lane there: fix that"
+        ],
+        [
+          20,
+          "field and parse again."
+        ],
+        [
+          21,
+          ""
+        ],
+        [
+          73,
+          "## Tests"
+        ],
+        [
+          74,
+          ""
+        ],
+        [
+          75,
+          "skills/fast-track/scripts/test_record_item.py::test_future_started_exits_two"
+        ],
+        [
+          76,
+          ""
+        ],
+        [
+          77,
+          "## Files"
+        ],
+        [
+          78,
+          ""
+        ],
+        [
+          79,
+          "skills/fast-track/scripts/record_item.py"
+        ],
+        [
+          80,
+          "skills/fast-track/scripts/test_record_item.py"
+        ],
+        [
+          81,
+          ""
+        ],
+        [
+          82,
+          "## Constraints"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_sha256": "7cd841e5284e7bf71a173b34040e7f1a139cd46537e5f686c54493136e82cb77",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "lines": [
+        [
+          20,
+          ""
+        ],
+        [
+          21,
+          "```bash"
+        ],
+        [
+          22,
+          "bash ${CLAUDE_PLUGIN_ROOT}/skills/plan-tasks/scripts/list-prds.sh"
+        ],
+        [
+          23,
+          "```"
+        ],
+        [
+          24,
+          ""
+        ],
+        [
+          70,
+          ""
+        ],
+        [
+          71,
+          "```bash"
+        ],
+        [
+          72,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json task-add <task-json-file>"
+        ],
+        [
+          73,
+          "```"
+        ],
+        [
+          74,
+          ""
+        ],
+        [
+          75,
+          "Build one JSON object per task and write it to `<task-json-file>` with the Write tool \u2014 a task body carries backticks, quotes and newlines, which break as an inline shell argument. Required key: `\"name\"` (the task title). The body composed per the \"Task description format\" below goes in `\"description\"`; every other field this skill assigns (`files` - the task's expected implementor-writable repo-relative paths, the same slice step 4.7 writes to `plan-<n>-files.txt` - persisted on every task; `blocked_by` in step 5, `estimated_tokens` and `est_context_peak` in step 4.5, `model`, `tier_reason`, `qwen_eligible` and `qwen_excluded_reason` in step 4.7) is a top-level key on the same object \u2014 flattened, never nested under a `metadata` key. `task-add` assigns the id and prints it to stdout; capture it (`id=$(python3 \u2026/statectl.py docs/dev/project-management/autopilot/state.json task-add /tmp/task-3.json)`) so later tasks in this same pass can name it in their own `blocked_by` array. Create the tasks in the PRD's dependency/phase order (earlier phases first, so every blocker exists before the tasks it blocks), which is what makes those captured ids available when step 5 builds each `blocked_by` array."
+        ],
+        [
+          76,
+          ""
+        ],
+        [
+          77,
+          "To fix a task after creation (not the normal create path): `task-set-body <task-id> <body-file>` replaces `description` verbatim from a raw text file, and `task-set-meta <task-id> <meta-json-file>` merges JSON keys onto the task entry (a `null` value deletes that key)."
+        ],
+        [
+          146,
+          "unchanged in replan mode."
+        ],
+        [
+          147,
+          ""
+        ],
+        [
+          148,
+          "**If a `task-add` call fails mid-plan** (a statectl error \u2014 NOT the oversize stall handled in step 4.6): stop creating tasks and **roll back cleanly**. Run `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json tasks-clear`, which empties the whole task array in one write (same cleanup as the oversize stall below) so no orphan tasks survive to make the next PRD's Phase 2 skip planning. Then record the cause via statectl \u2014 `set stall_reason '{\"stalled\": \"taskcreate_failed\", \"detail\": \"<the statectl error>\"}'` \u2014 and report the failure. `/autopilot:run-autopilot` Phase 2 reads a non-`oversized_task` stall as a plan-tasks failure (PAUSE interactive; loop mode re-invokes once, then stalls the PRD `sub_skill_fail`); the rollback guarantees the retry starts from a clean tracker. Do NOT move the PRD to `hold/` \u2014 a transient `task-add` failure is not an un-splittable PRD."
+        ],
+        [
+          149,
+          ""
+        ],
+        [
+          150,
+          "**On successful completion of all `task-add` calls, clear a stale failure marker:** `statectl get stall_reason` \u2192 if it reads `\"taskcreate_failed\"` (a prior attempt failed and this retry succeeded), `statectl del stall_reason`. Otherwise leave it untouched \u2014 an `oversized_task` marker is owned by step 4.6, and a fresh plan usually has no marker (do NOT blind-`del`; statectl errors on an absent key)."
+        ],
+        [
+          225,
+          ""
+        ],
+        [
+          226,
+          "```bash"
+        ],
+        [
+          227,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json set stall_reason '{\"stalled\": \"oversized_task\", \"task\": \"<task-id>\", \"estimated_tokens\": <int>}'"
+        ],
+        [
+          228,
+          "```"
+        ],
+        [
+          229,
+          ""
+        ],
+        [
+          230,
+          "statectl merges the key and preserves the existing `phase`, `phases_completed`, `tasks`, `batch`, etc."
+        ],
+        [
+          231,
+          ""
+        ],
+        [
+          232,
+          "**Then delete every task you already created** for this PRD with a single call: `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json tasks-clear`. `/autopilot:plan-tasks` calls `task-add` before the per-task budget check, so by the time the stall fires there are orphan tasks in the tracker. Cleaning up here makes the stall self-contained: any caller (not just `/autopilot:run-autopilot`) gets the same post-stall state. `/autopilot:run-autopilot` Phase 2 also performs this cleanup as a backstop."
+        ],
+        [
+          233,
+          ""
+        ],
+        [
+          234,
+          "After both writes succeed, end the session's work with the stall recorded (the `stall_reason` key in state.json IS the observable stall signal \u2014 a model-followed skill has no exit code); `/autopilot:run-autopilot` Phase 2 reads it, detects the stall, moves the PRD from `docs/dev/project-management/prds/wip/` to `docs/dev/project-management/prds/hold/` (creating the directory if missing), clears the stall key from state, and proceeds to the next backlog item without user prompt. See `/autopilot:run-autopilot` Phase 2 for the consumer-side contract."
+        ],
+        [
+          240,
+          "**Overhead re-derivation:** The constant is measured by reading `input_tokens + cache_read_input_tokens + cache_creation_input_tokens` from the first `message.usage` line in a fresh Work-phase transcript on the current work-tier model (zero task context loaded \u2014 just the system prompt, tool defs, and active skills). Re-derive when upgrading the model or adding/removing skills: start an empty `/autopilot:work` session, read the first usage line from `~/.claude/projects/<hash>/<session>.jsonl`, sum the three token fields. Update the constant and the worked example if the new value differs by more than 5K. Provenance of the current 55K (2026-07-11): five fresh headless opus-4.8 work-phase transcripts measured 74,560-74,809 (~74.7K), minus PRD 00043's measured always-loaded reduction (run-autopilot SKILL.md 33.0K \u2192 7.3K core, +5.4K gate file read back in \u2248 \u221220K net) \u2248 55K, rounded. Those transcripts predate the 00043 restructure; re-measure directly at the next batch and correct if the fresh number moves more than 5K."
+        ],
+        [
+          241,
+          ""
+        ],
+        [
+          242,
+          "**Pending re-derivation (PRD 00084 R3, LIVE):** the 55K/150K constants are measured on `opus-4.8`, but PRD 00076 ended Opus as the default autopilot **build**-phase model: build sessions now launch Sonnet-first and promote to `claude-opus-5` only when the build-model routing (`build_model` in run-autopilot's `cli/routing.py`, since PRD 00106) finds difficulty evidence for the PRD. `_AUTOPILOT_MODEL_BUILD` is an operator env override / kill-switch, not a hardcoded constant. That makes this trigger live: re-derive per the mandate above on real Sonnet build transcripts once a few Sonnet build batches exist, not from a single ad-hoc session or a non-build transcript."
+        ],
+        [
+          243,
+          ""
+        ],
+        [
+          244,
+          "### 4.7. Assign per-task model tier"
+        ],
+        [
+          245,
+          ""
+        ],
+        [
+          246,
+          "For each task, `classify_tier.py` decides the model tier. Persist what it prints as top-level `model: \"haiku\"|\"sonnet\"|\"opus\"` and `tier_reason` keys, so `/autopilot:work` dispatches each subagent at the right tier (PRD 00025) and every reader of the plan can see why that tier was chosen (PRD 00160)."
+        ],
+        [
+          247,
+          ""
+        ],
+        [
+          248,
+          "**Inputs, per task:** that task's file slice, its title plus description, its estimated lines-changed (rough: pull from the task plan or estimate from the file slice), and the two facts below. Neither the PRD body nor `estimated_tokens` is an input any more, because size and vocabulary stopped deciding tiers with PRD 00160."
+        ],
+        [
+          256,
+          ""
+        ],
+        [
+          257,
+          "```bash"
+        ],
+        [
+          258,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/plan-tasks/scripts/classify_tier.py --files-file docs/dev/tmp/plan-<n>-files.txt --text-file docs/dev/tmp/plan-<n>-text.txt --lines <lines-changed> [--contract-edit] [--algorithmic-risk] [--default-model <floor>]"
+        ],
+        [
+          259,
+          "```"
+        ],
+        [
+          260,
+          ""
+        ],
+        [
+          270,
+          "See `references/design-rationale.md` for the counterexamples and why a future widening must move a different axis than the verb."
+        ],
+        [
+          271,
+          ""
+        ],
+        [
+          272,
+          "**Row selection (`_PLAN_TASKS_FLOOR`).** An optional `_PLAN_TASKS_FLOOR` value names which mechanical row this run treats as current. It is a prose-only knob: `classify_tier.py` does not read it, and it does not compose into the `final_tier = max(...)` formula in \"PRD frontmatter override\" below, which is unchanged either way. `_PLAN_TASKS_FLOOR` is an environment variable, read at step 4.7 entry: run `python3 -c 'import os;print(os.environ.get(\"_PLAN_TASKS_FLOOR\",\"\"))'`. Apply the row-selection table below to whatever value comes back, including the empty string (it takes the current row)."
+        ],
+        [
+          273,
+          ""
+        ],
+        [
+          274,
+          "| `_PLAN_TASKS_FLOOR` | Mechanical row applied |"
+        ],
+        [
+          294,
+          "- **Valid value (`haiku`/`sonnet`/`opus`)** \u2192 pass it as `--default-model` and the floor below applies. The floor is all this key does: `default_model: opus` never picks the orchestrator, a PRD that wants an opus build session declares `session_model: opus` beside it (PRD 00200; `run-autopilot/references/state-schema.md` \u00a7 Build-Session Model Promotion Signals)."
+        ],
+        [
+          295,
+          ""
+        ],
+        [
+          296,
+          "`classify_tier.py` applies the floor itself, after its own rules have produced a tier, by taking the maximum across the precedence `haiku < sonnet < opus` (only when `default_model` is a valid value):"
+        ],
+        [
+          297,
+          ""
+        ],
+        [
+          298,
+          "```"
+        ],
+        [
+          366,
+          ""
+        ],
+        [
+          367,
+          "```bash"
+        ],
+        [
+          368,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py check-plan --prd docs/dev/project-management/prds/wip/<state.prd>"
+        ],
+        [
+          369,
+          "```"
+        ],
+        [
+          370,
+          ""
+        ],
+        [
+          389,
+          "without converging and halted the batch for four days. PRD 00071 (22 tasks)"
+        ],
+        [
+          390,
+          "did land, so the ceiling is conservative on purpose \u2014 it stalls for a human"
+        ],
+        [
+          391,
+          "rather than refusing to plan. Override per-run with `--ceiling N`. PRD 00167 declared 4 task lines and one module and planned to 21 tasks across five (28 sessions, $345); the thresholds live in `cli/policy.py` and are pinned by its tests."
+        ],
+        [
+          392,
+          ""
+        ],
+        [
+          393,
+          "### 6. Report summary"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/plan-tasks/references/design-rationale.md",
+      "source_sha256": "5716cb58ac5d987717d5d070e6130c64e3724f1058f0e8be761fc1b3ea0f52cc",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/references/design-rationale.md",
+      "lines": [
+        [
+          44,
+          "`novel algorithm`, `concurrency`, `migrate`, `refactor across`) plus two size"
+        ],
+        [
+          45,
+          "clauses, one on `files_touched` and one on `estimated_tokens`. All of it is"
+        ],
+        [
+          46,
+          "gone. `classify_tier.py` decides the tier now, from the task's own file slice"
+        ],
+        [
+          47,
+          "and the two facts step 4.7 makes the planner assert with evidence."
+        ],
+        [
+          48,
+          ""
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_sha256": "be813d8bce2d098503b67d777fb86dfd6f0aaf370f3a9476cae52b55ea7516f3",
+      "destination_path": "plugins/autopilot/skills/review-blindly/SKILL.md",
+      "lines": [
+        [
+          14,
+          ""
+        ],
+        [
+          15,
+          "- Personal skills: `use-sonnet` - the reviewer itself runs via"
+        ],
+        [
+          16,
+          "  `${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh` (and the `claude` CLI it"
+        ],
+        [
+          17,
+          "  wraps)"
+        ],
+        [
+          18,
+          "- Files read from other skill dirs:"
+        ],
+        [
+          19,
+          "  `${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py` - hard"
+        ],
+        [
+          20,
+          "  gate, a non-zero exit fails the review"
+        ],
+        [
+          21,
+          "- Own reference inlined into the reviewer prompt: `references/rubric.md`"
+        ],
+        [
+          103,
+          ""
+        ],
+        [
+          104,
+          "```bash"
+        ],
+        [
+          105,
+          "timeout 600 ${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh --effort high -y -f <ABSOLUTE path to docs/dev/project-management/reviews/.blind-reviewer-prompt.md>"
+        ],
+        [
+          106,
+          "```"
+        ],
+        [
+          107,
+          ""
+        ],
+        [
+          116,
+          "2. **Gate the file (PRD 00016) and fail loud:**"
+        ],
+        [
+          117,
+          "   ```bash"
+        ],
+        [
+          118,
+          "   python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py --review-file docs/dev/project-management/reviews/<prd>-blind-review.md"
+        ],
+        [
+          119,
+          "   ```"
+        ],
+        [
+          120,
+          "   Non-zero exit \u2192 the blind review FAILS; the gap is named on stderr (missing section, missing verdict or tests line). Fix the file \u2014 do NOT produce a clean verdict over a failing gate. (This filename is intentionally distinct from the `-review-NN.md` pattern, so it does not collide with autopilot's cycle-skip glob.)"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
+      "lines": [
+        [
+          36,
+          "not name:"
+        ],
+        [
+          37,
+          ""
+        ],
+        [
+          38,
+          "- Personal skills: `use-codex` (hard - `scripts/codex-run.sh`, STOP if missing)"
+        ],
+        [
+          39,
+          "- The agent registry `${CLAUDE_PLUGIN_ROOT}/agents/` (hard - every reviewer prompt is"
+        ],
+        [
+          40,
+          "  assembled from it; conventions and the roster in"
+        ],
+        [
+          64,
+          "Check these exist:"
+        ],
+        [
+          65,
+          ""
+        ],
+        [
+          66,
+          "1. `${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh` - executable"
+        ],
+        [
+          67,
+          "2. `docs/dev/project-management/prds/wip/` contains at least one `.txt` or `.md` file"
+        ],
+        [
+          68,
+          ""
+        ],
+        [
+          85,
+          "create state; fall through to the binary check below."
+        ],
+        [
+          86,
+          ""
+        ],
+        [
+          87,
+          "**Carl binary check (only when not batch-skipped):** check `${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh` is executable AND a backend CLI resolves - `copilot` (preferred; pin owned by the helper) OR native `gemini` (`mise which`/`command -v` succeeds for either). If both pass, Carl is active; binary presence alone does not establish model availability. If neither CLI resolves, skip Carl and record `Carl: unavailable (no backend CLI)` in the final review file. Do not run a live probe here; the opt-in operator probe lives in `use-gemini/SKILL.md`. Step 5 classifies dispatch results: exit 4 records `Carl: permanently unavailable` with the stderr reason; a quota or other runtime failure records a one-off failure. Carl on copilot spends Copilot AI credits."
+        ],
+        [
+          88,
+          ""
+        ],
+        [
+          89,
+          "Create if missing: `docs/dev/tmp/`, `docs/dev/project-management/reviews/`"
+        ],
+        [
+          138,
+          "**Determine review scope (full vs incremental).** List existing review files for this PRD with Bash `ls` (the native `Glob` tool is absent in this build): `docs/dev/project-management/reviews/<prd-name>-review-*.md` (PRD filename without the `.md` extension)."
+        ],
+        [
+          139,
+          ""
+        ],
+        [
+          140,
+          "- **No prior review file** \u2192 cycle 1, a **full review**. When `state.work_start_sha` is set in `docs/dev/project-management/autopilot/state.json` (running under autopilot), pass `--since <state.work_start_sha>` to `review-stage` \u2014 the PRD's whole work range, the same value `COVERAGE_DIFF_RANGE` uses below. Without it, the `gather-context.sh` run inside `review-stage` diffs against the detected base branch, which is empty (and refused with exit 3) for a repo worked on directly on that branch. Without `state.work_start_sha` (an interactive, non-autopilot run), omit `--since`."
+        ],
+        [
+          141,
+          "- **A prior review file exists** \u2192 this is a rework cycle, an **incremental review**. Read the highest-numbered prior file's `head_sha` frontmatter field."
+        ],
+        [
+          142,
+          "  - `head_sha` present \u2192 pass `--since <head_sha>` to `review-stage`. The diff then covers only the rework commits since that cycle, not the whole PRD branch \u2014 the prior cycle already reviewed the full diff. Also read that file's consolidated findings; step 4 hands them to the reviewers to verify."
+        ]
+      ]
+    }
+  ],
+  "proposed_rows": [
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 271,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 283,
+      "reference": "scripts/record_item.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "scripts/record_item.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 287,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/record_item.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/record_item.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_line": 9,
+      "reference": "card.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "card.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_line": 15,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/card.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/card.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_line": 19,
+      "reference": "card.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "card.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_line": 75,
+      "reference": "skills/fast-track/scripts/test_record_item.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "skills/fast-track/scripts/test_record_item.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_line": 79,
+      "reference": "skills/fast-track/scripts/record_item.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "skills/fast-track/scripts/record_item.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_line": 80,
+      "reference": "skills/fast-track/scripts/test_record_item.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "skills/fast-track/scripts/test_record_item.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 22,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/plan-tasks/scripts/list-prds.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/plan-tasks/scripts/list-prds.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 72,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 75,
+      "reference": "/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 148,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 227,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 232,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 242,
+      "reference": "cli/routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/routing.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 246,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "classify_tier.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 258,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/plan-tasks/scripts/classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/plan-tasks/scripts/classify_tier.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 272,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "classify_tier.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 296,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "classify_tier.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 368,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 391,
+      "reference": "cli/policy.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/policy.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/references/design-rationale.md",
+      "source_line": 46,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "classify_tier.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 16,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-blindly/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 19,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-blindly/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 105,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-blindly/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 118,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-blindly/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 38,
+      "reference": "scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 66,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 87,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 140,
+      "reference": "gather-context.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "gather-context.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    }
+  ],
+  "existing_rows": [
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 270,
+      "reference": "references/design-rationale.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/references/design-rationale.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 374,
+      "reference": "references/recovery.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 21,
+      "reference": "references/rubric.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/review-blindly/references/rubric.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 38,
+      "reference": "scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "planned",
+      "capability": "scripts/codex-run.sh",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 41,
+      "reference": "references/agent-registry.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-registry.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 55,
+      "reference": "agents/blake.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/blake.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 58,
+      "reference": "references/agent-invocation.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-invocation.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    }
+  ]
+}

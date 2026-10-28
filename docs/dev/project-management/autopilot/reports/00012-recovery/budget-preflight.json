@@ -1,0 +1,338 @@
+[
+  {
+    "task": "22",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 69890,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "22",
+    "persona": "pat",
+    "bytes": 28553,
+    "estimated_tokens": 69890,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "23",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 69016,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "23",
+    "persona": "pat",
+    "bytes": 28347,
+    "estimated_tokens": 69016,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "24",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 71998,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "24",
+    "persona": "pat",
+    "bytes": 27651,
+    "estimated_tokens": 71998,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "25",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 69747,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "25",
+    "persona": "pat",
+    "bytes": 22380,
+    "estimated_tokens": 69747,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "26",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 70991,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "26",
+    "persona": "pat",
+    "bytes": 25343,
+    "estimated_tokens": 70991,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "27",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 71603,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "27",
+    "persona": "pat",
+    "bytes": 21808,
+    "estimated_tokens": 71603,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "28",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 72253,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "28",
+    "persona": "pat",
+    "bytes": 29614,
+    "estimated_tokens": 72253,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "29",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 69908,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "29",
+    "persona": "pat",
+    "bytes": 29180,
+    "estimated_tokens": 69908,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "30",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 70670,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "30",
+    "persona": "pat",
+    "bytes": 22837,
+    "estimated_tokens": 70670,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "31",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 67523,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "31",
+    "persona": "pat",
+    "bytes": 16240,
+    "estimated_tokens": 67523,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "32",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 68699,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "32",
+    "persona": "pat",
+    "bytes": 18125,
+    "estimated_tokens": 68699,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "33",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 65805,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "33",
+    "persona": "pat",
+    "bytes": 12165,
+    "estimated_tokens": 65805,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "34",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 66510,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "34",
+    "persona": "pat",
+    "bytes": 14948,
+    "estimated_tokens": 66510,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "35",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 68361,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "35",
+    "persona": "pat",
+    "bytes": 18794,
+    "estimated_tokens": 68361,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "36",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 70651,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "36",
+    "persona": "pat",
+    "bytes": 29205,
+    "estimated_tokens": 70651,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "37",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 69075,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "37",
+    "persona": "pat",
+    "bytes": 29354,
+    "estimated_tokens": 69075,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "38",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 73008,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "38",
+    "persona": "pat",
+    "bytes": 25494,
+    "estimated_tokens": 73008,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "39",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 69313,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "39",
+    "persona": "pat",
+    "bytes": 19238,
+    "estimated_tokens": 69313,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "40",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 69399,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "40",
+    "persona": "pat",
+    "bytes": 22528,
+    "estimated_tokens": 69399,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "41",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 71981,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "41",
+    "persona": "pat",
+    "bytes": 28678,
+    "estimated_tokens": 71981,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "42",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 71308,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "42",
+    "persona": "pat",
+    "bytes": 25587,
+    "estimated_tokens": 71308,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "43",
+    "persona": "ivan",
+    "bytes": 12719,
+    "estimated_tokens": 71076,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "43",
+    "persona": "pat",
+    "bytes": 25489,
+    "estimated_tokens": 71076,
+    "scope": "sizing preflight only; runtime render still mandatory"
+  },
+  {
+    "task": "20",
+    "persona": "ivan",
+    "bytes": 44675,
+    "estimated_tokens": 65904,
+    "scope": "capacity reservation: 24KB future full diff, task20 8KB new tests; runtime render mandatory"
+  },
+  {
+    "task": "20",
+    "persona": "pat",
+    "bytes": 36679,
+    "estimated_tokens": 65904,
+    "scope": "capacity reservation: 24KB future full diff, task20 8KB new tests; runtime render mandatory"
+  },
+  {
+    "task": "21",
+    "persona": "ivan",
+    "bytes": 31416,
+    "estimated_tokens": 65000,
+    "scope": "capacity reservation: 24KB future full diff, task20 8KB new tests; runtime render mandatory"
+  },
+  {
+    "task": "21",
+    "persona": "pat",
+    "bytes": 31405,
+    "estimated_tokens": 65000,
+    "scope": "capacity reservation: 24KB future full diff, task20 8KB new tests; runtime render mandatory"
+  }
+]

@@ -1,0 +1,161 @@
+{
+  "base_map_sha256": "e453936f0b6c33bfd65b9f940f3d9fbdb9f7da70b1a3f4b2b91392cf76864bd8",
+  "source_commit": "e960ef1cc43e72bf92593b2f16c7a37c71ea7e48",
+  "candidate_rows": 533,
+  "slices": [
+    {
+      "slice": 1,
+      "rows": 32,
+      "input_bytes": 37253,
+      "candidate_diff_bytes": 19565,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-01.json"
+    },
+    {
+      "slice": 2,
+      "rows": 31,
+      "input_bytes": 34957,
+      "candidate_diff_bytes": 19359,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-02.json"
+    },
+    {
+      "slice": 3,
+      "rows": 31,
+      "input_bytes": 44659,
+      "candidate_diff_bytes": 18663,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-03.json"
+    },
+    {
+      "slice": 4,
+      "rows": 22,
+      "input_bytes": 37663,
+      "candidate_diff_bytes": 13392,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-04.json"
+    },
+    {
+      "slice": 5,
+      "rows": 27,
+      "input_bytes": 41487,
+      "candidate_diff_bytes": 16355,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-05.json"
+    },
+    {
+      "slice": 6,
+      "rows": 16,
+      "input_bytes": 38512,
+      "candidate_diff_bytes": 12820,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-06.json"
+    },
+    {
+      "slice": 7,
+      "rows": 34,
+      "input_bytes": 45440,
+      "candidate_diff_bytes": 20626,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-07.json"
+    },
+    {
+      "slice": 8,
+      "rows": 34,
+      "input_bytes": 37739,
+      "candidate_diff_bytes": 20192,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-08.json"
+    },
+    {
+      "slice": 9,
+      "rows": 23,
+      "input_bytes": 39664,
+      "candidate_diff_bytes": 13849,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-09.json"
+    },
+    {
+      "slice": 10,
+      "rows": 12,
+      "input_bytes": 30029,
+      "candidate_diff_bytes": 7252,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-10.json"
+    },
+    {
+      "slice": 11,
+      "rows": 15,
+      "input_bytes": 32610,
+      "candidate_diff_bytes": 9137,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-11.json"
+    },
+    {
+      "slice": 12,
+      "rows": 5,
+      "input_bytes": 23159,
+      "candidate_diff_bytes": 3177,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-12.json"
+    },
+    {
+      "slice": 13,
+      "rows": 10,
+      "input_bytes": 26957,
+      "candidate_diff_bytes": 5960,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-13.json"
+    },
+    {
+      "slice": 14,
+      "rows": 17,
+      "input_bytes": 33051,
+      "candidate_diff_bytes": 9806,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-14.json"
+    },
+    {
+      "slice": 15,
+      "rows": 35,
+      "input_bytes": 41106,
+      "candidate_diff_bytes": 20217,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-15.json"
+    },
+    {
+      "slice": 16,
+      "rows": 33,
+      "input_bytes": 35216,
+      "candidate_diff_bytes": 20366,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-16.json"
+    },
+    {
+      "slice": 17,
+      "rows": 25,
+      "input_bytes": 44286,
+      "candidate_diff_bytes": 16506,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-17.json"
+    },
+    {
+      "slice": 18,
+      "rows": 18,
+      "input_bytes": 35011,
+      "candidate_diff_bytes": 10250,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-18.json"
+    },
+    {
+      "slice": 19,
+      "rows": 24,
+      "input_bytes": 36569,
+      "candidate_diff_bytes": 13540,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-19.json"
+    },
+    {
+      "slice": 20,
+      "rows": 33,
+      "input_bytes": 44228,
+      "candidate_diff_bytes": 19690,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-20.json"
+    },
+    {
+      "slice": 21,
+      "rows": 28,
+      "input_bytes": 41884,
+      "candidate_diff_bytes": 16599,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-21.json"
+    },
+    {
+      "slice": 22,
+      "rows": 28,
+      "input_bytes": 41456,
+      "candidate_diff_bytes": 16501,
+      "path": "docs/dev/project-management/autopilot/reports/00012-recovery/slice-22.json"
+    }
+  ]
+}

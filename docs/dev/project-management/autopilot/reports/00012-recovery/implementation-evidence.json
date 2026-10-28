@@ -1,0 +1,15 @@
+{
+  "session": "01a184a7-c0b9-7b32-a084-b9b6bf06686a",
+  "role": "implementation",
+  "scope": [
+    "tools/autopilot/map_slice.py",
+    "tests/autopilot/test_map_slice.py"
+  ],
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "provider": "openai",
+  "path": "docs/dev/project-management/autopilot/reports/00012-recovery/native-metadata.jsonl",
+  "line": 2,
+  "sha256": "e66fde6940ce1ed5bc6bd7f45d5f7b25d44a79afa2d5675f1a84a5f049194711",
+  "note": "Interactive recovery tooling only. No original task completion or review convergence claimed; include this contribution in the next cycle audit."
+}

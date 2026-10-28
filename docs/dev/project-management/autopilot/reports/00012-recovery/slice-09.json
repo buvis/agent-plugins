@@ -1,0 +1,776 @@
+{
+  "status": "unreviewed proposal; never apply wholesale",
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/phase-build.md",
+      "first": 86,
+      "last": 399
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/phase-done.md",
+      "first": 12,
+      "last": 75
+    }
+  ],
+  "source_context": [
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "lines": [
+        [
+          84,
+          "It ships the store's `docs/dev/project-management/.gitignore` idempotently and"
+        ],
+        [
+          85,
+          "exits 0 either way. That file is written by code, never with the Write or Edit"
+        ],
+        [
+          86,
+          "tool: `hooks/enforce_prd_location.py` rejects a top-level store file outside its"
+        ],
+        [
+          87,
+          "keeper list for editor tools, and that refusal stays."
+        ],
+        [
+          88,
+          ""
+        ],
+        [
+          93,
+          ""
+        ],
+        [
+          94,
+          "Then, still before the abort handlers, run `autopilot markers --clear`:"
+        ],
+        [
+          95,
+          "`python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py markers --clear handoff-requested cap-fired`"
+        ],
+        [
+          96,
+          "(one Bash call; exits 1 only when no autopilot dir is found above cwd - an"
+        ],
+        [
+          97,
+          "unlink failure is not caught today). It removes any `.handoff-requested` and"
+        ],
+        [
+          115,
+          "relaunching \u2014 never by editing `state.json` (state surgery stays in-skill). This"
+        ],
+        [
+          116,
+          "handler runs BEFORE the `stall_reason` checks below. The pure decision core"
+        ],
+        [
+          117,
+          "`park_decision(marker, wip_filenames, parks_consecutive)` in `cli/resume.py`"
+        ],
+        [
+          118,
+          "encodes the classification (no marker / malformed / stale / park\u2192continue /"
+        ],
+        [
+          119,
+          "park\u2192systemic-halt); `autopilot park` executes its verdict."
+        ],
+        [
+          120,
+          "(`scripts/resume_target.py` still re-exports it for callers that name that"
+        ],
+        [
+          121,
+          "path.)"
+        ],
+        [
+          122,
+          ""
+        ],
+        [
+          124,
+          "pending `stall_op` first, performs the verified `wip/`\u2192`hold/` move, the"
+        ],
+        [
+          125,
+          "deferred record, and a single-commit reset/increment/pause, then deletes the"
+        ],
+        [
+          126,
+          "marker last. See `cli/records.py`'s `do_park` docstring for the full contract."
+        ],
+        [
+          127,
+          "The deferred record's `detail` is the marker's reason plus a"
+        ],
+        [
+          128,
+          "`; lane=<lane_effective>` term when the parked PRD was lane-routed (PRD"
+        ],
+        [
+          152,
+          "- None of the above (neither a recognised `stall_reason` value nor the cap-pause condition `phase == \"paused\"` + `cap_pause_reason`) \u2014 continue with Normal PRD selection below."
+        ],
+        [
+          153,
+          ""
+        ],
+        [
+          154,
+          "Before acting on whichever branch matched, run `autopilot resume-target` (one Bash call) and compare its line to the handler you picked. It is the executable form of this same contract (`cli/resume.py`), so a disagreement means the prose and the encoding have drifted \u2014 follow the encoding and say so. The line adjudicates the abort handlers and the resume point only: `/work continues at first non-completed task <id>` means planning is done, not that Phase 1 is skipped; every build entry still runs \u00a7 Batch cache check and takes the delta or full path it decides (PRD 00209). It also runs the schema-version preflight, refusing with exit 6 on a future-schema `state.json` rather than resuming it blindly. Exit 2 means there is no state file yet, which is a normal fresh start, not an error."
+        ],
+        [
+          155,
+          ""
+        ],
+        [
+          156,
+          "`autopilot enter` runs this step; the instructions below stay the hand-run"
+        ],
+        [
+          172,
+          ""
+        ],
+        [
+          173,
+          "1. If argument provided, find that PRD in `docs/dev/project-management/prds/wip/` or `docs/dev/project-management/prds/backlog/`. If found in backlog, move it to `wip/` under the **verified-move invariant** (core `SKILL.md` \u00a7 \"Phase 0 invariants\"): confirm arrival, else pause with `site: \"mv_verify\"`; do not continue."
+        ],
+        [
+          174,
+          "2. Otherwise, auto-select (never ask the user). Run `autopilot select` (one Bash call). It reads `wip/` then `backlog/` and picks the lowest `00XXX-` sequence in the first that has one; it never scans `hold/` \u2014 `cli/selection.py`'s `select()` takes no hold argument at all, so the parked/deferred exclusion is structural rather than a rule to remember. It prints one JSON line, `{\"prd\": ..., \"source\": ...}`, and exits 0 in every case including drained. Do NOT list the lifecycle directories and re-derive the choice yourself."
+        ],
+        [
+          175,
+          ""
+        ],
+        [
+          176,
+          "   | `source` | Action |"
+        ],
+        [
+          198,
+          "   ```"
+        ],
+        [
+          199,
+          "   Where `{n}` = `len(batch.completed_prds) + 1`"
+        ],
+        [
+          200,
+          "9. Write the `resume` handoff row, best-effort (`work/references/subagent-dispatch.md` \u00a7 Dispatch telemetry): `python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py handoff --site build --edge resume --phase build --prd <state.prd>`. Its gap to the previous session's `leave` row is the handoff latency nothing else measures; it is written after selection so `<state.prd>` names this session's PRD."
+        ],
+        [
+          201,
+          ""
+        ],
+        [
+          202,
+          "`autopilot enter` runs these steps except step 6 \u2014 it makes no capsule read, so"
+        ],
+        [
+          218,
+          "applied fields as JSON on stdout, and prints any warning to stderr. Do NOT"
+        ],
+        [
+          219,
+          "read the PRD and derive these fields yourself, and do NOT write them with"
+        ],
+        [
+          220,
+          "`statectl` \u2014 `cli/frontmatter.py` is the single definition of which fields are"
+        ],
+        [
+          221,
+          "recognized, what values they accept, and what each defaults to."
+        ],
+        [
+          222,
+          ""
+        ],
+        [
+          233,
+          "re-parse it after Phase 0. (Exception by design: `default_model` belongs to"
+        ],
+        [
+          234,
+          "`/autopilot:plan-tasks` and is re-read from the PRD at Phase 6 rework dispatch \u2014 Phase 0"
+        ],
+        [
+          235,
+          "never touches it, and `frontmatter.py` deliberately does not recognize it. It"
+        ],
+        [
+          236,
+          "floors the per-task tier only; the session's model is `session_model`, which"
+        ],
+        [
+          237,
+          "`cli/routing.build_model` re-reads from the PRD at every launch.)"
+        ],
+        [
+          238,
+          ""
+        ],
+        [
+          239,
+          "`eligibility:` is likewise not recognized here, and deliberately so: it is not"
+        ],
+        [
+          240,
+          "a state field. `cli/eligibility.py` reads it at **pick time** (step 2), one"
+        ],
+        [
+          241,
+          "step before this call, and its answer decides whether there is a PRD to parse"
+        ],
+        [
+          242,
+          "frontmatter for at all. Nothing about it reaches `state.json` except the skip"
+        ],
+        [
+          251,
+          "- `pause_on_ambiguity: true` \u2014 in loop mode a requirements ambiguity STALLS the PRD instead of being resolved by assumption; it never pauses the batch (see Phase 2)."
+        ],
+        [
+          252,
+          ""
+        ],
+        [
+          253,
+          "The same call also classifies the PRD's effort lane (`cli/lane.py`) and writes `lane`, `lane_reason` and `lane_effective` in the same transaction; step 5.5 reads them."
+        ],
+        [
+          254,
+          ""
+        ],
+        [
+          255,
+          "`autopilot enter` runs this step; the instructions above stay the hand-run"
+        ],
+        [
+          258,
+          "### 5.5. Route by lane"
+        ],
+        [
+          259,
+          ""
+        ],
+        [
+          260,
+          "Read `state.lane_effective`, which step 5 wrote beside `state.lane` and `state.lane_reason` (`cli/lane.py` decides; three lanes: `solo`, `fast-track`, `full`). When it differs from `state.lane`, print"
+        ],
+        [
+          261,
+          ""
+        ],
+        [
+          262,
+          "```"
+        ],
+        [
+          268,
+          "- `full`: continue to Phase 1."
+        ],
+        [
+          269,
+          "- `solo`: read `references/lane-solo.md` and follow it; Phases 1 to 3 do not run for this PRD. The runbook builds the PRD in this session, runs `autopilot lane-check`, takes one zero-context review pass and closes with `autopilot phase-done --outcome lane_reviewed`, or escalates into the full review gate with `--outcome tasks_done`."
+        ],
+        [
+          270,
+          "- `fast-track`: read `references/lane-fast-track.md` and follow it; Phases 1 to 3 do not run for this PRD unless the runbook falls back to full. The runbook renders one card per `lane.plan_cards` plan with `cards_from_prd.py` (an exit 2 there writes `lane_effective: \"full\"` and `lane_reason: \"uncardable\"` and continues to Phase 1), runs `/autopilot:fast-track` per card, consolidates the cards' tables into the review file and closes with `--outcome lane_reviewed`, or stalls a parked card with site `fast_track_blocked`."
+        ],
+        [
+          271,
+          ""
+        ],
+        [
+          272,
+          "An unreleased lane (one outside `lane.RELEASED_LANES`) always reads `full` here, with the `running full` banner above; the lane is still recorded in the session rows and the batch report. `_AUTOPILOT_LANES=off` in the loop environment forces `full` for every PRD."
+        ],
+        [
+          297,
+          "3. `state.batch.catchup_head_sha` matches the current `git rev-parse HEAD` on the active branch \u2014 **or**, when it does not match, every commit past `catchup_head_sha` has committer `autopilot-loop/<batch.id>` (loop-only commits): a moved HEAD that fails the exact-match test still reads delta in that case."
+        ],
+        [
+          298,
+          ""
+        ],
+        [
+          299,
+          "If any condition fails \u2192 **full catchup**: before invoking `/git-ferry:catchup`, run `autopilot catchup-probe` (one Bash call). Its `skip` list names which of `github-state.sh`/the `gh` commands, and `engram`, to omit this run \u2014 pass that list to `/git-ferry:catchup` as \"do not run `github-state.sh` or any `gh` command\" / \"do not run any `engram` command\" per entry. Write one gap line per skipped step in the capsule's relevant section (GitHub State / Related context), same as today's manual skip-on-failure handling, just decided before the attempt instead of after a failed one. Then invoke `/git-ferry:catchup`. After completion, write `state.batch.catchup_completed_at = <now>` and `state.batch.catchup_head_sha = <current HEAD>`. These fields persist across PRDs in the batch (Phase 9 step 10 preserves them)."
+        ],
+        [
+          300,
+          ""
+        ],
+        [
+          301,
+          "If all conditions hold \u2192 **delta refresh** (no `/git-ferry:catchup` invocation):"
+        ],
+        [
+          340,
+          "### Gate-edge headroom check (design->plan and plan->work edges, PRD 00200)"
+        ],
+        [
+          341,
+          ""
+        ],
+        [
+          342,
+          "The cap hook's headroom rule never fires between tasks (no task is in progress, so there is no task boundary to hand off at), yet a design step alone has used 249 calls and 338K before planning started (PRD 00187), which left the plan or the first task to die at the hard cap or the tripwire. So the build gate applies the hook's own rule itself at its two pre-task edges, with the first-task estimates: read `docs/dev/project-management/autopilot/.turn-counts.json` with the Read tool and take `last.count` and `last.usage` (the hook's record of its latest fire: this session's tool-call count and context total). **Hand off to a fresh build session when `TURN_TRIPWIRE - count < FIRST_TASK_CALLS_ESTIMATE` (450 - count < 200) or `USAGE_CAP - total < FIRST_TASK_USAGE_ESTIMATE` (500000 - usage < 150000).** This edge deliberately stays unmargined: the hook's own `HEADROOM_MARGIN` (1.25x) guards a real measured last-task cost against task-to-task variance, but this pre-task check has no completed task yet to measure from and instead uses the fixed, already-conservative `FIRST_TASK_CALLS_ESTIMATE`/`FIRST_TASK_USAGE_ESTIMATE` constants, so margining an already-fixed estimate would not address the variance the margin exists for. The handoff is not a transition: `phase` and `next_phase` already read `\"build\"`, so run no `phase-done`; write the `leave` row `python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py handoff --site build --edge leave --phase build --prd <state.prd>` (best-effort), print `\u2500\u2500 AUTOPILOT \u2500\u2500 PRD: {prd-name} \u2500\u2500 headroom gone at the {design|plan} edge, handing off \u2500\u2500`, and STOP; the loop relaunches on the non-empty `next_phase` and the fresh session resumes by artifact (the design doc and the tasks that exist skip their sub-steps). A missing file or a missing `last` means the hook has not fired this session; continue. A null `usage` (no usage line in the transcript yet) drops only the usage comparison: the calls comparison stays in force. `last` always describes the running session: the hook rewrites it on every fire, including the fires a leftover `.cap-fired` marker de-duplicates after a rotation, so a dead session's exhausted values can never hand this one off. Interactive runs apply the same check and re-invoke `/autopilot:run-autopilot`."
+        ],
+        [
+          343,
+          ""
+        ],
+        [
+          344,
+          "## Phase 2: Planning"
+        ],
+        [
+          397,
+          "### Hand off to a fresh session for reviews"
+        ],
+        [
+          398,
+          ""
+        ],
+        [
+          399,
+          "After the build completes (all tasks done), do NOT continue into the review phases in the same session \u2014 the review surface spawns multiple cloud reviewers and needs a clean context window. Run the **Session handoff procedure** (core `SKILL.md` \u00a7 Session Loop) with the **build \u2192 review** site row (its step 2 writes `python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py handoff --site build --edge leave --phase review --prd <state.prd>` here), and print:"
+        ],
+        [
+          400,
+          ""
+        ],
+        [
+          401,
+          "```"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-done.md",
+      "lines": [
+        [
+          10,
+          "## Phase 9: Completion"
+        ],
+        [
+          11,
+          ""
+        ],
+        [
+          12,
+          "Write the `resume` handoff row first, best-effort: `python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py handoff --site done --edge resume --phase done --prd <state.prd>` (`work/references/subagent-dispatch.md` \u00a7 Dispatch telemetry)."
+        ],
+        [
+          13,
+          ""
+        ],
+        [
+          14,
+          "1. **Commit history is left as-is.** Autopilot does NOT rewrite the PRD's commit history; the user squashes/groups commits manually before pushing. (Why the old regroup engine was deleted: `references/design-rationale.md` \u00a7 Commit history.)"
+        ],
+        [
+          19,
+          ""
+        ],
+        [
+          20,
+          "4. Append completed PRD to `batch.completed_prds` and reset"
+        ],
+        [
+          21,
+          "   `batch.parks_consecutive = 0` in one call: run `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json complete-prd <prd-filename>`. The verb computes the appended object's `cycles`/`autonomous_decisions`/`escalated_decisions`/`tasks_completed`/`tasks_total` fields from the state being closed rather than trusting a caller to pass them (`cli/statectl.py`'s `do_complete_prd`) \u2014 a healthy PRD drain also clears the systemic-park breaker so a later `wrapper_died` park starts counting fresh (see `references/recovery.md` \u00a7 Systemic-park breaker interaction). `batch` is preserved in full at step 10, so this reset value carries into the next PRD. The same call first appends one row per `tasks[].attempts[]` entry to `docs/dev/project-management/autopilot/ledger/attempts.jsonl` (row shape: `references/state-schema.md` \u00a7 Attempt ledger); a failed ledger write exits 1 with `rejected: ledger write failed` and leaves `state.json` untouched - do not proceed to step 5 until it succeeds, since step 10's reset would drop the attempts unrecorded."
+        ],
+        [
+          22,
+          ""
+        ],
+        [
+          23,
+          "5. Delete all tasks from the completed PRD: run `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json tasks-clear`. This prevents stale tasks from triggering Phase 2's skip logic on the next PRD."
+        ],
+        [
+          24,
+          ""
+        ],
+        [
+          25,
+          "6. Run `autopilot defer --prd <filename> --batch <batch_id> --json '<record>'` for each item to append to `docs/dev/project-management/autopilot/deferred/{batch_id}-deferred.json` (created if missing). Collect from the current state file:"
+        ],
+        [
+          67,
+          ""
+        ],
+        [
+          68,
+          "10. Check remaining PRDs with `autopilot select` (its `source` is `drained` exactly when neither `wip/` nor `backlog/` holds one). Any left?"
+        ],
+        [
+          69,
+          "   - **Yes** \u2192 run the **Session handoff procedure** (core `SKILL.md` \u00a7 Session Loop) with the **PRD \u2192 PRD** site row: one `autopilot phase-done --outcome more_prds` call. That transition IS the per-PRD reset (`cli/records.PER_PRD_RESET_FIELDS` is the single authoritative list) plus `phase`/`next_phase: \"build\"`, committed together \u2014 the next PRD starts a fresh plan, not a rework dispatch, so clearing here prevents stale values from surviving if the next PRD aborts before reaching those phases. Delete `docs/dev/project-management/autopilot/replan-context.md` if it exists (defensive \u2014 plan-tasks deletes it on success, but a malformed prior session may have left it). **`batch` is preserved in full, including `batch.catchup_completed_at` and `batch.catchup_head_sha`** \u2014 Phase 1 of the next PRD reads these to decide between full catchup and delta refresh. The procedure's step 2 writes `python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py handoff --site done --edge leave --phase build --prd <state.prd>` here. Print:"
+        ],
+        [
+          70,
+          "     ```"
+        ],
+        [
+          71,
+          "     \u2500\u2500 AUTOPILOT \u2500\u2500 {prd-name} done \u2500\u2500 next PRD in new session \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+        ],
+        [
+          73,
+          "     Then **STOP** (end the turn \u2014 in loop mode the wrapper reads the non-empty `next_phase: \"build\"` and launches a fresh session for the next PRD; outside the loop the user re-invokes `/autopilot:run-autopilot` manually)."
+        ],
+        [
+          74,
+          "   - **No** \u2192 append the report's Batch Summary block (`autopilot render report --summary`), print the batch summary below, then branch on loop mode:"
+        ],
+        [
+          75,
+          "     - **Loop mode (`$_AUTOPILOT_LOOP` set) \u2014 non-interactive batch end.** The deferred JSON (step 6) and the batch report (step 7) are already written. Run `autopilot mint-stubs --batch <batch_id>` once more (the batch-end mint site of PRD 00195: the ledger is final now, so any severe row that reached it without an owner gets its hold stub; the call is idempotent and usually prints an empty list, and its new basenames join `state.batch.minted_stubs`). Then run `autopilot phase-done --outcome drained`, which writes `phase: \"done\"` and the EMPTY `next_phase` (nothing more to run \u2014 the wrapper reads an empty value as drained; the literal string `\"done\"` is a phase with work queued after it and would spin the loop until the safety kill). Then notify the user with the batch counts (PRD 00017: `python3 ~/.claude/hooks/notify.py --send \"autopilot \ud83d\udccb {repo}\" \"Batch done: {n} done, {m} stalled, {k} deferred, {s} stubs. Run /autopilot:run-autopilot review-batch.\"` \u2014 count stalls from the deferred JSON's `type: \"stall\"` entries; `{s}` is `len(state.batch.minted_stubs)`, the unique hold stubs minted for this batch across every mint call (a cap_critical stall's 12, say, plus this final call's usually-zero), read from `state.json` before the wrapper archives it, 0 when the field is absent; when m, k and s are all zero, shorten to \"Batch done: {n} PRDs.\"), print the summary, and END THE TURN. The wrapper reads the empty `next_phase`, archives `state.json` to `reports/{batch_id}-state-final.json`, and stops the loop. Do NOT run the chunked Batch-End Review here \u2014 no human is present; it runs later via `/autopilot:run-autopilot review-batch`."
+        ],
+        [
+          76,
+          "     - **Outside the loop \u2014 interactive batch end.** Run the Batch-End Review presentation below, then run `autopilot phase-done --outcome drained` (same transition, same empty `next_phase`) and STOP. `state.json` stays on disk; the next invocation's batch-identity rollover (Phase 0 step 3) mints a fresh batch."
+        ],
+        [
+          77,
+          "     ```"
+        ]
+      ]
+    }
+  ],
+  "proposed_rows": [
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 86,
+      "reference": "hooks/enforce_prd_location.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "hooks/enforce_prd_location.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 95,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 117,
+      "reference": "cli/resume.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/resume.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 120,
+      "reference": "scripts/resume_target.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "scripts/resume_target.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 126,
+      "reference": "cli/records.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/records.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 154,
+      "reference": "cli/resume.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/resume.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 174,
+      "reference": "cli/selection.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/selection.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 200,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 220,
+      "reference": "cli/frontmatter.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/frontmatter.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 235,
+      "reference": "frontmatter.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "frontmatter.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 240,
+      "reference": "cli/eligibility.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/eligibility.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 253,
+      "reference": "cli/lane.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/lane.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 260,
+      "reference": "cli/lane.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/lane.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 270,
+      "reference": "cards_from_prd.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cards_from_prd.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 299,
+      "reference": "github-state.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "github-state.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 342,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 399,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 12,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 21,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 21,
+      "reference": "cli/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 23,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 69,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 75,
+      "reference": "~/.claude/hooks/notify.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "~/.claude/hooks/notify.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    }
+  ],
+  "existing_rows": [
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 120,
+      "reference": "scripts/resume_target.py",
+      "kind": "external-capability",
+      "status": "planned",
+      "capability": "scripts/resume_target.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 248,
+      "reference": "references/phase-review.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 269,
+      "reference": "references/lane-solo.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 270,
+      "reference": "references/lane-fast-track.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 287,
+      "reference": "references/design-rationale.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 14,
+      "reference": "references/design-rationale.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 21,
+      "reference": "references/recovery.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 21,
+      "reference": "references/state-schema.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 29,
+      "reference": "references/phase-review.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 33,
+      "reference": "references/audit-log-format.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 35,
+      "reference": "references/batch-report-format.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    }
+  ]
+}

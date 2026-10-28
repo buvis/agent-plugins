@@ -1,0 +1,380 @@
+{
+  "status": "unreviewed proposal; never apply wholesale",
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/phase-review.md",
+      "first": 18,
+      "last": 199
+    }
+  ],
+  "source_context": [
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "lines": [
+        [
+          16,
+          "**Skip the entire review-rework loop if:** `\"review\"` is in `phases_completed` \u2014 the loop already converged in a prior session and handed off (see \"Hand off to the finalize session\" in Phase 5). Skip Phases 4, 5, and 6, and resume directly at Phase 9 (`references/phase-done.md`)."
+        ],
+        [
+          17,
+          ""
+        ],
+        [
+          18,
+          "Write the `resume` handoff row first, best-effort: `python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py handoff --site review --edge resume --phase review --prd <state.prd>` (`work/references/subagent-dispatch.md` \u00a7 Dispatch telemetry). It sits below the loop-level skip above, whose path resumes into Phase 9 and writes the `done` row there, and above the cycle skip below, so a crash-resume with this cycle's review file already on disk still stamps its edge."
+        ],
+        [
+          19,
+          ""
+        ],
+        [
+          20,
+          "**Skip this cycle's review if:** A review file exists in `docs/dev/project-management/reviews/` for the current cycle (filename pattern `{prd-name}-review-{cycle}.md`)."
+        ],
+        [
+          42,
+          "Otherwise (an unresolved CRITICAL/HIGH remains), before evaluating the Safety Checks table below, check whether the review-rework cycle cap has been reached."
+        ],
+        [
+          43,
+          ""
+        ],
+        [
+          44,
+          "Read `state.cycle` (starts at 1; the number of the review cycle just completed) and `state.rework_cap` (the effective cap, written by Phase 0's `autopilot frontmatter` call from the PRD frontmatter \u2014 default 2; `cli/frontmatter.py` defines the accepted values, `references/phase-build.md` \u00a7 Frontmatter parse shows the call)."
+        ],
+        [
+          45,
+          ""
+        ],
+        [
+          46,
+          "**Rework is allowed while `cycle < cap`; when `cycle >= cap` AND rework would otherwise be dispatched, the gate pauses instead of reworking.**"
+        ],
+        [
+          57,
+          "When the cap is hit AND the review did not converge (`state.cycle >= state.rework_cap` AND an unresolved CRITICAL/HIGH remains), branch on loop mode (PRD 00017). Under the severity bar these branches can only fire while a CRITICAL/HIGH persists; they are otherwise unchanged:"
+        ],
+        [
+          58,
+          ""
+        ],
+        [
+          59,
+          "- **Loop mode (`$_AUTOPILOT_LOOP` set) \u2014 cap-out defers, never pauses.** Any unresolved CRITICAL finding \u2192 stall the PRD (follow `references/recovery.md` \u2192 \"Loop-mode stall procedure\", `site: \"cap_critical\"` \u2014 the stall itself captures the PRD's live commit range (`work_start_sha..HEAD`) into custody; there is no range flag to pass) and continue the batch. When that stall exits 0 (its custody write and its deferral migration both succeeded), run `autopilot mint-stubs --batch <state.batch.id>` once before ending the turn (PRD 00195): it mints a `docs/dev/project-management/prds/hold/<NNNNN>-triage-<slug>-v1.md` for every open CRITICAL/HIGH, `cap_critical`, or `cap_regression` row of the batch deferred JSON that no PRD owns yet and appends the new basenames to `state.batch.minted_stubs`; it is idempotent (a rerun prints `{\"minted\": [], ...}`), it changes nothing about the stall's own retry/reset order or the review roster, and a stall that exited non-zero mints nothing: take that exit's row in the stall table first. Otherwise (all unresolved findings \u2264 high): before deferring, run `autopilot cap-check --review-file <this cycle's review file> --previous <the prior cycle's review file, or omit the flag when none exists>` (PRD 00310). Exit 1 (at least one unresolved high/critical row classifies as a regression introduced by this cycle's own rework, or as `\"regression\": null` because its File cell names a path git cannot resolve at head) \u2192 do NOT take the Exit 0 deferral; run these three steps in order (PRD 00321). (1) Record every unresolved finding of this cycle, regressed or not, in `state.deferred_decisions` as a cap-overflow record of the same shape the Exit 0 path writes below. (2) Stall the PRD (follow `references/recovery.md` \u2192 \"Loop-mode stall procedure\", `site: \"cap_regression\"`, `detail`: one `<ref> <commit>` fragment per regressed row from `cap-check`'s stdout). A `\"regression\": null` row carries no commit (`\"commit\": null`), so build its fragment from its `ref` and `reason` instead (`R6 unresolved path src/x.py`). The stall copies the pending records from step 1 into the batch deferred JSON as `<op_id>-dd<i>` rows before its reset drops `state.deferred_decisions`. (3) When that stall exits 0, run `autopilot mint-stubs` once before ending the turn, with the same `--batch` argument as the `cap_critical` branch above: `triage.qualifies` accepts a `cap_regression` stall row beside `cap_critical`, so it mints a hold stub for the stall and for each open HIGH/CRITICAL row; a stall that exited non-zero mints nothing: take that exit's row in the stall table first. Then continue the batch. Unlike `cap_critical`, this stall captures no custody: `records.do_stall`'s custody capture is gated on `site == \"cap_critical\"` (`cli/records.py`), so a `cap_regression` stall leaves no `critical-on-master` marker and no journal entry, and the PRD sits in `hold/` until a human resolves the regression (`references/recovery.md` \u2192 `cap_regression`). A heavily rewritten rename is a documented limit, not a defect: `git blame` attributes its unchanged lines to the rework range, so `cap-check` can flag them as regressions. Exit 2 (`CapCheckError`) \u2192 this is the EXISTING \"Sub-skill invocation fails outright\" row of core SKILL.md's Error Handling table, verbatim, not a new handling path: interactive \u2192 PAUSE and report; loop mode \u2192 re-invoke `cap-check` ONCE, and if it fails again, `autopilot stall --prd <filename> --site sub_skill_fail --detail \"<cap-check stderr>\"` and continue the batch. The Safety Checks table's \"reviewer or sub-skill errored transiently\" graceful-degradation row does NOT apply here: `cap-check` runs at the decision gate after findings already exist, not during findings-gathering, so there is no graceful degradation available \u2014 a failed classifier cannot degrade into a correct cap-out verdict. Exit 0 (no regression) \u2192 proceed with the deferral below unchanged. Append each to `deferred_decisions` as `{\"type\": \"cap-overflow\", \"issue\": ..., \"severity\": ..., \"consensus\": ..., \"reason\": \"rework cap reached with this finding unresolved\"}` (`reason` is the cell the report's Deferred table renders; a record without it renders a blank Reason). `severity`: the word (critical/high/medium/low), not the emoji cell \u2014 unlike the Tail-sweep chosen_findings instruction elsewhere in this file, which explicitly wants the emoji verbatim; this one wants the word. `state.deferred_decisions` is the ONLY sink a cap-out writes. Do NOT call `autopilot defer` here: it is Phase 9's migration tool (`references/phase-done.md` step 6), not the cap-out recording path, and a record that reaches only the batch deferred JSON is what PRD 00140's report lost. Then the wrapper records the convergence row at review-phase exit (its `outcome` reads `cap_deferred` from the cap-overflow deferrals just written; see **Convergence metric** below); write nothing. Proceed to the finalize hand-off as converged-with-deferrals, and make the banner name the deferral count (`\u2500\u2500 cap reached: {k} findings deferred to batch end \u2500\u2500`). Stop polishing, not the batch."
+        ],
+        [
+          60,
+          "- **Interactive \u2014 perform the Cap-pause behavior** (see below) and STOP \u2014 do NOT continue into the rest of Phase 5 (no Classification, no Outcomes)."
+        ],
+        [
+          61,
+          ""
+        ],
+        [
+          81,
+          "4. **Best-effort dashboard hint (optional).** MAY set `state.needs_attention = true`. This is a hint only \u2014 `needs_attention` is dashboard-only state with no automatic clearer since the pidash hooks were retired (PRD 00063; tracon owns the lifecycle per PRD 00062), and it MUST NOT be relied on as the pause indicator. The authoritative cap-pause signal is `phase == \"paused\"` PLUS `cap_pause_reason` being set (NOT `needs_attention`)."
+        ],
+        [
+          82,
+          ""
+        ],
+        [
+          83,
+          "5. **The pause halts the loop by state alone.** Step 3 set `state.phase = \"paused\"`; the loop driver's decision table (`cli/loop.py`) maps a paused state to \"notify the user and stop the loop\", leaving `state.json` intact. The user re-invokes `/autopilot:run-autopilot` to handle the pause."
+        ],
+        [
+          84,
+          ""
+        ],
+        [
+          85,
+          "6. **Print the cap-pause banner:**"
+        ],
+        [
+          122,
+          "**Routed to verification** (PRD 00164) \u2014 **Medium and Low only**: a finding matching an entry in this cycle's verification-check queue (`docs/dev/project-management/reviews/{prd-stem}-checks-{cycle}.json`, written by `review-work-completion` step 6) is **none of the rows above**. It is not auto-fixed, not researched, not deferred, and creates no task: its named check runs inside the work phase's one mandatory step-7 verification pass, which is where the task would have re-run the same suite anyway. Record it in `autonomous_decisions` as `routed to verification`, naming the command, so an unrun check is visible in the batch report rather than silently dropped. The entry carries every key \u2014 `{\"cycle\": <state.cycle>, \"issue\": \"...\", \"severity\": \"...\", \"action\": \"...\", \"reason\": \"...\"}` \u2014 a row with `cycle` alone renders blank in the Phase 9 audit. Exclude it from the follow-up task count the Safety Checks table measures, and from the Tail sweep's selection below."
+        ],
+        [
+          123,
+          ""
+        ],
+        [
+          124,
+          "**Matching is this gate's judgment call on issue text plus file** \u2014 the same standard the Cap check above uses for settled deferrals, and for the same reason: `consolidate_findings.py` folds paraphrases onto the FIRST-seen wording, so the consolidated row rarely repeats the doubt lens's own words. Verbatim identity would miss exactly the highest-consensus findings and re-create the task this row exists to remove. Match on the entry's `finding` and `file` \u2014 the same pair step 7's skip uses, so the two readers never disagree about which rows are queued."
+        ],
+        [
+          125,
+          ""
+        ],
+        [
+          126,
+          "**A cycle that converges with no work pass leaves its checks unrun** \u2014 routed findings are excluded from the sweep's selection, so an all-routed Medium/Low tail skips the sweep, and the cap-out paths have no rework pass either. This is a stated limitation, not an oversight: running checks outside a work phase would be the new verification machinery this design exists to avoid. The `autonomous_decisions` entry above is the record that makes those checks visible in the batch report, and it is the whole mitigation."
+        ],
+        [
+          145,
+          "(**Interactive:** present via `AskUserQuestion`. **Loop mode (`$_AUTOPILOT_LOOP` set):** never call `AskUserQuestion` and never pause the batch \u2014 the Outcomes \"Has blocking escalation\" row routes these to the **Loop-mode stall procedure** with `site: \"blocking_escalation\"` and continues. Scope alarm \u2014 >10 follow-ups \u2014 is deliberately NOT in this list: the Safety Checks table above already defers-and-continues it in loop mode as a `scope-overflow` record, so it never pauses AND never stalls.)"
+        ],
+        [
+          146,
+          ""
+        ],
+        [
+          147,
+          "Log every decision in the state file (`autonomous_decisions` or `deferred_decisions`), each entry carrying every key \u2014 `{\"cycle\": <state.cycle>, \"issue\": \"...\", \"severity\": \"...\", \"action\": \"...\", \"reason\": \"...\"}` \u2014 and note the review cycle (`state.cycle`) in the entry's Decision text. Append an `autonomous_decisions` entry with `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py <state.json> decide --issue \"...\" --severity \"...\" --cycle <state.cycle> --action \"...\" --reason \"...\"` (`decide` rejects a missing required flag before it writes); `deferred_decisions` still appends via `statectl set`. The Phase 9 audit render reads these arrays \u2014 do not write `audit.md` here."
+        ],
+        [
+          148,
+          ""
+        ],
+        [
+          149,
+          "### Settled-decisions ledger (PRD 00095)"
+        ],
+        [
+          155,
+          "```"
+        ],
+        [
+          156,
+          ""
+        ],
+        [
+          157,
+          "`issue` is the finding's own words, not a summary \u2014 the matcher in `consolidate_findings.py` compares against it. Write it with the Write tool (read the existing array, append, write back); a ledger that fails to write is logged and does not block the cycle."
+        ],
+        [
+          158,
+          ""
+        ],
+        [
+          159,
+          "The ledger is what stops a settled call from being re-argued every cycle. It is read in three places: `review-work-completion` step 4 appends it to the implementation-aware prompts, step 6 passes it as `--ledger` so Blake's re-raises are auto-dismissed, and the Cap check's settled-deferral exclusion above is decided from it."
+        ],
+        [
+          168,
+          "  - **Interactive:** PAUSE. Present only the blocking issue(s) to user via `AskUserQuestion`. Wait for decision. After user responds, proceed to Phase 6."
+        ],
+        [
+          169,
+          "  - **Loop mode (`$_AUTOPILOT_LOOP` set):** there is no human to answer \u2014 do NOT pause the batch. Follow the **Loop-mode stall procedure** (`references/recovery.md`) with `site: \"blocking_escalation\"`, recording the blocking issue(s) in the deferred JSON `detail`, and continue the batch. The parked PRD, on un-park, re-enters the build gate and the decision resurfaces interactively."
+        ],
+        [
+          170,
+          "- **Converged (no unresolved CRITICAL/HIGH)** \u2192 before treating the cycle as converged, run `autopilot gate --review-file <this cycle's review file> --require-codex-guard --assert-constraint-met` (flag semantics: `cli/gate.py` module docstring; PRD 00107 absorbed the old `check_review_file.py` path, which survives as a shim). It checks the constraint line only, so a converging cycle may legitimately carry `Verdict: N findings`. Exit 0 \u2192 the doubt-roster constraint certified; the review-rework loop has converged (all lenses, including blind and doubt, passed this cycle). On this path the wrapper records the convergence row at review-phase exit; write nothing (see **Convergence metric** below). Run the **Tail sweep** below, then hand off to the finalize session (see below). Exit 2 \u2192 the constraint did NOT hold; do NOT converge this cycle. Do NOT re-run the Cap check above \u2014 its own convergence test already needs this same gate (see \"Cap check\" above), so re-entering it only recreates this same bullet. Instead, classify the unmet constraint as one unresolved CRITICAL finding and route forward directly on `state.cycle` vs `state.rework_cap`: below cap \u2192 continue to Phase 6 for another review cycle; at cap \u2192 the existing cap-out machinery applies with no new mechanism \u2014 **loop mode**: the \"Any unresolved CRITICAL finding\" branch above (stall via `references/recovery.md` \u2192 Loop-mode stall procedure, `site: \"cap_critical\"`; the batch continues); **interactive**: the Cap-pause behavior above (include the constraint among the collected `unresolved_findings`). The batch keeps draining either way; this does not create a new batch-halt class."
+        ],
+        [
+          171,
+          ""
+        ],
+        [
+          172,
+          "### Convergence metric"
+        ],
+        [
+          173,
+          ""
+        ],
+        [
+          174,
+          "`cli/loop.py` (`Loop._append_metrics`) appends the `review_converged` row to `docs/dev/project-management/autopilot/loop-metrics.jsonl` and its `ledger/` mirror when a session launched as `review` exits with `next_phase: \"done\"` - one row per PRD, written after that session's own row, never from skill prose. Both paths above (converged, and the loop-mode cap-out) exit that way, so neither writes anything. Its shape:"
+        ],
+        [
+          175,
+          ""
+        ],
+        [
+          176,
+          "```json"
+        ],
+        [
+          193,
+          "Runs once, on the converged outcome above, after the review file is saved and before the finalize hand-off. The Medium/Low tail is **swept, not dropped**: normal `/autopilot:work` tasks fix it, then the PRD finalizes. No new verification machinery."
+        ],
+        [
+          194,
+          ""
+        ],
+        [
+          195,
+          "**0. Decision gate (PRD 00264).** `_tail_sweep_refusal` (`cli/review_close.py`) requires this cycle's `<review file>::decision-gate` stamp in `applied_review_batches` before it accepts a tail-sweep batch \u2014 but on a clean converged cycle (no \ud83d\udd34/\ud83d\udfe0 row, ever, this cycle) Phase 6 never runs, and Phase 6's \"Dispatch rework\" is the only other caller of the decision gate. Without this step, `review-close --batch-id tail-sweep` always exits `tail_sweep_before_decision_gate` and the loop stalls on every such cycle. Skip this step entirely when `rg -q -F '::decision-gate' <this cycle's review file's own entries in state.applied_review_batches>` already matches (idempotent re-entry after a crash). Otherwise: build `chosen_findings` exactly as Phase 6's \"Dispatch rework\" source 2 does (same table, same classification mapping), with one exception \u2014 give every row that step 1 below will select for the sweep `\"classification\": \"verify\"` instead of its Classification-table value, so this call creates no task for it (coverage still holds; `\"verify\"` rows create nothing) and the sweep's own call two steps below is the one and only place that turns them into tasks. Every other row keeps its normal Classification mapping. Write it to `docs/dev/tmp/<prd-stem>-decision-gate-<cycle>-findings.json` and run ONE `autopilot review-close --review-file <this cycle's review file> --state <state.json> --batch-id decision-gate --findings docs/dev/tmp/<prd-stem>-decision-gate-<cycle>-findings.json --default-tier <tier>` call (same tier rule as Phase 6). Exit codes as in Phase 6's \"Dispatch rework\": 0 applied, `already applied` continue, any other refusal a sub-skill failure (loop mode: Loop-mode stall procedure, `site: \"sub_skill_fail\"`; interactive: PAUSE, same site)."
+        ],
+        [
+          196,
+          ""
+        ],
+        [
+          197,
+          "**1. Select.** Take the converging cycle's actionable Medium/Low findings. Exclude settled deferrals, findings this gate discarded, findings routed to verification (their check runs in step 7; sweeping them would rebuild the task this routing exists to remove), and anything already in `deferred_decisions` \u2014 a decision already taken is not swept again. Exclude every row whose Consensus cell is `[1/N]`: append each to the ledger as `discarded`, reason `single-voice`, and sweep only rows two or more reviewers raised. Zero such rows \u2192 skip the sweep. **Zero actionable Medium/Low \u2192 skip the sweep entirely** and go straight to the finalize hand-off (today's clean path, unchanged)."
+        ],
+        [
+          198,
+          ""
+        ],
+        [
+          199,
+          "**2. Create.** Build `chosen_findings` from step 1's selection exactly as Phase 6's \"Dispatch rework\" source 2 does: one entry per swept finding, each `\"classification\": \"fix\"`, with `severity`, `file`, `issue` and `found_by` copied verbatim from its `## Consolidated Findings` row. Write it with the Write tool to `docs/dev/tmp/<prd-stem>-tail-sweep-<cycle>-findings.json`, then run ONE `autopilot review-close --review-file <this cycle's review file> --state <state.json> --batch-id tail-sweep --findings docs/dev/tmp/<prd-stem>-tail-sweep-<cycle>-findings.json --default-tier <tier>` call (tier: the `/autopilot:plan-tasks` classifier output when its inputs are available, otherwise `sonnet`; no \ud83d\udd34 reaches the sweep, so no `default_model` floor applies). It groups the swept findings into one task per group (at most 4, never zero), gives each the same `### Findings (verbatim)` block Phase 6 D-tasks carry (PRD 00095), and appends each id to `state.rework_task_ids`, in one transaction. `--batch-id tail-sweep` is what names each task `[D{cycle}] Tail sweep: <theme>`, the group's `name_hint` supplying `<theme>`; the literal `Tail sweep` prefix is what Phase 4's rotation-resume rule reads (PRD 00196, pinned at `skills/run-autopilot/scripts/test_review_resume_prose.py:55`). The existing max-2-parallel rework rule applies unchanged. Exit codes are read as in Phase 6's \"Dispatch rework\": 0 applied, `already applied` continue, any other refusal a sub-skill failure."
+        ],
+        [
+          200,
+          ""
+        ],
+        [
+          201,
+          "`doubts_rubric_verdicts` and `review_lenses` close-out are already recorded by the decision-gate call earlier in the cycle. `review-close` re-derives both from the same review file, so this call's write to those fields is a no-op by design, not a bug and not a second roster close-out."
+        ]
+      ]
+    }
+  ],
+  "proposed_rows": [
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 18,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 44,
+      "reference": "cli/frontmatter.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/frontmatter.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 59,
+      "reference": "cli/records.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/records.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 83,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/loop.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 124,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "consolidate_findings.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 147,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 157,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "consolidate_findings.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 170,
+      "reference": "check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "check_review_file.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 170,
+      "reference": "cli/gate.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/gate.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 174,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/loop.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 195,
+      "reference": "cli/review_close.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/review_close.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 199,
+      "reference": "skills/run-autopilot/scripts/test_review_resume_prose.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "skills/run-autopilot/scripts/test_review_resume_prose.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    }
+  ],
+  "existing_rows": [
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 44,
+      "reference": "references/phase-build.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 59,
+      "reference": "references/recovery.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 95,
+      "reference": "references/decision-framework.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    }
+  ]
+}

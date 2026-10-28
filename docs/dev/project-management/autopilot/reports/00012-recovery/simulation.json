@@ -1,0 +1,119 @@
+{
+  "scope": "temporary map only; proposals remain unreviewed and unapplied in product",
+  "final_edges": 710,
+  "unchanged_other_collections": true,
+  "original_identities_preserved": true,
+  "seconds": 13.83,
+  "slices": [
+    {
+      "slice": 1,
+      "fresh_snapshot_bytes": 3475,
+      "complete_diff_bytes": 19713
+    },
+    {
+      "slice": 2,
+      "fresh_snapshot_bytes": 2273,
+      "complete_diff_bytes": 19840
+    },
+    {
+      "slice": 3,
+      "fresh_snapshot_bytes": 4500,
+      "complete_diff_bytes": 19121
+    },
+    {
+      "slice": 4,
+      "fresh_snapshot_bytes": 2494,
+      "complete_diff_bytes": 13819
+    },
+    {
+      "slice": 5,
+      "fresh_snapshot_bytes": 3645,
+      "complete_diff_bytes": 16788
+    },
+    {
+      "slice": 6,
+      "fresh_snapshot_bytes": 9067,
+      "complete_diff_bytes": 13246
+    },
+    {
+      "slice": 7,
+      "fresh_snapshot_bytes": 4738,
+      "complete_diff_bytes": 21112
+    },
+    {
+      "slice": 8,
+      "fresh_snapshot_bytes": 3062,
+      "complete_diff_bytes": 20616
+    },
+    {
+      "slice": 9,
+      "fresh_snapshot_bytes": 4184,
+      "complete_diff_bytes": 14308
+    },
+    {
+      "slice": 10,
+      "fresh_snapshot_bytes": 1232,
+      "complete_diff_bytes": 7678
+    },
+    {
+      "slice": 11,
+      "fresh_snapshot_bytes": 3353,
+      "complete_diff_bytes": 9594
+    },
+    {
+      "slice": 12,
+      "fresh_snapshot_bytes": 1228,
+      "complete_diff_bytes": 3586
+    },
+    {
+      "slice": 13,
+      "fresh_snapshot_bytes": 252,
+      "complete_diff_bytes": 6376
+    },
+    {
+      "slice": 14,
+      "fresh_snapshot_bytes": 1559,
+      "complete_diff_bytes": 10218
+    },
+    {
+      "slice": 15,
+      "fresh_snapshot_bytes": 2665,
+      "complete_diff_bytes": 20635
+    },
+    {
+      "slice": 16,
+      "fresh_snapshot_bytes": 2251,
+      "complete_diff_bytes": 20830
+    },
+    {
+      "slice": 17,
+      "fresh_snapshot_bytes": 8914,
+      "complete_diff_bytes": 16965
+    },
+    {
+      "slice": 18,
+      "fresh_snapshot_bytes": 3408,
+      "complete_diff_bytes": 10708
+    },
+    {
+      "slice": 19,
+      "fresh_snapshot_bytes": 2195,
+      "complete_diff_bytes": 13948
+    },
+    {
+      "slice": 20,
+      "fresh_snapshot_bytes": 4864,
+      "complete_diff_bytes": 20098
+    },
+    {
+      "slice": 21,
+      "fresh_snapshot_bytes": 4514,
+      "complete_diff_bytes": 17036
+    },
+    {
+      "slice": 22,
+      "fresh_snapshot_bytes": 4015,
+      "complete_diff_bytes": 16909
+    }
+  ]
+}

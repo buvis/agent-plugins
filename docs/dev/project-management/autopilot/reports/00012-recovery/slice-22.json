@@ -1,0 +1,824 @@
+{
+  "status": "unreviewed proposal; never apply wholesale",
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/work/references/subagent-dispatch.md",
+      "first": 88,
+      "last": 251
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/work/references/task-boundary-handoff.md",
+      "first": 7,
+      "last": 40
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/work/references/tess-prompt.md",
+      "first": 33,
+      "last": 33
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/work/references/test-author-prompt.md",
+      "first": 8,
+      "last": 96
+    }
+  ],
+  "source_context": [
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "lines": [
+        [
+          86,
+          "   - **No progress on BOTH probes across two consecutive checks** (or the 45-min cap) \u2192 `TaskStop` the agent, then close its dispatch row exactly once for this attempt, on what `TaskStop` reports (\u00a7 Dispatch telemetry): if it reports the task **already completed**, the \"hang\" was a late completion notification \u2014 treat it as a normal completion, not a failure, and close the row `ok`; otherwise close it `--outcome timeout` and handle it as the **Result lost / hung** row of `SKILL.md`'s Handle result table (step 4) \u2192 the infrastructure-failure circuit breaker (step 4.2). Do **not** treat a hung agent as a content **Timeout**: it produced no usable work, so splitting the task (the Timeout remedy) would split nothing."
+        ],
+        [
+          87,
+          "4. **After ANY kill, inspect before re-dispatching.** Run `git status` over the authorized surfaces:"
+        ],
+        [
+          88,
+          "   - **Qwen prerequisite:** verify the helper is gone, then run `check_qwen_output.py after --tests-only` with its captured snapshot per `qwen-integration.md` \u00a7 Output guards, before any verification below. Exit 1 takes Qwen test-mutation recovery; exit 2 stops acceptance. Only exit 0 permits independent verification or continuation against canonical tests."
+        ],
+        [
+          89,
+          "   - **Work looks complete** \u2192 the kill landed at the agent's verification/reporting tail (the common case \u2014 measured 2026-07-31: 5 kills in one session, 0 true hangs; 3 had complete work on disk). Verify the work INDEPENDENTLY (run the task's own verify commands yourself); green \u2192 accept it as a normal completion. The report footers are lost with the agent, so reconstruct `FILES_TOUCHED:` from the tree and record the missing `ASSUMPTIONS:` footer in the assumptions ledger."
+        ],
+        [
+          90,
+          "   - **Work is partial** \u2192 the step-4.2 re-dispatch must be a CONTINUATION brief that names the completed surfaces (verified by you) so the fresh agent does not redo or clobber them."
+        ],
+        [
+          96,
+          "**Helper-script dispatches** (`use-codex`/`use-gemini`/`use-qwen` helper scripts, which run as background Bash tasks) follow the same protocol: dispatch with `run_in_background: true`, then wait with `TaskOutput(task_id, block=true, timeout=600000)` (600000 ms = 10 min, the max per call) \u2014 it returns on completion or at the deadline; on a still-running return, re-issue the wait once, then treat a second timeout as a hang. Close the dispatch row when `TaskOutput` returns (`ok`, or `error` on a non-zero exit) or after that second timeout (`timeout`) \u2014 \u00a7 Dispatch telemetry. Never hand-roll a `while`/`if`/`wc -c` stability loop in `Monitor` or `Bash` to detect completion: its shell control flow cannot be statically analyzed by Warden, so it prompts for approval and stalls an unattended autopilot run."
+        ],
+        [
+          97,
+          ""
+        ],
+        [
+          98,
+          "**qwen helper-script deadline.** qwen dispatches use the **10 min \u00d7 2 `TaskOutput`** wait pattern above \u2014 the same as `use-codex` and `use-gemini` \u2014 NOT the 15-min `Monitor` watchdog (which applies to Agent dispatches like Tess / Ivan / Devon / reviewer). The `pi` invocation that `qwen-run.sh` wraps is a Bash helper-script dispatch, so the helper-script deadline applies. Local-inference latency on a 30B-parameter qwen model can routinely exceed several minutes; the 10-min \u00d7 2 budget accommodates that without conflating it with the Agent watchdog."
+        ],
+        [
+          99,
+          ""
+        ],
+        [
+          100,
+          "**Six deadlines exist, by mechanism \u2014 keep them distinct:**"
+        ],
+        [
+          142,
+          "**When cargo commands get backgrounded by the session**: the Bash tool may background long-running commands regardless of the `run_in_background` flag. Wait for background completions via Monitor (up to 20 minutes for full test suites). Never launch a second cargo command while one is still running \u2014 they contend on the build lock and jam the shell. If a Monitor times out, read the output file directly; if the file is empty the build lock was still held, wait longer before retrying."
+        ],
+        [
+          143,
+          ""
+        ],
+        [
+          144,
+          "## Passing values to render_prompt.py"
+        ],
+        [
+          145,
+          ""
+        ],
+        [
+          146,
+          "Moved verbatim out of `SKILL.md` \u00a7 Passing values to render_prompt.py (PRD"
+        ],
+        [
+          147,
+          "00119-v2). SKILL.md keeps the never-`--set` rule and the dispatch-target"
+        ],
+        [
+          148,
+          "preflight. **Read this section before your first render call in a session.**"
+        ],
+        [
+          174,
+          ""
+        ],
+        [
+          175,
+          "```bash"
+        ],
+        [
+          176,
+          "python3 <plugin root>/skills/work/scripts/check_reflow.py <path> [<path> ...]"
+        ],
+        [
+          177,
+          "```"
+        ],
+        [
+          178,
+          ""
+        ],
+        [
+          189,
+          "## Dispatch telemetry (PRD 00168)"
+        ],
+        [
+          190,
+          ""
+        ],
+        [
+          191,
+          "Nothing above says when anything happened: the attempt record carries no timestamp, and `loop-metrics.jsonl` is one row per session. Measured 2026-08-27, a PRD's review and rework commits spanned 15.3 hours with a 6-hour and a 3.6-hour gap, and no artifact could say whether that was model work, a quota wait, a hung tool or a session handoff. So every dispatch in this skill writes two rows and every session handoff writes one at each end, to `docs/dev/project-management/autopilot/dispatch-metrics.jsonl`, mirrored line for line into `docs/dev/project-management/autopilot/ledger/dispatch-metrics.jsonl`. Both are tracked work-management artifacts; the ledger mirror remains the canonical durable copy. `scripts/record_dispatch.py` is the writer; `render_prompt.py` imports it for the start row."
+        ],
+        [
+          192,
+          ""
+        ],
+        [
+          193,
+          "**A telemetry failure is never a dispatch failure.** An unresolvable autopilot dir, an unwritable file or an id with no start row all exit 0 (a failed write says so on stderr, once; a mirror append that fails after the working-copy append succeeded leaves that row in the working copy only, and the stderr line is its whole record), and no gate, result table or phase transition reads these rows. Never retry a telemetry call, never stamp anything on the attempt record for it, and never let it change a dispatch's outcome."
+        ],
+        [
+          197,
+          "| Row | Written by | Shape |"
+        ],
+        [
+          198,
+          "|---|---|---|"
+        ],
+        [
+          199,
+          "| start | the render call, when it carries both flags below; `record_dispatch.py start` for a hand-built prompt | `{\"id\": \"<8 hex>\", \"kind\": \"<persona>\", \"task\": \"<task-id>\", \"queued_at\": <epoch s>, \"prompt_bytes\": <the count the render printed>}` |"
+        ],
+        [
+          200,
+          "| end | `record_dispatch.py end` | `{\"id\": ..., \"ended_at\": <epoch s>, \"elapsed_s\": <int \\| null>, \"outcome\": ..., \"detail\": <string \\| null>}` \u2014 `elapsed_s` is `ended_at` minus the start row's `queued_at`, and `null` in either of two cases: no start row was found for the id (none exists, or the working file could not be read), or the dispatch spanned a session handoff (\u00a7 The null-elapsed rule below) |"
+        ],
+        [
+          201,
+          "| handoff | `record_dispatch.py handoff` | `{\"kind\": \"handoff\", \"site\": \"build\"\\|\"review\"\\|\"done\", \"edge\": \"leave\"\\|\"resume\", \"at\": <epoch s>, \"phase\": <state.phase>, \"prd\": <state.prd>}` |"
+        ],
+        [
+          202,
+          ""
+        ],
+        [
+          203,
+          "**Lost at handoff.** A `handoff` call first closes every id that still has a start row but no end row, writing one end row per open id before it writes its own handoff row: `{\"id\": ID, \"ended_at\": NOW, \"elapsed_s\": null, \"outcome\": \"lost\", \"detail\": \"open at <site>/<edge> handoff\"}`. A dispatch left open across a session boundary has no session left to close it normally, so `lost` is the outcome and `elapsed_s` is `null` rather than a number that would span the idle gap between sessions."
+        ],
+        [
+          209,
+          "### The start row: two flags on every render"
+        ],
+        [
+          210,
+          ""
+        ],
+        [
+          211,
+          "Every `render_prompt.py` call in this skill \u2014 Tess (step 2.7, and her retry in `references/test-author-prompt.md`), Ivan (step 3, the \u00a7 Retry render and \u00a7 Style-fix render in `references/gate-failure.md`, and step 7's regression fix through the same block) and Pat (step 5.7, and the delta re-run in `references/per-task-review.md`) \u2014 carries:"
+        ],
+        [
+          212,
+          ""
+        ],
+        [
+          213,
+          "```"
+        ],
+        [
+          220,
+          ""
+        ],
+        [
+          221,
+          "```bash"
+        ],
+        [
+          222,
+          "python3 <plugin root>/skills/work/scripts/record_dispatch.py start --kind <devon|deslop> --task <task-id> --prompt-file <the written prompt>"
+        ],
+        [
+          223,
+          "```"
+        ],
+        [
+          224,
+          ""
+        ],
+        [
+          232,
+          ""
+        ],
+        [
+          233,
+          "```bash"
+        ],
+        [
+          234,
+          "python3 <plugin root>/skills/work/scripts/record_dispatch.py end <id> --outcome <ok|timeout|killed|error|lost> [--detail \"<one line>\"]"
+        ],
+        [
+          235,
+          "```"
+        ],
+        [
+          236,
+          ""
+        ],
+        [
+          249,
+          "### Handoff rows"
+        ],
+        [
+          250,
+          ""
+        ],
+        [
+          251,
+          "`record_dispatch.py handoff --site <build|review|done> --edge <leave|resume> --phase <state.phase> --prd <state.prd>` is written at both ends of every session handoff: a `leave` row right before the STOP that ends the handing-off session \u2014 `/autopilot:work` step 6.5's task-boundary handoff, and each `autopilot phase-done` site in `run-autopilot/references/phase-build.md`, `phase-review.md` and `phase-done.md` \u2014 and a `resume` row at the start of the session that picks the work up, in the same three files. `site` is the gate that writes the row; `phase` is `state.phase` at the moment of writing, so a `leave` row written after `phase-done` already names the phase the next session runs. A session the hard-cap rotation ends, or one resumed through an abort handler \u2014 a replan after a Work-phase abort, a cap-pause resume \u2014 is not a site in that table: no `leave` row is written, and the next `resume` row (build Phase 0 step 9 after a rotation or a replan, review Phase 4 after a cap-pause resume) has no partner and is read on its own. Best-effort like every other row: it never blocks a phase transition."
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_sha256": "92ece9ae82ce279f4c77b7929955d67c01ae20f97fa40bfdbfd4edd1b38a94a3",
+      "destination_path": "plugins/autopilot/skills/work/references/task-boundary-handoff.md",
+      "lines": [
+        [
+          5,
+          "no-pending-tasks skip; this file owns the handoff procedure."
+        ],
+        [
+          6,
+          ""
+        ],
+        [
+          7,
+          "The autopilot context-cap hook (`autopilot_context_cap_hook.py`) writes a `.handoff-requested` marker into the autopilot dir when the headroom rule fires (PRD 00200) \u2014 below the **hard** cap that triggers the rotation. Handing off at a task boundary, where every task through step 6 is committed and `state.tasks` is synced, is lossless: the next session re-enters the phase it left and resumes with the remaining pending tasks. This keeps a multi-task phase from ballooning into the hard cap."
+        ],
+        [
+          8,
+          ""
+        ],
+        [
+          9,
+          "## Marker format"
+        ],
+        [
+          18,
+          "2. Resolve the autopilot dir and check for the marker:"
+        ],
+        [
+          19,
+          "   ```bash"
+        ],
+        [
+          20,
+          "   python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/_walk_up.py --bash"
+        ],
+        [
+          21,
+          "   ```"
+        ],
+        [
+          22,
+          "   It prints the absolute autopilot dir. Read `<dir>/.handoff-requested`. **If it is absent**, return to step 1 for the next task \u2014 no handoff."
+        ],
+        [
+          30,
+          "   c. **If the marker's phase does not match `state.phase`**, it is stale: print `autopilot: stale handoff marker from phase {marker phase} removed` to stderr. Remove both `<dir>/.handoff-requested` and `<dir>/.cap-fired`, then continue exactly as if no marker had been present (return to step 1 for the next task, no handoff)."
+        ],
+        [
+          31,
+          "   d. **Otherwise the marker's phase matches `state.phase`** \u2014 hand off within that phase:"
+        ],
+        [
+          32,
+          "      e. Confirm the working tree is clean: `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py dirty --state <dir>/state.json` comes back empty. Every task through step 6 commits its tests (step 2.85) and implementation (step 5), so it should be. `autopilot dirty` excludes the store, which matters here: durable store artifacts written mid-phase (ledger `.jsonl` appends, review files) are real uncommitted tracked paths once the store is tracked, so a raw whole-tree check would block the handoff with nothing actually wrong. If it is NOT clean, do not hand off \u2014 investigate and commit or resolve the uncommitted work first."
+        ],
+        [
+          33,
+          "      f. Remove both `<dir>/.handoff-requested` and `<dir>/.cap-fired`, inlining the absolute paths from step 2 (no shell variable, so the permission matcher resolves the command). The fresh session re-evaluates its budget from a clean slate."
+        ],
+        [
+          34,
+          "      g. Print the handoff banner:"
+        ],
+        [
+          38,
+          "         \u2500\u2500 fresh session resumes the remaining tasks \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+        ],
+        [
+          39,
+          "         ```"
+        ],
+        [
+          40,
+          "      h. **Write the contract card** (run-autopilot \u00a7 Contract card): the current step, the active invariants, and the next gate, so a session compacted after this boundary re-anchors instead of drifting. Write the body to `docs/dev/project-management/autopilot/contract-card.md` with the **Write tool**, then (autopilot only) load it with `statectl.py <state.json> set-contract-card docs/dev/project-management/autopilot/contract-card.md`. Never pass the card as an inline shell argument \u2014 it carries quotes, newlines and `$`, and the inline form failed three times in a row on quoting in a real build session. Interactive runs stop after the file write. Then write the session brief \u2014 `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py <state.json> write-brief docs/dev/project-management/autopilot/session-brief.md` \u2014 so the next session orients from one page (PRD 00201). Then set `state.next_phase` to the marker's (matching) phase. Then write the `leave` handoff row \u2014 `python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py handoff --site <marker phase> --edge leave --phase <marker phase> --prd <state.prd>` \u2014 best-effort, never a reason not to hand off (`references/subagent-dispatch.md` \u00a7 Dispatch telemetry); it is the last write before the stop that touches state, so the next session's `state_after_leave` check (PRD 00199) never reads this session's own `next_phase` write as peer evidence. After the row, and as the LAST write before STOP, record the store with `autopilot record-store`: `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py record-store --state <state.json> --site <marker phase> --prd <state.prd>`, best-effort like the row (a failure is one stderr line, never a reason to skip the STOP); it writes no state, and it comes after the row because the row itself appends to the tracked `dispatch-metrics.jsonl`, so only a commit that follows it sweeps that append in, then STOP \u2014 end the turn. In loop mode the wrapper reads the non-empty `next_phase` and relaunches a fresh session in that phase (the headless hand-off contract in `run-autopilot/SKILL.md` \u00a7 Session Loop); the model writes no signal."
+        ],
+        [
+          41,
+          ""
+        ],
+        [
+          42,
+          "      **Do NOT return to step 1, and do NOT run step 7.** `phases_completed` stays without the current phase (this session did not finish it), so `/autopilot:run-autopilot` re-enters that phase and resumes with the remaining pending work. This applies only to the match path (d-h) \u2014 the mismatch and malformed paths above (b's last bullet, c) already return to step 1 on their own."
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/work/references/tess-prompt.md",
+      "source_sha256": "c3226d2e2068d8efe46052b51ea21b949334f3e48842337ae8f58e611fc0d43c",
+      "destination_path": "plugins/autopilot/skills/work/references/tess-prompt.md",
+      "lines": [
+        [
+          31,
+          "10a. NEVER INVENT A CONTRACT: If the task names a data structure (JSON object, API response, enum, config schema, record type) but does not pin its EXACT field names, enum values, or types, STOP and report it as a blocker. Do not invent a plausible schema and test against it \u2014 a self-consistent wrong contract is worse than a reported gap, because the implementer will build to your tests and the mistake survives until PRD-level review. Likewise for \"which kind of thing\" choices the task leaves open (e.g. which hook event, which file location). The task description must hand you the exact strings; if it does not, that is a blocker, not a judgement call."
+        ],
+        [
+          32,
+          "11. SURGICAL: Only create/modify test files. Match the existing test file's style (quote style, import order, assertion library, naming). Do not reformat sample files you were given for reference."
+        ],
+        [
+          33,
+          "12. SIZE LIMITS: keep every test function under 50 lines and every test file under 800 lines; split by behavior into sibling files named after the test module (for example test_events_completion.py, test_events_usage.py) before you exceed either."
+        ],
+        [
+          34,
+          ""
+        ],
+        [
+          35,
+          "Do NOT:"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_sha256": "df865cd007e07efe72f8f36c93a6563a7002f5f2135e4f9281742be9a9a31080",
+      "destination_path": "plugins/autopilot/skills/work/references/test-author-prompt.md",
+      "lines": [
+        [
+          6,
+          ""
+        ],
+        [
+          7,
+          "The prompt template lives in `work/references/tess-prompt.md` (single source"
+        ],
+        [
+          8,
+          "of truth, registry-shaped single-brace placeholders \u2014 `render_prompt.py`"
+        ],
+        [
+          9,
+          "consumes it directly; see `agent-registry.md` for the placeholder table)."
+        ],
+        [
+          10,
+          ""
+        ],
+        [
+          56,
+          ""
+        ],
+        [
+          57,
+          "```bash"
+        ],
+        [
+          58,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/detect_tautological_tests.py <test file>..."
+        ],
+        [
+          59,
+          "```"
+        ],
+        [
+          60,
+          ""
+        ],
+        [
+          72,
+          ""
+        ],
+        [
+          73,
+          "```bash"
+        ],
+        [
+          74,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py ${CLAUDE_PLUGIN_ROOT}/skills/work/references/tess-retry-prompt.md \\"
+        ],
+        [
+          75,
+          "  --out docs/dev/tmp/dispatch-tess-<task-id>-retry-<n>.txt \\"
+        ],
+        [
+          76,
+          "  --set-file QUALITY_FEEDBACK=docs/dev/tmp/tess-<task-id>-gate-<n>.txt \\"
+        ],
+        [
+          86,
+          ""
+        ],
+        [
+          87,
+          "```bash"
+        ],
+        [
+          88,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_style_limits.py --diff docs/dev/tmp/test-diff-<task-id>.txt <each new or changed test file as an absolute path>"
+        ],
+        [
+          89,
+          "```"
+        ],
+        [
+          90,
+          ""
+        ],
+        [
+          94,
+          ""
+        ],
+        [
+          95,
+          "The retry template lives in `work/references/tess-retry-prompt.md` (single"
+        ],
+        [
+          96,
+          "source of truth, registry-shaped single-brace placeholders \u2014 `render_prompt.py`"
+        ],
+        [
+          97,
+          "consumes it directly; see `agent-registry.md` for the placeholder table). It"
+        ],
+        [
+          98,
+          "takes `{QUALITY_FEEDBACK}`, `{TASK_DESCRIPTION}` and"
+        ]
+      ]
+    }
+  ],
+  "proposed_rows": [
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 88,
+      "reference": "check_qwen_output.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "check_qwen_output.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 98,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "qwen-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 144,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 146,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 176,
+      "reference": "root>/skills/work/scripts/check_reflow.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "root>/skills/work/scripts/check_reflow.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 191,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 191,
+      "reference": "scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 199,
+      "reference": "record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 200,
+      "reference": "record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 201,
+      "reference": "record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 211,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 222,
+      "reference": "root>/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "root>/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 234,
+      "reference": "root>/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "root>/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 251,
+      "reference": "record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 7,
+      "reference": "autopilot_context_cap_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "autopilot_context_cap_hook.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 20,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/_walk_up.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/_walk_up.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 32,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 40,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 40,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 40,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 40,
+      "reference": "statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/tess-prompt.md",
+      "source_line": 33,
+      "reference": "test_events_completion.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "test_events_completion.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/tess-prompt.md",
+      "source_line": 33,
+      "reference": "test_events_usage.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "test_events_usage.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 8,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 58,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/detect_tautological_tests.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/detect_tautological_tests.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 74,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 88,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_style_limits.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_style_limits.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 96,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    }
+  ],
+  "existing_rows": [
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 127,
+      "reference": "references/red-check.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 127,
+      "reference": "references/final-verification.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 191,
+      "reference": "scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "planned",
+      "capability": "scripts/record_dispatch.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 211,
+      "reference": "references/test-author-prompt.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 211,
+      "reference": "references/gate-failure.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 211,
+      "reference": "references/per-task-review.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 225,
+      "reference": "references/codex-implementor.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 40,
+      "reference": "references/subagent-dispatch.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 85,
+      "reference": "references/style-gate.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    }
+  ]
+}

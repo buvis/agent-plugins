@@ -1,0 +1,836 @@
+{
+  "status": "unreviewed proposal; never apply wholesale",
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/review-work-completion/SKILL.md",
+      "first": 403,
+      "last": 441
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/review-work-completion/references/agent-invocation.md",
+      "first": 31,
+      "last": 116
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/review-work-completion/references/agent-registry.md",
+      "first": 84,
+      "last": 84
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/review-work-completion/references/design-rationale.md",
+      "first": 53,
+      "last": 82
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/review-work-completion/references/output-formats.md",
+      "first": 68,
+      "last": 279
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/review-work-completion/references/review-coverage-format.md",
+      "first": 4,
+      "last": 30
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/SKILL.md",
+      "first": 21,
+      "last": 38
+    }
+  ],
+  "source_context": [
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
+      "lines": [
+        [
+          401,
+          "**Write the verification-check queue.** After composing the `Verdict:` line, collect the **VERIFY** bucket of every doubt lens that emitted one \u2014 today that is **Eve, or whichever lane produced the doubt output in her place** (her Claude substitute). `agents/bob.md` mandates the `[BOB]` issue-line format plus `R{n}` verdicts and defines no FIX/VERIFY/KNOWN buckets, so `source: \"bob\"` applies only if his persona later gains one; do not invent buckets he did not emit. Write the entries whose text names an exact runnable command to `docs/dev/project-management/reviews/<prd-stem>-checks-<state.cycle>.json` with the **Write tool** (read the existing array, append, write back). Shape, the `source` values and the not-queued rule: `references/output-formats.md` \u00a7 Verification-check queue. A VERIFY item that names no exact command is **not** queued \u2014 it stays an ordinary finding and is classified as today, because rubric rule D3 already fails a vague one. Skip this entirely on standalone (non-autopilot) runs, which have no `state.cycle` and no work phase to run the checks."
+        ],
+        [
+          402,
+          ""
+        ],
+        [
+          403,
+          "**Compose the `Tests:` line.** **Check docs-only first:** when the reviewed diff touches no code, the line is `Tests: none (docs-only)` \u2014 a first-class value, not a sentinel, and the one form that takes **no** suffix, because `cli/gate.py`'s `TESTS_RE` allows none there. Nothing below applies. That test comes before reading the `## Test gate` section, because a docs-only diff in this pack still has a matching `gate.tests_line` from the work phase's own suite run, and reading that section first would silently replace the sentinel with counts. Otherwise, read the `## Test gate` section of the staged context file (`gate.tests_line`, computed by `review-stage`'s `reuse_verdict` call in step 3). When its line is a counts line (matches `cli/gate.py`'s `TESTS_RE` \u2014 the `reused`, `suite run this cycle`, or `timed out` forms), take the `Tests:` line verbatim from it: step 3's `reuse_verdict` call is the only reuse decision, and its suffix is already baked into the line step 6 copies \u2014 never re-derive reuse from `sha`/counts here. Otherwise (the section is absent, or holds a `counts unavailable`/`dirty`/`failed to run` line that is not itself a counts line) run `autopilot verify --gate-command \"<full suite command>\" --cycle <state.cycle>` once in the FOREGROUND and compose the line from that result, suffixed `(suite run this cycle)` exactly as today \u2014 it is the sole writer of `last-verification.json`; never fill in the record by hand or re-run the suite to capture output you can instead read from its printed `log` path with `rg`. Step 6 never appends a second suffix to a line it copied verbatim. The gate's pattern admits any suffix after the counts (`cli/gate.py` `TESTS_RE`), so this cannot fail `check_review_file.py`. Fail loud: a copied line keeps its provenance suffix exactly as the gate wrote it, never rewritten, and a non-counts line is never copied forward."
+        ],
+        [
+          404,
+          ""
+        ],
+        [
+          405,
+          "**Record the Codex doubt-roster guard.** Emit the fired rule in the cycle's review file as `codex_rung_guard: fired (N codex-implemented task(s))`, using the count from step 1, or emit `codex_rung_guard: not fired` when the predicate is false. When the guard fired, the fired form has three possible outcomes: Eve produced usable output \u2192 the plain fired form as above, with no suffix; Eve failed after her retry budget and the Claude-subagent fallback (step 5) recovered a non-codex doubt voice in her place \u2192 append `; eve unavailable, doubt lens fell back to claude`; neither Eve nor that fallback produced output \u2192 the constraint is NOT met, so append `; constraint UNMET` instead. The line must never report plain `fired` when the constraint did not hold. Consolidation owns this line; `run-autopilot` must not write it."
+        ],
+        [
+          423,
+          "Stamp the `codex_thread_id` frontmatter field with the thread id from `docs/dev/tmp/bob-thread-{id}.txt` when that file exists and is non-empty AND Bob produced output this cycle \u2014 the next rework cycle reads it (step 3) to resume Bob's codex session via `--resume-thread`; omit the field otherwise (Bob was skipped, or thread-id capture failed)."
+        ],
+        [
+          424,
+          ""
+        ],
+        [
+          425,
+          "Stamp the `reviewers:` frontmatter field with the comma-separated lowercase names of every reviewer that actually ran (e.g. `reviewers: alice,blake,bob,carl`) \u2014 `check_review_file.py` reads it to verify each section."
+        ],
+        [
+          426,
+          ""
+        ],
+        [
+          427,
+          "**Stamp `consensus_run_id`** with the `runId` the Workflow tool returned, whenever the engine ran (`workflow` or `shadow`) \u2014 same pattern as `codex_thread_id`, and the forensic handle for that cycle's run. It is deliberately not written to `state.json`: `resumeFromRunId` is same-session only, so a stored id would outlive its own usefulness."
+        ],
+        [
+          428,
+          ""
+        ],
+        [
+          429,
+          "**Shadow runs (`CONSENSUS_ENGINE == \"shadow\"`).** The workflow's `review_markdown` carries the literal token `{{TESTS_LINE}}` (step 5 passed no `tests_line`). Substitute the `Tests:` line composed in step 6 for that token \u2014 a file still carrying the token cannot pass `check_review_file.py` \u2014 then write the result to `docs/dev/tmp/<prd-base>-consensus-shadow-{cycle}.md`. **Never** to `docs/dev/project-management/reviews/`: step 3's `-review-*.md` glob finds the prior cycle there, and a shadow file in that directory would be mistaken for one. Gate the shadow file with `check_review_file.py --reviewers alice`, then record in the real review file, under Alice's section, the engine's `stats_line` and any verdict divergence from legacy Alice \u2014 as an observation, never as a finding. The shadow never gates."
+        ],
+        [
+          430,
+          ""
+        ],
+        [
+          431,
+          "Include all findings even if zero issues. Give each reviewer that ran a `## <Name>` section (their findings, or a one-line all-clear; Bob's keeps his `D{n}:` verdict lines), and end the file with the `Verdict:` and `Tests:` lines composed in step 6."
+        ],
+        [
+          436,
+          ""
+        ],
+        [
+          437,
+          "```bash"
+        ],
+        [
+          438,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py --review-file $PWD/docs/dev/project-management/reviews/<review-file> --require-codex-guard"
+        ],
+        [
+          439,
+          "```"
+        ],
+        [
+          440,
+          ""
+        ],
+        [
+          441,
+          "**Write the contract card** at this cycle transition (run-autopilot \u00a7 Contract card): the current step, the active invariants, and the next gate (rework at cycle N+1, or converge \u2192 done), so a session compacted mid-review re-anchors to where the cycle stands. Write the body to `docs/dev/project-management/autopilot/contract-card.md` with the **Write tool**, then (autopilot only) load it with `statectl.py <state.json> set-contract-card docs/dev/project-management/autopilot/contract-card.md` \u2014 never as an inline shell argument, which fails on the card's own quotes and newlines. Then write the session brief \u2014 `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py <state.json> write-brief docs/dev/project-management/autopilot/session-brief.md` \u2014 so the next session orients from one page (PRD 00201); a failed write is one stderr line, never a phase failure."
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_sha256": "d413ddeb3d043e64f4deedffc76612b9270d918316b3ed6aafd7e55f43e1ddfc",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-invocation.md",
+      "lines": [
+        [
+          29,
+          "Write the prompt to a temp file, then dispatch (**absolute paths** - relative `docs/dev/project-management/` paths get misresolved)."
+        ],
+        [
+          30,
+          ""
+        ],
+        [
+          31,
+          "**Citation line.** Bob's assembled prompt (SKILL.md step 4's persona plus appendices) ends with the sentence every consensus persona carries, so the consolidator's file gate sees one citation shape from every lens: `Cite files repo-relative as path:line (for example skills/work/SKILL.md:166), never absolute and never with a \"(lines a-b)\" suffix.` A finding that spans files cites the first file as its `File:` value, never `N/A (a.py:77, b.py:91)`: `consolidate_findings.py` reads the first path out of that shape, but a bare `N/A` matches nothing."
+        ],
+        [
+          32,
+          ""
+        ],
+        [
+          33,
+          "**Full review (cycle 1)** - capture Bob's codex session thread id so later cycles can resume it:"
+        ],
+        [
+          35,
+          "```"
+        ],
+        [
+          36,
+          "Bash tool (run_in_background: true):"
+        ],
+        [
+          37,
+          "  ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh -f \"{bob_prompt_file_absolute_path}\" -o \"{abs_repo_path}/docs/dev/tmp/bob-output-{id}.txt\" --emit-thread-id \"{abs_repo_path}/docs/dev/tmp/bob-thread-{id}.txt\""
+        ],
+        [
+          38,
+          "```"
+        ],
+        [
+          39,
+          ""
+        ],
+        [
+          42,
+          "```"
+        ],
+        [
+          43,
+          "Bash tool (run_in_background: true):"
+        ],
+        [
+          44,
+          "  ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh -f \"{bob_prompt_file_absolute_path}\" -o \"{abs_repo_path}/docs/dev/tmp/bob-output-{id}.txt\" --emit-thread-id \"{abs_repo_path}/docs/dev/tmp/bob-thread-{id}.txt\" --resume-thread \"{prior_codex_thread_id}\""
+        ],
+        [
+          45,
+          "```"
+        ],
+        [
+          46,
+          ""
+        ],
+        [
+          57,
+          "```"
+        ],
+        [
+          58,
+          "Bash tool (run_in_background: true):"
+        ],
+        [
+          59,
+          "  ${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh -f \"{carl_prompt_file_absolute_path}\" -o \"{abs_repo_path}/docs/dev/tmp/carl-output-{id}.txt\""
+        ],
+        [
+          60,
+          "```"
+        ],
+        [
+          61,
+          ""
+        ],
+        [
+          114,
+          "## Eve (Fable 5)"
+        ],
+        [
+          115,
+          ""
+        ],
+        [
+          116,
+          "Eve runs Claude Fable 5 as a **native Task subagent** (like Alice - NOT a background-Bash CLI like Bob/Carl). There is no `fable-run.sh` wrapper and none is needed: the Task/Agent tool's `model` parameter accepts `\"fable\"` directly (the same tier alias as `\"sonnet\"`/`\"opus\"`/`\"haiku\"`; Fable 5 is model id `claude-fable-5`), so Eve dispatches in-process with native Read/Bash access (`rg` for search; Grep/Glob absent in this build) - no CLI shell-out, no `-o` output file, no background-Bash hang risk. Eve is a skeptical, high-scrutiny reviewer suited to final doubt review."
+        ],
+        [
+          117,
+          ""
+        ],
+        [
+          118,
+          "Eve's persona is `agents/eve.md`, which is also the base Bob's doubt appendix is cut from - one source, so a future edit to the doubt lens reaches every reviewer that carries it. She takes five appended inputs: the PRD content, the diff range (`<base>..HEAD`), the changed-file list, the pack's Findings precedent section, which fills the `{PACK_FINDINGS}` placeholder in her persona body, and the two mechanical test-check blocks step 3 computed (tautological test shapes, fail-first replay). When the cycle produced no pack, pass the sentinel `(no pack available this cycle)` for that fourth input instead, matching the fallback SKILL.md step 3 prescribes for `{PACK_FILE}`/`{PACK_FINDINGS}`. The fifth input is the blocks verbatim, `replay: skipped (...)` lines included - a skipped replay is a fact she should know, not a blank."
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-registry.md",
+      "source_sha256": "aa87ea16bd52b540625b0ac334692a141c706febcd054eeda8ae13f0a0a448c1",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-registry.md",
+      "lines": [
+        [
+          82,
+          "| `{SIMPLIFICATION_MANDATE}` | `work/references/simplification-mandate.md`, verbatim. |"
+        ],
+        [
+          83,
+          "| `{VERIFICATION_RESULT}` | The recorded step-5.5 verification: the exact command(s), each exit code, and the runner's own summary line \u2014 or the attempt's `verification: skipped:<cause>` value when it could not run (Pat). |"
+        ],
+        [
+          84,
+          "| `{CONTRACT_CORRECTION}` | Empty string on the initial per-task review dispatch; the fixed contract-correction text from `work/references/per-task-review.md` on the one retry after `parse_review.py` exits 1 (Pat). |"
+        ],
+        [
+          85,
+          "| `{FAILING_TESTS}` | Failing test file paths and their content (Ivan). |"
+        ],
+        [
+          86,
+          "| `{ARCHITECTURE_CONTEXT}` | AGENTS.md/interface/relevant-module context Ivan needs to implement against (Ivan). |"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/review-work-completion/references/design-rationale.md",
+      "source_sha256": "2075be79fd23a38b59e02435525e069b87d17cce9cf825ccfca03d8b5dc743d9",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/design-rationale.md",
+      "lines": [
+        [
+          51,
+          "## Hardcoded Skill Dependency Paths"
+        ],
+        [
+          52,
+          ""
+        ],
+        [
+          53,
+          "Paths like `${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh` are intentionally hardcoded. This skill operates within a defined ecosystem where these paths are guaranteed. Dynamic resolution would add complexity without benefit."
+        ],
+        [
+          54,
+          ""
+        ],
+        [
+          55,
+          "## Separate review-dimensions.md"
+        ],
+        [
+          78,
+          "dispatch it, so the instruction was right and still skipped."
+        ],
+        [
+          79,
+          ""
+        ],
+        [
+          80,
+          "The keep-alive is now `hooks/guard_stop_on_live_lanes.py`, a Stop hook that"
+        ],
+        [
+          81,
+          "refuses the turn's end while a lane marker names a live process, the same shape"
+        ],
+        [
+          82,
+          "as `review_coverage_hook.py` at an incomplete review file. The Watcher stays as"
+        ],
+        [
+          83,
+          "the normal path; the hook is the floor under it. Do not trade the hook back for"
+        ],
+        [
+          84,
+          "a stronger sentence."
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_sha256": "cc974c18895c6405d4c3e3d67e3a0f167795b79a865b962c28502bd1b281f8a2",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/output-formats.md",
+      "lines": [
+        [
+          66,
+          "`fail` \u2014 never omit the line."
+        ],
+        [
+          67,
+          ""
+        ],
+        [
+          68,
+          "> **Note:** `consolidate_findings.py` parses only lines matching the"
+        ],
+        [
+          69,
+          "> `[{AGENT}] {emoji} ... | File: ... | Task: ...` issue format and silently"
+        ],
+        [
+          70,
+          "> drops everything else. So `R`/`B`/`D` verdict lines do NOT survive"
+        ],
+        [
+          224,
+          "  VERIFY bucket, so nothing sources from him unless that persona gains one."
+        ],
+        [
+          225,
+          "- **A queued item need not appear in the consolidated table.** The doubt buckets"
+        ],
+        [
+          226,
+          "  are not issue lines, and `consolidate_findings.py` parses only the"
+        ],
+        [
+          227,
+          "  `[{AGENT}] {emoji} ... | File: ...` shape, so a bucket item reaches the queue"
+        ],
+        [
+          228,
+          "  without reaching the table. That is not a fault: the queue is what makes its"
+        ],
+        [
+          269,
+          "Agent states: `available` (ran successfully), `unavailable` (failed after retries), `timeout` (no result in time), `disabled` (not invoked)."
+        ],
+        [
+          270,
+          ""
+        ],
+        [
+          271,
+          "`dispatch_rows`: keyed by persona, not by dispatch id. `review_close.py`'s `close()` reads this block to map each persona in `agents:` to the dispatch id it opened, then ends that id with the outcome `_DISPATCH_OUTCOME[agents[persona]]`; every dispatch the session opened must have its persona listed here before the review file is saved."
+        ],
+        [
+          272,
+          ""
+        ],
+        [
+          273,
+          "`head_sha`: the `git rev-parse HEAD` value captured when this review ran \u2014 the full 40-hex sha, never the abbreviated `--short` form. `autopilot cap-check` (PRD 00321) rejects anything else with exit 2, since it proves the rework range from this value before classifying a row. The next rework cycle reads it and passes `--since <head_sha>` to `gather-context.sh`, scoping that cycle's diff to the rework commits. Absent on review files created before this field existed \u2014 consumers fall back to a full-branch diff."
+        ],
+        [
+          274,
+          ""
+        ],
+        [
+          275,
+          "`codex_thread_id`: the codex session thread id captured on cycle 1 via `codex-run.sh --emit-thread-id` (Bob/Codex reviewer). The next rework cycle reads it and passes `--resume-thread <codex_thread_id>` so Bob resumes his prior session instead of re-reviewing from zero. Omitted when Bob was skipped this cycle or thread-id capture failed \u2014 consumers then run Bob fresh."
+        ],
+        [
+          276,
+          ""
+        ],
+        [
+          277,
+          "`consensus_run_id`: the `review-fanout` workflow's `runId` for this cycle's consensus-engine run \u2014 the forensic handle for that run. Present whenever the engine ran (`consensus_engine` is `workflow` or `shadow`); omitted otherwise. Deliberately not written to `state.json`: the Workflow tool's `resumeFromRunId` is same-session only, so a stored id would outlive its usefulness."
+        ],
+        [
+          278,
+          ""
+        ],
+        [
+          279,
+          "`codex_rung_guard`: a plain body line, not a frontmatter field. Required by `check_review_file.py`. Accepted forms: `codex_rung_guard: not fired`, `codex_rung_guard: fired (N codex-implemented task(s))`, or that fired form suffixed with `; eve unavailable, doubt lens fell back to claude` or `; constraint UNMET` (SKILL.md step 6 documents when each suffix applies). Lives in the body top matter, directly after the `Diff range:` block, before the body sections (shown at its real position below)."
+        ],
+        [
+          280,
+          ""
+        ],
+        [
+          281,
+          "# Review: <prd-name>"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/review-work-completion/references/review-coverage-format.md",
+      "source_sha256": "3b5f0b9597f57cba784001919f732d30a70b85d57df7f579d6615b0df72942e4",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/review-coverage-format.md",
+      "lines": [
+        [
+          2,
+          ""
+        ],
+        [
+          3,
+          "The consolidated review file at `docs/dev/project-management/reviews/<prd-base>-review-<N>.md`"
+        ],
+        [
+          4,
+          "is the review cycle's durable artifact. `check_review_file.py` validates its"
+        ],
+        [
+          5,
+          "shape \u2014 three regex-checked elements, nothing else. No `---review-coverage---`"
+        ],
+        [
+          6,
+          "blocks, no files/features dimensions, no aggregate merging: those conventions"
+        ],
+        [
+          28,
+          ""
+        ],
+        [
+          29,
+          "```"
+        ],
+        [
+          30,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py \\"
+        ],
+        [
+          31,
+          "  --review-file <path> [--reviewers alice,bob,...]"
+        ],
+        [
+          32,
+          "```"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_sha256": "8e327f1e91c8190626bed6dbe29adcaa0cec49e8683b1fa8420fb3e2ee473ce1",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "lines": [
+        [
+          19,
+          "> Alice/Blake reviewers run at high; other native reviewers use the high-effort"
+        ],
+        [
+          20,
+          "> `autopilot:worker-opus` wrapper with their selected model. External Claude"
+        ],
+        [
+          21,
+          "> reviews pass `sonnet-run.sh --effort high`. Preserve all review gates, lenses,"
+        ],
+        [
+          22,
+          "> isolation, and escalation rules. Other provider hosts use their host mapping."
+        ],
+        [
+          23,
+          ""
+        ],
+        [
+          34,
+          "- Plugin skills: `git-ferry:catchup` (Phase 1, unless the PRD sets `catchup: skip`)"
+        ],
+        [
+          35,
+          "- Files read from other skill dirs:"
+        ],
+        [
+          36,
+          "  `${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py`"
+        ],
+        [
+          37,
+          "  (Watcher keep-alive)"
+        ],
+        [
+          38,
+          "- Hooks outside the skill dir: `~/.claude/hooks/notify.py`"
+        ],
+        [
+          39,
+          "- Shell wrapper outside `~/.claude`: `autoclaude` in"
+        ],
+        [
+          40,
+          "  `~/.config/bash/plugins/development.plugin.bash` - operator subcommands +"
+        ]
+      ]
+    }
+  ],
+  "proposed_rows": [
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 403,
+      "reference": "check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "check_review_file.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 403,
+      "reference": "cli/gate.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/gate.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 425,
+      "reference": "check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "check_review_file.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 429,
+      "reference": "check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "check_review_file.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 438,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 441,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 441,
+      "reference": "statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 31,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "consolidate_findings.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 37,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 44,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 59,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 116,
+      "reference": "fable-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "fable-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-registry.md",
+      "source_line": 84,
+      "reference": "parse_review.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "parse_review.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/design-rationale.md",
+      "source_line": 53,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/design-rationale.md",
+      "source_line": 80,
+      "reference": "hooks/guard_stop_on_live_lanes.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "hooks/guard_stop_on_live_lanes.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/design-rationale.md",
+      "source_line": 82,
+      "reference": "review_coverage_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "review_coverage_hook.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 68,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "consolidate_findings.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 226,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "consolidate_findings.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 271,
+      "reference": "review_close.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "review_close.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 273,
+      "reference": "gather-context.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "gather-context.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 275,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 279,
+      "reference": "check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "check_review_file.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/review-coverage-format.md",
+      "source_line": 4,
+      "reference": "check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "check_review_file.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/review-coverage-format.md",
+      "source_line": 30,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 21,
+      "reference": "sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "sonnet-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 36,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 38,
+      "reference": "~/.claude/hooks/notify.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "~/.claude/hooks/notify.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    }
+  ],
+  "existing_rows": [
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 53,
+      "reference": "agents/carl.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/carl.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 82,
+      "reference": "agents/blake.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/blake.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 178,
+      "reference": "agents/eve.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/eve.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 223,
+      "reference": "agents/bob.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/bob.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    }
+  ]
+}

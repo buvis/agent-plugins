@@ -1,0 +1,976 @@
+{
+  "status": "unreviewed proposal; never apply wholesale",
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/lane-fast-track.md",
+      "first": 22,
+      "last": 157
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/lane-solo.md",
+      "first": 36,
+      "last": 253
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/model-ladder.md",
+      "first": 15,
+      "last": 291
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/phase-build.md",
+      "first": 35,
+      "last": 83
+    }
+  ],
+  "source_context": [
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_sha256": "fc4bef75c21763c0ab53a7614617edcc153062f9d134176354a59f487f7af8c7",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-fast-track.md",
+      "lines": [
+        [
+          20,
+          ""
+        ],
+        [
+          21,
+          "```bash"
+        ],
+        [
+          22,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/cards_from_prd.py docs/dev/project-management/prds/wip/<state.prd> --out docs/dev/tmp/<prd-stem>-cards"
+        ],
+        [
+          23,
+          "```"
+        ],
+        [
+          24,
+          ""
+        ],
+        [
+          25,
+          "Exit 0 prints one card path per line, in card order; hold that list. Exit 2"
+        ],
+        [
+          26,
+          "prints `cards_from_prd.py: <field>: <message>` on stderr and leaves nothing"
+        ],
+        [
+          27,
+          "under `--out`: the PRD is not cardable after all, so write"
+        ],
+        [
+          28,
+          "`lane_effective: \"full\"` and `lane_reason: \"uncardable\"` with two `statectl"
+        ],
+        [
+          47,
+          ""
+        ],
+        [
+          48,
+          "```bash"
+        ],
+        [
+          49,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json task-add <task-json-file>"
+        ],
+        [
+          50,
+          "```"
+        ],
+        [
+          51,
+          ""
+        ],
+        [
+          61,
+          "re-implementing them over their own commits. For each such card in order:"
+        ],
+        [
+          62,
+          ""
+        ],
+        [
+          63,
+          "1. `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json task-start <id>`."
+        ],
+        [
+          64,
+          "2. Invoke `/autopilot:fast-track <card path>` through the Skill tool, one"
+        ],
+        [
+          65,
+          "   run per card, with no `--push`: the loop defers pushes (core `SKILL.md`"
+        ],
+        [
+          153,
+          ""
+        ],
+        [
+          154,
+          "`autopilot phase-done --outcome lane_reviewed` (the `(\"build\","
+        ],
+        [
+          155,
+          "\"lane_reviewed\")` row of `cli/transitions.py`: `phase`/`next_phase: \"done\"`"
+        ],
+        [
+          156,
+          "and `\"review\"` appended once to `phases_completed`, so"
+        ],
+        [
+          157,
+          "`review_coverage_hook.py` gates the consolidated file exactly as a full-lane"
+        ],
+        [
+          158,
+          "cycle's), then the Session handoff procedure (core `SKILL.md` \u00a7 Session"
+        ],
+        [
+          159,
+          "Loop). The done session finalizes as today (`references/phase-done.md`)."
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-solo.md",
+      "lines": [
+        [
+          34,
+          ""
+        ],
+        [
+          35,
+          "```bash"
+        ],
+        [
+          36,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json task-add <task-json-file>"
+        ],
+        [
+          37,
+          "```"
+        ],
+        [
+          38,
+          ""
+        ],
+        [
+          46,
+          "Per task, in order:"
+        ],
+        [
+          47,
+          ""
+        ],
+        [
+          48,
+          "1. `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json task-start <id>`."
+        ],
+        [
+          49,
+          "2. Implement the task yourself with the Read, Edit and Write tools: no"
+        ],
+        [
+          50,
+          "   subagent, no Ivan or Tess dispatch, no shell rewrite (`sed`, heredocs)."
+        ],
+        [
+          73,
+          ""
+        ],
+        [
+          74,
+          "   ```bash"
+        ],
+        [
+          75,
+          "   python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json task-done <id> <attempt-json-file>"
+        ],
+        [
+          76,
+          "   ```"
+        ],
+        [
+          77,
+          ""
+        ],
+        [
+          78,
+          "The soft handoff marker `.handoff-requested` is not read by this runbook: a"
+        ],
+        [
+          79,
+          "solo PRD fits one session by construction, and the hard cap of"
+        ],
+        [
+          80,
+          "`autopilot_context_cap_hook.py` is the backstop. The session is"
+        ],
+        [
+          81,
+          "`phase: \"build\"` with a task in progress, so the cap and its tripwire apply"
+        ],
+        [
+          82,
+          "unchanged, and a rotation resumes by artifact at the first non-completed"
+        ],
+        [
+          151,
+          ""
+        ],
+        [
+          152,
+          "The review must have happened before its table means anything:"
+        ],
+        [
+          153,
+          "`consolidate_findings.py` reads a missing, empty or malformed output file"
+        ],
+        [
+          154,
+          "as `No issues found`, so check the saved text first. Alice's output holds at"
+        ],
+        [
+          155,
+          "least one `[ALICE]` line and all twelve `R{n}: pass|fail` verdict lines (the"
+        ],
+        [
+          166,
+          ""
+        ],
+        [
+          167,
+          "```bash"
+        ],
+        [
+          168,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py alice:$PWD/docs/dev/tmp/solo-output-<prd-stem>.txt"
+        ],
+        [
+          169,
+          "```"
+        ],
+        [
+          170,
+          ""
+        ],
+        [
+          176,
+          ""
+        ],
+        [
+          177,
+          "The review file, `docs/dev/project-management/reviews/<prd-stem>-review-1.md`, written with"
+        ],
+        [
+          178,
+          "the Write tool in the shape `cli/gate.py` checks"
+        ],
+        [
+          179,
+          "(`review-work-completion/references/review-coverage-format.md`):"
+        ],
+        [
+          180,
+          ""
+        ],
+        [
+          231,
+          "`docs/dev/project-management/reviews/<prd-stem>-solo-pass.md` (a durable trail whose name"
+        ],
+        [
+          232,
+          "never matches the gate's `-review-*` glob in"
+        ],
+        [
+          233,
+          "`scripts/review_coverage_hook.py`, nor the convergence reader's"
+        ],
+        [
+          234,
+          "`-review-<n>`), never to `-review-1.md`, so the full lane's cycle 1 finds"
+        ],
+        [
+          235,
+          "no file and runs. `-review-1.md` is written only on the close exit of"
+        ],
+        [
+          251,
+          "  step 5 gives, then"
+        ],
+        [
+          252,
+          "  `autopilot phase-done --outcome lane_reviewed`, the `(\"build\","
+        ],
+        [
+          253,
+          "  \"lane_reviewed\")` row of `cli/transitions.py`, whose effect is"
+        ],
+        [
+          254,
+          "  convergence's: `phase`/`next_phase: \"done\"` and `\"review\"` appended once"
+        ],
+        [
+          255,
+          "  to `phases_completed`, so `review_coverage_hook.gate_blocks` checks the"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_sha256": "ed801ff4b2a4a9e532e9b0a24c64bfc2ed343183510476efadbd3628eb395c0e",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/model-ladder.md",
+      "lines": [
+        [
+          13,
+          "|------|---------|--------------------|"
+        ],
+        [
+          14,
+          "| `qwen` | local llama.cpp backend | **ACTIVE** |"
+        ],
+        [
+          15,
+          "| `codex` | Codex CLI (`skills/use-codex/scripts/codex-run.sh`) | **ACTIVE** (PRD 00077) |"
+        ],
+        [
+          16,
+          "| `claude-haiku` | Claude Haiku | **ACTIVE** |"
+        ],
+        [
+          17,
+          "| `claude-sonnet` | Claude Sonnet | **ACTIVE** |"
+        ],
+        [
+          89,
+          "- A human decides it out of band: `autoclaude approve-fable <prd>` (or"
+        ],
+        [
+          90,
+          "  `autoclaude reject-fable <prd>`). If the wrapper is unavailable, the"
+        ],
+        [
+          91,
+          "  documented fallback is invoking `fablectl.py` directly - see"
+        ],
+        [
+          92,
+          "  `references/state-schema.md` \u00a7 `fablectl.py`."
+        ],
+        [
+          93,
+          "- The next exhaustion for that PRD spends the approval on exactly one"
+        ],
+        [
+          94,
+          "  Fable-tier dispatch, and the entry flips to `consumed` regardless of"
+        ],
+        [
+          161,
+          "  \u00a7 Infra vs capability; arm 2 is new and specific to a CLI whose tool calls"
+        ],
+        [
+          162,
+          "  pass through this host's PreToolUse hooks."
+        ],
+        [
+          163,
+          "- **Memory gate does not apply**: routing row 4's `check_memory_pressure.py`"
+        ],
+        [
+          164,
+          "  gate (\u00a7 Memory gate) guards the local llama-server's RAM footprint. codex"
+        ],
+        [
+          165,
+          "  is a remote-API CLI with negligible resident memory, so a pressure verdict"
+        ],
+        [
+          166,
+          "  never reroutes away from codex."
+        ],
+        [
+          167,
+          "- **Hook coverage**: codex's `Bash` matcher (`~/.codex/hooks.json`) registers"
+        ],
+        [
+          168,
+          "  four hooks \u2014 `validate_commit_msg.py`, `block_working_document_redirects.py`,"
+        ],
+        [
+          169,
+          "  `enforce_prd_location.py`, `gateguard-fact-force.py`. A Claude implementor's"
+        ],
+        [
+          170,
+          "  `Bash` calls on this host are additionally screened by aegis's"
+        ],
+        [
+          171,
+          "  `prefer_tools.py`, `block_poll_loops.py`, and `block_force_push.py`,"
+        ],
+        [
+          172,
+          "  warden's command-safety filter, and the user's own `dispatch.py pre` layer"
+        ],
+        [
+          173,
+          "  (`settings.json`) \u2014 none of which run on a codex dispatch. An unattended"
+        ],
+        [
+          174,
+          "  `--sandbox workspace-write` codex run is therefore screened by a strictly"
+        ],
+        [
+          181,
+          "to Claude at its original tier when the host is short on RAM, via:"
+        ],
+        [
+          182,
+          ""
+        ],
+        [
+          183,
+          "    python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_memory_pressure.py --max-level <threshold>"
+        ],
+        [
+          184,
+          ""
+        ],
+        [
+          185,
+          "**Threshold: `1`** \u2014 the highest `kern.memorystatus_vm_pressure_level` the"
+        ],
+        [
+          196,
+          "level (1 normal, 2 warning, 4 critical), not computed free RAM. Deliberate:"
+        ],
+        [
+          197,
+          "it reuses the signal the autopilot loop's memory circuit breaker already"
+        ],
+        [
+          198,
+          "trusts (`cli/loop.py`, since PRD 00106), one definition of"
+        ],
+        [
+          199,
+          "pressure on this host instead of two. Tradeoff: it lags true headroom, only"
+        ],
+        [
+          200,
+          "rising once the kernel is already compressing and swapping, a coarse stop."
+        ],
+        [
+          258,
+          "  step 4.7 tier classifier are identical \u2014 setting it changes nothing today."
+        ],
+        [
+          259,
+          "  Any other value or absent -> the same (unchanged) classifier row. It is"
+        ],
+        [
+          260,
+          "  read by no script: `classify_tier.py` never consults it, so it does not"
+        ],
+        [
+          261,
+          "  guard the `_MECHANICAL_MAX_*` constants; reverting a tuned constant is a"
+        ],
+        [
+          262,
+          "  `git revert` of the accepting commit."
+        ],
+        [
+          276,
+          "## Tuning"
+        ],
+        [
+          277,
+          ""
+        ],
+        [
+          278,
+          "`skills/run-autopilot/scripts/tune_routing.py` reads"
+        ],
+        [
+          279,
+          "`docs/dev/project-management/autopilot/ledger/attempts.jsonl` and writes"
+        ],
+        [
+          280,
+          "`docs/dev/project-management/audit-results/routing-proposal-<date>.md` (plus a `.patch` when"
+        ],
+        [
+          289,
+          "savings the cheaper defaults earned. These rows are the single statement of"
+        ],
+        [
+          290,
+          "which build-phase promotion signals stop firing when their cause passes"
+        ],
+        [
+          291,
+          "(PRD 00111). They govern `build_model` in `cli/routing.py` (since PRD 00106);"
+        ],
+        [
+          292,
+          "the signals themselves are specified in `state-schema.md` \u00a7 Build-phase model"
+        ],
+        [
+          293,
+          "routing."
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "lines": [
+        [
+          33,
+          "|---|---|"
+        ],
+        [
+          34,
+          "| `fs_error` | \u00a7 Ensure lifecycle directories exist when `detail` names the `mkdir`; the `--prds` flag when `detail` names a shallow path; the design-gate invariant's non-zero branch when `detail` names the design doc |"
+        ],
+        [
+          35,
+          "| `park_halt` | \u00a7 Handle park request: exit-code row 5 when `detail` says systemic halt; otherwise `detail` names an exit code outside the table's 0/3/4/5/9/10 rows (`do_park` returned something `enter.py` does not recognize) \u2014 PAUSE (`site: \"sub_skill_fail\"`, `detail` = the unmapped-exit-code message) |"
+        ],
+        [
+          36,
+          "| `mv_verify` | \u00a7 Handle park request row 4, or Normal PRD selection's verified move, whichever move failed |"
+        ],
+        [
+          37,
+          "| `deferred_io` | routed by `detail`: `do_park exited 9: a deferred-record append failed` \u2192 \u00a7 Handle park request row 9; an unreadable custody entry (`custody.CustodyError` from the pending-custody count) \u2192 \u00a7 Handle pending custody's exit-9 branch, PAUSE in every mode with `site: \"sub_skill_fail\"` and the `detail` as the pause detail |"
+        ],
+        [
+          81,
+          "its own Bash call (idempotent; mandatory before any move can run). Then, right"
+        ],
+        [
+          82,
+          "after it and as its own Bash call, run `autopilot ensure-store`:"
+        ],
+        [
+          83,
+          "`python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py ensure-store --state <state.json>`."
+        ],
+        [
+          84,
+          "It ships the store's `docs/dev/project-management/.gitignore` idempotently and"
+        ],
+        [
+          85,
+          "exits 0 either way. That file is written by code, never with the Write or Edit"
+        ]
+      ]
+    }
+  ],
+  "proposed_rows": [
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 22,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/cards_from_prd.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/cards_from_prd.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 26,
+      "reference": "cards_from_prd.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cards_from_prd.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 49,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 63,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 155,
+      "reference": "cli/transitions.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/transitions.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 157,
+      "reference": "review_coverage_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "review_coverage_hook.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 36,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 48,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 75,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 80,
+      "reference": "autopilot_context_cap_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "autopilot_context_cap_hook.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 153,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "consolidate_findings.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 168,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 178,
+      "reference": "cli/gate.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/gate.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 233,
+      "reference": "scripts/review_coverage_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "scripts/review_coverage_hook.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 253,
+      "reference": "cli/transitions.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/transitions.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 15,
+      "reference": "skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 91,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "fablectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 92,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "fablectl.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 163,
+      "reference": "check_memory_pressure.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "check_memory_pressure.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 168,
+      "reference": "block_working_document_redirects.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "block_working_document_redirects.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 168,
+      "reference": "validate_commit_msg.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "validate_commit_msg.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 169,
+      "reference": "enforce_prd_location.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "enforce_prd_location.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 169,
+      "reference": "gateguard-fact-force.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "gateguard-fact-force.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 171,
+      "reference": "block_force_push.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "block_force_push.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 171,
+      "reference": "block_poll_loops.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "block_poll_loops.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 171,
+      "reference": "prefer_tools.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "prefer_tools.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 172,
+      "reference": "dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 183,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_memory_pressure.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_memory_pressure.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 198,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/loop.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 260,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "classify_tier.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 278,
+      "reference": "skills/run-autopilot/scripts/tune_routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "skills/run-autopilot/scripts/tune_routing.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 291,
+      "reference": "cli/routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/routing.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 35,
+      "reference": "enter.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "enter.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 83,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    }
+  ],
+  "existing_rows": [
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 94,
+      "reference": "references/recovery.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 146,
+      "reference": "references/output-formats.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 233,
+      "reference": "scripts/review_coverage_hook.py",
+      "kind": "external-capability",
+      "status": "planned",
+      "capability": "scripts/review_coverage_hook.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 92,
+      "reference": "references/state-schema.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 100,
+      "reference": "references/recovery.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 40,
+      "reference": "references/recovery.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    }
+  ]
+}

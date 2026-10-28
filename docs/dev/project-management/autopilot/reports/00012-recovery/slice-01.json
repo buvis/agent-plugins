@@ -1,0 +1,968 @@
+{
+  "status": "unreviewed proposal; never apply wholesale",
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/design-solution/SKILL.md",
+      "first": 28,
+      "last": 225
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/fast-track/SKILL.md",
+      "first": 32,
+      "last": 415
+    }
+  ],
+  "source_context": [
+    {
+      "source_path": "skills/design-solution/SKILL.md",
+      "source_sha256": "afb9996b8ce8e1d833ed01cd533c86f711504be3c31e156c5bb827097ce0c74c",
+      "destination_path": "plugins/autopilot/skills/design-solution/SKILL.md",
+      "lines": [
+        [
+          26,
+          "  every reviewer prompt). It ships with this pack; `review-design-doc` keeps its"
+        ],
+        [
+          27,
+          "  own copy for its own use, so edit the two together when the taxonomy changes."
+        ],
+        [
+          28,
+          "- Pack skills (files read at runtime): `use-codex` (`scripts/codex-run.sh`)"
+        ],
+        [
+          29,
+          "- CLI: `codex` (review dispatch). Unavailable: fall back to the Claude subagent"
+        ],
+        [
+          30,
+          "  reviewer documented in the review step"
+        ],
+        [
+          208,
+          "   ```"
+        ],
+        [
+          209,
+          "   Bash tool (run_in_background: true):"
+        ],
+        [
+          210,
+          "     ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh -f \"{codex_prompt_file_abs}\" -o \"{abs_repo_path}/docs/dev/tmp/design-codex-output-{id}.txt\""
+        ],
+        [
+          211,
+          "   ```"
+        ],
+        [
+          212,
+          "   codex is **read-only** by default (no `-a`/`-y` -> `--sandbox read-only`) and"
+        ],
+        [
+          213,
+          "   never edits files; the prompt is self-contained (the same package the Claude"
+        ],
+        [
+          214,
+          "   reviewer gets), so no `-d`. Then wait with ONE foreground Bash call, the Bash"
+        ],
+        [
+          215,
+          "   tool's timeout parameter set to 600000: `python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py --budget 570 <the -o path above>`."
+        ],
+        [
+          216,
+          "   On WAITING run it once more; a second WAITING is the deadline below. Between"
+        ],
+        [
+          217,
+          "   the launch and the read of the `-o` file run nothing else about the lane: no"
+        ],
+        [
+          223,
+          "   cardinal sins/blockers remaining after it terminate the review non-zero (step 5)."
+        ],
+        [
+          224,
+          ""
+        ],
+        [
+          225,
+          "**Claude fallback on codex outage.** If codex is unavailable - `codex-run.sh`"
+        ],
+        [
+          226,
+          "missing/non-executable, it exits non-zero, the timed wait ceiling trips, or its"
+        ],
+        [
+          227,
+          "output is unparseable as findings - degrade that dispatch to a fresh Claude"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_sha256": "608277a9b273e98289d1818eead2c5d22cf4404ef4d4af43dd653396c7ce7227",
+      "destination_path": "plugins/autopilot/skills/fast-track/SKILL.md",
+      "lines": [
+        [
+          30,
+          "  background Bash. When `_AUTOPILOT_LOOP` is set, dispatch the Watcher"
+        ],
+        [
+          31,
+          "  subagent (`general-purpose`) in the SAME message as the roster. When the"
+        ],
+        [
+          32,
+          "  Watcher is skipped, the Stop hook `hooks/guard_stop_on_live_lanes.py`"
+        ],
+        [
+          33,
+          "  (PRD 00213) holds the session open while either background lane is alive"
+        ],
+        [
+          34,
+          "  and names the `-o` files to await. The Watcher's prompt is the exact one"
+        ],
+        [
+          37,
+          "  paths, the codex and the gemini output files):"
+        ],
+        [
+          38,
+          ""
+        ],
+        [
+          39,
+          "  > Run `python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py --budget 570 <absolute -o output path of each CLI reviewer dispatched>` as ONE foreground Bash call with the Bash tool's timeout parameter set to 600000. If the last stdout line is `WAITING`, run the same command again \u2014 up to 6 times total. Return the script's final output verbatim (`DONE`, or `WAITING` plus the pending files after 6 runs (~57 min)). Do nothing else: no reading the output files, no review commentary."
+        ],
+        [
+          40,
+          ""
+        ],
+        [
+          41,
+          "  The Watcher is scaffolding, not a reviewer: its return is never saved or"
+        ],
+        [
+          44,
+          "  runs means a stalled CLI lane; count that lane as failed after its one"
+        ],
+        [
+          45,
+          "  retry, as the Roster says."
+        ],
+        [
+          46,
+          "- **A worktree you know.** Run `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py dirty --state <state.json>`"
+        ],
+        [
+          47,
+          "  and account for every path it prints (it skips the store, so this session's"
+        ],
+        [
+          48,
+          "  own store writes need no accounting). A dirty path inside the"
+        ],
+        [
+          51,
+          "  else's edit. The lane stages the card's files and leaves every other dirty"
+        ],
+        [
+          52,
+          "  path untouched."
+        ],
+        [
+          53,
+          "- **Reviewer CLIs.** `${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh`"
+        ],
+        [
+          54,
+          "  is executable. The gemini lane is optional: drop it when"
+        ],
+        [
+          55,
+          "  `${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh` or its backend"
+        ],
+        [
+          56,
+          "  CLI (`copilot`, or native `gemini`) is absent, and say which in the report."
+        ],
+        [
+          57,
+          "- **Staging and telemetry.** Create `docs/dev/tmp/` and `docs/dev/project-management/autopilot/`"
+        ],
+        [
+          66,
+          ""
+        ],
+        [
+          67,
+          "```bash"
+        ],
+        [
+          68,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/card.py <card.md>"
+        ],
+        [
+          69,
+          "```"
+        ],
+        [
+          70,
+          ""
+        ],
+        [
+          73,
+          "`sample_test`."
+        ],
+        [
+          74,
+          ""
+        ],
+        [
+          75,
+          "Exit 2 prints `card.py: <field>: <message>` on stderr and the lane stops there:"
+        ],
+        [
+          76,
+          "fix that field and parse again. The parser refuses a card that misses one of the"
+        ],
+        [
+          77,
+          "seven `## ` sections (`Goal`, `Tests`, `Files`, `Constraints`, `Docs`, `Gates`,"
+        ],
+        [
+          107,
+          ""
+        ],
+        [
+          108,
+          "```bash"
+        ],
+        [
+          109,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/fast_track_plan.py lanes --tests-present <1 or 0> --workflow-available <1 or 0> --carl-available <1 or 0>"
+        ],
+        [
+          110,
+          "```"
+        ],
+        [
+          111,
+          ""
+        ],
+        [
+          123,
+          ""
+        ],
+        [
+          124,
+          "```bash"
+        ],
+        [
+          125,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py ${CLAUDE_PLUGIN_ROOT}/skills/work/references/tess-prompt.md \\"
+        ],
+        [
+          126,
+          "  --out docs/dev/tmp/fast-track-<item>-tests.txt \\"
+        ],
+        [
+          127,
+          "  --set TASK_SUBJECT=<item> \\"
+        ],
+        [
+          140,
+          ""
+        ],
+        [
+          141,
+          "```bash"
+        ],
+        [
+          142,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py start --kind fast-track:tess --task <item> --prompt-file docs/dev/tmp/fast-track-<item>-tests.txt"
+        ],
+        [
+          143,
+          "```"
+        ],
+        [
+          144,
+          ""
+        ],
+        [
+          154,
+          ""
+        ],
+        [
+          155,
+          "```bash"
+        ],
+        [
+          156,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py end <id> --outcome ok"
+        ],
+        [
+          157,
+          "```"
+        ],
+        [
+          158,
+          ""
+        ],
+        [
+          174,
+          ""
+        ],
+        [
+          175,
+          "```bash"
+        ],
+        [
+          176,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py ${CLAUDE_PLUGIN_ROOT}/agents/ivan.md \\"
+        ],
+        [
+          177,
+          "  --out docs/dev/tmp/fast-track-<item>-ivan.txt \\"
+        ],
+        [
+          178,
+          "  --set-cmd FAILING_TESTS=\"cat $(printf '%q ' <the test files>)\" \\"
+        ],
+        [
+          193,
+          ""
+        ],
+        [
+          194,
+          "```bash"
+        ],
+        [
+          195,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py start --kind fast-track:ivan --task <item> --prompt-file docs/dev/tmp/fast-track-<item>-ivan.txt"
+        ],
+        [
+          196,
+          "```"
+        ],
+        [
+          197,
+          ""
+        ],
+        [
+          204,
+          ""
+        ],
+        [
+          205,
+          "Close the row, stage the paths from the `FILES_TOUCHED:` footer, and commit."
+        ],
+        [
+          206,
+          "Run `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py dirty --state <state.json>`;"
+        ],
+        [
+          207,
+          "any path it still prints, beyond the staged `FILES_TOUCHED:` set, is foreign:"
+        ],
+        [
+          208,
+          "leave it unstaged and name it in the report."
+        ],
+        [
+          229,
+          "Run the card's `## Gates` lines in the order the card lists them, one Bash call"
+        ],
+        [
+          230,
+          "each. The parser already refused a chained gate line, so each one runs on its"
+        ],
+        [
+          231,
+          "own. The card renderer (`cards_from_prd.py`) also drops a command that runs the release script (`dev/bin/release`),"
+        ],
+        [
+          232,
+          "which is a publish action no lane runs unattended; a success criterion that"
+        ],
+        [
+          233,
+          "names it stays a criterion for the human release step. `suite: per-item`"
+        ],
+        [
+          263,
+          ""
+        ],
+        [
+          264,
+          "```bash"
+        ],
+        [
+          265,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/compute_mech_facts.py <each changed file>"
+        ],
+        [
+          266,
+          "```"
+        ],
+        [
+          267,
+          ""
+        ],
+        [
+          280,
+          "  the changed-file list, and returns FIX / VERIFY / KNOWN plus her five `D{n}`"
+        ],
+        [
+          281,
+          "  verdict lines."
+        ],
+        [
+          282,
+          "- **Codex.** `codex-run.sh` carries the consensus prompt to codex in the inlined shape of review-work-completion/references/retry-policy.md \u00a7 Inlined prompt (Bob's first dispatch), never a prompt he must open with `cat` (`references/lane-dispatch.md` \u00a7 Bob: codex)."
+        ],
+        [
+          283,
+          "- **Gemini.** `gemini-run.sh`, when its backend resolved in the preconditions."
+        ],
+        [
+          284,
+          ""
+        ],
+        [
+          285,
+          "Render each prompt from its persona. The implementation-aware lanes (consensus,"
+        ],
+        [
+          287,
+          ""
+        ],
+        [
+          288,
+          "```bash"
+        ],
+        [
+          289,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py ${CLAUDE_PLUGIN_ROOT}/agents/<persona>.md \\"
+        ],
+        [
+          290,
+          "  --out docs/dev/tmp/fast-track-<item>-<lane>.txt \\"
+        ],
+        [
+          291,
+          "  --set CONTEXT_FILE=<absolute path of the context file> \\"
+        ],
+        [
+          324,
+          ""
+        ],
+        [
+          325,
+          "```bash"
+        ],
+        [
+          326,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py start --kind fast-track:fanout --task <item> --prompt-file docs/dev/tmp/fast-track-<item>-consensus.txt"
+        ],
+        [
+          327,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py start --kind fast-track:blake --task <item> --prompt-file docs/dev/tmp/fast-track-<item>-blake.txt"
+        ],
+        [
+          328,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py start --kind fast-track:eve --task <item> --prompt-file docs/dev/tmp/fast-track-<item>-eve.txt"
+        ],
+        [
+          329,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py start --kind fast-track:bob --task <item> --prompt-file docs/dev/tmp/fast-track-<item>-codex.txt"
+        ],
+        [
+          330,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py start --kind fast-track:carl --task <item> --prompt-file docs/dev/tmp/fast-track-<item>-gemini.txt"
+        ],
+        [
+          331,
+          "```"
+        ],
+        [
+          332,
+          ""
+        ],
+        [
+          366,
+          "Bash tool:"
+        ],
+        [
+          367,
+          "  run_in_background: true"
+        ],
+        [
+          368,
+          "  command: ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh -f <absolute path of fast-track-<item>-codex.txt> -o <absolute path of codex-output-<item>.txt>"
+        ],
+        [
+          369,
+          "```"
+        ],
+        [
+          370,
+          ""
+        ],
+        [
+          372,
+          "Bash tool:"
+        ],
+        [
+          373,
+          "  run_in_background: true"
+        ],
+        [
+          374,
+          "  command: ${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh -f <absolute path of fast-track-<item>-gemini.txt> -o <absolute path of gemini-output-<item>.txt>"
+        ],
+        [
+          375,
+          "```"
+        ],
+        [
+          376,
+          ""
+        ],
+        [
+          399,
+          "report, never a pass. One retry per lane, then it counts as failed."
+        ],
+        [
+          400,
+          ""
+        ],
+        [
+          401,
+          "Exit 3 from `codex-run.sh` means codex itself is unavailable, so a re-dispatch"
+        ],
+        [
+          402,
+          "of the same CLI buys nothing. Hand the rendered codex prompt to a"
+        ],
+        [
+          403,
+          "`general-purpose` Task subagent instead and save its return as the codex lane's"
+        ],
+        [
+          413,
+          ""
+        ],
+        [
+          414,
+          "```bash"
+        ],
+        [
+          415,
+          "python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py \\"
+        ],
+        [
+          416,
+          "  CONSENSUS:$PWD/docs/dev/tmp/consensus-output-<item>.txt \\"
+        ],
+        [
+          417,
+          "  BLIND:$PWD/docs/dev/tmp/blind-output-<item>.txt \\"
+        ]
+      ]
+    }
+  ],
+  "proposed_rows": [
+    {
+      "source_path": "skills/design-solution/SKILL.md",
+      "source_line": 28,
+      "reference": "scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/design-solution/SKILL.md"
+    },
+    {
+      "source_path": "skills/design-solution/SKILL.md",
+      "source_line": 210,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/design-solution/SKILL.md"
+    },
+    {
+      "source_path": "skills/design-solution/SKILL.md",
+      "source_line": 215,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/design-solution/SKILL.md"
+    },
+    {
+      "source_path": "skills/design-solution/SKILL.md",
+      "source_line": 225,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/design-solution/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 32,
+      "reference": "hooks/guard_stop_on_live_lanes.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "hooks/guard_stop_on_live_lanes.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 39,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 46,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 53,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 55,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 68,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/card.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/card.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 75,
+      "reference": "card.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "card.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 109,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/fast_track_plan.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/fast_track_plan.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 125,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 142,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 156,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 176,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 195,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 206,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 231,
+      "reference": "cards_from_prd.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cards_from_prd.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 265,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/compute_mech_facts.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/compute_mech_facts.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 282,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 283,
+      "reference": "gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "gemini-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 289,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 326,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 327,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 328,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 329,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 330,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 368,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 374,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 401,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 415,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    }
+  ],
+  "existing_rows": [
+    {
+      "source_path": "skills/design-solution/SKILL.md",
+      "source_line": 28,
+      "reference": "scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "planned",
+      "capability": "scripts/codex-run.sh",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 282,
+      "reference": "references/lane-dispatch.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/fast-track/references/lane-dispatch.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 299,
+      "reference": "agents/alice.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/alice.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 299,
+      "reference": "agents/bob.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/bob.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 300,
+      "reference": "agents/carl.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/carl.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 308,
+      "reference": "agents/blake.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/blake.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 319,
+      "reference": "agents/eve.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/eve.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    }
+  ]
+}

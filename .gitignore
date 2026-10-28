@@ -51,6 +51,9 @@ tmp/
 *.log
 *.tmp
 
+# Stable advisory lock for bounded maintainer updates; the JSON remains tracked.
+/tools/autopilot/source-map.json.lock
+
 # Agent-private folders: a local projection of a maintainer skill is never committed.
 /.claude/
 /.kiro/
