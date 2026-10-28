@@ -176,3 +176,6 @@
 {"kind":"handoff","site":"review","edge":"resume","at":1793155651,"phase":"review","prd":"00012-autopilot-package-contract-v1.md"}
 {"id":"72b8b9b2","ended_at":1793156418,"elapsed_s":null,"outcome":"ok","detail":"spans handoff; "}
 {"kind":"handoff","site":"review","edge":"leave","at":1793156660,"phase":"review","prd":"00012-autopilot-package-contract-v1.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1793156759,"phase":"review","prd":"00012-autopilot-package-contract-v1.md"}
+{"id":"0a9dd932","kind":"ivan","task":"20","queued_at":1793156828,"prompt_bytes":13278}
+{"id":"0a9dd932","ended_at":1793157158,"elapsed_s":330,"outcome":"ok","detail":"Native gpt-6.1-sol/medium session 01a1807a-09da-7c92-9388-c961bd677fbd; candidate returned; Pat prompt preflight exceeds budget"}
