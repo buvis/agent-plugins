@@ -1,0 +1,560 @@
+# State Schema
+
+State file location: `docs/dev/project-management/autopilot/state.json`
+
+## Schema
+
+```json
+{
+  "prd": "00004-feature-x.md",
+  "phase": "build",
+  "next_phase": "build",
+  "catchup_mode": "skipped",
+  "phases_completed": [],
+  "cycle": 1,
+  "rework_cap": 3,
+  "tasks_total": 6,
+  "tasks_completed": 2,
+  "tasks": [
+    {"id": "task-uuid-1", "name": "Add validation endpoint", "status": "completed", "model": "sonnet", "attempts": [
+      {"attempt": 1, "model": "sonnet", "outcome": "escalated", "review_cycle": null, "cause": null, "implementor": "qwen", "preflight_outcome": "healthy", "pipeline": "lean", "diagnosis": "solid_spec", "qwen_gate_failed": true},
+      {"attempt": 2, "model": "sonnet", "outcome": "completed", "review_cycle": null, "cause": null, "implementor": "claude", "preflight_outcome": null, "pipeline": "lean", "self_deslop": "noop", "escalation_reason": "gate_failure", "escalated_from": "qwen", "devon": "exploit_fixed", "devon_exploit": "hardcoded return value passed all tests", "devon_weak_points": 3, "devon_in_contract": ["2. in-contract: negative values are rejected upstream"]}
+    ]},
+    {"id": "task-uuid-2", "name": "Update API types", "status": "completed"},
+    {"id": "task-uuid-3", "name": "Write integration tests", "status": "in_progress"},
+    {"id": "task-uuid-4", "name": "Update frontend form", "status": "pending"},
+    {"id": "task-uuid-5", "name": "Add error handling", "status": "pending"},
+    {"id": "task-uuid-6", "name": "Update docs", "status": "pending"}
+  ],
+  "task_aborts": [
+    {"task_id": "task-uuid-7", "turn": -1, "total_input_tokens": 13000, "cause": "subagent_prompt_overrun"}
+  ],
+  "cap_rotations": [
+    {"task_id": "task-uuid-3", "cycle": 1}
+  ],
+  "replan_count": 0,
+  "work_start_sha": "7a962b768211be1c0c3e489f81f8e7168970db88",
+  "repo_root": "/absolute/path/to/the/repo/being/worked",
+  "design_mode": "run",
+  "design_gate": "user",
+  "design_doc": "docs/dev/project-management/designs/00004-feature-x-design.md",
+  "doubt_reviewer": "codex",
+  "consensus_engine": "legacy",
+  "session_model": "sonnet",
+  "rework_task_ids": ["task-uuid-3"],
+  "qwen_gate_failures_consecutive": 0,
+  "qwen_breaker": {"tripped": false, "after_task": null, "failed_tasks": [], "batch_id": "202603161000"},
+  "codex_probe": {"batch_id": "202603161000", "verdict": "healthy", "backend": "codex", "detail": null, "checked_at": "2026-03-16T10:45:00Z"},
+  "qwen_preflight": {"batch_id": "202603161000", "verdict": "healthy", "detail": null, "checked_at": "2026-03-16T10:45:00Z"},
+  "stall_reason": {
+    "stalled": "oversized_task",
+    "task": "task-uuid-8",
+    "estimated_tokens": 167000
+  },
+  "cap_pause_reason": {
+    "cycle": 3,
+    "cap": 3,
+    "unresolved_findings": [
+      {"issue": "...", "severity": "high", "consensus": "3/3"}
+    ]
+  },
+  "pause_reason": {
+    "site": "reviewer_fail",
+    "detail": "carl reviewer CLI hung 45m with no output"
+  },
+  "review_cycles": [
+    {
+      "cycle": 1,
+      "review_file": "docs/dev/project-management/reviews/00004-feature-x-review-01.md",
+      "agents": {"alice": "available", "bob": "available", "carl": "disabled", "diana": "available"},
+      "issues_found": 5,
+      "follow_up_tasks": 3,
+      "deferred": 1,
+      "recurring_issues": []
+    }
+  ],
+  "autonomous_decisions": [
+    {
+      "cycle": 1,
+      "issue": "Missing null check in parser",
+      "severity": "medium",
+      "consensus": "2/3",
+      "action": "auto-fix",
+      "reason": "mechanical fix, additive only"
+    },
+    {
+      "cycle": 2,
+      "issue": "New dependency needed: zod",
+      "severity": "high",
+      "consensus": "2/3",
+      "action": "auto-fix",
+      "reason": "research-passed: OSI-approved (MIT), actively maintained, no CVEs",
+      "research": {
+        "category": "new-dependency",
+        "verdict": "proceed",
+        "checks": [
+          {"check": "license", "result": "MIT (OSI-approved, compatible with project MIT)", "pass": true},
+          {"check": "maintenance", "result": "last commit 2 weeks ago, 12k GitHub stars", "pass": true},
+          {"check": "security", "result": "no known CVEs", "pass": true},
+          {"check": "adoption", "result": "4.2M weekly npm downloads", "pass": true}
+        ],
+        "evidence_summary": "zod: MIT license, last commit 2026-03-15, no CVEs, 4.2M weekly downloads"
+      }
+    }
+  ],
+  "deferred_decisions": [
+    {
+      "cycle": 1,
+      "issue": "API signature change needed",
+      "severity": "high",
+      "consensus": "3/3",
+      "reason": "touches public API — research-failed: external-facing, PRD doesn't specify signature",
+      "status": "pending",
+      "research": {
+        "category": "high-public-api",
+        "verdict": "escalate",
+        "checks": [
+          {"check": "prd-requires-change", "result": "PRD mentions API but no signature spec", "pass": false},
+          {"check": "api-scope", "result": "external-facing REST endpoint", "pass": false}
+        ],
+        "evidence_summary": "API is external-facing, PRD doesn't specify new signature"
+      }
+    }
+  ],
+  "batch": {
+    "id": "202603161000",
+    "mode": "autopilot",
+    "parks_consecutive": 0,
+    "completed_prds": [
+      {
+        "filename": "00001-user-auth.md",
+        "cycles": 2,
+        "autonomous_decisions": 3,
+        "escalated_decisions": 0,
+        "tasks_completed": 4,
+        "tasks_total": 4
+      }
+    ],
+    "skips": [
+      {
+        "prd": "00110-flip-consensus-engine-default-v1.md",
+        "command": "test -f docs/dev/project-management/reviews/00110-evidence.md",
+        "exit_code": 1,
+        "note": "",
+        "at": "2026-03-16T10:03:41Z"
+      }
+    ],
+    "catchup_completed_at": "2026-03-16T10:42:13Z",
+    "catchup_head_sha": "a1b2c3d4e5f6789..."
+  },
+  "doubts": [],
+  "doubts_rubric_verdicts": [
+    {"rule_id": "D1", "verdict": "pass"},
+    {"rule_id": "D2", "verdict": "pass"},
+    {"rule_id": "D3", "verdict": "pass"},
+    {"rule_id": "D4", "verdict": "fail"},
+    {"rule_id": "D5", "verdict": "pass"}
+  ],
+  "needs_attention": false
+}
+```
+
+## Field Descriptions
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `prd` | string | PRD filename (with `.md` extension), e.g. `"00004-feature-x.md"`. Resolves to `docs/dev/project-management/prds/wip/<prd>` while active, or `docs/dev/project-management/prds/hold/<prd>` after a Phase 2 (`oversized_task`) or Phase 6 (`escalation_exhausted`) stall move. Phase 0's `subagent_prompt_overrun` replan handler does NOT move the PRD — it replans in place (PRD stays in `wip/`); a context-cap fire rotates (also in place, no move). Written by Phase 0 step 6 at PRD selection. The dashboard derives `name` by stripping the extension. |
+| `phase` | enum | Current gate: `build`, `review`, `done`, `paused`. `build` is ONE session (selection → catchup → design → planning → work, no mid-build handoff); the review surface runs in a fresh session; blind and doubt scrutiny are lenses inside every review cycle (PRD 00015), not phases. **Legacy values** `blind`/`doubt` (pre-00015 state files) map to the review gate on resume — `resume_target.py` sends them through one full review cycle. |
+| `next_phase` | string | Gate the next session of `/autopilot:run-autopilot` will run. Written by `/autopilot:run-autopilot` at every transition. **Read by the `autoclaude` wrapper after each headless session exits (PRD 00014)**: a non-empty gate (`build`/`review`/`done`) → relaunch a fresh session, and `""` (empty, batch end) → archive state and stop the loop (drained). The authoritative resume signal is `phase` + `phases_completed`; build re-entry is by artifact (capsule freshness, tasks-exist, all-done). |
+| `prd_budget_since` | string? | ISO UTC timestamp marking the start of the current PRD's `_AUTOPILOT_PRD_BUDGET_USD` spend window. Stamped by `enter.py`'s `_write_prd` (step 10) when absent, or when the pre-write state's `prd` differs from the one being selected — so a PRD re-entry after a rotation or hand-off keeps its original stamp, and a genuinely new PRD selection gets a fresh one. Read by `cli/loop_decision.py` to total metrics-ledger spend since this timestamp against the budget; a total over budget parks the PRD (`park_site: "budget"`). Cleared by Phase 9 step 10 on PRD-to-PRD reset. |
+| `loop_entry` | object? | PRD 00282: the Phase 0 (`enter()`) result the loop ran in-process before launching a build session, or before consuming a `park-requested` marker — `Loop._pre_enter`. Shape: `{"entered_by": "loop", "prd": string, "result": object}`, where `result` is the same dict `autopilot enter` would otherwise print (its `warnings` key already popped and sent to the loop's own stderr). The session brief's `## Entry` section mirrors `result`'s `prd`/`catchup`/`design`/`stop`. The next `autopilot enter` call (inside the launched session) reads this FIRST: a `loop_entry.prd` matching `state.prd`, with no `--prd` given, replays `result` as that call's one JSON line and deletes `loop_entry` without re-running `enter()` — so a selection produces exactly one resume row. A `loop_entry` whose `prd` no longer matches (stale — state moved on since the loop wrote it) is dropped and `enter()` runs normally. Absent when `enter()` raised `state.StateError`, when the state write failed (one stderr line, logged, no `loop_entry`), or in a manual/interactive session (which never runs `_pre_enter`). Also cleared by Phase 9 step 10 on PRD-to-PRD reset, as defense-in-depth against a crash between the loop's write and the launched session's consume. |
+| `catchup_mode` | enum | `"run"` (default; Phase 1 honors the batch cache), `"skip"` (PRD frontmatter requested skip), `"force"` (PRD frontmatter forces full catchup ignoring the batch cache at the PRD's first entry; once `tasks` is a non-empty list the same value reads as `run`, PRD 00209), or `"skipped"` (Phase 1 was bypassed for this PRD). Set at Phase 0 from PRD frontmatter `catchup:`; defaults to `"run"` on missing/malformed frontmatter. |
+| `design_mode` | enum? | `"run"` (default; the Phase 1.5 design sub-step invokes `/autopilot:design-solution`), `"skip"` (PRD frontmatter requested skip), or `"skipped"` (Phase 1.5 was bypassed for this PRD). Set at Phase 0 step 4 from PRD frontmatter `design:`; defaults to `"run"` on missing/malformed frontmatter. Read by the Phase 1.5 design sub-step. Cleared by Phase 9 step 10 on PRD-to-PRD reset (re-derived from the next PRD's frontmatter at Phase 0). Absent on plans created before this field existed. |
+| `design_gate` | string? | `"user"` when PRD frontmatter `design_gate: user` requests an interactive review pause after design; absent otherwise. Set at Phase 0 step 4 from PRD frontmatter `design_gate:` (only an exact `user` match writes the field). Read by Phase 1.5: when `"user"`, the sub-step PAUSEs with the design doc summary via `AskUserQuestion` before planning. Cleared by Phase 9 step 10 on PRD-to-PRD reset. Absent in normal operation (no gate requested). |
+| `plan_expansion_override` | bool? | `true` when PRD frontmatter `plan_expansion: allow` opts the PRD out of the plan-expansion gate (`autopilot check-plan --prd`, `plan-tasks` step 5.5); absent otherwise. Set at Phase 0 step 5 by `autopilot frontmatter` (only an exact `allow` match writes the field). Read by no gate directly - `cli/policy.plan_expansion` re-reads the PRD text's frontmatter for the override; this field is the state-visible mirror. Cleared by Phase 9 step 10 on PRD-to-PRD reset (`cli/records.PER_PRD_RESET_FIELDS`). Absent in normal operation. |
+| `design_doc` | string? | Path to the reviewed design doc the Phase 1.5 design sub-step produced: `docs/dev/project-management/designs/<prd-stem>-design.md` (`<prd-stem>` = `prd` minus `.md`). Written by Phase 1.5 on a successful `/autopilot:design-solution` run, or set to the existing path when the artifact is reused. Read by `/autopilot:plan-tasks` (copies the doc's `## Interfaces & contracts` into task `Contract`s) and `/autopilot:review-work-completion` (appends the doc under a `## Design Doc` heading to reviewer context). The design doc FILE is a durable artifact under `docs/dev/project-management/designs/` (like review files — never deleted); only this state reference is cleared by Phase 9 step 10 on PRD-to-PRD reset. Absent on PRDs that skipped design (`design_mode == "skipped"`) and on plans created before this field existed. |
+| `phases_completed` | string[] | Membership markers for finished review surfaces. Post-00015 the writer appends `"review"` at review-loop convergence (`phase-done --outcome converged`) and, since PRD 00205, at a lane-routed build's close (`phase-done --outcome lane_reviewed`, the `("build", "lane_reviewed")` row with convergence's effect, so the review-coverage hook gates the lane's review file too); legacy state files may also carry `"blind"`/`"doubt"`. |
+| `cycle` | int | Current review-rework cycle (starts at 1) |
+| `rework_cap` | int | Effective review-rework cycle cap for the current PRD. Parsed by Phase 0 from PRD frontmatter field `rework_cap: <int>`; defaults to `2` when absent, missing, or invalid. Compared against `cycle` at Phase 5 decision gate: rework allowed while `cycle < rework_cap`; pause when `cycle >= rework_cap`. Per-PRD scope, but re-derived by Phase 0 step 4 from the next PRD's frontmatter on every PRD-to-PRD transition (default 2), so it needs no explicit Phase 9 step 10 clear. |
+| `doubt_reviewer` | enum? | Doubt-lens roster flag for the current PRD. Parsed by Phase 0 step 4 from PRD frontmatter field `doubt_reviewer:`; accepted values `codex` (default) and `fable`; defaults to `codex` when absent, unrecognized, or on malformed frontmatter (one-line warning logged on the unrecognized-value / malformed path, none on plain absence). Read by the review phase (PRD 00015): when `fable`, Eve (Fable 5) joins the review batch as a fifth lens running the same doubt prompt as Bob, and the rubric verdicts are recorded per reviewer with `source` tags; when `codex` (or absent) the standard roster runs unchanged. Per-PRD scope, re-derived by Phase 0 step 4 from the next PRD's frontmatter on every PRD-to-PRD transition (default `codex`), so it needs no explicit Phase 9 step 10 clear. **Note (PRD 00077):** `review-work-completion`'s codex doubt-roster guard may override this field's RESOLVED value in memory for a single review dispatch (when any task attempt carries `implementor: "codex"`, the doubt leg must not be codex alone) — the guard's own rule lives in `review-work-completion`, not here. The STORED value in `state.json` is untouched by that guard; Phase 0 step 4 remains its sole writer. Absent on plans created before this field existed. |
+| `consensus_engine` | enum? | Engine behind Alice's consensus leg for the current PRD. Parsed by Phase 0 step 4 from PRD frontmatter field `consensus_engine:`; accepted values `legacy` (default), `shadow`, `workflow`; defaults to `legacy` when absent, unrecognized, or on malformed frontmatter (one-line warning on the unrecognized-value / malformed path, none on plain absence). Read by `review-work-completion` step 1: `legacy` runs today's single review subagent unchanged; `workflow` makes the `review-fanout` workflow Alice's leg (dimension fan-out, dedup, adversarial verify); `shadow` runs both, legacy gating and the workflow recorded as a non-gating observation. Per-PRD scope, re-derived by Phase 0 step 4 from the next PRD's frontmatter on every PRD-to-PRD transition (default `legacy`), so it needs no explicit Phase 9 step 10 clear. The workflow's `runId` is NOT stored here — it is stamped into the review file's `consensus_run_id` frontmatter, because `resumeFromRunId` is same-session only. |
+| `session_model` | enum? | Model the build session launches on for the current PRD (PRD 00200). Parsed by Phase 0 step 5 from PRD frontmatter field `session_model:`; accepted values `sonnet` (default) and `opus`; defaults to `sonnet` when absent (silently) or unrecognized (one-line warning). Read by `cli/routing.build_model` as promotion signal 1 (§ Build-Session Model Promotion Signals below), which re-reads the PRD's own frontmatter rather than this mirror. `default_model` is NOT this field: it floors the per-task tier for `/autopilot:plan-tasks` and no longer picks the orchestrator. Per-PRD scope, re-derived by Phase 0 from the next PRD's frontmatter on every PRD-to-PRD transition, so it is deliberately not in `records.PER_PRD_RESET_FIELDS`. Absent on state files written before this field existed. |
+| `lane` | enum? | The effort lane `cli/lane.py` classified the current PRD into: `solo`, `fast-track` or `full`. Written by Phase 0 step 5 (the `frontmatter` verb) from the PRD text and its flat frontmatter pairs: a `lane:` override wins (`override`), else a hook path, a security-ish path, no named path or `design:` other than `skip` route to `full`, zero production paths to `solo`, a card-sized PRD to `fast-track`, the rest to `full` (PRD 00204). An invalid `lane:` value warns once and takes the classified lane; an absent key is silent. Re-derived per PRD at Phase 0, so it is NOT in `cli/records.PER_PRD_RESET_FIELDS`. Absent on plans created before this field existed. |
+| `lane_reason` | string? | The first classifier rule that matched: `override`, `hook`, `security_path`, `unparsed`, `design`, `no_production_code`, `card_sized` or `uncardable`. Written beside `lane` by the same verb; rendered in the batch report's `- Lane:` line. Re-derived per PRD at Phase 0. |
+| `lane_effective` | enum? | The lane that actually runs: `lane` when it is in `lane.RELEASED_LANES` (`full`, `solo` since PRD 00205, `fast-track` since PRD 00206) and `_AUTOPILOT_LANES` is not `off`, else `full` (an unreleased lane is recorded and rendered, acted on by nothing; step 5.5 prints the `running full` banner when it differs from `lane`). The fast-track runbook rewrites it to `full` with `lane_reason: "uncardable"` when `cards_from_prd.py` refuses the PRD. `_AUTOPILOT_LANES=off` in the loop environment forces `full` for every PRD; the `frontmatter` verb is that knob's one reader. Copied into every `loop-metrics.jsonl` session row and the closing `batch.completed_prds` record. Re-derived per PRD at Phase 0. |
+| `lane_escalated` | object? | `{"from": <lane>, "signal": <slug>}` when a lane-routed build escalated into the full review gate (PRD 00205). Written by `autopilot lane-check` in the same transaction that sets `lane_effective: "full"`: `unnamed_path` (a hook or production path in `work_start_sha..HEAD`), `security_diff` (`lane.security_triggered` fired), `check_failed` (a git command failed; the check fails toward the expensive lane), or a session-determined `--signal` (`critical_finding`, `high_unresolved`, `suite_red`, `review_failed`). Rendered as `, escalated from <from>: <signal>` on the report's `- Lane:` line and copied into the closing `batch.completed_prds` record. Per-PRD work product, so it IS in `cli/records.PER_PRD_RESET_FIELDS` (its lane siblings are re-derived at Phase 0 instead). Absent when no escalation happened. |
+| `tasks_total` | int | Total task count. Derived from the `tasks` snapshot: every writer of `tasks` recomputes `tasks_total = len(tasks)` in the same write (the pidash-era PostToolUse sync hook is retired, PRD 00063). |
+| `tasks_completed` | int | Number of completed tasks. Derived with `tasks_total`: `tasks_completed = count(status == "completed")`, recomputed on every `tasks` write. |
+| `tasks` | object[] | Canonical task list for the current PRD: `{"id": "<task-id>", "name": "...", "status": "pending\|in_progress\|completed", "description"?: string, "blocked_by"?: int[], "model"?: "haiku\|sonnet\|opus\|fable", "attempts"?: object[]}`. Include `id` — state readers (tracon, the review phase, `rework_task_ids` targeting) key on it. The two optional entry fields `description` and `blocked_by` are detailed in the `tasks[].description` and `tasks[].blocked_by` rows below. |
+| `tasks[].model` | enum? | Per-task model tier: `"haiku"`, `"sonnet"`, `"opus"`, `"fable"`. `"fable"` (PRD 00076) is reachable **only** via the Fable rescue gate (`references/recovery.md` § Rework escalation exhausted, on a human-approved ledger entry), never by the plan-tasks tier classifier and never as a session model. Set by plan-tasks step 4.7's tier classifier (`classify_tier.py`) and rewritten by /autopilot:run-autopilot Phase 6 escalation (see `references/phase-review.md` Phase 6). The dashboard, the review phase, and `/autopilot:work` read this field. When absent (plans created before PRD 00025), `/autopilot:work` omits `model` and subagents inherit the session model. |
+| `tasks[].attempts` | object[]? | Per-task execution log: `{"attempt": int, "model": string, "outcome": "completed"\|"aborted"\|"review_flagged"\|"rework_failed"\|"escalated", "review_cycle": int\|null, "cause": string\|null, "implementor": "claude"\|"gemini"\|"qwen"\|"codex"\|"orchestrator", "preflight_outcome": "healthy"\|"pi_missing"\|"endpoint_unreachable"\|"model_id_missing"\|"completion_failed"\|null, "pipeline"?: "minimal"\|"lean"\|"full", "self_deslop"?: string, "escalation_reason"?: "gate_failure"\|"review_flag"\|"fable_rescue", "escalated_from"?: "qwen"\|"haiku"\|"sonnet"\|"opus"\|"codex", "diagnosis"?: "spec_gap"\|"solid_spec", "repair_used"?: true, "breaker_skipped"?: true, "qwen_gate_failed"?: true, "qwen_excluded_reason"?: "files"\|"memory_pressure"\|"memory_probe_failed", "codex_no_edit"?: true, "codex_no_edit_probe_exit"?: int, "micro_lane"?: "overrun", "reflow"?: string, "review"?: string, "style_gate"?: string, "devon"?: "skipped:prose"\|"exploit_fixed"\|null, "devon_exploit"?: string, "devon_weak_points"?: int, "devon_in_contract"?: string[], "split_hygiene"?: string, "verification"?: string}`. Records each Work pass on the task. Appended by `/autopilot:work` at task exit (success or abort). The `implementor` field reflects what actually dispatched (NOT what step 3's routing table initially picked — a qwen pick that fell back to Claude on preflight failure records `"claude"`). The `preflight_outcome` field is set only for attempts on qwen-eligible tasks (effective eligibility after runtime write-set reconciliation); for non-qwen-eligible attempts (UI tasks, `opus`-tier tasks, backend tasks where `qwen_eligible` is `false` or absent) it is `null`. A qwen-eligible attempt that the breaker (row 3) or the memory-pressure gate (row 4) rerouted also records `null`, because the probe never ran. The `pipeline` field records the tier-gated pipeline depth the attempt ran — `"minimal"`/`"lean"`/`"full"` for `haiku`/`sonnet`/`opus`, `"full"` for `fable`, and `"solo"` for a task the solo lane's session edited itself (`references/lane-solo.md`, PRD 00205; always paired with `implementor: "orchestrator"`) (the rescue rung runs the deepest pipeline, like `opus`; absent/legacy `model` is treated as `sonnet` → `"lean"`), written at every task exit (PRD 00044) — the `?` in the signature marks read-side tolerance for pre-00044 rows only; new writes always include `pipeline`. **Cardinality (PRD 00065):** today `/autopilot:work` appends exactly one entry per task at exit. Under in-loop escalation the rule widens to one entry per rung/dispatch-group: each rung that dispatched writes its own entry when the task escalates away from it or exits on it. `attempt` numbers stay sequential across rungs (`len(existing)+1`). This is a widening, not a break — a task that never escalates still writes exactly one entry, byte-identical to today. **Six escalation fields (PRD 00065, all optional, absence = legacy / not-applicable):** `escalation_reason` (`"gate_failure"` stamped by `/autopilot:work` on the entry of the rung it escalated INTO (in-loop diagnosis); `"review_flag"` stamped by phase-review Phase 6 on its escalation path; `"fable_rescue"` (PRD 00076) stamped by the Fable rescue gate on the entry of the human-approved fable retry, always paired with `escalated_from: "opus"` and an entry `model` of `"fable"` (the rescue rung — the one tier `/autopilot:work` never selects on its own). Absent = none of the three (legacy / no escalation)); `escalated_from` (string?; normally a tier — on the entry of the rung escalated INTO, the immediate-prior rung it came from; the one exception is `"codex"` (PRD 00077), which names a BACKEND rather than a tier — stamped on the Claude entry a codex capability failure escalates into, the others are all tiers. Absent on non-escalated entries); `diagnosis` (string?; the 2nd-failure diagnosis verdict, stamped on the entry of the rung that was diagnosed); `repair_used` (bool?; `true` stamped on the entry of the same-tier attempt that ran after a task-description repair; absent otherwise, never written `false`); `breaker_skipped` (bool?; `true` stamped on a qwen-eligible attempt the breaker rerouted off qwen — to codex (PRD 00077) or to Claude at original tier (no preflight probe); absent otherwise); `qwen_gate_failed` (bool?; `true` stamped on an `implementor:"qwen"` entry whose pre-commit output guard or step-5.5 gate FAILED — the durable signal the qwen capability breaker keys on; absent otherwise). Runtime exclusions are described in the dedicated `tasks[].attempts[].qwen_excluded_reason` row below; planner metadata is unchanged. **Codex no-edit fields (PRD 00077, both optional):** `cause` gains the value `"codex_no_edit"` — the no-edit infra arm, stamped when the codex helper exited 0 with a non-empty output file but produced no working-tree change (the hook-blocked, prose-only case); classified as INFRA, so the attempt falls back to Claude at the task's own tier with no `escalation_reason` stamp. `codex_no_edit` (bool?; the LATCHED detector result, captured at the dispatch boundary — `work` SKILL.md step 4, before step 5's `git add` — by comparing the task's own file slice porcelain before and after the codex dispatch; step 5.5 reads this latched flag and never re-runs the detector. Absent on non-codex attempts and on attempts written before PRD 00077). `codex_no_edit_probe_exit` (int?; the detector's own exit code, recorded ONLY when the detector exited non-zero — a non-zero exit means the probe is INDETERMINATE, not "no change": `codex_no_edit` is NOT latched and the attempt continues on the capability path normally. Exists so a broken detector is visible in the record instead of silently reclassifying every real codex capability failure as infra. Absent when the detector ran cleanly and on attempts written before PRD 00077). The `"escalated"` outcome value is stamped on the entry for a rung the task was reset away from and escalated up; the final rung's entry carries the real terminal outcome (`completed`/`aborted`), and the escalated-away entry keeps its true `implementor` (a qwen rung escalated to Sonnet keeps `implementor:"qwen"`; likewise, a codex attempt records `model` at the task's own tier, e.g. `"sonnet"`, with `implementor: "codex"` carrying the backend identity — the same split the qwen rung already uses). **Micro-lane fields (PRD 00148, both optional):** `implementor` gains `"orchestrator"` — the one value meaning no implementor dispatched at all, stamped when a small rework task was edited in-session by the orchestrator (`work/references/rework-mode.md` § Micro lane), which also records `red_check: "n/a:micro-lane"`. `micro_lane` (string?; `"overrun"` when the lane's post-edit ceiling fired, the edit was reverted and the task fell through to a normal dispatch — that attempt records the real dispatcher in `implementor`; absent otherwise). `reflow` (string?; `"<path>:<hunks>"`, `;`-joined for several, when `/autopilot:work` step 5's `check_reflow.py` flagged a staged file, or `"failed:<stderr>"` when the script could not run; absent when nothing was flagged). **Per-task review field (PRD 00159):** `review` (string?; `"failed:<cause>"` when the step-5.7 reviewer lane failed twice, `"failed:invalid_output"` when both replies broke the reporting contract and `parse_review.py` rejected each, `"skipped:test-only"` when every path in `<task_base_sha>..HEAD` was test or fixture code outside rework mode; may also carry a `medium-retry:fixed`/`medium-retry:unfixed` suffix from PRD 00140. Absent when the review ran cleanly or the haiku tier-gate skipped it). **Per-task style gate (PRD 00163):** `style_gate` (string?; the step-5.65 verdict on that task's own diff — `"clean"`, `"fixed:<sha>"` (one fix dispatch landed and the re-run was clean), `"failed:<detail>"` (the violation lines joined by `"; "`, or the script's stderr when the gate could not run), or `"skipped:tier"` for a `haiku` task. Absent on attempts written before PRD 00163, when the gate ran once per phase and stamped nothing per task). **Devon weak-point fields:** `devon` gains the value `"exploit_fixed"` — stamped when step 2.9's Devon broke the tests, Tess strengthened them once, and the task proceeded on the strengthened tests with no second Devon dispatch. `devon_exploit` (string?; Devon's one-line weak-point summary, stamped alongside `devon: "exploit_fixed"`; absent otherwise). `devon_weak_points` (int?; the count of weak points Devon's numbered `Weak points:` list named, stamped alongside `devon: "exploit_fixed"`; absent otherwise). `devon_in_contract` (string[]?; each `"N. in-contract: ..."` line Tess returned when answering Devon's weak points, stamped alongside `devon: "exploit_fixed"`; absent otherwise). **Per-task split-hygiene check (PRD 00166):** `split_hygiene` (string?; the step-5.65 verdict on the test files that task touched — `"clean"`, `"fixed:<sha>"` (one deletion-only fix dispatch landed and the re-run was clean), `"failed:<detail>"` (the reported lines joined by `"; "`, or the script's stderr when the check could not run), or `"skipped:no-tests"` when the task's candidate list held no test path. Distinct from `style_gate` because the two answer different questions on different file sets: one measures line spans over every `.py` file, the other reads bindings in test files only. Absent on attempts written before PRD 00166 and when the haiku tier-gate skipped step 5.65). **Verification stamp (PRD 00167):** `verification` (string?; `"skipped:<cause>"` when step 5.5's per-task test verification could not run at all, or `"timeout:<command>"` when step 5.5's narrow tests hit their 300000 ms Bash `timeout` budget and then hit the 600000 ms re-run too, leaving no verdict, per `work/references/subagent-dispatch.md` § Foreground command budgets. `<command>` names the command that timed out. Two neighbouring timeouts are never stamped here: a step-2.95 red-check takes `red_check: "skipped:<cause>"` from its own ladder, and a step-7 timeout is recorded in the phase report, that suite running after every attempt entry has been appended. Absent when the task's tests ran). See `work/references/attempt-logging.md` for field semantics, the atomic write procedure, and the attribution row-ownership table. Outcome upgraded later by /autopilot:run-autopilot Phase 6: `review_flagged` at the start of escalation (step 2), then `rework_failed` if the chain exhausts at `opus` (or at `fable`, when a rescue attempt was spent — step 3's escalation-exhausted branch). Rework reads the last entry's `model` to determine the next tier. Absent on plans created before PRD 00025; `implementor`/`preflight_outcome` absent on attempts written before PRD 00031; `self_deslop` absent on attempts written before PRD 00041; `pipeline` absent on attempts written before PRD 00044; the six escalation fields and the `"escalated"` outcome value absent on attempts written before PRD 00065; the attempt-level `qwen_excluded_reason` absent on attempts written before PRD 00075; `codex_no_edit` and `codex_no_edit_probe_exit` absent on attempts written before PRD 00077. |
+| `tasks[].attempts[].cause` | string? | Qwen pre-commit output causes: `"qwen_no_edit"` (no task-owned implementation diff) and `"qwen_test_mutation"` (Tess-owned tests differ from the test commit). Both record a rejected Qwen row with `outcome: "escalated"`, `qwen_gate_failed: true`; the new Sonnet row carries `escalation_reason: "gate_failure"`, `escalated_from: "qwen"`. Existing abort causes are unchanged; successful attempts use null. |
+| `tasks[].attempts[].qwen_excluded_reason` | string? | Runtime exclusion: `"files"` for zero or stale multi-file `FILE_PATHS`, `"memory_pressure"` or `"memory_probe_failed"` for row 4. A write-set exclusion records `preflight_outcome: null` and preserves the plan-time task fields. Absent when no runtime exclusion fired. |
+| `tasks[].attempts[].self_deslop` | string? | Outcome of the per-task self-deslop pass that `/autopilot:work` runs as step 5.6 between test-pass (5.5) and per-task code review (5.7). Allowed values: `"committed:{sha}"` (the self-deslop subagent committed a `chore: prune slop from ...` cleanup), `"noop"` (subagent ran but found no slop, no commit), `"skipped:trivial"` (skip rule fired — diff added <30 net lines OR touched <2 files), `"skipped:test-only"` (PRD 00159; every path in `<task_base_sha>..HEAD` is test or fixture code, checked before the trivial rule), `"timeout"` (subagent watchdog killed it), `"errored:{cause}"` (dispatch failed; `{cause}` is a short tag). Optional; absent on legacy attempts (pre-PRD-00041) and on attempts the writer never updated. Self-deslop is best-effort: it never blocks a task, never triggers retries, and never modifies the `outcome` field. The per-task review at step 5.7 runs against the post-cleanup diff when a cleanup committed; against the original diff otherwise. |
+| `tasks[].estimated_tokens` | int? | Per-task input-token budget estimate. Set by plan-tasks step 4.7's tier classifier; persisted directly in `state.tasks[]`. Absent when plan-tasks did not record a budget estimate. |
+| `tasks[].est_context_peak` | int? | Per-task estimated peak working-context size. Used to predict subagent dispatch budget headroom. Set by plan-tasks step 4.7's tier classifier; persisted directly in `state.tasks[]`. Absent when plan-tasks did not record a context estimate. |
+| `tasks[].qwen_eligible` | bool? | Qwen routing eligibility (PRD 00174): backend (not UI) AND tier ∈ {`haiku`, `sonnet`} AND exactly one non-empty expected implementor-writable file AND no public-contract edit. Empty or missing file slices are ineligible. Set by plan-tasks step 4.7's tier classifier; persisted directly in `state.tasks[]`. `/autopilot:work` reconciles this flag against concrete `FILE_PATHS` before routing, without rewriting the plan; absent (legacy plans) is treated as `false`. |
+| `tasks[].qwen_excluded_reason` | string? | Why plan-tasks step 4.7 excluded the task from qwen routing: `"ui"`, `"tier"`, `"contract"`, or `"files"` (first failing condition in that order; `files` includes zero and two-or-more writable files). Set by plan-tasks step 4.7's tier classifier on every ineligible task (PRD 00019); persisted directly in `state.tasks[]`. Absent on eligible tasks and legacy plans — the Phase 9 Implementor Mix render counts an ineligible task with no reason as `unknown`, never an error. |
+| `tasks[].tier_reason` | string? | Why the planner assigned the task its tier **at plan time**. Legal values: `"test_port"` (every path in the task's slice is a test path, pinned to `sonnet`), `"packaging"` (every path is a test or packaging path, pinned to `sonnet`), `"contract"` (the task itself edits a public contract, so `opus`), `"algorithmic_risk"` (the task's own Details name a new algorithm, shared mutable state, or a migration, so `opus`), `"mechanical"` (the haiku row), `"default"` (the `sonnet` fallback), and `"floor"` (the PRD frontmatter `default_model` floor raised the classified tier). Written once by `/autopilot:plan-tasks` step 4.7 from `classify_tier.py`'s output; persisted directly in `state.tasks[]` and **never rewritten afterwards**: a later escalation rewrites `model` only, and `attempts[]` carries that history, so `model: "opus"` with `tier_reason: "mechanical"` is an escalated task, not a corrupt record. No reason maps to `fable` (see the `tasks[].model` row). Absent on plans created before PRD 00160. |
+| `tasks[].description` | string? | Free-form detail about what the task must achieve, beyond the one-line `name`. Validated by `cli/schema.py`: optional, and when present must be a `str` (any other type — including `bool` — is rejected as `tasks[<i>].description`). Absent on tasks that carry only a `name`. |
+| `tasks[].blocked_by` | int[]? | Integer references to the tasks this one waits on. Validated by `cli/schema.py`: optional, and when present must be a `list` whose every element is a plain `int` — `bool` elements are rejected, matching the bool-is-not-int rule the int fields already use. An empty list is valid. Absent on tasks with no dependencies. |
+| `tasks[].started_at` / `tasks[].done_at` | int? | Epoch-second wall-clock stamps alongside `usage_at_start`/`calls_at_start` and `usage_at_done`/`calls_at_done`: `started_at` is stamped by `autopilot_context_cap_hook.py`'s `record_task_bounds` on the same fire as the START pair (the first PostToolUse after the task turns `in_progress`), `done_at` on the same fire as the DONE pair (the first after it turns `completed`). Both are stamped once and never replaced afterwards, even across a session rotation. Absent until the matching fire occurs. |
+| `tasks[].carry_refs` | string[]? | Upper-cased `Ref` cells of every consolidated-findings row that re-queued THIS task as `[C{cycle}]`, unioned across every cycle that re-flagged it (`references/phase-review.md` Phase 6 step 4 and `references/recovery.md` § Rework escalation exhausted's Fable rescue gate both write it via `task-set-meta`). `autopilot review-close` (`cli/review_close.py` `_carry_unmatched`) is the sole reader: a `carry`-classified findings row is accepted only when its `ref`, upper-cased, appears here with the matching `carry_cycle`. Absent on a task never re-queued by a review flag. |
+| `tasks[].carry_cycle` | int? | The review cycle whose `carry_refs` union is current — set alongside `carry_refs` on every write, always `state.cycle` at write time. `autopilot review-close` requires `carry_cycle == state.cycle` in addition to the ref match (a stale cycle's union does not back a later cycle's carry row). Absent on a task never re-queued by a review flag. |
+| `task_aborts` | object[] | Per-task abort log: `{"task_id": string, "turn": int, "total_input_tokens": int, "cause": "subagent_prompt_overrun"}`. One writer: `/autopilot:work` Subagent Dispatch Budget appends a `cause: "subagent_prompt_overrun"` entry when an assembled subagent prompt exceeds 50K after one trim pass. (The context cap no longer writes here — it ROTATES, appending to `cap_rotations`.) Sets `turn: -1` when the actual turn is unknown (the assembly carries no turn counter). Empty array on fresh state. **`task_aborts[]` is ephemeral per-PRD state — Phase 9 step 10 clears it on PRD completion.** |
+| `cap_rotations` | object[]? | Context-cap rotation log: `{"task_id": string, "cycle": int, "phase": "build"\|"review"}` (`phase` since PRD 00196; entries written before it carry none and were all build rotations). Appended by `autopilot_context_cap_hook.py` when a Work turn during `build`, or during review-phase rework (`rework_task_ids` non-empty), exceeds the hard usage cap (`USAGE_CAP`, 500K) or the 450-call tripwire — a ROTATION, not a replan: the hook also sets `next_phase` to the phase it left and resets the in-flight task's status from `in_progress` to `pending` (so the fresh session's `/autopilot:work`, which iterates pending tasks, re-attempts it as the first non-completed task; a review session resumes at Phase 6 via Phase 4's third skip). The Stop hook then writes the `next` signal on STOP (the model writes no signal). Apart from the one in-flight task's `status`, leaves `tasks`, `phases_completed`, and `replan_count` untouched; writes no `stall_reason` and no `replan-context.md`. **Livelock guard:** if the last entry already names the in-flight task in the same phase, a second consecutive fire on the same task sets `stall_reason.stalled == "oversized_task"` (and `next_phase` to that phase) instead of appending another rotation (one oversized task costs at most two rotations before a loud stall); a build-era entry never counts against the task's fresh attempt in review. Ephemeral per-PRD state — Phase 9 step 10 clears it. Absent on fresh state and on plans created before this field existed. |
+| `replan_count` | int? | Number of replans applied to the current PRD after Phase 0 saw a `subagent_prompt_overrun` stall (the one surviving replan trigger; a context-cap fire rotates instead and leaves `replan_count` unchanged). Incremented by Phase 0's replan procedure before each retry. Each replan tightens the per-task budget by halving (floored at 40K) — see `recovery.md` "Budget floor guard" for the `target_budget = max(40000, int(75000 / (2 ** (replan_count - 1))))` schedule. Phase 0 PAUSEs only when `replan_count > 5` AND the same task keeps aborting (genuinely execution-overflowing, not capability-bound). Reset to 0 by Phase 9 step 10 when the PRD completes. Absent or 0 means the current PRD has not been replanned. |
+| `work_start_sha` | string? | Git `HEAD` SHA captured at Phase 3 start, immediately before `/autopilot:work` is dispatched. Bounds the commit range `work_start_sha..HEAD` produced by this PRD's `/autopilot:work` dispatches — read by Phase 8 to scope the codex doubt review's diff (`<work_start_sha>..HEAD`). Captured once per PRD; in a multi-PRD batch each PRD overwrites it with current HEAD at Phase 3 start, so ranges never overlap. **Empty-tree fallback (PRD 00084):** when `git rev-parse HEAD` fails at capture (unborn branch / no commits yet), this is set to the git empty-tree sentinel `4b825dc642cb6eb9a060e54bf8d69288fbee4904` so the review range spans the whole tree instead of being undefined (core `SKILL.md` § Phase 3 invariants). Cleared by Phase 9 step 10 on PRD-to-PRD reset. Optional: absent on plans created before this field was introduced, and on PRDs where Phase 3 has not yet run. |
+| `repo_root` | string? | Absolute path to the git repo containing the work commits (`git rev-parse --show-toplevel`), captured at Phase 3 start alongside `work_start_sha`. Usually equals the project root; differs when the work repo is nested under a non-git project root (e.g. `${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot` under `~/.claude`). Read by the review session to run `git` (diff gathering, `head_sha` capture) in the right repo. Cleared by Phase 9 step 10 on PRD-to-PRD reset. Optional: absent on older plans; consumers fall back to the project root. |
+| `git_dir` | string? | The `--git-dir` value the Phase 3 "Capture `repo_root`" step had to pass for a bare-repo-backed project root (`~/.buvis` → `/Users/<you>/.buvis`), captured at Phase 3 start alongside `repo_root`; left unset when a plain `git rev-parse --show-toplevel` worked. Read by the cap_critical custody capture (`cli/custody.git_argv`, which builds `git --git-dir <git_dir> --work-tree <repo_root>`) and by `autopilot custody resolve`. Cleared by Phase 9 step 10 on the PRD-to-PRD reset (`records.PER_PRD_RESET_FIELDS`, right after `repo_root`). Absent on plans created before this field existed and on plain-repo projects. |
+| `rework_task_ids` | string[]? | Set by `/autopilot:run-autopilot` Phase 6 (rework) to instruct `/autopilot:work` to process only those task IDs at their escalated tier. Non-empty puts `/autopilot:work` in rework mode (skip completed-not-flagged tasks; re-iterate the listed IDs). Cleared (set to `[]`) by `/autopilot:run-autopilot` after the rework `/autopilot:work` pass finishes. Empty/absent means full-plan dispatch — the default Phase 3 behavior. A non-empty list beside this cycle's review file on disk means rework queued, dispatch pending: Phase 6 hands off after task-add in loop mode and the next session resumes the dispatch (PRD 00208). |
+| `qwen_gate_failures_consecutive` | int? | Consecutive qwen capability failures (pre-commit output rejection or step-5.5 gate failure), counted among qwen attempts ONLY (PRD 00065) — a non-qwen task (Claude/Gemini) between two qwen failures leaves it UNCHANGED (neither reset nor incremented). Only a qwen gate PASS resets it to 0; batch rollover also resets it. Incremented per qwen gate failure. Latches the breaker at 2. Owned entirely by `/autopilot:work`. Legacy state lacking the field: readers treat it as 0. |
+| `qwen_breaker` | object? | Qwen capability breaker state (PRD 00065): `{"tripped": bool, "after_task": "<task-id>"\|null, "failed_tasks": ["<id>", ...], "batch_id": "<batch.id>"}`. `tripped:true` once the counter reaches 2. `after_task` = the task id whose failure tripped it; `failed_tasks` = the two consecutive failing ids; `batch_id` = the batch this breaker state belongs to. Batch-scoped: `/autopilot:work` resets the breaker lazily when `qwen_breaker.batch_id != state.batch.id` (fallback id `"no-batch"` for a manual `/autopilot:work` run with no `state.batch`). Once tripped, stays tripped for the rest of the batch. Legacy state lacking the field: readers treat it as `{tripped:false}`. |
+| `codex_probe` | object? | Batch-scoped codex health probe result (PRD 00077): `{"batch_id": "<state.batch.id>"\|"no-batch", "verdict": "healthy"\|"unhealthy", "backend": "codex"\|"copilot", "detail": "<one-line cause>"\|null, "checked_at": "<ISO 8601>", "hook_doctor?": "ok"\|"stale: <basenames>"\|"<doctor summary line>"\|"doctor error: <config path>"}`. Written once per batch by the codex batch health probe (`work` SKILL.md § Batch codex health probe) and read by the step-3 routing interception before any codex dispatch. Batch-scoped with the same LAZY reset `qwen_breaker` uses: `/autopilot:work` re-probes and overwrites the slice when `codex_probe.batch_id != state.batch.id` (fallback id `"no-batch"` for a manual run with no `state.batch`); a match reuses the cached verdict and never re-probes. Writers MAY carry additional descriptive keys beyond these five (the live probe also stamps `model` and `note`); readers ignore unknown keys. Absent on legacy state files: readers treat absence as "not yet probed", never an error. **`hook_doctor`** (optional): the doctor-first sub-probe's own verdict (`work/references/codex-implementor.md` § Codex batch health probe), from `codex_hook_doctor.py check` run before the live probe. `"ok"` when the doctor exits 0; `"stale: <basenames>"` when it exits 3 (the stale/no_canonical targets' basenames). On doctor exit 1 or 2 the live probe is skipped entirely and `verdict` is forced `"unhealthy"`, but the two exits document DIFFERENT `detail`/`hook_doctor` shapes because the doctor's own output differs on each path: on **exit 1** (a broken target exists) `hook_doctor` carries the doctor's own summary line (`"<n> ok, <n> stale, <n> broken"`) and `detail` carries `"hook_doctor: <the first broken TSV line>"`; on **exit 2** (the doctor itself could not run: the config is missing, unreadable, not JSON, or has no `hooks` object; an event entry is malformed; a command does not tokenize; the plugin manifest has no `aegis@buvis-plugins` entry; or a target I/O call failed. On this path it emits neither a TSV line nor a summary line, only a single `error: <reason>` line to stderr that names the cause) `hook_doctor` carries `"doctor error: <config path>"` and `detail` carries `"hook_doctor: <the doctor's stderr error line>"`. Absent on state files written before the doctor-first probe existed. |
+| `qwen_preflight` | object? | Batch-scoped qwen preflight probe result (PRD 00093), mirroring `codex_probe`'s shape and idiom: `{"batch_id": "<state.batch.id>"\|"no-batch", "verdict": "healthy"\|"pi_missing"\|"endpoint_unreachable"\|"model_id_missing"\|"completion_failed", "detail": "<the failing check's own detail string>"\|null, "checked_at": "<ISO 8601>"}`. `verdict` reuses the four existing `preflight_outcome` strings directly — no separate `"unhealthy"` wrapper. Written once per batch by `work` SKILL.md § Qwen infra preflight (step 3 routing row 5) and read there before every qwen-eligible dispatch. Batch-scoped with the same LAZY reset `codex_probe`/`qwen_breaker` use: `/autopilot:work` re-probes and overwrites the slice when `qwen_preflight.batch_id != state.batch.id` (fallback id `"no-batch"`); a match reuses the cached verdict and never re-probes. **Re-probe trigger is scoped to backend-health signals, not task-outcome signals** — an ordinary step-5.5 gate failure on a qwen attempt does NOT invalidate the cache (that is the one-shot-to-Sonnet escalation's job); only a Subagent Watchdog hang/lost-result on the qwen dispatch itself, or an infra-shaped exit from `qwen-run.sh` at real dispatch time despite a cached `"healthy"` verdict, deletes the field via `statectl del qwen_preflight`, so the next qwen-eligible task's batch-scope check re-probes. Absent on legacy state files: readers treat absence as "not yet probed", never an error. |
+| `stall_reason` | object? | Signals a pending recovery action. Three shapes: `{"stalled": "oversized_task", "task": "<id>", ...}` (written by `/autopilot:plan-tasks` when a task can't be split below budget — carries `estimated_tokens?: int`; AND by `autopilot_context_cap_hook.py`'s livelock guard on a second consecutive cap fire for the same in-flight task — carries `total_input_tokens: int`; both trigger a stall move to `docs/dev/project-management/prds/hold/`); `{"stalled": "subagent_prompt_overrun", "task": "<id>", "prompt_bytes": int}` (written by `/autopilot:work` Subagent Dispatch Budget when an assembled subagent prompt exceeds 50K after one trim pass — triggers Phase 0's **replan procedure**, not a stall move; see `replan_count` and `/autopilot:run-autopilot` Phase 0 "Handle Work-phase abort"); `{"stalled": "escalation_exhausted", "task": "<id>"}` (written by `/autopilot:run-autopilot` Phase 6 when a task at tier `opus` fails rework — Phase 6 performs its own stall move inline); `{"stalled": "taskcreate_failed", "detail": "<error>"}` (written by `/autopilot:plan-tasks` step 4 when a `task-add` call fails mid-plan, after it rolls back the tasks it already created — PRD 00084; the `taskcreate_failed` value is a retained legacy key name, not a live tool reference; Phase 2 folds any non-`oversized_task` stall into its `plan_tasks_fail` PAUSE / loop re-invoke-once path, and `/autopilot:plan-tasks` clears this marker itself on a successful retry). **Merged** (not replacing) into state by the writer, then **cleared** by `/autopilot:run-autopilot`. Lifecycle handoff: Phase 2 handles `oversized_task` inline with a stall move; Phase 0 of the next session handles `subagent_prompt_overrun` via the replan procedure (no stall move — the PRD stays in `wip/`, planning re-runs with `replan-context.md`); Phase 6 handles `escalation_exhausted` inline (it owns the rework path and does its own move + clear before signaling — Phase 0 should never see this in normal operation, and treats it as crash recovery if it does). The context cap no longer writes `stall_reason` on a normal overrun — it ROTATES (see `cap_rotations`); only its livelock guard escalates to `oversized_task`. Absent in normal operation. |
+| `cap_pause_reason` | object? | Set by Phase 5 when the rework cap is hit AND the current review did not converge (`cycle >= rework_cap` AND unresolved findings remain). A clean cycle-at-cap convergence does NOT trigger cap-pause — it falls through to Phase 7 hand-off. Records the unresolved review findings and the cycle count. Shape: `{"cycle": int, "cap": int, "unresolved_findings": object[]}`. **Distinct from `stall_reason`'s `oversized_task`, `subagent_prompt_overrun`, and `escalation_exhausted` shapes** — `cap_pause_reason` is a separate top-level state field, not another `stall_reason` discriminator. The authoritative, durable indicator of a cap pause is `phase == "paused"` PLUS this field — not `needs_attention`. Cleared by (a) the Phase 0 Cap-Pause Resume Handler on user "resume", (b) Phase 9 step 10's PRD-to-PRD reset, and (c) the per-PRD reset lists in `recovery.md`. Previously only (a) applied — a cap pause halts the flow before Phase 9, so Phase 9 step 10 never observed this field in normal operation — but (b) and (c) are now added as defense-in-depth against the residual-leakage path (a manual "abandon" followed by a manual PRD move, which falls outside the automated flow). Absent in normal operation. |
+| `pause_reason` | object? | Set by every turn-ending PAUSE row alongside `phase == "paused"` / `next_phase == "paused"`. Shape: `{"site": string, "detail": string}`. `site` is a stable slug, one of: `"sub_skill_fail"`, `"reviewer_fail"`, `"plan_tasks_fail"`, `"mv_verify"`, `"batch_end"`, `"replan_exhausted"`, `"work_incomplete"`, `"systemic_park"`, `"statectl_fail"`. **`statectl_fail`** (PRD 00084; flow revised by PRD 00051 task 9) names a `statectl` state-write that failed twice (lock contention, python error, unreadable state). The model no longer hand-edits `state.json` to record it: after retry + `autopilot restore` the failure is signaled via the `state-write-failed` marker (§ Marker files) and the turn ends — the wrapper halts on the marker without needing a `pause_reason` write. The slug remains in this enum for states written by older sessions and for the loop-mode stall record that uses the same site. **`systemic_park`** (PRD 00066) is written by the Phase 0 park handler when `batch.parks_consecutive` reaches 2 (sanctioned-halt row 9). **Converted out of this enum by PRD 00066:** `blocking_escalation` and `scope_alarm` no longer write `pause_reason` — in loop mode a blocking escalation runs the Loop-mode stall procedure (deferred-JSON `type:"stall"`, `site:"blocking_escalation"`) and a scope alarm defers-and-continues; interactively both remain mid-turn `AskUserQuestion` prompts. `clarification` likewise pauses no batch: a Phase 2 ambiguity is assumed through, or stalls (`site:"clarification"`) under `pause_on_ambiguity: true`. `detail` is a one-line human-readable string; free-form, not parsed by any consumer. **Lifecycle invariant: `pause_reason` is present ONLY during an unresolved pause.** Cleared by (a) the pre-Phase-0 `### Resuming` session-start cleanup, unconditionally, on EVERY resume; (b) the Phase 9 step 10 PRD-to-PRD reset; and (c) every per-PRD reset list in `recovery.md`. NOT overwritten by normal phase progression — this is the difference from `phase` (which advances on every transition), and the reason the explicit clears above exist. Cap-pause keeps its own `cap_pause_reason` marker and does NOT write `pause_reason`. Read by the CLI loop's decision table (`cli/loop.py`; a pause marker stops the loop and surfaces `detail` in the notification). Absent on fresh state and whenever no pause is active. |
+| `review_cycles` | object[] | History of each review cycle. Each entry: `{"cycle": int, "review_file": "<path>", "agents": {"alice": "...", "bob": "...", "carl": "...", "diana": "..."}, "issues_found": int, "follow_up_tasks": int, "deferred": int, "recurring_issues": string[]}`. Cycles 3+ may also carry `decision_gate`, `rework_commits`, `rework_notes`, `cycle3_fix_audit`, `test_run` written by user-override paths (see live state for examples). |
+| `review_cycles[].recurring_issues` | string[] | Issue descriptions that appeared in a previous cycle |
+| `review_lenses` | object? | Live lens roster for the CURRENT review cycle, stamped by `review-work-completion` step 5 at dispatch and closed out in step 6: maps lens -> `"running"\|"done"\|"failed"\|"lost"\|"skipped"`. `"lost"`: the persona had an open dispatch row and no line at all under that cycle's `agents:` frontmatter block — nothing was ever reported back (`cli/review_close.py` `_lens_states`'s missing-persona fail-safe). `"skipped"`: the persona was taken off the roster on purpose, `agents:` status `"disabled"` (`_LENS_STATUS`). Keys: `consensus` (Alice), `blind` (Blake), `doubt` (Bob), plus `ui` (Carl), `fable` (Eve) when active. REPLACED at each cycle's dispatch; tracon expands the review phase strip from it. Absent on standalone runs and pre-field state files. |
+| `autonomous_decisions` | object[] | Decisions made without user input, one batch-report row per entry. Two entry shapes. An ORDINARY decision needs all five of: `cycle` (plain `int`; `bool` is rejected, matching the bool-is-not-int rule the int fields use; no floor, ceiling, or roster of known cycles), `severity` (one of the five strings published as `cli/schema.py::DECISION_SEVERITIES`: `critical`, `high`, `medium`, `low`, `n/a`, matched exactly, so case and whitespace variants are rejected), and three prose pairs each satisfied by a non-empty `str` under EITHER spelling: `issue`\|`question`, `action`\|`disposition`, `reason`\|`resolution` (vocabularies may be mixed across pairs). An `assumed-ambiguity` decision (`type == "assumed-ambiguity"`, that exact value) is judged by its own two keys instead, non-empty `question` and `assumption`, and carries no cycle, severity, action or reason. Extra keys are always allowed, including the optional `research` field for research-backed decisions, and including `assumption` or a `type` of any other value on an ordinary entry. Enforced by `cli/schema.py::validate_changed` on the entries a write ADDS, counted by OCCURRENCE, not by membership (a write adds an entry whenever it pushes the number of copies of that value past the number the pre-write list held; each copy the pre-write list already held is matched off by value (never by key names, key count, `type` or position) and carries over unjudged, so a reorder and a removal add nothing, and only the copies past that count are judged, wherever in the list they sit), never by `validate()`: entries an older batch left behind are never re-judged, so a resumed state still loads. A refused entry raises the single message shape `autonomous_decisions entry missing <key>`, naming the FIRST key of the pair (`issue`, not `question`), for absent, blank, wrong-typed and out-of-enum values alike; `statectl` prints it as `rejected: ...` with exit 1 before `state.json` is touched. |
+| `deferred_decisions` | object[] | Decisions requiring user input. May include optional `research` field when research was attempted but inconclusive. |
+| `doubts` | object[] | LEGACY (pre-00015 Phase 8): findings from the standalone doubt review, `{"description": "...", "category": "fix\|verify\|known", "justification?": "...", "status": "pending\|resolved", "source?": "codex\|fable"}`. Post-00015 the doubt lens's findings enter the normal review consolidation instead, so no new entries are written; Phase 9 step 6 still collects any lingering pending entries from old state files. Empty array on fresh state. |
+| `doubts_rubric_verdicts` | object[]? | Per-rule verdict block recorded by the review phase's consolidation (PRD 00015; `review-work-completion` SKILL.md step 6) from the doubt lens's `D{n}: pass\|fail` lines — Bob's (codex or his Claude fallback), plus Eve's when she ran. Each entry: `{"rule_id": "D{n}", "verdict": "pass"\|"fail", "source?": "codex"\|"fable"}`. **Id prefix (PRD 00108):** the doubt set is `D1-D5`; state written before that rename carries the old `R`-prefixed ids and is read as-is — nothing rewrites historical state. **`source?`** (PRD 00038, optional): written only when both doubt-lens reviewers ran (one entry per rule per reviewer, 10 entries); the single-reviewer path keeps 5 entries with no `source`. REPLACED every review cycle; the final cycle's verdicts are the durable ones. Used by Phase 9 step 7 to populate the "Doubt Rubric Verdicts" section of the batch report (see `references/batch-report-format.md`). Cleared by Phase 9 step 10 on PRD-to-PRD reset (per-PRD scope). Absent on PRDs that have not yet run a review cycle and on state files written before this field existed. |
+| `needs_attention` | bool | Dashboard flag. Sole remaining writer: Phase 5 cap-pause MAY set `true` as a best-effort dashboard hint (the pidash Notification/PostToolUse hooks that set and cleared it are retired, PRD 00063). Nothing clears it automatically now — treat it as advisory only; tracon (PRD 00062) will own the read/clear lifecycle. **Dashboard-only state — NOT the authoritative cap-pause signal.** The authoritative cap-pause signal is `phase == "paused"` plus `cap_pause_reason` being set.
+| `contract_card` | string? | Compact re-anchor card (PRD 00087 R1): current step, active invariants, next gate. Written by `/autopilot:run-autopilot`, `/autopilot:work`, and `/autopilot:review-work-completion` at each gate transition (via `statectl set`, in the same write that advances `phase`/`next_phase`). Read by the `reinject_contract_card.py` SessionStart(compact) hook, which re-injects it after a within-session compaction. Interactive runs use a scratch `docs/dev/project-management/autopilot/contract-card.md` instead. Absent until the first gate transition writes it. Free-form; not parsed by any consumer. |
+| `phase_guard` | object? | RETIRED (PRD 00014, with `autopilot_stop_hook.py`). May linger in pre-00014 state files; ignored by all consumers. |
+| `thrash_halt` | object? | RETIRED (PRD 00014, with `autopilot_stop_hook.py`). May linger in pre-00014 state files; ignored by all consumers. |
+| `batch` | object? | Tracks completed PRDs across sessions |
+| `batch.id` | string | Batch ID: `yyyymmddHHMM` timestamp of first execution |
+| `batch.mode` | string | Always `"autopilot"` |
+| `batch.unavailable_reviewers` | string[]? | Reviewers permanently rejected this batch, currently `["carl"]`. Absent means `[]`. Review step 5 appends once only when `gemini-run.sh` exits 4; step 1 reads before any binary probe and suppresses dispatch/retry and the `ui` lens. Preserved in full across per-PRD reset with `batch`; removed with the batch so the next batch retries Carl. When interactive batch end retains `state.json`, Phase 0's closed-batch identity rollover explicitly deletes this field and `batch.unavailable_reviewer_details` alongside the new id. An operator may remove Carl's entry and paired detail at a session boundary after repair. |
+| `batch.unavailable_reviewer_details` | object? | First-failure provenance paired with `unavailable_reviewers`: `{"carl": {"cycle": 1, "prd": "00175-example.md"}}`. Review step 5 writes it alongside the list in the same merge, never overwriting an existing origin. Step 6 uses these original values for `carl: skipped (permanently unavailable since cycle {n} of {prd})` in every subsequent review; missing legacy origin renders `unknown`. Same batch lifetime as the list; sibling entries are preserved. |
+| `batch.parks_consecutive` | int? | Consecutive `wrapper_died` parks (Phase 0 park handler) with NO healthy PRD outcome between them — the systemic-park breaker (PRD 00066). Lives under `batch` so it survives the per-PRD reset. Incremented by 1 in the park handler's per-PRD-reset write; at `>= 2` the handler PAUSEs the batch (`pause_reason.site = "systemic_park"`, sanctioned-halt row 9). Reset to 0 on ANY healthy outcome — Phase 9 PRD completion, and any non-`wrapper_died` Loop-mode stall (the stall procedure resets it whenever `site != "wrapper_died"`, `references/recovery.md`). Default 0; legacy state lacking the field: readers treat it as 0. |
+| `batch.completed_prds` | object[] | PRDs finished so far: `{"filename", "cycles", "autonomous_decisions", "escalated_decisions", "tasks_completed", "tasks_total"}`. Appended by `statectl.py`'s `complete-prd <prd-filename>` verb, which computes the entry from the state being closed (`cycles` = `cycle`; `autonomous_decisions` = count of `autonomous_decisions` entries the batch report's "Autonomous Decisions" table renders - dicts whose `type` is not `"assumed-ambiguity"` and whose Issue cell holds text (the first non-empty string among issue / question / finding / decision / supersedes / detail), per `render_report.is_autonomous_row`; `escalated_decisions` = count of `deferred_decisions` entries whose `status` is neither `"pending"` nor `"deferred"`, mirroring `render_report._is_pending`'s exclusion rule exactly; `tasks_completed`/`tasks_total` copied as-is) and resets `batch.parks_consecutive` to 0 in the same write. |
+| `batch.skips` | object[]? | PRDs the eligibility gate skipped this batch (PRD 00137): `{"prd", "command", "exit_code", "note", "at"}` per skip. Appended by `autopilot select` (`cli/__main__.py::_run_select`) whenever a `backlog` candidate's `eligibility:` frontmatter command does not exit 0 — the PRD stays in `backlog/`, gets no session, and is never parked, so a later drain re-evaluates it. `exit_code` is the command's own, or `-1` when it never ran (`note` then says `"timeout"` or `"error: <msg>"`; `note` is `""` otherwise). `at` is ISO 8601 UTC to the second. Lives under `batch` so the per-PRD reset preserves it (`records.PER_PRD_RESET_FIELDS` never touches `batch`) — the skips describe the drain, not whichever PRD it eventually picked. The FIRST pick of a fresh batch runs before `state.json` exists, so `select` can only print those records; Phase 0 step 3 seeds the field from the printed `skipped` list. Rendered by `render_report.batch_summary` as the `PRDs skipped: N` line and the `### Skipped` table. Absent until something is skipped; readers treat absence as `[]`. |
+| `batch.catchup_completed_at` | string? | ISO 8601 UTC timestamp recorded when the most recent full `/git-ferry:catchup` invocation in this batch completed. Read by Phase 1 "Batch cache check": if present, < 4h old, AND `batch.catchup_head_sha` matches current HEAD or every commit since it has committer `autopilot-loop/<batch.id>` (loop-only movement), Phase 1 runs a delta refresh instead of full catchup. A first-entry `catchup: force` skips the 4h freshness check and reads delta iff a `catchup_head_sha` is recorded and every commit since it is loop-only. Written by Phase 1 after full catchup completes. Preserved by Phase 9 step 10 across PRD-to-PRD state resets so subsequent PRDs in the same batch can reuse the cache. Absent on first PRD of a batch and on plans that never ran full catchup. |
+| `batch.catchup_head_sha` | string? | Git HEAD SHA captured at the moment full `/git-ferry:catchup` completed in this batch. Paired with `catchup_completed_at` for the Phase 1 cache check: a delta refresh needs current HEAD to equal this SHA, OR every commit since it to have committer `autopilot-loop/<batch.id>` — either satisfies the match, not exact equality alone. Written and preserved on the same lifecycle as `catchup_completed_at`. |
+| `catchup_probe` | object? | `{"batch_id": <string>, "gh": "ok"\|"unauthenticated"\|"absent", "engram": "ok"\|"unregistered"\|"absent", "checked_at": <ISO UTC>}` — written by `autopilot catchup-probe`, once per `batch.id`; a stale `batch_id` (different from the current batch) means the next call reprobes. Not reset by the per-PRD reset (`cli/records.PER_PRD_RESET_FIELDS` does not list it) — it is batch-scoped, like `batch.catchup_head_sha`. |
+| `batch.plugin_versions` | object? | Enforcement-plugin version pin (PRD 00086 R3): `{"aegis@buvis-plugins": "<v>", "warden@buvis-plugins": "<v>"}`, recorded at batch selection (Phase 0 step 3) from `~/.claude/plugins/installed_plugins.json`. The loop's plugin-pin preflight (`plugin_drift` in `cli/loop.py`, since PRD 00106) compares it against the currently-installed versions before each session launch and halts the batch loud on any drift (never runs on enforcement code that auto-updated mid-batch — sanctioned-halt row 11). Preserved across the per-PRD reset (lives under `batch`); a genuine batch-identity rollover re-pins from the current install. Absent on pre-R3 batches → the preflight no-ops (an unpinned batch is never blocked). |
+| `batch.critical_on_master` | object[]? | Display-only mirror of the `critical-on-master` marker entries, one element per pending cap_critical custody in the marker-entry shape below (§ Marker files); upserted by `do_stall`'s cap_critical single commit (`custody.mirror_mutator`, composed into the same write as the per-PRD reset) and the entry removed by `autopilot custody resolve` step 5. The marker and the journal are the sources of truth, so a stale mirror cannot block resolution (resolve prints `mirror stale, custody closed` and exits 9 when the state write fails, custody already closed). Lives under `batch` so the per-PRD reset preserves it; absent until the first cap_critical stall of a batch. |
+| `batch.minted_stubs` | string[]? | Basenames of the hold triage stubs `autopilot mint-stubs --batch <batch.id>` minted for this batch (PRD 00195), e.g. `["00203-triage-partition-conflicts-missing-ddb-guard-v1.md"]`, appended (deduplicated, in mint order) by `cli/__main__.py::_run_mint_stubs` after each successful mint whenever `state.json` exists. The verb runs at three sites - after a successful `cap_critical` stall (`references/phase-review.md` § Cap check), after Phase 9 step 6's deferred migration, and at the loop-mode batch end (`references/phase-done.md`) - and each call's stdout lists only what THAT call minted, usually nothing after the first; this field is the batch-wide accumulation, so the batch-end notification's `{s} stubs` is `len(batch.minted_stubs)` rather than the final call's count. Lives under `batch` so the per-PRD reset preserves it; absent until the first mint of a batch (readers treat absence as `[]`); the stubs themselves are the durable record (`hold/<NNNNN>-triage-<slug>-v1.md`, `ledger_key` in their frontmatter), so a stale or missing field can only misreport the count, never re-mint. |
+
+**Note on PRD 00025:** `tasks[].model`, `tasks[].attempts[]`, and `rework_task_ids[]` are active fields written and read by `/autopilot:plan-tasks` (Tier classifier), `/autopilot:work` (per-task model dispatch + attempt logging + rework-mode iteration), and `/autopilot:run-autopilot` Phase 6 (review-driven tier escalation).
+
+## Marker files
+
+The wrapper↔skill hand-off uses touch-file markers in `docs/dev/project-management/autopilot/`, never `state.json` edits (state surgery stays in-skill). Each is consumed at a session boundary:
+
+| Marker | Writer | Consumer | Content |
+|--------|--------|----------|---------|
+| `pause-requested` | operator (`touch`, or tracon's `p` key) | wrapper, at the next session boundary — stops the loop, notifies "paused by operator" | empty |
+| `paused-by-operator` | wrapper, on that pause exit (`pause.stamp_paused`) | the loop itself, cleared past the pause branch on the next run (`pause.clear_paused`) — no session ever reads it | empty; its **mtime** is the stop time tracon renders |
+| `park-requested` | wrapper `park)` case (single writer) | Phase 0 "Handle park request" (FIRST abort-handler check); deletes it AFTER the verified `hold/` move | one-line JSON `{"prd": "<state.prd basename>", "reason": "<one-line death/thrash cause>"}` |
+| `state-write-failed` | the session (`SKILL.md` § State Management statectl-failure flow), or `autopilot_context_cap_hook.py`'s broken-boundary branches (`cli/` unimportable, or the state transaction raising) | wrapper's decision-table branch 0 (`SKILL.md` § Session Loop); HALTS the loop and does NOT delete it | one-line JSON `{"site": "statectl_fail", "detail": "<raw error>"}` |
+| `.turn-counts.json` | `autopilot_context_cap_hook.py`, on every qualifying PostToolUse fire | the hook itself (the per-session tripwire counter) and the build gate's gate-edge headroom check (`references/phase-build.md` Phase 1.5, PRD 00200), which reads `last` | JSON `{"counts": {"<session id>": <int>}, "fired": ["<session id>", ...], "last": {"session": "<session id>", "count": <int>, "usage": <int>\|null}}`; `last` is this session's tool-call count and context total at the hook's latest fire (`usage` is null until the transcript carries a usage line), rewritten even on the fires a leftover `.cap-fired` marker de-duplicates, so it always names the running session. Not consumed: rewritten on each fire |
+| `critical-on-master` | written by `do_stall` step 4b (`cli/custody.record_critical`, under `marker_lock`; the entry is upserted by `op_id`, so a retried stall replaces rather than duplicates it) | read by `hooks/guard_push_on_critical.py` (denies a Bash `git push` into the repo while an entry is pending) and by Phase 0 "Handle pending custody" (lists entries via `autopilot custody list`, resolves them via `autopilot custody resolve`); the file is deleted when the last entry resolves | JSON `{"entries": [ {"prd", "batch", "op_id", "commit_range", "commits", "detail", "repo_root", "git_dir", "branch"}, ... ]}`. The marker is tracked work-management state; `ledger/custody.jsonl` (§ Custody journal below) is the restore source when the marker is removed, and `custody.pending()` reads marker ∪ journal |
+| `wave.json` | written by `autopilot wave plan` (`cli/wave.plan`) and rewritten by `autopilot wave launch` and `autopilot wave abort` as each lane is stamped (`cli/wave_launch.py`), and by `autopilot wave assemble`, `review` and `land` (`cli/wave_assemble.py`, `cli/wave_review.py`) as the wave moves through assembly, review and landing; every writer holds an exclusive flock on the sibling `wave.json.lock` and replaces the file atomically | read by the other `autopilot wave` verbs and by nothing else — no session, gate file or hook reads it; `abort` leaves it in place with `status: "aborted"` (or `"abort_failed"`), which is what makes a later `wave plan` refuse to replace a half-cleaned wave | JSON `{"id", "status", "repo", "base_branch", "base_sha", "review_slots", "created_at", "assembly": {"worktree", "branch", "head_sha", "merged", "kept"}, "lanes": [ {"name", "order", "branch", "worktree", "prds", "paths", "status", "pid", "started_at", "worktree_created", "abort_error"}, ... ], "held_back": [ {"prd", "reason"}, ... ]}`; `status` is one of `planned`, `running`, `aborted`, `abort_failed`, `assembled`, `conflict`, `checks_failed`, `unfinished`, `done`, `assembled_partial`, `converged`, `review_failed`, `interrupted` (`cli/wave.WAVE_STATUSES`; a lane's own `status` takes every value but `done`, `converged`, `review_failed` and `interrupted`, which are wave-only), and `pid` is also the lane loop's process-group id. Disposable at wave end with `wave-slots/` (`SKILL.md` § Retention); the verbs are in `references/waves.md` |
+| `review-paths` | `autopilot wave review` (`cli/wave_review.review()`) | the nested autopilot loop's `gather-context.sh` path-scoping filter | one repo-relative path per line, from `review_paths(wave)`; removed together with the assembly worktree when the wave lands (`_land_cleanup`'s `git worktree remove`) |
+
+`paused-by-operator` is the display counterpart of `pause-requested`, not a hand-off: the pause exit runs before a session, so it appends no `loop-metrics.jsonl` row, and without a trace tracon reads the stopped loop as queued work with nothing alive to relaunch it — an "orphaned" batch. It is purely observational: no session, hook, or gate reads it, and deleting it costs nothing but the paused label.
+
+`park-requested` (PRD 00066) is the wrapper's entire signal that a died-session retry budget was exhausted (or the fingerprint bound fired) for a *selected* PRD: the wrapper writes it and relaunches; the next session's Phase 0 park handler parks the named PRD via the Loop-mode stall procedure (`references/phase-build.md`, `references/recovery.md`), recording a `wrapper_died` deferred stall. `prd` is the bare filename (`00XXX-` prefix, `.md` suffix), compared against the basenames of `docs/dev/project-management/prds/wip/*.md`; a marker naming a PRD absent from `wip/` (or a malformed one) is consumed, logged, and dropped — never crashes selection. The wrapper never blind-`rm`s it at loop start (a valid unparked marker must survive a crash); a marker left unconsumed past one session cycle trips the wrapper's park-loop guard (sanctioned-halt row 10).
+
+`state-write-failed` (PRD 00051 task 9) is the halt signal for a broken state boundary — one that survives past `state.json` itself, so the recovery path must not depend on the thing that just failed: it is written without importing `cli/`, without a lock, and without schema validation. Two writers: a loop-mode session whose `statectl` write fails twice (retry, then `autopilot restore`, then this marker — `SKILL.md` § State Management) records the human-diagnosable failure at the point of the broken write; the cap hook's rotation/oversized-stall writers record it the same way when their own `cli.state.transaction` call cannot even run (import failure) or raises. The wrapper checks for it FIRST, ahead of every other branch, and does not need `state.json` to be readable to act on it. Unlike every other marker here, it is deliberately NOT consumed: the wrapper halts loud and leaves it in place, because the human clearing it is the only party who can confirm the state boundary itself is fixed.
+
+`stall_op` (PRD 00051 task 10) is not a marker file but a `state.json` field carrying the same kind of session-boundary durable intent this section documents: `{op_id, prd, site, detail}`, written by `do_stall`'s step 2 (before the `wip/`→`hold/` move runs) and deleted only by its step 5 single commit (the same write that performs the per-PRD reset). A `state.json` carrying `stall_op` past a crash means a stall was interrupted mid-flight; the next session's `autopilot park` reconciles it — retrying the same `op_id` to completion — BEFORE any gate file is read (`SKILL.md` § Gate Dispatch). For `site == "cap_critical"` the intent also carries the range capture stamped by `_stall_preflight` before the move — `commit_range`, `commits`, `branch`, `repo_root`, `git_dir` — so a retry reuses the persisted values and never runs git again, and a half-written capture (a key missing or malformed) makes `_stall_op_malformed` refuse with exit 2 and state untouched.
+
+`wave.json` (PRD 00214) is not a marker file in the strict single-purpose sense of the table above — it is a multi-field control file the `autopilot wave` verbs rewrite many times across a wave, not a one-shot signal consumed at a session boundary.
+
+## Custody journal
+
+File: `docs/dev/project-management/autopilot/ledger/custody.jsonl` (PRD 00187) - the durable journal behind the `critical-on-master` marker (§ Marker files). One JSON object per line, three events: `{"event": "recorded", **entry}` appended by `do_stall` step 4b (`custody.append_journal`) with the full marker entry as payload; `{"event": "resolving", "op_id", "choice", "head_before"}` appended by `autopilot custody resolve` right before it runs git (`head_before` is the HEAD a rerun reconciles against, counting a target as reverted only when a commit in `head_before..HEAD` carries the line `This reverts commit <sha>.`); `{"event": "resolved", "op_id", "prd", "choice", "at"}` appended once the batch-ledger resolution record has landed.
+
+It lives in the tracked `ledger/` directory as the durable restore and audit source: `custody.pending()` is marker entries ∪ journal `recorded` rows without a later `resolved` row (last row per op_id wins), deduped by op_id with the marker copy winning, so the push guard, Phase 0 and `autopilot custody list` still see an entry after the marker file is removed. A corrupt line or an unreadable file raises `CustodyError` rather than reading as an empty pending set: `custody list` exits 9 and the push guard denies with `policy hook degraded: guard_push_on_critical: unreadable <path>`.
+
+`compact_journal` keeps only the rows of op_ids still pending: it runs at the end of every successful resolve, under `marker_lock`, rewriting the file atomically (tmp + `os.replace`) to one `recorded` row per op_id (last wins) plus its `resolving` row if any. Resolved history leaves the file because the batch ledger's `<op_id>-resolve` record is the receipt, so the journal holds O(pending custodies) rows rather than a history.
+
+Locator: step 4b also runs `git config --local autopilot.custodyMarker <abs marker path>` in the work repo (`custody.git_argv`, with `--git-dir`/`--work-tree` for a bare-repo home) so the push guard can find the marker from an unrelated cwd (`git -C /other push`, or an explicit `--git-dir`/`--work-tree` pair); `autopilot custody resolve` runs `git config --local --unset autopilot.custodyMarker` once no entry for that `repo_root` remains (an already-absent key is fine).
+
+## Attempt ledger
+
+File: `docs/dev/project-management/autopilot/ledger/attempts.jsonl` (PRD 00143) - the durable per-repo record of every task attempt, written so that attempt outcomes outlive the per-PRD reset that drops `tasks[]` at PRD close. It sits in the same GC-exempt `ledger/` dir as `loop-metrics.jsonl`'s mirror and `fable-requests.json`, so it survives batch end and the 14d purge, and it is on the core `SKILL.md` § Retention durable list.
+
+**Writer.** `statectl.py <state> complete-prd <prd>` (Phase 9 step 4, `references/phase-done.md`) appends one row per entry of `state.tasks[].attempts[]` inside the same locked transaction as the close, BEFORE `batch.completed_prds` is appended and before the step-10 per-PRD reset. `cli/statectl.py`'s `append_attempt_rows` is the only writer: it creates `ledger/` and the file when absent, opens in append mode, never truncates, and writes a separating newline first when the existing file lacks a trailing one. A write failure (any `OSError`) is a `SchemaError`-class exit 1 (`rejected: ledger write failed: ...`) raised before `state.json` is touched: no `.bak` rotates, no record is appended, and the reset never runs without the rows. Zero attempts write nothing. The converse is not guarded: if the state write is rejected AFTER the rows landed (a schema failure or a disk error on `state.json` itself), the rows stay and a retried close appends them again, so readers dedupe on `(batch_id, prd, task_id, attempt.attempt)`.
+
+One JSON object per line:
+
+```json
+{"batch_id": "202608260001", "prd": "00143-example.md", "task_id": "task-1", "task_name": "First", "task_model": "sonnet", "qwen_eligible": true, "task_tier_reason": "default", "task_qwen_excluded_reason": null, "recorded_at": "2026-08-26T10:00:00Z", "attempt": {"attempt": 2, "model": "opus", "outcome": "completed", "escalation_reason": "gate_failure", "escalated_from": "sonnet"}}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `batch_id` | string? | `state.batch.id` at close; `null` when the batch carries no id. |
+| `prd` | string | The closing PRD's filename (`state.prd`, the `00XXX-….md` basename). |
+| `task_id` | string? | `tasks[i].id`. |
+| `task_name` | string? | `tasks[i].name`. |
+| `task_model` | string? | `tasks[i].model` (the plan-time tier); `null` when absent. |
+| `qwen_eligible` | bool? | `tasks[i].qwen_eligible`; `null` when absent. |
+| `task_tier_reason` | string? | `tasks[i].tier_reason` (the plan-time rule that set the tier, see the `tasks[].tier_reason` row above); `null` when absent (plans created before PRD 00160). |
+| `task_qwen_excluded_reason` | string? | the plan-time `tasks[i].qwen_excluded_reason` (why plan-tasks excluded the task from qwen routing, distinct from the attempt-level field of the same name inside `attempt`); `null` when absent. |
+| `recorded_at` | string | ISO 8601 UTC (`%Y-%m-%dT%H:%M:%SZ`) of the write; every row of one close shares it. |
+| `attempt` | object | The `tasks[i].attempts[j]` object verbatim (`tasks[].attempts` above), nothing added or normalized. |
+
+**Readers** (audit-qwen outside this plugin; `scripts/tune_routing.py`, PRD 00170, inside it) read the ledger instead of live state; an absent file means "no closed PRDs yet" and is never an error.
+
+## Convergence rows
+
+File: `docs/dev/project-management/autopilot/loop-metrics.jsonl` and its GC-exempt mirror `docs/dev/project-management/autopilot/ledger/loop-metrics.jsonl` (PRD 00188) - the `review_converged` event row that records, per PRD, how many review cycles it took to converge and under which cap, build models, attempt tiers and task counts. It shares the file with the per-session rows.
+
+**Writer.** `cli/loop.py` `Loop._append_metrics` appends one row per PRD when a session launched as `review` exits with `next_phase: "done"`, after that session's own row and inside the same `try` as it, so it can never fail the loop; an unreadable or malformed `state.json` writes nothing (the session row already written stays). No skill prose writes it: PRD 00188 replaced the `phase-review.md` printf with this mechanical append.
+
+One JSON object per row:
+
+```json
+{"event":"review_converged","prd":"00040-feature-x-v1.md","batch":"202607202320","cycles_to_converge":2,"outcome":"converged","ts":1784701300,"rework_cap":2,"build_models":["claude-sonnet-5"],"attempt_tiers":["sonnet","opus"],"tasks_planned":3,"tasks_completed":3,"tasks_in_prd":3,"cycles":[{"cycle":1,"reviewers":["alice","blake","bob"],"verdict":2,"findings":{"critical":0,"high":1,"medium":1,"low":0}},{"cycle":2,"reviewers":["alice","blake","bob"],"verdict":"converged","findings":{"critical":0,"high":0,"medium":0,"low":0}}]}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `event` | string | Always `review_converged`; the discriminator the session-row loaders drop on. |
+| `prd` | string | `state.prd` (the `00XXX-….md` basename). |
+| `batch` | string | `state.batch.id`. |
+| `cycles_to_converge` | int | `state.cycle` at the write. |
+| `outcome` | string | `cap_deferred` when any `state.deferred_decisions` entry carries `type == "cap-overflow"` (the cap-out path's only sink), else `converged`. |
+| `ts` | int | Epoch seconds at the write. |
+| `rework_cap` | int? | `state.rework_cap`; `null` when absent. |
+| `build_models` | string[] | Distinct `model` of this PRD's session rows with `phase_launched == "build"` in the same batch, first-appearance order. |
+| `attempt_tiers` | string[] | Distinct `tasks[].attempts[].model`, first-appearance order. |
+| `tasks_planned` | int? | `state.tasks_total`, falling back to `len(state.tasks)` (the array is still present at review exit; the Phase 9 per-PRD reset is what drops it). |
+| `tasks_completed` | int? | `state.tasks_completed`, falling back to the count of `state.tasks[]` with `status == "completed"`. |
+| `tasks_in_prd` | int? | Count of lines matching `^- \[[ x]\] ` in `docs/dev/project-management/prds/wip/<prd>`; `null` when unreadable. |
+| `cycles` | object[] | One entry per cycle `n` in `1..state.cycle`, read from `docs/dev/project-management/reviews/<prd stem>-review-<n>.md` or its zero-padded twin `-review-<nn>.md`; a missing or unparseable file yields `null` in the three sub-keys below (never zeros: absence must not read as clean). |
+| `cycles[].cycle` | int | `n`. |
+| `cycles[].reviewers` | string[]? | The review file's frontmatter `reviewers:` line, comma-split (the same line `gate.py` reads). |
+| `cycles[].verdict` | string \| int? | Parsed with `gate.VERDICT_RE`: `"converged"` or the integer finding count. |
+| `cycles[].findings` | object? | `{critical, high, medium, low}` counts of consensus table rows matching `^\| \[\d+/\d+\] \|`, bucketed by the first severity mark found in the row (🔴 critical, 🟠 high, 🟡 medium, ⚪ low). |
+
+**Readers**: `cli/render_metrics.load_event_rows` (the session loaders `load_rows` and `_ledger_rows` still drop event rows), `autopilot render report` (the `- Run conditions:` line; `no review_converged row` when the batch's file holds none for the PRD), and `scripts/tracon/model.py`. To answer the July-versus-August question (did the cap or the build model change the converged share?):
+
+```bash
+jq -r 'select(.event=="review_converged") | [(.rework_cap|tostring), (.build_models|join(",")), .outcome] | @tsv' docs/dev/project-management/autopilot/ledger/loop-metrics.jsonl | sort | uniq -c
+```
+
+Each count is one `(cap, models, outcome)` triple; divided by its `(cap, models)` pair's total it is that pair's converged share.
+
+Stalled PRDs never emit the row: they exit review to `paused`/`build`, not `done`.
+
+## Fable rescue ledger
+
+File: `docs/dev/project-management/autopilot/ledger/fable-requests.json` (PRD 00076) - the durable, single source of truth for the Fable rescue. The tracked `ledger/` directory survives batch end; no cleanup process traverses `docs/dev/project-management/`.
+
+A single JSON **object keyed by PRD filename** (the `00XXX-….md` basename, exactly as `state.prd` carries it):
+
+```json
+{
+  "00076-route-builds-sonnet-first-with-fable-rescue-v1.md": {
+    "status": "requested",
+    "task_id": "task-uuid-8",
+    "task_name": "Wire approval consumption",
+    "requested_at": "2026-07-21T23:49:20Z",
+    "batch_id": "202607202320",
+    "justification": {
+      "problem": "one-line what the task could not achieve",
+      "attempts": "haiku(2) -> sonnet(2) -> opus(2), last outcome rework_failed",
+      "impact": "one-line what stays broken if it is never done"
+    },
+    "decided_at": null,
+    "consumed_at": null
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `status` | enum | Exactly one of `"requested"`, `"approved"`, `"rejected"`, `"consumed"`. The only legal transitions are `requested → approved`, `requested → rejected`, and `approved → consumed`; `rejected` and `consumed` are **terminal**. No other transition is legal, and the table is enforced in `fablectl.py`, not in prose. |
+| `task_id` | string | The blocked task's id at request time. **Forensic only** (see below). |
+| `task_name` | string | The blocked task's `state.tasks[i].name` at request time. **Forensic only** (see below). |
+| `requested_at` | string | ISO 8601 UTC (`%Y-%m-%dT%H:%M:%SZ`) stamped when the request was recorded. |
+| `decided_at` | string? | Same format, stamped when the operator's `approved`/`rejected` decision landed. `null` until it happens. |
+| `consumed_at` | string? | Same format, stamped when the approval was spent on a Fable dispatch. `null` until it happens. |
+| `batch_id` | string | `state.batch.id` of the batch that hit the exhaustion. Forensic: an approval landing after that batch drains is still valid, because the ledger outlives the batch. |
+| `justification` | object | Why the rescue is warranted, with three **required** keys: `problem` (one line on what the task could not achieve), `attempts` (the rung-by-rung history, e.g. `haiku(2) -> sonnet(2) -> opus(2), last outcome rework_failed`), and `impact` (one line on what stays broken if it is never done). A justification missing any of the three is rejected (exit 1). |
+
+**Latch: one request per PRD, ever.** A key present for a PRD, whatever its status, blocks writing a new request for that PRD. Absence of the file, or absence of the key, means no request exists.
+
+**`task_id` / `task_name` are forensic only.** Neither routes the retry: the stall handler clears `state.tasks` and the un-parked PRD replans from scratch, so no id or name recorded at request time survives. The retry is anchored to the PRD's next ladder exhaustion (`references/recovery.md` § Rework escalation exhausted).
+
+**Reader tolerance.** An absent file means "no requests" and is never an error; `fablectl.py` creates it (and `ledger/`) on the first write. Unreadable JSON IS an error, not a silent reset: the file is never overwritten blind.
+
+### `fablectl.py` - the sole writer
+
+`skills/run-autopilot/scripts/fablectl.py` is the only writer of the ledger (same advisory-lock + temp-file + `os.replace` idiom as the sibling `statectl.py`). Every verb takes the exclusive lock for the whole read-modify-write, so the latch check and the write are one atomic step.
+
+```
+python3 fablectl.py <ledger.json> request <prd> <task_id> <task_name> <batch_id> <justification-json>
+python3 fablectl.py <ledger.json> decide  <prd> approved|rejected
+python3 fablectl.py <ledger.json> consume <prd>
+python3 fablectl.py <ledger.json> show    <prd>
+```
+
+- `request` - writes the entry with `status: "requested"` and `requested_at` = now. **Exit 3 when a key for `<prd>` already exists, whatever its status** (the one-request-per-PRD-ever latch). A `<justification-json>` object missing `problem` / `attempts` / `impact` is exit 1.
+- `decide` - **exit 3 unless the entry exists AND `status == "requested"`**; otherwise sets the new status and `decided_at`.
+- `consume` - **exit 3 unless the entry exists AND `status == "approved"`**; otherwise sets `status: "consumed"` and `consumed_at`. This is the at-most-once gate: the second `consume` for a PRD always exits 3.
+- `show` - prints the entry as JSON (`{}` and exit 0 when absent), for readers. Never exits 3.
+
+Exit codes: **0** success, **1** usage/bad argument, **2** unreadable ledger or an entry with a `status` outside `requested|approved|rejected|consumed`, **3** refused by the latch or the transition table, **4** an OS error (permission, unreachable path, disk), printed as a one-line diagnostic. Exit 3 is a *legitimate* outcome that callers branch on, never an error to retry; only 1, 2 and 4 mean something is broken.
+
+**Backup and restore.** Every mutation first writes the previous bytes to `fable-requests.json.bak` inside the lock (one rotating backup, byte-for-byte, the same pattern `statectl.py` uses for `state.json`). The `.bak` lives in the same GC-exempt `ledger/` dir, so it survives batch end and the 14d purge alongside the ledger. Operator restore is a single move:
+
+```
+mv docs/dev/project-management/autopilot/ledger/fable-requests.json.bak docs/dev/project-management/autopilot/ledger/fable-requests.json
+```
+
+then re-run the intended `autoclaude approve-fable <prd>` / `autoclaude reject-fable <prd>`.
+
+**Operator fallback when `autoclaude` is unavailable.** Run every command below from the repo root: the ledger path is relative, and unlike `autoclaude approve-fable`/`reject-fable`, `fablectl.py` does not walk up the tree to find it, so any other cwd resolves to the wrong (or a missing) ledger. Invoke the sole writer by hand:
+
+```
+python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/fablectl.py docs/dev/project-management/autopilot/ledger/fable-requests.json decide <prd> approved
+```
+
+(swap `approved` for `rejected` to reject). Exit **0** means the decision landed. Exit **3** means there is no entry for `<prd>` at `status: "requested"` (already decided, already consumed, or never requested) - a legitimate answer, not a retry. Exit **1** is a bad argument, **2** an unreadable or corrupt ledger, **4** an OS error; retry once on 1, 2, or 4, never "fix" a 3 by editing the file.
+
+**On approval, also un-park the PRD by hand.** `autoclaude approve-fable <prd>` does two things: it writes the ledger decision above, and it moves the PRD from `docs/dev/project-management/prds/hold/` to `docs/dev/project-management/prds/backlog/`. Autopilot never reads `hold/`, so stopping after `decide ... approved` leaves the approval inert and the rescue never fires - the project's own design record calls this shape a trap. After a successful `decide ... approved`, from the repo root run:
+
+```
+mv docs/dev/project-management/prds/hold/<00XXX-...>.md docs/dev/project-management/prds/backlog/
+```
+
+then confirm the file landed at the new path, since `mv` can exit 0 without delivering. If the PRD is not in `hold/` to begin with, there is nothing to move; that is a success, not an error. This move belongs to an **approval only** - a **rejection** deliberately leaves the PRD in `hold/` for human disposition, so skip the move on reject.
+
+This is the successor to PRD 00076's "manual state edit" fallback: the acceptance criterion that a manual path stays documented is met by this direct invocation, not by hand-editing JSON. It is still the same sole writer, called by hand instead of through the wrapper - never edit `fable-requests.json` directly. Hand-editing bypasses the advisory lock and the transition table, which is exactly what the one-approval-per-PRD latch depends on.
+
+**`state.json` gains no `fable_request` field.** `state.json` is on the disposable list and is deleted at batch end, and it has a single-writer contract; neither survives a cross-batch latch nor an operator approval landing mid-drain. See the design doc's § Alternatives considered A (state field), B (this ledger, chosen), and C (both).
+
+## Research Evidence Schema
+
+When a decision is made through the research-then-decide path, the `research` field is added to the decision entry (in either `autonomous_decisions` or `deferred_decisions`):
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `research.category` | enum | `"new-dependency"`, `"recurring-issue"`, `"high-data-model"`, `"high-public-api"` |
+| `research.verdict` | enum | `"proceed"` (all checks passed) or `"escalate"` (any check failed) |
+| `research.checks` | object[] | Array of `{"check": "<name>", "result": "<finding>", "pass": true\|false}` |
+| `research.evidence_summary` | string | One-line human-readable summary of findings |
+
+**Rule:** If ANY check has `"pass": false`, verdict MUST be `"escalate"`. Inconclusive counts as fail.
+
+## Batch Deferred Log
+
+File: `docs/dev/project-management/autopilot/deferred/{batch_id}-deferred.json` - persists across PRD sessions, not reset between PRDs.
+
+```json
+{
+  "batch_id": "<id>",
+  "items": [
+    {
+      "prd": "00004-feature-x.md",
+      "cycle": 2,
+      "type": "deferred_decision",
+      "issue": "API signature change needed",
+      "severity": "high",
+      "reason": "touches public API",
+      "research": {
+        "category": "high-public-api",
+        "verdict": "escalate",
+        "checks": [
+          {"check": "prd-requires-change", "result": "PRD mentions API but no signature spec", "pass": false}
+        ],
+        "evidence_summary": "API is external-facing, PRD doesn't specify new signature"
+      }
+    },
+    {
+      "prd": "00005-auth-rework.md",
+      "cycle": 1,
+      "type": "doubt",
+      "category": "known",
+      "issue": "Edge case in token refresh under concurrent requests",
+      "justification": "Requires distributed lock infrastructure not in scope for this PRD"
+    },
+    {
+      "prd": "00004-feature-x.md",
+      "cycle": 2,
+      "type": "autonomous_research",
+      "issue": "New dependency needed: zod",
+      "severity": "high",
+      "action": "auto-fix",
+      "research": {
+        "category": "new-dependency",
+        "verdict": "proceed",
+        "checks": [
+          {"check": "license", "result": "MIT (compatible)", "pass": true},
+          {"check": "maintenance", "result": "active", "pass": true},
+          {"check": "security", "result": "no CVEs", "pass": true},
+          {"check": "adoption", "result": "4.2M weekly downloads", "pass": true}
+        ],
+        "evidence_summary": "zod: MIT, active, no CVEs, 4.2M downloads"
+      }
+    }
+  ]
+}
+```
+
+Written at Phase 9 step 6, and appended incrementally by the Loop-mode stall procedure (`references/recovery.md`) for `type:"stall"` records. This is the single source of truth for batch-end review. Includes:
+- `deferred_decision` — issues that failed research or were deferred for other reasons
+- `doubt` — unresolved findings from doubt review (KNOWN items with justification)
+- `autonomous_research` — research-backed decisions made autonomously (for user awareness at batch end)
+- `stall` — a PRD parked to `docs/dev/project-management/prds/hold/` by the Loop-mode stall procedure: `{"type":"stall","site":"<slug>","detail":"...","prd":"..."}`. `site` slugs: `wrapper_died` (a died-session or fingerprint-thrash park, PRD 00066), `design_gate` (a loop-mode Phase 1.5 design gate), `blocking_escalation` (a loop-mode Phase 5 blocking escalation), `design_rework` (a loop-mode Phase 6 rework design that failed, PRD 00194; `detail` names the rework design doc path and the open findings), `clarification` (a `pause_on_ambiguity` Phase 2 stall), `statectl_fail` (a loop-mode `statectl` write failure, PRD 00084), `plan_expansion` (a loop-mode plan that tripped the plan-expansion gate - task count, expansion ratio, or module drift; `plan-tasks` step 5.5 via `autopilot check-plan --prd`; `detail` names the reasons and the split-note path; records written before PRD 00189 spell the task-count-only stall `oversized_plan`, the legacy slug), `fast_track_blocked` (a fast-track-lane card whose exit rule printed `branch`, PRD 00206; `detail` is `fast-track/<item>: <surviving findings>` and the card's commits sit on that branch), `cap_critical` (a loop-mode review-gate cap-out with an unresolved CRITICAL, PRD 00187; the record also carries the range capture keys `commit_range`, `commits`, `branch`, `repo_root`, `git_dir`, and the same stall migrates every pending deferral into its own record under `op_id: "<op_id>-dd<i>"`), `cap_regression` (a loop-mode review-gate cap-out whose remaining unresolved findings are all high-or-below but `autopilot cap-check` classified at least one as a regression introduced by this cycle's own rework, PRD 00310; `detail` carries the regressed rows' refs and commits, or a row's `ref` and `reason` instead of `commit` when `cap-check` classified it `"regression": null` - an unresolved path stays unclassified, only marked unresolvable; the same stall migrates every pending `deferred_decisions` entry into the batch deferred JSON before the per-PRD reset drops them, under `op_id: "<op_id>-dd<i>"`, deduped on retry, exactly as `cap_critical` does - through `do_stall`'s own step 4a, because the custody branch that migrates them for `cap_critical` applies to that site alone; the stub `autopilot mint-stubs` mints for this stall carries severity `high`, where a `cap_critical` stall's carries `critical`, because a `cap_regression` stall fires only when every unresolved finding is high-or-below), plus the recovery stalls `oversized_task` / `escalation_exhausted`. Batch-end counts these as `{m} stalled` and lists them in the STALLED PRDS review block (`references/phase-done.md`).
+- `custody` — the attended resolution record, written by `autopilot custody resolve` step 4 BEFORE it removes the marker entry, the journal row, the git-config locator and the `batch.critical_on_master` mirror entry: `{"type": "custody", "choice": "revert"|"branch-and-revert"|"accept", "prd", "commit_range", "op_id": "<op_id>-resolve"}` (through `records.record_defer`, deduped by `op_id`). It is the durable boundary of a resolve: a rerun that finds it only cleans up, and a rerun with a different `--choice` is refused with exit 1 after that cleanup.
+
+Each entry preserves the full `research` field when available, so evidence is readable at batch-end review even after per-PRD state is cleared. Not deleted by autopilot - left for user review.
+
+## Build-Session Model Promotion Signals
+
+Governs which model launches a `build` (or empty, first-launch) phase session. Source: `build_model` in `cli/routing.py` (moved out of the bash wrapper by PRD 00106), called from the CLI loop's per-phase launch routing. This closes the promotion-signal half of the PRD's Phase 0 acceptance criterion "Define `fable_request` and promotion-signal fields in state-schema.md" (see § Fable rescue ledger above for the `fable_request` half).
+
+**Precedence.** The `_AUTOPILOT_MODEL_BUILD` env override wins over everything: it is a kill switch — `route()` in `cli/routing.py` returns it without ever calling `build_model`, so no signal below can fire. Absent an override, any promotion signal firing launches `claude-opus-5[1m]`; with no override and no signal, the launch is `claude-sonnet-5[1m]`. Review-phase sessions always launch `claude-opus-5[1m]` at `xhigh` effort, and done-phase sessions always launch `claude-sonnet-5[1m]` at `medium` effort - separate branches of the same routing table, untouched by this per-PRD logic.
+
+**Lanes (PRD 00205).** A solo-lane session (`references/lane-solo.md`) is a `build` session like any other: it runs at the session model this routing picks (`session_model`, default sonnet, or a promotion signal). `default_model` is inert in solo, which dispatches no implementor; `session_model: opus` is the author's tool for a solo PRD that needs the larger model.
+
+**Target resolution.** The routed PRD is the lowest `00XXX-` basename in `<prds_dir>/wip/`, else the lowest in `<prds_dir>/backlog/` (`_autopilot_build_target`). This is never `state.prd`: between PRDs, `state.prd` still names the PRD that just finished. When neither `wip/` nor `backlog/` holds a PRD, there is no target and routing returns the Sonnet default outright.
+
+**The five signals.** Any one promotes the build session to Opus. Which of
+them decay when their cause clears is stated once, in `model-ladder.md`
+§ Decay; there is no stored promotion latch, so a cleared signal stops
+promoting on the next relaunch by construction.
+
+1. **Frontmatter `session_model: opus`** (PRD 00200). The target PRD's own file carries a `session_model` key set to exactly `opus` (bare or quoted), matched only inside its leading `---` frontmatter block. A commented-out line (`# session_model: opus`) never counts. A whitespace-preceded inline comment after the value still matches (`session_model: opus  # rationale` fires); a comment glued straight onto the value does not (`session_model: opus#suffix` does not fire, since there is no whitespace to strip before the `#`). `default_model: opus` is the per-task tier floor for `/autopilot:plan-tasks` and drives nothing here: a PRD that pins it without `session_model: opus` runs a sonnet orchestrator.
+2. **Replan history:** `state.replan_count > 0`.
+3. **Prior stall**, in either form:
+   - 3a. Live: `state.stall_reason != null`.
+   - 3b. Durable: a `type: "stall"` item naming the target in the 2 newest `<deferred_dir>/*-deferred.json` files (see § Batch Deferred Log above), chosen by filename sort - batch ids are minted in order, so filenames sort reliably; mtimes do not.
+4. **Context-cap rotation:** `state.cap_rotations` is a non-empty array. Beyond the PRD's four enumerated signals - see note below.
+5. **Fable rescue request:** a key equal to the target PRD's basename exists in the rescue ledger (`docs/dev/project-management/autopilot/ledger/fable-requests.json`, see § Fable rescue ledger above), whatever its `status`. Beyond the PRD's four enumerated signals - see note below.
+**Retired: signal 6, repeat build session.** PRD 00076 shipped a sixth signal - a prior build launch for the target in the loop-metrics tail (`.prd == <target>` and `.phase_launched == "build"`, read from both `loop-metrics.jsonl` and its GC-exempt `ledger/` mirror). PRD 00111 removed it. It held from a PRD's second session onward, which is every multi-session PRD, so sonnet-first only ever applied to session 1; and it was redundant, because a repeat session caused by trouble already trips signal 2, 3a or 4. The wrapper no longer reads the metrics tail for routing (the `<loop_metrics.jsonl>` parameter is still accepted and ignored). Its rationale is recorded in `model-ladder.md` § Decay.
+
+**The `state.prd == target` guard.** Signals 2, 3a, and 4 fire only when `state.prd` equals the resolved target - all three live inside one combined check gated on that equality. Signals 1, 3b, and 5 carry no such guard. This is what stops the PRD that just finished (still named by `state.prd`) from promoting the next PRD's build session on its own leftover replan count, live stall, or cap-rotation history - while a rescue-ledger entry or a durable deferred-log stall recorded under the new target's own filename still promotes it.
+
+**Signals 4 and 5 are not PRD-specified.** PRD 00076's Phase 0 acceptance criterion names four promotion signals: the frontmatter model key (then `default_model: opus`, since PRD 00200 `session_model: opus`), `replan_count > 0`, a prior stall for this PRD, and a repeat build session for the same PRD. `cap_rotations` (signal 4) and the rescue-ledger key (signal 5) are additions the shipped code carries beyond that set. Both appear in the design doc's signal table, and both are awaiting user ratification: document them here as shipped behavior, not as PRD-mandated. (The fourth PRD-named signal, repeat build session, is the one 00111 retired above.)
+
+## Two more CLI verbs
+
+- `autopilot group-rework --findings <path>` — regroup rework tasks by file (see Phase 6 rework grouping).
+- `autopilot review-stage --cycle-id <id> --gate-command <cmd> [--state <state.json>]` — stage a finished review file for the decision gate.
+- `autopilot cap-check --review-file <path> [--previous <path>] [--repo-root <path>]` — classify a review file's HIGH/CRITICAL findings as regressions introduced by the rework range between `--previous`'s `head_sha` and `--review-file`'s `head_sha` (`cli/cap_check.py`, PRD 00310). Prints one JSON line per classified row (`ref`, `severity`, `file`, `line`, `regression`, `commit`). Exit 1 when any row classifies `regression: true`, exit 0 otherwise (including when `--previous` is omitted or does not exist, or when no HIGH/CRITICAL row survives), exit 2 (`CapCheckError`, reason on stderr) on an unreadable file, a missing or malformed `head_sha`, or a git failure. Invoked by the loop-mode cap-out branch (`references/phase-review.md` Cap check) before a cap-overflow deferral.
+
+## Skip Logic
+
+Used to determine which phases to skip:
+
+| Gate | Skip if |
+|-------|---------|
+| catchup (build sub-step) | capsule is fresh (batch cache check holds) OR `catchup_mode == "skip"` — by ARTIFACT, not `phases_completed` |
+| planning (build sub-step) | `state.tasks` contains pending or completed tasks (see `references/phase-build.md` Phase 2) |
+| work (build sub-step) | All tasks completed, none pending (see `references/phase-build.md` Phase 3) |
+| review | `"review"` in `phases_completed` (loop converged in a prior session), OR this cycle's review file exists in `docs/dev/project-management/reviews/` |
+| blind | `"blind"` in `phases_completed` |
+| doubt | `"doubt"` in `phases_completed` |
