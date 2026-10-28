@@ -953,7 +953,7 @@
       "source_blob_sha256": "33355b451814500a891981df14c8cecc657e679ed6bdc1d32dffa461dfa8af48",
       "destination_blob_sha256": "33355b451814500a891981df14c8cecc657e679ed6bdc1d32dffa461dfa8af48",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -981,7 +981,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/fast-track/SKILL.md",
@@ -1109,7 +1110,7 @@
       "source_blob_sha256": "0e363fb1ee7085e879274e9079ed6e87343e1c30c8321a5c00ef969e05809d38",
       "destination_blob_sha256": "0e363fb1ee7085e879274e9079ed6e87343e1c30c8321a5c00ef969e05809d38",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -1221,7 +1222,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/fast-track/references/spec-card.md",
@@ -1229,7 +1231,7 @@
       "source_blob_sha256": "c51e86a7d492c690f5b4e537cd8c8cdb8d060ab7d2133936714b4a2ca510967a",
       "destination_blob_sha256": "c51e86a7d492c690f5b4e537cd8c8cdb8d060ab7d2133936714b4a2ca510967a",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -1292,7 +1294,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/plan-tasks/SKILL.md",
@@ -1448,7 +1451,7 @@
       "source_blob_sha256": "5716cb58ac5d987717d5d070e6130c64e3724f1058f0e8be761fc1b3ea0f52cc",
       "destination_blob_sha256": "5716cb58ac5d987717d5d070e6130c64e3724f1058f0e8be761fc1b3ea0f52cc",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -1490,7 +1493,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/plan-tasks/references/task-examples.md",
@@ -1498,7 +1502,7 @@
       "source_blob_sha256": "a5680600524ef7ff5422eb0a396a2a045c976d85851c6e83c7630b3079012c4d",
       "destination_blob_sha256": "a5680600524ef7ff5422eb0a396a2a045c976d85851c6e83c7630b3079012c4d",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -1631,7 +1635,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/review-blindly/SKILL.md",
@@ -1738,7 +1743,7 @@
       "source_blob_sha256": "e0636e0c2f5332e02e43bc9a42ca1917852e67ed675dbcf9dba5688afe7a9576",
       "destination_blob_sha256": "e0636e0c2f5332e02e43bc9a42ca1917852e67ed675dbcf9dba5688afe7a9576",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -1815,7 +1820,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/review-plan/SKILL.md",
@@ -1894,7 +1900,7 @@
       "source_blob_sha256": "e7bcd4ce7f6c7577db9ac228165b160acaf0432b8cb4ed266ebce3acf90087e9",
       "destination_blob_sha256": "e7bcd4ce7f6c7577db9ac228165b160acaf0432b8cb4ed266ebce3acf90087e9",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -2006,7 +2012,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/review-work-completion/SKILL.md",
@@ -2134,7 +2141,7 @@
       "source_blob_sha256": "d413ddeb3d043e64f4deedffc76612b9270d918316b3ed6aafd7e55f43e1ddfc",
       "destination_blob_sha256": "d413ddeb3d043e64f4deedffc76612b9270d918316b3ed6aafd7e55f43e1ddfc",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -2204,7 +2211,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/review-work-completion/references/agent-registry.md",
@@ -2212,7 +2220,7 @@
       "source_blob_sha256": "aa87ea16bd52b540625b0ac334692a141c706febcd054eeda8ae13f0a0a448c1",
       "destination_blob_sha256": "aa87ea16bd52b540625b0ac334692a141c706febcd054eeda8ae13f0a0a448c1",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -2282,7 +2290,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/review-work-completion/references/design-rationale.md",
@@ -2290,7 +2299,7 @@
       "source_blob_sha256": "2075be79fd23a38b59e02435525e069b87d17cce9cf825ccfca03d8b5dc743d9",
       "destination_blob_sha256": "2075be79fd23a38b59e02435525e069b87d17cce9cf825ccfca03d8b5dc743d9",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -2437,7 +2446,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/review-work-completion/references/output-formats.md",
@@ -2445,7 +2455,7 @@
       "source_blob_sha256": "cc974c18895c6405d4c3e3d67e3a0f167795b79a865b962c28502bd1b281f8a2",
       "destination_blob_sha256": "cc974c18895c6405d4c3e3d67e3a0f167795b79a865b962c28502bd1b281f8a2",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -2550,7 +2560,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/review-work-completion/references/retry-policy.md",
@@ -2558,7 +2569,7 @@
       "source_blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28",
       "destination_blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -2621,7 +2632,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/review-work-completion/references/review-coverage-format.md",
@@ -2629,7 +2641,7 @@
       "source_blob_sha256": "3b5f0b9597f57cba784001919f732d30a70b85d57df7f579d6615b0df72942e4",
       "destination_blob_sha256": "3b5f0b9597f57cba784001919f732d30a70b85d57df7f579d6615b0df72942e4",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -2671,7 +2683,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/review-work-completion/references/review-dimensions.md",
@@ -2679,7 +2692,7 @@
       "source_blob_sha256": "e0c429477204d0032f265651996d284de9d7b4c506106ff9cf9d075c8944c919",
       "destination_blob_sha256": "e0c429477204d0032f265651996d284de9d7b4c506106ff9cf9d075c8944c919",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -2749,7 +2762,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/review-work-completion/references/rubric.md",
@@ -2757,7 +2771,7 @@
       "source_blob_sha256": "f3c03933a8f40a9f1934d4b7e9e8c87e6d5664f31c6814897e215f26442c717d",
       "destination_blob_sha256": "f3c03933a8f40a9f1934d4b7e9e8c87e6d5664f31c6814897e215f26442c717d",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -2827,7 +2841,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/SKILL.md",
@@ -3025,7 +3040,7 @@
       "source_blob_sha256": "85526d7627aba68bfbf9e781da3aa6eca9cb32ced25cdb5720142d9f998d48fb",
       "destination_blob_sha256": "85526d7627aba68bfbf9e781da3aa6eca9cb32ced25cdb5720142d9f998d48fb",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -3081,7 +3096,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/batch-report-format.md",
@@ -3089,7 +3105,7 @@
       "source_blob_sha256": "0dc519c71281786d24fccd1ca57a6c64cf4c74dbd1a8dd8b07ba8949e7e3a7f1",
       "destination_blob_sha256": "0dc519c71281786d24fccd1ca57a6c64cf4c74dbd1a8dd8b07ba8949e7e3a7f1",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -3145,7 +3161,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/dashboard-format.md",
@@ -3153,7 +3170,7 @@
       "source_blob_sha256": "a97cb7737c5cc314cc71ff17eabb7006240f423b3820bd4a6d0ca9f34464988e",
       "destination_blob_sha256": "a97cb7737c5cc314cc71ff17eabb7006240f423b3820bd4a6d0ca9f34464988e",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -3216,7 +3233,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/decision-framework.md",
@@ -3224,7 +3242,7 @@
       "source_blob_sha256": "fa06cd4adf8b505d088b5a655e9a848d408de536e5409d436d2ef2d1309623fa",
       "destination_blob_sha256": "fa06cd4adf8b505d088b5a655e9a848d408de536e5409d436d2ef2d1309623fa",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -3343,7 +3361,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/design-rationale.md",
@@ -3351,7 +3370,7 @@
       "source_blob_sha256": "a7522dc4b1ee73e25f23e8aa85cacbbb780197224ec57de1ff104e42722a6568",
       "destination_blob_sha256": "a7522dc4b1ee73e25f23e8aa85cacbbb780197224ec57de1ff104e42722a6568",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -3491,7 +3510,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/doubt-review-rubric.md",
@@ -3499,7 +3519,7 @@
       "source_blob_sha256": "b793ce17b0df1c9772d8899d5b24a554bdb8af2cb6318fd1caab92be73beadd0",
       "destination_blob_sha256": "b793ce17b0df1c9772d8899d5b24a554bdb8af2cb6318fd1caab92be73beadd0",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -3569,7 +3589,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/hook-recovery.md",
@@ -3577,7 +3598,7 @@
       "source_blob_sha256": "808680c87d19716526e602624a7adcc758b2ee5f6159c840a6d37632798aba78",
       "destination_blob_sha256": "808680c87d19716526e602624a7adcc758b2ee5f6159c840a6d37632798aba78",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -3647,7 +3668,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/lane-fast-track.md",
@@ -3655,7 +3677,7 @@
       "source_blob_sha256": "fc4bef75c21763c0ab53a7614617edcc153062f9d134176354a59f487f7af8c7",
       "destination_blob_sha256": "fc4bef75c21763c0ab53a7614617edcc153062f9d134176354a59f487f7af8c7",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -3725,7 +3747,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/lane-solo.md",
@@ -3733,7 +3756,7 @@
       "source_blob_sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e",
       "destination_blob_sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -3810,7 +3833,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/model-ladder.md",
@@ -3818,7 +3842,7 @@
       "source_blob_sha256": "ed801ff4b2a4a9e532e9b0a24c64bfc2ed343183510476efadbd3628eb395c0e",
       "destination_blob_sha256": "ed801ff4b2a4a9e532e9b0a24c64bfc2ed343183510476efadbd3628eb395c0e",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -3930,7 +3954,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/phase-build.md",
@@ -3938,7 +3963,7 @@
       "source_blob_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
       "destination_blob_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -4099,7 +4124,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/phase-done.md",
@@ -4107,7 +4133,7 @@
       "source_blob_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
       "destination_blob_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -4156,7 +4182,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/phase-review.md",
@@ -4164,7 +4191,7 @@
       "source_blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
       "destination_blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -4304,7 +4331,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/recovery.md",
@@ -4312,7 +4340,7 @@
       "source_blob_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed",
       "destination_blob_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -4417,7 +4445,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/state-schema.md",
@@ -4425,7 +4454,7 @@
       "source_blob_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
       "destination_blob_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -4544,7 +4573,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/unattended-contract.md",
@@ -4552,7 +4582,7 @@
       "source_blob_sha256": "839606add9e335b39870e526cf2fe74aa03ff2c8e371bfc43a88950d5ca07fdb",
       "destination_blob_sha256": "839606add9e335b39870e526cf2fe74aa03ff2c8e371bfc43a88950d5ca07fdb",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -4601,7 +4631,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/run-autopilot/references/waves.md",
@@ -4609,7 +4640,7 @@
       "source_blob_sha256": "06fb468da688a4db0cd84a903d78bfc0aeb8e403aed36119a0645ec3255659c3",
       "destination_blob_sha256": "06fb468da688a4db0cd84a903d78bfc0aeb8e403aed36119a0645ec3255659c3",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -4714,7 +4745,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/use-codex/SKILL.md",
@@ -4807,7 +4839,7 @@
       "source_blob_sha256": "8eb477c0ec864e2dd08f900324289d432dd5eeaf931a2682e6280299d44f9c56",
       "destination_blob_sha256": "8eb477c0ec864e2dd08f900324289d432dd5eeaf931a2682e6280299d44f9c56",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -4891,7 +4923,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/use-codex/references/host-markers.md",
@@ -4899,7 +4932,7 @@
       "source_blob_sha256": "a0f4387fbdbf65312d94177863b4a497079ae1cdd99b571e7aa47b0afc0ac3c6",
       "destination_blob_sha256": "a0f4387fbdbf65312d94177863b4a497079ae1cdd99b571e7aa47b0afc0ac3c6",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -4955,7 +4988,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/use-gemini/SKILL.md",
@@ -5414,7 +5448,7 @@
       "source_blob_sha256": "220ccbc657af61a2ff59b5766c3e3c94d473d941b132bed5dfb1b01067963e60",
       "destination_blob_sha256": "220ccbc657af61a2ff59b5766c3e3c94d473d941b132bed5dfb1b01067963e60",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -5470,7 +5504,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/attempt-logging.md",
@@ -5478,7 +5513,7 @@
       "source_blob_sha256": "ca6847fc6b0c3b5dd16501486f512c8b6f15eb007c04043a4dd2a9a0278f5873",
       "destination_blob_sha256": "ca6847fc6b0c3b5dd16501486f512c8b6f15eb007c04043a4dd2a9a0278f5873",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -5527,7 +5562,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/code-quality-examples.md",
@@ -5535,7 +5571,7 @@
       "source_blob_sha256": "f071588d8ddcabfb8c485f65f01f8463617c94e8c431187484613328657f8ae2",
       "destination_blob_sha256": "f071588d8ddcabfb8c485f65f01f8463617c94e8c431187484613328657f8ae2",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -5598,7 +5634,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/code-quality-principles.md",
@@ -5606,7 +5643,7 @@
       "source_blob_sha256": "5f914b8284a59615d93af824ba3553ff9e7c9809ee398c06066bb0bc28546c14",
       "destination_blob_sha256": "5f914b8284a59615d93af824ba3553ff9e7c9809ee398c06066bb0bc28546c14",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -5655,7 +5692,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/codex-implementor.md",
@@ -5663,7 +5701,7 @@
       "source_blob_sha256": "22dd25ac8118d571804e7fc5c42bc227593f539d13ea3ed82045b051a853d58a",
       "destination_blob_sha256": "22dd25ac8118d571804e7fc5c42bc227593f539d13ea3ed82045b051a853d58a",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -5719,7 +5757,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/codex-integration.md",
@@ -5727,7 +5766,7 @@
       "source_blob_sha256": "bb8e75293188829a6b1f5331a29a671f07f9ab866bb7a72c50cf856af5fb6500",
       "destination_blob_sha256": "bb8e75293188829a6b1f5331a29a671f07f9ab866bb7a72c50cf856af5fb6500",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -5804,7 +5843,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/dashboard-state-sync.md",
@@ -5812,7 +5852,7 @@
       "source_blob_sha256": "1c961211eb22ebcafcde7c15ed20515299d3d2e363b2847eabe11d1bcdd0497d",
       "destination_blob_sha256": "1c961211eb22ebcafcde7c15ed20515299d3d2e363b2847eabe11d1bcdd0497d",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -5840,7 +5880,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/design-rationale.md",
@@ -5848,7 +5889,7 @@
       "source_blob_sha256": "2624af584869482ed5709b34a65270eb58177ade4cbf0a432ccc039a33ef4f6a",
       "destination_blob_sha256": "2624af584869482ed5709b34a65270eb58177ade4cbf0a432ccc039a33ef4f6a",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -5953,7 +5994,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/final-verification.md",
@@ -5961,7 +6003,7 @@
       "source_blob_sha256": "8081f4ab5ff8d63d72a13771b2745964cc13529da0244bbfd154d372f6bcf180",
       "destination_blob_sha256": "8081f4ab5ff8d63d72a13771b2745964cc13529da0244bbfd154d372f6bcf180",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6024,7 +6066,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/gate-failure.md",
@@ -6032,7 +6075,7 @@
       "source_blob_sha256": "d5ea92235dc6b9281fd0f415e705f3681ba30518981bff164e62271974caf038",
       "destination_blob_sha256": "d5ea92235dc6b9281fd0f415e705f3681ba30518981bff164e62271974caf038",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6123,7 +6166,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/gemini-integration.md",
@@ -6131,7 +6175,7 @@
       "source_blob_sha256": "ca1398a7bf96ec4eab1f63f11fd3ae4257ea0ca294135b410abea12e5c8ea58d",
       "destination_blob_sha256": "ca1398a7bf96ec4eab1f63f11fd3ae4257ea0ca294135b410abea12e5c8ea58d",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6236,7 +6280,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/pat-rerun-prompt.md",
@@ -6244,7 +6289,7 @@
       "source_blob_sha256": "2869c9d654bf36e9bf33c979ce108f661c347c0d162e312a24aa3dfd272fe6ed",
       "destination_blob_sha256": "2869c9d654bf36e9bf33c979ce108f661c347c0d162e312a24aa3dfd272fe6ed",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6279,7 +6324,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/per-task-review.md",
@@ -6287,7 +6333,7 @@
       "source_blob_sha256": "7d532acc306e3f27702898fff1348cb50f5e264184a540f9deca77052891bd7f",
       "destination_blob_sha256": "7d532acc306e3f27702898fff1348cb50f5e264184a540f9deca77052891bd7f",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6364,7 +6410,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/qwen-integration.md",
@@ -6372,7 +6419,7 @@
       "source_blob_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
       "destination_blob_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6512,7 +6559,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/red-check.md",
@@ -6520,7 +6568,7 @@
       "source_blob_sha256": "aed6de346f66a98a8a6f8d5c31aed5c9985455d509821e1a31becd7f4c633e9b",
       "destination_blob_sha256": "aed6de346f66a98a8a6f8d5c31aed5c9985455d509821e1a31becd7f4c633e9b",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6562,7 +6610,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/rework-mode.md",
@@ -6570,7 +6619,7 @@
       "source_blob_sha256": "39db417c8a13abe41424d0f86cd6cf4246f70b62f81fd0a9d4784f63d0aef351",
       "destination_blob_sha256": "39db417c8a13abe41424d0f86cd6cf4246f70b62f81fd0a9d4784f63d0aef351",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6605,7 +6654,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/self-deslop-prompt.md",
@@ -6613,7 +6663,7 @@
       "source_blob_sha256": "cbc897ba9c5c042707960c01c9ed1c42c347104c25821d5cfe2d481e9ad5207c",
       "destination_blob_sha256": "cbc897ba9c5c042707960c01c9ed1c42c347104c25821d5cfe2d481e9ad5207c",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6669,7 +6719,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/simplification-mandate.md",
@@ -6677,7 +6728,7 @@
       "source_blob_sha256": "6956c1e5e75ebb7a900fc7ca74796aff4cacc0b8920f16e9d036d647b197292e",
       "destination_blob_sha256": "6956c1e5e75ebb7a900fc7ca74796aff4cacc0b8920f16e9d036d647b197292e",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6705,7 +6756,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/style-gate.md",
@@ -6713,7 +6765,7 @@
       "source_blob_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
       "destination_blob_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6790,7 +6842,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/subagent-dispatch.md",
@@ -6798,7 +6851,7 @@
       "source_blob_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
       "destination_blob_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6924,7 +6977,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/task-boundary-handoff.md",
@@ -6932,7 +6986,7 @@
       "source_blob_sha256": "92ece9ae82ce279f4c77b7929955d67c01ae20f97fa40bfdbfd4edd1b38a94a3",
       "destination_blob_sha256": "92ece9ae82ce279f4c77b7929955d67c01ae20f97fa40bfdbfd4edd1b38a94a3",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -6974,7 +7028,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/task-splitting.md",
@@ -6982,7 +7037,7 @@
       "source_blob_sha256": "acc29e543d3bc789d3da94d3ade5510943fdd79c0e687edb0e490d8809b40d31",
       "destination_blob_sha256": "acc29e543d3bc789d3da94d3ade5510943fdd79c0e687edb0e490d8809b40d31",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -7024,7 +7079,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/tess-prompt.md",
@@ -7032,7 +7088,7 @@
       "source_blob_sha256": "c3226d2e2068d8efe46052b51ea21b949334f3e48842337ae8f58e611fc0d43c",
       "destination_blob_sha256": "c3226d2e2068d8efe46052b51ea21b949334f3e48842337ae8f58e611fc0d43c",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [],
       "entry_point_gate": {
@@ -7052,7 +7108,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/tess-retry-prompt.md",
@@ -7060,7 +7117,7 @@
       "source_blob_sha256": "539029694924b4675c6f930a079bbd2d86d5d0e03b851e7a38aa850e500631db",
       "destination_blob_sha256": "539029694924b4675c6f930a079bbd2d86d5d0e03b851e7a38aa850e500631db",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [],
       "entry_point_gate": {
@@ -7080,7 +7137,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": "skills/work/references/test-author-prompt.md",
@@ -7088,7 +7146,7 @@
       "source_blob_sha256": "df865cd007e07efe72f8f36c93a6563a7002f5f2135e4f9281742be9a9a31080",
       "destination_blob_sha256": "df865cd007e07efe72f8f36c93a6563a7002f5f2135e4f9281742be9a9a31080",
       "adaptation_reason": "Byte-identical pinned source asset.",
-      "disposition": "adapted",
+      "disposition": "preserved",
       "planned_disposition": "adapted",
       "section_plan": [
         {
@@ -7151,7 +7209,8 @@
         "artifact_id": "docs/dev/project-management/autopilot/reports/00012-task-19-delivery-receipts.json",
         "artifact_sha256": "d449183168cc35b0d02791bce7ec36cd8ce8c5bbeac340ed31583898cc20df62",
         "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad"
-      }
+      },
+      "delivery_note": "AP00012 preserves the pinned source bytes exactly; the owning skill remains behind its unconditional unavailable entry-point gate. Planned procedure adaptation and frozen future delivery ownership remain unchanged."
     },
     {
       "source_asset_id": null,
@@ -273604,10 +273663,13 @@
       "source_path": "skills/run-autopilot/SKILL.md",
       "source_line": 43,
       "reference": "scripts/statectl.py",
-      "kind": "packaged-resource",
-      "status": "planned",
+      "kind": "informational-provenance",
+      "status": "unavailable",
       "destination_path": "plugins/autopilot/skills/run-autopilot/scripts/statectl.py",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "runtime_rule": "Never read historical unavailable scripts to supply missing runtime content; refuse the owning skill before old-script invocation.",
+      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability."
     },
     {
       "source_path": "skills/run-autopilot/SKILL.md",
@@ -273675,19 +273737,25 @@
       "source_path": "skills/run-autopilot/SKILL.md",
       "source_line": 105,
       "reference": "scripts/resume_target.py",
-      "kind": "packaged-resource",
-      "status": "planned",
+      "kind": "informational-provenance",
+      "status": "unavailable",
       "destination_path": "plugins/autopilot/skills/run-autopilot/scripts/resume_target.py",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "runtime_rule": "Never read historical unavailable scripts to supply missing runtime content; refuse the owning skill before old-script invocation.",
+      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability."
     },
     {
       "source_path": "skills/run-autopilot/SKILL.md",
       "source_line": 105,
       "reference": "scripts/test_autopilot_resume.py",
-      "kind": "packaged-resource",
-      "status": "planned",
+      "kind": "informational-provenance",
+      "status": "unavailable",
       "destination_path": "plugins/autopilot/skills/run-autopilot/scripts/test_autopilot_resume.py",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "runtime_rule": "Never read historical unavailable scripts to supply missing runtime content; refuse the owning skill before old-script invocation.",
+      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability."
     },
     {
       "source_path": "skills/run-autopilot/SKILL.md",
@@ -273711,10 +273779,13 @@
       "source_path": "skills/run-autopilot/SKILL.md",
       "source_line": 140,
       "reference": "scripts/tracon_wrapper_alive.py",
-      "kind": "packaged-resource",
-      "status": "planned",
+      "kind": "informational-provenance",
+      "status": "unavailable",
       "destination_path": "plugins/autopilot/skills/run-autopilot/scripts/tracon_wrapper_alive.py",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "runtime_rule": "Never read historical unavailable scripts to supply missing runtime content; refuse the owning skill before old-script invocation.",
+      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability."
     },
     {
       "source_path": "skills/run-autopilot/SKILL.md",
@@ -273738,10 +273809,13 @@
       "source_path": "skills/run-autopilot/SKILL.md",
       "source_line": 238,
       "reference": "scripts/render_stream.py",
-      "kind": "packaged-resource",
-      "status": "planned",
+      "kind": "informational-provenance",
+      "status": "unavailable",
       "destination_path": "plugins/autopilot/skills/run-autopilot/scripts/render_stream.py",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "runtime_rule": "Never read historical unavailable scripts to supply missing runtime content; refuse the owning skill before old-script invocation.",
+      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability."
     },
     {
       "source_path": "skills/run-autopilot/SKILL.md",
@@ -274198,19 +274272,25 @@
       "source_path": "skills/use-gemini/SKILL.md",
       "source_line": 9,
       "reference": "scripts/gemini-run.sh",
-      "kind": "packaged-resource",
-      "status": "planned",
+      "kind": "informational-provenance",
+      "status": "unavailable",
       "destination_path": "plugins/autopilot/skills/use-gemini/scripts/gemini-run.sh",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-gemini/SKILL.md",
+      "runtime_rule": "Never read historical unavailable scripts to supply missing runtime content; refuse the owning skill before old-script invocation.",
+      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability."
     },
     {
       "source_path": "skills/work/SKILL.md",
       "source_line": 32,
       "reference": "scripts/check_style_limits.py",
-      "kind": "packaged-resource",
-      "status": "planned",
+      "kind": "informational-provenance",
+      "status": "unavailable",
       "destination_path": "plugins/autopilot/skills/work/scripts/check_style_limits.py",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "runtime_rule": "Never read historical unavailable scripts to supply missing runtime content; refuse the owning skill before old-script invocation.",
+      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability."
     },
     {
       "source_path": "skills/work/SKILL.md",
@@ -274342,10 +274422,13 @@
       "source_path": "skills/work/SKILL.md",
       "source_line": 309,
       "reference": "scripts/check_memory_pressure.py",
-      "kind": "packaged-resource",
-      "status": "planned",
+      "kind": "informational-provenance",
+      "status": "unavailable",
       "destination_path": "plugins/autopilot/skills/work/scripts/check_memory_pressure.py",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "runtime_rule": "Never read historical unavailable scripts to supply missing runtime content; refuse the owning skill before old-script invocation.",
+      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability."
     },
     {
       "source_path": "skills/work/SKILL.md",
@@ -275103,6 +275186,281 @@
       "basis": "docs/dev/project-management/prds/backlog/00002-terminal-views-controls-v1.md",
       "verified_local_project": "buvis/lantern",
       "basis_sha256": "8dca37722b91d915bfe7c01512675000451465a3d5512b157c2a4c43004b3f46"
+    }
+  ],
+  "authored_file_owners": [
+    {
+      "path": "plugins/autopilot/CHANGELOG.md",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/CHANGELOG.md",
+          "expected_outcome": "The packaged changelog exists at the recorded digest and documents the AP00012 foundation delivery."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/contracts/review-evidence-v1.json",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/contracts/review-evidence-v1.json",
+          "expected_outcome": "The packaged review-evidence contract exists at the recorded digest and defines artifact-bound evidence without certifying future review profiles."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/contracts/review-fixtures-v1.json",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/contracts/review-fixtures-v1.json",
+          "expected_outcome": "The packaged review fixtures exist at the recorded digest as the AP00012 contract fixture foundation."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/contracts/review-policy-v1.json",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/contracts/review-policy-v1.json",
+          "expected_outcome": "The packaged review-policy contract exists at the recorded digest as the AP00012 review policy foundation."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/scripts/autopilot.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/scripts/autopilot.py",
+          "expected_outcome": "The packaged CLI exists at the recorded digest as the AP00012 validation and unavailable-entry-point foundation; delivery does not certify host execution."
+        }
+      ]
+    },
+    {
+      "path": "tests/autopilot/test_contract_fixtures.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tests/autopilot/test_contract_fixtures.py",
+          "expected_outcome": "AP00012 fixture tests verify declared policy, context and evidence cases against the delivered contracts."
+        }
+      ]
+    },
+    {
+      "path": "tests/autopilot/test_contract_fixtures_adversarial.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tests/autopilot/test_contract_fixtures_adversarial.py",
+          "expected_outcome": "AP00012 adversarial fixture tests reject invalid review evidence and exercise required refusal cases."
+        }
+      ]
+    },
+    {
+      "path": "tests/autopilot/test_contract_schema.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tests/autopilot/test_contract_schema.py",
+          "expected_outcome": "AP00012 schema tests check the delivered review evidence contract against accepted and rejected inputs."
+        }
+      ]
+    },
+    {
+      "path": "tests/autopilot/test_contract_schema_wire.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tests/autopilot/test_contract_schema_wire.py",
+          "expected_outcome": "AP00012 wire-schema tests check serialized evidence shape and reject unsupported fields or values."
+        }
+      ]
+    },
+    {
+      "path": "tests/autopilot/test_contract_semantics.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tests/autopilot/test_contract_semantics.py",
+          "expected_outcome": "AP00012 semantic tests check review policy decisions and required evidence beyond structural validation."
+        }
+      ]
+    },
+    {
+      "path": "tests/autopilot/test_facade.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tests/autopilot/test_facade.py",
+          "expected_outcome": "AP00012 facade tests verify public validation and policy-export behavior and refusal of unavailable execution."
+        }
+      ]
+    },
+    {
+      "path": "tests/autopilot/test_package.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tests/autopilot/test_package.py",
+          "expected_outcome": "AP00012 package tests verify isolated distribution, preserved source bytes, first-body refusal gates and resource closure."
+        }
+      ]
+    },
+    {
+      "path": "tests/autopilot/test_prerequisites.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tests/autopilot/test_prerequisites.py",
+          "expected_outcome": "AP00012 prerequisite tests verify read-only dependency diagnostics and explicit unavailable capability reporting."
+        }
+      ]
+    },
+    {
+      "path": "tests/autopilot/test_provenance.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tests/autopilot/test_provenance.py",
+          "expected_outcome": "AP00012 provenance tests verify exact pinned source coverage, ownership assignments, digests and declared resource obligations."
+        }
+      ]
+    },
+    {
+      "path": "tools/autopilot/check-source.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tools/autopilot/check-source.py",
+          "expected_outcome": "AP00012 provenance verification checks explicitly supplied source repositories against the immutable pin and reports missing or mismatched source objects."
+        }
+      ]
+    },
+    {
+      "path": "tools/autopilot/export-policy.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tools/autopilot/export-policy.py",
+          "expected_outcome": "AP00012 policy export produces deterministic policy data from the delivered review contract."
+        }
+      ]
+    },
+    {
+      "path": "tools/autopilot/prerequisites.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tools/autopilot/prerequisites.py",
+          "expected_outcome": "AP00012 prerequisite diagnostics report available and missing dependencies without installing tools or mutating workflow state."
+        }
+      ]
+    },
+    {
+      "path": "tools/autopilot/requirements-test.txt",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tools/autopilot/requirements-test.txt",
+          "expected_outcome": "AP00012 test requirements declare pytest and jsonschema test dependencies without adding a package runtime dependency."
+        }
+      ]
+    },
+    {
+      "path": "tools/autopilot/source-inventory.json",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tools/autopilot/source-inventory.json",
+          "expected_outcome": "AP00012 inventory records the frozen source assets, behaviors and regression identities needed to detect missing, duplicate or unknown mappings."
+        }
+      ]
+    },
+    {
+      "path": "tools/autopilot/source-map.json",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tools/autopilot/source-map.json",
+          "expected_outcome": "AP00012 mapping assigns pinned source assets, behaviors, regression cases and newly authored product files to explicit destinations and acceptance owners without certifying future runtime profiles."
+        }
+      ]
+    },
+    {
+      "path": "tools/autopilot/source-pin.json",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00012",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tools/autopilot/source-pin.json",
+          "expected_outcome": "AP00012 source pin records the immutable upstream repository, commit and date used for reproducible provenance checks."
+        }
+      ]
     }
   ]
 }
