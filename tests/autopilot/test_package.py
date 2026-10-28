@@ -117,6 +117,8 @@ class TargetPackageTest(unittest.TestCase):
         self.assertTrue(artifact.resolve().is_relative_to(self.target.resolve()))
         self.assertTrue(artifact.is_file())
         self.assertEqual(digest(artifact.read_bytes()), evidence["artifact_sha256"])
+        # This .git-free archive checks revision format; the coordinator separately
+        # verified README/changelog git show REV:path bytes against artifact_sha256.
         self.assertRegex(evidence["tested_package_revision"], r"^[0-9a-f]{40}$")
 
     def assert_assignment_evidence(self, evidence: dict) -> None:
@@ -422,6 +424,7 @@ print("55 fixtures validated")
 
     def test_ci_autopilot_wired_with_python312_and_complete_pinned_plugins_job(self) -> None:
         document = yaml.safe_load((self.target / ".github/workflows/validate.yml").read_text())
+        self.assertEqual(document["permissions"], {"contents": "read"})
         triggers = document.get("on", document.get(True))  # PyYAML YAML 1.1 parses on as True.
         self.assertIsInstance(triggers, dict)
         self.assertEqual(triggers["push"]["branches"], ["master"])
