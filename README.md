@@ -13,7 +13,7 @@ The repository scaffold is ready. No plugins are published yet.
 
 | Plugin | Purpose | Version |
 | --- | --- | --- |
-| _None yet_ | The first plugins will be added under `plugins/`. | — |
+| [autopilot](plugins/autopilot/README.md) | Gated review-contract foundation; no host certification or publication. | 0.10.0 |
 
 ## Portable scope
 
