@@ -2,7 +2,7 @@
 
 The first sub-bullets of `Details:` and `Verify:` are carried from the source plan in intake item 00001. In them, `design §n` means the source design, `.kiro/specs` means the specs folder, and a task ID may belong to another spec; `docs/dev/project-management/reviews/2026-10-04-specflow-split-map.md` names the spec that now holds each section and each task. Lines written for this plan name a task of another spec with its spec, as in `T-030 (00006)`.
 
-- [ ] T-040 Test Kiro IDE custom Power loading
+- [x] T-040 Test Kiro IDE custom Power loading
   - Requirements: 00002 PKG-003 criterion 1
   - Depends on: none
   - Location: `tests/specflow/compatibility/kiro-ide.md`
@@ -17,6 +17,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - create, approve requirements, close session, and resume.
     - The record is `tests/specflow/compatibility/kiro-ide.md`, with every step of the design's table passed.
+  - Outcome: Kiro loaded spec-workflow, read its installed contracts, created and approved 00001-hello-world, and resumed it in a fresh chat with approval intact. The developer confirmed native Specs-panel discovery on 2026-10-29. The record includes the full state and artifacts, earlier terminal failures, and the persistent Bash-it correction verified after restart in two fresh terminals.
 
 - [ ] T-042 Test Codex Agent Plugins v1 loading
   - Requirements: 00002 PKG-003 criterion 2
