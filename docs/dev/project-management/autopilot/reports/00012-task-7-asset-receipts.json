@@ -1,0 +1,54 @@
+{
+  "task": "7",
+  "source_commit": "e960ef1cc43e72bf92593b2f16c7a37c71ea7e48",
+  "assets": [
+    {
+      "destination_path": "plugins/autopilot/skills/review-plan/SKILL.md",
+      "source_asset_id": "skills/review-plan/SKILL.md",
+      "source_path": "skills/review-plan/SKILL.md",
+      "source_blob_sha256": "c85ddf01b7d93472a66fd4cf4128b0ea83bd629132b92c1bafc015228643dd28",
+      "destination_blob_sha256": "01fd2cba27fe391e0920cb0606046c46100dbb5a9a5c6eef0f363d00c604a006",
+      "source_section_count": 6,
+      "disposition": "gated",
+      "gate_utf8": "\n## Portable entry point \u2014 unavailable\n\n**STOP \u2014 unavailable. Refuse this entry point before any old script invocation.** This portable package does not provide executable host support for this skill. Report the skill as unavailable and stop; do not follow the retained procedure below, invoke scripts or tools, dispatch agents, or read or write workflow state. The original frontmatter, compatibility metadata, and procedure are retained for AP 00015 procedure adaptation. AP 00014 owns native host support; AP 00017 owns real-host certification. This package version unconditionally refuses execution. Source checkout paths and historical citations are informational provenance only; never read them to supply missing runtime content.\n\n",
+      "gate_sha256": "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75",
+      "adaptation_reason": "Only an unconditional first-body refusal gate was inserted; all source bytes and compatibility metadata reconstruct exactly."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
+      "source_asset_id": "skills/review-work-completion/SKILL.md",
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_blob_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "destination_blob_sha256": "1cce563679912d8136e968288e7c3c37f3fbbccd3d45e8f977615e46523edbfc",
+      "source_section_count": 13,
+      "disposition": "gated",
+      "gate_utf8": "\n## Portable entry point \u2014 unavailable\n\n**STOP \u2014 unavailable. Refuse this entry point before any old script invocation.** This portable package does not provide executable host support for this skill. Report the skill as unavailable and stop; do not follow the retained procedure below, invoke scripts or tools, dispatch agents, or read or write workflow state. The original frontmatter, compatibility metadata, and procedure are retained for AP 00015 procedure adaptation. AP 00014 owns native host support; AP 00017 owns real-host certification. This package version unconditionally refuses execution. Source checkout paths and historical citations are informational provenance only; never read them to supply missing runtime content.\n\n",
+      "gate_sha256": "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75",
+      "adaptation_reason": "Only an unconditional first-body refusal gate was inserted; all source bytes and compatibility metadata reconstruct exactly."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "source_asset_id": "skills/run-autopilot/SKILL.md",
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_blob_sha256": "8e327f1e91c8190626bed6dbe29adcaa0cec49e8683b1fa8420fb3e2ee473ce1",
+      "destination_blob_sha256": "9ebb0d5011b249b310e6782dcbbf31f0cd338c2d74219bfbcf4c3923a1659587",
+      "source_section_count": 23,
+      "disposition": "gated",
+      "gate_utf8": "\n## Portable entry point \u2014 unavailable\n\n**STOP \u2014 unavailable. Refuse this entry point before any old script invocation.** This portable package does not provide executable host support for this skill. Report the skill as unavailable and stop; do not follow the retained procedure below, invoke scripts or tools, dispatch agents, or read or write workflow state. The original frontmatter, compatibility metadata, and procedure are retained for AP 00015 procedure adaptation. AP 00014 owns native host support; AP 00017 owns real-host certification. This package version unconditionally refuses execution. Source checkout paths and historical citations are informational provenance only; never read them to supply missing runtime content.\n\n",
+      "gate_sha256": "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75",
+      "adaptation_reason": "Only an unconditional first-body refusal gate was inserted; all source bytes and compatibility metadata reconstruct exactly."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "source_asset_id": "skills/use-codex/SKILL.md",
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_blob_sha256": "eb6b977de437a1243454fb41e65a8ec5824bf42e0edcd85054c71367bc0a755b",
+      "destination_blob_sha256": "ec663763eb6188d75d4d522d19ce9cccdda231f73f805a930d711da8ff2f6875",
+      "source_section_count": 8,
+      "disposition": "gated",
+      "gate_utf8": "\n## Portable entry point \u2014 unavailable\n\n**STOP \u2014 unavailable. Refuse this entry point before any old script invocation.** This portable package does not provide executable host support for this skill. Report the skill as unavailable and stop; do not follow the retained procedure below, invoke scripts or tools, dispatch agents, or read or write workflow state. The original frontmatter, compatibility metadata, and procedure are retained for AP 00015 procedure adaptation. AP 00014 owns native host support; AP 00017 owns real-host certification. This package version unconditionally refuses execution. Source checkout paths and historical citations are informational provenance only; never read them to supply missing runtime content.\n\n",
+      "gate_sha256": "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75",
+      "adaptation_reason": "Only an unconditional first-body refusal gate was inserted; all source bytes and compatibility metadata reconstruct exactly."
+    }
+  ]
+}

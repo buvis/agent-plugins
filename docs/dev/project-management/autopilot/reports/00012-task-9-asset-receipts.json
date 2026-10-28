@@ -1,0 +1,186 @@
+{
+  "task": "9",
+  "source_commit": "e960ef1cc43e72bf92593b2f16c7a37c71ea7e48",
+  "assets": [
+    {
+      "destination_path": "plugins/autopilot/references/personas/alice.md",
+      "source_asset_id": "agents/alice.md",
+      "source_path": "agents/alice.md",
+      "source_blob_sha256": "acc988bbe514cfb29d3acf6f2ca04d7aef4c497ee2176636db034f61ddd65c42",
+      "destination_blob_sha256": "acc988bbe514cfb29d3acf6f2ca04d7aef4c497ee2176636db034f61ddd65c42",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/blake.md",
+      "source_asset_id": "agents/blake.md",
+      "source_path": "agents/blake.md",
+      "source_blob_sha256": "eafb4cd3e04ca59f0c2becd11eff53e03b865b5713a91b144e1cf822c2886089",
+      "destination_blob_sha256": "eafb4cd3e04ca59f0c2becd11eff53e03b865b5713a91b144e1cf822c2886089",
+      "source_section_count": 3,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/bob.md",
+      "source_asset_id": "agents/bob.md",
+      "source_path": "agents/bob.md",
+      "source_blob_sha256": "97e5a1264a7069176ebb79209dd022c7396d01948073c5a445eb9b2ae82191a2",
+      "destination_blob_sha256": "97e5a1264a7069176ebb79209dd022c7396d01948073c5a445eb9b2ae82191a2",
+      "source_section_count": 1,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/carl.md",
+      "source_asset_id": "agents/carl.md",
+      "source_path": "agents/carl.md",
+      "source_blob_sha256": "b7a82f9da1cc204c42ebc19b3b4a6942e00241debc954a3845681596ec30abbd",
+      "destination_blob_sha256": "b7a82f9da1cc204c42ebc19b3b4a6942e00241debc954a3845681596ec30abbd",
+      "source_section_count": 1,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/cora.md",
+      "source_asset_id": "agents/cora.md",
+      "source_path": "agents/cora.md",
+      "source_blob_sha256": "5ace2e88918c77a14daf8d159b8708ee592e473a27b6c9fbf2d3614b9b97c65c",
+      "destination_blob_sha256": "5ace2e88918c77a14daf8d159b8708ee592e473a27b6c9fbf2d3614b9b97c65c",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/eve.md",
+      "source_asset_id": "agents/eve.md",
+      "source_path": "agents/eve.md",
+      "source_blob_sha256": "7c8dd78adfb49e6f1d448b4f87e210c17b5d8c8daa291cf3d94cc40d139b88ec",
+      "destination_blob_sha256": "7c8dd78adfb49e6f1d448b4f87e210c17b5d8c8daa291cf3d94cc40d139b88ec",
+      "source_section_count": 5,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/grace.md",
+      "source_asset_id": "agents/grace.md",
+      "source_path": "agents/grace.md",
+      "source_blob_sha256": "1a39a1b3be8b45bddfb6ccad6e1b4c7920f7fb9b75f9cbc77dda2e3a2f8a930d",
+      "destination_blob_sha256": "1a39a1b3be8b45bddfb6ccad6e1b4c7920f7fb9b75f9cbc77dda2e3a2f8a930d",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/ivan.md",
+      "source_asset_id": "agents/ivan.md",
+      "source_path": "agents/ivan.md",
+      "source_blob_sha256": "1668b0304b70b12c4d5fbd7746a2d91c30c5e6464cf0d54eb299d4c1f1c4d8a1",
+      "destination_blob_sha256": "1668b0304b70b12c4d5fbd7746a2d91c30c5e6464cf0d54eb299d4c1f1c4d8a1",
+      "source_section_count": 4,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/mallory.md",
+      "source_asset_id": "agents/mallory.md",
+      "source_path": "agents/mallory.md",
+      "source_blob_sha256": "f1b42bfd1679ac83f86986066b4617f272d592f922bb8c622b07335aae2c7526",
+      "destination_blob_sha256": "f1b42bfd1679ac83f86986066b4617f272d592f922bb8c622b07335aae2c7526",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/pat.md",
+      "source_asset_id": "agents/pat.md",
+      "source_path": "agents/pat.md",
+      "source_blob_sha256": "3f06ec3ad11737bb05f5a0acf53411cd90dd45b47825a80b0fc68d591964a489",
+      "destination_blob_sha256": "3f06ec3ad11737bb05f5a0acf53411cd90dd45b47825a80b0fc68d591964a489",
+      "source_section_count": 5,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/rita.md",
+      "source_asset_id": "agents/rita.md",
+      "source_path": "agents/rita.md",
+      "source_blob_sha256": "6aa233c49c5db3148767f7fbdb7df0c181869000805192975eb47ea43cdf063b",
+      "destination_blob_sha256": "6aa233c49c5db3148767f7fbdb7df0c181869000805192975eb47ea43cdf063b",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/toby.md",
+      "source_asset_id": "agents/toby.md",
+      "source_path": "agents/toby.md",
+      "source_blob_sha256": "f1900cf5b5b3261647e87f474b2c5ae0102ac551326fc547f9017ae9a9ed8fa5",
+      "destination_blob_sha256": "f1900cf5b5b3261647e87f474b2c5ae0102ac551326fc547f9017ae9a9ed8fa5",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/trent.md",
+      "source_asset_id": "agents/trent.md",
+      "source_path": "agents/trent.md",
+      "source_blob_sha256": "48ded487ab786a9ac7b4f347c2c116aa95ca0f7a6f4ba8f3060a4959397440f0",
+      "destination_blob_sha256": "48ded487ab786a9ac7b4f347c2c116aa95ca0f7a6f4ba8f3060a4959397440f0",
+      "source_section_count": 1,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/victor.md",
+      "source_asset_id": "agents/victor.md",
+      "source_path": "agents/victor.md",
+      "source_blob_sha256": "5fc4beb129b42e91b89f3dde91748157d54b95f6a1a1230f58e06157282e7b25",
+      "destination_blob_sha256": "5fc4beb129b42e91b89f3dde91748157d54b95f6a1a1230f58e06157282e7b25",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/worker-fable.md",
+      "source_asset_id": "agents/worker-fable.md",
+      "source_path": "agents/worker-fable.md",
+      "source_blob_sha256": "86b7f55f1410cc19e324d5ff1b276113a9ed5e508f956381eed93230d524024f",
+      "destination_blob_sha256": "86b7f55f1410cc19e324d5ff1b276113a9ed5e508f956381eed93230d524024f",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/worker-haiku.md",
+      "source_asset_id": "agents/worker-haiku.md",
+      "source_path": "agents/worker-haiku.md",
+      "source_blob_sha256": "935361164a1d457b0f7453a28ad917c0a33b90eccbd0cae29164fbb8e95a8fbe",
+      "destination_blob_sha256": "935361164a1d457b0f7453a28ad917c0a33b90eccbd0cae29164fbb8e95a8fbe",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/worker-opus.md",
+      "source_asset_id": "agents/worker-opus.md",
+      "source_path": "agents/worker-opus.md",
+      "source_blob_sha256": "da1f1e83954097db08112fa35d193fd5afe758a0909a88118b608e1f1c84d5ea",
+      "destination_blob_sha256": "da1f1e83954097db08112fa35d193fd5afe758a0909a88118b608e1f1c84d5ea",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/worker-sonnet.md",
+      "source_asset_id": "agents/worker-sonnet.md",
+      "source_path": "agents/worker-sonnet.md",
+      "source_blob_sha256": "ca7ace95e46adca87255c38949c49f87a364d9ec3719fb5bb397f8334eff71db",
+      "destination_blob_sha256": "ca7ace95e46adca87255c38949c49f87a364d9ec3719fb5bb397f8334eff71db",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    }
+  ]
+}

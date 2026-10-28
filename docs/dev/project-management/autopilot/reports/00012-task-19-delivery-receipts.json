@@ -1,0 +1,620 @@
+{
+  "task": "19",
+  "kind": "delivery-only",
+  "tested_package_revision": "afacf9d3b00ba3193e57726fec2fc431a2950bad",
+  "package_incomplete": true,
+  "runtime_certification": "unavailable; AP00014/AP00017 remain future work",
+  "source_inventory_sha256": "f55c98bba2b4b3c94ce588b6c616258186dd0bb2164800b2d34271acc25dfb5d",
+  "assets": [
+    {
+      "source_asset_id": ".claude-plugin/plugin.json",
+      "destination_path": "plugins/autopilot/plugin.json",
+      "source_blob_sha256": "84d2fea4df853b974cd37b9c9879c8549d1b1a0742465ee66c11ff02e1506ff0",
+      "destination_blob_sha256": "26ee2daa8381f96af9d9156c72f02545350c7dc324bc265f451d3d15c91756f3"
+    },
+    {
+      "source_asset_id": "LICENSE",
+      "destination_path": "plugins/autopilot/LICENSE",
+      "source_blob_sha256": "6a5980ae83936cd7bc891c141fae75e8e4672357ce363522c330442b909540ca",
+      "destination_blob_sha256": "6a5980ae83936cd7bc891c141fae75e8e4672357ce363522c330442b909540ca"
+    },
+    {
+      "source_asset_id": "agents/alice.md",
+      "destination_path": "plugins/autopilot/references/personas/alice.md",
+      "source_blob_sha256": "acc988bbe514cfb29d3acf6f2ca04d7aef4c497ee2176636db034f61ddd65c42",
+      "destination_blob_sha256": "acc988bbe514cfb29d3acf6f2ca04d7aef4c497ee2176636db034f61ddd65c42"
+    },
+    {
+      "source_asset_id": "agents/blake.md",
+      "destination_path": "plugins/autopilot/references/personas/blake.md",
+      "source_blob_sha256": "eafb4cd3e04ca59f0c2becd11eff53e03b865b5713a91b144e1cf822c2886089",
+      "destination_blob_sha256": "eafb4cd3e04ca59f0c2becd11eff53e03b865b5713a91b144e1cf822c2886089"
+    },
+    {
+      "source_asset_id": "agents/bob.md",
+      "destination_path": "plugins/autopilot/references/personas/bob.md",
+      "source_blob_sha256": "97e5a1264a7069176ebb79209dd022c7396d01948073c5a445eb9b2ae82191a2",
+      "destination_blob_sha256": "97e5a1264a7069176ebb79209dd022c7396d01948073c5a445eb9b2ae82191a2"
+    },
+    {
+      "source_asset_id": "agents/carl.md",
+      "destination_path": "plugins/autopilot/references/personas/carl.md",
+      "source_blob_sha256": "b7a82f9da1cc204c42ebc19b3b4a6942e00241debc954a3845681596ec30abbd",
+      "destination_blob_sha256": "b7a82f9da1cc204c42ebc19b3b4a6942e00241debc954a3845681596ec30abbd"
+    },
+    {
+      "source_asset_id": "agents/cora.md",
+      "destination_path": "plugins/autopilot/references/personas/cora.md",
+      "source_blob_sha256": "5ace2e88918c77a14daf8d159b8708ee592e473a27b6c9fbf2d3614b9b97c65c",
+      "destination_blob_sha256": "5ace2e88918c77a14daf8d159b8708ee592e473a27b6c9fbf2d3614b9b97c65c"
+    },
+    {
+      "source_asset_id": "agents/eve.md",
+      "destination_path": "plugins/autopilot/references/personas/eve.md",
+      "source_blob_sha256": "7c8dd78adfb49e6f1d448b4f87e210c17b5d8c8daa291cf3d94cc40d139b88ec",
+      "destination_blob_sha256": "7c8dd78adfb49e6f1d448b4f87e210c17b5d8c8daa291cf3d94cc40d139b88ec"
+    },
+    {
+      "source_asset_id": "agents/grace.md",
+      "destination_path": "plugins/autopilot/references/personas/grace.md",
+      "source_blob_sha256": "1a39a1b3be8b45bddfb6ccad6e1b4c7920f7fb9b75f9cbc77dda2e3a2f8a930d",
+      "destination_blob_sha256": "1a39a1b3be8b45bddfb6ccad6e1b4c7920f7fb9b75f9cbc77dda2e3a2f8a930d"
+    },
+    {
+      "source_asset_id": "agents/ivan.md",
+      "destination_path": "plugins/autopilot/references/personas/ivan.md",
+      "source_blob_sha256": "1668b0304b70b12c4d5fbd7746a2d91c30c5e6464cf0d54eb299d4c1f1c4d8a1",
+      "destination_blob_sha256": "1668b0304b70b12c4d5fbd7746a2d91c30c5e6464cf0d54eb299d4c1f1c4d8a1"
+    },
+    {
+      "source_asset_id": "agents/mallory.md",
+      "destination_path": "plugins/autopilot/references/personas/mallory.md",
+      "source_blob_sha256": "f1b42bfd1679ac83f86986066b4617f272d592f922bb8c622b07335aae2c7526",
+      "destination_blob_sha256": "f1b42bfd1679ac83f86986066b4617f272d592f922bb8c622b07335aae2c7526"
+    },
+    {
+      "source_asset_id": "agents/pat.md",
+      "destination_path": "plugins/autopilot/references/personas/pat.md",
+      "source_blob_sha256": "3f06ec3ad11737bb05f5a0acf53411cd90dd45b47825a80b0fc68d591964a489",
+      "destination_blob_sha256": "3f06ec3ad11737bb05f5a0acf53411cd90dd45b47825a80b0fc68d591964a489"
+    },
+    {
+      "source_asset_id": "agents/rita.md",
+      "destination_path": "plugins/autopilot/references/personas/rita.md",
+      "source_blob_sha256": "6aa233c49c5db3148767f7fbdb7df0c181869000805192975eb47ea43cdf063b",
+      "destination_blob_sha256": "6aa233c49c5db3148767f7fbdb7df0c181869000805192975eb47ea43cdf063b"
+    },
+    {
+      "source_asset_id": "agents/toby.md",
+      "destination_path": "plugins/autopilot/references/personas/toby.md",
+      "source_blob_sha256": "f1900cf5b5b3261647e87f474b2c5ae0102ac551326fc547f9017ae9a9ed8fa5",
+      "destination_blob_sha256": "f1900cf5b5b3261647e87f474b2c5ae0102ac551326fc547f9017ae9a9ed8fa5"
+    },
+    {
+      "source_asset_id": "agents/trent.md",
+      "destination_path": "plugins/autopilot/references/personas/trent.md",
+      "source_blob_sha256": "48ded487ab786a9ac7b4f347c2c116aa95ca0f7a6f4ba8f3060a4959397440f0",
+      "destination_blob_sha256": "48ded487ab786a9ac7b4f347c2c116aa95ca0f7a6f4ba8f3060a4959397440f0"
+    },
+    {
+      "source_asset_id": "agents/victor.md",
+      "destination_path": "plugins/autopilot/references/personas/victor.md",
+      "source_blob_sha256": "5fc4beb129b42e91b89f3dde91748157d54b95f6a1a1230f58e06157282e7b25",
+      "destination_blob_sha256": "5fc4beb129b42e91b89f3dde91748157d54b95f6a1a1230f58e06157282e7b25"
+    },
+    {
+      "source_asset_id": "agents/worker-fable.md",
+      "destination_path": "plugins/autopilot/references/personas/worker-fable.md",
+      "source_blob_sha256": "86b7f55f1410cc19e324d5ff1b276113a9ed5e508f956381eed93230d524024f",
+      "destination_blob_sha256": "86b7f55f1410cc19e324d5ff1b276113a9ed5e508f956381eed93230d524024f"
+    },
+    {
+      "source_asset_id": "agents/worker-haiku.md",
+      "destination_path": "plugins/autopilot/references/personas/worker-haiku.md",
+      "source_blob_sha256": "935361164a1d457b0f7453a28ad917c0a33b90eccbd0cae29164fbb8e95a8fbe",
+      "destination_blob_sha256": "935361164a1d457b0f7453a28ad917c0a33b90eccbd0cae29164fbb8e95a8fbe"
+    },
+    {
+      "source_asset_id": "agents/worker-opus.md",
+      "destination_path": "plugins/autopilot/references/personas/worker-opus.md",
+      "source_blob_sha256": "da1f1e83954097db08112fa35d193fd5afe758a0909a88118b608e1f1c84d5ea",
+      "destination_blob_sha256": "da1f1e83954097db08112fa35d193fd5afe758a0909a88118b608e1f1c84d5ea"
+    },
+    {
+      "source_asset_id": "agents/worker-sonnet.md",
+      "destination_path": "plugins/autopilot/references/personas/worker-sonnet.md",
+      "source_blob_sha256": "ca7ace95e46adca87255c38949c49f87a364d9ec3719fb5bb397f8334eff71db",
+      "destination_blob_sha256": "ca7ace95e46adca87255c38949c49f87a364d9ec3719fb5bb397f8334eff71db"
+    },
+    {
+      "source_asset_id": "plugin.json",
+      "destination_path": "plugins/autopilot/plugin.json",
+      "source_blob_sha256": "b7883f29358f08a9d844f9e7dbff1dd4929024f351210cd0c61fa8f46148abd6",
+      "destination_blob_sha256": "26ee2daa8381f96af9d9156c72f02545350c7dc324bc265f451d3d15c91756f3"
+    },
+    {
+      "source_asset_id": "skills/design-solution/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/design-solution/SKILL.md",
+      "source_blob_sha256": "afb9996b8ce8e1d833ed01cd533c86f711504be3c31e156c5bb827097ce0c74c",
+      "destination_blob_sha256": "fb109b069397f81d2a1674f761db2b239a666eb6baacb925ea0135a589a9769b"
+    },
+    {
+      "source_asset_id": "skills/design-solution/references/cardinal-sins.md",
+      "destination_path": "plugins/autopilot/skills/design-solution/references/cardinal-sins.md",
+      "source_blob_sha256": "33355b451814500a891981df14c8cecc657e679ed6bdc1d32dffa461dfa8af48",
+      "destination_blob_sha256": "33355b451814500a891981df14c8cecc657e679ed6bdc1d32dffa461dfa8af48"
+    },
+    {
+      "source_asset_id": "skills/fast-track/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/fast-track/SKILL.md",
+      "source_blob_sha256": "608277a9b273e98289d1818eead2c5d22cf4404ef4d4af43dd653396c7ce7227",
+      "destination_blob_sha256": "8822b6859d7a1ffbeeb1517e7e48df54a72c2b526eb43966442a02ffc61feffc"
+    },
+    {
+      "source_asset_id": "skills/fast-track/references/lane-dispatch.md",
+      "destination_path": "plugins/autopilot/skills/fast-track/references/lane-dispatch.md",
+      "source_blob_sha256": "0e363fb1ee7085e879274e9079ed6e87343e1c30c8321a5c00ef969e05809d38",
+      "destination_blob_sha256": "0e363fb1ee7085e879274e9079ed6e87343e1c30c8321a5c00ef969e05809d38"
+    },
+    {
+      "source_asset_id": "skills/fast-track/references/spec-card.md",
+      "destination_path": "plugins/autopilot/skills/fast-track/references/spec-card.md",
+      "source_blob_sha256": "c51e86a7d492c690f5b4e537cd8c8cdb8d060ab7d2133936714b4a2ca510967a",
+      "destination_blob_sha256": "c51e86a7d492c690f5b4e537cd8c8cdb8d060ab7d2133936714b4a2ca510967a"
+    },
+    {
+      "source_asset_id": "skills/plan-tasks/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "source_blob_sha256": "7cd841e5284e7bf71a173b34040e7f1a139cd46537e5f686c54493136e82cb77",
+      "destination_blob_sha256": "abb88961ad9413fcafb5b9ae9f01e5b39ff4b693a30c47286efdc28bfd65579d"
+    },
+    {
+      "source_asset_id": "skills/plan-tasks/references/design-rationale.md",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/references/design-rationale.md",
+      "source_blob_sha256": "5716cb58ac5d987717d5d070e6130c64e3724f1058f0e8be761fc1b3ea0f52cc",
+      "destination_blob_sha256": "5716cb58ac5d987717d5d070e6130c64e3724f1058f0e8be761fc1b3ea0f52cc"
+    },
+    {
+      "source_asset_id": "skills/plan-tasks/references/task-examples.md",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/references/task-examples.md",
+      "source_blob_sha256": "a5680600524ef7ff5422eb0a396a2a045c976d85851c6e83c7630b3079012c4d",
+      "destination_blob_sha256": "a5680600524ef7ff5422eb0a396a2a045c976d85851c6e83c7630b3079012c4d"
+    },
+    {
+      "source_asset_id": "skills/review-blindly/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/review-blindly/SKILL.md",
+      "source_blob_sha256": "be813d8bce2d098503b67d777fb86dfd6f0aaf370f3a9476cae52b55ea7516f3",
+      "destination_blob_sha256": "45928c21670f8b673e5aaa0717dea965743974c0c5d58d3123153031a6422037"
+    },
+    {
+      "source_asset_id": "skills/review-blindly/references/rubric.md",
+      "destination_path": "plugins/autopilot/skills/review-blindly/references/rubric.md",
+      "source_blob_sha256": "e0636e0c2f5332e02e43bc9a42ca1917852e67ed675dbcf9dba5688afe7a9576",
+      "destination_blob_sha256": "e0636e0c2f5332e02e43bc9a42ca1917852e67ed675dbcf9dba5688afe7a9576"
+    },
+    {
+      "source_asset_id": "skills/review-plan/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/review-plan/SKILL.md",
+      "source_blob_sha256": "c85ddf01b7d93472a66fd4cf4128b0ea83bd629132b92c1bafc015228643dd28",
+      "destination_blob_sha256": "01fd2cba27fe391e0920cb0606046c46100dbb5a9a5c6eef0f363d00c604a006"
+    },
+    {
+      "source_asset_id": "skills/review-plan/references/question-examples.md",
+      "destination_path": "plugins/autopilot/skills/review-plan/references/question-examples.md",
+      "source_blob_sha256": "e7bcd4ce7f6c7577db9ac228165b160acaf0432b8cb4ed266ebce3acf90087e9",
+      "destination_blob_sha256": "e7bcd4ce7f6c7577db9ac228165b160acaf0432b8cb4ed266ebce3acf90087e9"
+    },
+    {
+      "source_asset_id": "skills/review-work-completion/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
+      "source_blob_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "destination_blob_sha256": "1cce563679912d8136e968288e7c3c37f3fbbccd3d45e8f977615e46523edbfc"
+    },
+    {
+      "source_asset_id": "skills/review-work-completion/references/agent-invocation.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-invocation.md",
+      "source_blob_sha256": "d413ddeb3d043e64f4deedffc76612b9270d918316b3ed6aafd7e55f43e1ddfc",
+      "destination_blob_sha256": "d413ddeb3d043e64f4deedffc76612b9270d918316b3ed6aafd7e55f43e1ddfc"
+    },
+    {
+      "source_asset_id": "skills/review-work-completion/references/agent-registry.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-registry.md",
+      "source_blob_sha256": "aa87ea16bd52b540625b0ac334692a141c706febcd054eeda8ae13f0a0a448c1",
+      "destination_blob_sha256": "aa87ea16bd52b540625b0ac334692a141c706febcd054eeda8ae13f0a0a448c1"
+    },
+    {
+      "source_asset_id": "skills/review-work-completion/references/design-rationale.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/design-rationale.md",
+      "source_blob_sha256": "2075be79fd23a38b59e02435525e069b87d17cce9cf825ccfca03d8b5dc743d9",
+      "destination_blob_sha256": "2075be79fd23a38b59e02435525e069b87d17cce9cf825ccfca03d8b5dc743d9"
+    },
+    {
+      "source_asset_id": "skills/review-work-completion/references/output-formats.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/output-formats.md",
+      "source_blob_sha256": "cc974c18895c6405d4c3e3d67e3a0f167795b79a865b962c28502bd1b281f8a2",
+      "destination_blob_sha256": "cc974c18895c6405d4c3e3d67e3a0f167795b79a865b962c28502bd1b281f8a2"
+    },
+    {
+      "source_asset_id": "skills/review-work-completion/references/retry-policy.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/retry-policy.md",
+      "source_blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28",
+      "destination_blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28"
+    },
+    {
+      "source_asset_id": "skills/review-work-completion/references/review-coverage-format.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/review-coverage-format.md",
+      "source_blob_sha256": "3b5f0b9597f57cba784001919f732d30a70b85d57df7f579d6615b0df72942e4",
+      "destination_blob_sha256": "3b5f0b9597f57cba784001919f732d30a70b85d57df7f579d6615b0df72942e4"
+    },
+    {
+      "source_asset_id": "skills/review-work-completion/references/review-dimensions.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/review-dimensions.md",
+      "source_blob_sha256": "e0c429477204d0032f265651996d284de9d7b4c506106ff9cf9d075c8944c919",
+      "destination_blob_sha256": "e0c429477204d0032f265651996d284de9d7b4c506106ff9cf9d075c8944c919"
+    },
+    {
+      "source_asset_id": "skills/review-work-completion/references/rubric.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/rubric.md",
+      "source_blob_sha256": "f3c03933a8f40a9f1934d4b7e9e8c87e6d5664f31c6814897e215f26442c717d",
+      "destination_blob_sha256": "f3c03933a8f40a9f1934d4b7e9e8c87e6d5664f31c6814897e215f26442c717d"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "source_blob_sha256": "8e327f1e91c8190626bed6dbe29adcaa0cec49e8683b1fa8420fb3e2ee473ce1",
+      "destination_blob_sha256": "9ebb0d5011b249b310e6782dcbbf31f0cd338c2d74219bfbcf4c3923a1659587"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/audit-log-format.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/audit-log-format.md",
+      "source_blob_sha256": "85526d7627aba68bfbf9e781da3aa6eca9cb32ced25cdb5720142d9f998d48fb",
+      "destination_blob_sha256": "85526d7627aba68bfbf9e781da3aa6eca9cb32ced25cdb5720142d9f998d48fb"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/batch-report-format.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/batch-report-format.md",
+      "source_blob_sha256": "0dc519c71281786d24fccd1ca57a6c64cf4c74dbd1a8dd8b07ba8949e7e3a7f1",
+      "destination_blob_sha256": "0dc519c71281786d24fccd1ca57a6c64cf4c74dbd1a8dd8b07ba8949e7e3a7f1"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/dashboard-format.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/dashboard-format.md",
+      "source_blob_sha256": "a97cb7737c5cc314cc71ff17eabb7006240f423b3820bd4a6d0ca9f34464988e",
+      "destination_blob_sha256": "a97cb7737c5cc314cc71ff17eabb7006240f423b3820bd4a6d0ca9f34464988e"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/decision-framework.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/decision-framework.md",
+      "source_blob_sha256": "fa06cd4adf8b505d088b5a655e9a848d408de536e5409d436d2ef2d1309623fa",
+      "destination_blob_sha256": "fa06cd4adf8b505d088b5a655e9a848d408de536e5409d436d2ef2d1309623fa"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/design-rationale.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/design-rationale.md",
+      "source_blob_sha256": "a7522dc4b1ee73e25f23e8aa85cacbbb780197224ec57de1ff104e42722a6568",
+      "destination_blob_sha256": "a7522dc4b1ee73e25f23e8aa85cacbbb780197224ec57de1ff104e42722a6568"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/doubt-review-rubric.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/doubt-review-rubric.md",
+      "source_blob_sha256": "b793ce17b0df1c9772d8899d5b24a554bdb8af2cb6318fd1caab92be73beadd0",
+      "destination_blob_sha256": "b793ce17b0df1c9772d8899d5b24a554bdb8af2cb6318fd1caab92be73beadd0"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/hook-recovery.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/hook-recovery.md",
+      "source_blob_sha256": "808680c87d19716526e602624a7adcc758b2ee5f6159c840a6d37632798aba78",
+      "destination_blob_sha256": "808680c87d19716526e602624a7adcc758b2ee5f6159c840a6d37632798aba78"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/lane-fast-track.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-fast-track.md",
+      "source_blob_sha256": "fc4bef75c21763c0ab53a7614617edcc153062f9d134176354a59f487f7af8c7",
+      "destination_blob_sha256": "fc4bef75c21763c0ab53a7614617edcc153062f9d134176354a59f487f7af8c7"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/lane-solo.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-solo.md",
+      "source_blob_sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e",
+      "destination_blob_sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/model-ladder.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/model-ladder.md",
+      "source_blob_sha256": "ed801ff4b2a4a9e532e9b0a24c64bfc2ed343183510476efadbd3628eb395c0e",
+      "destination_blob_sha256": "ed801ff4b2a4a9e532e9b0a24c64bfc2ed343183510476efadbd3628eb395c0e"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/phase-build.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "source_blob_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "destination_blob_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/phase-done.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-done.md",
+      "source_blob_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "destination_blob_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/phase-review.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "source_blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+      "destination_blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/recovery.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "source_blob_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed",
+      "destination_blob_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/state-schema.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "source_blob_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+      "destination_blob_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/unattended-contract.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/unattended-contract.md",
+      "source_blob_sha256": "839606add9e335b39870e526cf2fe74aa03ff2c8e371bfc43a88950d5ca07fdb",
+      "destination_blob_sha256": "839606add9e335b39870e526cf2fe74aa03ff2c8e371bfc43a88950d5ca07fdb"
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/waves.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/waves.md",
+      "source_blob_sha256": "06fb468da688a4db0cd84a903d78bfc0aeb8e403aed36119a0645ec3255659c3",
+      "destination_blob_sha256": "06fb468da688a4db0cd84a903d78bfc0aeb8e403aed36119a0645ec3255659c3"
+    },
+    {
+      "source_asset_id": "skills/use-codex/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "source_blob_sha256": "eb6b977de437a1243454fb41e65a8ec5824bf42e0edcd85054c71367bc0a755b",
+      "destination_blob_sha256": "ec663763eb6188d75d4d522d19ce9cccdda231f73f805a930d711da8ff2f6875"
+    },
+    {
+      "source_asset_id": "skills/use-codex/references/dispatch-contract.md",
+      "destination_path": "plugins/autopilot/skills/use-codex/references/dispatch-contract.md",
+      "source_blob_sha256": "8eb477c0ec864e2dd08f900324289d432dd5eeaf931a2682e6280299d44f9c56",
+      "destination_blob_sha256": "8eb477c0ec864e2dd08f900324289d432dd5eeaf931a2682e6280299d44f9c56"
+    },
+    {
+      "source_asset_id": "skills/use-codex/references/host-markers.md",
+      "destination_path": "plugins/autopilot/skills/use-codex/references/host-markers.md",
+      "source_blob_sha256": "a0f4387fbdbf65312d94177863b4a497079ae1cdd99b571e7aa47b0afc0ac3c6",
+      "destination_blob_sha256": "a0f4387fbdbf65312d94177863b4a497079ae1cdd99b571e7aa47b0afc0ac3c6"
+    },
+    {
+      "source_asset_id": "skills/use-gemini/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/use-gemini/SKILL.md",
+      "source_blob_sha256": "770a9bcc814260cc9946c744daba86724f6748f3911b4571d8c4601a2d9ec8bc",
+      "destination_blob_sha256": "fdf0212494b1353063ea6dd178608ec40dcbf74e1d0bde085204b522a170af70"
+    },
+    {
+      "source_asset_id": "skills/use-sonnet/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/use-sonnet/SKILL.md",
+      "source_blob_sha256": "be3af0ab27593792b58bd195ab82f9c344929f32723c1f4cb827033a8d88f8a0",
+      "destination_blob_sha256": "26cfe4c4b6d2e5a8daf726e8a7667e05aef7ac673fda27b8fdf2d342ed70e317"
+    },
+    {
+      "source_asset_id": "skills/work/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "source_blob_sha256": "2779a455ce2e920e1a84e3297c04e6fe6b44393d26a75baec525b5d20435e7fc",
+      "destination_blob_sha256": "fe953675c9b6a93286b0a351c3fe0877ecb1659a09bfa7ee98cf94328bfd8311"
+    },
+    {
+      "source_asset_id": "skills/work/references/adversarial-test-prompt.md",
+      "destination_path": "plugins/autopilot/skills/work/references/adversarial-test-prompt.md",
+      "source_blob_sha256": "220ccbc657af61a2ff59b5766c3e3c94d473d941b132bed5dfb1b01067963e60",
+      "destination_blob_sha256": "220ccbc657af61a2ff59b5766c3e3c94d473d941b132bed5dfb1b01067963e60"
+    },
+    {
+      "source_asset_id": "skills/work/references/attempt-logging.md",
+      "destination_path": "plugins/autopilot/skills/work/references/attempt-logging.md",
+      "source_blob_sha256": "ca6847fc6b0c3b5dd16501486f512c8b6f15eb007c04043a4dd2a9a0278f5873",
+      "destination_blob_sha256": "ca6847fc6b0c3b5dd16501486f512c8b6f15eb007c04043a4dd2a9a0278f5873"
+    },
+    {
+      "source_asset_id": "skills/work/references/code-quality-examples.md",
+      "destination_path": "plugins/autopilot/skills/work/references/code-quality-examples.md",
+      "source_blob_sha256": "f071588d8ddcabfb8c485f65f01f8463617c94e8c431187484613328657f8ae2",
+      "destination_blob_sha256": "f071588d8ddcabfb8c485f65f01f8463617c94e8c431187484613328657f8ae2"
+    },
+    {
+      "source_asset_id": "skills/work/references/code-quality-principles.md",
+      "destination_path": "plugins/autopilot/skills/work/references/code-quality-principles.md",
+      "source_blob_sha256": "5f914b8284a59615d93af824ba3553ff9e7c9809ee398c06066bb0bc28546c14",
+      "destination_blob_sha256": "5f914b8284a59615d93af824ba3553ff9e7c9809ee398c06066bb0bc28546c14"
+    },
+    {
+      "source_asset_id": "skills/work/references/codex-implementor.md",
+      "destination_path": "plugins/autopilot/skills/work/references/codex-implementor.md",
+      "source_blob_sha256": "22dd25ac8118d571804e7fc5c42bc227593f539d13ea3ed82045b051a853d58a",
+      "destination_blob_sha256": "22dd25ac8118d571804e7fc5c42bc227593f539d13ea3ed82045b051a853d58a"
+    },
+    {
+      "source_asset_id": "skills/work/references/codex-integration.md",
+      "destination_path": "plugins/autopilot/skills/work/references/codex-integration.md",
+      "source_blob_sha256": "bb8e75293188829a6b1f5331a29a671f07f9ab866bb7a72c50cf856af5fb6500",
+      "destination_blob_sha256": "bb8e75293188829a6b1f5331a29a671f07f9ab866bb7a72c50cf856af5fb6500"
+    },
+    {
+      "source_asset_id": "skills/work/references/dashboard-state-sync.md",
+      "destination_path": "plugins/autopilot/skills/work/references/dashboard-state-sync.md",
+      "source_blob_sha256": "1c961211eb22ebcafcde7c15ed20515299d3d2e363b2847eabe11d1bcdd0497d",
+      "destination_blob_sha256": "1c961211eb22ebcafcde7c15ed20515299d3d2e363b2847eabe11d1bcdd0497d"
+    },
+    {
+      "source_asset_id": "skills/work/references/design-rationale.md",
+      "destination_path": "plugins/autopilot/skills/work/references/design-rationale.md",
+      "source_blob_sha256": "2624af584869482ed5709b34a65270eb58177ade4cbf0a432ccc039a33ef4f6a",
+      "destination_blob_sha256": "2624af584869482ed5709b34a65270eb58177ade4cbf0a432ccc039a33ef4f6a"
+    },
+    {
+      "source_asset_id": "skills/work/references/final-verification.md",
+      "destination_path": "plugins/autopilot/skills/work/references/final-verification.md",
+      "source_blob_sha256": "8081f4ab5ff8d63d72a13771b2745964cc13529da0244bbfd154d372f6bcf180",
+      "destination_blob_sha256": "8081f4ab5ff8d63d72a13771b2745964cc13529da0244bbfd154d372f6bcf180"
+    },
+    {
+      "source_asset_id": "skills/work/references/gate-failure.md",
+      "destination_path": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "source_blob_sha256": "d5ea92235dc6b9281fd0f415e705f3681ba30518981bff164e62271974caf038",
+      "destination_blob_sha256": "d5ea92235dc6b9281fd0f415e705f3681ba30518981bff164e62271974caf038"
+    },
+    {
+      "source_asset_id": "skills/work/references/gemini-integration.md",
+      "destination_path": "plugins/autopilot/skills/work/references/gemini-integration.md",
+      "source_blob_sha256": "ca1398a7bf96ec4eab1f63f11fd3ae4257ea0ca294135b410abea12e5c8ea58d",
+      "destination_blob_sha256": "ca1398a7bf96ec4eab1f63f11fd3ae4257ea0ca294135b410abea12e5c8ea58d"
+    },
+    {
+      "source_asset_id": "skills/work/references/pat-rerun-prompt.md",
+      "destination_path": "plugins/autopilot/skills/work/references/pat-rerun-prompt.md",
+      "source_blob_sha256": "2869c9d654bf36e9bf33c979ce108f661c347c0d162e312a24aa3dfd272fe6ed",
+      "destination_blob_sha256": "2869c9d654bf36e9bf33c979ce108f661c347c0d162e312a24aa3dfd272fe6ed"
+    },
+    {
+      "source_asset_id": "skills/work/references/per-task-review.md",
+      "destination_path": "plugins/autopilot/skills/work/references/per-task-review.md",
+      "source_blob_sha256": "7d532acc306e3f27702898fff1348cb50f5e264184a540f9deca77052891bd7f",
+      "destination_blob_sha256": "7d532acc306e3f27702898fff1348cb50f5e264184a540f9deca77052891bd7f"
+    },
+    {
+      "source_asset_id": "skills/work/references/qwen-integration.md",
+      "destination_path": "plugins/autopilot/skills/work/references/qwen-integration.md",
+      "source_blob_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "destination_blob_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7"
+    },
+    {
+      "source_asset_id": "skills/work/references/red-check.md",
+      "destination_path": "plugins/autopilot/skills/work/references/red-check.md",
+      "source_blob_sha256": "aed6de346f66a98a8a6f8d5c31aed5c9985455d509821e1a31becd7f4c633e9b",
+      "destination_blob_sha256": "aed6de346f66a98a8a6f8d5c31aed5c9985455d509821e1a31becd7f4c633e9b"
+    },
+    {
+      "source_asset_id": "skills/work/references/rework-mode.md",
+      "destination_path": "plugins/autopilot/skills/work/references/rework-mode.md",
+      "source_blob_sha256": "39db417c8a13abe41424d0f86cd6cf4246f70b62f81fd0a9d4784f63d0aef351",
+      "destination_blob_sha256": "39db417c8a13abe41424d0f86cd6cf4246f70b62f81fd0a9d4784f63d0aef351"
+    },
+    {
+      "source_asset_id": "skills/work/references/self-deslop-prompt.md",
+      "destination_path": "plugins/autopilot/skills/work/references/self-deslop-prompt.md",
+      "source_blob_sha256": "cbc897ba9c5c042707960c01c9ed1c42c347104c25821d5cfe2d481e9ad5207c",
+      "destination_blob_sha256": "cbc897ba9c5c042707960c01c9ed1c42c347104c25821d5cfe2d481e9ad5207c"
+    },
+    {
+      "source_asset_id": "skills/work/references/simplification-mandate.md",
+      "destination_path": "plugins/autopilot/skills/work/references/simplification-mandate.md",
+      "source_blob_sha256": "6956c1e5e75ebb7a900fc7ca74796aff4cacc0b8920f16e9d036d647b197292e",
+      "destination_blob_sha256": "6956c1e5e75ebb7a900fc7ca74796aff4cacc0b8920f16e9d036d647b197292e"
+    },
+    {
+      "source_asset_id": "skills/work/references/style-gate.md",
+      "destination_path": "plugins/autopilot/skills/work/references/style-gate.md",
+      "source_blob_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
+      "destination_blob_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f"
+    },
+    {
+      "source_asset_id": "skills/work/references/subagent-dispatch.md",
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "source_blob_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "destination_blob_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb"
+    },
+    {
+      "source_asset_id": "skills/work/references/task-boundary-handoff.md",
+      "destination_path": "plugins/autopilot/skills/work/references/task-boundary-handoff.md",
+      "source_blob_sha256": "92ece9ae82ce279f4c77b7929955d67c01ae20f97fa40bfdbfd4edd1b38a94a3",
+      "destination_blob_sha256": "92ece9ae82ce279f4c77b7929955d67c01ae20f97fa40bfdbfd4edd1b38a94a3"
+    },
+    {
+      "source_asset_id": "skills/work/references/task-splitting.md",
+      "destination_path": "plugins/autopilot/skills/work/references/task-splitting.md",
+      "source_blob_sha256": "acc29e543d3bc789d3da94d3ade5510943fdd79c0e687edb0e490d8809b40d31",
+      "destination_blob_sha256": "acc29e543d3bc789d3da94d3ade5510943fdd79c0e687edb0e490d8809b40d31"
+    },
+    {
+      "source_asset_id": "skills/work/references/tess-prompt.md",
+      "destination_path": "plugins/autopilot/skills/work/references/tess-prompt.md",
+      "source_blob_sha256": "c3226d2e2068d8efe46052b51ea21b949334f3e48842337ae8f58e611fc0d43c",
+      "destination_blob_sha256": "c3226d2e2068d8efe46052b51ea21b949334f3e48842337ae8f58e611fc0d43c"
+    },
+    {
+      "source_asset_id": "skills/work/references/tess-retry-prompt.md",
+      "destination_path": "plugins/autopilot/skills/work/references/tess-retry-prompt.md",
+      "source_blob_sha256": "539029694924b4675c6f930a079bbd2d86d5d0e03b851e7a38aa850e500631db",
+      "destination_blob_sha256": "539029694924b4675c6f930a079bbd2d86d5d0e03b851e7a38aa850e500631db"
+    },
+    {
+      "source_asset_id": "skills/work/references/test-author-prompt.md",
+      "destination_path": "plugins/autopilot/skills/work/references/test-author-prompt.md",
+      "source_blob_sha256": "df865cd007e07efe72f8f36c93a6563a7002f5f2135e4f9281742be9a9a31080",
+      "destination_blob_sha256": "df865cd007e07efe72f8f36c93a6563a7002f5f2135e4f9281742be9a9a31080"
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/CHANGELOG.md",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "d2e81a930dee23beb956ae3c71bab2b6fba57e5c1c47f21a5cbc563b67c8a0ea"
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/contracts/review-evidence-v1.json",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "0baf22d424bdf4e4c7f3b8f69ddf47459b0b2bd349c2c9599d4e35bfcc7b13b9"
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/contracts/review-fixtures-v1.json",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "8f4a28c3d9951853e3ada83b6367b8c050137f269d5d6a863af311de04480f0d"
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/contracts/review-policy-v1.json",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "33035b1bb649e3abac69a847780509fd912feb2f56e794faff181bc481115cd6"
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "643ccd76f8b9c6e1f19799162f19a13a92249c2af36fbad2e32acb8661212b96"
+    }
+  ],
+  "source_copy_receipts": [
+    {
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-6-asset-receipts.json",
+      "sha256": "ec50147bffb610adbe228d94b175a3705be11c1f29db63e5046979f037bf3233"
+    },
+    {
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-7-asset-receipts.json",
+      "sha256": "e7fd18126b96352c1ecbac3d6831cb64be8a5de57208a841ff9a65ed98dbbdc8"
+    },
+    {
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-8-asset-receipts.json",
+      "sha256": "98fbe44fe43e54600767c17261726da0ab88be1f7ecc5918dee94ea62aece0b6"
+    },
+    {
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-9-asset-receipts.json",
+      "sha256": "f3484b926843f8118d738033f7b7e4ab9655c641d29d0b801866dddabd0fe5d4"
+    },
+    {
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-10-asset-receipts.json",
+      "sha256": "a2004124d9fa6fe97abff8c023323ac36d44ecf1656e7078052151979b4a99a6"
+    },
+    {
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-11-asset-receipts.json",
+      "sha256": "f38cdf22a3f4e4d5c4432b43b762f5b17bab9e6ac4bd1094f9d3c2707f6e8865"
+    },
+    {
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-12-asset-receipts.json",
+      "sha256": "a8779f216edf20fa11b7eb310ca88f79e077c06d8bd0f2ec5d636a7d2dfe710e"
+    },
+    {
+      "path": "docs/dev/project-management/autopilot/reports/00012-task-13-asset-receipts.json",
+      "sha256": "7b9cfccca4d90574f42fe6795af158e985d8d938cec6caa5495b359ba2ea2fda"
+    }
+  ]
+}

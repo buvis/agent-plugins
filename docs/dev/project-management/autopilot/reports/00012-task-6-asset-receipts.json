@@ -1,0 +1,92 @@
+{
+  "task": "6",
+  "source_commit": "e960ef1cc43e72bf92593b2f16c7a37c71ea7e48",
+  "assets": [
+    {
+      "destination_path": "plugins/autopilot/skills/design-solution/SKILL.md",
+      "source_asset_id": "skills/design-solution/SKILL.md",
+      "source_path": "skills/design-solution/SKILL.md",
+      "source_blob_sha256": "afb9996b8ce8e1d833ed01cd533c86f711504be3c31e156c5bb827097ce0c74c",
+      "destination_blob_sha256": "fb109b069397f81d2a1674f761db2b239a666eb6baacb925ea0135a589a9769b",
+      "source_section_count": 13,
+      "disposition": "gated",
+      "gate_utf8": "\n## Portable entry point \u2014 unavailable\n\n**STOP \u2014 unavailable. Refuse this entry point before any old script invocation.** This portable package does not provide executable host support for this skill. Report the skill as unavailable and stop; do not follow the retained procedure below, invoke scripts or tools, dispatch agents, or read or write workflow state. The original frontmatter, compatibility metadata, and procedure are retained for AP 00015 procedure adaptation. AP 00014 owns native host support; AP 00017 owns real-host certification. This package version unconditionally refuses execution. Source checkout paths and historical citations are informational provenance only; never read them to supply missing runtime content.\n\n",
+      "gate_sha256": "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75",
+      "adaptation_reason": "Only an unconditional first-body refusal gate was inserted; all source bytes and compatibility metadata reconstruct exactly."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/fast-track/SKILL.md",
+      "source_asset_id": "skills/fast-track/SKILL.md",
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_blob_sha256": "608277a9b273e98289d1818eead2c5d22cf4404ef4d4af43dd653396c7ce7227",
+      "destination_blob_sha256": "8822b6859d7a1ffbeeb1517e7e48df54a72c2b526eb43966442a02ffc61feffc",
+      "source_section_count": 13,
+      "disposition": "gated",
+      "gate_utf8": "\n## Portable entry point \u2014 unavailable\n\n**STOP \u2014 unavailable. Refuse this entry point before any old script invocation.** This portable package does not provide executable host support for this skill. Report the skill as unavailable and stop; do not follow the retained procedure below, invoke scripts or tools, dispatch agents, or read or write workflow state. The original frontmatter, compatibility metadata, and procedure are retained for AP 00015 procedure adaptation. AP 00014 owns native host support; AP 00017 owns real-host certification. This package version unconditionally refuses execution. Source checkout paths and historical citations are informational provenance only; never read them to supply missing runtime content.\n\n",
+      "gate_sha256": "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75",
+      "adaptation_reason": "Only an unconditional first-body refusal gate was inserted; all source bytes and compatibility metadata reconstruct exactly."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "source_asset_id": "skills/plan-tasks/SKILL.md",
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_blob_sha256": "7cd841e5284e7bf71a173b34040e7f1a139cd46537e5f686c54493136e82cb77",
+      "destination_blob_sha256": "abb88961ad9413fcafb5b9ae9f01e5b39ff4b693a30c47286efdc28bfd65579d",
+      "source_section_count": 17,
+      "disposition": "gated",
+      "gate_utf8": "\n## Portable entry point \u2014 unavailable\n\n**STOP \u2014 unavailable. Refuse this entry point before any old script invocation.** This portable package does not provide executable host support for this skill. Report the skill as unavailable and stop; do not follow the retained procedure below, invoke scripts or tools, dispatch agents, or read or write workflow state. The original frontmatter, compatibility metadata, and procedure are retained for AP 00015 procedure adaptation. AP 00014 owns native host support; AP 00017 owns real-host certification. This package version unconditionally refuses execution. Source checkout paths and historical citations are informational provenance only; never read them to supply missing runtime content.\n\n",
+      "gate_sha256": "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75",
+      "adaptation_reason": "Only an unconditional first-body refusal gate was inserted; all source bytes and compatibility metadata reconstruct exactly."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-blindly/SKILL.md",
+      "source_asset_id": "skills/review-blindly/SKILL.md",
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_blob_sha256": "be813d8bce2d098503b67d777fb86dfd6f0aaf370f3a9476cae52b55ea7516f3",
+      "destination_blob_sha256": "45928c21670f8b673e5aaa0717dea965743974c0c5d58d3123153031a6422037",
+      "source_section_count": 10,
+      "disposition": "gated",
+      "gate_utf8": "\n## Portable entry point \u2014 unavailable\n\n**STOP \u2014 unavailable. Refuse this entry point before any old script invocation.** This portable package does not provide executable host support for this skill. Report the skill as unavailable and stop; do not follow the retained procedure below, invoke scripts or tools, dispatch agents, or read or write workflow state. The original frontmatter, compatibility metadata, and procedure are retained for AP 00015 procedure adaptation. AP 00014 owns native host support; AP 00017 owns real-host certification. This package version unconditionally refuses execution. Source checkout paths and historical citations are informational provenance only; never read them to supply missing runtime content.\n\n",
+      "gate_sha256": "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75",
+      "adaptation_reason": "Only an unconditional first-body refusal gate was inserted; all source bytes and compatibility metadata reconstruct exactly."
+    },
+    {
+      "destination_path": "plugins/autopilot/plugin.json",
+      "source_asset_id": ".claude-plugin/plugin.json",
+      "source_path": ".claude-plugin/plugin.json",
+      "source_blob_sha256": "84d2fea4df853b974cd37b9c9879c8549d1b1a0742465ee66c11ff02e1506ff0",
+      "destination_blob_sha256": "26ee2daa8381f96af9d9156c72f02545350c7dc324bc265f451d3d15c91756f3",
+      "source_section_count": 0,
+      "disposition": "adapted",
+      "adaptation_reason": "Canonical portable metadata; source name/version/author, MIT license and execution-unavailable description; Claude extension excluded."
+    },
+    {
+      "destination_path": "plugins/autopilot/LICENSE",
+      "source_asset_id": "LICENSE",
+      "source_path": "LICENSE",
+      "source_blob_sha256": "6a5980ae83936cd7bc891c141fae75e8e4672357ce363522c330442b909540ca",
+      "destination_blob_sha256": "6a5980ae83936cd7bc891c141fae75e8e4672357ce363522c330442b909540ca",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/plugin.json",
+      "source_asset_id": "plugin.json",
+      "source_path": "plugin.json",
+      "source_blob_sha256": "b7883f29358f08a9d844f9e7dbff1dd4929024f351210cd0c61fa8f46148abd6",
+      "destination_blob_sha256": "26ee2daa8381f96af9d9156c72f02545350c7dc324bc265f451d3d15c91756f3",
+      "source_section_count": 0,
+      "disposition": "adapted",
+      "changed_fields": [
+        "$schema",
+        "author",
+        "description",
+        "extensions",
+        "license",
+        "version"
+      ],
+      "adaptation_reason": "Legacy root manifest at the pin is stale0.9.0 with no author/license. Use normative0.10.0 version and source author from native .claude-plugin/plugin.json; add canonical schema/MIT, remove Claude extension, declare execution unavailable. Both source manifest rows share this destination and need final delivered receipts."
+    }
+  ]
+}

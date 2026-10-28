@@ -1,0 +1,256 @@
+{
+  "task": "13",
+  "source_commit": "e960ef1cc43e72bf92593b2f16c7a37c71ea7e48",
+  "assets": [
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/adversarial-test-prompt.md",
+      "source_asset_id": "skills/work/references/adversarial-test-prompt.md",
+      "source_path": "skills/work/references/adversarial-test-prompt.md",
+      "source_blob_sha256": "220ccbc657af61a2ff59b5766c3e3c94d473d941b132bed5dfb1b01067963e60",
+      "destination_blob_sha256": "220ccbc657af61a2ff59b5766c3e3c94d473d941b132bed5dfb1b01067963e60",
+      "source_section_count": 5,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/attempt-logging.md",
+      "source_asset_id": "skills/work/references/attempt-logging.md",
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_blob_sha256": "ca6847fc6b0c3b5dd16501486f512c8b6f15eb007c04043a4dd2a9a0278f5873",
+      "destination_blob_sha256": "ca6847fc6b0c3b5dd16501486f512c8b6f15eb007c04043a4dd2a9a0278f5873",
+      "source_section_count": 4,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/code-quality-examples.md",
+      "source_asset_id": "skills/work/references/code-quality-examples.md",
+      "source_path": "skills/work/references/code-quality-examples.md",
+      "source_blob_sha256": "f071588d8ddcabfb8c485f65f01f8463617c94e8c431187484613328657f8ae2",
+      "destination_blob_sha256": "f071588d8ddcabfb8c485f65f01f8463617c94e8c431187484613328657f8ae2",
+      "source_section_count": 6,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/code-quality-principles.md",
+      "source_asset_id": "skills/work/references/code-quality-principles.md",
+      "source_path": "skills/work/references/code-quality-principles.md",
+      "source_blob_sha256": "5f914b8284a59615d93af824ba3553ff9e7c9809ee398c06066bb0bc28546c14",
+      "destination_blob_sha256": "5f914b8284a59615d93af824ba3553ff9e7c9809ee398c06066bb0bc28546c14",
+      "source_section_count": 4,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/codex-implementor.md",
+      "source_asset_id": "skills/work/references/codex-implementor.md",
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_blob_sha256": "22dd25ac8118d571804e7fc5c42bc227593f539d13ea3ed82045b051a853d58a",
+      "destination_blob_sha256": "22dd25ac8118d571804e7fc5c42bc227593f539d13ea3ed82045b051a853d58a",
+      "source_section_count": 5,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/codex-integration.md",
+      "source_asset_id": "skills/work/references/codex-integration.md",
+      "source_path": "skills/work/references/codex-integration.md",
+      "source_blob_sha256": "bb8e75293188829a6b1f5331a29a671f07f9ab866bb7a72c50cf856af5fb6500",
+      "destination_blob_sha256": "bb8e75293188829a6b1f5331a29a671f07f9ab866bb7a72c50cf856af5fb6500",
+      "source_section_count": 8,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/dashboard-state-sync.md",
+      "source_asset_id": "skills/work/references/dashboard-state-sync.md",
+      "source_path": "skills/work/references/dashboard-state-sync.md",
+      "source_blob_sha256": "1c961211eb22ebcafcde7c15ed20515299d3d2e363b2847eabe11d1bcdd0497d",
+      "destination_blob_sha256": "1c961211eb22ebcafcde7c15ed20515299d3d2e363b2847eabe11d1bcdd0497d",
+      "source_section_count": 1,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/design-rationale.md",
+      "source_asset_id": "skills/work/references/design-rationale.md",
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_blob_sha256": "2624af584869482ed5709b34a65270eb58177ade4cbf0a432ccc039a33ef4f6a",
+      "destination_blob_sha256": "2624af584869482ed5709b34a65270eb58177ade4cbf0a432ccc039a33ef4f6a",
+      "source_section_count": 12,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/final-verification.md",
+      "source_asset_id": "skills/work/references/final-verification.md",
+      "source_path": "skills/work/references/final-verification.md",
+      "source_blob_sha256": "8081f4ab5ff8d63d72a13771b2745964cc13529da0244bbfd154d372f6bcf180",
+      "destination_blob_sha256": "8081f4ab5ff8d63d72a13771b2745964cc13529da0244bbfd154d372f6bcf180",
+      "source_section_count": 6,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "source_asset_id": "skills/work/references/gate-failure.md",
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_blob_sha256": "d5ea92235dc6b9281fd0f415e705f3681ba30518981bff164e62271974caf038",
+      "destination_blob_sha256": "d5ea92235dc6b9281fd0f415e705f3681ba30518981bff164e62271974caf038",
+      "source_section_count": 10,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/gemini-integration.md",
+      "source_asset_id": "skills/work/references/gemini-integration.md",
+      "source_path": "skills/work/references/gemini-integration.md",
+      "source_blob_sha256": "ca1398a7bf96ec4eab1f63f11fd3ae4257ea0ca294135b410abea12e5c8ea58d",
+      "destination_blob_sha256": "ca1398a7bf96ec4eab1f63f11fd3ae4257ea0ca294135b410abea12e5c8ea58d",
+      "source_section_count": 12,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/pat-rerun-prompt.md",
+      "source_asset_id": "skills/work/references/pat-rerun-prompt.md",
+      "source_path": "skills/work/references/pat-rerun-prompt.md",
+      "source_blob_sha256": "2869c9d654bf36e9bf33c979ce108f661c347c0d162e312a24aa3dfd272fe6ed",
+      "destination_blob_sha256": "2869c9d654bf36e9bf33c979ce108f661c347c0d162e312a24aa3dfd272fe6ed",
+      "source_section_count": 2,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/per-task-review.md",
+      "source_asset_id": "skills/work/references/per-task-review.md",
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_blob_sha256": "7d532acc306e3f27702898fff1348cb50f5e264184a540f9deca77052891bd7f",
+      "destination_blob_sha256": "7d532acc306e3f27702898fff1348cb50f5e264184a540f9deca77052891bd7f",
+      "source_section_count": 8,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/qwen-integration.md",
+      "source_asset_id": "skills/work/references/qwen-integration.md",
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_blob_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "destination_blob_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "source_section_count": 17,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/red-check.md",
+      "source_asset_id": "skills/work/references/red-check.md",
+      "source_path": "skills/work/references/red-check.md",
+      "source_blob_sha256": "aed6de346f66a98a8a6f8d5c31aed5c9985455d509821e1a31becd7f4c633e9b",
+      "destination_blob_sha256": "aed6de346f66a98a8a6f8d5c31aed5c9985455d509821e1a31becd7f4c633e9b",
+      "source_section_count": 3,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/rework-mode.md",
+      "source_asset_id": "skills/work/references/rework-mode.md",
+      "source_path": "skills/work/references/rework-mode.md",
+      "source_blob_sha256": "39db417c8a13abe41424d0f86cd6cf4246f70b62f81fd0a9d4784f63d0aef351",
+      "destination_blob_sha256": "39db417c8a13abe41424d0f86cd6cf4246f70b62f81fd0a9d4784f63d0aef351",
+      "source_section_count": 2,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/self-deslop-prompt.md",
+      "source_asset_id": "skills/work/references/self-deslop-prompt.md",
+      "source_path": "skills/work/references/self-deslop-prompt.md",
+      "source_blob_sha256": "cbc897ba9c5c042707960c01c9ed1c42c347104c25821d5cfe2d481e9ad5207c",
+      "destination_blob_sha256": "cbc897ba9c5c042707960c01c9ed1c42c347104c25821d5cfe2d481e9ad5207c",
+      "source_section_count": 5,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/simplification-mandate.md",
+      "source_asset_id": "skills/work/references/simplification-mandate.md",
+      "source_path": "skills/work/references/simplification-mandate.md",
+      "source_blob_sha256": "6956c1e5e75ebb7a900fc7ca74796aff4cacc0b8920f16e9d036d647b197292e",
+      "destination_blob_sha256": "6956c1e5e75ebb7a900fc7ca74796aff4cacc0b8920f16e9d036d647b197292e",
+      "source_section_count": 1,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/style-gate.md",
+      "source_asset_id": "skills/work/references/style-gate.md",
+      "source_path": "skills/work/references/style-gate.md",
+      "source_blob_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
+      "destination_blob_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
+      "source_section_count": 8,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "source_asset_id": "skills/work/references/subagent-dispatch.md",
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_blob_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "destination_blob_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "source_section_count": 15,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/task-boundary-handoff.md",
+      "source_asset_id": "skills/work/references/task-boundary-handoff.md",
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_blob_sha256": "92ece9ae82ce279f4c77b7929955d67c01ae20f97fa40bfdbfd4edd1b38a94a3",
+      "destination_blob_sha256": "92ece9ae82ce279f4c77b7929955d67c01ae20f97fa40bfdbfd4edd1b38a94a3",
+      "source_section_count": 3,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/task-splitting.md",
+      "source_asset_id": "skills/work/references/task-splitting.md",
+      "source_path": "skills/work/references/task-splitting.md",
+      "source_blob_sha256": "acc29e543d3bc789d3da94d3ade5510943fdd79c0e687edb0e490d8809b40d31",
+      "destination_blob_sha256": "acc29e543d3bc789d3da94d3ade5510943fdd79c0e687edb0e490d8809b40d31",
+      "source_section_count": 3,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/tess-prompt.md",
+      "source_asset_id": "skills/work/references/tess-prompt.md",
+      "source_path": "skills/work/references/tess-prompt.md",
+      "source_blob_sha256": "c3226d2e2068d8efe46052b51ea21b949334f3e48842337ae8f58e611fc0d43c",
+      "destination_blob_sha256": "c3226d2e2068d8efe46052b51ea21b949334f3e48842337ae8f58e611fc0d43c",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/tess-retry-prompt.md",
+      "source_asset_id": "skills/work/references/tess-retry-prompt.md",
+      "source_path": "skills/work/references/tess-retry-prompt.md",
+      "source_blob_sha256": "539029694924b4675c6f930a079bbd2d86d5d0e03b851e7a38aa850e500631db",
+      "destination_blob_sha256": "539029694924b4675c6f930a079bbd2d86d5d0e03b851e7a38aa850e500631db",
+      "source_section_count": 0,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/work/references/test-author-prompt.md",
+      "source_asset_id": "skills/work/references/test-author-prompt.md",
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_blob_sha256": "df865cd007e07efe72f8f36c93a6563a7002f5f2135e4f9281742be9a9a31080",
+      "destination_blob_sha256": "df865cd007e07efe72f8f36c93a6563a7002f5f2135e4f9281742be9a9a31080",
+      "source_section_count": 6,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    }
+  ]
+}

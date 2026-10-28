@@ -1,0 +1,16 @@
+{
+  "task": "12",
+  "source_commit": "e960ef1cc43e72bf92593b2f16c7a37c71ea7e48",
+  "assets": [
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "source_asset_id": "skills/run-autopilot/references/state-schema.md",
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_blob_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+      "destination_blob_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+      "source_section_count": 14,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    }
+  ]
+}

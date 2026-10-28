@@ -1,0 +1,166 @@
+{
+  "task": "11",
+  "source_commit": "e960ef1cc43e72bf92593b2f16c7a37c71ea7e48",
+  "assets": [
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/audit-log-format.md",
+      "source_asset_id": "skills/run-autopilot/references/audit-log-format.md",
+      "source_path": "skills/run-autopilot/references/audit-log-format.md",
+      "source_blob_sha256": "85526d7627aba68bfbf9e781da3aa6eca9cb32ced25cdb5720142d9f998d48fb",
+      "destination_blob_sha256": "85526d7627aba68bfbf9e781da3aa6eca9cb32ced25cdb5720142d9f998d48fb",
+      "source_section_count": 5,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/batch-report-format.md",
+      "source_asset_id": "skills/run-autopilot/references/batch-report-format.md",
+      "source_path": "skills/run-autopilot/references/batch-report-format.md",
+      "source_blob_sha256": "0dc519c71281786d24fccd1ca57a6c64cf4c74dbd1a8dd8b07ba8949e7e3a7f1",
+      "destination_blob_sha256": "0dc519c71281786d24fccd1ca57a6c64cf4c74dbd1a8dd8b07ba8949e7e3a7f1",
+      "source_section_count": 5,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/dashboard-format.md",
+      "source_asset_id": "skills/run-autopilot/references/dashboard-format.md",
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_blob_sha256": "a97cb7737c5cc314cc71ff17eabb7006240f423b3820bd4a6d0ca9f34464988e",
+      "destination_blob_sha256": "a97cb7737c5cc314cc71ff17eabb7006240f423b3820bd4a6d0ca9f34464988e",
+      "source_section_count": 6,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/decision-framework.md",
+      "source_asset_id": "skills/run-autopilot/references/decision-framework.md",
+      "source_path": "skills/run-autopilot/references/decision-framework.md",
+      "source_blob_sha256": "fa06cd4adf8b505d088b5a655e9a848d408de536e5409d436d2ef2d1309623fa",
+      "destination_blob_sha256": "fa06cd4adf8b505d088b5a655e9a848d408de536e5409d436d2ef2d1309623fa",
+      "source_section_count": 14,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/design-rationale.md",
+      "source_asset_id": "skills/run-autopilot/references/design-rationale.md",
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "source_blob_sha256": "a7522dc4b1ee73e25f23e8aa85cacbbb780197224ec57de1ff104e42722a6568",
+      "destination_blob_sha256": "a7522dc4b1ee73e25f23e8aa85cacbbb780197224ec57de1ff104e42722a6568",
+      "source_section_count": 17,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/doubt-review-rubric.md",
+      "source_asset_id": "skills/run-autopilot/references/doubt-review-rubric.md",
+      "source_path": "skills/run-autopilot/references/doubt-review-rubric.md",
+      "source_blob_sha256": "b793ce17b0df1c9772d8899d5b24a554bdb8af2cb6318fd1caab92be73beadd0",
+      "destination_blob_sha256": "b793ce17b0df1c9772d8899d5b24a554bdb8af2cb6318fd1caab92be73beadd0",
+      "source_section_count": 7,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/hook-recovery.md",
+      "source_asset_id": "skills/run-autopilot/references/hook-recovery.md",
+      "source_path": "skills/run-autopilot/references/hook-recovery.md",
+      "source_blob_sha256": "808680c87d19716526e602624a7adcc758b2ee5f6159c840a6d37632798aba78",
+      "destination_blob_sha256": "808680c87d19716526e602624a7adcc758b2ee5f6159c840a6d37632798aba78",
+      "source_section_count": 7,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-fast-track.md",
+      "source_asset_id": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_blob_sha256": "fc4bef75c21763c0ab53a7614617edcc153062f9d134176354a59f487f7af8c7",
+      "destination_blob_sha256": "fc4bef75c21763c0ab53a7614617edcc153062f9d134176354a59f487f7af8c7",
+      "source_section_count": 7,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-solo.md",
+      "source_asset_id": "skills/run-autopilot/references/lane-solo.md",
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_blob_sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e",
+      "destination_blob_sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e",
+      "source_section_count": 8,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/model-ladder.md",
+      "source_asset_id": "skills/run-autopilot/references/model-ladder.md",
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_blob_sha256": "ed801ff4b2a4a9e532e9b0a24c64bfc2ed343183510476efadbd3628eb395c0e",
+      "destination_blob_sha256": "ed801ff4b2a4a9e532e9b0a24c64bfc2ed343183510476efadbd3628eb395c0e",
+      "source_section_count": 13,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "source_asset_id": "skills/run-autopilot/references/phase-build.md",
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_blob_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "destination_blob_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "source_section_count": 20,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-done.md",
+      "source_asset_id": "skills/run-autopilot/references/phase-done.md",
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_blob_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "destination_blob_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "source_section_count": 4,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "source_asset_id": "skills/run-autopilot/references/phase-review.md",
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+      "destination_blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+      "source_section_count": 17,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "source_asset_id": "skills/run-autopilot/references/recovery.md",
+      "source_path": "skills/run-autopilot/references/recovery.md",
+      "source_blob_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed",
+      "destination_blob_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed",
+      "source_section_count": 12,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/unattended-contract.md",
+      "source_asset_id": "skills/run-autopilot/references/unattended-contract.md",
+      "source_path": "skills/run-autopilot/references/unattended-contract.md",
+      "source_blob_sha256": "839606add9e335b39870e526cf2fe74aa03ff2c8e371bfc43a88950d5ca07fdb",
+      "destination_blob_sha256": "839606add9e335b39870e526cf2fe74aa03ff2c8e371bfc43a88950d5ca07fdb",
+      "source_section_count": 4,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/waves.md",
+      "source_asset_id": "skills/run-autopilot/references/waves.md",
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_blob_sha256": "06fb468da688a4db0cd84a903d78bfc0aeb8e403aed36119a0645ec3255659c3",
+      "destination_blob_sha256": "06fb468da688a4db0cd84a903d78bfc0aeb8e403aed36119a0645ec3255659c3",
+      "source_section_count": 12,
+      "disposition": "preserved",
+      "adaptation_reason": "Byte-identical pinned source asset."
+    }
+  ]
+}
