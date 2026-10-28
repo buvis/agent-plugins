@@ -21,6 +21,9 @@ ROOT = Path(__file__).resolve().parents[2]
 FORMATS = ["review-policy-v1", "review-evidence-v1", "review-fixtures-v1"]
 CHECKOUT = "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
 SETUP = "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97"
+INVENTORY_SHA = "f55c98bba2b4b3c94ce588b6c616258186dd0bb2164800b2d34271acc25dfb5d"
+EDGE_SHA = "b10e71c1b359f953f028cf9d84b7063e826c5df51e4791c3b7f89aa388ca8a93"
+OWNER_SHA = "d7ded009798a6d0437bda8384b0e8ac02bdd258e17bda0d098611160ab30fa52"
 GATE_SIZE = 742
 GATE_SHA = "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75"
 
@@ -100,11 +103,164 @@ class TargetPackageTest(unittest.TestCase):
     def validator(self) -> subprocess.CompletedProcess[str]:
         return self.child(self.target / "scripts/validate.py")
 
+    def assert_acceptance_cases(self, cases: list[dict], *, exercise: bool = False) -> None:
+        self.assertTrue(cases)
+        identities = [case["case_id"] for case in cases]
+        self.assertEqual(len(identities), len(set(identities)))
+        for case in cases:
+            for field in ("case_id", "expected_outcome") + (("exercise",) if exercise else ()):
+                self.assertTrue(case[field].strip())
+
+    def assert_delivery_evidence(self, evidence: dict) -> None:
+        self.assertEqual(evidence["status"], "passed")
+        artifact = self.target / evidence["artifact_id"]
+        self.assertTrue(artifact.resolve().is_relative_to(self.target.resolve()))
+        self.assertTrue(artifact.is_file())
+        self.assertEqual(digest(artifact.read_bytes()), evidence["artifact_sha256"])
+        self.assertRegex(evidence["tested_package_revision"], r"^[0-9a-f]{40}$")
+
+    def assert_assignment_evidence(self, evidence: dict) -> None:
+        receipts = [evidence, *evidence["profile_evidence"].values()]
+        for receipt in receipts:
+            self.assertIn(receipt["status"], {"planned", "unavailable", "failed", "passed"})
+            for field in ("artifact_id", "artifact_sha256", "tested_package_revision"):
+                self.assertIn(field, receipt)
+            if receipt["status"] == "passed":
+                self.assertTrue(receipt["artifact_id"])
+                self.assertRegex(receipt["artifact_sha256"], r"^[0-9a-f]{64}$")
+                self.assertRegex(receipt["tested_package_revision"], r"^[0-9a-f]{40}$")
+        if evidence["status"] == "passed":
+            self.assertTrue(evidence["profile_evidence"])
+            self.assertTrue(all(r["status"] == "passed"
+                                for r in evidence["profile_evidence"].values()))
+
+    def assert_assignments(self) -> None:
+        bindings = [r["owner_repository"] for r in self.mapping["owner_bindings"]]
+        self.assertEqual(set(bindings), {"buvis/agent-plugins", "buvis/ovcaq", "buvis/lantern"})
+        self.assertEqual(len(bindings), 3)
+        for collection, identity, frozen_ids in (
+            ("behaviors", "source_behavior_id", "expected_behavior_ids"),
+            ("regression_cases", "source_regression_id", "source_regression_ids"),
+        ):
+            rows = self.mapping[collection]
+            ids = [r[identity] for r in rows]
+            self.assertEqual(len(ids), len(set(ids)))
+            self.assertEqual(set(ids), set(self.inventory[frozen_ids]))
+            sources = {r[identity]: r for r in self.inventory[collection]}
+            for row in rows:
+                with self.subTest(identity=row[identity]):
+                    self.assertIn(row["owner_repository"], bindings)
+                    self.assertRegex(row["delivery_prd"], r"^[0-9]{5}$")
+                    self.assert_assignment_evidence(row["evidence"])
+                    source = sources[row[identity]]
+                    if collection == "behaviors":
+                        self.assert_behavior(row, source)
+                    else:
+                        self.assert_regression(row, source)
+
+    def assert_behavior(self, row: dict, source: dict) -> None:
+        self.assertEqual(row["source_anchors"], source["source_anchors"])
+        self.assertTrue(row["source_anchors"])
+        self.assertIn(row["classification"], {"port", "redesign"})
+        if "classification" in source:
+            self.assertEqual(row["classification"], source["classification"])
+        for field in ("reason", "destination_procedure", "destination_operation"):
+            self.assertTrue(row[field].strip())
+        profiles = row["required_profiles"]
+        self.assertTrue(profiles)
+        self.assertEqual(len(profiles), len(set(profiles)))
+        self.assertEqual(set(profiles), set(row["evidence"]["profile_evidence"]))
+        self.assert_acceptance_cases(row["acceptance_cases"], exercise=True)
+
+    def assert_regression(self, row: dict, source: dict) -> None:
+        for field in ("source_path", "test_identity", "source_blob_sha256", "case_sha256"):
+            self.assertEqual(row[field], source[field])
+        self.assertIn(row["disposition"], {"retained", "replaced", "obsolete"})
+        self.assertTrue(row["expected_outcome"].strip())
+        if row["disposition"] == "replaced":
+            self.assertTrue(row["equivalent_target_scenario"].strip())
+        if row["disposition"] == "obsolete":
+            self.assertEqual(row["evidence"]["status"], "passed")
+
+    def assert_authored_owners_and_history(self) -> None:
+        owners = self.mapping["authored_file_owners"]
+        paths = [r["path"] for r in owners]
+        self.assertEqual(len(paths), 21)
+        self.assertEqual(len(set(paths)), 21)
+        self.assertEqual(digest("\n".join(sorted(paths)).encode()), OWNER_SHA)
+        for row in owners:
+            self.assertIsNone(row["source_asset_id"])
+            self.assertIsNone(row["source_blob_sha256"])
+            self.assertEqual(row["owner_repository"], "buvis/agent-plugins")
+            self.assertEqual(row["delivery_prd"], "00012")
+            self.assertTrue((self.target / row["path"]).is_file())
+            self.assert_acceptance_cases(row["acceptance_cases"])
+        history = " ".join((self.package / "CHANGELOG.md").read_text().split())
+        self.assertIn("## [Unreleased]", history)
+        # Public pre-integration history, independent of the mutable asset digest.
+        for bullet in (
+            "Add read-only local PRD prerequisite diagnostics based on completed PRD filenames.",
+            "Add the local contract-capabilities and canonical policy-export facade, with packaged-policy digest and integer-domain checks and a delegating maintainer exporter.",
+            "Add the explicit pinned-source provenance audit for source files, asset sections, behavior anchors, and regression identities and digests.",
+            "Add 55 self-contained golden review evidence fixtures and alternate policy binding, covering complete lane rosters, fallback and retry histories, stale bindings, input isolation, attribution, artifacts, and rubric verdicts. No host execution or certification is claimed.",
+            "Add the draft 2020-12 review evidence schema and expected-context definition, with closed wire shapes and conditional validation. No host execution or certification is claimed.",
+            "Add gated review policy foundation data with pinned source bindings and test-only dependencies. No host execution or certification is claimed.",
+        ):
+            self.assertIn(bullet, history)
+
+    def assert_readme_content(self, text: str, sections: list[dict]) -> None:
+        matches = list(re.finditer(r"^#{1,6}[^\S\n]+(.+?)[^\S\n]*#*[^\S\n]*$", text, re.MULTILINE))
+        topics = {
+            "autopilot": r"autopilot|PRD|review",
+            "What's inside": r"skill|contract|persona|reference",
+            "Recursion guard": r"recurs|nested|guard",
+            "Paths": r"package|resource|root|path",
+            "Install": r"gated|local|unavailable|certif",
+            "Update": r"update|version|replace|gated",
+            "Alternative: install directly from this repo": r"gated|local|clone|certif",
+            "What intentionally stays out": r"controller|host|external|unavailable",
+            "Development": r"test|pytest|validat",
+            "License": r"MIT",
+            "Autoclaude role effort": r"role|effort|gated",
+        }
+        for section in sections:
+            found = [i for i, match in enumerate(matches) if match[1] == section["heading"]]
+            self.assertEqual(len(found), 1, section["heading"])
+            index = found[0]
+            end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+            body = text[matches[index].end():end].strip()
+            self.assertRegex(body, r"[A-Za-z]+[^\n]*\s+[A-Za-z]+", section["heading"])
+            self.assertRegex(body, "(?i)" + topics[section["heading"]])
+        # Structural bodies alone do not prove source semantics; independent review does.
+        for option in ("--list-capabilities", "--export-policy"):
+            self.assertRegex(text, r"python3[^\n]*scripts/autopilot\.py[^\n]*" + option)
+        self.assertIn("--out", text)
+        for contract_format in FORMATS:
+            self.assertIn(contract_format, text)
+        self.assertRegex(text, r"(?i)gat(?:ed|ing)")
+        self.assertRegex(text, r"(?is)(?:no|not|unavailable|uncertified)[^.]*\b(?:host|certif\w*)")
+        root_readme = (self.target / "README.md").read_text()
+        rows = [line for line in root_readme.splitlines()
+                if line.lstrip().startswith("|") and re.search(
+                    r"\[autopilot\]\(\.?/?plugins/autopilot(?:/README\.md|/)?\)", line)]
+        self.assertEqual(len(rows), 1)
+        self.assertIn("0.10.0", rows[0])
+        self.assertRegex(rows[0], r"(?i)gated")
+
+    def assert_unconditional(self, item: dict) -> None:
+        # These integration gates and their setup must run on every configured event.
+        condition = item.get("if", True)
+        self.assertIn(condition, (True, "true", "${{ true }}", "success()", "${{ success() }}"))
+        self.assertFalse(item.get("continue-on-error", False))
+
     def test_content_roster_matches_frozen_inventory_and_actual_package_bytes(self) -> None:
         mapping, inventory = self.mapping, self.inventory
         self.assertEqual(mapping["schema_version"], 1)
         inventory_bytes = (self.target / "tools/autopilot/source-inventory.json").read_bytes()
         self.assertEqual(mapping["source_inventory_sha256"], digest(inventory_bytes))
+        self.assertEqual(digest(inventory_bytes), INVENTORY_SHA)
+        self.assert_assignments()
+        self.assert_authored_owners_and_history()
         source_rows = [a for a in mapping["assets"] if a["source_asset_id"] is not None]
         source_ids = [a["source_asset_id"] for a in source_rows]
         self.assertEqual(len(source_ids), 92)
@@ -146,6 +302,10 @@ class TargetPackageTest(unittest.TestCase):
         row = next(a for a in self.mapping["assets"] if a["source_asset_id"] == "README.md")
         text = (self.package / "README.md").read_text()
         headings = re.findall(r"^#{1,6}\s+(.+?)\s*#*\s*$", text, re.MULTILINE)
+        self.assert_readme_content(text, source["sections"])
+        self.assert_delivery_evidence(row["evidence"])
+        self.assertEqual(len(row["section_plan"]), len(source["sections"]))
+        self.assertTrue(row["acceptance_cases"])
         self.assertEqual(row["disposition"], "adapted")
         self.assertEqual({s["source_anchor"] for s in row["section_plan"]},
                          {s["anchor"] for s in source["sections"]})
@@ -155,6 +315,7 @@ class TargetPackageTest(unittest.TestCase):
                 receipt = next(s for s in row["section_plan"]
                                if s["source_anchor"] == section["anchor"])
                 self.assertEqual(receipt["source_sha256"], section["sha256"])
+                self.assertTrue(receipt["action"].strip())
                 self.assertTrue(receipt["reason"].strip())
                 self.assertTrue(receipt["delivery_note"].strip())
         self.assertEqual(row["evidence"]["status"], "passed")
@@ -162,6 +323,11 @@ class TargetPackageTest(unittest.TestCase):
 
     def test_resource_closure_declares_inside_resources_and_external_failure_rules(self) -> None:
         edges = self.mapping["resource_edges"]
+        fields = ("source_path", "source_line", "source_behavior_id", "source_anchors", "reference")
+        identities = [json.dumps({k: e[k] for k in fields if k in e},
+                                 sort_keys=True, separators=(",", ":")) for e in edges]
+        self.assertEqual(len(identities), 202)
+        self.assertEqual(digest("\n".join(sorted(identities)).encode()), EDGE_SHA)
         self.assertEqual({e["kind"] for e in edges}, {
             "packaged-resource", "external-capability", "informational-provenance",
         })
@@ -256,7 +422,15 @@ print("55 fixtures validated")
 
     def test_ci_autopilot_wired_with_python312_and_complete_pinned_plugins_job(self) -> None:
         document = yaml.safe_load((self.target / ".github/workflows/validate.yml").read_text())
+        triggers = document.get("on", document.get(True))  # PyYAML YAML 1.1 parses on as True.
+        self.assertIsInstance(triggers, dict)
+        self.assertEqual(triggers["push"]["branches"], ["master"])
+        self.assertIn("pull_request", triggers)
         jobs = document["jobs"]
+        for job in (jobs["plugins"], jobs["autopilot"]):
+            self.assert_unconditional(job)
+            for step in job["steps"]:
+                self.assert_unconditional(step)
         plugins = jobs["plugins"]
         self.assertEqual(plugins["runs-on"], "ubuntu-latest")
         self.assertEqual(plugins["env"], {"PYTHONDONTWRITEBYTECODE": "1"})
