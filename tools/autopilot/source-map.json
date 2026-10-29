@@ -273832,13 +273832,14 @@
       "source_path": "skills/run-autopilot/SKILL.md",
       "source_line": 238,
       "reference": "scripts/render_stream.py",
-      "kind": "informational-provenance",
+      "kind": "external-capability",
       "status": "unavailable",
       "destination_path": "plugins/autopilot/skills/run-autopilot/scripts/render_stream.py",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
       "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
       "runtime_rule": "Never read historical unavailable scripts to supply missing runtime content; refuse the owning skill before old-script invocation.",
-      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability."
+      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability.",
+      "capability": "Render headless stream events into operator summaries"
     },
     {
       "source_path": "skills/run-autopilot/SKILL.md",
@@ -273888,35 +273889,43 @@
       "source_path": "skills/run-autopilot/references/dashboard-format.md",
       "source_line": 10,
       "reference": "scripts/tracon/",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "external-capability",
+      "status": "unavailable",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content.",
+      "capability": "Provide the live dashboard module",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
     },
     {
       "source_path": "skills/run-autopilot/references/dashboard-format.md",
       "source_line": 30,
       "reference": "scripts/README.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "external-capability",
+      "status": "unavailable",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content.",
+      "capability": "Provide operator key reference, status legend and operational notes",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
     },
     {
       "source_path": "skills/run-autopilot/references/dashboard-format.md",
       "source_line": 49,
       "reference": "scripts/tracon/model.py",
       "kind": "external-capability",
-      "status": "planned",
-      "capability": "scripts/tracon/model.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "status": "unavailable",
+      "capability": "Parse dashboard state tolerantly",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
     },
     {
       "source_path": "skills/run-autopilot/references/dashboard-format.md",
       "source_line": 64,
       "reference": "scripts/render_stream.py",
       "kind": "external-capability",
-      "status": "planned",
-      "capability": "scripts/render_stream.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "status": "unavailable",
+      "capability": "Render headless stream events into operator summaries",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
     },
     {
       "source_path": "skills/run-autopilot/references/lane-fast-track.md",
@@ -277424,6 +277433,360 @@
       "status": "planned",
       "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
       "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 200,
+      "reference": "cli/transitions.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Atomically apply phase transition and mandated state effects",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 201,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Provide record-store and ensure-store CLI operations",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 201,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Write valid state and render session briefs or load contract cards",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 201,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Append handoff dispatch telemetry",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 201,
+      "reference": "hooks/guard_skill_after_leave.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Block skill reentry after a session leave row",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 201,
+      "reference": "hooks/note_session_leave.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record session leave for the reentry guard",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 209,
+      "reference": "review_coverage_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate review coverage and block incomplete done handoffs",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 221,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Write valid state and render session briefs or load contract cards",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 228,
+      "reference": "reinject_contract_card.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Reinject the contract card after compaction",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 232,
+      "reference": "~/.claude/hooks/notify.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Suppress loop session notifications",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 234,
+      "reference": "cli/gate.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate saved review artifact shape",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 234,
+      "reference": "review_coverage_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate review coverage and block incomplete done handoffs",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 236,
+      "reference": "validate_state_json_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Report invalid state immediately after editor writes",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 238,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Drive session loop with memory, wall-clock and plugin-pin guards",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 242,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Drive session loop with memory, wall-clock and plugin-pin guards",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 263,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Provide record-store and ensure-store CLI operations",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 263,
+      "reference": "cli/store_tree.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Provide the authoritative disposable-store ignore patterns",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 263,
+      "reference": "hooks/enforce_prd_location.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Reject editor writes outside the project-store keeper list",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 320,
+      "reference": "hooks/guard_push_on_critical.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Block pushes with unresolved critical custody",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 339,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Drive session loop with memory, wall-clock and plugin-pin guards",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 206,
+      "reference": "phase-build.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "failure_rule": "Refuse the owning skill if the installed resource is missing or outside the plugin root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 207,
+      "reference": "phase-review.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "failure_rule": "Refuse the owning skill if the installed resource is missing or outside the plugin root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 210,
+      "reference": "phase-done.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-done.md",
+      "failure_rule": "Refuse the owning skill if the installed resource is missing or outside the plugin root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 210,
+      "reference": "cli/records.PER_PRD_RESET_FIELDS",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Provide the authoritative per-PRD state reset field list",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 228,
+      "reference": "references/state-schema.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "failure_rule": "Refuse the owning skill if the installed resource is missing or outside the plugin root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/audit-log-format.md",
+      "source_line": 9,
+      "reference": "cli/render_audit.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render the complete audit log from decision arrays",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/batch-report-format.md",
+      "source_line": 14,
+      "reference": "cli/render_report.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render the batch report layout",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_line": 4,
+      "reference": "cli/status.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render one-shot state status",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_line": 15,
+      "reference": "render_stream.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render headless stream events into operator summaries",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_line": 21,
+      "reference": "scripts/tracon.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Launch and reattach the live operator dashboard",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_line": 68,
+      "reference": "detect_usage_limit.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Detect usage limits from unchanged raw session logs",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "source_line": 18,
+      "reference": "test_autopilot_lifecycle.py",
+      "kind": "informational-provenance",
+      "status": "unavailable",
+      "runtime_rule": "Citation only; never read it to supply runtime content.",
+      "classification_reason": "Cites a regression test pinning lifecycle invariants; no test execution is prescribed here."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "source_line": 97,
+      "reference": "note_session_leave.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record session leave for the reentry guard",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "source_line": 98,
+      "reference": "guard_skill_after_leave.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Block skill reentry after a session leave row",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "source_line": 105,
+      "reference": "validate_commit_msg.py",
+      "kind": "informational-provenance",
+      "status": "unavailable",
+      "runtime_rule": "Citation only; never read it to supply runtime content.",
+      "classification_reason": "Explains why a rotation-scar commit subject uses an accepted chore type; no validator invocation is prescribed here."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "source_line": 129,
+      "reference": "review_coverage_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate review coverage and block incomplete done handoffs",
+      "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
