@@ -273939,9 +273939,10 @@
       "source_path": "skills/run-autopilot/references/lane-fast-track.md",
       "source_line": 94,
       "reference": "references/recovery.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse affected entry point if the packaged resource is unavailable; no source checkout fallback."
     },
     {
       "source_path": "skills/run-autopilot/references/lane-fast-track.md",
@@ -273971,18 +273972,20 @@
       "source_path": "skills/run-autopilot/references/lane-solo.md",
       "source_line": 146,
       "reference": "references/output-formats.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/output-formats.md",
+      "failure_rule": "Refuse affected entry point if the packaged resource is unavailable; no source checkout fallback."
     },
     {
       "source_path": "skills/run-autopilot/references/lane-solo.md",
       "source_line": 233,
       "reference": "scripts/review_coverage_hook.py",
       "kind": "external-capability",
-      "status": "planned",
+      "status": "unavailable",
       "capability": "scripts/review_coverage_hook.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
     },
     {
       "source_path": "skills/run-autopilot/references/lane-solo.md",
@@ -273996,25 +273999,28 @@
       "source_path": "skills/run-autopilot/references/model-ladder.md",
       "source_line": 92,
       "reference": "references/state-schema.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "failure_rule": "Refuse affected entry point if the packaged resource is unavailable; no source checkout fallback."
     },
     {
       "source_path": "skills/run-autopilot/references/model-ladder.md",
       "source_line": 100,
       "reference": "references/recovery.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse affected entry point if the packaged resource is unavailable; no source checkout fallback."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-build.md",
       "source_line": 40,
       "reference": "references/recovery.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse affected entry point if the packaged resource is unavailable; no source checkout fallback."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-build.md",
@@ -277786,6 +277792,361 @@
       "status": "unavailable",
       "capability": "Validate review coverage and block incomplete done handoffs",
       "failure_rule": "Refuse the owning skill until a supported adapter supplies this capability; never use a source checkout.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 22,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/cards_from_prd.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/cards_from_prd.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 49,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 63,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 155,
+      "reference": "cli/transitions.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/transitions.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 157,
+      "reference": "review_coverage_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "review_coverage_hook.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 36,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 48,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 75,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 80,
+      "reference": "autopilot_context_cap_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "autopilot_context_cap_hook.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 153,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "consolidate_findings.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 168,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 178,
+      "reference": "cli/gate.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/gate.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 253,
+      "reference": "cli/transitions.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/transitions.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 139,
+      "reference": "skills/fast-track/SKILL.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/fast-track/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged resource is unavailable; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 145,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/references/rubric.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/rubric.md",
+      "failure_rule": "Refuse affected entry point if the packaged resource is unavailable; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 147,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/alice.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/references/personas/alice.md",
+      "failure_rule": "Refuse affected entry point if the packaged resource is unavailable; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 179,
+      "reference": "review-work-completion/references/review-coverage-format.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/review-coverage-format.md",
+      "failure_rule": "Refuse affected entry point if the packaged resource is unavailable; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 140,
+      "reference": "~/.claude/workflows/review-fanout.workflow.js",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "review-fanout workflow backend",
+      "failure_rule": "If the workflow backend is unavailable, use the source-prescribed Alice subagent fallback only when a supported adapter supplies it; otherwise refuse the affected entry point before execution.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 15,
+      "reference": "skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 91,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "fablectl.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 163,
+      "reference": "check_memory_pressure.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "check_memory_pressure.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 168,
+      "reference": "block_working_document_redirects.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "block_working_document_redirects.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 168,
+      "reference": "validate_commit_msg.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "validate_commit_msg.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 169,
+      "reference": "enforce_prd_location.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "enforce_prd_location.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 169,
+      "reference": "gateguard-fact-force.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "gateguard-fact-force.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 171,
+      "reference": "block_force_push.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "block_force_push.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 171,
+      "reference": "block_poll_loops.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "block_poll_loops.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 171,
+      "reference": "prefer_tools.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "prefer_tools.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 172,
+      "reference": "dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "dispatch.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 183,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_memory_pressure.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_memory_pressure.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 198,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/loop.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 260,
+      "reference": "classify_tier.py",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "classification_reason": "The source explicitly says this script does not read the documented no-op knob; this is a negative explanatory citation, not an invocation.",
+      "runtime_rule": "Explanatory citation only; must not supply runtime content or enable execution."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 278,
+      "reference": "skills/run-autopilot/scripts/tune_routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "skills/run-autopilot/scripts/tune_routing.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 291,
+      "reference": "cli/routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "cli/routing.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 35,
+      "reference": "enter.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "enter.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 83,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
       "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
     }
   ],
