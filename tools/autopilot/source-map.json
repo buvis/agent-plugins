@@ -274134,25 +274134,28 @@
       "source_path": "skills/run-autopilot/references/phase-review.md",
       "source_line": 44,
       "reference": "references/phase-build.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-review.md",
       "source_line": 59,
       "reference": "references/recovery.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-review.md",
       "source_line": 95,
       "reference": "references/decision-framework.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/decision-framework.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-review.md",
@@ -278463,6 +278466,360 @@
       "status": "packaged",
       "destination_path": "plugins/autopilot/skills/run-autopilot/references/audit-log-format.md",
       "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 18,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record the review resume handoff telemetry row before cycle skip checks.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 44,
+      "reference": "cli/frontmatter.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Parse PRD frontmatter and validate the effective review rework-cap values.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 59,
+      "reference": "cli/records.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Stall a PRD, migrate pending deferrals, and capture custody only for cap_critical stalls.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 83,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Stop the unattended loop and notify the user when state.phase is paused.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 124,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Consolidate paraphrased review findings using their first-seen wording.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 147,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Append fully specified autonomous decisions and set deferred decision arrays in state.json.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 157,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Match settled-decisions ledger issue text against consolidated findings.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 170,
+      "reference": "check_review_file.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Line 170 identifies this as the old checker path absorbed by PRD 00107; it survives as a shim, while the prescribed execution is autopilot gate.",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 170,
+      "reference": "cli/gate.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Certify the review doubt-roster constraint with require-codex-guard and assert-constraint-met.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 174,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Append the review_converged metric and ledger mirror when a review session hands off to done.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 195,
+      "reference": "cli/review_close.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate the decision-gate stamp and transactionally apply review-close findings batches.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 199,
+      "reference": "skills/run-autopilot/scripts/test_review_resume_prose.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Line 199 cites the pinned regression test at line 55 as evidence for the Tail sweep rotation-resume name prefix; no test execution is prescribed.",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 18,
+      "reference": "work/references/subagent-dispatch.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 22,
+      "reference": "/autopilot:work",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 24,
+      "reference": "/autopilot:review-work-completion",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 59,
+      "reference": "references/phase-done.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-done.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 79,
+      "reference": "references/phase-build.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 79,
+      "reference": "references/recovery.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 89,
+      "reference": "/autopilot:run-autopilot",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 93,
+      "reference": "/autopilot:run-autopilot",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 115,
+      "reference": "references/decision-framework.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/decision-framework.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 169,
+      "reference": "references/recovery.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 170,
+      "reference": "references/recovery.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 193,
+      "reference": "/autopilot:work",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 199,
+      "reference": "/autopilot:plan-tasks",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 22,
+      "reference": "statectl set",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Set the filtered list of unfinished rework task IDs in state.json before dispatch.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 59,
+      "reference": "autopilot mint-stubs",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Mint idempotent hold PRD stubs for qualifying open batch deferrals after a successful stall.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 59,
+      "reference": "autopilot cap-check",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify unresolved high or critical findings as regressions before cap-out deferral.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 59,
+      "reference": "autopilot stall",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Stall the current PRD after a repeated cap-check sub-skill failure and continue the batch.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 166,
+      "reference": "autopilot defer",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record each deferred review item for its PRD and batch before continuing rework.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 170,
+      "reference": "autopilot gate",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Check the doubt-roster constraint and refuse convergence when it is unmet.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 189,
+      "reference": "cli/render_metrics.load_rows",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Load session metric rows while excluding review convergence event rows.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 189,
+      "reference": "load_event_rows",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Load review convergence event rows separately from session metrics.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 189,
+      "reference": "autopilot render report",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render review convergence events in the batch report Run conditions list.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 195,
+      "reference": "autopilot review-close",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Apply decision-gate findings once and record the applied review batch stamp.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 199,
+      "reference": "autopilot review-close",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Create grouped tail-sweep rework tasks and append their IDs transactionally.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 59,
+      "reference": "src/x.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Line 59 uses this path only inside the illustrative unresolved-path diagnostic R6 unresolved path src/x.py; it is not a helper or runtime input.",
+      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
