@@ -282809,6 +282809,57 @@
       "capability": "Render persona templates with budget and telemetry.",
       "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "README.md",
+      "source_line": 99,
+      "reference": "scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "classification_reason": "Target-only AP00012 addition in the adapted delivered README; this reference is anchored to the delivered README line, not an upstream frozen-line anchor.",
+      "failure_rule": "Refuse the affected facade command when the installed script is missing or resolves outside the distributed plugin root; no source checkout fallback."
+    },
+    {
+      "source_path": "README.md",
+      "source_line": 232,
+      "reference": "plugins/autopilot/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "classification_reason": "Target-only AP00012 addition in the adapted delivered README; this reference is anchored to the delivered README line, not an upstream frozen-line anchor.",
+      "failure_rule": "Refuse the affected facade command when the installed script is missing or resolves outside the distributed plugin root; no source checkout fallback."
+    },
+    {
+      "source_path": "README.md",
+      "source_line": 233,
+      "reference": "plugins/autopilot/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "classification_reason": "Target-only AP00012 addition in the adapted delivered README; this reference is anchored to the delivered README line, not an upstream frozen-line anchor.",
+      "failure_rule": "Refuse the affected facade command when the installed script is missing or resolves outside the distributed plugin root; no source checkout fallback."
+    },
+    {
+      "source_path": "README.md",
+      "source_line": 234,
+      "reference": "plugins/autopilot/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "classification_reason": "Target-only AP00012 addition in the adapted delivered README; this reference is anchored to the delivered README line, not an upstream frozen-line anchor.",
+      "failure_rule": "Refuse the affected facade command when the installed script is missing or resolves outside the distributed plugin root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 253,
+      "reference": "path/to/test_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Resolve the task Contract-named Python test targets in the consumer project and execute the selected pytest tests.",
+      "classification_reason": "Required host/project test-target capability template; path/to/test_file.py is a consumer-project placeholder, not a shipped or upstream helper file.",
+      "failure_rule": "Refuse the work entry point before execution until the host supplies and resolves the task Contract-named Python test targets in the consumer project; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
