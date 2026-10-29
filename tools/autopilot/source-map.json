@@ -276732,6 +276732,420 @@
       "capability": "Build and append review precedent context.",
       "failure_rule": "Refuse this entry point until an adapter supplies the capability and prescribed fallback; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 403,
+      "reference": "check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate review shape, reviewer sections and Codex guard.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 403,
+      "reference": "cli/gate.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate and reuse the recorded test-gate line.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 425,
+      "reference": "check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate review shape, reviewer sections and Codex guard.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 429,
+      "reference": "check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate review shape, reviewer sections and Codex guard.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 438,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate review shape, reviewer sections and Codex guard.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 441,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist contract-card content and write the session brief.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 441,
+      "reference": "statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist contract-card content and write the session brief.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 403,
+      "reference": "autopilot verify",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Run the foreground full-suite gate and record verification provenance.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 413,
+      "reference": "autopilot review-close",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify consolidated rows and create the cycle tasks.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 409,
+      "reference": "references/output-formats.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/output-formats.md",
+      "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 419,
+      "reference": "references/output-formats.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/output-formats.md",
+      "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 413,
+      "reference": "run-autopilot/references/phase-review.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 31,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Parse cited reviewer issue lines into consolidated findings.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 37,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex reviews and capture or resume review threads.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 44,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex reviews and capture or resume review threads.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 59,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Gemini reviews with exit classification and native fallback.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 47,
+      "reference": "retry-policy.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/retry-policy.md",
+      "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 49,
+      "reference": "retry-policy.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/retry-policy.md",
+      "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 71,
+      "reference": "retry-policy.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/retry-policy.md",
+      "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-registry.md",
+      "source_line": 84,
+      "reference": "parse_review.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Parse per-task reviews and signal contract-correction retries.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/design-rationale.md",
+      "source_line": 53,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex reviews and capture or resume review threads.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/design-rationale.md",
+      "source_line": 80,
+      "reference": "hooks/guard_stop_on_live_lanes.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Prevent session termination while reviewer processes remain live.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/design-rationale.md",
+      "source_line": 82,
+      "reference": "review_coverage_hook.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Prevent completion with an incomplete review file.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 68,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Parse cited reviewer issue lines into consolidated findings.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 226,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Parse cited reviewer issue lines into consolidated findings.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 271,
+      "reference": "review_close.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Close every dispatched reviewer with its recorded outcome.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 273,
+      "reference": "gather-context.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Gather the rework diff since the recorded review HEAD.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 275,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex reviews and capture or resume review threads.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 279,
+      "reference": "check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate review shape, reviewer sections and Codex guard.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 99,
+      "reference": "autopilot gate --findings",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Cross-check every consolidated finding against its disposition.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 101,
+      "reference": "gate --findings",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Reject findings tokens outside the consolidated table.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 101,
+      "reference": "review-close",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Reject findings tokens outside the consolidated table.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 103,
+      "reference": "gate --findings",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Reject fenced consolidated-findings headers.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 103,
+      "reference": "review-close",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Reject fenced consolidated-findings headers.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 273,
+      "reference": "autopilot cap-check",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate the full review HEAD and prove the rework range.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/review-coverage-format.md",
+      "source_line": 4,
+      "reference": "check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate review shape, reviewer sections and Codex guard.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/review-coverage-format.md",
+      "source_line": 30,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate review shape, reviewer sections and Codex guard.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/references/review-coverage-format.md",
+      "source_line": 12,
+      "reference": "autopilot cap-check",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate the full review HEAD hash.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 21,
+      "reference": "sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch external Claude reviews with high effort.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 36,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Keep the session alive while reviewer output is pending.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 38,
+      "reference": "~/.claude/hooks/notify.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Deliver run-autopilot workflow notifications.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 34,
+      "reference": "git-ferry:catchup",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Provide the Phase 1 catchup plugin skill unless the PRD skips it.",
+      "failure_rule": "Refuse this entry point until an adapter supplies this capability and prescribed fallback; never use source-checkout content.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
