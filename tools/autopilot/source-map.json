@@ -7233,7 +7233,7 @@
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/CHANGELOG.md",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "ae39c5acaa0164467c3575b81999457bc367e3b523bb6eead3d83a3c3eb488b2",
+      "destination_blob_sha256": "44f68ed9a8d7d8a3d3eea435746fa25138a8caa9bccc3c323040e5b2eaab09df",
       "adaptation_reason": "Newly authored AP00012 foundation file; no pinned source asset or source sections. Delivery-only evidence records packaged bytes, not runtime or profile certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7252,8 +7252,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "plugins/autopilot/CHANGELOG.md",
-        "artifact_sha256": "ae39c5acaa0164467c3575b81999457bc367e3b523bb6eead3d83a3c3eb488b2",
-        "tested_package_revision": "c26dfc6df6c9a0eb1e7f1622a334265222bb9006"
+        "artifact_sha256": "44f68ed9a8d7d8a3d3eea435746fa25138a8caa9bccc3c323040e5b2eaab09df",
+        "tested_package_revision": "afbed6a4918c7d0533c243bbef48766065f5b4dd"
       }
     },
     {
