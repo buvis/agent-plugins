@@ -273337,9 +273337,10 @@
       "source_line": 28,
       "reference": "scripts/codex-run.sh",
       "kind": "external-capability",
-      "status": "planned",
-      "capability": "scripts/codex-run.sh",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "status": "unavailable",
+      "capability": "Host adapter for scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/design-solution/SKILL.md"
     },
     {
       "source_path": "skills/fast-track/SKILL.md",
@@ -275184,6 +275185,315 @@
         }
       ],
       "status": "planned"
+    },
+    {
+      "source_path": "skills/design-solution/SKILL.md",
+      "source_line": 210,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/design-solution/SKILL.md"
+    },
+    {
+      "source_path": "skills/design-solution/SKILL.md",
+      "source_line": 215,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/design-solution/SKILL.md"
+    },
+    {
+      "source_path": "skills/design-solution/SKILL.md",
+      "source_line": 225,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/design-solution/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 32,
+      "reference": "hooks/guard_stop_on_live_lanes.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for hooks/guard_stop_on_live_lanes.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 39,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 46,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 53,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 55,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 68,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/card.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/card.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 75,
+      "reference": "card.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for card.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 109,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/fast_track_plan.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/fast_track_plan.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 125,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 142,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 156,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 176,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 195,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 206,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 231,
+      "reference": "cards_from_prd.py",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Describes the upstream card renderer stripping release commands; this step runs the already parsed card gates and does not invoke the renderer.",
+      "runtime_rule": "Citation only; never read, execute, or supply runtime content from this upstream renderer."
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 265,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/compute_mech_facts.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/compute_mech_facts.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 282,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 283,
+      "reference": "gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for gemini-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 289,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 326,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 327,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 328,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 329,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 330,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 368,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 374,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 401,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 415,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
