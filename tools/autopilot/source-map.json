@@ -273499,9 +273499,10 @@
       "source_line": 38,
       "reference": "scripts/codex-run.sh",
       "kind": "external-capability",
-      "status": "planned",
-      "capability": "scripts/codex-run.sh",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "status": "unavailable",
+      "capability": "Run the Codex reviewer using the supported host CLI adapter.",
+      "failure_rule": "Refuse the gated review entry point before helper invocation while this host adapter is unavailable; report the missing capability and stop. No source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
     },
     {
       "source_path": "skills/review-work-completion/SKILL.md",
@@ -276174,6 +276175,123 @@
       "kind": "informational-provenance",
       "status": "planned",
       "runtime_rule": "Illustrative Rust path in a model-tier classification example; never load it to supply runtime content."
+    },
+    {
+      "source_path": "skills/plan-tasks/references/design-rationale.md",
+      "source_line": 46,
+      "reference": "classify_tier.py",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "The design rationale explicitly declares its incident history nonnormative; this sentence describes the retired keyword-tier design and its replacement.",
+      "runtime_rule": "Historical design rationale only; never load this citation as runtime content or use it to supply the tier classifier."
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 16,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Run the Sonnet reviewer using the supported host CLI adapter.",
+      "failure_rule": "Refuse the gated review entry point before helper invocation while this host adapter is unavailable; report the missing capability and stop. No source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-blindly/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 19,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate review-file sections, verdict and test-count fields.",
+      "failure_rule": "Refuse the gated review entry point before helper invocation while this host adapter is unavailable; report the missing capability and stop. No source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-blindly/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 105,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Run the Sonnet reviewer using the supported host CLI adapter.",
+      "failure_rule": "Refuse the gated review entry point before helper invocation while this host adapter is unavailable; report the missing capability and stop. No source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-blindly/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 118,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate review-file sections, verdict and test-count fields.",
+      "failure_rule": "Refuse the gated review entry point before helper invocation while this host adapter is unavailable; report the missing capability and stop. No source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-blindly/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 108,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/references/unattended-contract.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/unattended-contract.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 66,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Run the Codex reviewer using the supported host CLI adapter.",
+      "failure_rule": "Refuse the gated review entry point before helper invocation while this host adapter is unavailable; report the missing capability and stop. No source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 87,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Run the optional Carl reviewer through its Gemini or Copilot backend adapter.",
+      "failure_rule": "The portable entry point refuses execution before probing or dispatching Carl. A future supported adapter must retain the source fallback: skip Carl with the recorded unavailable reason when no backend resolves; never substitute a source checkout helper.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 140,
+      "reference": "gather-context.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Gather bounded review context against the selected base or --since commit.",
+      "failure_rule": "Refuse the gated review entry point before helper invocation while this host adapter is unavailable; report the missing capability and stop. No source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 39,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Assemble reviewer prompts from the host agent registry and its supported roster.",
+      "failure_rule": "Refuse the gated review entry point while the host registry is unavailable; a missing or unparseable roster fails the reviewer, never a fallback prompt or source checkout lookup.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 87,
+      "reference": "use-gemini/SKILL.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/use-gemini/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; respect its unavailable entry-point gate and never substitute source checkout content."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 140,
+      "reference": "review-stage",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Stage full or incremental review context using the selected --since commit.",
+      "failure_rule": "Refuse the gated review entry point before staging while the host review-stage adapter is unavailable; no source checkout fallback or unbounded substitute diff.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
