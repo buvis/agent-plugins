@@ -274311,34 +274311,38 @@
       "source_line": 306,
       "reference": "scripts/tune_routing.py",
       "kind": "external-capability",
-      "status": "planned",
-      "capability": "scripts/tune_routing.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "status": "unavailable",
+      "capability": "Tune dispatch routing from durable task-attempt ledger records.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
     },
     {
       "source_path": "skills/run-autopilot/references/state-schema.md",
       "source_line": 340,
       "reference": "scripts/tracon/model.py",
       "kind": "external-capability",
-      "status": "planned",
-      "capability": "scripts/tracon/model.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "status": "unavailable",
+      "capability": "Read convergence metrics for dispatch model analysis.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
     },
     {
       "source_path": "skills/run-autopilot/references/waves.md",
       "source_line": 7,
       "reference": "references/state-schema.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
     },
     {
       "source_path": "skills/run-autopilot/references/waves.md",
       "source_line": 132,
       "reference": "references/recovery.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
     },
     {
       "source_path": "skills/use-codex/SKILL.md",
@@ -280044,6 +280048,397 @@
       "capability": "Read installed enforcement plugin versions to pin and check batch consistency",
       "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 285,
+      "reference": "cli/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Append attempt ledger rows atomically during PRD completion.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 285,
+      "reference": "statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Complete PRDs with durable attempt ledger writes.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 312,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Append review convergence metrics after review sessions.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 336,
+      "reference": "gate.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Parse review frontmatter reviewers for convergence metrics.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 377,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Read and mutate the rescue ledger with locking and transition checks.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 390,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Read and mutate the rescue ledger with locking and transition checks.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 392,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Read and mutate the rescue ledger with locking and transition checks.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 394,
+      "reference": "skills/run-autopilot/scripts/fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Read and mutate the rescue ledger with locking and transition checks.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 394,
+      "reference": "statectl.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Comparison of locking or backup idioms; this passage does not invoke the sibling helper.",
+      "runtime_rule": "Informational citation only; never supply runtime content from this reference."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 397,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Create durable rescue requests under an exclusive ledger lock.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 398,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Approve or reject rescue requests using legal state transitions.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 399,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Consume approved rescue requests under an exclusive ledger lock.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 400,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Display the durable rescue request for a PRD.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 410,
+      "reference": "statectl.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Comparison of locking or backup idioms; this passage does not invoke the sibling helper.",
+      "runtime_rule": "Informational citation only; never supply runtime content from this reference."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 418,
+      "reference": "fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Read and mutate the rescue ledger with locking and transition checks.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 421,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/fablectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Approve a rescue request through the documented manual fallback.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 517,
+      "reference": "cli/routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Select build session models from overrides and promotion signals.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 519,
+      "reference": "cli/routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Select build session models from overrides and promotion signals.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 547,
+      "reference": "cli/cap_check.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify review regressions against the previous review commit.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 285,
+      "reference": "references/phase-done.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-done.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 388,
+      "reference": "references/recovery.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 521,
+      "reference": "references/lane-solo.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-solo.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 547,
+      "reference": "references/phase-review.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 340,
+      "reference": "cli/render_metrics.load_event_rows",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Load review convergence event rows for report rendering.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 5,
+      "reference": "cli/wave.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Plan nonoverlapping PRD execution lanes.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 5,
+      "reference": "cli/wave_launch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Launch, report, and abort concurrent PRD waves.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 181,
+      "reference": "gather-context.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Limit gathered review context to paths touched by wave lanes.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 243,
+      "reference": "$_skill/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Run wave orchestration through the operator CLI alias.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 249,
+      "reference": "skills/run-autopilot/cli/records.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Operator example of a repository path kept in a shared lane; no helper invocation or runtime content lookup.",
+      "runtime_rule": "Informational citation only; never supply runtime content from this reference."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 248,
+      "reference": "skills/run-autopilot/SKILL.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Operator example of a repository path kept in a shared lane; no runtime content lookup.",
+      "runtime_rule": "Informational citation only; never supply runtime content from this reference."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 248,
+      "reference": "skills/run-autopilot/references/state-schema.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Operator example of a repository path kept in a shared lane; no runtime content lookup.",
+      "runtime_rule": "Informational citation only; never supply runtime content from this reference."
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 16,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex or Copilot with backend detection and mapped flags.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 49,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex or Copilot with backend detection and mapped flags.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 75,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex or Copilot with backend detection and mapped flags.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 78,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex or Copilot with backend detection and mapped flags.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 81,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex or Copilot with backend detection and mapped flags.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 84,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex or Copilot with backend detection and mapped flags.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 87,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex or Copilot with backend detection and mapped flags.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 90,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex or Copilot with backend detection and mapped flags.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 94,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex_hook_doctor.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Verify registered Codex hook targets against their owning plugin.",
+      "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
