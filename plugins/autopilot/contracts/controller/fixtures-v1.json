@@ -1,0 +1,2398 @@
+{
+  "fixture_version": 1,
+  "description": "Synthetic configuration examples, not evidence of implemented runtime behavior. scenario expectations are frozen obligations for later runtime tests; all digests are placeholders, never credential material.",
+  "cases": [
+    {
+      "name": "kernel-initial",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": []
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "kernel-owned",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 1,
+        "owner": {
+          "actor_id": "owner-synthetic",
+          "mode": "supervised",
+          "native_session_id": "session-synthetic",
+          "lease_epoch": 1
+        },
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 1,
+            "native_session_id": null,
+            "secret_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          },
+          "owner-synthetic": {
+            "actor_id": "owner-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "owner",
+            "lease_epoch": 1,
+            "native_session_id": "session-synthetic",
+            "secret_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": []
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "open-fresh",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "workflow.open",
+        "request_id": "open-synthetic",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": null,
+        "actor_id": null,
+        "job_id": null,
+        "lease_epoch": null,
+        "payload": {}
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "acquire",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.acquire",
+        "request_id": "acquire-synthetic",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 0,
+        "payload": {
+          "mode": "supervised",
+          "native_session_id": "session-synthetic"
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "release",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.release",
+        "request_id": "release-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {}
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "recover",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.recover",
+        "request_id": "recover-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "reason": "Explicit synthetic reconciliation; no jobs exist.",
+          "reconciled_job_ids": []
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "open-existing",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "workflow.open",
+        "request_id": "existing-open-synthetic",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 0,
+        "payload": {}
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "open-result",
+      "definition": "response",
+      "input": {
+        "ok": true,
+        "revision": 0,
+        "result": {
+          "workflow_id": "workflow-synthetic",
+          "actor_id": "operator-synthetic",
+          "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+          "lease_epoch": 0
+        },
+        "error_code": null,
+        "retryable": false
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "acquire-result",
+      "definition": "response",
+      "input": {
+        "ok": true,
+        "revision": 1,
+        "result": {
+          "actor_id": "owner-synthetic",
+          "actor_file": "/synthetic/project/.autopilot/controller/actors/owner.json",
+          "lease_epoch": 1,
+          "operator_actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json"
+        },
+        "error_code": null,
+        "retryable": false
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "release-result",
+      "definition": "response",
+      "input": {
+        "ok": true,
+        "revision": 2,
+        "result": {
+          "actor_id": "operator-synthetic",
+          "operator_actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+          "lease_epoch": 2
+        },
+        "error_code": null,
+        "retryable": false
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "recover-result",
+      "definition": "response",
+      "input": {
+        "ok": true,
+        "revision": 2,
+        "result": {
+          "actor_id": "operator-synthetic",
+          "operator_actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+          "lease_epoch": 2
+        },
+        "error_code": null,
+        "retryable": false
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "error-invalid_request",
+      "definition": "response",
+      "input": {
+        "ok": false,
+        "revision": 1,
+        "result": null,
+        "error_code": "invalid_request",
+        "retryable": false
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "error-incompatible_contract",
+      "definition": "response",
+      "input": {
+        "ok": false,
+        "revision": 1,
+        "result": null,
+        "error_code": "incompatible_contract",
+        "retryable": false
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "error-revision_conflict",
+      "definition": "response",
+      "input": {
+        "ok": false,
+        "revision": 1,
+        "result": null,
+        "error_code": "revision_conflict",
+        "retryable": true
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "error-wrong_binding",
+      "definition": "response",
+      "input": {
+        "ok": false,
+        "revision": 1,
+        "result": null,
+        "error_code": "wrong_binding",
+        "retryable": false
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "error-missing_capability",
+      "definition": "response",
+      "input": {
+        "ok": false,
+        "revision": 1,
+        "result": null,
+        "error_code": "missing_capability",
+        "retryable": false
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "error-rejected_evidence",
+      "definition": "response",
+      "input": {
+        "ok": false,
+        "revision": 1,
+        "result": null,
+        "error_code": "rejected_evidence",
+        "retryable": false
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "error-recovery_required",
+      "definition": "response",
+      "input": {
+        "ok": false,
+        "revision": 1,
+        "result": null,
+        "error_code": "recovery_required",
+        "retryable": false
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "open-extra-payload",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "workflow.open",
+        "request_id": "open-synthetic",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": null,
+        "actor_id": null,
+        "job_id": null,
+        "lease_epoch": null,
+        "payload": {
+          "unknown": true
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "acquire-invalid-mode",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.acquire",
+        "request_id": "acquire-synthetic",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 0,
+        "payload": {
+          "mode": "automatic",
+          "native_session_id": "session-synthetic"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "release-extra-payload",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.release",
+        "request_id": "release-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "reason": "unexpected"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "recover-nonempty-jobs",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.recover",
+        "request_id": "recover-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "reason": "not supported",
+          "reconciled_job_ids": [
+            "job-synthetic"
+          ]
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "recover-duplicate-jobs",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.recover",
+        "request_id": "recover-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "reason": "duplicate",
+          "reconciled_job_ids": [
+            "job-synthetic",
+            "job-synthetic"
+          ]
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "boolean-version",
+      "definition": "request",
+      "input": {
+        "protocol_major": true,
+        "operation": "owner.acquire",
+        "request_id": "acquire-synthetic",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 0,
+        "payload": {
+          "mode": "supervised",
+          "native_session_id": "session-synthetic"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "future-protocol",
+      "definition": "request",
+      "input": {
+        "protocol_major": 2,
+        "operation": "owner.acquire",
+        "request_id": "acquire-synthetic",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 0,
+        "payload": {
+          "mode": "supervised",
+          "native_session_id": "session-synthetic"
+        }
+      },
+      "valid": false,
+      "expected_error": "incompatible_contract"
+    },
+    {
+      "name": "boolean-revision",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.acquire",
+        "request_id": "acquire-synthetic",
+        "expected_revision": true,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 0,
+        "payload": {
+          "mode": "supervised",
+          "native_session_id": "session-synthetic"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "negative-revision",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.acquire",
+        "request_id": "acquire-synthetic",
+        "expected_revision": -1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 0,
+        "payload": {
+          "mode": "supervised",
+          "native_session_id": "session-synthetic"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "unknown-operation",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "state.set",
+        "request_id": "acquire-synthetic",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 0,
+        "payload": {
+          "mode": "supervised",
+          "native_session_id": "session-synthetic"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "job-authority",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.acquire",
+        "request_id": "acquire-synthetic",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": "job-synthetic",
+        "lease_epoch": 0,
+        "payload": {
+          "mode": "supervised",
+          "native_session_id": "session-synthetic"
+        }
+      },
+      "valid": false,
+      "expected_error": "wrong_binding"
+    },
+    {
+      "name": "null-existing-actor",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.acquire",
+        "request_id": "acquire-synthetic",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": null,
+        "job_id": null,
+        "lease_epoch": 0,
+        "payload": {
+          "mode": "supervised",
+          "native_session_id": "session-synthetic"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "oversized-identity",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.acquire",
+        "request_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 0,
+        "payload": {
+          "mode": "supervised",
+          "native_session_id": "session-synthetic"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "multibyte-identity",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.acquire",
+        "request_id": "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "operator-synthetic",
+        "job_id": null,
+        "lease_epoch": 0,
+        "payload": {
+          "mode": "supervised",
+          "native_session_id": "session-synthetic"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "bootstrap-nonzero-revision",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "workflow.open",
+        "request_id": "open-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": null,
+        "actor_id": null,
+        "job_id": null,
+        "lease_epoch": null,
+        "payload": {}
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "bootstrap-acquire",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "owner.acquire",
+        "request_id": "open-synthetic",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": null,
+        "actor_id": null,
+        "job_id": null,
+        "lease_epoch": null,
+        "payload": {
+          "mode": "supervised",
+          "native_session_id": "session-synthetic"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "unknown-envelope-field",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "workflow.open",
+        "request_id": "open-synthetic",
+        "expected_revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": null,
+        "actor_id": null,
+        "job_id": null,
+        "lease_epoch": null,
+        "payload": {},
+        "filename": "state.json"
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "future-schema",
+      "definition": "state",
+      "input": {
+        "schema_version": 2,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": []
+        }
+      },
+      "valid": false,
+      "expected_error": "incompatible_contract"
+    },
+    {
+      "name": "unowned-workflow-pid",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": [],
+          "pid": "unowned"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "unowned-workflow-process_id",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": [],
+          "process_id": "unowned"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "unowned-workflow-launcher",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": [],
+          "launcher": "unowned"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "unowned-workflow-heartbeat",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": [],
+          "heartbeat": "unowned"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "unowned-workflow-resource_usage",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": [],
+          "resource_usage": "unowned"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "unowned-workflow-tui",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": [],
+          "tui": "unowned"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "unowned-workflow-extensions",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": [],
+          "extensions": "unowned"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "nonempty-jobs",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": [
+            {}
+          ]
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "source-review-cap",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 3
+          },
+          "recovery": null,
+          "jobs": []
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "actor-secret-leak",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "secret": "SYNTHETIC-NOT-A-CREDENTIAL"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": []
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "receipt-unknown-field",
+      "definition": "state",
+      "input": {
+        "schema_version": 1,
+        "revision": 0,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "repo_root": "/synthetic/project",
+        "lease_epoch": 0,
+        "owner": null,
+        "actors": {
+          "operator-synthetic": {
+            "actor_id": "operator-synthetic",
+            "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "workflow_id": "workflow-synthetic",
+            "role": "operator",
+            "lease_epoch": 0,
+            "native_session_id": null,
+            "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        },
+        "receipts": {
+          "open-synthetic": {
+            "request_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+            "authorizing_actor": {
+              "actor_id": "operator-synthetic",
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": "workflow-synthetic",
+              "role": "operator",
+              "lease_epoch": 0,
+              "native_session_id": null,
+              "secret_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "response": {
+              "ok": true,
+              "revision": 0,
+              "result": {
+                "workflow_id": "workflow-synthetic",
+                "actor_id": "operator-synthetic",
+                "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+                "lease_epoch": 0
+              },
+              "error_code": null,
+              "retryable": false
+            },
+            "request": {
+              "protocol_major": 1,
+              "operation": "workflow.open",
+              "request_id": "open-synthetic",
+              "expected_revision": 0,
+              "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "workflow_id": null,
+              "actor_id": null,
+              "job_id": null,
+              "lease_epoch": null,
+              "payload": {}
+            }
+          }
+        },
+        "workflow": {
+          "batch": null,
+          "work": null,
+          "tasks": [],
+          "review": {
+            "cap": 2
+          },
+          "recovery": null,
+          "jobs": []
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "response-retryable-success",
+      "definition": "response",
+      "input": {
+        "ok": true,
+        "revision": 0,
+        "result": {
+          "workflow_id": "workflow-synthetic",
+          "actor_id": "operator-synthetic",
+          "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+          "lease_epoch": 0
+        },
+        "error_code": null,
+        "retryable": true
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "response-retryable-binding",
+      "definition": "response",
+      "input": {
+        "ok": false,
+        "revision": 1,
+        "result": null,
+        "error_code": "wrong_binding",
+        "retryable": true
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "response-extra-result-field",
+      "definition": "response",
+      "input": {
+        "ok": true,
+        "revision": 0,
+        "result": {
+          "workflow_id": "workflow-synthetic",
+          "actor_id": "operator-synthetic",
+          "actor_file": "/synthetic/project/.autopilot/controller/actors/operator.json",
+          "lease_epoch": 0,
+          "secret": "SYNTHETIC-NOT-A-CREDENTIAL"
+        },
+        "error_code": null,
+        "retryable": false
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "fresh-open-atomic",
+      "setup": [
+        "absent controller directory"
+      ],
+      "action": "apply open-fresh",
+      "expected_error": null,
+      "expected": [
+        "revision 0 contains initial receipt",
+        "one operator credential exists",
+        "result contains a path, no secret"
+      ]
+    },
+    {
+      "name": "fresh-open-lost-ack",
+      "setup": [
+        "fresh-open-atomic",
+        "caller loses acknowledgement"
+      ],
+      "action": "apply identical open-fresh",
+      "expected_error": null,
+      "expected": [
+        "exact original response",
+        "identical workflow, credentials and state bytes"
+      ]
+    },
+    {
+      "name": "fresh-open-conflicting-id",
+      "setup": [
+        "fresh-open-atomic"
+      ],
+      "action": "apply another null-binding workflow.open",
+      "expected_error": "revision_conflict",
+      "expected": [
+        "all private bytes unchanged"
+      ]
+    },
+    {
+      "name": "existing-open",
+      "setup": [
+        "fresh-open-atomic",
+        "current operator credential"
+      ],
+      "action": "apply open-existing",
+      "expected_error": null,
+      "expected": [
+        "revision increments once",
+        "ownership and epoch unchanged",
+        "receipt persisted"
+      ]
+    },
+    {
+      "name": "concurrent-acquires",
+      "setup": [
+        "fresh-open-atomic",
+        "two requests use expected_revision 0"
+      ],
+      "action": "race owner.acquire requests",
+      "expected_error": null,
+      "expected": [
+        "exactly one winner",
+        "one current owner",
+        "loser cannot publish credentials or receipt"
+      ]
+    },
+    {
+      "name": "occupied-owner",
+      "setup": [
+        "kernel-owned"
+      ],
+      "action": "new current-operator acquire with current revision",
+      "expected_error": "wrong_binding",
+      "expected": [
+        "state/backup/credential bytes unchanged"
+      ]
+    },
+    {
+      "name": "owner.acquire-epoch",
+      "setup": [
+        "kernel-initial",
+        "current authorized credential"
+      ],
+      "action": "apply owner.acquire",
+      "expected_error": null,
+      "expected": [
+        "epoch increments once",
+        "operator actor ID stable; descriptor and credential rotate together",
+        "fresh owner actor ID and credential issued",
+        "historical descriptors retained only in receipts"
+      ]
+    },
+    {
+      "name": "owner.acquire-crash-stage_fsynced",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at stage_fsynced",
+      "expected_error": null,
+      "expected": [
+        "old consistent state and final credentials; only unreferenced private stages",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.acquire-crash-intent_dir_fsynced",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at intent_dir_fsynced",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.acquire-crash-operator_credential_published",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at operator_credential_published",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.acquire-crash-owner_credential_published",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at owner_credential_published",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.acquire-crash-state_published",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at state_published",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.acquire-crash-cleanup_dir_fsynced",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at cleanup_dir_fsynced",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.release-epoch",
+      "setup": [
+        "kernel-owned",
+        "current authorized credential"
+      ],
+      "action": "apply owner.release",
+      "expected_error": null,
+      "expected": [
+        "epoch increments once",
+        "operator actor ID stable; descriptor and credential rotate together",
+        "owner null; old owner revoked",
+        "historical descriptors retained only in receipts"
+      ]
+    },
+    {
+      "name": "owner.release-crash-stage_fsynced",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at stage_fsynced",
+      "expected_error": null,
+      "expected": [
+        "old consistent state and final credentials; only unreferenced private stages",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.release-crash-intent_dir_fsynced",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at intent_dir_fsynced",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.release-crash-operator_credential_published",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at operator_credential_published",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.release-crash-state_published",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at state_published",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.release-crash-cleanup_dir_fsynced",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at cleanup_dir_fsynced",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.recover-epoch",
+      "setup": [
+        "kernel-owned",
+        "current authorized credential"
+      ],
+      "action": "apply owner.recover",
+      "expected_error": null,
+      "expected": [
+        "epoch increments once",
+        "operator actor ID stable; descriptor and credential rotate together",
+        "owner null; old owner revoked",
+        "historical descriptors retained only in receipts"
+      ]
+    },
+    {
+      "name": "owner.recover-crash-stage_fsynced",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at stage_fsynced",
+      "expected_error": null,
+      "expected": [
+        "old consistent state and final credentials; only unreferenced private stages",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.recover-crash-intent_dir_fsynced",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at intent_dir_fsynced",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.recover-crash-operator_credential_published",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at operator_credential_published",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.recover-crash-state_published",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at state_published",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "owner.recover-crash-cleanup_dir_fsynced",
+      "setup": [
+        "current authorized credential",
+        "matching request retained"
+      ],
+      "action": "inject crash at cleanup_dir_fsynced",
+      "expected_error": null,
+      "expected": [
+        "matching authenticated request reconciles forward exactly once or returns recovery_required retaining evidence",
+        "success only after all final credential hashes match descriptors",
+        "historical and rotated current authorizing credentials retrieve exact original receipt"
+      ]
+    },
+    {
+      "name": "bootstrap-crash-stage_fsynced",
+      "setup": [
+        "absent controller directory",
+        "open-fresh retained"
+      ],
+      "action": "inject crash at stage_fsynced",
+      "expected_error": null,
+      "expected": [
+        "identical null-bootstrap request reconciles once",
+        "different request ID cannot reconcile",
+        "no committed receipt points to missing credential bytes"
+      ]
+    },
+    {
+      "name": "bootstrap-crash-intent_dir_fsynced",
+      "setup": [
+        "absent controller directory",
+        "open-fresh retained"
+      ],
+      "action": "inject crash at intent_dir_fsynced",
+      "expected_error": null,
+      "expected": [
+        "identical null-bootstrap request reconciles once",
+        "different request ID cannot reconcile",
+        "no committed receipt points to missing credential bytes"
+      ]
+    },
+    {
+      "name": "bootstrap-crash-operator_credential_published",
+      "setup": [
+        "absent controller directory",
+        "open-fresh retained"
+      ],
+      "action": "inject crash at operator_credential_published",
+      "expected_error": null,
+      "expected": [
+        "identical null-bootstrap request reconciles once",
+        "different request ID cannot reconcile",
+        "no committed receipt points to missing credential bytes"
+      ]
+    },
+    {
+      "name": "bootstrap-crash-state_published",
+      "setup": [
+        "absent controller directory",
+        "open-fresh retained"
+      ],
+      "action": "inject crash at state_published",
+      "expected_error": null,
+      "expected": [
+        "identical null-bootstrap request reconciles once",
+        "different request ID cannot reconcile",
+        "no committed receipt points to missing credential bytes"
+      ]
+    },
+    {
+      "name": "bootstrap-crash-cleanup_dir_fsynced",
+      "setup": [
+        "absent controller directory",
+        "open-fresh retained"
+      ],
+      "action": "inject crash at cleanup_dir_fsynced",
+      "expected_error": null,
+      "expected": [
+        "identical null-bootstrap request reconciles once",
+        "different request ID cannot reconcile",
+        "no committed receipt points to missing credential bytes"
+      ]
+    },
+    {
+      "name": "store-boundary-backup_temp_fsynced",
+      "setup": [
+        "valid state and backup",
+        "capture all exact bytes"
+      ],
+      "action": "raise publication guard at backup_temp_fsynced",
+      "expected_error": "recovery_required",
+      "expected": [
+        "state and backup repaired to exact original bytes",
+        "no credential effect from failed transaction"
+      ]
+    },
+    {
+      "name": "store-boundary-backup_replaced",
+      "setup": [
+        "valid state and backup",
+        "capture all exact bytes"
+      ],
+      "action": "raise publication guard at backup_replaced",
+      "expected_error": "recovery_required",
+      "expected": [
+        "state and backup repaired to exact original bytes",
+        "no credential effect from failed transaction"
+      ]
+    },
+    {
+      "name": "store-boundary-backup_dir_fsynced",
+      "setup": [
+        "valid state and backup",
+        "capture all exact bytes"
+      ],
+      "action": "raise publication guard at backup_dir_fsynced",
+      "expected_error": "recovery_required",
+      "expected": [
+        "state and backup repaired to exact original bytes",
+        "no credential effect from failed transaction"
+      ]
+    },
+    {
+      "name": "store-boundary-state_temp_fsynced",
+      "setup": [
+        "valid state and backup",
+        "capture all exact bytes"
+      ],
+      "action": "raise publication guard at state_temp_fsynced",
+      "expected_error": "recovery_required",
+      "expected": [
+        "state and backup repaired to exact original bytes",
+        "no credential effect from failed transaction"
+      ]
+    },
+    {
+      "name": "store-boundary-state_replaced",
+      "setup": [
+        "valid state and backup",
+        "capture all exact bytes"
+      ],
+      "action": "raise publication guard at state_replaced",
+      "expected_error": "recovery_required",
+      "expected": [
+        "state and backup repaired to exact original bytes",
+        "no credential effect from failed transaction"
+      ]
+    },
+    {
+      "name": "store-boundary-state_dir_fsynced",
+      "setup": [
+        "valid state and backup",
+        "capture all exact bytes"
+      ],
+      "action": "raise publication guard at state_dir_fsynced",
+      "expected_error": "recovery_required",
+      "expected": [
+        "state and backup repaired to exact original bytes",
+        "no credential effect from failed transaction"
+      ]
+    },
+    {
+      "name": "restore-after-acquire",
+      "setup": [
+        "kernel-initial backed up",
+        "acquire increments epoch and rotates credentials"
+      ],
+      "action": "offline StateStore.restore",
+      "expected_error": "recovery_required",
+      "expected": [
+        "BackupError under exclusive lock",
+        "exact state/backup/credential bytes preserved"
+      ]
+    },
+    {
+      "name": "restore-security-identical",
+      "setup": [
+        "valid current and backup differ only in revision",
+        "identical lease_epoch/owner/actors/receipts",
+        "no intent"
+      ],
+      "action": "offline StateStore.restore",
+      "expected_error": null,
+      "expected": [
+        "restored revision is current revision plus 1",
+        "backup becomes exact raw previous current",
+        "all six failure boundaries preserve source pair repair"
+      ]
+    },
+    {
+      "name": "restore-pending-intent",
+      "setup": [
+        "valid current and backup",
+        "credential-intent.json exists"
+      ],
+      "action": "offline StateStore.restore",
+      "expected_error": "recovery_required",
+      "expected": [
+        "BackupError",
+        "no state/backup/credential/intent bytes changed"
+      ]
+    },
+    {
+      "name": "corrupt-current",
+      "setup": [
+        "unreadable or invalid current state",
+        "valid backup"
+      ],
+      "action": "snapshot, apply or offline restore",
+      "expected_error": "recovery_required",
+      "expected": [
+        "never overwrite current corruption",
+        "all forensic evidence retained"
+      ]
+    },
+    {
+      "name": "unsupported-directory-fsync",
+      "setup": [
+        "directory fsync returns EINVAL or ENOTSUP"
+      ],
+      "action": "initialize or mutate",
+      "expected_error": "recovery_required",
+      "expected": [
+        "DurabilityUnsupportedError",
+        "no success acknowledgement"
+      ]
+    },
+    {
+      "name": "receipt-current-after-rotation",
+      "setup": [
+        "request recorded at epoch 0",
+        "operator now epoch 2"
+      ],
+      "action": "submit identical historical envelope using reopened current operator file",
+      "expected_error": null,
+      "expected": [
+        "exact original response",
+        "no effects or revision change"
+      ]
+    },
+    {
+      "name": "receipt-historical-only",
+      "setup": [
+        "request recorded at epoch 0",
+        "old credential revoked"
+      ],
+      "action": "submit identical historical envelope using retained old credential",
+      "expected_error": null,
+      "expected": [
+        "exact original response",
+        "no mutation authority"
+      ]
+    },
+    {
+      "name": "receipt-changed-envelope",
+      "setup": [
+        "authenticated request ID already recorded"
+      ],
+      "action": "change expected_revision or payload under same request ID",
+      "expected_error": "invalid_request",
+      "expected": [
+        "no effects or byte changes"
+      ]
+    },
+    {
+      "name": "historical-new-request",
+      "setup": [
+        "revoked historical credential"
+      ],
+      "action": "submit new request ID",
+      "expected_error": "wrong_binding",
+      "expected": [
+        "no intent, credential or state changes"
+      ]
+    },
+    {
+      "name": "unrelated-intent-request",
+      "setup": [
+        "pending intent from another request"
+      ],
+      "action": "apply unrelated request or snapshot",
+      "expected_error": "recovery_required",
+      "expected": [
+        "no reconciliation or byte changes"
+      ]
+    },
+    {
+      "name": "wrong-binding-intent",
+      "setup": [
+        "pending intent"
+      ],
+      "action": "apply wrong project/workflow binding",
+      "expected_error": "wrong_binding",
+      "expected": [
+        "no reconciliation or byte changes"
+      ]
+    },
+    {
+      "name": "normal-count-capacity",
+      "setup": [
+        "4094 receipts",
+        "active owner",
+        "under 14 MiB"
+      ],
+      "action": "new normal mutation",
+      "expected_error": "recovery_required",
+      "expected": [
+        "no intent prepared",
+        "no receipt eviction"
+      ]
+    },
+    {
+      "name": "normal-byte-capacity",
+      "setup": [
+        "fewer than 4094 receipts",
+        "candidate exceeds 14680064 bytes"
+      ],
+      "action": "new normal mutation",
+      "expected_error": "recovery_required",
+      "expected": [
+        "candidate serialized and rejected before intent",
+        "credentials unchanged"
+      ]
+    },
+    {
+      "name": "oversized-response",
+      "setup": [
+        "valid actor",
+        "complete response exceeds 65536 UTF-8 bytes including absolute paths"
+      ],
+      "action": "apply",
+      "expected_error": "invalid_request",
+      "expected": [
+        "refuse before bootstrap or intent",
+        "no credential changes"
+      ]
+    },
+    {
+      "name": "emergency-capacity",
+      "setup": [
+        "4094 or 4095 receipts",
+        "active owner",
+        "candidate fits 16777216 bytes"
+      ],
+      "action": "release or recover",
+      "expected_error": null,
+      "expected": [
+        "owner cleared",
+        "epoch increases",
+        "receipt occupies reserved slot",
+        "complete response and candidate validated before intent"
+      ]
+    },
+    {
+      "name": "no-owner-reserve",
+      "setup": [
+        "4094 receipts or candidate above 14 MiB",
+        "owner null"
+      ],
+      "action": "release or recover",
+      "expected_error": "recovery_required",
+      "expected": [
+        "reserve not consumed"
+      ]
+    },
+    {
+      "name": "sealed-capacity",
+      "setup": [
+        "4096 receipts",
+        "owner null"
+      ],
+      "action": "new mutation",
+      "expected_error": "recovery_required",
+      "expected": [
+        "snapshot and exact receipt retrieval still available",
+        "no mutation or eviction"
+      ]
+    },
+    {
+      "name": "corrupt-active-owner-hard-cap",
+      "setup": [
+        "externally corrupted state has active owner and 4096 receipts"
+      ],
+      "action": "release or recover",
+      "expected_error": "recovery_required",
+      "expected": [
+        "retain all evidence; no override"
+      ]
+    },
+    {
+      "name": "archive-roundtrip",
+      "setup": [
+        "normal capacity saturated",
+        "release or recover through reserve",
+        "owner-null snapshot"
+      ],
+      "action": "manual offline archive and reopen",
+      "expected_error": null,
+      "expected": [
+        "finish/reconcile jobs first; none exist here",
+        "copy entire private directory to private offline archive",
+        "verify every file hash before renaming original to workflow-ID sibling archive",
+        "never delete archive",
+        "open distinct workflow at now-empty fixed controller path",
+        "with new workflow offline, restore original directory at original project binding",
+        "all original hashes, identities and exact receipts remain replayable"
+      ]
+    },
+    {
+      "name": "private-gitignore",
+      "setup": [
+        "temporary Git repository"
+      ],
+      "action": "bootstrap",
+      "expected_error": null,
+      "expected": [
+        "0700 .autopilot and controller directories",
+        "regular private 0600 .gitignore containing *\\n in both directories before credentials",
+        "git check-ignore confirms state, actors and sibling archives ignored"
+      ]
+    },
+    {
+      "name": "aliased-or-incompatible-ignore",
+      "setup": [
+        "symlink/hardlink/nonregular or incompatible .gitignore"
+      ],
+      "action": "bootstrap",
+      "expected_error": "recovery_required",
+      "expected": [
+        "no credential created",
+        "target bytes preserved"
+      ]
+    },
+    {
+      "name": "path-race",
+      "setup": [
+        "resolved project root",
+        "ancestor inode changed before/during descriptor creation"
+      ],
+      "action": "bootstrap",
+      "expected_error": "recovery_required",
+      "expected": [
+        "O_NOFOLLOW and directory-descriptor identity checks refuse",
+        "no writes outside selected root"
+      ]
+    },
+    {
+      "name": "snapshot-absent",
+      "setup": [
+        "absent store"
+      ],
+      "action": "snapshot",
+      "expected_error": null,
+      "expected": [
+        "revision 0, project_id, workflow_id null, lease_epoch 0, owner null, health absent",
+        "no persistent files or directories"
+      ]
+    },
+    {
+      "name": "snapshot-existing",
+      "setup": [
+        "kernel-owned or sealed-capacity"
+      ],
+      "action": "snapshot",
+      "expected_error": null,
+      "expected": [
+        "shared lock",
+        "workflow identity/reserves, owner, epoch, actor IDs/roles, receipt count, health/capacity only",
+        "no secrets, digests or receipt bodies"
+      ]
+    },
+    {
+      "name": "reserved-operation",
+      "setup": [
+        "every x-controller.reserved_operations entry",
+        "valid current actor"
+      ],
+      "action": "apply declared unavailable operation",
+      "expected_error": "missing_capability",
+      "expected": [
+        "no receipt or revision/credential changes",
+        "never successful stub"
+      ]
+    }
+  ],
+  "durability_boundaries": [
+    "backup_temp_fsynced",
+    "backup_replaced",
+    "backup_dir_fsynced",
+    "state_temp_fsynced",
+    "state_replaced",
+    "state_dir_fsynced"
+  ]
+}

@@ -1,0 +1,887 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buvis.github.io/agent-plugins/autopilot/contracts/controller/workflow-v1.json",
+  "title": "AP00018 controller kernel v1",
+  "description": "Closed kernel durable state. $defs/request and $defs/response describe core apply only; contract and snapshot have separate projections. UTF-8 formats are asserted by the configuration tests and must also be enforced by the runtime. Reserved operation names declare unavailable capabilities, not payload implementations.",
+  "$ref": "#/$defs/state",
+  "$defs": {
+    "identity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "format": "utf8-256"
+    },
+    "nonnegative_integer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "absolute_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1048576,
+      "format": "utf8-1048576",
+      "pattern": "^/"
+    },
+    "mode": {
+      "enum": [
+        "manual",
+        "supervised"
+      ]
+    },
+    "owner": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "mode": {
+          "$ref": "#/$defs/mode"
+        },
+        "native_session_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "lease_epoch": {
+          "$ref": "#/$defs/nonnegative_integer"
+        }
+      },
+      "required": [
+        "actor_id",
+        "mode",
+        "native_session_id",
+        "lease_epoch"
+      ],
+      "additionalProperties": false
+    },
+    "actor": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "project_id": {
+          "$ref": "#/$defs/digest"
+        },
+        "workflow_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "role": {
+          "enum": [
+            "operator",
+            "owner"
+          ]
+        },
+        "lease_epoch": {
+          "$ref": "#/$defs/nonnegative_integer"
+        },
+        "native_session_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "secret_digest": {
+          "$ref": "#/$defs/digest"
+        }
+      },
+      "required": [
+        "actor_id",
+        "project_id",
+        "workflow_id",
+        "role",
+        "lease_epoch",
+        "native_session_id",
+        "secret_digest"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "const": "owner"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "native_session_id": {
+                "$ref": "#/$defs/identity"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "native_session_id": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "workflow": {
+      "type": "object",
+      "properties": {
+        "batch": {
+          "type": "null"
+        },
+        "work": {
+          "type": "null"
+        },
+        "tasks": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "review": {
+          "type": "object",
+          "properties": {
+            "cap": {
+              "type": "integer",
+              "const": 2
+            }
+          },
+          "required": [
+            "cap"
+          ],
+          "additionalProperties": false
+        },
+        "recovery": {
+          "type": "null"
+        },
+        "jobs": {
+          "type": "array",
+          "maxItems": 0
+        }
+      },
+      "required": [
+        "batch",
+        "work",
+        "tasks",
+        "review",
+        "recovery",
+        "jobs"
+      ],
+      "additionalProperties": false,
+      "default": {
+        "batch": null,
+        "work": null,
+        "tasks": [],
+        "review": {
+          "cap": 2
+        },
+        "recovery": null,
+        "jobs": []
+      }
+    },
+    "open_payload": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "acquire_payload": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/mode"
+        },
+        "native_session_id": {
+          "$ref": "#/$defs/identity"
+        }
+      },
+      "required": [
+        "mode",
+        "native_session_id"
+      ],
+      "additionalProperties": false
+    },
+    "release_payload": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "recover_payload": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "format": "utf8-4096"
+        },
+        "reconciled_job_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identity"
+          },
+          "uniqueItems": true,
+          "maxItems": 0
+        }
+      },
+      "required": [
+        "reason",
+        "reconciled_job_ids"
+      ],
+      "additionalProperties": false
+    },
+    "open_result": {
+      "type": "object",
+      "properties": {
+        "workflow_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "actor_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "actor_file": {
+          "$ref": "#/$defs/absolute_path"
+        },
+        "lease_epoch": {
+          "$ref": "#/$defs/nonnegative_integer"
+        }
+      },
+      "required": [
+        "workflow_id",
+        "actor_id",
+        "actor_file",
+        "lease_epoch"
+      ],
+      "additionalProperties": false
+    },
+    "acquire_result": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "actor_file": {
+          "$ref": "#/$defs/absolute_path"
+        },
+        "lease_epoch": {
+          "$ref": "#/$defs/nonnegative_integer"
+        },
+        "operator_actor_file": {
+          "$ref": "#/$defs/absolute_path"
+        }
+      },
+      "required": [
+        "actor_id",
+        "actor_file",
+        "lease_epoch",
+        "operator_actor_file"
+      ],
+      "additionalProperties": false
+    },
+    "rotation_result": {
+      "type": "object",
+      "properties": {
+        "actor_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "operator_actor_file": {
+          "$ref": "#/$defs/absolute_path"
+        },
+        "lease_epoch": {
+          "$ref": "#/$defs/nonnegative_integer"
+        }
+      },
+      "required": [
+        "actor_id",
+        "operator_actor_file",
+        "lease_epoch"
+      ],
+      "additionalProperties": false
+    },
+    "core_result": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/open_result"
+        },
+        {
+          "$ref": "#/$defs/acquire_result"
+        },
+        {
+          "$ref": "#/$defs/rotation_result"
+        }
+      ]
+    },
+    "response": {
+      "type": "object",
+      "properties": {
+        "ok": {
+          "type": "boolean"
+        },
+        "revision": {
+          "$ref": "#/$defs/nonnegative_integer"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/core_result"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "error_code": {
+          "enum": [
+            null,
+            "invalid_request",
+            "incompatible_contract",
+            "revision_conflict",
+            "wrong_binding",
+            "missing_capability",
+            "rejected_evidence",
+            "recovery_required"
+          ]
+        },
+        "retryable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ok",
+        "revision",
+        "result",
+        "error_code",
+        "retryable"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "ok": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result": {
+                "$ref": "#/$defs/core_result"
+              },
+              "error_code": {
+                "type": "null"
+              },
+              "retryable": {
+                "const": false
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "result": {
+                "type": "null"
+              },
+              "error_code": {
+                "enum": [
+                  "invalid_request",
+                  "incompatible_contract",
+                  "revision_conflict",
+                  "wrong_binding",
+                  "missing_capability",
+                  "rejected_evidence",
+                  "recovery_required"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "error_code": {
+                "const": "revision_conflict"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "retryable": {
+                "const": true
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "retryable": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    "core_response": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/response"
+        },
+        {
+          "properties": {
+            "ok": {
+              "const": true
+            }
+          }
+        }
+      ],
+      "x-max-serialized-utf8-bytes": 65536
+    },
+    "receipt": {
+      "type": "object",
+      "properties": {
+        "request_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "authorizing_actor": {
+          "$ref": "#/$defs/actor"
+        },
+        "response": {
+          "$ref": "#/$defs/core_response"
+        }
+      },
+      "required": [
+        "request_digest",
+        "authorizing_actor",
+        "response"
+      ],
+      "additionalProperties": false
+    },
+    "state": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "integer",
+          "const": 1
+        },
+        "revision": {
+          "$ref": "#/$defs/nonnegative_integer"
+        },
+        "project_id": {
+          "$ref": "#/$defs/digest"
+        },
+        "workflow_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "repo_root": {
+          "$ref": "#/$defs/absolute_path"
+        },
+        "lease_epoch": {
+          "$ref": "#/$defs/nonnegative_integer"
+        },
+        "owner": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/owner"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "actors": {
+          "type": "object",
+          "maxProperties": 2,
+          "propertyNames": {
+            "$ref": "#/$defs/identity"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/actor"
+          }
+        },
+        "receipts": {
+          "type": "object",
+          "maxProperties": 4096,
+          "propertyNames": {
+            "$ref": "#/$defs/identity"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/receipt"
+          }
+        },
+        "workflow": {
+          "$ref": "#/$defs/workflow"
+        }
+      },
+      "required": [
+        "schema_version",
+        "revision",
+        "project_id",
+        "workflow_id",
+        "repo_root",
+        "lease_epoch",
+        "owner",
+        "actors",
+        "receipts",
+        "workflow"
+      ],
+      "additionalProperties": false
+    },
+    "envelope": {
+      "type": "object",
+      "properties": {
+        "protocol_major": {
+          "type": "integer",
+          "const": 1
+        },
+        "operation": {
+          "enum": [
+            "workflow.open",
+            "owner.acquire",
+            "owner.release",
+            "owner.recover",
+            "policy.bind",
+            "prd.enter",
+            "task.replace",
+            "task.start",
+            "task.finish",
+            "task.attempt",
+            "lane.route",
+            "job.plan",
+            "job.claim",
+            "job.record_exit",
+            "review.record_stage",
+            "review.close",
+            "custody.record",
+            "custody.discharge",
+            "verification.record",
+            "phase.handoff",
+            "prd.stall",
+            "prd.park",
+            "prd.defer",
+            "prd.complete",
+            "artifact.record",
+            "records.commit"
+          ]
+        },
+        "request_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "expected_revision": {
+          "$ref": "#/$defs/nonnegative_integer"
+        },
+        "project_id": {
+          "$ref": "#/$defs/digest"
+        },
+        "workflow_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "actor_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "job_id": {
+          "type": "null"
+        },
+        "lease_epoch": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/nonnegative_integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "payload": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "protocol_major",
+        "operation",
+        "request_id",
+        "expected_revision",
+        "project_id",
+        "workflow_id",
+        "actor_id",
+        "job_id",
+        "lease_epoch",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "request": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/envelope"
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "workflow.open"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/open_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "owner.acquire"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/acquire_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "owner.release"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/release_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "owner.recover"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/recover_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "workflow_id": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "workflow_id"
+            ]
+          },
+          "then": {
+            "properties": {
+              "operation": {
+                "const": "workflow.open"
+              },
+              "actor_id": {
+                "type": "null"
+              },
+              "lease_epoch": {
+                "type": "null"
+              },
+              "expected_revision": {
+                "type": "integer",
+                "const": 0
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "actor_id": {
+                "$ref": "#/$defs/identity"
+              },
+              "lease_epoch": {
+                "$ref": "#/$defs/nonnegative_integer"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "bundle": {
+      "type": "object",
+      "properties": {
+        "protocol_major": {
+          "type": "integer",
+          "const": 1
+        },
+        "package_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "schema_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "fixture_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "workflow.open",
+              "owner.acquire",
+              "owner.release",
+              "owner.recover"
+            ]
+          },
+          "uniqueItems": true,
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "capabilities": {
+          "const": [
+            "workflow.core.v1"
+          ]
+        }
+      },
+      "required": [
+        "protocol_major",
+        "package_version",
+        "schema_digest",
+        "fixture_digest",
+        "operations",
+        "capabilities"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "x-controller": {
+    "protocol_major": 1,
+    "python_minimum": "3.12",
+    "runtime_dependencies": "stdlib only",
+    "implemented_operations": [
+      "workflow.open",
+      "owner.acquire",
+      "owner.release",
+      "owner.recover"
+    ],
+    "capabilities": [
+      "workflow.core.v1"
+    ],
+    "reserved_operations": {
+      "policy.bind": "workflow.policy.v1",
+      "prd.enter": "workflow.lifecycle.v1",
+      "task.replace": "workflow.tasks.v1",
+      "task.start": "workflow.tasks.v1",
+      "task.finish": "workflow.tasks.v1",
+      "task.attempt": "workflow.tasks.v1",
+      "lane.route": "workflow.policy.v1",
+      "job.plan": "workflow.jobs.v1",
+      "job.claim": "workflow.jobs.v1",
+      "job.record_exit": "workflow.jobs.v1",
+      "review.record_stage": "workflow.reviews.v1",
+      "review.close": "workflow.reviews.v1",
+      "custody.record": "workflow.custody.v1",
+      "custody.discharge": "workflow.custody.v1",
+      "verification.record": "workflow.verification.v1",
+      "phase.handoff": "workflow.lifecycle.v1",
+      "prd.stall": "workflow.lifecycle.v1",
+      "prd.park": "workflow.lifecycle.v1",
+      "prd.defer": "workflow.lifecycle.v1",
+      "prd.complete": "workflow.lifecycle.v1",
+      "artifact.record": "workflow.records.v1",
+      "records.commit": "workflow.records.v1"
+    },
+    "unavailable_capabilities": [
+      "workflow.policy.v1",
+      "workflow.lifecycle.v1",
+      "workflow.tasks.v1",
+      "workflow.jobs.v1",
+      "workflow.reviews.v1",
+      "workflow.custody.v1",
+      "workflow.verification.v1",
+      "workflow.records.v1",
+      "workflow.waves.v1"
+    ],
+    "error_codes": [
+      "invalid_request",
+      "incompatible_contract",
+      "revision_conflict",
+      "wrong_binding",
+      "missing_capability",
+      "rejected_evidence",
+      "recovery_required"
+    ],
+    "limits": {
+      "state_bytes": 16777216,
+      "request_bytes": 2097152,
+      "normal_candidate_bytes": 14680064,
+      "emergency_reserved_bytes": 2097152,
+      "core_response_bytes": 65536,
+      "intent_bytes": 33554432,
+      "string_bytes": 1048576,
+      "identity_bytes": 256,
+      "reason_bytes": 4096,
+      "json_depth": 32,
+      "json_integer_digits": 640,
+      "normal_receipts": 4094,
+      "hard_receipts": 4096,
+      "current_actors": 2
+    },
+    "request_canonicalization": "json.dumps(envelope, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False, allow_nan=False).encode(\"utf-8\"); no Unicode normalization",
+    "state_serialization": "(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True) + \"\\n\").encode(\"utf-8\")",
+    "runtime_validation": [
+      "Reject duplicate JSON keys, nonfinite numbers, invalid UTF-8, bool integers, integers exceeding 640 digits, and JSON nesting beyond 32 before copying.",
+      "Apply UTF-8 byte formats and full serialized request/state/core-response limits; JSON Schema maxLength counts code points, not bytes.",
+      "Map actor keys to descriptor actor_id; keep exactly current operator and optional current owner. Check project/workflow/epoch consistency and owner mode/session binding.",
+      "Receipts retain canonical complete-envelope digest, historical authorizing descriptor and exact successful response; rejected requests never create receipts.",
+      "Authenticate historical exact receipt retrieval separately from current mutation authority; compare SHA-256 secrets with hmac.compare_digest.",
+      "Validate complete candidate and response before preparing intent. Normal admission stops at 4094 receipts or 14 MiB; two emergency slots/2 MiB clear an active owner only; 4096 seals mutations.",
+      "workflow reserves are immutable; future owners require expanded schemas and migration.",
+      "Strict envelope and binding validation precede reconciliation. Only an identical authenticated intent request may reconcile; snapshot never reconciles.",
+      "Restore under the exclusive lock requires valid current and backup, identical lease_epoch/owner/actors/receipts, and absent credential-intent.json before publishing either file.",
+      "Contract/snapshot/CLI are read-only projections; snapshot excludes secret digests and receipt bodies. No generic setter or restore CLI."
+    ]
+  }
+}

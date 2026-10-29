@@ -1,0 +1,1164 @@
+{
+  "provenance_version": 1,
+  "source": {
+    "repository": "https://github.com/buvis/ovcaq",
+    "commit": "cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7",
+    "inspection": "git show at exact commit; no checkout HEAD reads or source mutation",
+    "hash_algorithm": "sha256",
+    "hash_scope": "raw git blob bytes",
+    "files": [
+      {
+        "path": "src/ovcaq/state/schema.py",
+        "sha256": "1aa218e2b435866c96ca490bc499aaa2fc3e49d640ddde84dd947b00812bd60b"
+      },
+      {
+        "path": "src/ovcaq/state/store.py",
+        "sha256": "b7ade1f13f7c4ef8cb65ce07ac5c228e235ab293ae9e82562e7d449e721307e7"
+      },
+      {
+        "path": "src/ovcaq/state/commands.py",
+        "sha256": "30d51f28eb04a3a00ecae2aa3d3966435add4e804311468c1b6ea1bb7614fbd0"
+      },
+      {
+        "path": "src/ovcaq/paths.py",
+        "sha256": "3bb2bdd7da9dc838e19751fb95c79aa072961849624978f9ab91bfb3a5cfb990"
+      },
+      {
+        "path": "tests/state/test_schema.py",
+        "sha256": "91e46ef82e027e9b9f30769e012170e105c6c6cef9e065276f9abdbd37248e27"
+      },
+      {
+        "path": "tests/state/test_schema_constraints.py",
+        "sha256": "60bd69c7aaf5f3297d51095506e1618a7cd373886879879d311d07f24d417174"
+      },
+      {
+        "path": "tests/state/test_schema_invariants.py",
+        "sha256": "93826703d0452919d2b16bb040b11a70f2ac4e166e94e913b25cedef7476382f"
+      },
+      {
+        "path": "tests/state/test_schema_limits.py",
+        "sha256": "f92ff6c294850837675a2bea85aff774ce888c66466cc0fdc3d16b1008445cb1"
+      },
+      {
+        "path": "tests/state/test_store.py",
+        "sha256": "5bebdd57e7b027889c18de3e18f006702d4017a1f7e1e9abd2bd22befd6e9992"
+      },
+      {
+        "path": "tests/state/test_store_transactions.py",
+        "sha256": "59863830378a6ffe7c2cef4df0f383e5937541345347f8c36f952e0eb36fa4f3"
+      },
+      {
+        "path": "tests/state/test_store_concurrency.py",
+        "sha256": "791b17d686b9dc4bb5cb4b9f770690d1bf580988c286f91b1dba55a6f0761fb9"
+      },
+      {
+        "path": "tests/state/test_durability.py",
+        "sha256": "fafcd253e9ebdf05d0ed9b4aa5f7a0619f602ae36349ab387e0ffe88477dbc32"
+      },
+      {
+        "path": "tests/state/test_guarded_service.py",
+        "sha256": "7e7c8bae2ecd23c21fbb58f8fb4fa5f744b03fb9aa94c810f28b75655002111f"
+      },
+      {
+        "path": "tests/runtime/test_paths.py",
+        "sha256": "aa10c8c06740bf6ea4eb29c11d06affac0f17c0e605d7fb3d6a10fe2da3b3fdd"
+      },
+      {
+        "path": "LICENSE",
+        "sha256": "cf48d74443ef10a4521c1413fc331ceca76a2c791ea913c60df6d0cbf1440e46"
+      }
+    ],
+    "license": {
+      "spdx": "MIT",
+      "path": "LICENSE",
+      "copyright": "Copyright (c) 2026 Bob Buvis",
+      "requirement": "Preserve this copyright and the complete MIT permission/warranty notice in extracted source distributions."
+    }
+  },
+  "scope": "Configuration characterization only. No runtime has been extracted or certified by this task; mapped runtime checks remain obligations. Not a full legacy schema equivalence claim.",
+  "symbol_map": [
+    {
+      "source": "src/ovcaq/state/schema.py",
+      "symbols": [
+        "SCHEMA_VERSION",
+        "MAX_STATE_BYTES",
+        "MAX_COMMAND_PAYLOAD_BYTES",
+        "MAX_STRING_BYTES",
+        "MAX_JSON_DEPTH",
+        "MAX_JSON_INTEGER_DIGITS",
+        "SchemaError",
+        "ResourceLimitError",
+        "decode_json",
+        "validate_state",
+        "new_state"
+      ],
+      "target": "autopilot_state.schema",
+      "disposition": "retain limits/strict validation and pre-copy checks; replace workflow schema and extend new_state(repo_root, project_id, workflow_id)"
+    },
+    {
+      "source": "src/ovcaq/state/store.py",
+      "symbols": [
+        "StateStore",
+        "StateStore.read",
+        "StateStore.initialize",
+        "StateStore.transaction",
+        "StateStore.restore",
+        "DurabilityBoundary",
+        "StateError",
+        "StateIOError",
+        "StateResourceLimitError",
+        "StateExistsError",
+        "BackupError",
+        "FutureSchemaError",
+        "RevisionConflictError",
+        "DurabilityUnsupportedError"
+      ],
+      "target": "autopilot_state.store",
+      "disposition": "preserve public signatures, exceptions, durability and lock behavior; tighten restore security and factor private locked initialization"
+    },
+    {
+      "source": "src/ovcaq/paths.py",
+      "symbols": [
+        "_trusted_path",
+        "_reject_symlink_components",
+        "_identity_snapshot",
+        "_directory_identity",
+        "resolve_runtime_paths",
+        "ensure_runtime_layout"
+      ],
+      "target": "autopilot_state.paths.resolve_project_root and private layout",
+      "disposition": "reuse explicit-root trust, dir_fd/O_NOFOLLOW and ancestor identity checks; change fixed private controller layout"
+    },
+    {
+      "source": "src/ovcaq/state/commands.py",
+      "symbols": [
+        "StateService",
+        "StateService._transaction",
+        "StateService.set",
+        "StateService.append",
+        "StateService.delete",
+        "StateService.restore"
+      ],
+      "target": null,
+      "disposition": "do not expose source generic mutation/restore commands; new closed authenticated protocol only"
+    }
+  ],
+  "field_ownership": [
+    {
+      "source": "CatchupCache.completed_at",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "CatchupCache.head_sha",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "CompletedPrd.filename",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "CompletedPrd.cycles",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "CompletedPrd.autonomous_decisions",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "CompletedPrd.escalated_decisions",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "CompletedPrd.tasks_completed",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "CompletedPrd.tasks_total",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "CapabilityAttempt.id",
+      "disposition": "deferred",
+      "owner": "workflow.jobs.v1",
+      "target": null
+    },
+    {
+      "source": "CapabilityAttempt.status",
+      "disposition": "deferred",
+      "owner": "workflow.jobs.v1",
+      "target": null
+    },
+    {
+      "source": "CapabilityAttempt.started_at",
+      "disposition": "deferred",
+      "owner": "workflow.jobs.v1",
+      "target": null
+    },
+    {
+      "source": "CapabilityAttempt.finished_at",
+      "disposition": "deferred",
+      "owner": "workflow.jobs.v1",
+      "target": null
+    },
+    {
+      "source": "CapabilityAttempt.session_id",
+      "disposition": "excluded",
+      "owner": "future process supervisor; observation only if explicitly bounded",
+      "target": null
+    },
+    {
+      "source": "CapabilityAttempt.detail",
+      "disposition": "deferred",
+      "owner": "workflow.jobs.v1",
+      "target": null
+    },
+    {
+      "source": "CapabilityEntry.required",
+      "disposition": "deferred",
+      "owner": "workflow.jobs.v1",
+      "target": null
+    },
+    {
+      "source": "CapabilityEntry.launcher",
+      "disposition": "excluded",
+      "owner": "future process supervisor; observation only if explicitly bounded",
+      "target": null
+    },
+    {
+      "source": "CapabilityEntry.plugin",
+      "disposition": "deferred",
+      "owner": "workflow.jobs.v1",
+      "target": null
+    },
+    {
+      "source": "CapabilityEntry.version",
+      "disposition": "deferred",
+      "owner": "workflow.jobs.v1",
+      "target": null
+    },
+    {
+      "source": "CapabilityEntry.failure",
+      "disposition": "deferred",
+      "owner": "workflow.jobs.v1",
+      "target": null
+    },
+    {
+      "source": "CapabilityEntry.status",
+      "disposition": "deferred",
+      "owner": "workflow.jobs.v1",
+      "target": null
+    },
+    {
+      "source": "CapabilityEntry.attempts",
+      "disposition": "deferred",
+      "owner": "workflow.jobs.v1",
+      "target": null
+    },
+    {
+      "source": "BatchState.id",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "BatchState.status",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "BatchState.started_at",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "BatchState.completed_at",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "BatchState.completed_prds",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "BatchState.parks_consecutive",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "BatchState.catchup",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "BatchState.capabilities",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEstimates.input_tokens",
+      "disposition": "deferred",
+      "owner": "future bounded workflow evidence; never process resource authority",
+      "target": null
+    },
+    {
+      "source": "TaskEstimates.context_peak",
+      "disposition": "deferred",
+      "owner": "future bounded workflow evidence; never process resource authority",
+      "target": null
+    },
+    {
+      "source": "EscalationEntry.reason",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "EscalationEntry.from_tier",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "EscalationEntry.diagnosis",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "EscalationEntry.repair_used",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.number",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.tier",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.driver",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.outcome",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.review_cycle",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.cause",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.pipeline",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.cleanup_outcome",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.started_at",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.finished_at",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.commit_sha",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.escalation",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "AttemptEntry.metadata",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEntry.id",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEntry.name",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEntry.description",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEntry.active_form",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEntry.status",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEntry.blocked_by",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEntry.tier",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEntry.files_touched",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEntry.public_contract_edit",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEntry.estimates",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEntry.attempts",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "TaskEntry.metadata",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": null
+    },
+    {
+      "source": "WorkState.prd",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "WorkState.phase",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "WorkState.next_phase",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "WorkState.completed_phases",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "WorkState.work_start_sha",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "WorkState.repo_root",
+      "disposition": "redesigned",
+      "owner": "workflow.core.v1",
+      "target": "repo_root"
+    },
+    {
+      "source": "WorkState.design_doc",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "WorkState.contract_card",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "WorkState.tasks_total",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "WorkState.tasks_completed",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "WorkState.extensions",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "DecisionGate.decision",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DecisionGate.detail",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DecisionGate.decided_at",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "TestRun.command",
+      "disposition": "deferred",
+      "owner": "workflow.verification.v1",
+      "target": null
+    },
+    {
+      "source": "TestRun.exit_code",
+      "disposition": "deferred",
+      "owner": "workflow.verification.v1",
+      "target": null
+    },
+    {
+      "source": "TestRun.summary",
+      "disposition": "deferred",
+      "owner": "workflow.verification.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewCycle.cycle",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewCycle.review_file",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewCycle.reviewers",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewCycle.issues_found",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewCycle.follow_up_tasks",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewCycle.deferred",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewCycle.recurring_issues",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewCycle.decision_gate",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewCycle.rework_commits",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewCycle.rework_notes",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewCycle.fix_audit",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewCycle.test_run",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DecisionEntry.id",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DecisionEntry.kind",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DecisionEntry.summary",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DecisionEntry.rationale",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DecisionEntry.cycle",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DecisionEntry.created_at",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DecisionEntry.status",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DoubtEntry.id",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DoubtEntry.description",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DoubtEntry.category",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DoubtEntry.justification",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DoubtEntry.status",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "DoubtEntry.source",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "RubricVerdict.rule_id",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "RubricVerdict.verdict",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "RubricVerdict.source",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewState.cycle",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewState.cap",
+      "disposition": "redesigned",
+      "owner": "workflow.core.v1",
+      "target": "workflow.review.cap"
+    },
+    {
+      "source": "ReviewState.cycles",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewState.decisions",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewState.doubts",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewState.rubric_verdicts",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewState.rework_task_ids",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewState.lenses",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "ReviewState.extensions",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": null
+    },
+    {
+      "source": "Notice.site",
+      "disposition": "deferred",
+      "owner": "future supervisor control; not workflow.core.v1",
+      "target": null
+    },
+    {
+      "source": "Notice.detail",
+      "disposition": "deferred",
+      "owner": "future supervisor control; not workflow.core.v1",
+      "target": null
+    },
+    {
+      "source": "Notice.created_at",
+      "disposition": "deferred",
+      "owner": "future supervisor control; not workflow.core.v1",
+      "target": null
+    },
+    {
+      "source": "ControlState.pause_requested",
+      "disposition": "deferred",
+      "owner": "future supervisor control; not workflow.core.v1",
+      "target": null
+    },
+    {
+      "source": "ControlState.pause_reason",
+      "disposition": "deferred",
+      "owner": "future supervisor control; not workflow.core.v1",
+      "target": null
+    },
+    {
+      "source": "ControlState.attention",
+      "disposition": "deferred",
+      "owner": "future supervisor control; not workflow.core.v1",
+      "target": null
+    },
+    {
+      "source": "ArtifactIdentity.device",
+      "disposition": "deferred",
+      "owner": "workflow.custody.v1",
+      "target": null
+    },
+    {
+      "source": "ArtifactIdentity.inode",
+      "disposition": "deferred",
+      "owner": "workflow.custody.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryOperation.id",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryOperation.kind",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryOperation.step",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryOperation.prd",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryOperation.site",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryOperation.detail",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryOperation.source",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryOperation.destination",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryOperation.artifact",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryOperation.created_at",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryState.operation",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryState.replan_count",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryState.phase_fingerprint",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "RecoveryState.phase_repeats",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": null
+    },
+    {
+      "source": "State.schema_version",
+      "disposition": "preserved",
+      "owner": "workflow.core.v1",
+      "target": "schema_version"
+    },
+    {
+      "source": "State.revision",
+      "disposition": "preserved",
+      "owner": "workflow.core.v1",
+      "target": "revision"
+    },
+    {
+      "source": "State.batch",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": "workflow.batch"
+    },
+    {
+      "source": "State.work",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": "workflow.work"
+    },
+    {
+      "source": "State.tasks",
+      "disposition": "deferred",
+      "owner": "workflow.tasks.v1",
+      "target": "workflow.tasks"
+    },
+    {
+      "source": "State.review",
+      "disposition": "deferred",
+      "owner": "workflow.reviews.v1",
+      "target": "workflow.review"
+    },
+    {
+      "source": "State.control",
+      "disposition": "excluded",
+      "owner": "future supervisor control; not workflow.core.v1",
+      "target": null
+    },
+    {
+      "source": "State.recovery",
+      "disposition": "deferred",
+      "owner": "workflow.lifecycle.v1",
+      "target": "workflow.recovery"
+    }
+  ],
+  "preserved_invariants": [
+    "Reject unknown/missing owned fields and bool integers; validate before deep copy.",
+    "Strict duplicate-key/nonfinite/depth/integer/UTF-8/serialized-byte bounds.",
+    "StateStore.read shared lock; initialize/transaction/restore exclusive flock sidecar.",
+    "CAS inside exclusive lock; isolated mutator copy; revision advances once.",
+    "O_NOFOLLOW, inode consistency, regular single-link artifacts and bounded reads.",
+    "File fsync before publication; directory fsync after publication; six source boundaries.",
+    "Create-only initialization including race checks; one exact prior-state backup; exact state/backup repair on failed publication guards.",
+    "Current state must decode and validate before backup restore; unsupported directory fsync raises explicitly.",
+    "Directory descriptors and ancestor inode snapshots/rechecks survive layout adaptation."
+  ],
+  "deliberate_divergences": [
+    {
+      "topic": "schema",
+      "source": "top-level State has batch/work/tasks/review/control/recovery and review cap 3",
+      "target": "identity/lease/actors/receipts and frozen workflow reserves, review cap 2; source fields individually deferred; no process identity/PID/launcher/heartbeat/resource/TUI authority"
+    },
+    {
+      "topic": "restore",
+      "source": "precondition(current) runs before decoding backup; any valid backup is republished at current revision + 1",
+      "target": "after decoding backup under same exclusive lock, require identical lease_epoch/owner/actors/receipts and absent credential-intent.json, else BackupError before either pair file changes; offline forensic primitive only"
+    },
+    {
+      "topic": "paths",
+      "source": "discovery may infer ancestors; configurable/external runtime roots, fleet and session paths",
+      "target": "explicit existing resolved project root only; fixed .autopilot/controller, SHA-256 path identity, private ignored directories; no external or payload-selected state paths"
+    },
+    {
+      "topic": "commands",
+      "source": "generic get/set/append/delete and workflow mutation service",
+      "target": "four closed apply operations; no generic JSON setter, job launch, restore CLI or later-family success stubs"
+    },
+    {
+      "topic": "credentials",
+      "source": "no core operator/owner/receipt protocol in these source files",
+      "target": "bounded current descriptor registry, epoch rotation, exact historical receipt retrieval and recoverable credential publication are new protocol obligations"
+    },
+    {
+      "topic": "capacity",
+      "source": "16 MiB state bound without protocol receipt reserve",
+      "target": "14 MiB/4094 normal admission, 2 MiB/two emergency receipt reserve, 64 KiB responses, sealed 4096; manual hash-verified archival only"
+    },
+    {
+      "topic": "bootstrap",
+      "source": "initialize owns its exclusive lock and writes revision-zero state",
+      "target": "private locked initialization helper shares one bootstrap flock with credential intent/state/receipt publication; no recursive flock"
+    },
+    {
+      "topic": "evidence",
+      "source": "tests characterize OVCAQ runtime",
+      "target": "these portable JSON Schema tests validate configuration only; fixtures declare future runtime scenarios, not executed durability/auth evidence"
+    }
+  ],
+  "test_map": [
+    {
+      "source": "tests/state/test_schema_constraints.py::test_validate_state_rejects_missing_fields_in_every_owned_object",
+      "target": "tests/autopilot/test_controller_protocol.py::test_kernel_field_ownership",
+      "note": "closed required shapes"
+    },
+    {
+      "source": "tests/state/test_schema_constraints.py::test_validate_state_rejects_unknown_fields_in_every_owned_object",
+      "target": "tests/autopilot/test_controller_protocol.py::test_kernel_field_ownership",
+      "note": "closed ownership"
+    },
+    {
+      "source": "tests/state/test_schema.py::test_new_state_returns_the_complete_clean_v1_defaults",
+      "target": "tests/autopilot/test_controller_protocol.py::test_kernel_defaults_and_deferred_families",
+      "note": "source cap 3 deliberately becomes 2; source work fields deferred"
+    },
+    {
+      "source": "tests/state/test_schema_invariants.py::test_schema_constants_match_the_v1_protocol_limits",
+      "target": "tests/autopilot/test_controller_protocol.py::test_frozen_resource_limits",
+      "note": "shared JSON bounds"
+    },
+    {
+      "source": "tests/state/test_schema_limits.py::test_validate_state_rejects_strings_over_their_utf8_byte_limits",
+      "target": "tests/autopilot/test_controller_protocol.py::test_utf8_byte_limits",
+      "note": "byte formats asserted in configuration; runtime repeats validation"
+    },
+    {
+      "source": "tests/state/test_store.py::test_read_rejects_duplicate_json_keys_before_schema_validation",
+      "target": null,
+      "note": "runtime strict decode pending"
+    },
+    {
+      "source": "tests/state/test_store.py::test_store_rejects_hard_linked_artifacts_without_touching_aliases",
+      "target": null,
+      "note": "runtime single-link artifact checks pending"
+    },
+    {
+      "source": "tests/state/test_store_transactions.py::test_successful_transactions_and_restore_each_advance_revision_once",
+      "target": null,
+      "note": "runtime revisions and security-identical restore pending"
+    },
+    {
+      "source": "tests/state/test_store_transactions.py::test_failed_mutations_leave_state_and_backup_bytes_unchanged",
+      "target": null,
+      "note": "runtime rejection preservation pending"
+    },
+    {
+      "source": "tests/state/test_store_transactions.py::test_concurrent_same_revision_compare_and_set_commits_exactly_once",
+      "target": null,
+      "note": "runtime exclusive-lock CAS pending"
+    },
+    {
+      "source": "tests/state/test_store_concurrency.py::test_restore_validates_current_before_parsing_backup_and_preserves_bytes",
+      "target": null,
+      "note": "runtime corruption refusal pending"
+    },
+    {
+      "source": "tests/state/test_store_concurrency.py::test_read_uses_the_shared_sidecar_and_transaction_uses_it_exclusively",
+      "target": null,
+      "note": "runtime lock modes pending"
+    },
+    {
+      "source": "tests/state/test_durability.py::test_sigkill_at_each_locked_mutation_boundary_preserves_recoverable_state",
+      "target": "tests/autopilot/test_controller_protocol.py::test_frozen_durability_and_credential_scenarios",
+      "note": "configuration enumerates source six boundaries; runtime injection pending"
+    },
+    {
+      "source": "tests/state/test_durability.py::test_directory_fsync_failures_are_translated_and_never_swallowed",
+      "target": null,
+      "note": "runtime unsupported fsync refusal pending"
+    },
+    {
+      "source": "tests/state/test_guarded_service.py::test_guard_rejection_at_every_durable_boundary_restores_exact_bytes",
+      "target": null,
+      "note": "runtime publication guard and byte repair pending"
+    },
+    {
+      "source": "tests/runtime/test_paths.py::test_layout_rejects_directory_inode_replacement_after_resolution",
+      "target": null,
+      "note": "runtime ancestor identity rechecks pending"
+    },
+    {
+      "source": "tests/runtime/test_paths.py::test_layout_rejects_directory_inode_replacement_during_open_validation",
+      "target": null,
+      "note": "runtime dir_fd/O_NOFOLLOW creation pending"
+    }
+  ],
+  "new_protocol_obligations": [
+    "credential publication boundaries and bootstrap crash reconciliation",
+    "same-actor historical/current receipt-only replay after rotation",
+    "capacity bytes/count independently and offline archive/hash/restore roundtrip",
+    "Git ignore privacy and no-follow identity races",
+    "security-identical restore and acquire-then-restore refusal"
+  ],
+  "unverified": [
+    "runtime implementation and runtime test execution",
+    "host support or certification",
+    "installation, publication, package version changes"
+  ]
+}
