@@ -14,94 +14,99 @@ GATE_SIZE = 742
 GATE_SHA = "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75"
 SCRIPT = re.compile(r"(?:<plugin root>)?[A-Za-z0-9_./${}~+-]+\.(?:py|sh)\b")
 COMMAND = re.compile(r"\b(?:python[23]?|bash|sh|pytest)(?:\s+-[A-Za-z]+)*$")
-NAMED = {
-    "consolidate_findings.py", "compute_mech_facts.py", "render_prompt.py",
-    "record_dispatch.py", "detect_tautological_tests.py", "check_review_file.py",
-    "await_reviewer_outputs.py", "fast_track_plan.py", "card.py", "fablectl.py",
-    "parse_review.py",
-}
+NAMED = set("""
+await_reviewer_outputs.py card.py check_review_file.py
+compute_mech_facts.py consolidate_findings.py detect_tautological_tests.py
+fablectl.py fast_track_plan.py parse_review.py
+record_dispatch.py render_prompt.py
+""".split())
 
 
-def source_text(path: Path) -> str:
-    data = path.read_bytes()
-    if path.name == "SKILL.md":
+def source_text(p: Path) -> str:
+    data = p.read_bytes()
+    if p.name == "SKILL.md":
         end = data.index(b"\n---\n", 4) + 5
-        gate = data[end:end + GATE_SIZE]
-        if hashlib.sha256(gate).hexdigest() == GATE_SHA:
+        if hashlib.sha256(data[end:end + GATE_SIZE]).hexdigest() == GATE_SHA:
             data = data[:end] + data[end + GATE_SIZE:]
     return data.decode()
 
 
-def dependencies(package: Path) -> set[tuple[str, int, str]]:
-    expected = set()
-    for path in sorted(package.rglob("*.md")):
-        source = path.relative_to(package).as_posix()
-        lines = source_text(path).splitlines()
-        example = False
-        for number, line in enumerate(lines, 1):
-            if line.startswith("```markdown"):
-                example = True
-            elif line.startswith("```"):
-                example = False
+def dependencies(pkg: Path) -> set[tuple[str, int, str]]:
+    found = set()
+    for p in sorted(p for p in pkg.rglob("*") if p.is_file()):
+        src = p.relative_to(pkg).as_posix()
+        try:
+            lines = source_text(p).splitlines()
+        except UnicodeDecodeError:
+            continue
+        worked = example = False
+        for n, line in enumerate(lines, 1):
+            if line.startswith("```"):
+                example = not example if example else worked and line == "```markdown"
+                worked = False
+                continue
             if example:
                 continue
+            if line.strip():
+                worked = line.strip() == "## A worked card"
             for match in SCRIPT.finditer(line):
-                reference = match.group()
-                prefix = line[:match.start()].rstrip("` ")
-                command = COMMAND.search(prefix)
-                context = " ".join(lines[max(0, number - 2):number + 2])
-                citation = (Path(reference).name.startswith("test_")
-                            or "decision model" in context or "does not use" in context
-                            or "hand-maintained model" in context)
-                if citation and not command and "${CLAUDE_PLUGIN_ROOT}/" not in reference:
+                if re.search(r'"source_path"\s*:\s*"$', line[:match.start()]):
                     continue
-                if ("${CLAUDE_PLUGIN_ROOT}/" in reference
-                        or "/scripts/" in reference or reference.startswith("scripts/")
-                        or command or re.search(r"(?i)\b(?:run|invoke|execute|call)(?: the)?$", prefix)
-                        or (match.start() > 0 and line[match.start() - 1] == "`"
-                            and re.match(r"\s+(?:--|<|\$)", line[match.end():]))):
-                    expected.add((source, number, reference))
-    return expected
+                ref = match.group()
+                prefix = line[:match.start()].rstrip("` ")
+                cmd = (COMMAND.search(prefix)
+                       or re.search(r"(?i)\b(?:run|invoke|execute|call)(?: the)?$", prefix)
+                       or (match.start() and line[match.start() - 1] == "`"
+                           and re.match(r"\s+(?:--|<|\$)", line[match.end():])))
+                pos = sum(map(len, lines[:n-1])) + n - 1 + match.start()
+                prose = next(s.group() for s in re.finditer(
+                    r"(?s).+?(?:[.!?](?=\s)|\n\s*\n|$)", "\n".join(lines)) if s.start() <= pos < s.end())
+                cite = (Path(ref).name.startswith("test_") or re.search(
+                    r"decision model|does not use|hand-maintained model", prose))
+                if cite and not cmd and "${CLAUDE_PLUGIN_ROOT}/" not in ref:
+                    continue
+                if ("${CLAUDE_PLUGIN_ROOT}/" in ref
+                        or "/scripts/" in ref or ref.startswith("scripts/")
+                        or cmd):
+                    found.add((src, n, ref))
+    return found
 
 
-def inside(package: Path, reference: str) -> Path | None:
-    path = package.parent.parent / reference
-    return path if path.resolve().is_relative_to(package.resolve()) else None
+def inside(pkg: Path, ref: str) -> Path | None:
+    p = pkg.parent.parent / ref
+    return p if p.resolve().is_relative_to(pkg.resolve()) else None
 
 
 def closure_errors(package: Path, edges: list[dict]) -> list[str]:
-    indexed = {}
+    index = {}
     for edge in edges:
-        key = (edge.get("source_path"), edge.get("source_line"), edge["reference"])
-        indexed.setdefault(key, []).append(edge)
+        index.setdefault((edge.get("source_path"), edge.get("source_line"),
+                            edge["reference"]), []).append(edge)
     errors = []
-    for source, line, reference in sorted(dependencies(package)):
-        label = f"{source}:{line}: {reference}"
-        rows = indexed.get((source, line, reference), [])
+    for src, line, ref in sorted(dependencies(package)):
+        tag = f"{src}:{line}: {ref}"
+        rows = index.get((src, line, ref), [])
         if len(rows) != 1:
-            errors.append(f"{label}: edge count {len(rows)}")
+            errors.append(f"{tag}: edge count {len(rows)}")
             continue
         edge = rows[0]
         kind = edge["kind"]
         if kind == "packaged-resource":
-            target = inside(package, edge.get("destination_path", ""))
-            if target is None or not target.is_file() or target.name != Path(reference).name:
-                errors.append(f"{label}: packaged script missing or escaping")
+            file = inside(package, edge.get("destination_path", ""))
+            if file is None or not file.is_file() or file.name != Path(ref).name:
+                errors.append(f"{tag}: missing/escaping script")
         elif kind == "external-capability":
             gate = inside(package, edge.get("gate_entry_point", ""))
-            if not edge.get("capability", "").strip() or not edge.get("failure_rule", "").strip():
-                errors.append(f"{label}: missing capability/failure rule")
+            if not all(edge.get(k, "").strip() for k in ("capability", "failure_rule")):
+                errors.append(f"{tag}: missing capability/failure")
             if gate is None or not gate.is_file() or gate.name != "SKILL.md":
-                errors.append(f"{label}: unavailable gate missing or escaping")
-            else:
-                data = gate.read_bytes()
-                end = data.index(b"\n---\n", 4) + 5
-                if hashlib.sha256(data[end:end + GATE_SIZE]).hexdigest() != GATE_SHA:
-                    errors.append(f"{label}: gate not unconditional")
+                errors.append(f"{tag}: missing/escaping gate")
+            elif source_text(gate) == gate.read_bytes().decode():
+                errors.append(f"{tag}: bad gate")
         else:
-            errors.append(f"{label}: active script classified {kind}")
+            errors.append(f"{tag}: script classified {kind}")
         if not edge.get("failure_rule", "").strip() and kind == "packaged-resource":
-            errors.append(f"{label}: missing packaged failure rule")
+            errors.append(f"{tag}: missing failure rule")
     return errors
 
 
@@ -109,54 +114,58 @@ class ResourceClosureTest(unittest.TestCase):
     def test_whole_tree_closure(self) -> None:
         edges = json.loads((ROOT / "tools/autopilot/source-map.json").read_text())["resource_edges"]
         errors = closure_errors(ROOT / "plugins/autopilot", edges)
-        self.assertEqual(errors[:12], [], f"{len(errors)} closure defects; first 12 shown")
+        self.assertFalse(errors, f"{len(errors)} defects: {errors[:12]}")
 
     def test_named_and_discovered_helpers(self) -> None:
         names = {Path(ref).name for _, _, ref in dependencies(ROOT / "plugins/autopilot")}
         self.assertTrue((NAMED | {"record_item.py"}).issubset(names))
 
     def test_dependency_mutations(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            package = Path(directory) / "plugins/autopilot"
-            skill = package / "skills/example/SKILL.md"
+        eq, yes = self.assertEqual, self.assertTrue
+        with tempfile.TemporaryDirectory() as tmp:
+            pkg = Path(tmp) / "plugins/p"
+            skill = pkg / "skills/e/SKILL.md"
             skill.parent.mkdir(parents=True)
-            shipped = ROOT / "plugins/autopilot/skills/work/SKILL.md"
-            data = shipped.read_bytes()
+            data = (ROOT / "plugins/autopilot/skills/work/SKILL.md").read_bytes()
             end = data.index(b"\n---\n", 4) + 5
-            header = b"---\nname: example\n---\n"
-            skill.write_bytes(header + data[end:end + GATE_SIZE]
-                              + b"python3 ${CLAUDE_PLUGIN_ROOT}/skills/example/scripts/new_helper.py\n")
-            reference = "${CLAUDE_PLUGIN_ROOT}/skills/example/scripts/new_helper.py"
+            prefix = b"---\nname: e\n---\n" + data[end:end + GATE_SIZE]
+            ref = "${CLAUDE_PLUGIN_ROOT}/skills/e/scripts/x.py"
+            skill.write_bytes(prefix + f"python3 {ref}\n".encode())
             edge = {
-                "source_path": "skills/example/SKILL.md", "source_line": 4,
-                "reference": reference, "kind": "external-capability",
-                "capability": "unavailable test helper", "failure_rule": "stop",
-                "gate_entry_point": "plugins/autopilot/skills/example/SKILL.md",
+                "source_path": "skills/e/SKILL.md", "source_line": 4,
+                "reference": ref, "kind": "external-capability",
+                "capability": "test", "failure_rule": "stop",
+                "gate_entry_point": "plugins/p/skills/e/SKILL.md",
             }
-            self.assertEqual(closure_errors(package, [edge]), [])
-            self.assertTrue(closure_errors(package, []))
+            eq(closure_errors(pkg, [edge]), [])
+            yes(closure_errors(pkg, []))
             for field, value in (("kind", "informational-provenance"),
-                                 ("gate_entry_point", "plugins/autopilot/../../outside/SKILL.md"),
+                                 ("gate_entry_point", "plugins/p/../../outside/SKILL.md"),
                                  ("capability", ""), ("failure_rule", ""),
                                  ("kind", "packaged-resource")):
                 with self.subTest(field=field):
-                    changed = edge.copy()
-                    changed[field] = value
-                    self.assertTrue(closure_errors(package, [changed]))
+                    yes(closure_errors(pkg, [edge | {field: value}]))
             for name in sorted(NAMED | {"record_item.py"}):
                 with self.subTest(helper=name):
-                    skill.write_bytes(header + data[end:end + GATE_SIZE]
-                                      + f"python3 scripts/{name}\n".encode())
-                    self.assertEqual(len(dependencies(package)), 1)
-                    self.assertTrue(closure_errors(package, []))
-            skill.write_bytes(header + data[end:end + GATE_SIZE]
-                              + b"python3 scripts/previously_unknown_helper.py\n")
-            self.assertTrue(closure_errors(package, [edge]))
-            note = package / "README.md"
-            note.write_text("scripts/novel.py\nComparison: novel.py.\nHistory: novel.py.\n"
-                            "python3 novel.py\nRun `novel.py`\n`novel.py <x>`\npython3 unknown.py\n")
-            self.assertEqual({n for src, n, _ in dependencies(package) if src == "README.md"},
-                             {1, 4, 5, 6, 7})
+                    skill.write_bytes(prefix + f"python3 scripts/{name}\n".encode())
+                    eq(len(dependencies(pkg)), 1)
+                    yes(closure_errors(pkg, []))
+            skill.write_bytes(prefix + b"python3 scripts/z.py\n")
+            yes(closure_errors(pkg, [edge]))
+            (pkg / "README.md").write_text(
+                "scripts/x.py\nComparison: x.py.\nHistory: x.py.\n"
+                "python3 x.py\nRun `x.py`\n`x.py <x>`\npython3 z.py\n"
+                "does not use x.py.\nscripts/x.py\n"
+                "```markdown\npython3 x.py\n```\n"
+                "## A worked card\n\n```markdown\npython3 x.py\n```\n"
+                "python3 x.py\nA helper `scripts/c.py`\nthis path does not use.\n")
+            eq({n for src, n, _ in dependencies(pkg) if src == "README.md"},
+               {1, 4, 5, 6, 7, 9, 11, 18})
+            asset = pkg / "runtime.json"
+            asset.write_text('{"source_path":"scripts/p.py","command":"python3 scripts/r.py"}')
+            eq({r for src, _, r in dependencies(pkg) if src == asset.name},
+               {"scripts/r.py"})
+            yes(any(asset.name in e for e in closure_errors(pkg, [])))
 
 
 if __name__ == "__main__":
