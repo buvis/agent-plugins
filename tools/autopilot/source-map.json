@@ -274633,25 +274633,31 @@
       "source_path": "skills/work/references/attempt-logging.md",
       "source_line": 65,
       "reference": "references/red-check.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/references/red-check.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/attempt-logging.md",
       "source_line": 65,
       "reference": "references/final-verification.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/references/final-verification.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/attempt-logging.md",
       "source_line": 109,
       "reference": "references/rework-mode.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/references/rework-mode.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/codex-implementor.md",
@@ -281551,6 +281557,357 @@
       "capability": "Diagnose a failed dispatch before error reporting; continue only when debugging resolves the issue.",
       "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 58,
+      "reference": "check_memory_pressure.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe memory pressure and distinguish pressure exit 1 from probe failure exit 2 for attempt attribution.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 111,
+      "reference": "check_memory_pressure.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe memory pressure and distinguish pressure exit 1 from probe failure exit 2 for attempt attribution.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 69,
+      "reference": "check_split_hygiene.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Check changed test-file bindings and report split-hygiene violations or failures for the attempt stamp.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 70,
+      "reference": "_prose.py",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Test basename suffix selecting the prose-test skip; not an executable helper.",
+      "runtime_rule": "Citation only; must never supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 75,
+      "reference": "check_reflow.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Detect staged-file reflow at the hunk threshold and distinguish findings from exit-2 errors for reporting.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 76,
+      "reference": "parse_review.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate reviewer reporting grammar and distinguish invalid-output exit 1 for the correction retry.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 92,
+      "reference": "statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Write task-done or append-attempt records atomically, recompute completion counts, and reject invalid stamps without changing state.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 93,
+      "reference": "statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Write task-done or append-attempt records atomically, recompute completion counts, and reject invalid stamps without changing state.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 105,
+      "reference": "statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Write task-done or append-attempt records atomically, recompute completion counts, and reject invalid stamps without changing state.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 67,
+      "reference": "run-autopilot/references/state-schema.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 103,
+      "reference": "run-autopilot/references/state-schema.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 65,
+      "reference": "references/subagent-dispatch.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 60,
+      "reference": "work/SKILL.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 63,
+      "reference": "rules/operating-principles.md",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Supply operating-principles rules for fail-loud gate stamps so skipped checks cannot be reported as passed.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 65,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex_hook_doctor.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Scan Codex hook targets before the live probe and report unhealthy exit 1 or doctor-error exit 2 with source-prescribed probe handling.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 99,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch the Codex implementor probe with tool use and output checks; reject Copilot fallback and route unhealthy batches to the named Claude implementor without escalation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 147,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch the Codex implementor probe with tool use and output checks; reject Copilot fallback and route unhealthy batches to the named Claude implementor without escalation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 155,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch the Codex implementor probe with tool use and output checks; reject Copilot fallback and route unhealthy batches to the named Claude implementor without escalation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 157,
+      "reference": "run-autopilot/scripts/codex_review_run.py",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Explicitly excluded review wrapper; the implementor does not use its exit-4 or output-log behavior.",
+      "runtime_rule": "Citation only; must never supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 156,
+      "reference": "codex-review-last.jsonl",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Output log explicitly not written by the implementor helper; not an input dependency.",
+      "runtime_rule": "Citation only; must never supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 168,
+      "reference": "use-codex/references/dispatch-contract.md",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Supply the authoritative Codex implementor contract for exit-code trust, retry behavior, and the -a grant.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 195,
+      "reference": "record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Close dispatch telemetry with ok, error, lost, or timeout according to output and deadline outcomes.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-integration.md",
+      "source_line": 7,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex reviewer prompts with tool access through the documented helper and its backend-selection contract.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-integration.md",
+      "source_line": 20,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch Codex reviewer prompts with tool access through the documented helper and its backend-selection contract.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-integration.md",
+      "source_line": 7,
+      "reference": "skills/review-work-completion",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-integration.md",
+      "source_line": 7,
+      "reference": "skills/review-work-completion/references/agent-invocation.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-invocation.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-integration.md",
+      "source_line": 13,
+      "reference": "use-codex",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Supply the Codex helper flag reference and backend-selection contract required for reviewer invocation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/dashboard-state-sync.md",
+      "source_line": 3,
+      "reference": "render_stream.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render the fallback dashboard by reading the current autopilot task status and completion count from state.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/dashboard-state-sync.md",
+      "source_line": 9,
+      "reference": "statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Apply atomic task-start and task-done lifecycle transitions by task ID, appending attempts and recomputing completion counts.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/dashboard-state-sync.md",
+      "source_line": 10,
+      "reference": "statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Apply atomic task-start and task-done lifecycle transitions by task ID, appending attempts and recomputing completion counts.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 78,
+      "reference": "test_dispatch_prose.py",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Historical extraction table identifies source regression tests; the citation supplies no runtime implementation.",
+      "runtime_rule": "Citation only; must never supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 80,
+      "reference": "test_fablectl.py",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Historical extraction table identifies source regression tests; the citation supplies no runtime implementation.",
+      "runtime_rule": "Citation only; must never supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 82,
+      "reference": "test_dispatch_prose.py",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Historical extraction table identifies source regression tests; the citation supplies no runtime implementation.",
+      "runtime_rule": "Citation only; must never supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 82,
+      "reference": "test_fablectl.py",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Historical extraction table identifies source regression tests; the citation supplies no runtime implementation.",
+      "runtime_rule": "Citation only; must never supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 78,
+      "reference": "self-deslop-prompt.md",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Historical extraction-table destination or retained prompt citation; not a runtime instruction to load this resource.",
+      "runtime_rule": "Citation only; must never supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 79,
+      "reference": "codex-implementor.md",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Historical extraction-table destination or retained prompt citation; not a runtime instruction to load this resource.",
+      "runtime_rule": "Citation only; must never supply runtime content."
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
