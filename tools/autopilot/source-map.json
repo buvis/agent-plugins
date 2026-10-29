@@ -275494,6 +275494,370 @@
       "capability": "Host adapter for ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py",
       "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 443,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/fast_track_plan.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate fast-track targets, choose the exit action, and count dispatches.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 466,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render the required dispatch prompt with supplied context.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 476,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 514,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render the required dispatch prompt with supplied context.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 525,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 556,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render the required dispatch prompt with supplied context.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 570,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 591,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/fast_track_plan.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate fast-track targets, choose the exit action, and count dispatches.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 634,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 646,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/record_item.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record the fast-track item outcome and finding counts.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 658,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/fast_track_plan.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate fast-track targets, choose the exit action, and count dispatches.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 671,
+      "reference": "consolidate_findings.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Consolidate raised findings into the required verbatim review table.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 683,
+      "reference": "fast_track_plan.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate fast-track targets, choose the exit action, and count dispatches.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 466,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/victor.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/victor.md",
+      "failure_rule": "Refuse the affected entry point when the installed persona is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 514,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/ivan.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/ivan.md",
+      "failure_rule": "Refuse the affected entry point when the installed persona is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 556,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/eve.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/eve.md",
+      "failure_rule": "Refuse the affected entry point when the installed persona is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 24,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render the required dispatch prompt with supplied context.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 36,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 54,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render the required dispatch prompt with supplied context.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 65,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 92,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render the required dispatch prompt with supplied context.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 109,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 122,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 141,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 161,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 186,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 192,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch the Codex review lane and capture its output.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 201,
+      "reference": "gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch the Gemini review lane and capture its output.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 206,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 212,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch the Gemini review lane and capture its output.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 220,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render the required dispatch prompt with supplied context.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 230,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 251,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render the required dispatch prompt with supplied context.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 257,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record dispatch start and completion metrics.",
+      "failure_rule": "Refuse fast-track execution while this helper is unavailable; do not dispatch or update workflow state, and do not use a source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 54,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/ivan.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/ivan.md",
+      "failure_rule": "Refuse the affected entry point when the installed persona is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 220,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/victor.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/victor.md",
+      "failure_rule": "Refuse the affected entry point when the installed persona is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 251,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/eve.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/eve.md",
+      "failure_rule": "Refuse the affected entry point when the installed persona is missing or resolves outside the distributed root; no source checkout fallback."
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
