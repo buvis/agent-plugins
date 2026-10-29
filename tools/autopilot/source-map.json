@@ -274367,22 +274367,23 @@
       "source_path": "skills/work/SKILL.md",
       "source_line": 32,
       "reference": "scripts/check_style_limits.py",
-      "kind": "informational-provenance",
+      "kind": "external-capability",
       "status": "unavailable",
       "destination_path": "plugins/autopilot/skills/work/scripts/check_style_limits.py",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
-      "runtime_rule": "Never read historical unavailable scripts to supply missing runtime content; refuse the owning skill before old-script invocation.",
-      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability."
+      "classification_reason": "Active runtime helper; execution requires an adapter.",
+      "capability": "Check changed files against style limits and reject violations."
     },
     {
       "source_path": "skills/work/SKILL.md",
       "source_line": 37,
       "reference": "scripts/sonnet-run.sh",
       "kind": "external-capability",
-      "status": "planned",
-      "capability": "scripts/sonnet-run.sh",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "status": "unavailable",
+      "capability": "Run Sonnet reviewer prompts with output capture and CLI options.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/SKILL.md",
@@ -274505,13 +274506,13 @@
       "source_path": "skills/work/SKILL.md",
       "source_line": 309,
       "reference": "scripts/check_memory_pressure.py",
-      "kind": "informational-provenance",
+      "kind": "external-capability",
       "status": "unavailable",
       "destination_path": "plugins/autopilot/skills/work/scripts/check_memory_pressure.py",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
-      "runtime_rule": "Never read historical unavailable scripts to supply missing runtime content; refuse the owning skill before old-script invocation.",
-      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability."
+      "classification_reason": "Active runtime helper; execution requires an adapter.",
+      "capability": "Probe memory pressure; distinguish pressure exit 1 from probe-failure exit 2."
     },
     {
       "source_path": "skills/work/SKILL.md",
@@ -280794,6 +280795,345 @@
       "capability": "Pause the autopilot loop until reset; standalone Sonnet stops.",
       "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-sonnet/SKILL.md",
+      "source_line": 85,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Run Sonnet reviewer prompts with output capture and CLI options.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-sonnet/SKILL.md",
+      "source_line": 88,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Run Sonnet reviewer prompts with output capture and CLI options.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 24,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Atomically claim tasks and append attempts while synchronizing workflow state.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 27,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/_walk_up.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Locate ancestor workflow state and clear its per-task context-cap marker.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 31,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/compute_mech_facts.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Compute per-function line spans for the style-limit gate.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 33,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/detect_tautological_tests.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Detect tautological tests before accepting test-author output.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 51,
+      "reference": "hooks/guard_phase_delegation.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Deny whole-phase delegation in loop mode.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 83,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Measure prompt budgets and record dispatch start, end, and outcomes.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 127,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render persona prompts with budget and path preflight.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 129,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render persona prompts with budget and path preflight.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 131,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render persona prompts with budget and path preflight.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 185,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Atomically claim tasks and append attempts while synchronizing workflow state.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 190,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/_walk_up.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Locate ancestor workflow state and clear its per-task context-cap marker.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 215,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render persona prompts with budget and path preflight.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 217,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render persona prompts with budget and path preflight.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 236,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_style_limits.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Check changed files against style limits and reject violations.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 260,
+      "reference": "_prose.py",
+      "kind": "informational-provenance",
+      "status": "unavailable",
+      "classification_reason": "Filename suffix identifying prose-pin tests, not an executable helper.",
+      "runtime_rule": "Use only as a filename classification; never supply runtime content from this suffix."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 264,
+      "reference": "record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Measure prompt budgets and record dispatch start, end, and outcomes.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 282,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render persona prompts with budget and path preflight.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 284,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render persona prompts with budget and path preflight.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 309,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_memory_pressure.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe memory pressure; distinguish pressure exit 1 from probe-failure exit 2.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 83,
+      "reference": "references/subagent-dispatch.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 236,
+      "reference": "references/test-author-prompt.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/work/references/test-author-prompt.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 294,
+      "reference": "references/subagent-dispatch.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 230,
+      "reference": "tess-prompt.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/work/references/tess-prompt.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 236,
+      "reference": "tess-retry-prompt.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/work/references/tess-retry-prompt.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 150,
+      "reference": "run-autopilot/references/model-ladder.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/model-ladder.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 203,
+      "reference": "run-autopilot/references/phase-build.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 205,
+      "reference": "run-autopilot/references/recovery.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 217,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/references/tess-prompt.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/work/references/tess-prompt.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 29,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/prompts/de-sloppify.md",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Supply the de-sloppify removal rubric for the step-5.6 dispatch.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 284,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/ivan.md",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Supply the implementor persona prompt for the Ivan dispatch.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 294,
+      "reference": "ivan.md",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Supply the implementor persona prompt and its baked-in dispatch instructions.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 228,
+      "reference": "<dir>/tests/HARNESS_CONTRACT.md",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Read each existing project test-harness contract into test-author context; omit absent contracts.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 119,
+      "reference": "docs/dev/project-management/meta/assumptions.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "classification_reason": "Generated project assumption ledger output, not packaged runtime input.",
+      "runtime_rule": "Write returned assumptions to the project ledger; never use this output path to supply missing runtime content."
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
