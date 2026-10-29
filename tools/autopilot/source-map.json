@@ -274846,51 +274846,60 @@
       "source_path": "skills/work/references/qwen-integration.md",
       "source_line": 37,
       "reference": "references/attempt-logging.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/work/references/attempt-logging.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/qwen-integration.md",
       "source_line": 55,
       "reference": "references/gate-failure.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/qwen-integration.md",
       "source_line": 57,
       "reference": "references/codex-implementor.md",
       "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "status": "not-applicable",
+      "reason": "Analogy to the Codex batch-cache idiom; the complete Qwen cache procedure is specified locally.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
     },
     {
       "source_path": "skills/work/references/qwen-integration.md",
       "source_line": 79,
       "reference": "scripts/work_routing.py",
       "kind": "external-capability",
-      "status": "planned",
-      "capability": "scripts/work_routing.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "status": "unavailable",
+      "capability": "Route Qwen and classify attempt outcomes from implementation paths; missing input fails closed.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/qwen-integration.md",
       "source_line": 225,
       "reference": "references/subagent-dispatch.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/rework-mode.md",
       "source_line": 20,
       "reference": "scripts/work_routing.py",
       "kind": "external-capability",
-      "status": "planned",
-      "capability": "scripts/work_routing.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "status": "unavailable",
+      "capability": "Classify micro-rework eligibility; rejected findings use the normal lane.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/self-deslop-prompt.md",
@@ -274915,24 +274924,28 @@
       "kind": "packaged-resource",
       "status": "planned",
       "destination_path": "plugins/autopilot/references/personas/ivan.md",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/style-gate.md",
       "source_line": 67,
       "reference": "references/gate-failure.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/subagent-dispatch.md",
       "source_line": 32,
       "reference": "scripts/render_prompt.py",
       "kind": "external-capability",
-      "status": "planned",
-      "capability": "scripts/render_prompt.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "status": "unavailable",
+      "capability": "Render persona dispatch prompts and byte counts; trim and remeasure over the 50000-byte bound.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/subagent-dispatch.md",
@@ -282222,6 +282235,283 @@
       "kind": "external-capability",
       "status": "unavailable",
       "capability": "Run local Qwen through pi with a live approved model id and file-based task prompt.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 28,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe and dispatch approved Qwen models with tier fallback and one-shot escalation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 33,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe and dispatch approved Qwen models with tier fallback and one-shot escalation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 39,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe and dispatch approved Qwen models with tier fallback and one-shot escalation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 43,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe and dispatch approved Qwen models with tier fallback and one-shot escalation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 43,
+      "reference": "~/.agents/skills/use-qwen/scripts/test_qwen_run.sh",
+      "kind": "informational-provenance",
+      "status": "not-applicable",
+      "reason": "Citation to upstream regression coverage for preflight refusal; no runtime invocation.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 60,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist and invalidate batch Qwen preflight verdicts; missing cache keys on deletion succeed.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 60,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe and dispatch approved Qwen models with tier fallback and one-shot escalation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 63,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist and invalidate batch Qwen preflight verdicts; missing cache keys on deletion succeed.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 63,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe and dispatch approved Qwen models with tier fallback and one-shot escalation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 90,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_qwen_output.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Guard Qwen implementation ownership and test integrity; exit 2 blocks acceptance and mutation precedes no-edit.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 105,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_qwen_output.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Guard Qwen implementation ownership and test integrity; exit 2 blocks acceptance and mutation precedes no-edit.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 162,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe and dispatch approved Qwen models with tier fallback and one-shot escalation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 225,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe and dispatch approved Qwen models with tier fallback and one-shot escalation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 235,
+      "reference": "qwen-run.sh",
+      "kind": "informational-provenance",
+      "status": "not-applicable",
+      "reason": "Historical 2026-06-19 failure example; the invocation is not a runtime instruction.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 241,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe and dispatch approved Qwen models with tier fallback and one-shot escalation.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 28,
+      "reference": "~/.agents/skills/use-qwen/scripts/approved-models.txt",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Supply approved Qwen models; missing live approved model triggers original-tier fallback.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 31,
+      "reference": "~/.pi/agent/models.json",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Supply llama.cpp base URL; missing config triggers endpoint_unreachable and original-tier fallback.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 113,
+      "reference": "gate-failure.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/self-deslop-prompt.md",
+      "source_line": 82,
+      "reference": "check_split_hygiene.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Detect unused and shadowed test bindings for the deletion-only split hygiene gate.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/self-deslop-prompt.md",
+      "source_line": 111,
+      "reference": "skills/work/scripts/work_routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify test-only task diffs before the self-deslop size threshold.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 24,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_style_limits.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Measure diff candidate style limits with the clean, one-fix, and fail-loud exit ladder.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 27,
+      "reference": "review-work-completion/scripts/compute_mech_facts.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Compute imported function spans; inability to run records a failed style gate.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 81,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/work_routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Select test candidates using repository-relative paths for split hygiene.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 91,
+      "reference": "conftest.py",
+      "kind": "informational-provenance",
+      "status": "not-applicable",
+      "reason": "Example basename in test-path globs; no particular conftest file is loaded by this passage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 104,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_split_hygiene.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Detect unused and shadowed test bindings for the deletion-only split hygiene gate.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 19,
+      "reference": "sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Dispatch authorized Claude task reviews at high effort with the prescribed watchdog.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 32,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render persona dispatch prompts and byte counts; trim and remeasure over the 50000-byte bound.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 33,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render persona dispatch prompts and byte counts; trim and remeasure over the 50000-byte bound.",
       "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     }
