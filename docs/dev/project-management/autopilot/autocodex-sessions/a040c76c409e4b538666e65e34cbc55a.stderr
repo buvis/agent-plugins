@@ -1,0 +1,217 @@
+2026-10-29T21:46:50.048656Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: [Fact-Forcing Gate]
+
+Before the first Bash command this session, present these facts:
+
+1. The current user request in one sentence
+2. What this specific command verifies or produces
+
+Present the facts, then retry the same operation.. Command: pwd; cat /Users/bob/.claude/AGENTS.md; cat AGENTS.md; cat /Users/bob/.claude/plugins/cache/buvis-plugins/autopilot/0.10.0/skills/run-autopilot/SKILL.md
+2026-10-29T21:54:39.880223Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: BLOCKED: shell redirects into docs/dev/project-management/ or docs/dev/tmp/ are not allowed.
+
+Use the Write tool for development artifacts.
+See ~/.claude/rules/working-documents.md.. Command: cat > docs/dev/tmp/ap00013/design-draft.md <<'EOF'
+# AP00013 — Autopilot session-local helpers design
+
+Research basis: PRD `docs/dev/project-management/prds/wip/00013-autopilot-session-helpers-v1.md`; source commit `e960ef1cc43e72bf92593b2f16c7a37c71ea7e48` verified as an existing commit in the explicitly supplied source checkout. Source was read with `git show <pin>:<path>`, not from its working tree. This is a draft for coordinator review, not an implementation or an approval record.
+
+## Architecture fit
+
+The distributable plugin owns preparation, parsing, classification and explicitly requested local reports. The separate controller owns lifecycle state, queues, attempts, review acceptance, custody registration and effects. Helpers consume AP00012 policy, independently supplied expected context and per-reviewer evidence. They never infer completion from finding count.
+
+AP00012 supplies contracts and independent test oracles, not a runtime validator. In particular, `tests/autopilot/test_contract_semantics.py:validate_review` imports both `jsonschema` and unittest-based policy checks. Production must not import that test module or silently turn test assertions into its implementation. Use the existing oracle for differential testing while implementing a production evaluator against the packaged policy and evidence schema. The smallest correct choice is an explicit optional runtime dependency on `jsonschema` for `check-evidence`; document `uv run --no-project --with jsonschema python ...` for that operation. Other helpers remain stdlib-only. Missing `jsonschema` produces an explicit dependency-unavailable refusal, never unchecked evidence or a home-grown partial JSON Schema evaluator. This dependency choice requires coordinator adjudication before adoption.
+
+Existing source-map ownership is material: 185 exact selected helper-module regression rows already belong to AP00019, AP00020 or AP00021. Preserve those controller commitments. Record AP00013's helper-level observations separately and report conflicting assignments; do not relabel controller scenarios as satisfied by local functions. No publication, installation, migration or source retirement occurs.
+
+## Module placement
+
+New portable files: `plugins/autopilot/scripts/review_stage.py`, `findings.py`, `rework_groups.py`, `gate_lead.py`, `custody.py`, `catchup.py`, `verification.py`. Add `review_evidence.py` for the production AP00012 evaluator, `cap_check.py` for the substantial independent regression classifier, and `dirty_tree.py` plus `log_sink_refusal.py` for existing pure verification checks. The PRD's path list is a structural guide; these three extracted source modules avoid hiding approximately 900 lines of existing checks in unrelated modules. Add a small `local_paths.py` only if the same artifact-path validation is needed by multiple operations; do not create a generic framework.
+
+Edit existing `plugins/autopilot/scripts/autopilot.py`, `contracts/review-fixtures-v1.json`, `README.md`, `CHANGELOG.md` and `tools/autopilot/source-map.json`. New tests follow the PRD paths, with focused cap/evidence/path tests split if needed. Keep all helpers and their imports inside the plugin. Do not add source-checkout or author-home import fallbacks.
+
+## Interfaces & contracts
+
+The following contracts are separated by module so each task needs only its own block plus the common boundary. JSON objects below have exact named fields. Dataclasses may implement internal values; the CLI emits JSON. `Path` inputs are explicit. Python APIs raise `ValueError` for invalid caller shapes and `OSError` for unreadable artifacts unless an operation-specific error is stated.
+
+### Common boundary
+
+`ControllerRequired` is a refusal value, not an exception requiring runtime discovery: `{"ok": false, "error": "controller-required", "operation": <requested string>}`. Return it before reading any request file or creating any output for lifecycle operations. Helpers do not discover OVCAQ, import source runtime modules, read or write the executing project's `docs/dev/project-management/autopilot/`, create markers, acquire workflow ownership, move PRDs, persist tasks or attempts, commit the store, invoke a supervisor or dispatch reviewers.
+
+Local outputs require explicit destinations. Relative paths resolve against explicit `project_root`, never process cwd. Refuse outputs inside a Git administrative directory, a live autopilot directory, tracked files, a nested repository, symlink components below the supplied root, executable/nonregular/multiply linked existing files, or outside the supplied artifact root. Validate every planned output before the first write. Preserve the supplied unresolved path for symlink checks. An explicitly supplied state snapshot is ordinary in-memory JSON or a report path outside live state, never a reason to discover a state directory. Do not accept arbitrary JSON fields such as `state_path` as authorization for state access.
+
+### findings.py and gate_lead.py
+
+```python
+class Row(NamedTuple):
+    ref: str
+    severity: str
+    file: str
+    issue: str
+
+def reviewed_rows(text: str) -> tuple[list[Row], str | None]: ...
+def finding_key(severity: str, file: str, issue: str) -> tuple[str, str, str]: ...
+def strip_lead(line: str) -> str: ...
+```
+
+`reviewed_rows` preserves pinned `findings_section._reviewed_keys` behavior. Problems are exactly `None`, `"no-section"`, `"unreadable-table"`. Read only the first `## Consolidated Findings` section through the next H2. Accept bullet and named-column table shapes, optional Ref and Task columns, case-insensitive `R<digits>` refs normalized uppercase, bracketed consensus and emoji/word severity normalized to `critical|high|medium|low|""`. Handle escaped and embedded issue pipes from the right. Duplicate refs, malformed/truncated table rows and missing terminal pipes make the whole table unreadable rather than dropping findings. Normalize whitespace, collapse escaped pipes and strip leading severity words consistently in keys; key issue is lowercase while display issue retains case.
+
+`strip_lead` preserves `gate_lead._strip_lead`: repeatedly strip ordinal, checkbox, HTML comment/details, inline-code and markdown-link prefixes, Unicode P/S/Z/C/M lead categories excluding bare Ps/Pe brackets, and explicit Hangul filler U+3164. Stop before a severity emoji. Do not strip an arbitrary unmatched bracket or ordinal's payload. This is lexical classification only, not review acceptance.
+
+### rework_groups.py
+
+```python
+NON_CRITICAL_CAP = 4
+def file_key(file: str) -> str: ...
+def group(findings: list[dict]) -> list[dict]: ...
+```
+
+Input items require string `file`, string emoji `severity` in `🔴|🟠|🟡|⚪`, and retain all additional fields verbatim. Convert AP00012 word severities to those emojis only in the adapter at the caller; do not mutate evidence. Output items have `name_hint: str`, `critical: bool`, `findings: list[dict]`. Every critical finding has a singleton group in input order and does not count toward the four noncritical groups. Normalize citation suffixes repeatedly (`:N`, `:N-M`, `#LN`, `#LN-LM`, `(line N)`, `(lines N-M, K)`); only a full N/A marker maps to `general`. Markdown shares `prose`. Above cap, merge general into the smallest code group first; then deepest shared directory, smallest combined pair, lexical keys; absent shared directory becomes `mixed`. Preserve finding order within merged groups. Order noncritical groups by worst severity, descending size, key. Input remains unchanged.
+
+### review_evidence.py
+
+```python
+def load_policy() -> dict: ...
+def check_evidence(policy: dict, expected_context: dict, evidence: dict) -> dict: ...
+```
+
+Load only the packaged `contracts/review-policy-v1.json` and `review-evidence-v1.json`. Reject a supplied policy unless it is the packaged normative policy with its canonical SHA256 digest; do not make unittest a production dependency. Validate the evidence and expected_context through draft 2020-12 schema. Then implement all reference semantic checks in AP00012: context lane/roster/activation/exclusion completeness; exact independent source bindings and digests; duplicate IDs; ordered attempts and permitted providers/adapters/fallbacks; finding/result/group attribution; artifact and rubric completeness; allowed per-job inputs; independent reviewer contexts versus builder sessions; verification status and source identity. Freshness comes from expected_context passed independently from current inputs, never copied out of evidence. Clean completed results with no findings satisfy completion; absent/failed/unavailable jobs do not become completed because findings are empty. Blind forbidden input kinds remain forbidden even when an aggregate input manifest allows them for other jobs.
+
+Output is `{"ok": true, "evidence_valid": true, "controller_required": true}` or `{"ok": false, "error": "invalid-evidence", "defects": <sorted AP00012 defect strings>}`. Preserve AP00012 oracle defect sets exactly, mapping only its outer `accepted` token to `evidence_valid` so a helper does not claim authoritative runtime acceptance. A missing dependency is `{"ok": false, "error": "dependency-unavailable", "dependency": "jsonschema"}`. A valid evidence report cannot advance phase or suppress required review.
+
+### review_stage.py
+
+```python
+def render_tasks(tasks: list[dict]) -> str: ...
+def findings_precedent(pack_text: str | None) -> str: ...
+def stage_review(*, project_root: Path, artifact_root: Path, cycle_id: str,
+                 tasks: list[dict], prd_text: str, design_text: str | None,
+                 context_text: str, diff_text: str | None,
+                 expected_context: dict, input_texts: dict[str, str],
+                 pack_text: str | None = None, settled_text: str | None = None,
+                 prior_findings_text: str | None = None,
+                 test_gate_text: str | None = None) -> dict: ...
+```
+
+`cycle_id` matches `[A-Za-z0-9][A-Za-z0-9._-]*`. The expected context must pass the production context validator before outputs. `input_texts` keys are explicit AP00012 input refs; every required ref for a job must exist or be an explicit artifact ref supplied for that job. The stager never chooses the lane/roster: use the independently resolved expected context. No source state or CLI availability lookups determine roster.
+
+Write `review-tasks-<id>.md`, `review-prd-raw-<id>.md`, `review-prd-<id>.md`, `review-context-<id>.md`, optional `review-diff-<id>.diff`, and `<job>-prompt-<id>.md` under artifact_root. Raw PRD is authoritative for blind input and keeps an embedded `## Design Doc` in the actual PRD intact. Only nonblind merged PRD appends supplied design text. `render_tasks` escapes pipes/newlines, includes folded tasks separately and retains shared commit/companion metadata. Missing optional pack uses the pinned no-pack text, and findings precedent ends at same-or-higher heading.
+
+Use packaged persona/rubric/checklist/output-format files directly; adapt frontmatter preflight to packaged persona metadata rather than requiring the omitted source host `tools` registration. Alice/Carl get context/diff/pack/checklist/consensus rubric/output format and allowed history. Bob additionally gets the pinned Eve doubt sections and citation constraint. Eve gets raw PRD, diff range, changed files, findings precedent and mechanical checks plus allowed history. Blake gets raw PRD, blind rubric and output format; include explicitly allowed test-results only. Never include design, diff, changed-file list, task table, settled/prior history, pack, mechanical facts, sibling findings, or broad context path in Blake's prompt. Packaging expected-context allowlists is necessary in addition to textual exclusion. Job isolation includes paths/references, not merely omitted text. Strict rendering substitutes only known template placeholders once so user content containing `{PRD}` is never reprocessed.
+
+Return `{"ok": true, "artifacts": [{"kind": <report kind>, "path": <absolute string>, "sha256": <hex>}], "prompts": {<job>: <absolute prompt path>}, "input_manifest": {<job>: <input ref list>}}`; output kinds are local helper kinds, not an extension of AP00012 evidence `artifact_kinds`. No dispatch rows, state stamps, elapsed-state counters or review-completion claims.
+
+### cap_check.py and custody.py
+
+```python
+class CapCheckError(RuntimeError): ...
+def classify_findings(*, repo_root: Path, review_text: str,
+                      previous_head: str | None, head: str) -> list[dict]: ...
+
+def capture_range(repo_root: str, git_dir: str | None, base: str) -> tuple[str, int, str]: ...
+def upsert_entry(entries: list[dict], entry: dict) -> tuple[list[dict], bool]: ...
+def marker_entry(prd: str, batch: str, op_id: str, detail: str, capture: dict) -> dict: ...
+def refresh_hold_prd(text: str, entry: dict) -> str: ...
+def migration_records(snapshot: dict, op_id: str, prd: str) -> list[dict]: ...
+```
+
+Cap classification keeps source parser and read-only Git logic but takes heads explicitly instead of inferring current truth from submitted evidence/frontmatter. No previous head yields `[]`; high/critical only; medium/low only performs no Git queries. Require full 40-hex commit IDs, different endpoints, previous ancestor of head, head reachable from actual HEAD, and normalize to Git toplevel so subdirectory calls agree. Parse multi-path, backtick, annotation, absolute-path, unambiguous casefold and every cited line. Any unresolved path or unreadable cell makes that row `regression: null`, never false; a rework-introduced line or first file/subtree touch yields true with abbreviated commit; otherwise false. Missing-file detection reads Git stderr only. Unrelated Git corruption raises CapCheckError. Result fields are source `ref`, `severity`, `file`, `line`, `regression`, `commit`, optional `reason`.
+
+`capture_range` uses explicit repo/git-dir/base, captures HEAD once, preserves empty-tree and detached/bare-backed support, and returns `<base>..<end>`, count, branch. Timeout is 30 seconds. It does not pin branches, commit or mutate configuration. `upsert_entry`, `marker_entry`, `refresh_hold_prd`, `migration_records` remain pure transformations. `migration_records` accepts only supplied deferred snapshots, preserves original decision index/type/cycle, and extracts the minimal pending-decision predicate without importing render_report or state. `refresh_hold_prd` returns proposed text, never writes or moves a PRD. Keep its 20-line closed-frontmatter rule, two custody keys, same-batch notice replacement, whitespace collapse, insertion fallback and idempotence. Historical notice text must identify the controller requirement before it is presented as an executable instruction.
+
+No source `marker_lock`, journal/marker read/write, compact, pending discovery, project_root inference, repo_and_git_dir, store_git, record_critical, mirror mutator, branch pinning, Git revert, reset, cleanup or resolve implementation ships here. The facade refuses those operations.
+
+### catchup.py
+
+```python
+def probe(project_root: Path, *, run=subprocess.run, which=shutil.which) -> dict: ...
+```
+
+Only run `["gh","auth","status"]` and `["engram","status","--scope","repo"]` at explicit project_root, captured output, text mode, timeout 15 seconds each. No batch cache or state discovery/persistence. Missing executable, OSError or timeout => absent. gh exit zero => ok, otherwise unauthenticated. Engram stderr containing exact `not inside a registered repo` => unregistered, otherwise ok even on nonzero exit, preserving pinned fallback behavior. Return exact `{"gh": "ok|absent|unauthenticated", "engram": "ok|absent|unregistered", "skip": [<ordered sections>]}`. Enum notation above describes a single token. Skip github-state first when gh not ok; skip engram second when engram not ok. Optional absence is successful probing, not review completion or permission to silently narrow a roster.
+
+### verification.py with dirty_tree.py and log_sink_refusal.py
+
+```python
+GATE_TIMEOUT_S = 1800
+GATE_OUTPUT_CAP = 2_000_000
+
+def run_verification(*, argv: list[str], project_root: Path, head_sha: str,
+                     artifact_path: Path, log_path: Path,
+                     timeout: float = GATE_TIMEOUT_S) -> dict: ...
+def reuse_verdict(*, prior: dict | None, argv: list[str],
+                  project_root: Path, head_sha: str) -> tuple[str, dict]: ...
+```
+
+Nonempty argv with nonempty executable is mandatory; spawn with shell=False, process group isolation, deadline-bounded pipe draining and child exit. Preserve exact argv tokens; source shell-command whitespace normalization does not apply to argv arguments. Stream actual stdout and stderr to explicit safe log in read order, retain only final 2MB of stdout for summary parsing, close/reap children and kill their group on timeout or log-write errors. Last `PASS n FAIL n SKIP n EXIT n` line wins. Return actual process exit separately from printed summary exit. Commands without that summary still return actual exit/output evidence, but are not reusable as a source gate result. Failed/timed-out/dirty runs never produce reusable evidence.
+
+Artifact fields are exactly `schema_version: 1`, `kind: "verification-artifact-v1"`, `argv: list[str]`, `head_sha: str`, `exit_code: int|null`, `summary: {passed: int, failed: int, skipped: int, exit_code: int}|null`, `timed_out: bool`, `dirty_paths: list[str]`, `head_moved: bool`, `log: {path: str, sha256: str}`, `reusable: bool`. These are report metadata, never a ledger. A run refusal before spawn may return `{"ok": false, "error": "dirty-tree|head-moved|unsafe-artifact-path", ...}` without creating reports. Successful attempted runs return `{"ok": true, "artifact": <object>, "controller_required": true}` even if the real command failed; facade exit reflects command failure. Refuse same artifact/log path and any input/output overlap before writing.
+
+Preserve read-only dirty and reuse checks from pinned dirty_tree: NUL-delimited porcelain paths including rename/copy source and destination; toplevel prefixes; forced inclusion of untracked files; hidden skip-worktree/assume-unchanged outside store; Git errors dirty/stale; product symlink targets inside changed store; merge resolution detected through endpoint diff; exact self-log exclusion only, tracked log never excused. Dirty-run exclusions are source store roots plus source scratch root; committed reuse tolerates only management-store changes, not scratch commits. Keep log-sink identity refusal for main/common Git dirs, linked-worktree .git pointer, store, nested repos, symlink chains, hardlinks, executable/nonregular and tracked sinks. Use descriptor-relative O_NOFOLLOW parent descent and O_EXCL creation to close sink-swap races. Source workflow lock and last-verification deletion/writes are excluded. The local runner does not serialize unrelated sessions or claim ownership; controller acceptance remains external.
+
+`reuse_verdict` returns exactly `("stale", {})` or `("reused", prior)`. Require explicit prior helper artifact with exact kind/version and strict scalar types, full lowercase SHA, identical argv, reusable=true, actual exit zero, parsed counts and summary exit zero; then ancestor/current clean and unchanged-product checks. Missing, failed, forged-shaped, symbolic/abbreviated SHA, changed code, dirty tree, nonancestor or Git failures are stale. Never read a default last-verification file.
+
+### autopilot.py CLI
+
+Preserve existing `--list-capabilities`, `--export-policy [--out PATH]` byte behavior. Add mutually exclusive operations:
+
+```
+--stage-review REQUEST_JSON
+--group-findings FINDINGS_JSON
+--check-evidence EVIDENCE_JSON --expected-context CONTEXT_JSON
+--catchup-probe --project-root ROOT
+--verify --project-root ROOT --head-sha SHA --artifact PATH --log PATH [--timeout SECONDS] -- ARGV...
+--controller-action OPERATION
+```
+
+Stage request JSON maps exactly to stage_review keyword names; paths remain explicit and text is supplied as text. Group input is an array, not evidence or a task queue. check-evidence loads packaged policy, receives expected context separately, and prints a local validity report. Add a `--prepare-close REQUEST_JSON` only if needed to expose classification/custody as a public operation: it must call check-evidence first, then group/classify findings and return proposed tasks/custody text without persisting them. Decide that command before task planning; no hidden API should be advertised through capabilities.
+
+Exit codes: 0 successful preparation/probe/local validation; 1 invalid evidence or real verification failure; 2 usage/input/path errors; 3 controller-required or unavailable dependency. All successful machine output is one JSON value and diagnostics go to stderr. Lifecycle refusal occurs before loading request files, importing adapters, writing output or looking up runtimes. Capabilities list only implemented local operations; no execution certification claim.
+
+## Data flow
+
+Explicit source identity plus current PRD/task content and expected context enter the stager. It validates all output paths, derives per-job allowed inputs and writes isolated artifacts. Independent reviewers later produce AP00012 results; the local evaluator checks supplied evidence against packaged policy and independent expected context. Parsed findings feed deterministic grouping and optional Git regression classification; custody functions produce proposed objects or text. Verification executes explicit argv and writes explicit reports, with no default record lookup. A later controller client may submit these reports; this PRD performs no submission or durable application.
+
+## Reuse inventory
+
+The verb/noun sweep used the installed rationalizations synonym sets. Verb searches: `render|format|serialize`, `parse|read|load|decode`, `validate|check|verify|assert`, `group|merge|classify`, `probe|capture|reuse`. Noun searches: `review|persona|prompt|findings`, `evidence|binding|roster|rubric`, `verification|dirty|log|artifact`, `catchup|engram|custody|state`. `rg` over `plugins/autopilot/scripts`, `tests/autopilot`, `tools/autopilot` found existing facade/export policy checks, contract data and independent test oracles; no installed parsing/grouping/staging/catchup/verification implementation. Known-present `review-policy` and `reviewer_results` provide positive controls.
+
+- `plugins/autopilot/scripts/autopilot.py:main`: extend the existing argparse mutually exclusive modes and contained policy digest validation.
+- `plugins/autopilot/contracts/review-policy-v1.json`, `review-evidence-v1.json`, `review-fixtures-v1.json`: normative lane, input, result and validation contracts; retain fixture expectations and add helper adapter scenarios without changing policy semantics.
+- `tests/autopilot/test_contract_semantics.py`: independent differential oracle only; keep its imports, roots and unittest policy assertions outside production.
+- `plugins/autopilot/references/personas/*`, skill rubrics/checklists/output formats: reuse packaged content, with source-preserving placeholders and blind isolation.
+- `tools/autopilot/map_slice.py`: use its stale-snapshot and bounded-diff technique for assets/resource_edges. It cannot edit behaviors/regression_cases; do not pretend it does.
+- Pinned helpers extracted under `docs/dev/tmp/ap00013/source/`: reuse pure functions by semantic extraction, not runtime imports or wholesale mixed-module copies.
+
+## Alternatives considered
+
+1. Copy the eight source files and disable selected writers. This is the smallest textual diff but retains runtime imports, implicit roots, source supervisor scripts and verification record deletion. Reject because its ownership remains wrong.
+2. Extract pure functions and read-only probes, keep explicit artifact I/O, use AP00012 policy/schema and preserve independent tests. Choose this. Extra modules expose boundaries and keep task contracts small.
+3. Build a new generic helper workflow engine, schema subset evaluator and artifact database. Reject: duplicates controller ownership and increases validation surface without a requirement.
+
+## Risks & edge cases
+
+The production evidence validator is meaningful work, not a thin parser. Strictly validate inputs before dictionary indexing; preserve AP00012 exact defects and review-result completion semantics. A schema dependency must be explicit and available or fail clearly. Do not replace it with a subset claiming draft 2020-12 support.
+
+Source-map rows have preexisting controller owners. Existing `map_slice` only handles two collections. Emit AP00013 helper observations under an explicit helper ownership record or supplementary evidence reference; keep controller evidence planned. Source test names are not assertions: e.g. a historical deleted-path test name may contradict the newer null/stall implementation, so characterize actual pinned assertions and report conflicts.
+
+Likely next changes are controller submission (AP00018–21), adapter dispatch and real-host certification. Explicit proposals, per-job refs and no authoritative acceptance fields support these without allowing helpers to write state today. A later controller-owned lock must not justify adding a helper-owned durable lock or cache.
+
+Unresolved design choices for coordinator: explicit jsonschema dependency versus a deliberately complete field-specific validator; exact public prepare-close command and its request shape; supplementary mapping shape that existing provenance validator accepts. Resolve these before this draft becomes the reviewed design.
+
+## Test strategy outline
+
+Use temporary project repos and explicit artifact roots for every helper test. Never execute helpers against this batch's live state. Public tests poison legacy state/ledger/marker paths and runtime lookup executables; guard file opens and subprocess argv so reads are detectable, then assert byte-for-byte unchanged state and no queue/branch/session mutation.
+
+Preserve named scenarios: helper_source_parity (table/bullet malformed input, clean/missing reviewer completion, stale PRD/code, blind refs); review_preparation_no_state (complete artifacts, raw PRD correctness, no runtime access); finding_group_equivalence (critical singleton, cap/merge/ties/citations/order/input immutability); catchup_optional_absent (missing/timeouts/auth and peculiar engram nonzero fallback); verification_artifact_reuse (real exit/output, summary token disagreement, changed code, Git ancestry/dirt and safe logs); local_helpers_without_ovcaq; no_hidden_workflow_state; controller_action_not_yet_wired; source_inventory_mapping.
+
+Run every AP00012 golden/adversarial fixture through production and independent reference validation and compare exact defects. Include malicious unknown/missing/numeric/boolean fields, forged allowlist, independent-context violations, unavailable job versus genuinely clean results, and input-manifest binding mismatches. Do not replace the independent oracle with a production import.
+
+Port pinned regression assertions by function-level disposition: finding parser tests and lead shapes; grouping corpus; cap multi-cell/missing/corrupt Git cases; custody pure text/capture and migration cases; catchup optional probes; dirty/log/reuse cases including symlink races, hidden flags, rename directions and merge resolution. Source workflow writer/lock/record tests become explicit controller-owned exclusions, not passing helper tests.
+
+Recommended practical task split (sequential dependencies, no mega-task): (1) source characterization/disposition + contract fixtures; (2) finding parser/lead/grouping; (3) production evidence validator with differential tests; (4) staging/prompt isolation; (5) cap/custody pure proposals; (6) catchup; (7) dirty/log primitives; (8) verification runner/reuse; (9) facade/public boundary tests; (10) source-map receipts and docs/changelog. Estimate 10 tasks, mostly 150–400 production lines each; verification up to 600 from existing behavior; no single task prompt should include all source files or the multi-megabyte map. Use module-specific interface blocks (<15KB), relevant source extracts and named tests; keep each complete task prompt <=50KB. Recheck source and ownership premises before each edit.
+
+Required completion gates: targeted tests, complete `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q`, `python3 -m unittest discover -s scripts`, `python3 scripts/validate.py`. Report real-host execution unavailable and preserve all existing skill entry gates. Design review is separate from the required fresh-session full-lane work-completion review.
+
+## Review log
+
+Draft research only. No adversarial design dispatch has run. Coordinator must resolve the three design choices, run all design-solution dispatches and record findings before planning.
+EOF
+wc -c docs/dev/tmp/ap00013/design-draft.md

@@ -1,6 +1,6 @@
 # Project Capsule: buvis agent-plugins
 
-Generated: 2026-10-28
+Generated: 2026-10-30
 
 ## Current AP 00012 handoff
 
@@ -43,7 +43,7 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 ### Batch 202610250001
 - [x] 00012-autopilot-package-contract-v1.md (2 cycles; 47/47 tasks)
-- [ ] 00013-autopilot-session-helpers-v1.md
+- [ ] 00013-autopilot-session-helpers-v1.md (hold: plan_expansion scope gate; reviewed design preserved)
 - [ ] 00014-autopilot-host-execution-v1.md
 - [ ] 00015-autopilot-workflow-parity-v1.md
 - [ ] 00016-autopilot-controller-integration-v1.md
@@ -124,3 +124,15 @@ Topic: Autopilot package and review artifact contracts. Repository index refresh
 Portfolio staleness: memory 24/dead 1, code 66/dead 1466, PRD 1/dead 3079.
 Review harvest partially succeeded; older files lack frontmatter.
 Native task restoration returned no_tasks_dir; canonical workflow tasks stay intact.
+
+## 2026-10-29 AP 00013 build catchup
+
+AP00013 is active on master; AP00012 remains complete. Session helpers accept explicit inputs and emit reports/proposals; the future controller alone owns persistent workflow effects. Existing facade exposes policy only, so helper APIs require a reviewed design before implementation. No publication or installation is authorized.
+
+GitHub refresh: zero open issues or PRs, no releases, latest master Validate succeeded; no failed master runs. Related-context topic: Autopilot session-local helpers. Repo hits: current PRD (0.0328), Helpers module (0.0161), resource closure tests (0.0156), AP00014 adapters (0.0154). Portfolio adds legacy wrappers and transcripts. Portfolio stamp: memory stale24/dead1, PRD stale1/dead3133, code stale73/dead1466. Review harvest is best effort. Task restore: no_tasks_dir; no native tasks restored.
+
+## AP00013 planning stall handoff
+
+AP00013 is in hold after the mandatory check-plan exited 3 for module_drift. The 11-task plan is below the count ceiling and has expansion 2.20; four module groups contain paths not explicitly listed in the PRD. File-only tree entries grant exact paths, not their implicit parent directories. No implementation started and no package code changed. The completed three-dispatch design, raw failed external dispatch, native fallback findings, final external findings and complete task snapshot remain durable. No gate override or cap increase occurred. The canonical stall leaves phase/next_phase build, allowing a fresh session to select the next eligible backlog PRD.
+
+Repository validation passed: 3 plugin packages and 15 skills. Recovery evidence: reviews/00013-plan-gate-stall.md; autopilot/reports/00013-plan-before-stall.json; autopilot/split-notes/00013-autopilot-session-helpers-v1.md.

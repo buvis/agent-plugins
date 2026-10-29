@@ -55,6 +55,13 @@
         "action": "completed",
         "reason": "AP00012 completed 47/47 tasks and cycle2 review plus Tail sweep; bounded recovery resolved historical stalls and tasks20/21 repaired resource closure. See 00012-tail-sweep-handoff.md and completed review artifacts."
       }
+    },
+    {
+      "type": "stall",
+      "site": "plan_expansion",
+      "detail": "module_drift: four unlisted modules under exact file-only PRD tree; 11 tasks, expansion 2.20; note docs/dev/project-management/autopilot/split-notes/00013-autopilot-session-helpers-v1.md; full plan reports/00013-plan-before-stall.json; no implementation started",
+      "op_id": "2a326422a9a0",
+      "prd": "00013-autopilot-session-helpers-v1.md"
     }
   ]
 }

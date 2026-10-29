@@ -319,3 +319,5 @@
 {"kind":"handoff","site":"review","edge":"leave","at":1793309951,"phase":"done","prd":"00012-autopilot-package-contract-v1.md"}
 {"kind":"handoff","site":"done","edge":"resume","at":1793310212,"phase":"done","prd":"00012-autopilot-package-contract-v1.md"}
 {"kind":"handoff","site":"done","edge":"leave","at":1793310347,"phase":"build","prd":"00012-autopilot-package-contract-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793310386,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}
+{"kind":"handoff","site":"build","edge":"leave","at":1793315627,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}
