@@ -274027,33 +274027,37 @@
       "source_line": 120,
       "reference": "scripts/resume_target.py",
       "kind": "external-capability",
-      "status": "planned",
-      "capability": "scripts/resume_target.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "status": "unavailable",
+      "capability": "Re-export parking decisions and resume-target contracts for legacy callers.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
     },
     {
       "source_path": "skills/run-autopilot/references/phase-build.md",
       "source_line": 248,
       "reference": "references/phase-review.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-build.md",
       "source_line": 269,
       "reference": "references/lane-solo.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-solo.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-build.md",
       "source_line": 270,
       "reference": "references/lane-fast-track.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-fast-track.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-build.md",
@@ -274061,7 +274065,8 @@
       "reference": "references/design-rationale.md",
       "kind": "informational-provenance",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "runtime_rule": "Explanatory citation only; must not supply missing runtime content.",
+      "reason": "Explains a design choice or deleted historical mechanism; no runtime procedure is delegated."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-done.md",
@@ -274069,47 +274074,53 @@
       "reference": "references/design-rationale.md",
       "kind": "informational-provenance",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "runtime_rule": "Explanatory citation only; must not supply missing runtime content.",
+      "reason": "Explains a design choice or deleted historical mechanism; no runtime procedure is delegated."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-done.md",
       "source_line": 21,
       "reference": "references/recovery.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-done.md",
       "source_line": 21,
       "reference": "references/state-schema.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-done.md",
       "source_line": 29,
       "reference": "references/phase-review.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-done.md",
       "source_line": 33,
       "reference": "references/audit-log-format.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/audit-log-format.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-done.md",
       "source_line": 35,
       "reference": "references/batch-report-format.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/batch-report-format.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
     },
     {
       "source_path": "skills/run-autopilot/references/phase-review.md",
@@ -278148,6 +278159,310 @@
       "capability": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
       "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
       "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 86,
+      "reference": "hooks/enforce_prd_location.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Reject editor writes of non-keeper files at the PRD store root.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 95,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Clear inherited handoff and cap markers before abort handling.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 117,
+      "reference": "cli/resume.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify parking markers and choose continuation or systemic halt.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 126,
+      "reference": "cli/records.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Perform verified park moves, deferred recording and atomic state reset before marker deletion.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 154,
+      "reference": "cli/resume.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Determine abort handling and resume point, rejecting future state schemas.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 174,
+      "reference": "cli/selection.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Select the lowest eligible wip or backlog PRD while excluding hold.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 200,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record build-resume handoff telemetry.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 220,
+      "reference": "cli/frontmatter.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Parse recognized PRD frontmatter and atomically apply defaults and validated fields.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 235,
+      "reference": "frontmatter.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Exclude default_model from Phase 0 frontmatter parsing.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 240,
+      "reference": "cli/eligibility.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Evaluate PRD eligibility at selection time before frontmatter parsing.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 253,
+      "reference": "cli/lane.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify PRD effort and persist lane, reason and effective lane together.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 260,
+      "reference": "cli/lane.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Decide the effective execution lane before routing into its runbook.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 270,
+      "reference": "cards_from_prd.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render fast-track plan cards and signal uncardable plans for full-lane fallback.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 299,
+      "reference": "github-state.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Probe GitHub state for catchup, honoring unavailable-service skip decisions.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 342,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record build-leave telemetry before a headroom handoff.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 399,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record build-to-review handoff telemetry.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 200,
+      "reference": "work/references/subagent-dispatch.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 237,
+      "reference": "cli/routing.build_model",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Read session_model from PRD frontmatter at every session launch.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 350,
+      "reference": "plan-tasks/SKILL.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 393,
+      "reference": "references/design-rationale.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Explains unused superpowers and review layering; no runtime procedure is delegated.",
+      "runtime_rule": "Explanatory citation only; must not supply missing runtime content."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 148,
+      "reference": "references/recovery.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 12,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record completion-resume handoff telemetry.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 21,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Complete a PRD and append task attempts to the ledger before resetting state.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 21,
+      "reference": "cli/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Complete a PRD and append task attempts to the ledger before resetting state.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 23,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Clear the completed PRD task array before the next planning pass.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 69,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record completion-to-build handoff telemetry.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 75,
+      "reference": "~/.claude/hooks/notify.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Send batch completion notifications with completed, stalled, deferred and stub counts.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 12,
+      "reference": "work/references/subagent-dispatch.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 31,
+      "reference": "cli/triage.qualifies",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Select unowned severe deferred items for idempotent hold triage stubs.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 69,
+      "reference": "cli/records.PER_PRD_RESET_FIELDS",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Define the authoritative per-PRD reset fields for an atomic next-build transition.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 39,
+      "reference": "references/audit-log-format.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/audit-log-format.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing."
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
