@@ -273453,9 +273453,10 @@
       "source_path": "skills/plan-tasks/SKILL.md",
       "source_line": 374,
       "reference": "references/recovery.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse the affected entry point if the packaged loop-mode stall procedure is missing or resolves outside the distributed root; no source checkout fallback."
     },
     {
       "source_path": "skills/plan-tasks/SKILL.md",
@@ -275858,6 +275859,321 @@
       "status": "planned",
       "destination_path": "plugins/autopilot/references/personas/eve.md",
       "failure_rule": "Refuse the affected entry point when the installed persona is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 271,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Close dispatch telemetry rows with outcome and detail using record_dispatch.py.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 283,
+      "reference": "scripts/record_item.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record the final fast-track item outcome, timing, findings, rework and measured cost.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 287,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/record_item.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Record the final fast-track item outcome, timing, findings, rework and measured cost.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_line": 9,
+      "reference": "card.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Parse and validate a spec card before execution; return JSON or refuse invalid fields.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_line": 15,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/card.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Parse and validate a spec card before execution; return JSON or refuse invalid fields.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_line": 19,
+      "reference": "card.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Parse and validate a spec card before execution; return JSON or refuse invalid fields.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_line": 75,
+      "reference": "skills/fast-track/scripts/test_record_item.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Illustrative file/test path inside the worked spec-card example; never load it to supply runtime content."
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_line": 79,
+      "reference": "skills/fast-track/scripts/record_item.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Illustrative file/test path inside the worked spec-card example; never load it to supply runtime content."
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "source_line": 80,
+      "reference": "skills/fast-track/scripts/test_record_item.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Illustrative file/test path inside the worked spec-card example; never load it to supply runtime content."
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 22,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/plan-tasks/scripts/list-prds.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Enumerate available work-in-progress and backlog PRDs; the source permits manual listing instead.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback. The retained source permits manual PRD listing, but this package entry point still refuses execution.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 72,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist and validate task additions, metadata, bodies and stall markers through the sole state writer.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 75,
+      "reference": "\u2026/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist and validate task additions, metadata, bodies and stall markers through the sole state writer.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 148,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist and validate task additions, metadata, bodies and stall markers through the sole state writer.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 227,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist and validate task additions, metadata, bodies and stall markers through the sole state writer.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 232,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist and validate task additions, metadata, bodies and stall markers through the sole state writer.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 242,
+      "reference": "cli/routing.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Historical build-model routing implementation citation explaining the pending estimator re-measurement; never load this citation to supply runtime content."
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 246,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify per-task model tiers and reasons, applying contract, risk and PRD model-floor rules.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 258,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/plan-tasks/scripts/classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify per-task model tiers and reasons, applying contract, risk and PRD model-floor rules.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 272,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify per-task model tiers and reasons, applying contract, risk and PRD model-floor rules.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 296,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify per-task model tiers and reasons, applying contract, risk and PRD model-floor rules.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 368,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Run check-plan expansion checks, write split notes and return the prescribed continue/stall/error outcome.",
+      "failure_rule": "Refuse the affected entry point before any helper invocation while this capability is unavailable; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 391,
+      "reference": "cli/policy.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Implementation-location citation for the plan-expansion thresholds already stated in this procedure; never load this citation to supply runtime content."
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 293,
+      "reference": "run-autopilot/references/model-ladder.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/model-ladder.md",
+      "failure_rule": "Refuse the affected entry point when the installed reference is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 294,
+      "reference": "run-autopilot/references/state-schema.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "failure_rule": "Refuse the affected entry point when the installed reference is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 308,
+      "reference": "run-autopilot/references/phase-review.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "failure_rule": "Refuse the affected entry point when the installed reference is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 25,
+      "reference": "rules/tools.md",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Provide the host tool policy and the prescribed alternative to the absent native Glob tool.",
+      "failure_rule": "Refuse the affected entry point while this host capability is unavailable; do not read a source checkout or personal environment to supply missing runtime content.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 240,
+      "reference": "~/.claude/projects/<hash>/<session>.jsonl",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Read measured token usage from fresh work-phase transcripts to re-derive the estimator overhead.",
+      "failure_rule": "Refuse the affected entry point while this host capability is unavailable; do not read a source checkout or personal environment to supply missing runtime content.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 69,
+      "reference": "statectl",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist and validate task additions, metadata, bodies and stall markers through the sole state writer.",
+      "failure_rule": "Refuse the affected entry point while this host capability is unavailable; do not read a source checkout or personal environment to supply missing runtime content.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 150,
+      "reference": "statectl",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist and validate task additions, metadata, bodies and stall markers through the sole state writer.",
+      "failure_rule": "Refuse the affected entry point while this host capability is unavailable; do not read a source checkout or personal environment to supply missing runtime content.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 224,
+      "reference": "statectl",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist and validate task additions, metadata, bodies and stall markers through the sole state writer.",
+      "failure_rule": "Refuse the affected entry point while this host capability is unavailable; do not read a source checkout or personal environment to supply missing runtime content.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 230,
+      "reference": "statectl",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist and validate task additions, metadata, bodies and stall markers through the sole state writer.",
+      "failure_rule": "Refuse the affected entry point while this host capability is unavailable; do not read a source checkout or personal environment to supply missing runtime content.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 361,
+      "reference": "statectl",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Persist and validate task additions, metadata, bodies and stall markers through the sole state writer.",
+      "failure_rule": "Refuse the affected entry point while this host capability is unavailable; do not read a source checkout or personal environment to supply missing runtime content.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 284,
+      "reference": "module/x.rs",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "runtime_rule": "Illustrative Rust path in a model-tier classification example; never load it to supply runtime content."
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
