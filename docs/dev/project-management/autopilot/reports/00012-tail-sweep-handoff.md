@@ -9,3 +9,12 @@ State schema and47/47 cardinality pass. Canonical gate --require-codex-guard --a
 The host contract requires unchanged implementation provenance for convergence. Installed phase-review.md Tail sweep step4 forbids a cycle increment and another completion review. No compliant transition to done exists for this completed sweep under both rules. phase/next_phase paused; pause_reason.site host_tail_sweep_provenance. No phase-done converged call, no audit regeneration, and no replacement review receipts. Preserve the reviewed cycle2 audit and all receipts. Task47 raw model metadata and Pat output are archived beside this report; dispatch correlation is in00012-task47-dispatch.md.
 
 Resolve the host tail-sweep provenance policy before clearing this pause. Do not implement task47 again. Do not reopen cycle2 or increment it without an explicit policy resolution. PRD remains wip; executed plan and unrelated specflow worktree remain until lifecycle completion. No task-owned worktree or branch was created.
+
+## Recovery
+
+The autocodex tail-sweep policy fix is installed and passed all 130 host tests.
+The separate `00012-autopilot-package-contract-v1-tail-sweep-models.json` audit
+now records all 47 tasks with Task 47's observed model evidence. The installed
+host completion gate and canonical review constraint gate both pass. Resume to
+the finalize handoff, preserving cycle 2 and all original review evidence.
+See `00012-autopilot-package-contract-v1-tail-sweep-models.md` for the audit.
