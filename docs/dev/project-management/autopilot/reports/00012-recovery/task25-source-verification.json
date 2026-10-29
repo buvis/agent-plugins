@@ -1,0 +1,525 @@
+{
+  "task_base": "be5dd023ab1dc45913439324a58bd8521ef9545d",
+  "source_path": "skills/review-work-completion/SKILL.md",
+  "source_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+  "expected_source_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+  "inserted_gate_bytes_removed": 742,
+  "verified_references": [
+    {
+      "source_line": 165,
+      "reference": "skills/run-autopilot/cli/review_stage.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 169,
+      "reference": "gather-context.sh",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 170,
+      "reference": "compute_mech_facts.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 170,
+      "reference": "detect_tautological_tests.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 170,
+      "reference": "replay_tests_against_base.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 173,
+      "reference": "record_dispatch.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 186,
+      "reference": "gather-context.sh",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 190,
+      "reference": "gather-context.sh",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 193,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/compute_mech_facts.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 193,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/detect_tautological_tests.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 207,
+      "reference": "work/scripts/render_prompt.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 215,
+      "reference": "render_prompt.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 254,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 260,
+      "reference": "record_dispatch.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 264,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 272,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 274,
+      "reference": "hooks/guard_stop_on_live_lanes.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 278,
+      "reference": "codex-run.sh",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 298,
+      "reference": "cli/records.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 366,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 381,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 393,
+      "reference": "consolidate_findings.py",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 306,
+      "reference": "review-fanout.workflow.js",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 194,
+      "reference": "engram pack",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 181,
+      "reference": "references/agent-invocation.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 208,
+      "reference": "references/agent-registry.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 238,
+      "reference": "references/agent-invocation.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 247,
+      "reference": "agents/blake.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 247,
+      "reference": "review-blindly/references/rubric.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 248,
+      "reference": "agents/eve.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 248,
+      "reference": "references/agent-invocation.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 254,
+      "reference": "agents/bob.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 254,
+      "reference": "agents/eve.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 258,
+      "reference": "references/retry-policy.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 260,
+      "reference": "references/retry-policy.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 260,
+      "reference": "references/agent-invocation.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 262,
+      "reference": "references/agent-registry.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 262,
+      "reference": "references/agent-invocation.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 264,
+      "reference": "references/retry-policy.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 274,
+      "reference": "references/retry-policy.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 278,
+      "reference": "references/retry-policy.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 280,
+      "reference": "references/agent-invocation.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 362,
+      "reference": "references/retry-policy.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 374,
+      "reference": "references/retry-policy.md",
+      "exact_reference_on_line": true,
+      "kind": "packaged-resource"
+    },
+    {
+      "source_line": 181,
+      "reference": "verification.run_gate()",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    },
+    {
+      "source_line": 171,
+      "reference": "engram",
+      "exact_reference_on_line": true,
+      "kind": "external-capability"
+    }
+  ],
+  "packaged_destinations": [
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-invocation.md",
+      "source_blob_sha256": "d413ddeb3d043e64f4deedffc76612b9270d918316b3ed6aafd7e55f43e1ddfc"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-registry.md",
+      "source_blob_sha256": "aa87ea16bd52b540625b0ac334692a141c706febcd054eeda8ae13f0a0a448c1"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-invocation.md",
+      "source_blob_sha256": "d413ddeb3d043e64f4deedffc76612b9270d918316b3ed6aafd7e55f43e1ddfc"
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/blake.md",
+      "source_blob_sha256": "eafb4cd3e04ca59f0c2becd11eff53e03b865b5713a91b144e1cf822c2886089"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-blindly/references/rubric.md",
+      "source_blob_sha256": "e0636e0c2f5332e02e43bc9a42ca1917852e67ed675dbcf9dba5688afe7a9576"
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/eve.md",
+      "source_blob_sha256": "7c8dd78adfb49e6f1d448b4f87e210c17b5d8c8daa291cf3d94cc40d139b88ec"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-invocation.md",
+      "source_blob_sha256": "d413ddeb3d043e64f4deedffc76612b9270d918316b3ed6aafd7e55f43e1ddfc"
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/bob.md",
+      "source_blob_sha256": "97e5a1264a7069176ebb79209dd022c7396d01948073c5a445eb9b2ae82191a2"
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/eve.md",
+      "source_blob_sha256": "7c8dd78adfb49e6f1d448b4f87e210c17b5d8c8daa291cf3d94cc40d139b88ec"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/retry-policy.md",
+      "source_blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/retry-policy.md",
+      "source_blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-invocation.md",
+      "source_blob_sha256": "d413ddeb3d043e64f4deedffc76612b9270d918316b3ed6aafd7e55f43e1ddfc"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-registry.md",
+      "source_blob_sha256": "aa87ea16bd52b540625b0ac334692a141c706febcd054eeda8ae13f0a0a448c1"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-invocation.md",
+      "source_blob_sha256": "d413ddeb3d043e64f4deedffc76612b9270d918316b3ed6aafd7e55f43e1ddfc"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/retry-policy.md",
+      "source_blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/retry-policy.md",
+      "source_blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/retry-policy.md",
+      "source_blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-invocation.md",
+      "source_blob_sha256": "d413ddeb3d043e64f4deedffc76612b9270d918316b3ed6aafd7e55f43e1ddfc"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/retry-policy.md",
+      "source_blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28"
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/retry-policy.md",
+      "source_blob_sha256": "736d32975c85476cea11c47afeac852e132498cfed514017f8355b25c903be28"
+    }
+  ],
+  "helper_availability_and_gate_checks": [
+    {
+      "reference": "skills/run-autopilot/cli/review_stage.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "gather-context.sh",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "compute_mech_facts.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "detect_tautological_tests.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "replay_tests_against_base.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "record_dispatch.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "gather-context.sh",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "gather-context.sh",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/compute_mech_facts.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/detect_tautological_tests.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "work/scripts/render_prompt.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "render_prompt.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "record_dispatch.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "hooks/guard_stop_on_live_lanes.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "codex-run.sh",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "cli/records.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "consolidate_findings.py",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "review-fanout.workflow.js",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "engram pack",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "verification.run_gate()",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    },
+    {
+      "reference": "engram",
+      "mapped_destination_matches": [],
+      "gate_contained": true,
+      "gate_refuses_execution": true
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "task": 46,
+  "exact_base": "dcd1bab47b2a09337eee077a4c9ac76c7be9f010",
+  "source_map_before_sha256": "f9b7f59104bf3b5389d0534f4a8cc27f750fed4f65d51cd2e262bc0649a0f9ed",
+  "source_map_after_sha256": "69e6e8c44ab411198780b30d6e55d66b36fef9374255ed776a53a7124efaf4d1",
+  "existing_rows": 973,
+  "added_rows": 5,
+  "exactly_five_expected_identities": true,
+  "all_existing_identities_and_fields_preserved": true,
+  "all_existing_row_order_preserved": true,
+  "complete_complement_preserved": true,
+  "non_resource_collections_including_inventory_preserved": true,
+  "task_changed_tracked_files": [
+    "tools/autopilot/source-map.json"
+  ],
+  "concurrent_tracked_changes_not_modified_by_worker": [
+    "docs/dev/project-management/autopilot/autocodex-metrics.jsonl",
+    "docs/dev/project-management/autopilot/autocodex-sessions/072d00c49c194379924f5de5bf42090c.jsonl",
+    "docs/dev/project-management/autopilot/dispatch-metrics.jsonl",
+    "docs/dev/project-management/autopilot/ledger/dispatch-metrics.jsonl"
+  ],
+  "complete_diff_path": "docs/dev/tmp/task46-complete.diff",
+  "complete_diff_bytes": 4125,
+  "complete_diff_sha256": "e50eafeab59e126f678b32631c34a35e3dc043c843a777bcdee520f2c0cbb16b",
+  "oracle_files": [
+    {
+      "path": "tests/autopilot/test_resource_closure.py",
+      "sha256": "43fc53e8e456202f6272a23d615ed9d59d4c587fccdfc05194923477982e5bc2",
+      "unchanged": true
+    },
+    {
+      "path": "tests/autopilot/test_provenance.py",
+      "sha256": "806b5c4761a08b0631118e2d88c8e164ffd3e5bda872c007bd741be73acc61a7",
+      "unchanged": true
+    },
+    {
+      "path": "tests/autopilot/test_map_slice.py",
+      "sha256": "992d3fa9391abcc54ddad2fdf23a64d24963a7d890de7075d6c7f9d15a1df41f",
+      "unchanged": true
+    }
+  ],
+  "snapshots": [
+    {
+      "path": "docs/dev/tmp/task46-slice-1.json",
+      "bytes": 212,
+      "retained": false
+    },
+    {
+      "path": "docs/dev/tmp/task46-slice-2.json",
+      "bytes": 214,
+      "retained": false
+    },
+    {
+      "path": "docs/dev/tmp/task46-slice-3.json",
+      "bytes": 214,
+      "retained": false
+    },
+    {
+      "path": "docs/dev/tmp/task46-slice-4.json",
+      "bytes": 214,
+      "retained": false
+    },
+    {
+      "path": "docs/dev/tmp/task46-slice-5.json",
+      "bytes": 243,
+      "retained": false
+    }
+  ],
+  "scratch_cleanup": "Fresh helper snapshots, replacement arrays, per-apply receipts and the copied base map were removed after verification; complete final diff and four JSON evidence files are retained."
+}

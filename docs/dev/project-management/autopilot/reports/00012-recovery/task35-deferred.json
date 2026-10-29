@@ -1,0 +1,61 @@
+{
+  "task": 35,
+  "original_task20_finding_closed": false,
+  "remaining_diff_budget_bytes": 482,
+  "review_required": [],
+  "deferred_references": [
+    {
+      "source_line": 220,
+      "reference": "review-work-completion",
+      "reason": "Only 482 complete diff bytes remain; a fully specified gated row exceeds this remainder."
+    },
+    {
+      "source_line": 224,
+      "reference": "review-work-completion",
+      "reason": "Only 482 complete diff bytes remain; a fully specified gated row exceeds this remainder."
+    },
+    {
+      "source_line": 221,
+      "reference": "statectl",
+      "reason": "Only 482 complete diff bytes remain; a fully specified gated row exceeds this remainder."
+    },
+    {
+      "source_line": 226,
+      "reference": "statectl",
+      "reason": "Only 482 complete diff bytes remain; a fully specified gated row exceeds this remainder."
+    },
+    {
+      "source_line": 244,
+      "reference": "/autopilot:plan-tasks",
+      "reason": "Only 482 complete diff bytes remain; a fully specified gated row exceeds this remainder."
+    },
+    {
+      "source_line": 244,
+      "reference": "/autopilot:work",
+      "reason": "Only 482 complete diff bytes remain; a fully specified gated row exceeds this remainder."
+    },
+    {
+      "source_line": 244,
+      "reference": "/autopilot:run-autopilot",
+      "reason": "Only 482 complete diff bytes remain; a fully specified gated row exceeds this remainder."
+    },
+    {
+      "source_line": 257,
+      "reference": "custody.pending()",
+      "reason": "Only 482 complete diff bytes remain; a fully specified gated row exceeds this remainder."
+    },
+    {
+      "source_line": 241,
+      "reference": "custody.mirror_mutator",
+      "reason": "Only 482 complete diff bytes remain; a fully specified gated row exceeds this remainder."
+    }
+  ],
+  "generated_runtime_artifacts": "state.json, markers, journal, report and contract-card paths are runtime data outputs/state; not installed resource suppliers.",
+  "legacy_exact_202_check": "Deferred to final task20 as instructed; test_package.py unchanged.",
+  "recovery": {
+    "rejected_candidate_sha256": "2f0ddc8b4d78a7d48dff7b0401fc9c20453b352e781a3a06b5940f03fe532567",
+    "diagnosis": "New line236 reference incorrectly normalized records.PER_PRD_RESET_FIELDS with a cli/ prefix. Exact spelling corrected before successful reapplication.",
+    "rollback": "Coordinator restored exact task-base blob under map lock after digest/HEAD, ownership and complement guards; fresh helper snapshot/apply used afterward.",
+    "rejected_archive": "docs/dev/tmp/task35-rejected-complete.diff"
+  }
+}

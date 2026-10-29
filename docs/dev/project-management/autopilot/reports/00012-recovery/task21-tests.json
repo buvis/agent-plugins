@@ -1,0 +1,6 @@
+{
+  "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_package.py tests/autopilot/test_provenance.py -q --tb=line",
+  "exit": 0,
+  "summary": "20 passed in 3.17s",
+  "sha": "d41c4ec6a14e6f7b24e26fe33fae687fc0bb5b70"
+}

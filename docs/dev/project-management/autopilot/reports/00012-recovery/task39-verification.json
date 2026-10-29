@@ -1,0 +1,25 @@
+{
+  "task": 39,
+  "task_base_sha": "79da423991e4bb23d8ce5a5a040e4ab9ba602dc0",
+  "base_map_sha256": "060471f3426a5c3d91bce51903c28d9fc1e31f5c1d4b2891663798b97e4b0841",
+  "current_map_sha256": "23164ade6796fbb78d00ab89e352a04ba096d193d1830f63e427fd271bca2311",
+  "scope": {
+    "collection": "resource_edges",
+    "path": "skills/work/SKILL.md",
+    "first": 316,
+    "last": 474
+  },
+  "complete_complement_equal": true,
+  "all_existing_identities_and_metadata_unchanged": true,
+  "no_existing_identity_disappears": true,
+  "all_new_source_lines_references_verified": true,
+  "new_edges": 45,
+  "existing_scope_edges_preserved": 7,
+  "full_task_diff_bytes": 23770,
+  "diff_within_24000_bytes": true,
+  "full_diff_path": "docs/dev/tmp/task39-full.diff",
+  "classification_corrections": "records.py is explanatory; smoke.sh and integration.sh are prohibited illustrative examples; active helpers are unavailable external capabilities.",
+  "review": "Complete diff inspected in three bounded segments; coordinator Pat pending.",
+  "state_writes": false,
+  "commits": false
+}

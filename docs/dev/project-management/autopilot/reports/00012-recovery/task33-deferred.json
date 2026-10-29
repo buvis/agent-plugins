@@ -1,0 +1,15 @@
+{
+  "task": "task33",
+  "in_scope_remainders": [],
+  "out_of_scope_discoveries": [],
+  "parent_task20_remainders": [
+    "Other recovery slices remain outside task33 scope.",
+    "Legacy exact-202 package count remains assigned to final task20; test unchanged."
+  ],
+  "budget": {
+    "complete_diff_bytes": 12054,
+    "ceiling_bytes": 24000
+  },
+  "config_only": true,
+  "tess_devon_redcheck": "Not applicable to this config-only task per coordinator dispatch."
+}

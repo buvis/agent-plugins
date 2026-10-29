@@ -1,0 +1,538 @@
+{
+  "task": 30,
+  "task_base": "fca7c122de2b74e07924fcbcd58b9111bf0a4e8c",
+  "result": "passed",
+  "checks": [
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 120,
+      "reference": "scripts/resume_target.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 248,
+      "reference": "references/phase-review.md",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "destination_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+      "asset_hash_match": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 269,
+      "reference": "references/lane-solo.md",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-solo.md",
+      "destination_sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e",
+      "asset_hash_match": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 270,
+      "reference": "references/lane-fast-track.md",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-fast-track.md",
+      "destination_sha256": "fc4bef75c21763c0ab53a7614617edcc153062f9d134176354a59f487f7af8c7",
+      "asset_hash_match": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 287,
+      "reference": "references/design-rationale.md",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 86,
+      "reference": "hooks/enforce_prd_location.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 95,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 117,
+      "reference": "cli/resume.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 126,
+      "reference": "cli/records.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 154,
+      "reference": "cli/resume.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 174,
+      "reference": "cli/selection.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 200,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 220,
+      "reference": "cli/frontmatter.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 235,
+      "reference": "frontmatter.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 240,
+      "reference": "cli/eligibility.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 253,
+      "reference": "cli/lane.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 260,
+      "reference": "cli/lane.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 270,
+      "reference": "cards_from_prd.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 299,
+      "reference": "github-state.sh",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 342,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 399,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 200,
+      "reference": "work/references/subagent-dispatch.md",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "destination_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "asset_hash_match": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 237,
+      "reference": "cli/routing.build_model",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 350,
+      "reference": "plan-tasks/SKILL.md",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "destination_sha256": "abb88961ad9413fcafb5b9ae9f01e5b39ff4b693a30c47286efdc28bfd65579d",
+      "asset_hash_match": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 393,
+      "reference": "references/design-rationale.md",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 148,
+      "reference": "references/recovery.md",
+      "source_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "destination_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed",
+      "asset_hash_match": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 14,
+      "reference": "references/design-rationale.md",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 21,
+      "reference": "references/recovery.md",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "destination_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed",
+      "asset_hash_match": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 21,
+      "reference": "references/state-schema.md",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "destination_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+      "asset_hash_match": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 29,
+      "reference": "references/phase-review.md",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "destination_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+      "asset_hash_match": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 33,
+      "reference": "references/audit-log-format.md",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/audit-log-format.md",
+      "destination_sha256": "85526d7627aba68bfbf9e781da3aa6eca9cb32ced25cdb5720142d9f998d48fb",
+      "asset_hash_match": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 35,
+      "reference": "references/batch-report-format.md",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/batch-report-format.md",
+      "destination_sha256": "0dc519c71281786d24fccd1ca57a6c64cf4c74dbd1a8dd8b07ba8949e7e3a7f1",
+      "asset_hash_match": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 12,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 21,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 21,
+      "reference": "cli/statectl.py",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 23,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 69,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 75,
+      "reference": "~/.claude/hooks/notify.py",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 12,
+      "reference": "work/references/subagent-dispatch.md",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "destination_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "asset_hash_match": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 31,
+      "reference": "cli/triage.qualifies",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 69,
+      "reference": "cli/records.PER_PRD_RESET_FIELDS",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_metadata": {
+        "status": "present",
+        "operation": "refuse-before-old-script-invocation",
+        "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 39,
+      "reference": "references/audit-log-format.md",
+      "source_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "reference_present": true,
+      "within_authorized_window": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/audit-log-format.md",
+      "destination_sha256": "85526d7627aba68bfbf9e781da3aa6eca9cb32ced25cdb5720142d9f998d48fb",
+      "asset_hash_match": true
+    }
+  ]
+}

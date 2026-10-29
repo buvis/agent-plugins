@@ -1,0 +1,251 @@
+{
+  "task_base_sha": "715afc06f4d23b9181556e0f36e723996c57c8fb",
+  "deferred": [
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 127,
+      "reference": "references/attempt-logging.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/references/attempt-logging.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 133,
+      "reference": "references/final-verification.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/references/final-verification.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 225,
+      "reference": "references/gate-failure.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 225,
+      "reference": "references/per-task-review.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/references/per-task-review.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 237,
+      "reference": "references/gate-failure.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 251,
+      "reference": "run-autopilot/references/phase-build.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 251,
+      "reference": "phase-review.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 251,
+      "reference": "phase-done.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-done.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 40,
+      "reference": "run-autopilot/SKILL.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 9,
+      "reference": "agent-registry.md",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Supply the renderer placeholder registry for the Tess prompt template.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 47,
+      "reference": "tess-prompt.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/references/tess-prompt.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 85,
+      "reference": "tess-prompt.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/references/tess-prompt.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 95,
+      "reference": "work/references/tess-retry-prompt.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/references/tess-retry-prompt.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 104,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 133,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 146,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 179,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 227,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "status": "available",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "reason": "Complete task diff would exceed 24000-byte ceiling; task20 must add this verified dependency."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 137,
+      "reference": "SKILL.md",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Complete task diff ceiling; informational citation deferred to task20.",
+      "runtime_rule": "Illustrative or historical citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 51,
+      "reference": "SKILL.md",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Complete task diff ceiling; informational citation deferred to task20.",
+      "runtime_rule": "Illustrative or historical citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 47,
+      "reference": "ivan.md",
+      "kind": "informational-provenance",
+      "status": "informational",
+      "reason": "Complete task diff ceiling; informational citation deferred to task20.",
+      "runtime_rule": "Illustrative or historical citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 74,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/references/tess-retry-prompt.md",
+      "kind": "packaged-resource",
+      "destination_path": "plugins/autopilot/skills/work/references/tess-retry-prompt.md",
+      "reason": "Full command reference verified; a new packaged row exceeds remaining 374-byte complete diff budget. Task20 must add."
+    }
+  ],
+  "out_of_scope": [],
+  "closure": "Slice only; original task20 finding remains open.",
+  "generated_artifact_exclusions": [
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 40,
+      "references": [
+        "docs/dev/project-management/autopilot/contract-card.md",
+        "docs/dev/project-management/autopilot/session-brief.md"
+      ],
+      "reason": "Procedure writes these per-project runtime output artifacts; they are not missing shipped inputs."
+    }
+  ]
+}

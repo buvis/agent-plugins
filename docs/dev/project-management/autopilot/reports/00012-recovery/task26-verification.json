@@ -1,0 +1,19 @@
+{
+  "task_base": "bbe5418164147416aec3874fe71e1cc5d28a0829",
+  "status": "passed",
+  "only_listed_resource_edge_scopes_changed": true,
+  "complete_unselected_complement_unchanged": true,
+  "all_other_collections_unchanged": true,
+  "all_existing_identities_preserved": true,
+  "all_existing_rows_unchanged": true,
+  "new_references_verified": 42,
+  "complete_diff_bytes": 23993,
+  "diff_artifact": "docs/dev/tmp/task26-complete.diff",
+  "original_finding_closed": false,
+  "external_edges_unavailable_with_concrete_capabilities_and_refusal": true,
+  "gate_entry_points_contained_and_source_hash_verified": true,
+  "packaged_destinations_resolved": true,
+  "complete_diff_sha256": "b6aab834586245349398c1b350d45329f0151b6442cd7a55bd4e1a333d4694a6",
+  "tests_artifact": "docs/dev/tmp/task26-tests.json",
+  "review_handoff": "Coordinator Pat must review the complete task26-complete.diff; config-only task skips Tess, Devon and red-check."
+}

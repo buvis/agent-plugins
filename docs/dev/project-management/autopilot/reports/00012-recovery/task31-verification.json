@@ -1,0 +1,19 @@
+{
+  "task_base": "4ebfda194f4779a6c36254cef4bb34b921d971a9",
+  "scope": {
+    "collection": "resource_edges",
+    "path": "skills/run-autopilot/references/phase-review.md",
+    "first": 18,
+    "last": 199
+  },
+  "complete_complement_unchanged": true,
+  "other_collections_unchanged": true,
+  "existing_identities_preserved": true,
+  "protected_metadata_preserved": true,
+  "changed_existing_rows": 3,
+  "added_rows": 37,
+  "complete_diff_bytes": 23442,
+  "complete_diff_sha256": "846665b05aa561eab19cfefd44c719f85bd3e3bd2c866718e71d60d059f8fcb8",
+  "source_verification": "task31-source-verification.json",
+  "all_changed_and_new_references_verified": true
+}

@@ -1,0 +1,38 @@
+{
+  "task_base": "4ebfda194f4779a6c36254cef4bb34b921d971a9",
+  "complete_diff_bytes": 23442,
+  "diff_ceiling_bytes": 24000,
+  "remaining_bytes": 558,
+  "original_task20_remains_open": true,
+  "deferred": [
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 59,
+      "reference": "triage.qualifies",
+      "source_evidence": "triage.qualifies accepts a cap_regression stall row beside cap_critical",
+      "reason": "Distinct qualifying helper reference; adding a full unavailable-capability row exceeds the remaining 558-byte complete-diff allowance. The mint-stubs invocation is already mapped."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 59,
+      "reference": "records.do_stall",
+      "source_evidence": "records.do_stall custody capture is gated on site == cap_critical (cli/records.py)",
+      "reason": "Distinct function citation; adding another full unavailable-capability row exceeds the remaining complete-diff allowance. The active cli/records.py dependency is mapped."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 145,
+      "reference": "AskUserQuestion",
+      "source_evidence": "Interactive: present via AskUserQuestion; loop mode never calls it.",
+      "reason": "Host interaction capability requires separate availability analysis; a full capability row exceeds the remaining complete-diff allowance."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 168,
+      "reference": "AskUserQuestion",
+      "source_evidence": "Interactive: PAUSE. Present only the blocking issues to user via AskUserQuestion.",
+      "reason": "Same host capability at another scoped source line; full row exceeds remaining complete-diff allowance."
+    }
+  ],
+  "out_of_scope_discoveries": []
+}

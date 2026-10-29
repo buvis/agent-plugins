@@ -1,0 +1,39 @@
+{
+  "task_base": "b64da4bfed195db488013af7d644d3b675496c6e",
+  "base_map_sha256": "f82f9411a640cf96cb50e873090e4dc59d4484402c934cf3976af40eaa222067",
+  "current_map_sha256": "e0d0fc0a26e0c70d6a9c8b83b863b022b1ce188b5ca24d8d76495ef221e9aa0c",
+  "only_scoped_resource_edges_changed": true,
+  "complete_complement_unchanged": true,
+  "all_existing_identities_preserved": true,
+  "all_protected_metadata_preserved": true,
+  "all_new_source_lines_and_literal_references_verified": true,
+  "all_resource_and_gate_paths_contained": true,
+  "existing_edges": 693,
+  "current_edges": 733,
+  "added_edges": 40,
+  "updated_edges": 4,
+  "selected_rows": 45,
+  "diff_bytes": 23883,
+  "diff_ceiling": 24000,
+  "helper": "tools/autopilot/map_slice.py snapshot plus apply preview then apply write with fresh per-scope map SHA256",
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/state-schema.md",
+      "first": 285,
+      "last": 547
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/waves.md",
+      "first": 5,
+      "last": 249
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/use-codex/SKILL.md",
+      "first": 16,
+      "last": 94
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "task": 39,
+  "task_base_sha": "79da423991e4bb23d8ce5a5a040e4ab9ba602dc0",
+  "complete_diff_ceiling_bytes": 24000,
+  "deferred": [
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 318,
+      "reference": "run-autopilot/references/recovery.md",
+      "reason": "Complete task diff ceiling; omitted bounded citation while retaining all original proposed helper corrections."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 318,
+      "reference": "run-autopilot/references/model-ladder.md",
+      "reason": "Complete task diff ceiling; omitted bounded citation while retaining all original proposed helper corrections."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 326,
+      "reference": "run-autopilot/references/model-ladder.md",
+      "reason": "Complete task diff ceiling; omitted bounded citation while retaining all original proposed helper corrections."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 435,
+      "reference": "review-work-completion/references/agent-registry.md",
+      "reason": "Complete task diff ceiling; omitted bounded citation while retaining all original proposed helper corrections."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 324,
+      "reference": "references/design-rationale.md",
+      "reason": "Complete task diff ceiling; omitted bounded citation while retaining all original proposed helper corrections."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 338,
+      "reference": "references/design-rationale.md",
+      "reason": "Complete task diff ceiling; omitted bounded citation while retaining all original proposed helper corrections."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 326,
+      "reference": "/autopilot:run-autopilot",
+      "reason": "Additional project/host dependency discovered beyond the proposal; defer to task 20 within the complete 24000-byte task diff ceiling."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 326,
+      "reference": "/autopilot:plan-tasks",
+      "reason": "Additional project/host dependency discovered beyond the proposal; defer to task 20 within the complete 24000-byte task diff ceiling."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 443,
+      "reference": "/autopilot:run-autopilot",
+      "reason": "Additional project/host dependency discovered beyond the proposal; defer to task 20 within the complete 24000-byte task diff ceiling."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 464,
+      "reference": "autopilot verify",
+      "reason": "Additional project/host dependency discovered beyond the proposal; defer to task 20 within the complete 24000-byte task diff ceiling."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 464,
+      "reference": "AGENTS.md",
+      "reason": "Additional project/host dependency discovered beyond the proposal; defer to task 20 within the complete 24000-byte task diff ceiling."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 464,
+      "reference": "CLAUDE.md",
+      "reason": "Additional project/host dependency discovered beyond the proposal; defer to task 20 within the complete 24000-byte task diff ceiling."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 468,
+      "reference": "docs/dev/project-management/meta/assumptions.md",
+      "reason": "Additional project/host dependency discovered beyond the proposal; defer to task 20 within the complete 24000-byte task diff ceiling."
+    }
+  ],
+  "excluded_generated_artifacts": "Review prompt, subject/description/acceptance files, verification file, attempt payload, and last-verification.json are task outputs or caller-supplied transient inputs, not shipped resources.",
+  "closure": "Bounded slice only; original finding remains open."
+}

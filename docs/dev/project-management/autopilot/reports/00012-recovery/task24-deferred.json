@@ -1,0 +1,43 @@
+{
+  "status": "entire_slice_deferred",
+  "abort_reason": "context_overrun",
+  "deferred_scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/fast-track/references/lane-dispatch.md",
+      "first": 271,
+      "last": 287
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/fast-track/references/spec-card.md",
+      "first": 9,
+      "last": 80
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/plan-tasks/SKILL.md",
+      "first": 22,
+      "last": 391
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/plan-tasks/references/design-rationale.md",
+      "first": 46,
+      "last": 46
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/review-blindly/SKILL.md",
+      "first": 16,
+      "last": 118
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/review-work-completion/SKILL.md",
+      "first": 38,
+      "last": 140
+    }
+  ],
+  "reason": "Fresh dispatch must read helper/tests and bounded source/proposal summaries without emitting the complete 44659-byte slice and duplicating helper content. No corrections applied."
+}

@@ -1,0 +1,397 @@
+diff --git /Users/bob/git/src/github.com/buvis/agent-plugins/tools/autopilot/source-map.json /Users/bob/git/src/github.com/buvis/agent-plugins/tools/autopilot/source-map.json
+index 5c76bb4..f9a7b8f 100644
+--- /Users/bob/git/src/github.com/buvis/agent-plugins/tools/autopilot/source-map.json
++++ /Users/bob/git/src/github.com/buvis/agent-plugins/tools/autopilot/source-map.json
+@@ -274270,33 +274270,41 @@
+       "source_path": "skills/run-autopilot/references/state-schema.md",
+       "source_line": 224,
+       "reference": "references/batch-report-format.md",
+-      "kind": "informational-provenance",
++      "kind": "packaged-resource",
+       "status": "planned",
+-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
++      "destination_path": "plugins/autopilot/skills/run-autopilot/references/batch-report-format.md",
++      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+     },
+     {
+       "source_path": "skills/run-autopilot/references/state-schema.md",
+       "source_line": 242,
+       "reference": "references/phase-done.md",
+-      "kind": "informational-provenance",
++      "kind": "packaged-resource",
+       "status": "planned",
+-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
++      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-done.md",
++      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+     },
+     {
+       "source_path": "skills/run-autopilot/references/state-schema.md",
+       "source_line": 256,
+       "reference": "references/phase-build.md",
+-      "kind": "informational-provenance",
++      "kind": "packaged-resource",
+       "status": "planned",
+-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
++      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
++      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+     },
+     {
+       "source_path": "skills/run-autopilot/references/state-schema.md",
+       "source_line": 258,
+       "reference": "references/waves.md",
+-      "kind": "informational-provenance",
++      "kind": "packaged-resource",
+       "status": "planned",
+-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
++      "destination_path": "plugins/autopilot/skills/run-autopilot/references/waves.md",
++      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+     },
+     {
+       "source_path": "skills/run-autopilot/references/state-schema.md",
+@@ -279700,6 +279708,342 @@
+       "capability": "Create planned tasks and support rollback after a task creation failure.",
+       "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability; no source checkout fallback.",
+       "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 220,
++      "reference": "cli/review_close.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Close review cycles and derive lens states from reported persona results",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 221,
++      "reference": "cli/schema.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Validate newly added autonomous decision records before state transactions",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 226,
++      "reference": "reinject_contract_card.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Reinject the current contract card after within-session compaction",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 227,
++      "reference": "autopilot_stop_hook.py",
++      "kind": "informational-provenance",
++      "status": "planned",
++      "runtime_rule": "Retired pre-00014 hook cited only to explain legacy state fields ignored by all consumers; must not supply runtime content."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 228,
++      "reference": "autopilot_stop_hook.py",
++      "kind": "informational-provenance",
++      "status": "planned",
++      "runtime_rule": "Retired pre-00014 hook cited only to explain legacy state fields ignored by all consumers; must not supply runtime content."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 232,
++      "reference": "gemini-run.sh",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Dispatch the UI reviewer and report permanent unavailability with exit code 4",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 235,
++      "reference": "statectl.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Complete a PRD and atomically append its batch summary",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 236,
++      "reference": "cli/__main__.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Select eligible PRDs and record skipped candidates",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 240,
++      "reference": "cli/loop.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Halt the loop when installed enforcement plugin versions drift from the batch pin",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 242,
++      "reference": "cli/__main__.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Mint deduplicated triage stubs and accumulate their basenames in batch state",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 255,
++      "reference": "autopilot_context_cap_hook.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Halt on broken state transaction boundaries and write the state-write-failed marker",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 256,
++      "reference": "autopilot_context_cap_hook.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Maintain per-session tool-call and context counters for gate headroom checks",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 257,
++      "reference": "hooks/guard_push_on_critical.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Deny pushes while critical custody entries remain pending",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 258,
++      "reference": "cli/wave_assemble.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Assemble and land waves while atomically updating wave state",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 258,
++      "reference": "cli/wave_launch.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Launch and abort wave lanes while atomically updating wave state",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 258,
++      "reference": "cli/wave_review.py",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Review assembled waves and atomically update review and landing state",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 259,
++      "reference": "gather-context.sh",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Restrict nested review context to the review-paths allowlist",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 234,
++      "reference": "references/recovery.md",
++      "kind": "packaged-resource",
++      "status": "planned",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
++      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 242,
++      "reference": "references/phase-review.md",
++      "kind": "packaged-resource",
++      "status": "planned",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
++      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 255,
++      "reference": "SKILL.md",
++      "kind": "packaged-resource",
++      "status": "planned",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 258,
++      "reference": "SKILL.md",
++      "kind": "packaged-resource",
++      "status": "planned",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 237,
++      "reference": "/git-ferry:catchup",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "capability": "Refresh repository context and record the batch catchup timestamp and head",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 236,
++      "reference": "cli/records.PER_PRD_RESET_FIELDS",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "capability": "Reset per-PRD fields while preserving batch eligibility skip records",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 239,
++      "reference": "cli/records.PER_PRD_RESET_FIELDS",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "capability": "Preserve batch-scoped catchup probe state during per-PRD resets",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 235,
++      "reference": "render_report.is_autonomous_row",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "capability": "Count reportable autonomous decisions consistently with the batch report",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 235,
++      "reference": "render_report._is_pending",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "capability": "Exclude pending and deferred decisions from the completed PRD escalation count",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 236,
++      "reference": "render_report.batch_summary",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "capability": "Render skipped PRD counts and details in the batch report",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 257,
++      "reference": "cli/custody.record_critical",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "capability": "Upsert pending critical custody entries under the marker lock",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 258,
++      "reference": "cli/wave.plan",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "capability": "Plan waves without replacing partially cleaned existing wave state",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 258,
++      "reference": "cli/wave.WAVE_STATUSES",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "capability": "Validate wave and lane status values against the allowed state vocabulary",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 226,
++      "reference": "/autopilot:run-autopilot",
++      "kind": "packaged-resource",
++      "status": "planned",
++      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
++      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 226,
++      "reference": "/autopilot:work",
++      "kind": "packaged-resource",
++      "status": "planned",
++      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
++      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 226,
++      "reference": "/autopilot:review-work-completion",
++      "kind": "packaged-resource",
++      "status": "planned",
++      "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
++      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
++    },
++    {
++      "source_path": "skills/run-autopilot/references/state-schema.md",
++      "source_line": 240,
++      "reference": "~/.claude/plugins/installed_plugins.json",
++      "kind": "external-capability",
++      "status": "unavailable",
++      "capability": "Read installed enforcement plugin versions to pin and check batch consistency",
++      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
++      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+     }
+   ],
+   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",

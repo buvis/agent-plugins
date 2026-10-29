@@ -1,0 +1,35 @@
+{
+  "task_base": "20ca08e620df88405c55ca64fde3369b43b36d31",
+  "base_sha256": "e453936f0b6c33bfd65b9f940f3d9fbdb9f7da70b1a3f4b2b91392cf76864bd8",
+  "current_sha256": "cf5df2d77c7d2ed64a5630c24326cefec43f0f03a4836697466b1a90024d108f",
+  "other_collections_identical": true,
+  "unselected_resource_edges_identical": true,
+  "all_existing_identities_preserved": true,
+  "all_new_and_changed_references_source_verified": true,
+  "new_edges": 31,
+  "changed_edges": 1,
+  "complete_diff_bytes": 20113,
+  "proposals_informational": [
+    {
+      "line": 231,
+      "reference": "cards_from_prd.py"
+    }
+  ],
+  "additional_discoveries": [
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 125,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/references/tess-prompt.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 176,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/ivan.md"
+    },
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "source_line": 282,
+      "reference": "review-work-completion/references/retry-policy.md"
+    }
+  ]
+}

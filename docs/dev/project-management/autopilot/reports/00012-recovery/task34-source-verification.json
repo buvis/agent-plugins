@@ -1,0 +1,539 @@
+{
+  "task_base": "942abeac5b093449de07a8264f3b519a91a2efd2",
+  "source_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+  "pinned_source_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+  "source_hash_matches": true,
+  "source_context_matches_packaged_lines": true,
+  "source_line_offset": 0,
+  "asset_method": "read-only relevant destination projection with map SHA; \u226418KB; programmatic containment and digest checks",
+  "asset_projection": "docs/dev/tmp/task34-assets.json",
+  "all_proposals_checked": [
+    {
+      "source_line": 198,
+      "reference": "classify_tier.py",
+      "covered": true
+    },
+    {
+      "source_line": 199,
+      "reference": "cli/schema.py",
+      "covered": true
+    },
+    {
+      "source_line": 200,
+      "reference": "cli/schema.py",
+      "covered": true
+    },
+    {
+      "source_line": 201,
+      "reference": "autopilot_context_cap_hook.py",
+      "covered": true
+    },
+    {
+      "source_line": 202,
+      "reference": "cli/review_close.py",
+      "covered": true
+    },
+    {
+      "source_line": 205,
+      "reference": "autopilot_context_cap_hook.py",
+      "covered": true
+    },
+    {
+      "source_line": 213,
+      "reference": "codex_hook_doctor.py",
+      "covered": true
+    },
+    {
+      "source_line": 214,
+      "reference": "qwen-run.sh",
+      "covered": true
+    },
+    {
+      "source_line": 215,
+      "reference": "autopilot_context_cap_hook.py",
+      "covered": true
+    },
+    {
+      "source_line": 217,
+      "reference": "cli/loop.py",
+      "covered": true
+    }
+  ],
+  "all_new_source_lines_and_references_verified": [
+    {
+      "source_line": 198,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "line_sha256": "5366a710b8aa3aecd9b57554bc13f014deeed060269e555b4f2112796c853064",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 199,
+      "reference": "cli/schema.py",
+      "kind": "external-capability",
+      "line_sha256": "3726145def50340b145b98cd7298110cb8ca16f77d580efc8e3c24b4238c330b",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 200,
+      "reference": "cli/schema.py",
+      "kind": "external-capability",
+      "line_sha256": "be05048d13e5f94d9db8de1b3dcca8f5c85fdba9218a79b4e6f6c39d0a351194",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 201,
+      "reference": "autopilot_context_cap_hook.py",
+      "kind": "external-capability",
+      "line_sha256": "8303d1f05983e8c4cc213047035cf7e0f31b9b3e42cdeb517fede47523bbfb5b",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 202,
+      "reference": "cli/review_close.py",
+      "kind": "external-capability",
+      "line_sha256": "a30a4734406a303baf5d2b4adbe1b26786649c644da0dab218028b4b25d9fdcb",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 205,
+      "reference": "autopilot_context_cap_hook.py",
+      "kind": "external-capability",
+      "line_sha256": "5e326dedb62a5a1227d9ec6ee19e036287054dc5d8d3c959f8dd3fcf6ab8cb5e",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 213,
+      "reference": "codex_hook_doctor.py",
+      "kind": "external-capability",
+      "line_sha256": "78aad57017c4a93ace4476658f3369e8383d2b4478af41248d9adcc3d4400f59",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 214,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "line_sha256": "412efaea696556c99fc9a9980e07996f18301fda2941be10a85643433dee9316",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 215,
+      "reference": "autopilot_context_cap_hook.py",
+      "kind": "external-capability",
+      "line_sha256": "3ea0c647ff50238a07a9f521215d5f5081fc5616d24bb70d77fc5fba4e5b6d0f",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 217,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "line_sha256": "4a472b90c2e697af05826214047382a2a0ff1c557dbc125535422c0117ded876",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 198,
+      "reference": "/autopilot:plan-tasks",
+      "kind": "packaged-resource",
+      "line_sha256": "5366a710b8aa3aecd9b57554bc13f014deeed060269e555b4f2112796c853064",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "abb88961ad9413fcafb5b9ae9f01e5b39ff4b693a30c47286efdc28bfd65579d"
+    },
+    {
+      "source_line": 202,
+      "reference": "references/phase-review.md",
+      "kind": "packaged-resource",
+      "line_sha256": "a30a4734406a303baf5d2b4adbe1b26786649c644da0dab218028b4b25d9fdcb",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "destination_contained": true,
+      "destination_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4"
+    },
+    {
+      "source_line": 202,
+      "reference": "references/recovery.md",
+      "kind": "packaged-resource",
+      "line_sha256": "a30a4734406a303baf5d2b4adbe1b26786649c644da0dab218028b4b25d9fdcb",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "destination_contained": true,
+      "destination_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed"
+    },
+    {
+      "source_line": 204,
+      "reference": "/autopilot:work",
+      "kind": "packaged-resource",
+      "line_sha256": "2b2c7b3935e99268ac41ece84fa97c324482382e11fc19661fd74c98d0465bed",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "fe953675c9b6a93286b0a351c3fe0877ecb1659a09bfa7ee98cf94328bfd8311"
+    },
+    {
+      "source_line": 205,
+      "reference": "/autopilot:work",
+      "kind": "packaged-resource",
+      "line_sha256": "5e326dedb62a5a1227d9ec6ee19e036287054dc5d8d3c959f8dd3fcf6ab8cb5e",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "fe953675c9b6a93286b0a351c3fe0877ecb1659a09bfa7ee98cf94328bfd8311"
+    },
+    {
+      "source_line": 206,
+      "reference": "recovery.md",
+      "kind": "packaged-resource",
+      "line_sha256": "5980738c4d04853bc7f2e39c43bcd94c313f32c90f0fd98626f9317daa0e53f5",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "destination_contained": true,
+      "destination_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed"
+    },
+    {
+      "source_line": 207,
+      "reference": "/autopilot:work",
+      "kind": "packaged-resource",
+      "line_sha256": "3aa99df80374e5f9caae33c79f7144647ce24d4abf1dc8ff4104ed294316f203",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "fe953675c9b6a93286b0a351c3fe0877ecb1659a09bfa7ee98cf94328bfd8311"
+    },
+    {
+      "source_line": 207,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "line_sha256": "3aa99df80374e5f9caae33c79f7144647ce24d4abf1dc8ff4104ed294316f203",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "9ebb0d5011b249b310e6782dcbbf31f0cd338c2d74219bfbcf4c3923a1659587"
+    },
+    {
+      "source_line": 210,
+      "reference": "/autopilot:run-autopilot",
+      "kind": "packaged-resource",
+      "line_sha256": "aab138bf62fa44d8a4ebad0a6ff56537d2db46dd21095063496848f86e7c1993",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "9ebb0d5011b249b310e6782dcbbf31f0cd338c2d74219bfbcf4c3923a1659587"
+    },
+    {
+      "source_line": 210,
+      "reference": "/autopilot:work",
+      "kind": "packaged-resource",
+      "line_sha256": "aab138bf62fa44d8a4ebad0a6ff56537d2db46dd21095063496848f86e7c1993",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "fe953675c9b6a93286b0a351c3fe0877ecb1659a09bfa7ee98cf94328bfd8311"
+    },
+    {
+      "source_line": 211,
+      "reference": "/autopilot:work",
+      "kind": "packaged-resource",
+      "line_sha256": "6adfd40b4e87b92cf4e0fab6b2daaae723f9b215dd695100a27e8ce1c062ddd8",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "fe953675c9b6a93286b0a351c3fe0877ecb1659a09bfa7ee98cf94328bfd8311"
+    },
+    {
+      "source_line": 212,
+      "reference": "/autopilot:work",
+      "kind": "packaged-resource",
+      "line_sha256": "06bfeeab7d22dec6c19fcb3a213e3a2d216c121705ea1df7244884d364a24612",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "fe953675c9b6a93286b0a351c3fe0877ecb1659a09bfa7ee98cf94328bfd8311"
+    },
+    {
+      "source_line": 213,
+      "reference": "/autopilot:work",
+      "kind": "packaged-resource",
+      "line_sha256": "78aad57017c4a93ace4476658f3369e8383d2b4478af41248d9adcc3d4400f59",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "fe953675c9b6a93286b0a351c3fe0877ecb1659a09bfa7ee98cf94328bfd8311"
+    },
+    {
+      "source_line": 213,
+      "reference": "work/references/codex-implementor.md",
+      "kind": "packaged-resource",
+      "line_sha256": "78aad57017c4a93ace4476658f3369e8383d2b4478af41248d9adcc3d4400f59",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/work/references/codex-implementor.md",
+      "destination_contained": true,
+      "destination_sha256": "22dd25ac8118d571804e7fc5c42bc227593f539d13ea3ed82045b051a853d58a"
+    },
+    {
+      "source_line": 214,
+      "reference": "/autopilot:work",
+      "kind": "packaged-resource",
+      "line_sha256": "412efaea696556c99fc9a9980e07996f18301fda2941be10a85643433dee9316",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "fe953675c9b6a93286b0a351c3fe0877ecb1659a09bfa7ee98cf94328bfd8311"
+    },
+    {
+      "source_line": 215,
+      "reference": "/autopilot:plan-tasks",
+      "kind": "packaged-resource",
+      "line_sha256": "3ea0c647ff50238a07a9f521215d5f5081fc5616d24bb70d77fc5fba4e5b6d0f",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "abb88961ad9413fcafb5b9ae9f01e5b39ff4b693a30c47286efdc28bfd65579d"
+    },
+    {
+      "source_line": 215,
+      "reference": "/autopilot:work",
+      "kind": "packaged-resource",
+      "line_sha256": "3ea0c647ff50238a07a9f521215d5f5081fc5616d24bb70d77fc5fba4e5b6d0f",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "fe953675c9b6a93286b0a351c3fe0877ecb1659a09bfa7ee98cf94328bfd8311"
+    },
+    {
+      "source_line": 215,
+      "reference": "/autopilot:run-autopilot",
+      "kind": "packaged-resource",
+      "line_sha256": "3ea0c647ff50238a07a9f521215d5f5081fc5616d24bb70d77fc5fba4e5b6d0f",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "destination_contained": true,
+      "destination_sha256": "9ebb0d5011b249b310e6782dcbbf31f0cd338c2d74219bfbcf4c3923a1659587"
+    },
+    {
+      "source_line": 216,
+      "reference": "recovery.md",
+      "kind": "packaged-resource",
+      "line_sha256": "753716b269d59495458dcebcf47076c92846feb7f3ba91fb46ce68075b02110f",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "destination_contained": true,
+      "destination_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed"
+    },
+    {
+      "source_line": 217,
+      "reference": "recovery.md",
+      "kind": "packaged-resource",
+      "line_sha256": "4a472b90c2e697af05826214047382a2a0ff1c557dbc125535422c0117ded876",
+      "reference_present": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "destination_contained": true,
+      "destination_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed"
+    },
+    {
+      "source_line": 202,
+      "reference": "task-set-meta",
+      "kind": "external-capability",
+      "line_sha256": "a30a4734406a303baf5d2b4adbe1b26786649c644da0dab218028b4b25d9fdcb",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 202,
+      "reference": "autopilot review-close",
+      "kind": "external-capability",
+      "line_sha256": "a30a4734406a303baf5d2b4adbe1b26786649c644da0dab218028b4b25d9fdcb",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 203,
+      "reference": "autopilot review-close",
+      "kind": "external-capability",
+      "line_sha256": "24254b7aef2aac4e9e49320ed54999df49296b2338747644cac9987dcdad2c77",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 207,
+      "reference": "git rev-parse HEAD",
+      "kind": "external-capability",
+      "line_sha256": "3aa99df80374e5f9caae33c79f7144647ce24d4abf1dc8ff4104ed294316f203",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 208,
+      "reference": "git rev-parse --show-toplevel",
+      "kind": "external-capability",
+      "line_sha256": "cf6e401f0c8e9be88d258d599842f5d40f49148a9b4e792eef413b2aebbc48a7",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 209,
+      "reference": "git rev-parse --show-toplevel",
+      "kind": "external-capability",
+      "line_sha256": "2eb91a10c7d08f9873e0d80d02ed606f3f8e44cedacc2ffbb394260b6cb30061",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 209,
+      "reference": "cli/custody.git_argv",
+      "kind": "external-capability",
+      "line_sha256": "2eb91a10c7d08f9873e0d80d02ed606f3f8e44cedacc2ffbb394260b6cb30061",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 209,
+      "reference": "autopilot custody resolve",
+      "kind": "external-capability",
+      "line_sha256": "2eb91a10c7d08f9873e0d80d02ed606f3f8e44cedacc2ffbb394260b6cb30061",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 209,
+      "reference": "records.PER_PRD_RESET_FIELDS",
+      "kind": "external-capability",
+      "line_sha256": "2eb91a10c7d08f9873e0d80d02ed606f3f8e44cedacc2ffbb394260b6cb30061",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 214,
+      "reference": "statectl del qwen_preflight",
+      "kind": "external-capability",
+      "line_sha256": "412efaea696556c99fc9a9980e07996f18301fda2941be10a85643433dee9316",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 215,
+      "reference": "task-add",
+      "kind": "external-capability",
+      "line_sha256": "3ea0c647ff50238a07a9f521215d5f5081fc5616d24bb70d77fc5fba4e5b6d0f",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 217,
+      "reference": "statectl",
+      "kind": "external-capability",
+      "line_sha256": "4a472b90c2e697af05826214047382a2a0ff1c557dbc125535422c0117ded876",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 217,
+      "reference": "autopilot restore",
+      "kind": "external-capability",
+      "line_sha256": "4a472b90c2e697af05826214047382a2a0ff1c557dbc125535422c0117ded876",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 217,
+      "reference": "AskUserQuestion",
+      "kind": "external-capability",
+      "line_sha256": "4a472b90c2e697af05826214047382a2a0ff1c557dbc125535422c0117ded876",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    },
+    {
+      "source_line": 210,
+      "reference": "task-add",
+      "kind": "external-capability",
+      "line_sha256": "aab138bf62fa44d8a4ebad0a6ff56537d2db46dd21095063496848f86e7c1993",
+      "reference_present": true,
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "gate_contained": true,
+      "active_runtime_dependency": true
+    }
+  ]
+}

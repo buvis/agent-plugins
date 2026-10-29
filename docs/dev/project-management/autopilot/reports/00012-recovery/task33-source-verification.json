@@ -1,0 +1,150 @@
+{
+  "task": "task33",
+  "frozen_source_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+  "frozen_source_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+  "full_source_hash_verified": true,
+  "all_scoped_source_lines_verified": true,
+  "asset_projection_method": "Read-only selected destination/hash/disposition fields with map SHA; helper rejected oversized work/SKILL.md asset. No whole map or inventory exposed.",
+  "checks": [
+    {
+      "source_line": 189,
+      "reference": "references/recovery.md",
+      "verified_literal": true,
+      "kind": "packaged-resource",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "destination_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed"
+    },
+    {
+      "source_line": 189,
+      "reference": "references/phase-review.md",
+      "verified_literal": true,
+      "kind": "packaged-resource",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "destination_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4"
+    },
+    {
+      "source_line": 190,
+      "reference": "references/lane-solo.md",
+      "verified_literal": true,
+      "kind": "packaged-resource",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-solo.md",
+      "destination_sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e"
+    },
+    {
+      "source_line": 182,
+      "reference": "cli/lane.py",
+      "verified_literal": true,
+      "kind": "external-capability",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "status": "unavailable",
+      "no_asset_for_reference": true
+    },
+    {
+      "source_line": 182,
+      "reference": "cli/records.PER_PRD_RESET_FIELDS",
+      "verified_literal": true,
+      "kind": "external-capability",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "status": "unavailable",
+      "no_asset_for_reference": true
+    },
+    {
+      "source_line": 184,
+      "reference": "lane.RELEASED_LANES",
+      "verified_literal": true,
+      "kind": "external-capability",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "status": "unavailable",
+      "no_asset_for_reference": true
+    },
+    {
+      "source_line": 184,
+      "reference": "cards_from_prd.py",
+      "verified_literal": true,
+      "kind": "external-capability",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "status": "unavailable",
+      "no_asset_for_reference": true
+    },
+    {
+      "source_line": 185,
+      "reference": "lane.security_triggered",
+      "verified_literal": true,
+      "kind": "external-capability",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "status": "unavailable",
+      "no_asset_for_reference": true
+    },
+    {
+      "source_line": 185,
+      "reference": "cli/records.PER_PRD_RESET_FIELDS",
+      "verified_literal": true,
+      "kind": "external-capability",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "status": "unavailable",
+      "no_asset_for_reference": true
+    },
+    {
+      "source_line": 189,
+      "reference": "classify_tier.py",
+      "verified_literal": true,
+      "kind": "external-capability",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "status": "unavailable",
+      "no_asset_for_reference": true
+    },
+    {
+      "source_line": 190,
+      "reference": "check_reflow.py",
+      "verified_literal": true,
+      "kind": "external-capability",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "status": "unavailable",
+      "no_asset_for_reference": true
+    },
+    {
+      "source_line": 190,
+      "reference": "parse_review.py",
+      "verified_literal": true,
+      "kind": "external-capability",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "status": "unavailable",
+      "no_asset_for_reference": true
+    },
+    {
+      "source_line": 190,
+      "reference": "SKILL.md",
+      "verified_literal": true,
+      "kind": "packaged-resource",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "destination_sha256": "fe953675c9b6a93286b0a351c3fe0877ecb1659a09bfa7ee98cf94328bfd8311"
+    },
+    {
+      "source_line": 190,
+      "reference": "work/references/rework-mode.md",
+      "verified_literal": true,
+      "kind": "packaged-resource",
+      "destination_path": "plugins/autopilot/skills/work/references/rework-mode.md",
+      "destination_sha256": "39db417c8a13abe41424d0f86cd6cf4246f70b62f81fd0a9d4784f63d0aef351"
+    },
+    {
+      "source_line": 190,
+      "reference": "work/references/subagent-dispatch.md",
+      "verified_literal": true,
+      "kind": "packaged-resource",
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "destination_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb"
+    },
+    {
+      "source_line": 190,
+      "reference": "work/references/attempt-logging.md",
+      "verified_literal": true,
+      "kind": "packaged-resource",
+      "destination_path": "plugins/autopilot/skills/work/references/attempt-logging.md",
+      "destination_sha256": "ca6847fc6b0c3b5dd16501486f512c8b6f15eb007c04043a4dd2a9a0278f5873"
+    }
+  ],
+  "rejected_nonreferences": [
+    "Generic .py extension describes file types, not a helper dependency."
+  ]
+}

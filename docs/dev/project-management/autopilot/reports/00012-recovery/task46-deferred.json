@@ -1,0 +1,11 @@
+{
+  "task": 46,
+  "deferred_discoveries": [],
+  "scope": "Exactly five requested closure edges.",
+  "coordinator_gates": [
+    "Independent full-diff Pat review",
+    "Package archive/style gates after coordinator commit",
+    "Repository-wide config gates remain coordinator-owned"
+  ],
+  "original_task20_status": "open until final archive/style/Pat gates"
+}

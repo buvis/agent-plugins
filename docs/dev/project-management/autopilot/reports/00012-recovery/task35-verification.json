@@ -1,0 +1,29 @@
+{
+  "task": 35,
+  "task_base": "d3d69136f49a347f9e0bd639a4fe27cef8c55916",
+  "base_map_sha256": "72cfcd1e8f7c8f34547c7c9a9ffd4160777fed8b395804313eb85fafb2f8e0f3",
+  "snapshot_map_sha256": "72cfcd1e8f7c8f34547c7c9a9ffd4160777fed8b395804313eb85fafb2f8e0f3",
+  "current_map_sha256": "f82f9411a640cf96cb50e873090e4dc59d4484402c934cf3976af40eaa222067",
+  "scope": {
+    "collection": "resource_edges",
+    "path": "skills/run-autopilot/references/state-schema.md",
+    "first": 220,
+    "last": 259
+  },
+  "complete_complement_preserved": true,
+  "existing_identities_preserved": true,
+  "protected_metadata_preserved": true,
+  "existing_identities": 4,
+  "current_identities": 38,
+  "new_identities": 34,
+  "complete_diff_bytes": 23518,
+  "complete_diff_sha256": "9bb36aad93415437e4c4f5f0e15b628b28bcb64affbc705cd0be77a17fef1273",
+  "every_new_source_line_reference_verified": true,
+  "literal_source_reference_discrepancies": 0,
+  "recovery": {
+    "rejected_candidate_sha256": "2f0ddc8b4d78a7d48dff7b0401fc9c20453b352e781a3a06b5940f03fe532567",
+    "diagnosis": "New line236 reference incorrectly normalized records.PER_PRD_RESET_FIELDS with a cli/ prefix. Exact spelling corrected before successful reapplication.",
+    "rollback": "Coordinator restored exact task-base blob under map lock after digest/HEAD, ownership and complement guards; fresh helper snapshot/apply used afterward.",
+    "rejected_archive": "docs/dev/tmp/task35-rejected-complete.diff"
+  }
+}

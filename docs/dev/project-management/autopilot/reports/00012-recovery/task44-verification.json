@@ -1,0 +1,55 @@
+{
+  "status": "passed",
+  "task_base": "4d3731f5e8a46e445843f21ae8e98d8714b64f29",
+  "task_base_map_sha256": "fa17e9e7b61dea658e7f3060503cebe545f0fc8f4c196b348508c99464161d69",
+  "attempt_base_map_sha256": "fa17e9e7b61dea658e7f3060503cebe545f0fc8f4c196b348508c99464161d69",
+  "current_map_sha256": "0515541156f9a8dcf4eb71e487c7a3a5487b50e6b59a798a5f81848faf9a0cde",
+  "complete_task_diff_bytes": 19202,
+  "diff_sha256": "25b0b384b0fbc26533e801c0222ed1813520072c5364ebcf31f13b864d3c95f6",
+  "task_base_comparison": {
+    "all_non_resource_collections_preserved": true,
+    "complete_unselected_resource_complement_preserved": true,
+    "all_existing_identities_preserved": true,
+    "existing_identity_count": 270,
+    "new_identity_count": 33,
+    "changed_existing_identity_count": 1,
+    "changed_existing_identities": [
+      {
+        "reference": "references/recovery.md",
+        "source_line": 374,
+        "source_path": "skills/plan-tasks/SKILL.md"
+      }
+    ],
+    "all_changes_within_scopes": true
+  },
+  "attempt_base_comparison": {
+    "all_non_resource_collections_preserved": true,
+    "complete_unselected_resource_complement_preserved": true,
+    "all_existing_identities_preserved": true,
+    "existing_identity_count": 270,
+    "new_identity_count": 33,
+    "changed_existing_identity_count": 1,
+    "changed_existing_identities": [
+      {
+        "reference": "references/recovery.md",
+        "source_line": 374,
+        "source_path": "skills/plan-tasks/SKILL.md"
+      }
+    ],
+    "all_changes_within_scopes": true
+  },
+  "all_added_source_lines_and_references_verified": true,
+  "earlier_slices_preserved": true,
+  "skeptical_review": {
+    "runtime_vs_examples_and_history": "passed",
+    "missing_runtime_helpers_refuse_at_contained_entry_point": "passed",
+    "packaged_recovery_resolved": "passed",
+    "all_additions_match_frozen_source_literals": "passed",
+    "no_execution_enablement_or_schema_change": "passed"
+  },
+  "context_guard": {
+    "limit_tokens": 100000,
+    "coordinator_verified_context_at_retry": 59157,
+    "prior_byte_based_abort_false_positive": true
+  }
+}

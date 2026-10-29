@@ -1,0 +1,58 @@
+{
+  "task": 27,
+  "task_base_sha": "30f63239837ceb10ef3871a102a356bb2dc405ff",
+  "original_finding_remains_open": true,
+  "complete_diff_bytes": 23889,
+  "deferred_references": [
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 154,
+      "reference": "scripts/tracon/",
+      "reason": "Repeated citation of an already represented dependency; adding this minimal row exceeds the complete task diff ceiling.",
+      "minimum_complete_diff_bytes": 24537,
+      "limit_bytes": 24000
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 97,
+      "reference": "/autopilot:work",
+      "reason": "Repeated citation of an already represented dependency; adding this minimal row exceeds the complete task diff ceiling.",
+      "minimum_complete_diff_bytes": 24316,
+      "limit_bytes": 24000
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 113,
+      "reference": "references/phase-done.md",
+      "reason": "Repeated citation of an already represented dependency; adding this minimal row exceeds the complete task diff ceiling.",
+      "minimum_complete_diff_bytes": 24351,
+      "limit_bytes": 24000
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 137,
+      "reference": "references/waves.md",
+      "reason": "Repeated citation of an already represented dependency; adding this minimal row exceeds the complete task diff ceiling.",
+      "minimum_complete_diff_bytes": 24341,
+      "limit_bytes": 24000
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 179,
+      "reference": "/autopilot:work",
+      "reason": "Repeated citation of an already represented dependency; adding this minimal row exceeds the complete task diff ceiling.",
+      "minimum_complete_diff_bytes": 24317,
+      "limit_bytes": 24000
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 190,
+      "reference": "/autopilot:review-work-completion",
+      "reason": "Repeated citation of an already represented dependency; adding this minimal row exceeds the complete task diff ceiling.",
+      "minimum_complete_diff_bytes": 24353,
+      "limit_bytes": 24000
+    }
+  ],
+  "excluded_runtime_artifacts_reason": "Project docs/dev paths, markers, logs, state and generated .gitignore are workflow inputs/outputs rather than installed helper dependencies. No runtime content is sourced from them as package assets.",
+  "out_of_scope_discoveries": []
+}

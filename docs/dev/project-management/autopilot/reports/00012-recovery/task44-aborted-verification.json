@@ -1,0 +1,15 @@
+{
+  "status": "aborted",
+  "abort_reason": "context_overrun",
+  "detail": "Cumulative bounded reads plus unexpectedly verbose asset snapshots reached the 100K input guard; no map edits attempted.",
+  "task_base": "4d3731f5e8a46e445843f21ae8e98d8714b64f29",
+  "task_base_map_sha256": "fa17e9e7b61dea658e7f3060503cebe545f0fc8f4c196b348508c99464161d69",
+  "attempt_base_map_sha256": "fa17e9e7b61dea658e7f3060503cebe545f0fc8f4c196b348508c99464161d69",
+  "current_map_sha256": "fa17e9e7b61dea658e7f3060503cebe545f0fc8f4c196b348508c99464161d69",
+  "map_unchanged_from_attempt_base": true,
+  "task_base_map_equal_current": true,
+  "all_attempt_base_rows_and_collections_preserved": true,
+  "complete_task_diff_bytes": 0,
+  "no_existing_identity_disappears": true,
+  "new_source_line_reference_verification": "vacuous: no additions"
+}

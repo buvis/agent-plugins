@@ -1,0 +1,308 @@
+{
+  "task_base": "bbe5418164147416aec3874fe71e1cc5d28a0829",
+  "sources": [
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
+      "source_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "hash_verified": true,
+      "excerpt_lines_verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-invocation.md",
+      "source_sha256": "d413ddeb3d043e64f4deedffc76612b9270d918316b3ed6aafd7e55f43e1ddfc",
+      "hash_verified": true,
+      "excerpt_lines_verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-registry.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-registry.md",
+      "source_sha256": "aa87ea16bd52b540625b0ac334692a141c706febcd054eeda8ae13f0a0a448c1",
+      "hash_verified": true,
+      "excerpt_lines_verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/design-rationale.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/design-rationale.md",
+      "source_sha256": "2075be79fd23a38b59e02435525e069b87d17cce9cf825ccfca03d8b5dc743d9",
+      "hash_verified": true,
+      "excerpt_lines_verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/output-formats.md",
+      "source_sha256": "cc974c18895c6405d4c3e3d67e3a0f167795b79a865b962c28502bd1b281f8a2",
+      "hash_verified": true,
+      "excerpt_lines_verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/review-coverage-format.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/review-coverage-format.md",
+      "source_sha256": "3b5f0b9597f57cba784001919f732d30a70b85d57df7f579d6615b0df72942e4",
+      "hash_verified": true,
+      "excerpt_lines_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "source_sha256": "8e327f1e91c8190626bed6dbe29adcaa0cec49e8683b1fa8420fb3e2ee473ce1",
+      "hash_verified": true,
+      "excerpt_lines_verified": true
+    }
+  ],
+  "new_references": [
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 403,
+      "reference": "check_review_file.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 403,
+      "reference": "cli/gate.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 425,
+      "reference": "check_review_file.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 429,
+      "reference": "check_review_file.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 438,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 441,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 441,
+      "reference": "statectl.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 31,
+      "reference": "consolidate_findings.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 37,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 44,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 59,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-registry.md",
+      "source_line": 84,
+      "reference": "parse_review.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/design-rationale.md",
+      "source_line": 53,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/design-rationale.md",
+      "source_line": 80,
+      "reference": "hooks/guard_stop_on_live_lanes.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/design-rationale.md",
+      "source_line": 82,
+      "reference": "review_coverage_hook.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 68,
+      "reference": "consolidate_findings.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 226,
+      "reference": "consolidate_findings.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 271,
+      "reference": "review_close.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 273,
+      "reference": "gather-context.sh",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 275,
+      "reference": "codex-run.sh",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 279,
+      "reference": "check_review_file.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/review-coverage-format.md",
+      "source_line": 4,
+      "reference": "check_review_file.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/review-coverage-format.md",
+      "source_line": 30,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 21,
+      "reference": "sonnet-run.sh",
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 36,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 38,
+      "reference": "~/.claude/hooks/notify.py",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 403,
+      "reference": "autopilot verify",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 413,
+      "reference": "autopilot review-close",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 99,
+      "reference": "autopilot gate --findings",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 101,
+      "reference": "gate --findings",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 101,
+      "reference": "review-close",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 103,
+      "reference": "gate --findings",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 103,
+      "reference": "review-close",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 273,
+      "reference": "autopilot cap-check",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/review-coverage-format.md",
+      "source_line": 12,
+      "reference": "autopilot cap-check",
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 34,
+      "reference": "git-ferry:catchup",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 409,
+      "reference": "references/output-formats.md",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 419,
+      "reference": "references/output-formats.md",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 413,
+      "reference": "run-autopilot/references/phase-review.md",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 47,
+      "reference": "retry-policy.md",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 49,
+      "reference": "retry-policy.md",
+      "verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 71,
+      "reference": "retry-policy.md",
+      "verified": true
+    }
+  ]
+}

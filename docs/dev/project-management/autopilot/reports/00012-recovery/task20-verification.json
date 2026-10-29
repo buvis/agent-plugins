@@ -1,0 +1,22 @@
+{
+  "task_base": "68792c2d7a050a277549f0c8b551d6f2753f7588",
+  "implementation_head": "b802e8c76cb0cc5898ae55e5a932775c99ca1474",
+  "complete_diff_bytes": 18664,
+  "oracle_bytes": 7997,
+  "frozen202_and_unchanged_EDGE_SHA": "verified by committed package gate",
+  "independent_source_oracle": "251 positive runtime obligations; all fulfilled after child46; no map-derived exclusions",
+  "archive_gate": {
+    "kind": "observed_task_archive_gate",
+    "sha": "b802e8c76cb0cc5898ae55e5a932775c99ca1474",
+    "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_package.py tests/autopilot/test_provenance.py tests/autopilot/test_resource_closure.py -q --tb=line",
+    "exit_code": 0,
+    "runner_summary": "23 passed in 3.79s",
+    "passed": 23,
+    "failed": 0
+  },
+  "style_gate": "clean",
+  "split_hygiene": "clean",
+  "self_deslop": "skipped:trivial: last integration commit is one JSON file",
+  "scope": "Completed task20; original HIGH closed; Pat M2 resolved; M1 residual retained at one-retry cap.",
+  "review": "medium-retry:unfixed"
+}

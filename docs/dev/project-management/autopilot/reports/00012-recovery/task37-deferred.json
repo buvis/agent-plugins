@@ -1,0 +1,25 @@
+{
+  "original_finding_closed": false,
+  "slice": 16,
+  "complete_diff_bytes": 23817,
+  "diff_ceiling_bytes": 24000,
+  "deferred": [
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 129,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/",
+      "literal_verified": true,
+      "reason": "Complete 39-row repair is 25002 bytes, exceeding the unchanged 24000-byte ceiling; retained 37-row repair leaves insufficient space for this additional row. Named doctor tests and review-wrapper capability remain explicitly covered.",
+      "required_followup": "Task 20: add this distinct directory-suite or generated-sidecar dependency using its verified literal identity."
+    },
+    {
+      "source_path": "skills/use-codex/references/dispatch-contract.md",
+      "source_line": 61,
+      "reference": "codex-review-last.jsonl",
+      "literal_verified": true,
+      "reason": "Complete 39-row repair is 25002 bytes, exceeding the unchanged 24000-byte ceiling; retained 37-row repair leaves insufficient space for this additional row. Named doctor tests and review-wrapper capability remain explicitly covered.",
+      "required_followup": "Task 20: add this distinct directory-suite or generated-sidecar dependency using its verified literal identity."
+    }
+  ],
+  "outside_scope_discoveries": []
+}

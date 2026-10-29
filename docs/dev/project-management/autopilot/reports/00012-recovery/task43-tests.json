@@ -1,0 +1,22 @@
+{
+  "task_base_sha": "715afc06f4d23b9181556e0f36e723996c57c8fb",
+  "command": [
+    "uv",
+    "run",
+    "--python",
+    "3.12",
+    "--no-project",
+    "--with-requirements",
+    "tools/autopilot/requirements-test.txt",
+    "python",
+    "-m",
+    "pytest",
+    "tests/autopilot/test_map_slice.py",
+    "tests/autopilot/test_provenance.py",
+    "-q",
+    "--tb=line"
+  ],
+  "exit_code": 0,
+  "runner_summary": "........................                                                 [100%]\n24 passed in 0.95s",
+  "stderr": ""
+}

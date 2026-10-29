@@ -1,0 +1,243 @@
+{
+  "task_base": "bbe5418164147416aec3874fe71e1cc5d28a0829",
+  "deferred": [
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 111,
+      "reference": "agents/blake.md",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24452 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/review-work-completion/references/agent-invocation.md",
+        "source_line": 111,
+        "reference": "agents/blake.md",
+        "kind": "packaged-resource",
+        "status": "planned",
+        "destination_path": "plugins/autopilot/references/personas/blake.md",
+        "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+      }
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-registry.md",
+      "source_line": 84,
+      "reference": "work/references/per-task-review.md",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24481 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/review-work-completion/references/agent-registry.md",
+        "source_line": 84,
+        "reference": "work/references/per-task-review.md",
+        "kind": "packaged-resource",
+        "status": "planned",
+        "destination_path": "plugins/autopilot/skills/work/references/per-task-review.md",
+        "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+      }
+    },
+    {
+      "source_path": "skills/review-work-completion/references/design-rationale.md",
+      "source_line": 55,
+      "reference": "review-dimensions.md",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24489 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/review-work-completion/references/design-rationale.md",
+        "source_line": 55,
+        "reference": "review-dimensions.md",
+        "kind": "packaged-resource",
+        "status": "planned",
+        "destination_path": "plugins/autopilot/skills/review-work-completion/references/review-dimensions.md",
+        "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+      }
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 219,
+      "reference": "work/references/final-verification.md",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24488 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/review-work-completion/references/output-formats.md",
+        "source_line": 219,
+        "reference": "work/references/final-verification.md",
+        "kind": "packaged-resource",
+        "status": "planned",
+        "destination_path": "plugins/autopilot/skills/work/references/final-verification.md",
+        "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 32,
+      "reference": "design-solution",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24423 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/run-autopilot/SKILL.md",
+        "source_line": 32,
+        "reference": "design-solution",
+        "kind": "packaged-resource",
+        "status": "planned",
+        "destination_path": "plugins/autopilot/skills/design-solution/SKILL.md",
+        "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 32,
+      "reference": "plan-tasks",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24413 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/run-autopilot/SKILL.md",
+        "source_line": 32,
+        "reference": "plan-tasks",
+        "kind": "packaged-resource",
+        "status": "planned",
+        "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+        "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 32,
+      "reference": "work",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24401 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/run-autopilot/SKILL.md",
+        "source_line": 32,
+        "reference": "work",
+        "kind": "packaged-resource",
+        "status": "planned",
+        "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+        "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+      }
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 33,
+      "reference": "review-work-completion",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24437 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/run-autopilot/SKILL.md",
+        "source_line": 33,
+        "reference": "review-work-completion",
+        "kind": "packaged-resource",
+        "status": "planned",
+        "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
+        "failure_rule": "Refuse the affected entry point if the installed resource is missing or escapes the plugin root; no source-checkout fallback."
+      }
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 116,
+      "reference": "fable-run.sh",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24393 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/review-work-completion/references/agent-invocation.md",
+        "source_line": 116,
+        "reference": "fable-run.sh",
+        "kind": "informational-provenance",
+        "reason": "The source explicitly says this wrapper does not exist and native Task dispatch needs none.",
+        "runtime_rule": "Citation only; never read it to supply runtime content."
+      }
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 31,
+      "reference": "skills/work/SKILL.md:166",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24369 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/review-work-completion/references/agent-invocation.md",
+        "source_line": 31,
+        "reference": "skills/work/SKILL.md:166",
+        "kind": "informational-provenance",
+        "reason": "Illustrative file citation in the required issue format.",
+        "runtime_rule": "Citation only; never read it to supply runtime content."
+      }
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 31,
+      "reference": "a.py:77",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24339 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/review-work-completion/references/agent-invocation.md",
+        "source_line": 31,
+        "reference": "a.py:77",
+        "kind": "informational-provenance",
+        "reason": "Illustrative malformed multi-file citation.",
+        "runtime_rule": "Citation only; never read it to supply runtime content."
+      }
+    },
+    {
+      "source_path": "skills/review-work-completion/references/agent-invocation.md",
+      "source_line": 31,
+      "reference": "b.py:91",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24339 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/review-work-completion/references/agent-invocation.md",
+        "source_line": 31,
+        "reference": "b.py:91",
+        "kind": "informational-provenance",
+        "reason": "Illustrative malformed multi-file citation.",
+        "runtime_rule": "Citation only; never read it to supply runtime content."
+      }
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 92,
+      "reference": "src/input.ts",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24331 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/review-work-completion/references/output-formats.md",
+        "source_line": 92,
+        "reference": "src/input.ts",
+        "kind": "informational-provenance",
+        "reason": "Illustrative findings-table row.",
+        "runtime_rule": "Citation only; never read it to supply runtime content."
+      }
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 93,
+      "reference": "src/api.ts",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24329 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/review-work-completion/references/output-formats.md",
+        "source_line": 93,
+        "reference": "src/api.ts",
+        "kind": "informational-provenance",
+        "reason": "Illustrative findings-table row.",
+        "runtime_rule": "Citation only; never read it to supply runtime content."
+      }
+    },
+    {
+      "source_path": "skills/review-work-completion/references/output-formats.md",
+      "source_line": 94,
+      "reference": "src/utils.ts",
+      "verified": true,
+      "reason": "Adding this verified edge would make the complete task diff 24331 bytes, exceeding the 24000-byte ceiling.",
+      "proposed_row": {
+        "source_path": "skills/review-work-completion/references/output-formats.md",
+        "source_line": 94,
+        "reference": "src/utils.ts",
+        "kind": "informational-provenance",
+        "reason": "Illustrative findings-table row.",
+        "runtime_rule": "Citation only; never read it to supply runtime content."
+      }
+    }
+  ],
+  "out_of_scope": [],
+  "notes": [
+    "Generated review/state/output paths are workflow artifacts, not shipped dependency resources.",
+    "review_stage.run_gate_line and review_stage._run_inputs are symbol descriptions without a named file reference."
+  ]
+}

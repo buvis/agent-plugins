@@ -1,0 +1,22 @@
+{
+  "task": "task33",
+  "task_base_sha": "805b06746ad738cbbe443b295f413b4791128945",
+  "task_base_map_sha256": "5a527a14aadb335b91dca2782bffe992e44f5cbc474679be8b878711ba1484cc",
+  "current_map_sha256": "39fa5bdb819c69878e5849604bc82649d3dbcdb0600b6e669c86c5982c6d891d",
+  "scope": {
+    "collection": "resource_edges",
+    "path": "skills/run-autopilot/references/state-schema.md",
+    "first": 182,
+    "last": 190
+  },
+  "complete_complement_unchanged": true,
+  "all_existing_identities_preserved": true,
+  "protected_metadata_preserved": true,
+  "modified_existing_edges": 3,
+  "new_edges": 13,
+  "complete_diff_bytes": 12054,
+  "complete_diff_path": "docs/dev/tmp/task33.diff",
+  "complete_diff_sha256": "10942d72eb73827b8bece10f2454f749ce12fc1b46be282ed9ccee311d086447",
+  "status": "passed",
+  "review": "Coordinator Pat receives complete task33.diff; no worker commit or state write."
+}

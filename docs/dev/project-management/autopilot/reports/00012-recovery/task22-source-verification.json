@@ -1,0 +1,14 @@
+[
+  {
+    "source_path": "skills/design-solution/SKILL.md",
+    "sha256": "afb9996b8ce8e1d833ed01cd533c86f711504be3c31e156c5bb827097ce0c74c",
+    "gate_removed_bytes": 742,
+    "listed_lines_verified": 20
+  },
+  {
+    "source_path": "skills/fast-track/SKILL.md",
+    "sha256": "608277a9b273e98289d1818eead2c5d22cf4404ef4d4af43dd653396c7ce7227",
+    "gate_removed_bytes": 742,
+    "listed_lines_verified": 117
+  }
+]

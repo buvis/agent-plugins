@@ -1,0 +1,241 @@
+{
+  "task": 30,
+  "task_base": "fca7c122de2b74e07924fcbcd58b9111bf0a4e8c",
+  "deferred_edges": [
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 149,
+      "reference": "references/recovery.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24402-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 150,
+      "reference": "references/recovery.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24402-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 161,
+      "reference": "references/recovery.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24402-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 336,
+      "reference": "references/recovery.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24402-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 173,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24374-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 330,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24374-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 399,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24374-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 234,
+      "reference": "/autopilot:plan-tasks",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24384-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 350,
+      "reference": "/autopilot:plan-tasks",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24384-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 352,
+      "reference": "/autopilot:plan-tasks",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24384-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 354,
+      "reference": "/autopilot:plan-tasks",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24384-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 270,
+      "reference": "/autopilot:fast-track",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/fast-track/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24384-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 281,
+      "reference": "/git-ferry:catchup",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Gather repository context and refresh the project capsule, honoring catchup-probe service omissions.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "deferral_reason": "Adding this edge would produce a 24562-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 299,
+      "reference": "/git-ferry:catchup",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Gather repository context and refresh the project capsule, honoring catchup-probe service omissions.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "deferral_reason": "Adding this edge would produce a 24562-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 301,
+      "reference": "/git-ferry:catchup",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Gather repository context and refresh the project capsule, honoring catchup-probe service omissions.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "deferral_reason": "Adding this edge would produce a 24562-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 299,
+      "reference": "engram",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Retrieve related project context unless the catchup probe requests its omission.",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "deferral_reason": "Adding this edge would produce a 24530-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 18,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24372-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 35,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24372-byte complete task diff, exceeding the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 69,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "status": "packaged",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "failure_rule": "Refuse affected entry point if the packaged procedure or contract is missing.",
+      "deferral_reason": "Adding this edge would produce a 24372-byte complete task diff, exceeding the 24000-byte ceiling."
+    }
+  ],
+  "other_discoveries": [
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 151,
+      "reference": "/autopilot:work",
+      "reason": "Bounded helper asset snapshot for skills/work/SKILL.md exceeds its 18000-byte input limit; destination metadata cannot be inspected under this dispatch."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 299,
+      "reference": "gh",
+      "reason": "Host/command reference observed in the verified bounded source context; only 10 bytes remain under the complete 24000-byte diff ceiling, insufficient for an independently identified edge."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 150,
+      "reference": "AskUserQuestion",
+      "reason": "Host/command reference observed in the verified bounded source context; only 10 bytes remain under the complete 24000-byte diff ceiling, insufficient for an independently identified edge."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 342,
+      "reference": "/autopilot:run-autopilot",
+      "reason": "Host/command reference observed in the verified bounded source context; only 10 bytes remain under the complete 24000-byte diff ceiling, insufficient for an independently identified edge."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 73,
+      "reference": "/autopilot:run-autopilot",
+      "reason": "Host/command reference observed in the verified bounded source context; only 10 bytes remain under the complete 24000-byte diff ceiling, insufficient for an independently identified edge."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-done.md",
+      "source_line": 75,
+      "reference": "/autopilot:run-autopilot review-batch",
+      "reason": "Host/command reference observed in the verified bounded source context; only 10 bytes remain under the complete 24000-byte diff ceiling, insufficient for an independently identified edge."
+    }
+  ],
+  "complete_diff_bytes": 23990,
+  "diff_ceiling_bytes": 24000,
+  "closure": "This bounded slice does not close original task20."
+}

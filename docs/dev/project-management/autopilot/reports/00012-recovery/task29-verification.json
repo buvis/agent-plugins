@@ -1,0 +1,16 @@
+{
+  "task": 29,
+  "task_base": "e8215b78725685a74c2920bdba37e80147ec8a98",
+  "status": "passed",
+  "only_resource_edges_changed": true,
+  "complete_unselected_complement_unchanged": true,
+  "all_existing_identities_preserved": true,
+  "protected_metadata_unchanged": true,
+  "all_changes_within_authorized_scopes": true,
+  "all_new_source_lines_references_verified": true,
+  "new_edges": 36,
+  "updated_edges": 6,
+  "complete_diff_bytes": 23689,
+  "complete_diff_sha256": "2049f70a0f86df9b0485391ce249a1f0e6a9d8016b0f7aa3e1cd189fa5b7f635",
+  "map_sha256": "7a2ec34822346e901d5905ef6a267d9675c3bcc7a6c771ff900a9357f1eeab01"
+}

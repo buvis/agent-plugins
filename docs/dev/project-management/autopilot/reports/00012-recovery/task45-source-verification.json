@@ -1,0 +1,43 @@
+{
+  "sources": [
+    {
+      "source_path": "skills/plan-tasks/references/design-rationale.md",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/references/design-rationale.md",
+      "source_sha256": "5716cb58ac5d987717d5d070e6130c64e3724f1058f0e8be761fc1b3ea0f52cc",
+      "frozen_hash_verified": true,
+      "context_verified": true,
+      "gate_bytes_removed": 0,
+      "gate_refuses_execution": false
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/review-blindly/SKILL.md",
+      "source_sha256": "be813d8bce2d098503b67d777fb86dfd6f0aaf370f3a9476cae52b55ea7516f3",
+      "frozen_hash_verified": true,
+      "context_verified": true,
+      "gate_bytes_removed": 742,
+      "gate_refuses_execution": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
+      "source_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "frozen_hash_verified": true,
+      "context_verified": true,
+      "gate_bytes_removed": 742,
+      "gate_refuses_execution": true
+    }
+  ],
+  "packaged_reference_assets": [
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/unattended-contract.md",
+      "destination_blob_sha256": "839606add9e335b39870e526cf2fe74aa03ff2c8e371bfc43a88950d5ca07fdb",
+      "destination_hash_verified": true
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/use-gemini/SKILL.md",
+      "destination_blob_sha256": "fdf0212494b1353063ea6dd178608ec40dcbf74e1d0bde085204b522a170af70",
+      "destination_hash_verified": true
+    }
+  ]
+}

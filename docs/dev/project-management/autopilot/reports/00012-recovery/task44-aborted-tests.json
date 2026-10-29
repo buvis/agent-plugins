@@ -1,0 +1,26 @@
+{
+  "runs": [
+    {
+      "phase": "baseline",
+      "command": [
+        "uv",
+        "run",
+        "--python",
+        "3.12",
+        "--no-project",
+        "--with-requirements",
+        "tools/autopilot/requirements-test.txt",
+        "python",
+        "-m",
+        "pytest",
+        "tests/autopilot/test_map_slice.py",
+        "tests/autopilot/test_provenance.py",
+        "-q",
+        "--tb=line"
+      ],
+      "exit_code": 0,
+      "runner_summary": "........................                                                 [100%]\n24 passed in 0.98s\n",
+      "stderr": ""
+    }
+  ]
+}

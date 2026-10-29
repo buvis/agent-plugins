@@ -182,3 +182,127 @@
 {"kind":"handoff","site":"build","edge":"leave","at":1793224954,"phase":"build","prd":"00012-autopilot-package-contract-v1.md"}
 {"kind":"handoff","site":"build","edge":"resume","at":1793224986,"phase":"build","prd":"00012-autopilot-package-contract-v1.md"}
 {"kind":"handoff","site":"build","edge":"leave","at":1793225137,"phase":"build","prd":"00012-autopilot-package-contract-v1.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1793266183,"phase":"review","prd":"00012-autopilot-package-contract-v1.md"}
+{"id":"217ce42c","kind":"ivan","task":"22","queued_at":1793266201,"prompt_bytes":10314}
+{"id":"217ce42c","ended_at":1793266436,"elapsed_s":235,"outcome":"ok","detail":null}
+{"id":"ee6d9a1f","kind":"pat","task":"22","queued_at":1793266460,"prompt_bytes":29015}
+{"id":"ee6d9a1f","ended_at":1793266545,"elapsed_s":85,"outcome":"ok","detail":null}
+{"id":"8f3ac66b","kind":"ivan","task":"23","queued_at":1793266571,"prompt_bytes":10633}
+{"id":"8f3ac66b","ended_at":1793266858,"elapsed_s":287,"outcome":"ok","detail":null}
+{"id":"f86a3d9d","kind":"pat","task":"23","queued_at":1793266880,"prompt_bytes":32316}
+{"id":"f86a3d9d","ended_at":1793266958,"elapsed_s":78,"outcome":"ok","detail":null}
+{"id":"32bef69d","kind":"ivan","task":"24","queued_at":1793266974,"prompt_bytes":11010}
+{"id":"32bef69d","ended_at":1793267150,"elapsed_s":176,"outcome":"error","detail":"context_overrun"}
+{"id":"9ba23388","kind":"ivan","task":"44","queued_at":1793267185,"prompt_bytes":11385}
+{"id":"9ba23388","ended_at":1793267470,"elapsed_s":285,"outcome":"error","detail":"input-unit-false-positive"}
+{"id":"e22c912a","kind":"ivan","task":"44","queued_at":1793267475,"prompt_bytes":12468}
+{"id":"e22c912a","ended_at":1793267758,"elapsed_s":283,"outcome":"ok","detail":null}
+{"id":"6ca38853","kind":"pat","task":"44","queued_at":1793267776,"prompt_bytes":45132}
+{"id":"6ca38853","ended_at":1793267829,"elapsed_s":53,"outcome":"ok","detail":null}
+{"id":"bd077ad2","kind":"ivan","task":"45","queued_at":1793267849,"prompt_bytes":11385}
+{"id":"19865e07","kind":"ivan","task":"45","queued_at":1793267864,"prompt_bytes":11819}
+{"id":"bd077ad2","ended_at":1793267872,"elapsed_s":23,"outcome":"killed","detail":"replaced before dispatch to clarify input units"}
+{"id":"19865e07","ended_at":1793268157,"elapsed_s":293,"outcome":"ok","detail":null}
+{"id":"633526cd","kind":"pat","task":"45","queued_at":1793268175,"prompt_bytes":21953}
+{"id":"633526cd","ended_at":1793268216,"elapsed_s":41,"outcome":"ok","detail":null}
+{"id":"540634ea","kind":"ivan","task":"25","queued_at":1793268250,"prompt_bytes":11444}
+{"id":"540634ea","ended_at":1793268571,"elapsed_s":321,"outcome":"ok","detail":null}
+{"id":"831d49ec","kind":"pat","task":"25","queued_at":1793268577,"prompt_bytes":49692}
+{"id":"831d49ec","ended_at":1793268622,"elapsed_s":45,"outcome":"ok","detail":null}
+{"id":"8c24feb3","kind":"ivan","task":"26","queued_at":1793268640,"prompt_bytes":11444}
+{"id":"8c24feb3","ended_at":1793269017,"elapsed_s":377,"outcome":"ok","detail":null}
+{"id":"c2be5b95","kind":"pat","task":"26","queued_at":1793269024,"prompt_bytes":53777}
+{"id":"c2be5b95","ended_at":1793269049,"elapsed_s":25,"outcome":"killed","detail":"over50000bytes; trim attachment before dispatch"}
+{"id":"91482d64","kind":"pat","task":"26","queued_at":1793269051,"prompt_bytes":43614}
+{"id":"91482d64","ended_at":1793269101,"elapsed_s":50,"outcome":"ok","detail":null}
+{"id":"441722f0","kind":"ivan","task":"27","queued_at":1793269125,"prompt_bytes":11444}
+{"id":"441722f0","ended_at":1793269678,"elapsed_s":553,"outcome":"ok","detail":null}
+{"id":"a08d2c45","kind":"pat","task":"27","queued_at":1793269774,"prompt_bytes":35179}
+{"id":"a08d2c45","ended_at":1793269811,"elapsed_s":37,"outcome":"ok","detail":null}
+{"id":"cb0ed5cb","kind":"ivan","task":"28","queued_at":1793269831,"prompt_bytes":11444}
+{"id":"cb0ed5cb","ended_at":1793270244,"elapsed_s":413,"outcome":"ok","detail":null}
+{"id":"15d3b1e1","kind":"pat","task":"28","queued_at":1793270250,"prompt_bytes":37011}
+{"id":"15d3b1e1","ended_at":1793270302,"elapsed_s":52,"outcome":"ok","detail":null}
+{"id":"64383e53","kind":"ivan","task":"29","queued_at":1793270333,"prompt_bytes":11444}
+{"id":"64383e53","ended_at":1793270697,"elapsed_s":364,"outcome":"ok","detail":null}
+{"id":"d21b5121","kind":"pat","task":"29","queued_at":1793270705,"prompt_bytes":36197}
+{"id":"d21b5121","ended_at":1793270771,"elapsed_s":66,"outcome":"ok","detail":null}
+{"id":"6bb2a61e","kind":"ivan","task":"30","queued_at":1793270800,"prompt_bytes":11444}
+{"id":"6bb2a61e","ended_at":1793271298,"elapsed_s":498,"outcome":"ok","detail":null}
+{"id":"56a9174f","kind":"pat","task":"30","queued_at":1793271307,"prompt_bytes":45191}
+{"id":"56a9174f","ended_at":1793271351,"elapsed_s":44,"outcome":"ok","detail":null}
+{"id":"be3780a8","kind":"ivan","task":"31","queued_at":1793271390,"prompt_bytes":11444}
+{"id":"be3780a8","ended_at":1793271806,"elapsed_s":416,"outcome":"ok","detail":null}
+{"id":"881eab27","kind":"pat","task":"31","queued_at":1793271815,"prompt_bytes":33423}
+{"id":"881eab27","ended_at":1793271861,"elapsed_s":46,"outcome":"ok","detail":null}
+{"id":"59f08bdd","kind":"ivan","task":"32","queued_at":1793271926,"prompt_bytes":11444}
+{"id":"59f08bdd","ended_at":1793272318,"elapsed_s":392,"outcome":"ok","detail":null}
+{"id":"a62bdb21","kind":"pat","task":"32","queued_at":1793272323,"prompt_bytes":37676}
+{"id":"a62bdb21","ended_at":1793272377,"elapsed_s":54,"outcome":"ok","detail":null}
+{"id":"2cff6055","kind":"ivan","task":"33","queued_at":1793272399,"prompt_bytes":11444}
+{"id":"2cff6055","ended_at":1793272616,"elapsed_s":217,"outcome":"ok","detail":null}
+{"id":"4002f826","kind":"pat","task":"33","queued_at":1793272622,"prompt_bytes":20941}
+{"id":"4002f826","ended_at":1793272663,"elapsed_s":41,"outcome":"ok","detail":null}
+{"id":"13527e67","kind":"ivan","task":"34","queued_at":1793272687,"prompt_bytes":11444}
+{"id":"13527e67","ended_at":1793273002,"elapsed_s":315,"outcome":"ok","detail":null}
+{"id":"439399e5","kind":"pat","task":"34","queued_at":1793273008,"prompt_bytes":35773}
+{"id":"439399e5","ended_at":1793273072,"elapsed_s":64,"outcome":"ok","detail":null}
+{"id":"cc28111e","kind":"ivan","task":"35","queued_at":1793273095,"prompt_bytes":11444}
+{"id":"cc28111e","ended_at":1793273604,"elapsed_s":509,"outcome":"ok","detail":null}
+{"id":"de3978f3","kind":"pat","task":"35","queued_at":1793273610,"prompt_bytes":35153}
+{"id":"de3978f3","ended_at":1793273682,"elapsed_s":72,"outcome":"ok","detail":null}
+{"id":"a550e559","kind":"ivan","task":"36","queued_at":1793273707,"prompt_bytes":11444}
+{"id":"a550e559","ended_at":1793274117,"elapsed_s":410,"outcome":"ok","detail":null}
+{"id":"30c49634","kind":"pat","task":"36","queued_at":1793274123,"prompt_bytes":34669}
+{"id":"30c49634","ended_at":1793274186,"elapsed_s":63,"outcome":"ok","detail":null}
+{"id":"df0127f8","kind":"ivan","task":"37","queued_at":1793274209,"prompt_bytes":11444}
+{"id":"df0127f8","ended_at":1793274772,"elapsed_s":563,"outcome":"ok","detail":null}
+{"id":"cc4e1216","kind":"pat","task":"37","queued_at":1793274780,"prompt_bytes":34074}
+{"id":"cc4e1216","ended_at":1793274826,"elapsed_s":46,"outcome":"ok","detail":null}
+{"id":"52dfbbe5","kind":"ivan","task":"38","queued_at":1793274902,"prompt_bytes":11444}
+{"id":"52dfbbe5","ended_at":1793275281,"elapsed_s":379,"outcome":"ok","detail":null}
+{"id":"939e9142","kind":"pat","task":"38","queued_at":1793275291,"prompt_bytes":35943}
+{"id":"939e9142","ended_at":1793275334,"elapsed_s":43,"outcome":"ok","detail":null}
+{"id":"f107a417","kind":"ivan","task":"39","queued_at":1793275382,"prompt_bytes":11444}
+{"id":"f107a417","ended_at":1793275737,"elapsed_s":355,"outcome":"ok","detail":null}
+{"id":"1945e686","kind":"pat","task":"39","queued_at":1793275745,"prompt_bytes":36450}
+{"id":"1945e686","ended_at":1793275790,"elapsed_s":45,"outcome":"ok","detail":null}
+{"id":"0690f048","kind":"ivan","task":"40","queued_at":1793275816,"prompt_bytes":11444}
+{"id":"0690f048","ended_at":1793276209,"elapsed_s":393,"outcome":"ok","detail":null}
+{"id":"369999d0","kind":"pat","task":"40","queued_at":1793276219,"prompt_bytes":35701}
+{"id":"369999d0","ended_at":1793276260,"elapsed_s":41,"outcome":"ok","detail":null}
+{"id":"4b0db38e","kind":"ivan","task":"41","queued_at":1793276290,"prompt_bytes":11444}
+{"id":"4b0db38e","ended_at":1793276729,"elapsed_s":439,"outcome":"ok","detail":null}
+{"id":"4d3ce94e","kind":"pat","task":"41","queued_at":1793276736,"prompt_bytes":54277}
+{"id":"4d3ce94e","ended_at":1793276781,"elapsed_s":45,"outcome":"error","detail":"render exceeded50000bytes before dispatch; trim repeated evidence"}
+{"id":"d8112015","kind":"pat","task":"41","queued_at":1793276783,"prompt_bytes":46679}
+{"id":"d8112015","ended_at":1793276855,"elapsed_s":72,"outcome":"ok","detail":null}
+{"id":"3c56251b","kind":"ivan","task":"42","queued_at":1793276878,"prompt_bytes":11444}
+{"id":"3c56251b","ended_at":1793277575,"elapsed_s":697,"outcome":"ok","detail":null}
+{"id":"5e812a7f","kind":"pat","task":"42","queued_at":1793277585,"prompt_bytes":36592}
+{"id":"5e812a7f","ended_at":1793277630,"elapsed_s":45,"outcome":"ok","detail":null}
+{"id":"c3e430c5","kind":"ivan","task":"43","queued_at":1793277716,"prompt_bytes":11444}
+{"id":"c3e430c5","ended_at":1793278140,"elapsed_s":424,"outcome":"ok","detail":null}
+{"id":"5d5c6e9f","kind":"pat","task":"43","queued_at":1793278146,"prompt_bytes":45898}
+{"id":"5d5c6e9f","ended_at":1793278238,"elapsed_s":92,"outcome":"ok","detail":null}
+{"id":"31305fbf","kind":"ivan","task":"20","queued_at":1793278299,"prompt_bytes":21123}
+{"id":"31305fbf","ended_at":1793279252,"elapsed_s":953,"outcome":"ok","detail":"usable independent tests returned; red closure gate and citation assumption reported"}
+{"id":"e705ca1f","kind":"ivan","task":"20","queued_at":1793279254,"prompt_bytes":31027}
+{"id":"e705ca1f","ended_at":1793279720,"elapsed_s":466,"outcome":"ok","detail":"positive runtime proof approved;5 mapping obligations remain red"}
+{"id":"cdf15f9f","kind":"ivan","task":"46","queued_at":1793279887,"prompt_bytes":10688}
+{"id":"cdf15f9f","ended_at":1793280226,"elapsed_s":339,"outcome":"ok","detail":null}
+{"id":"adb48828","kind":"pat","task":"46","queued_at":1793280255,"prompt_bytes":13639}
+{"id":"adb48828","ended_at":1793280381,"elapsed_s":126,"outcome":"error","detail":"superseded before dispatch to include committed archive gate result"}
+{"id":"8ccaea0a","kind":"pat","task":"46","queued_at":1793280384,"prompt_bytes":14107}
+{"id":"8ccaea0a","ended_at":1793280455,"elapsed_s":71,"outcome":"ok","detail":null}
+{"id":"93b43334","kind":"pat","task":"20","queued_at":1793280657,"prompt_bytes":17639}
+{"id":"93b43334","ended_at":1793280694,"elapsed_s":37,"outcome":"error","detail":"undispatched render must include test changes, not only map"}
+{"id":"88607867","kind":"pat","task":"20","queued_at":1793280696,"prompt_bytes":32169}
+{"id":"88607867","ended_at":1793282975,"elapsed_s":2279,"outcome":"ok","detail":"closure resolved; two in-scope MEDIUM findings trigger one retry"}
+{"id":"212b576a","kind":"ivan","task":"20","queued_at":1793282977,"prompt_bytes":31548}
+{"id":"212b576a","ended_at":1793285932,"elapsed_s":2955,"outcome":"ok","detail":"M1/M2 correction: source-derived sentence and format controls; 3 passed; module 7997 bytes."}
+{"id":"4d020ce2","kind":"pat","task":"20","queued_at":1793286126,"prompt_bytes":16666}
+{"id":"4d020ce2","ended_at":1793286459,"elapsed_s":333,"outcome":"ok","detail":"Parsed delta review; M2 fixed; M1 retained medium-retry:unfixed at mandated single-retry cap."}
+{"id":"dd4e1df2","kind":"pat","task":"21","queued_at":1793287189,"prompt_bytes":8768}
+{"id":"dd4e1df2","ended_at":1793287425,"elapsed_s":236,"outcome":"ok","detail":"CLOSURE resolved; NO FINDINGS; archive/provenance20pass."}
+{"kind":"handoff","site":"review","edge":"leave","at":1793288953,"phase":"review","prd":"00012-autopilot-package-contract-v1.md"}

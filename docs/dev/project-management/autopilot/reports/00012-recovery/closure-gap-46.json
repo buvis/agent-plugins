@@ -1,0 +1,83 @@
+{
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "README.md",
+      "first": 99,
+      "last": 99
+    },
+    {
+      "collection": "resource_edges",
+      "path": "README.md",
+      "first": 232,
+      "last": 232
+    },
+    {
+      "collection": "resource_edges",
+      "path": "README.md",
+      "first": 233,
+      "last": 233
+    },
+    {
+      "collection": "resource_edges",
+      "path": "README.md",
+      "first": 234,
+      "last": 234
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/work/references/gate-failure.md",
+      "first": 253,
+      "last": 253
+    }
+  ],
+  "source_context": [
+    {
+      "source_path": "README.md",
+      "origin": "delivered adapted README; target-only AP00012 reference",
+      "sha256": "060377125dd9e45a215e2d1c48d60d1611497d95b0a33305c7c904ec85005938",
+      "line": 99,
+      "text": "Current resources stay inside this package root: `skills/`, `references/` (including `references/personas/`), `contracts/`, and `scripts/autopilot.py`. The local facade resolves packaged resources from its own location, without source-checkout or author-home fallback. The legacy substitution and helper-script rules below describe the source host only; they do not activate runtime paths.",
+      "reference": "scripts/autopilot.py",
+      "required_kind": "packaged-resource"
+    },
+    {
+      "source_path": "README.md",
+      "origin": "delivered adapted README; target-only AP00012 reference",
+      "sha256": "060377125dd9e45a215e2d1c48d60d1611497d95b0a33305c7c904ec85005938",
+      "line": 232,
+      "text": "python3 plugins/autopilot/scripts/autopilot.py --list-capabilities",
+      "reference": "plugins/autopilot/scripts/autopilot.py",
+      "required_kind": "packaged-resource"
+    },
+    {
+      "source_path": "README.md",
+      "origin": "delivered adapted README; target-only AP00012 reference",
+      "sha256": "060377125dd9e45a215e2d1c48d60d1611497d95b0a33305c7c904ec85005938",
+      "line": 233,
+      "text": "python3 plugins/autopilot/scripts/autopilot.py --export-policy",
+      "reference": "plugins/autopilot/scripts/autopilot.py",
+      "required_kind": "packaged-resource"
+    },
+    {
+      "source_path": "README.md",
+      "origin": "delivered adapted README; target-only AP00012 reference",
+      "sha256": "060377125dd9e45a215e2d1c48d60d1611497d95b0a33305c7c904ec85005938",
+      "line": 234,
+      "text": "python3 plugins/autopilot/scripts/autopilot.py --export-policy --out /tmp/autopilot-policy.json",
+      "reference": "plugins/autopilot/scripts/autopilot.py",
+      "required_kind": "packaged-resource"
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "origin": "byte-preserved pinned source reference",
+      "sha256": "d5ea92235dc6b9281fd0f415e705f3681ba30518981bff164e62271974caf038",
+      "line": 253,
+      "text": "- Python: `pytest path/to/test_file.py::test_name`",
+      "reference": "path/to/test_file.py",
+      "required_kind": "external-capability"
+    }
+  ],
+  "readme_rule": "Target-only facade references are anchored to the delivered adapted README, not claimed as upstream source literals. Record this provenance honestly in classification_reason.",
+  "consumer_rule": "The pytest placeholder is a real required host/project test-target capability template. Do not claim it is a shipped or upstream helper file. Host must resolve Contract-named project tests; keep unavailable work entry-point gate."
+}

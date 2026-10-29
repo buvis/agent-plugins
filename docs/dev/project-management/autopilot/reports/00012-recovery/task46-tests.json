@@ -1,0 +1,10 @@
+{
+  "task": 46,
+  "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_resource_closure.py tests/autopilot/test_provenance.py tests/autopilot/test_map_slice.py -q --tb=line",
+  "exit_code": 0,
+  "runner_summary": "27 passed in 1.06s",
+  "tests_passed": 27,
+  "tests_failed": 0,
+  "oracle_unchanged": true,
+  "runs": 1
+}

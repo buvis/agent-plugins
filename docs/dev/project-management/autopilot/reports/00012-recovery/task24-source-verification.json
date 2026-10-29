@@ -1,0 +1,7 @@
+{
+  "status": "not_performed",
+  "abort_reason": "context_overrun",
+  "new_source_rows_added": 0,
+  "source_hashes_verified": false,
+  "reason": "Insufficient remaining input budget for complete proposal/source review."
+}

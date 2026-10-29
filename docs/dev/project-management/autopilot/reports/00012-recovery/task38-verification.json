@@ -1,0 +1,19 @@
+{
+  "task": "task38",
+  "task_base_sha": "930d75ca603ba0ffc615cdb44c4fa7b07efa2b98",
+  "base_map_sha256": "3c3d90cd750f4813788f1ae0c5bbafd132bfdd2a43d4df8f518c0ae03ba9cc52",
+  "current_map_sha256": "060471f3426a5c3d91bce51903c28d9fc1e31f5c1d4b2891663798b97e4b0841",
+  "complete_complement_unchanged": true,
+  "only_authorized_scopes_changed": true,
+  "every_existing_identity_preserved": true,
+  "protected_metadata_preserved": true,
+  "new_rows": 35,
+  "modified_existing_rows": 3,
+  "verified_changed_references": 38,
+  "full_diff": "docs/dev/tmp/task38.diff",
+  "full_diff_bytes": 23864,
+  "diff_limit_bytes": 24000,
+  "helper_previews_reviewed": true,
+  "write_method": "map_slice.py apply --snapshot <fresh snapshot> --replacement <reviewed array> --write",
+  "pat": "coordinator pending"
+}

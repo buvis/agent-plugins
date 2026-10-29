@@ -1,0 +1,657 @@
+{
+  "task_base": "35ef517ff427670f3e523240988f2dc2d7e6d1f4",
+  "sources": [
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "sha256": "8e327f1e91c8190626bed6dbe29adcaa0cec49e8683b1fa8420fb3e2ee473ce1",
+      "hash_verified": true,
+      "excerpt_lines_verified": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        207,
+        208,
+        209,
+        210,
+        211,
+        219,
+        220,
+        221,
+        222,
+        223,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239,
+        240,
+        241,
+        242,
+        243,
+        244,
+        261,
+        262,
+        263,
+        264,
+        265,
+        318,
+        319,
+        320,
+        321,
+        322,
+        337,
+        338,
+        339,
+        340,
+        341
+      ]
+    },
+    {
+      "source_path": "skills/run-autopilot/references/audit-log-format.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/audit-log-format.md",
+      "sha256": "85526d7627aba68bfbf9e781da3aa6eca9cb32ced25cdb5720142d9f998d48fb",
+      "hash_verified": true,
+      "excerpt_lines_verified": [
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "source_path": "skills/run-autopilot/references/batch-report-format.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/batch-report-format.md",
+      "sha256": "0dc519c71281786d24fccd1ca57a6c64cf4c74dbd1a8dd8b07ba8949e7e3a7f1",
+      "hash_verified": true,
+      "excerpt_lines_verified": [
+        12,
+        13,
+        14,
+        15,
+        16
+      ]
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/dashboard-format.md",
+      "sha256": "a97cb7737c5cc314cc71ff17eabb7006240f423b3820bd4a6d0ca9f34464988e",
+      "hash_verified": true,
+      "excerpt_lines_verified": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        13,
+        14,
+        15,
+        16,
+        17,
+        19,
+        20,
+        21,
+        22,
+        23,
+        47,
+        48,
+        49,
+        50,
+        51,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69
+      ]
+    },
+    {
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/design-rationale.md",
+      "sha256": "a7522dc4b1ee73e25f23e8aa85cacbbb780197224ec57de1ff104e42722a6568",
+      "hash_verified": true,
+      "excerpt_lines_verified": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        103,
+        104,
+        105,
+        106,
+        107,
+        127,
+        128,
+        129,
+        130,
+        131
+      ]
+    }
+  ],
+  "edge_checks": [
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 209,
+      "reference": "references/lane-solo.md",
+      "kind": "packaged-resource",
+      "source_reference_verified": true,
+      "packaged_destination_verified": "plugins/autopilot/skills/run-autopilot/references/lane-solo.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 238,
+      "reference": "scripts/render_stream.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/scripts/render_stream.py",
+        "plugins/autopilot/scripts/render_stream.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 325,
+      "reference": "references/recovery.md",
+      "kind": "packaged-resource",
+      "source_reference_verified": true,
+      "packaged_destination_verified": "plugins/autopilot/skills/run-autopilot/references/recovery.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 200,
+      "reference": "cli/transitions.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/cli/transitions.py",
+        "plugins/autopilot/cli/transitions.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 201,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/cli/__main__.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 201,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/scripts/statectl.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 201,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/work/scripts/record_dispatch.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 201,
+      "reference": "hooks/guard_skill_after_leave.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/hooks/guard_skill_after_leave.py",
+        "plugins/autopilot/hooks/guard_skill_after_leave.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 201,
+      "reference": "hooks/note_session_leave.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/hooks/note_session_leave.py",
+        "plugins/autopilot/hooks/note_session_leave.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 209,
+      "reference": "review_coverage_hook.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/review_coverage_hook.py",
+        "plugins/autopilot/review_coverage_hook.py",
+        "plugins/autopilot/skills/run-autopilot/scripts/review_coverage_hook.py",
+        "plugins/autopilot/hooks/review_coverage_hook.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 221,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/scripts/statectl.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 228,
+      "reference": "reinject_contract_card.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/reinject_contract_card.py",
+        "plugins/autopilot/reinject_contract_card.py",
+        "plugins/autopilot/skills/run-autopilot/scripts/reinject_contract_card.py",
+        "plugins/autopilot/hooks/reinject_contract_card.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 232,
+      "reference": "~/.claude/hooks/notify.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/~/.claude/hooks/notify.py",
+        "plugins/autopilot/~/.claude/hooks/notify.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 234,
+      "reference": "cli/gate.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/cli/gate.py",
+        "plugins/autopilot/cli/gate.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 234,
+      "reference": "review_coverage_hook.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/review_coverage_hook.py",
+        "plugins/autopilot/review_coverage_hook.py",
+        "plugins/autopilot/skills/run-autopilot/scripts/review_coverage_hook.py",
+        "plugins/autopilot/hooks/review_coverage_hook.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 236,
+      "reference": "validate_state_json_hook.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/validate_state_json_hook.py",
+        "plugins/autopilot/validate_state_json_hook.py",
+        "plugins/autopilot/skills/run-autopilot/scripts/validate_state_json_hook.py",
+        "plugins/autopilot/hooks/validate_state_json_hook.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 238,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/cli/loop.py",
+        "plugins/autopilot/cli/loop.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 242,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/cli/loop.py",
+        "plugins/autopilot/cli/loop.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 263,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/cli/__main__.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 263,
+      "reference": "cli/store_tree.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/cli/store_tree.py",
+        "plugins/autopilot/cli/store_tree.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 263,
+      "reference": "hooks/enforce_prd_location.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/hooks/enforce_prd_location.py",
+        "plugins/autopilot/hooks/enforce_prd_location.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 320,
+      "reference": "hooks/guard_push_on_critical.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/hooks/guard_push_on_critical.py",
+        "plugins/autopilot/hooks/guard_push_on_critical.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 339,
+      "reference": "cli/loop.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/cli/loop.py",
+        "plugins/autopilot/cli/loop.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 206,
+      "reference": "phase-build.md",
+      "kind": "packaged-resource",
+      "source_reference_verified": true,
+      "packaged_destination_verified": "plugins/autopilot/skills/run-autopilot/references/phase-build.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 207,
+      "reference": "phase-review.md",
+      "kind": "packaged-resource",
+      "source_reference_verified": true,
+      "packaged_destination_verified": "plugins/autopilot/skills/run-autopilot/references/phase-review.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 210,
+      "reference": "phase-done.md",
+      "kind": "packaged-resource",
+      "source_reference_verified": true,
+      "packaged_destination_verified": "plugins/autopilot/skills/run-autopilot/references/phase-done.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 210,
+      "reference": "cli/records.PER_PRD_RESET_FIELDS",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/cli/records.PER_PRD_RESET_FIELDS",
+        "plugins/autopilot/cli/records.PER_PRD_RESET_FIELDS",
+        "plugins/autopilot/skills/run-autopilot/cli/records.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 228,
+      "reference": "references/state-schema.md",
+      "kind": "packaged-resource",
+      "source_reference_verified": true,
+      "packaged_destination_verified": "plugins/autopilot/skills/run-autopilot/references/state-schema.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/audit-log-format.md",
+      "source_line": 9,
+      "reference": "cli/render_audit.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/cli/render_audit.py",
+        "plugins/autopilot/cli/render_audit.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/batch-report-format.md",
+      "source_line": 14,
+      "reference": "cli/render_report.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/cli/render_report.py",
+        "plugins/autopilot/cli/render_report.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_line": 10,
+      "reference": "scripts/tracon/",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/scripts/tracon/",
+        "plugins/autopilot/scripts/tracon/"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_line": 30,
+      "reference": "scripts/README.md",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/scripts/README.md",
+        "plugins/autopilot/scripts/README.md"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_line": 49,
+      "reference": "scripts/tracon/model.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/scripts/tracon/model.py",
+        "plugins/autopilot/scripts/tracon/model.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_line": 64,
+      "reference": "scripts/render_stream.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/scripts/render_stream.py",
+        "plugins/autopilot/scripts/render_stream.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_line": 4,
+      "reference": "cli/status.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/cli/status.py",
+        "plugins/autopilot/cli/status.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_line": 15,
+      "reference": "render_stream.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/render_stream.py",
+        "plugins/autopilot/render_stream.py",
+        "plugins/autopilot/skills/run-autopilot/scripts/render_stream.py",
+        "plugins/autopilot/hooks/render_stream.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_line": 21,
+      "reference": "scripts/tracon.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/scripts/tracon.py",
+        "plugins/autopilot/scripts/tracon.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/dashboard-format.md",
+      "source_line": 68,
+      "reference": "detect_usage_limit.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/detect_usage_limit.py",
+        "plugins/autopilot/detect_usage_limit.py",
+        "plugins/autopilot/skills/run-autopilot/scripts/detect_usage_limit.py",
+        "plugins/autopilot/hooks/detect_usage_limit.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "source_line": 18,
+      "reference": "test_autopilot_lifecycle.py",
+      "kind": "informational-provenance",
+      "source_reference_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "source_line": 97,
+      "reference": "note_session_leave.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/note_session_leave.py",
+        "plugins/autopilot/note_session_leave.py",
+        "plugins/autopilot/skills/run-autopilot/scripts/note_session_leave.py",
+        "plugins/autopilot/hooks/note_session_leave.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "source_line": 98,
+      "reference": "guard_skill_after_leave.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/guard_skill_after_leave.py",
+        "plugins/autopilot/guard_skill_after_leave.py",
+        "plugins/autopilot/skills/run-autopilot/scripts/guard_skill_after_leave.py",
+        "plugins/autopilot/hooks/guard_skill_after_leave.py"
+      ],
+      "gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "source_line": 105,
+      "reference": "validate_commit_msg.py",
+      "kind": "informational-provenance",
+      "source_reference_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "source_line": 129,
+      "reference": "review_coverage_hook.py",
+      "kind": "external-capability",
+      "source_reference_verified": true,
+      "absent_destination_candidates": [
+        "plugins/autopilot/skills/run-autopilot/review_coverage_hook.py",
+        "plugins/autopilot/review_coverage_hook.py",
+        "plugins/autopilot/skills/run-autopilot/scripts/review_coverage_hook.py",
+        "plugins/autopilot/hooks/review_coverage_hook.py"
+      ],
+      "gate_verified": true
+    }
+  ],
+  "gate": {
+    "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+    "operation": "refuse-before-old-script-invocation",
+    "present": true
+  }
+}

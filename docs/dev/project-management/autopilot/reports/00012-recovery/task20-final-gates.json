@@ -1,0 +1,10 @@
+{
+  "sha": "b802e8c76cb0cc5898ae55e5a932775c99ca1474",
+  "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_package.py tests/autopilot/test_provenance.py tests/autopilot/test_resource_closure.py -q --tb=line",
+  "exit": 0,
+  "summary": "23 passed in 3.79s",
+  "style_gate": "clean",
+  "split_hygiene": "clean",
+  "task_diff_bytes": 18664,
+  "oracle_bytes": 7997
+}

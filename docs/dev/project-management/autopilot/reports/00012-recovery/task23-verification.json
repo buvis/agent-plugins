@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "task_base": "455b67870824de755dcf6e87094a08d384527d4a",
+  "only_resource_edges_changed": true,
+  "only_listed_scopes_changed": true,
+  "all_existing_rows_unchanged": true,
+  "identities_preserved": 233,
+  "new_edges": 37,
+  "new_external_capabilities": 31,
+  "new_packaged_resources": 6,
+  "all_new_source_lines_references_verified": true,
+  "complete_diff_bytes": 21657,
+  "map_sha256": "fa17e9e7b61dea658e7f3060503cebe545f0fc8f4c196b348508c99464161d69"
+}

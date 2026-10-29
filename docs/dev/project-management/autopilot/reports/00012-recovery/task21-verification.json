@@ -1,0 +1,14 @@
+{
+  "task_base": "b802e8c76cb0cc5898ae55e5a932775c99ca1474",
+  "micro_lane": "eligible:one LOW,two clean files; complete net -1 line",
+  "complete_complement_equal": true,
+  "only_selected_three_receipt_fields_changed": true,
+  "all_changelog_history_preserved": true,
+  "delivery_sha256": "44f68ed9a8d7d8a3d3eea435746fa25138a8caa9bccc3c323040e5b2eaab09df",
+  "delivery_revision": "afbed6a4918c7d0533c243bbef48766065f5b4dd",
+  "host_execution_certification": "not claimed",
+  "implementation_head": "d41c4ec6a14e6f7b24e26fe33fae687fc0bb5b70",
+  "style_gate": "clean:no Python changes",
+  "split_hygiene": "skipped:no-tests",
+  "self_deslop": "skipped:trivial"
+}

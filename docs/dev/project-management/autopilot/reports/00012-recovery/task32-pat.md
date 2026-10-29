@@ -1,0 +1,3 @@
+LOW | tools/autopilot/source-map.json:~278990 | The `cli/routing.rework_resume` capability text reads "the queued rework tasks own model tier", with the possessive apostrophe missing. | Change it to "the queued rework task's own model tier".
+
+No MEDIUM or higher findings. Of the 14 repeated source occurrences left unmapped, 13 are `packaged-resource` references and one (`phase-review.md:327`) is the informational `references/design-rationale.md` citation. All 14 are recorded as deferred because the complete diff would pass the 24,000-byte ceiling. The recorded verification shows existing identities preserved, other collections unchanged, new references checked against source, and 24 tests passing.

@@ -1,0 +1,48 @@
+{
+  "scope": "additional in-scope references; original task20 remains open",
+  "references": [
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 24,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/references/tess-prompt.md",
+      "reason": "Additional dependency discovered in bounded source context; deferred to task20 to resolve packaged destination and fit the slice diff ceiling."
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 97,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/references/review-dimensions.md",
+      "reason": "Additional dependency discovered in bounded source context; deferred to task20 to resolve packaged destination and fit the slice diff ceiling."
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 98,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/references/rubric.md",
+      "reason": "Additional dependency discovered in bounded source context; deferred to task20 to resolve packaged destination and fit the slice diff ceiling."
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 136,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-blindly/references/rubric.md",
+      "reason": "Additional dependency discovered in bounded source context; deferred to task20 to resolve packaged destination and fit the slice diff ceiling."
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 156,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/references/output-formats.md",
+      "reason": "Additional dependency discovered in bounded source context; deferred to task20 to resolve packaged destination and fit the slice diff ceiling."
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 175,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/eve.md",
+      "reason": "Additional dependency discovered in bounded source context; deferred to task20 to resolve packaged destination and fit the slice diff ceiling."
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "source_line": 183,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/references/retry-policy.md",
+      "reason": "Additional dependency discovered in bounded source context; deferred to task20 to resolve packaged destination and fit the slice diff ceiling."
+    }
+  ],
+  "out_of_scope_discoveries": []
+}

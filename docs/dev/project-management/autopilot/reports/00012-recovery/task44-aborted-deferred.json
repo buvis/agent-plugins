@@ -1,0 +1,32 @@
+{
+  "status": "aborted",
+  "abort_reason": "context_overrun",
+  "reason": "No source-map edits; all task44 scope repairs require a fresh bounded dispatch. Existing helper snapshots and baseline tests retained.",
+  "remaining_proposed_rows": 22,
+  "findings": [
+    {
+      "path": "skills/fast-track/references/spec-card.md",
+      "lines": [
+        75,
+        79,
+        80
+      ],
+      "decision": "informational-provenance: illustrative paths inside the worked card, never runtime content"
+    },
+    {
+      "path": "skills/plan-tasks/SKILL.md",
+      "line": 374,
+      "reference": "references/recovery.md",
+      "decision": "active runtime procedure; packaged destination resolves to skills/run-autopilot/references/recovery.md, not the nonexistent plan-tasks-local path"
+    },
+    {
+      "path": "skills/plan-tasks/SKILL.md",
+      "lines": [
+        293,
+        294,
+        308
+      ],
+      "decision": "additional in-scope packaged reference edges: model-ladder.md, state-schema.md, phase-review.md; asset snapshots retained"
+    }
+  ]
+}

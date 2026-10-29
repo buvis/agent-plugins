@@ -1,0 +1,23 @@
+{
+  "task": 35,
+  "task_base": "d3d69136f49a347f9e0bd639a4fe27cef8c55916",
+  "base_map_sha256": "72cfcd1e8f7c8f34547c7c9a9ffd4160777fed8b395804313eb85fafb2f8e0f3",
+  "snapshot_map_sha256": "72cfcd1e8f7c8f34547c7c9a9ffd4160777fed8b395804313eb85fafb2f8e0f3",
+  "current_map_sha256": "2f0ddc8b4d78a7d48dff7b0401fc9c20453b352e781a3a06b5940f03fe532567",
+  "scope": {
+    "collection": "resource_edges",
+    "path": "skills/run-autopilot/references/state-schema.md",
+    "first": 220,
+    "last": 259
+  },
+  "complete_complement_preserved": true,
+  "existing_identities_preserved": true,
+  "protected_metadata_preserved": true,
+  "existing_identities": 4,
+  "current_identities": 38,
+  "new_identities": 34,
+  "complete_diff_bytes": 23522,
+  "complete_diff_sha256": "5d6efda74657080efb8c3666a6b50e9a7ed12e726026c778427537bdc5fac4f7",
+  "every_new_source_line_reference_verified": false,
+  "literal_source_reference_discrepancies": 1
+}

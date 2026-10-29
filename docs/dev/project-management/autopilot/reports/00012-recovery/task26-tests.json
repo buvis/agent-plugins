@@ -1,0 +1,9 @@
+{
+  "task_base": "bbe5418164147416aec3874fe71e1cc5d28a0829",
+  "command": "uv run --python 3.12 --no-project --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_map_slice.py tests/autopilot/test_provenance.py -q --tb=line",
+  "exit_code": 0,
+  "runner_summary": [
+    "24 passed in 0.99s"
+  ],
+  "log": "docs/dev/tmp/task26-tests.log"
+}

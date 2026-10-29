@@ -1,0 +1,90 @@
+{
+  "task_base": "942abeac5b093449de07a8264f3b519a91a2efd2",
+  "remaining_budget_bytes": 326,
+  "reason": "Complete task diff ceiling; remaining 326 bytes cannot fit another fully specified edge. Generated artifacts and illustrative paths are not substitute runtime providers.",
+  "remaining_in_scope": [
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 205,
+      "reference": "replan-context.md",
+      "context": "Generated replan artifact; no shipped runtime content.",
+      "reason": "Complete 24000-byte task diff cap; defer citation accounting to task20."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 208,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot",
+      "context": "Illustrative nested repository path.",
+      "reason": "Complete 24000-byte task diff cap; defer citation accounting to task20."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 208,
+      "reference": "~/.claude",
+      "context": "Illustrative host project path.",
+      "reason": "Complete 24000-byte task diff cap; defer citation accounting to task20."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 209,
+      "reference": "~/.buvis",
+      "context": "Illustrative bare repository path.",
+      "reason": "Complete 24000-byte task diff cap; defer citation accounting to task20."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 209,
+      "reference": "/Users/<you>/.buvis",
+      "context": "Illustrative expanded bare repository path.",
+      "reason": "Complete 24000-byte task diff cap; defer citation accounting to task20."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 209,
+      "reference": "git --git-dir <git_dir> --work-tree <repo_root>",
+      "context": "Git invocation shape covered by custody capabilities; distinct source citation remains.",
+      "reason": "Complete 24000-byte task diff cap; defer citation accounting to task20."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 215,
+      "reference": "docs/dev/project-management/prds/hold/",
+      "context": "Runtime PRD output location.",
+      "reason": "Complete 24000-byte task diff cap; defer citation accounting to task20."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 215,
+      "reference": "wip/",
+      "context": "Runtime PRD location.",
+      "reason": "Complete 24000-byte task diff cap; defer citation accounting to task20."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 215,
+      "reference": "replan-context.md",
+      "context": "Generated replan artifact.",
+      "reason": "Complete 24000-byte task diff cap; defer citation accounting to task20."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 217,
+      "reference": "state.json",
+      "context": "Generated state artifact.",
+      "reason": "Complete 24000-byte task diff cap; defer citation accounting to task20."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 217,
+      "reference": "state-write-failed",
+      "context": "Runtime failure marker.",
+      "reason": "Complete 24000-byte task diff cap; defer citation accounting to task20."
+    }
+  ],
+  "out_of_scope_discoveries": [],
+  "coordinator_remainders": [
+    "Pat review must consume the complete task34-complete.diff.",
+    "Final task20 retains the legacy exact-202 package check and original resource-dependency finding closure.",
+    "Repository-wide validator remains a coordinator gate; worker ran only the explicitly named tests."
+  ]
+}

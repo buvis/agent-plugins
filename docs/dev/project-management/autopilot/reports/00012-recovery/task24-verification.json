@@ -1,0 +1,24 @@
+{
+  "status": "aborted",
+  "abort_reason": "context_overrun",
+  "detail": "Combined allowlisted reads plus helper reread consumed 95493 bytes; initial tool output truncated required content. Further required snapshots and source review cannot fit the remaining 4507 bytes. No source-map edits performed by this attempt.",
+  "task_base": "4d3731f5e8a46e445843f21ae8e98d8714b64f29",
+  "base_sha256": "fa17e9e7b61dea658e7f3060503cebe545f0fc8f4c196b348508c99464161d69",
+  "current_sha256": "fa17e9e7b61dea658e7f3060503cebe545f0fc8f4c196b348508c99464161d69",
+  "non_resource_collections_equal": {
+    "schema_version": true,
+    "behaviors": true,
+    "regression_cases": true,
+    "authored_file_owners": true,
+    "owner_bindings": true,
+    "evidence_policy": true,
+    "source_commit": true,
+    "assets": true,
+    "source_inventory_sha256": true
+  },
+  "resource_edge_complement_equal": true,
+  "all_existing_identities_preserved": true,
+  "selected_base_count": 7,
+  "selected_current_count": 7,
+  "task_modifications": 0
+}

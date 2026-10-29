@@ -1,0 +1,329 @@
+{
+  "source_path": "skills/run-autopilot/references/state-schema.md",
+  "source_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+  "packaged_source_matches_frozen_hash": true,
+  "slice_context_matches_packaged_source": true,
+  "line_offset": 0,
+  "asset_resolution_method": "Fresh helper snapshots projected to relevant fields; helper refused oversized work/review skill asset snapshot, then read-only <=18000-byte relevant-field projection with map SHA; helper/caps unchanged.",
+  "references": [
+    {
+      "source_line": 224,
+      "reference": "references/batch-report-format.md",
+      "literal_reference_present": true,
+      "kind": "packaged-resource",
+      "new_identity": false,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/batch-report-format.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_line": 242,
+      "reference": "references/phase-done.md",
+      "literal_reference_present": true,
+      "kind": "packaged-resource",
+      "new_identity": false,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-done.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_line": 256,
+      "reference": "references/phase-build.md",
+      "literal_reference_present": true,
+      "kind": "packaged-resource",
+      "new_identity": false,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_line": 258,
+      "reference": "references/waves.md",
+      "literal_reference_present": true,
+      "kind": "packaged-resource",
+      "new_identity": false,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/waves.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_line": 220,
+      "reference": "cli/review_close.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 221,
+      "reference": "cli/schema.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 226,
+      "reference": "reinject_contract_card.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 227,
+      "reference": "autopilot_stop_hook.py",
+      "literal_reference_present": true,
+      "kind": "informational-provenance",
+      "new_identity": true
+    },
+    {
+      "source_line": 228,
+      "reference": "autopilot_stop_hook.py",
+      "literal_reference_present": true,
+      "kind": "informational-provenance",
+      "new_identity": true
+    },
+    {
+      "source_line": 232,
+      "reference": "gemini-run.sh",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 235,
+      "reference": "statectl.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 236,
+      "reference": "cli/__main__.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 240,
+      "reference": "cli/loop.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 242,
+      "reference": "cli/__main__.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 255,
+      "reference": "autopilot_context_cap_hook.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 256,
+      "reference": "autopilot_context_cap_hook.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 257,
+      "reference": "hooks/guard_push_on_critical.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 258,
+      "reference": "cli/wave_assemble.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 258,
+      "reference": "cli/wave_launch.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 258,
+      "reference": "cli/wave_review.py",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 259,
+      "reference": "gather-context.sh",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 234,
+      "reference": "references/recovery.md",
+      "literal_reference_present": true,
+      "kind": "packaged-resource",
+      "new_identity": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_line": 242,
+      "reference": "references/phase-review.md",
+      "literal_reference_present": true,
+      "kind": "packaged-resource",
+      "new_identity": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_line": 255,
+      "reference": "SKILL.md",
+      "literal_reference_present": true,
+      "kind": "packaged-resource",
+      "new_identity": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_line": 258,
+      "reference": "SKILL.md",
+      "literal_reference_present": true,
+      "kind": "packaged-resource",
+      "new_identity": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_line": 237,
+      "reference": "/git-ferry:catchup",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 236,
+      "reference": "records.PER_PRD_RESET_FIELDS",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 239,
+      "reference": "cli/records.PER_PRD_RESET_FIELDS",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 235,
+      "reference": "render_report.is_autonomous_row",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 235,
+      "reference": "render_report._is_pending",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 236,
+      "reference": "render_report.batch_summary",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 257,
+      "reference": "cli/custody.record_critical",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 258,
+      "reference": "cli/wave.plan",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 258,
+      "reference": "cli/wave.WAVE_STATUSES",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    },
+    {
+      "source_line": 226,
+      "reference": "/autopilot:run-autopilot",
+      "literal_reference_present": true,
+      "kind": "packaged-resource",
+      "new_identity": true,
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_line": 226,
+      "reference": "/autopilot:work",
+      "literal_reference_present": true,
+      "kind": "packaged-resource",
+      "new_identity": true,
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_line": 226,
+      "reference": "/autopilot:review-work-completion",
+      "literal_reference_present": true,
+      "kind": "packaged-resource",
+      "new_identity": true,
+      "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_line": 240,
+      "reference": "~/.claude/plugins/installed_plugins.json",
+      "literal_reference_present": true,
+      "kind": "external-capability",
+      "new_identity": true,
+      "literal_packaged_asset_matches": []
+    }
+  ],
+  "recovery": {
+    "rejected_candidate_sha256": "2f0ddc8b4d78a7d48dff7b0401fc9c20453b352e781a3a06b5940f03fe532567",
+    "diagnosis": "New line236 reference incorrectly normalized records.PER_PRD_RESET_FIELDS with a cli/ prefix. Exact spelling corrected before successful reapplication.",
+    "rollback": "Coordinator restored exact task-base blob under map lock after digest/HEAD, ownership and complement guards; fresh helper snapshot/apply used afterward.",
+    "rejected_archive": "docs/dev/tmp/task35-rejected-complete.diff"
+  }
+}

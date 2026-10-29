@@ -1,0 +1,8 @@
+MEDIUM | tests/autopilot/test_resource_closure.py:53 | UNRESOLVED. The exemption is now one "sentence" instead of ±2 lines. But that sentence is cut from the whole file joined with newlines, and it ends only at `.`, `!` or `?` followed by whitespace, or at a blank line. A prose paragraph without terminal punctuation therefore still spans several lines, and the exemption still applies to a bare `scripts/x.py` with no command and no `${CLAUDE_PLUGIN_ROOT}`. The new test pins the defect instead of closing it: README lines 19-20 are `A helper \`scripts/c.py\`` and `this path does not use.`, and the expected set `{1,4,5,6,7,9,11,18}` leaves out line 19. Real helper `scripts/c.py` is dropped because "does not use" sits on the next line. Same-line prose is also dropped, for example "scripts/real.py does not use the network". The only case the test covers is line 9, which survives because line 8 ends with a period. | Drop the phrase-based exemption for refs that carry a `scripts/` or `/scripts/` path. Keep `test_*` names and refs written with an explicit marker, such as a "Provenance:" label or a dedicated line prefix. If a phrase stays, match it on the same line as the ref only. Change the line-19 case to expect a flag.
+
+Finding 2 is resolved:
+- The scan now covers every packaged file (`rglob("*")`, undecodable files skipped), and the JSON test pins `scripts/r.py` from `runtime.json`.
+- Generic ```` ```markdown ```` fences are now scanned, and line 11 is expected.
+- Only the fence right after `## A worked card` is exempt, and line 16 pins that.
+
+I could not run the tests or read `card.md`. The worked-card exemption only holds if the fence follows that heading with nothing but blank lines between. Any nonblank line after the heading clears `worked`.

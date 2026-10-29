@@ -1,0 +1,22 @@
+{
+  "task_base": "942abeac5b093449de07a8264f3b519a91a2efd2",
+  "base_map_sha256": "39fa5bdb819c69878e5849604bc82649d3dbcdb0600b6e669c86c5982c6d891d",
+  "current_map_sha256": "72cfcd1e8f7c8f34547c7c9a9ffd4160777fed8b395804313eb85fafb2f8e0f3",
+  "scope": {
+    "collection": "resource_edges",
+    "path": "skills/run-autopilot/references/state-schema.md",
+    "first": 198,
+    "last": 217
+  },
+  "only_scoped_resource_edges_differ": true,
+  "complete_complement_equal": true,
+  "all_existing_identities_preserved": true,
+  "all_existing_rows_and_protected_metadata_unchanged": true,
+  "new_edges": 45,
+  "kinds": {
+    "external-capability": 25,
+    "packaged-resource": 20
+  },
+  "complete_diff_bytes": 23674,
+  "complete_diff_path": "docs/dev/tmp/task34-complete.diff"
+}

@@ -1,0 +1,7 @@
+LOW | tools/autopilot/source-map.json:275185 | The recorded verification lists three in-scope references for `skills/fast-track/SKILL.md` as "additional_discoveries" (line 125 `tess-prompt.md`, line 176 `agents/ivan.md`, line 282 `review-work-completion/references/retry-policy.md`), and the diff adds no edges for them. The task says to add other missing references within the listed scope if the budget permits. The diff is 20,113 bytes against the 24,000 limit, which looks like room for three more rows. The task also says to report only discoveries outside the scope, and these are inside it. If they are real active references, `resource_edges` still has no row for them in the scopes this slice owns. | Add edges for these three references, using the kind and status that fit what each one is (packaged asset or external capability), if the budget allows. Otherwise record in the attempt why they were left out of this slice (budget, or a different edge class) so task 20 picks them up.
+
+The diff itself holds up against what the prompt shows:
+- The 31 new rows and the 1 changed row all follow the same unavailable/external-capability pattern.
+- Each row has a concrete capability, a refusal rule and a `gate_entry_point` that matches its own skill.
+- The one informational row (`cards_from_prd.py`, line 231) has a reason and a runtime rule that forbids supplying runtime content.
+- The recorded checks report that existing identities are preserved, nothing outside `resource_edges` differs, and all new lines are source-verified. They also report 24 tests passing.

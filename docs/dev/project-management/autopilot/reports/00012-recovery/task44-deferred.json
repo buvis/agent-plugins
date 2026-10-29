@@ -1,0 +1,17 @@
+{
+  "status": "complete-for-listed-scopes",
+  "in_scope_unresolved": [],
+  "outside_scope_discoveries": [
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "source_line": 13,
+      "references": [
+        "work SKILL.md",
+        "references/qwen-integration.md"
+      ],
+      "reason": "Active personal-skill runtime reads discovered in permitted adjacent source context; line13 is outside the authorized22\u2013391 scope. Task20 must inspect the owning work skill and resolve packaged destinations/capabilities."
+    }
+  ],
+  "excluded_generated_artifacts_reason": "Project PRDs, task payloads, mutable state and scratch files are workflow inputs/outputs rather than missing distributable resources.",
+  "finding20_closed": false
+}

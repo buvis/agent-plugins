@@ -1,0 +1,37 @@
+{
+  "task_base": "6696ff5afbf68e275e289e3a2b15cc6204385c51",
+  "base_map_sha256": "dd21d4b06d1a05b68a57ffe624f6bdeac40de16f032eaa7caa877833f102888d",
+  "current_map_sha256": "5a527a14aadb335b91dca2782bffe992e44f5cbc474679be8b878711ba1484cc",
+  "complete_complement_unchanged": true,
+  "other_collections_unchanged": true,
+  "all_existing_identities_preserved": true,
+  "protected_metadata_unchanged": true,
+  "new_references_source_verified": true,
+  "new_identity_count": 31,
+  "updated_identity_count": 8,
+  "changed_rows": 39,
+  "complete_diff_bytes": 23540,
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/phase-review.md",
+      "first": 213,
+      "last": 330
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/recovery.md",
+      "first": 15,
+      "last": 272
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/run-autopilot/references/state-schema.md",
+      "first": 167,
+      "last": 169
+    }
+  ],
+  "gate_verified": true,
+  "diff_path": "docs/dev/tmp/task32.diff",
+  "coordinator_pat_review_pending": true
+}

@@ -1,0 +1,135 @@
+{
+  "status": "partial-aborted-before-edits",
+  "sources": [
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "sha256": "0e363fb1ee7085e879274e9079ed6e87343e1c30c8321a5c00ef969e05809d38",
+      "frozen_hash_verified": true,
+      "all_listed_source_context_lines_verified": true
+    },
+    {
+      "source_path": "skills/fast-track/references/spec-card.md",
+      "sha256": "c51e86a7d492c690f5b4e537cd8c8cdb8d060ab7d2133936714b4a2ca510967a",
+      "frozen_hash_verified": true,
+      "all_listed_source_context_lines_verified": true
+    },
+    {
+      "source_path": "skills/plan-tasks/SKILL.md",
+      "sha256": "7cd841e5284e7bf71a173b34040e7f1a139cd46537e5f686c54493136e82cb77",
+      "frozen_hash_verified": true,
+      "all_listed_source_context_lines_verified": true
+    }
+  ],
+  "asset_destinations": [
+    {
+      "path": "plugins/autopilot/skills/run-autopilot/references/model-ladder.md",
+      "matches": [
+        {
+          "destination_path": "plugins/autopilot/skills/run-autopilot/references/model-ladder.md",
+          "source_asset_id": "skills/run-autopilot/references/model-ladder.md",
+          "destination_blob_sha256": "ed801ff4b2a4a9e532e9b0a24c64bfc2ed343183510476efadbd3628eb395c0e",
+          "entry_point_gate": {
+            "status": "not-applicable",
+            "operation": "refuse-before-old-script-invocation",
+            "entry_point": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "matches": [
+        {
+          "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+          "source_asset_id": "skills/run-autopilot/references/state-schema.md",
+          "destination_blob_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+          "entry_point_gate": {
+            "status": "not-applicable",
+            "operation": "refuse-before-old-script-invocation",
+            "entry_point": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "matches": [
+        {
+          "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+          "source_asset_id": "skills/run-autopilot/references/phase-review.md",
+          "destination_blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+          "entry_point_gate": {
+            "status": "not-applicable",
+            "operation": "refuse-before-old-script-invocation",
+            "entry_point": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "matches": [
+        {
+          "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+          "source_asset_id": "skills/run-autopilot/references/recovery.md",
+          "destination_blob_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed",
+          "entry_point_gate": {
+            "status": "not-applicable",
+            "operation": "refuse-before-old-script-invocation",
+            "entry_point": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/skills/plan-tasks/references/recovery.md",
+      "matches": []
+    },
+    {
+      "path": "plugins/autopilot/skills/plan-tasks/references/design-rationale.md",
+      "matches": [
+        {
+          "destination_path": "plugins/autopilot/skills/plan-tasks/references/design-rationale.md",
+          "source_asset_id": "skills/plan-tasks/references/design-rationale.md",
+          "destination_blob_sha256": "5716cb58ac5d987717d5d070e6130c64e3724f1058f0e8be761fc1b3ea0f52cc",
+          "entry_point_gate": {
+            "status": "not-applicable",
+            "operation": "refuse-before-old-script-invocation",
+            "entry_point": null
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/skills/fast-track/SKILL.md",
+      "matches": [
+        {
+          "destination_path": "plugins/autopilot/skills/fast-track/SKILL.md",
+          "source_asset_id": "skills/fast-track/SKILL.md",
+          "destination_blob_sha256": "8822b6859d7a1ffbeeb1517e7e48df54a72c2b526eb43966442a02ffc61feffc",
+          "entry_point_gate": {
+            "status": "present",
+            "operation": "refuse-before-old-script-invocation",
+            "entry_point": "plugins/autopilot/skills/fast-track/SKILL.md"
+          }
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "matches": [
+        {
+          "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+          "source_asset_id": "skills/plan-tasks/SKILL.md",
+          "destination_blob_sha256": "abb88961ad9413fcafb5b9ae9f01e5b39ff4b693a30c47286efdc28bfd65579d",
+          "entry_point_gate": {
+            "status": "present",
+            "operation": "refuse-before-old-script-invocation",
+            "entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+          }
+        }
+      ]
+    }
+  ],
+  "new_source_references": []
+}

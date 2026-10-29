@@ -1,0 +1,238 @@
+{
+  "task_base_sha": "94f424517c54fb54ac2be8a8148c3ab5c6c0675f",
+  "sources": [
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "destination_path": "plugins/autopilot/skills/work/references/attempt-logging.md",
+      "sha256": "ca6847fc6b0c3b5dd16501486f512c8b6f15eb007c04043a4dd2a9a0278f5873",
+      "hash_matches": true,
+      "excerpt_lines_match": true
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "destination_path": "plugins/autopilot/skills/work/references/codex-implementor.md",
+      "sha256": "22dd25ac8118d571804e7fc5c42bc227593f539d13ea3ed82045b051a853d58a",
+      "hash_matches": true,
+      "excerpt_lines_match": true
+    },
+    {
+      "source_path": "skills/work/references/codex-integration.md",
+      "destination_path": "plugins/autopilot/skills/work/references/codex-integration.md",
+      "sha256": "bb8e75293188829a6b1f5331a29a671f07f9ab866bb7a72c50cf856af5fb6500",
+      "hash_matches": true,
+      "excerpt_lines_match": true
+    },
+    {
+      "source_path": "skills/work/references/dashboard-state-sync.md",
+      "destination_path": "plugins/autopilot/skills/work/references/dashboard-state-sync.md",
+      "sha256": "1c961211eb22ebcafcde7c15ed20515299d3d2e363b2847eabe11d1bcdd0497d",
+      "hash_matches": true,
+      "excerpt_lines_match": true
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "destination_path": "plugins/autopilot/skills/work/references/design-rationale.md",
+      "sha256": "2624af584869482ed5709b34a65270eb58177ade4cbf0a432ccc039a33ef4f6a",
+      "hash_matches": true,
+      "excerpt_lines_match": true
+    }
+  ],
+  "exact_references_verified_before_write": [
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 58,
+      "reference": "check_memory_pressure.py"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 111,
+      "reference": "check_memory_pressure.py"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 69,
+      "reference": "check_split_hygiene.py"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 70,
+      "reference": "_prose.py"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 75,
+      "reference": "check_reflow.py"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 76,
+      "reference": "parse_review.py"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 92,
+      "reference": "statectl.py"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 93,
+      "reference": "statectl.py"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 105,
+      "reference": "statectl.py"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 65,
+      "reference": "references/red-check.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 65,
+      "reference": "references/final-verification.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 109,
+      "reference": "references/rework-mode.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 67,
+      "reference": "run-autopilot/references/state-schema.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 103,
+      "reference": "run-autopilot/references/state-schema.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 65,
+      "reference": "references/subagent-dispatch.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 60,
+      "reference": "work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 63,
+      "reference": "rules/operating-principles.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 65,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex_hook_doctor.py"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 99,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 147,
+      "reference": "codex-run.sh"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 155,
+      "reference": "codex-run.sh"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 157,
+      "reference": "run-autopilot/scripts/codex_review_run.py"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 156,
+      "reference": "codex-review-last.jsonl"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 168,
+      "reference": "use-codex/references/dispatch-contract.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 195,
+      "reference": "record_dispatch.py"
+    },
+    {
+      "source_path": "skills/work/references/codex-integration.md",
+      "source_line": 7,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh"
+    },
+    {
+      "source_path": "skills/work/references/codex-integration.md",
+      "source_line": 20,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh"
+    },
+    {
+      "source_path": "skills/work/references/codex-integration.md",
+      "source_line": 7,
+      "reference": "skills/review-work-completion"
+    },
+    {
+      "source_path": "skills/work/references/codex-integration.md",
+      "source_line": 7,
+      "reference": "skills/review-work-completion/references/agent-invocation.md"
+    },
+    {
+      "source_path": "skills/work/references/codex-integration.md",
+      "source_line": 13,
+      "reference": "use-codex"
+    },
+    {
+      "source_path": "skills/work/references/dashboard-state-sync.md",
+      "source_line": 3,
+      "reference": "render_stream.py"
+    },
+    {
+      "source_path": "skills/work/references/dashboard-state-sync.md",
+      "source_line": 9,
+      "reference": "statectl.py"
+    },
+    {
+      "source_path": "skills/work/references/dashboard-state-sync.md",
+      "source_line": 10,
+      "reference": "statectl.py"
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 78,
+      "reference": "test_dispatch_prose.py"
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 80,
+      "reference": "test_fablectl.py"
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 82,
+      "reference": "test_dispatch_prose.py"
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 82,
+      "reference": "test_fablectl.py"
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 78,
+      "reference": "self-deslop-prompt.md"
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 79,
+      "reference": "codex-implementor.md"
+    }
+  ],
+  "asset_method": "Fresh helper asset snapshots; read-only needed-field projection after oversized work/SKILL.md refusal; no helper cap change."
+}

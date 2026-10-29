@@ -1,0 +1,469 @@
+{
+  "task": 29,
+  "task_base": "e8215b78725685a74c2920bdba37e80147ec8a98",
+  "status": "passed",
+  "sources": {
+    "skills/run-autopilot/references/lane-fast-track.md": {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-fast-track.md",
+      "sha256": "fc4bef75c21763c0ab53a7614617edcc153062f9d134176354a59f487f7af8c7",
+      "frozen_source_hash_matches": true
+    },
+    "skills/run-autopilot/references/lane-solo.md": {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-solo.md",
+      "sha256": "be8ca0dfcd3ae3dcc93577057bc7f3932d8b4cc627d612f96ea82ad0902c013e",
+      "frozen_source_hash_matches": true
+    },
+    "skills/run-autopilot/references/model-ladder.md": {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/model-ladder.md",
+      "sha256": "ed801ff4b2a4a9e532e9b0a24c64bfc2ed343183510476efadbd3628eb395c0e",
+      "frozen_source_hash_matches": true
+    },
+    "skills/run-autopilot/references/phase-build.md": {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "frozen_source_hash_matches": true
+    }
+  },
+  "edges": [
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 94,
+      "reference": "references/recovery.md",
+      "line_text": "(`references/recovery.md`) with the site `fast_track_blocked`:",
+      "kind": "packaged-resource",
+      "new": false,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 22,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/cards_from_prd.py",
+      "line_text": "python3 ${CLAUDE_PLUGIN_ROOT}/skills/fast-track/scripts/cards_from_prd.py docs/dev/project-management/prds/wip/<state.prd> --out docs/dev/tmp/<prd-stem>-cards",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 49,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "line_text": "python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json task-add <task-json-file>",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 63,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "line_text": "1. `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json task-start <id>`.",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 155,
+      "reference": "cli/transitions.py",
+      "line_text": "\"lane_reviewed\")` row of `cli/transitions.py`: `phase`/`next_phase: \"done\"`",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 157,
+      "reference": "review_coverage_hook.py",
+      "line_text": "`review_coverage_hook.py` gates the consolidated file exactly as a full-lane",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 146,
+      "reference": "references/output-formats.md",
+      "line_text": "and `references/output-formats.md` \u00a7 Agent Output Format. Render Alice's",
+      "kind": "packaged-resource",
+      "new": false,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 233,
+      "reference": "scripts/review_coverage_hook.py",
+      "line_text": "`scripts/review_coverage_hook.py`, nor the convergence reader's",
+      "kind": "external-capability",
+      "new": false,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 36,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "line_text": "python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json task-add <task-json-file>",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 48,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "line_text": "1. `python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json task-start <id>`.",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 75,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "line_text": "   python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py docs/dev/project-management/autopilot/state.json task-done <id> <attempt-json-file>",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 80,
+      "reference": "autopilot_context_cap_hook.py",
+      "line_text": "`autopilot_context_cap_hook.py` is the backstop. The session is",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 153,
+      "reference": "consolidate_findings.py",
+      "line_text": "`consolidate_findings.py` reads a missing, empty or malformed output file",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 168,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py",
+      "line_text": "python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/consolidate_findings.py alice:$PWD/docs/dev/tmp/solo-output-<prd-stem>.txt",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 178,
+      "reference": "cli/gate.py",
+      "line_text": "the Write tool in the shape `cli/gate.py` checks",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 253,
+      "reference": "cli/transitions.py",
+      "line_text": "  \"lane_reviewed\")` row of `cli/transitions.py`, whose effect is",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 139,
+      "reference": "skills/fast-track/SKILL.md",
+      "line_text": "rule verbatim (`skills/fast-track/SKILL.md` \u00a7 Roster): the `review-fanout`",
+      "kind": "packaged-resource",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 145,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/references/rubric.md",
+      "line_text": "(`${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/references/rubric.md`)",
+      "kind": "packaged-resource",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 147,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/alice.md",
+      "line_text": "prompt from `${CLAUDE_PLUGIN_ROOT}/agents/alice.md` the way fast-track",
+      "kind": "packaged-resource",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 179,
+      "reference": "review-work-completion/references/review-coverage-format.md",
+      "line_text": "(`review-work-completion/references/review-coverage-format.md`):",
+      "kind": "packaged-resource",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 140,
+      "reference": "~/.claude/workflows/review-fanout.workflow.js",
+      "line_text": "workflow when `~/.claude/workflows/review-fanout.workflow.js` is on disk,",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 92,
+      "reference": "references/state-schema.md",
+      "line_text": "  `references/state-schema.md` \u00a7 `fablectl.py`.",
+      "kind": "packaged-resource",
+      "new": false,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 100,
+      "reference": "references/recovery.md",
+      "line_text": "and what each `fablectl` exit means \u2014 lives in `references/recovery.md`",
+      "kind": "packaged-resource",
+      "new": false,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 15,
+      "reference": "skills/use-codex/scripts/codex-run.sh",
+      "line_text": "| `codex` | Codex CLI (`skills/use-codex/scripts/codex-run.sh`) | **ACTIVE** (PRD 00077) |",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 91,
+      "reference": "fablectl.py",
+      "line_text": "  documented fallback is invoking `fablectl.py` directly - see",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 163,
+      "reference": "check_memory_pressure.py",
+      "line_text": "- **Memory gate does not apply**: routing row 4's `check_memory_pressure.py`",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 168,
+      "reference": "block_working_document_redirects.py",
+      "line_text": "  four hooks \u2014 `validate_commit_msg.py`, `block_working_document_redirects.py`,",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 168,
+      "reference": "validate_commit_msg.py",
+      "line_text": "  four hooks \u2014 `validate_commit_msg.py`, `block_working_document_redirects.py`,",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 169,
+      "reference": "enforce_prd_location.py",
+      "line_text": "  `enforce_prd_location.py`, `gateguard-fact-force.py`. A Claude implementor's",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 169,
+      "reference": "gateguard-fact-force.py",
+      "line_text": "  `enforce_prd_location.py`, `gateguard-fact-force.py`. A Claude implementor's",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 171,
+      "reference": "block_force_push.py",
+      "line_text": "  `prefer_tools.py`, `block_poll_loops.py`, and `block_force_push.py`,",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 171,
+      "reference": "block_poll_loops.py",
+      "line_text": "  `prefer_tools.py`, `block_poll_loops.py`, and `block_force_push.py`,",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 171,
+      "reference": "prefer_tools.py",
+      "line_text": "  `prefer_tools.py`, `block_poll_loops.py`, and `block_force_push.py`,",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 172,
+      "reference": "dispatch.py",
+      "line_text": "  warden's command-safety filter, and the user's own `dispatch.py pre` layer",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 183,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_memory_pressure.py",
+      "line_text": "    python3 ${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_memory_pressure.py --max-level <threshold>",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 198,
+      "reference": "cli/loop.py",
+      "line_text": "trusts (`cli/loop.py`, since PRD 00106), one definition of",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 260,
+      "reference": "classify_tier.py",
+      "line_text": "  read by no script: `classify_tier.py` never consults it, so it does not",
+      "kind": "informational-provenance",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 278,
+      "reference": "skills/run-autopilot/scripts/tune_routing.py",
+      "line_text": "`skills/run-autopilot/scripts/tune_routing.py` reads",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 291,
+      "reference": "cli/routing.py",
+      "line_text": "(PRD 00111). They govern `build_model` in `cli/routing.py` (since PRD 00106);",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 40,
+      "reference": "references/recovery.md",
+      "line_text": "| `park_precondition_failed` | `references/recovery.md`'s exit-code table row 2, second branch \u2014 the `detail` names the cause (a missing `batch.id`, or a failed `cap_critical` range capture): retry the stall ONCE, then PAUSE in every mode (`phase`/`next_phase: \"paused\"`, `site: \"sub_skill_fail\"`), PRD left in `wip/`, and never delete `state.json`. NOT \u00a7 Handle park request row 2's corrupted-state row |",
+      "kind": "packaged-resource",
+      "new": false,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 35,
+      "reference": "enter.py",
+      "line_text": "| `park_halt` | \u00a7 Handle park request: exit-code row 5 when `detail` says systemic halt; otherwise `detail` names an exit code outside the table's 0/3/4/5/9/10 rows (`do_park` returned something `enter.py` does not recognize) \u2014 PAUSE (`site: \"sub_skill_fail\"`, `detail` = the unmapped-exit-code message) |",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-build.md",
+      "source_line": 83,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "line_text": "`python3 ${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py ensure-store --state <state.json>`.",
+      "kind": "external-capability",
+      "new": true,
+      "verified": true
+    }
+  ],
+  "packaged_destinations": [
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "source_asset_id": "skills/run-autopilot/references/recovery.md",
+      "destination_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed",
+      "verified": true
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/output-formats.md",
+      "source_asset_id": "skills/review-work-completion/references/output-formats.md",
+      "destination_sha256": "cc974c18895c6405d4c3e3d67e3a0f167795b79a865b962c28502bd1b281f8a2",
+      "verified": true
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "source_asset_id": "skills/run-autopilot/references/state-schema.md",
+      "destination_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+      "verified": true
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "source_asset_id": "skills/run-autopilot/references/recovery.md",
+      "destination_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed",
+      "verified": true
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "source_asset_id": "skills/run-autopilot/references/recovery.md",
+      "destination_sha256": "c1ac802b9f48ca3ccefcf8539e074a07810ca5af64c5236350cbe98148c6e3ed",
+      "verified": true
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/fast-track/SKILL.md",
+      "source_asset_id": "skills/fast-track/SKILL.md",
+      "destination_sha256": "8822b6859d7a1ffbeeb1517e7e48df54a72c2b526eb43966442a02ffc61feffc",
+      "verified": true
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/rubric.md",
+      "source_asset_id": "skills/review-work-completion/references/rubric.md",
+      "destination_sha256": "f3c03933a8f40a9f1934d4b7e9e8c87e6d5664f31c6814897e215f26442c717d",
+      "verified": true
+    },
+    {
+      "destination_path": "plugins/autopilot/references/personas/alice.md",
+      "source_asset_id": "agents/alice.md",
+      "destination_sha256": "acc988bbe514cfb29d3acf6f2ca04d7aef4c497ee2176636db034f61ddd65c42",
+      "verified": true
+    },
+    {
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/review-coverage-format.md",
+      "source_asset_id": "skills/review-work-completion/references/review-coverage-format.md",
+      "destination_sha256": "3b5f0b9597f57cba784001919f732d30a70b85d57df7f579d6615b0df72942e4",
+      "verified": true
+    }
+  ],
+  "gate": {
+    "status": "present",
+    "operation": "refuse-before-old-script-invocation",
+    "entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+  },
+  "no_helpers_shipped": true
+}

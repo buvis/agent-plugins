@@ -1,0 +1,13 @@
+{
+  "task": "task38",
+  "task_base_sha": "930d75ca603ba0ffc615cdb44c4fa7b07efa2b98",
+  "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_map_slice.py tests/autopilot/test_provenance.py -q --tb=line",
+  "exit_code": 0,
+  "runner_summary": "24 passed in 0.94s",
+  "elapsed_seconds": 1.93,
+  "output_log": "docs/dev/tmp/task38-tests.log",
+  "tess": "skipped:config-only",
+  "devon": "skipped:config-only",
+  "red_check": "n/a:config-only-task",
+  "pat": "coordinator pending; complete diff docs/dev/tmp/task38.diff"
+}

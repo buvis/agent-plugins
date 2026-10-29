@@ -1,0 +1,26 @@
+{
+  "task": 27,
+  "task_base_sha": "30f63239837ceb10ef3871a102a356bb2dc405ff",
+  "scope": {
+    "collection": "resource_edges",
+    "path": "skills/run-autopilot/SKILL.md",
+    "first": 41,
+    "last": 190
+  },
+  "base_map_sha256": "46060d2b2dffe5f08d499534fd86aa518640ac3f10d348fe3c341d665920931e",
+  "current_map_sha256": "645b1866f2ec7744a30b3df9fcd5cc160b60bc4bf567de132833aa855a392fbe",
+  "complete_complement_unchanged": true,
+  "all_existing_identities_preserved": true,
+  "all_identity_metadata_owners_profiles_evidence_preserved": true,
+  "only_scoped_resource_edges_changed": true,
+  "all_added_and_changed_source_references_verified": true,
+  "existing_edges": 403,
+  "current_edges": 430,
+  "scope_before": 14,
+  "scope_after": 41,
+  "new_edges": 27,
+  "modified_edges": 5,
+  "complete_diff_bytes": 23889,
+  "complete_diff_sha256": "815d2dd7c32f09caa3cb07af068a94922127aacb0354f1a71b162e2c9d0eb34a",
+  "diff_ceiling_bytes": 24000
+}

@@ -1,0 +1,338 @@
+{
+  "task_base_sha": "78d7c99b16abc4800203cd9a826b70a908067c00",
+  "source_hashes_verified": 5,
+  "applied_exact_literal_checks": [
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 37,
+      "reference": "references/attempt-logging.md",
+      "kind": "packaged-resource",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "destination_hash_verified": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 55,
+      "reference": "references/gate-failure.md",
+      "kind": "packaged-resource",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "destination_hash_verified": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 57,
+      "reference": "references/codex-implementor.md",
+      "kind": "informational-provenance",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 79,
+      "reference": "scripts/work_routing.py",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 225,
+      "reference": "references/subagent-dispatch.md",
+      "kind": "packaged-resource",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "destination_hash_verified": true
+    },
+    {
+      "source_path": "skills/work/references/rework-mode.md",
+      "source_line": 20,
+      "reference": "scripts/work_routing.py",
+      "kind": "external-capability",
+      "source_sha256": "39db417c8a13abe41424d0f86cd6cf4246f70b62f81fd0a9d4784f63d0aef351",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 57,
+      "reference": "agents/ivan.md",
+      "kind": "packaged-resource",
+      "source_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
+      "exact_literal_verified": true,
+      "destination_hash_verified": true
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 67,
+      "reference": "references/gate-failure.md",
+      "kind": "packaged-resource",
+      "source_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
+      "exact_literal_verified": true,
+      "destination_hash_verified": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 32,
+      "reference": "scripts/render_prompt.py",
+      "kind": "external-capability",
+      "source_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 28,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 33,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 39,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 43,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 43,
+      "reference": "~/.agents/skills/use-qwen/scripts/test_qwen_run.sh",
+      "kind": "informational-provenance",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 60,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 60,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 63,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 63,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 90,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_qwen_output.py",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 105,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_qwen_output.py",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 162,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 225,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 235,
+      "reference": "qwen-run.sh",
+      "kind": "informational-provenance",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 241,
+      "reference": "qwen-run.sh",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 28,
+      "reference": "~/.agents/skills/use-qwen/scripts/approved-models.txt",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 31,
+      "reference": "~/.pi/agent/models.json",
+      "kind": "external-capability",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 113,
+      "reference": "gate-failure.md",
+      "kind": "packaged-resource",
+      "source_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "exact_literal_verified": true,
+      "destination_hash_verified": true
+    },
+    {
+      "source_path": "skills/work/references/self-deslop-prompt.md",
+      "source_line": 82,
+      "reference": "check_split_hygiene.py",
+      "kind": "external-capability",
+      "source_sha256": "cbc897ba9c5c042707960c01c9ed1c42c347104c25821d5cfe2d481e9ad5207c",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/self-deslop-prompt.md",
+      "source_line": 111,
+      "reference": "skills/work/scripts/work_routing.py",
+      "kind": "external-capability",
+      "source_sha256": "cbc897ba9c5c042707960c01c9ed1c42c347104c25821d5cfe2d481e9ad5207c",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 24,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_style_limits.py",
+      "kind": "external-capability",
+      "source_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 27,
+      "reference": "review-work-completion/scripts/compute_mech_facts.py",
+      "kind": "external-capability",
+      "source_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 81,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/work_routing.py",
+      "kind": "external-capability",
+      "source_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 91,
+      "reference": "conftest.py",
+      "kind": "informational-provenance",
+      "source_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
+      "exact_literal_verified": true
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 104,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_split_hygiene.py",
+      "kind": "external-capability",
+      "source_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 19,
+      "reference": "sonnet-run.sh",
+      "kind": "external-capability",
+      "source_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 32,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "source_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 33,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "source_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "exact_literal_verified": true,
+      "no_distributed_asset_match": true
+    }
+  ],
+  "new_reference_count": 28,
+  "method": "Frozen packaged reference files match exact source hashes; every applied line/reference checked literally before write and afterward.",
+  "asset_projection_method": "Helper oversized-work-SKILL refusal; read-only selected source/destination/hash/gate fields under 18000 bytes plus map SHA; no cap changes."
+}

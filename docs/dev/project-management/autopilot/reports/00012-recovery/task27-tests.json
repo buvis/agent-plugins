@@ -1,0 +1,10 @@
+{
+  "task": 27,
+  "task_base_sha": "30f63239837ceb10ef3871a102a356bb2dc405ff",
+  "command": "uv run --python 3.12 --no-project --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_map_slice.py tests/autopilot/test_provenance.py -q --tb=line",
+  "exit_code": 0,
+  "runner_summary": "........................                                                 [100%]\n24 passed in 1.02s",
+  "stdout": "........................                                                 [100%]\n24 passed in 1.02s\n",
+  "stderr": "",
+  "reason": "Final state after adding the last in-scope ledger reference; earlier pre-final run also passed 24 tests."
+}

@@ -1,0 +1,92 @@
+{
+  "task_base": "35ef517ff427670f3e523240988f2dc2d7e6d1f4",
+  "in_scope": [
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 234,
+      "reference": "references/design-rationale.md",
+      "reason": "Complete diff budget: prioritize all 34 proposals, active existing-edge corrections, and five distinct additional transition/state dependencies; adding this row would exceed the remaining budget."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 249,
+      "reference": "references/phase-build.md",
+      "reason": "Complete diff budget: prioritize all 34 proposals, active existing-edge corrections, and five distinct additional transition/state dependencies; adding this row would exceed the remaining budget."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 253,
+      "reference": "references/phase-build.md",
+      "reason": "Complete diff budget: prioritize all 34 proposals, active existing-edge corrections, and five distinct additional transition/state dependencies; adding this row would exceed the remaining budget."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 261,
+      "reference": "references/design-rationale.md",
+      "reason": "Complete diff budget: prioritize all 34 proposals, active existing-edge corrections, and five distinct additional transition/state dependencies; adding this row would exceed the remaining budget."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 267,
+      "reference": "references/design-rationale.md",
+      "reason": "Complete diff budget: prioritize all 34 proposals, active existing-edge corrections, and five distinct additional transition/state dependencies; adding this row would exceed the remaining budget."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 312,
+      "reference": "recovery.md",
+      "reason": "Complete diff budget: prioritize all 34 proposals, active existing-edge corrections, and five distinct additional transition/state dependencies; adding this row would exceed the remaining budget."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 320,
+      "reference": "references/design-rationale.md",
+      "reason": "Complete diff budget: prioritize all 34 proposals, active existing-edge corrections, and five distinct additional transition/state dependencies; adding this row would exceed the remaining budget."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 320,
+      "reference": "references/phase-build.md",
+      "reason": "Complete diff budget: prioritize all 34 proposals, active existing-edge corrections, and five distinct additional transition/state dependencies; adding this row would exceed the remaining budget."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 337,
+      "reference": "references/phase-build.md",
+      "reason": "Complete diff budget: prioritize all 34 proposals, active existing-edge corrections, and five distinct additional transition/state dependencies; adding this row would exceed the remaining budget."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 208,
+      "reference": "phase-review.md",
+      "reason": "Complete diff budget: prioritize all 34 proposals, active existing-edge corrections, and five distinct additional transition/state dependencies; adding this row would exceed the remaining budget."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 211,
+      "reference": "phase-done.md",
+      "reason": "Complete diff budget: prioritize all 34 proposals, active existing-edge corrections, and five distinct additional transition/state dependencies; adding this row would exceed the remaining budget."
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 201,
+      "reference": "work/references/subagent-dispatch.md",
+      "reason": "Complete diff budget: prioritize all 34 proposals, active existing-edge corrections, and five distinct additional transition/state dependencies; adding this row would exceed the remaining budget."
+    }
+  ],
+  "outside_scope": [
+    {
+      "source_path": "skills/run-autopilot/references/batch-report-format.md",
+      "source_line": 15,
+      "reference": "cli/golden/expected/report-section.md",
+      "reason": "Outside slice line 14; golden test fixture citation."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/design-rationale.md",
+      "source_line": 131,
+      "reference": "docs/dev/tmp/00014-headless-spike.md",
+      "reason": "Outside slice line 129; historical probe citation."
+    }
+  ],
+  "inspection_limit": "Skill lines 276-307 are outside supplied contexts plus ten adjacent lines; dependencies there are uninspected."
+}

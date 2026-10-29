@@ -1,0 +1,78 @@
+{
+  "task_base_sha": "94f424517c54fb54ac2be8a8148c3ab5c6c0675f",
+  "scope": "slice-19 only; does not close original task20 finding",
+  "deferred": [
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 80,
+      "reference": "qwen-integration.md",
+      "proposed_kind": "informational-provenance",
+      "reason": "Complete task diff exceeded 24000 bytes; retain active helper repairs and existing-identity corrections first."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 81,
+      "reference": "design-rationale.md",
+      "proposed_kind": "informational-provenance",
+      "reason": "Complete task diff exceeded 24000 bytes; retain active helper repairs and existing-identity corrections first."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 82,
+      "reference": "per-task-review.md",
+      "proposed_kind": "informational-provenance",
+      "reason": "Complete task diff exceeded 24000 bytes; retain active helper repairs and existing-identity corrections first."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 82,
+      "reference": "pat.md",
+      "proposed_kind": "informational-provenance",
+      "reason": "Complete task diff exceeded 24000 bytes; retain active helper repairs and existing-identity corrections first."
+    },
+    {
+      "source_path": "skills/work/references/codex-implementor.md",
+      "source_line": 197,
+      "reference": "references/subagent-dispatch.md",
+      "proposed_kind": "packaged-resource",
+      "reason": "Outside listed line scope."
+    },
+    {
+      "source_path": "skills/work/references/dashboard-state-sync.md",
+      "source_line": 3,
+      "reference": "docs/dev/project-management/autopilot/state.json",
+      "proposed_kind": "generated runtime state input",
+      "reason": "Complete diff is 23844 bytes, leaving 156 bytes; a complete edge cannot fit the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/work/references/dashboard-state-sync.md",
+      "source_line": 5,
+      "reference": "statectl",
+      "proposed_kind": "external-capability",
+      "reason": "Complete diff is 23844 bytes, leaving 156 bytes; a complete edge cannot fit the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/work/references/dashboard-state-sync.md",
+      "source_line": 5,
+      "reference": "run-autopilot",
+      "proposed_kind": "packaged-resource",
+      "reason": "Complete diff is 23844 bytes, leaving 156 bytes; a complete edge cannot fit the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 65,
+      "reference": "SKILL.md",
+      "proposed_kind": "packaged-resource",
+      "reason": "Complete diff is 23844 bytes, leaving 156 bytes; a complete edge cannot fit the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/work/references/attempt-logging.md",
+      "source_line": 92,
+      "reference": "SKILL.md",
+      "proposed_kind": "packaged-resource",
+      "reason": "Complete diff is 23844 bytes, leaving 156 bytes; a complete edge cannot fit the 24000-byte ceiling."
+    }
+  ],
+  "complete_diff_bytes": 23844,
+  "remaining_budget_bytes": 156
+}

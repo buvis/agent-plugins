@@ -1,0 +1,20 @@
+{
+  "task_base": "be5dd023ab1dc45913439324a58bd8521ef9545d",
+  "deferred": [
+    {
+      "scope": "skills/review-work-completion/SKILL.md:309-353",
+      "reason": "Outside listed source excerpts plus 10-line surrounding-context allowance; audit uninspected workflow references in task20."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 262,
+      "references": [
+        "autopilot:alice",
+        "autopilot:blake",
+        "autopilot:eve"
+      ],
+      "reason": "Native host subagent dispatch capabilities require additional unavailable rows; complete diff uses 23986 of 24000 bytes."
+    }
+  ],
+  "slice_closes_original_finding": false
+}

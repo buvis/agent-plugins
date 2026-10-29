@@ -1,0 +1,343 @@
+{
+  "task": 27,
+  "task_base_sha": "30f63239837ceb10ef3871a102a356bb2dc405ff",
+  "source_path": "skills/run-autopilot/SKILL.md",
+  "source_sha256": "8e327f1e91c8190626bed6dbe29adcaa0cec49e8683b1fa8420fb3e2ee473ce1",
+  "frozen_hash_matches": true,
+  "gate_insertion_removed_bytes": 742,
+  "all_slice_context_lines_match": true,
+  "references": [
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 43,
+      "reference": "scripts/statectl.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "ffce15db84bcc6bad770af231013793b8b1ef45f506110cfc9838e8175182713",
+      "kind": "external-capability",
+      "reason": "The source explicitly identifies this model-invoked CLI as the sole state writer.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 47,
+      "reference": "scripts/tracon/",
+      "literal_reference_verified": true,
+      "source_line_sha256": "c8e763bbe229860a95571a66cf873e2890c3fd7ab9d3a11c4864580d7bc310e7",
+      "kind": "external-capability",
+      "reason": "This is the default frontend, with a conditional render_stream.py fallback; it is not merely a historical citation.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 105,
+      "reference": "scripts/resume_target.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "240cae7e59c0ff63f086c140fd089fd7f9f356bf82f67dd6ebbdac1e5acf17d4",
+      "kind": "external-capability",
+      "reason": "The source identifies this as the re-export of the canonical runtime resume decision.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 105,
+      "reference": "scripts/test_autopilot_resume.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "240cae7e59c0ff63f086c140fd089fd7f9f356bf82f67dd6ebbdac1e5acf17d4",
+      "kind": "informational-provenance",
+      "reason": "The source cites a regression test importing the resume decision to explain drift detection; it never instructs this workflow to execute or read the test.",
+      "never_supplies_runtime_content": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 140,
+      "reference": "scripts/tracon_wrapper_alive.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "2a08795d89f0a9380ff0a2b2977489d617045ddc00de8f2fe6a179cbf67aee32",
+      "kind": "external-capability",
+      "reason": "Both frontend and headless paths consult this runtime registry checker before registering.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 41,
+      "reference": "cli/loop.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "0d24bdb8b4ac53a2b551772cd36d645a8f58fc4a251c18ac767f8997f659d31e",
+      "kind": "external-capability",
+      "reason": "The source names this as the driver invoked by the shell wrapper.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 47,
+      "reference": "render_stream.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "c8e763bbe229860a95571a66cf873e2890c3fd7ab9d3a11c4864580d7bc310e7",
+      "kind": "external-capability",
+      "reason": "The source requires this fallback when tracon is disabled or unavailable.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 66,
+      "reference": "hooks/enforce_write_scope.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "4fce6aad7a4bda319cdf9edece2c8016ef5c93cda0444211d9313926edf251d8",
+      "kind": "external-capability",
+      "reason": "The source identifies the runtime fence whose scope must be configured before launching the batch.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 97,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "22fbdf238dd440f1ebe71046a9f987a4f94d4dd1f3d335ae95bd14582100053c",
+      "kind": "external-capability",
+      "reason": "The source gives an explicit python command for every state mutation.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 97,
+      "reference": "_walk_up.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "22fbdf238dd440f1ebe71046a9f987a4f94d4dd1f3d335ae95bd14582100053c",
+      "kind": "external-capability",
+      "reason": "The source directs state resolution using this helper pattern in the work procedure.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 97,
+      "reference": "cli/state.transaction",
+      "literal_reference_verified": true,
+      "source_line_sha256": "22fbdf238dd440f1ebe71046a9f987a4f94d4dd1f3d335ae95bd14582100053c",
+      "kind": "external-capability",
+      "reason": "The statectl command is explicitly a shim over this transaction implementation.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 99,
+      "reference": "validate_state_json_hook.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "1a4e909d663da9cbc0baa19354f35a298872228c6c8bc4d3f25de40f9da0ff1d",
+      "kind": "external-capability",
+      "reason": "The source requires this hook to validate the documented human recovery path.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 99,
+      "reference": "cli.schema.validate",
+      "literal_reference_verified": true,
+      "source_line_sha256": "1a4e909d663da9cbc0baa19354f35a298872228c6c8bc4d3f25de40f9da0ff1d",
+      "kind": "external-capability",
+      "reason": "The source says the hand-edit validation hook invokes this schema validator.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 105,
+      "reference": "cli/resume.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "240cae7e59c0ff63f086c140fd089fd7f9f356bf82f67dd6ebbdac1e5acf17d4",
+      "kind": "external-capability",
+      "reason": "The source says this implementation wins over prose and supplies the Phase 0 resume decision.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 154,
+      "reference": "render_stream.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "b1c830f8ac8b7cb86ddb6b22ffbef6087decb9daf32c216c1f84c6ea485ee900",
+      "kind": "external-capability",
+      "reason": "The source requires this fallback when no tty or uv is available or tracon is disabled.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 171,
+      "reference": "~/.config/bash/plugins/development.plugin.bash",
+      "literal_reference_verified": true,
+      "source_line_sha256": "639a3abc1d7a405c55f6445ead2c616fe7a5429337e31ac8cc3742fa905bb2b1",
+      "kind": "external-capability",
+      "reason": "The source explicitly assigns loop launch to this external shell wrapper.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 171,
+      "reference": "cli/loop.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "639a3abc1d7a405c55f6445ead2c616fe7a5429337e31ac8cc3742fa905bb2b1",
+      "kind": "external-capability",
+      "reason": "The source describes this driver launching each headless session and routing later turns.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 171,
+      "reference": "cli/runner.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "639a3abc1d7a405c55f6445ead2c616fe7a5429337e31ac8cc3742fa905bb2b1",
+      "kind": "external-capability",
+      "reason": "The source identifies this runner as implementing mcp_config_for and launch-time MCP scoping.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 182,
+      "reference": "autopilot_context_cap_hook.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "5de918d4d409af183f6b439a056f49540a11b89da8ef8bd664112c3b25abf538",
+      "kind": "external-capability",
+      "reason": "The source requires this hook to record rotations and update workflow state.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 190,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/await_reviewer_outputs.py",
+      "literal_reference_verified": true,
+      "source_line_sha256": "697b1f92a749aed322dfea56c418406110e26bb1dd24224ad506e8e1c52ee2e3",
+      "kind": "external-capability",
+      "reason": "The source explicitly instructs a watcher to re-run this helper until DONE.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 51,
+      "reference": "/git-ferry:catchup",
+      "literal_reference_verified": true,
+      "source_line_sha256": "0011f83ffbdb53b92d6b27a569ba79560e3c8eea803ec1e5f5cd233b8c06854e",
+      "kind": "external-capability",
+      "reason": "The source identifies catchup as a sub-skill executed within the workflow.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 138,
+      "reference": "/run-agoge",
+      "literal_reference_verified": true,
+      "source_line_sha256": "8715f390467e1282c2e5a87b23b0c8c83c08901fb807daf0931a33f19e881b48",
+      "kind": "external-capability",
+      "reason": "The source requires one QA pass after a batch drains at least one PRD.",
+      "refusal_gate_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 101,
+      "reference": "rules/operating-principles.md",
+      "literal_reference_verified": true,
+      "source_line_sha256": "f2ed37f7cf21603c5d22ef4d290ecaab348934825336a58ae72a0c8553e018bd",
+      "kind": "informational-provenance",
+      "reason": "Supporting citation for diagnostic visibility; the complete marker and error-handling instructions are inline, with no runtime read of this rule file required.",
+      "never_supplies_runtime_content": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 171,
+      "reference": "references/design-rationale.md",
+      "literal_reference_verified": true,
+      "source_line_sha256": "639a3abc1d7a405c55f6445ead2c616fe7a5429337e31ac8cc3742fa905bb2b1",
+      "kind": "informational-provenance",
+      "reason": "The Headless sessions section is cited as design rationale for the handoff contract; this line does not direct a runtime read or obtain procedure from it.",
+      "never_supplies_runtime_content": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 171,
+      "reference": "~/.claude/AGENTS.md",
+      "literal_reference_verified": true,
+      "source_line_sha256": "639a3abc1d7a405c55f6445ead2c616fe7a5429337e31ac8cc3742fa905bb2b1",
+      "kind": "informational-provenance",
+      "reason": "Toolchain attribution for the export instruction stated inline; no runtime read of the original user configuration is required.",
+      "never_supplies_runtime_content": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 51,
+      "reference": "/autopilot:plan-tasks",
+      "literal_reference_verified": true,
+      "source_line_sha256": "0011f83ffbdb53b92d6b27a569ba79560e3c8eea803ec1e5f5cd233b8c06854e",
+      "kind": "packaged-resource",
+      "reason": "Source gives this installed gate or sub-skill as the procedure for execution.",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/SKILL.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 51,
+      "reference": "/autopilot:work",
+      "literal_reference_verified": true,
+      "source_line_sha256": "0011f83ffbdb53b92d6b27a569ba79560e3c8eea803ec1e5f5cd233b8c06854e",
+      "kind": "packaged-resource",
+      "reason": "Source gives this installed gate or sub-skill as the procedure for execution.",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 51,
+      "reference": "/autopilot:review-work-completion",
+      "literal_reference_verified": true,
+      "source_line_sha256": "0011f83ffbdb53b92d6b27a569ba79560e3c8eea803ec1e5f5cd233b8c06854e",
+      "kind": "packaged-resource",
+      "reason": "Source gives this installed gate or sub-skill as the procedure for execution.",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 111,
+      "reference": "work/references/subagent-dispatch.md",
+      "literal_reference_verified": true,
+      "source_line_sha256": "9ad3e45b42e2c410be89e3f7e632b02737790be220fbe7036444697f32dfcf42",
+      "kind": "packaged-resource",
+      "reason": "The source references this packaged procedure or contract for the described workflow behavior.",
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 78,
+      "reference": "references/phase-done.md",
+      "literal_reference_verified": true,
+      "source_line_sha256": "09800406f97837d830798f48d258d7386bd7f7cd1e3c23fdc725a81c3dc732c0",
+      "kind": "packaged-resource",
+      "reason": "Source gives this installed gate or sub-skill as the procedure for execution.",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-done.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 79,
+      "reference": "references/phase-build.md",
+      "literal_reference_verified": true,
+      "source_line_sha256": "2cbccacd69ea6fe865744730dcfb33033deb22fcf3401cd57c8d41854101250c",
+      "kind": "packaged-resource",
+      "reason": "Source gives this installed gate or sub-skill as the procedure for execution.",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "destination_hash_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/SKILL.md",
+      "source_line": 111,
+      "reference": "references/state-schema.md",
+      "literal_reference_verified": true,
+      "source_line_sha256": "9ad3e45b42e2c410be89e3f7e632b02737790be220fbe7036444697f32dfcf42",
+      "kind": "packaged-resource",
+      "reason": "Source cites the installed state schema for the attempt and custody ledger contracts.",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/state-schema.md",
+      "destination_hash_verified": true
+    }
+  ],
+  "named_helper_availability": {
+    "snapshot": "docs/dev/tmp/task27-helper-availability.json",
+    "snapshot_sha256": "22e3ba7b6e9d631d6b720bbee957835b85f11af30aa719746fc07fe42597e158",
+    "all_named_helpers_absent_from_packaged_asset_metadata": true
+  }
+}

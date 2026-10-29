@@ -1,0 +1,428 @@
+{
+  "task_base_sha": "715afc06f4d23b9181556e0f36e723996c57c8fb",
+  "source_files": [
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "hash_matches": true,
+      "source_line_offset": 0
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "sha256": "92ece9ae82ce279f4c77b7929955d67c01ae20f97fa40bfdbfd4edd1b38a94a3",
+      "hash_matches": true,
+      "source_line_offset": 0
+    },
+    {
+      "source_path": "skills/work/references/tess-prompt.md",
+      "sha256": "c3226d2e2068d8efe46052b51ea21b949334f3e48842337ae8f58e611fc0d43c",
+      "hash_matches": true,
+      "source_line_offset": 0
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "sha256": "df865cd007e07efe72f8f36c93a6563a7002f5f2135e4f9281742be9a9a31080",
+      "hash_matches": true,
+      "source_line_offset": 0
+    }
+  ],
+  "literal_references_verified": 37,
+  "asset_method": "Bounded helper snapshots; work/SKILL.md required read-only destination/source/hash/gate projection after 18000-byte helper refusal; no cap changes.",
+  "asset_hashes_verified": true,
+  "reference_checks": [
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 127,
+      "reference": "references/red-check.md",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 127,
+      "reference": "references/final-verification.md",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 191,
+      "reference": "scripts/record_dispatch.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 211,
+      "reference": "references/test-author-prompt.md",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 211,
+      "reference": "references/gate-failure.md",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 211,
+      "reference": "references/per-task-review.md",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 225,
+      "reference": "references/codex-implementor.md",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 88,
+      "reference": "check_qwen_output.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 98,
+      "reference": "qwen-run.sh",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 144,
+      "reference": "render_prompt.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 146,
+      "reference": "render_prompt.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 176,
+      "reference": "<plugin root>/skills/work/scripts/check_reflow.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 191,
+      "reference": "render_prompt.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 199,
+      "reference": "record_dispatch.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 200,
+      "reference": "record_dispatch.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 201,
+      "reference": "record_dispatch.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 211,
+      "reference": "render_prompt.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 222,
+      "reference": "<plugin root>/skills/work/scripts/record_dispatch.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 234,
+      "reference": "<plugin root>/skills/work/scripts/record_dispatch.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 251,
+      "reference": "record_dispatch.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 88,
+      "reference": "qwen-integration.md",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 40,
+      "reference": "references/subagent-dispatch.md",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 7,
+      "reference": "autopilot_context_cap_hook.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 20,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/_walk_up.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 32,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 40,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 40,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 40,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/record_dispatch.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/task-boundary-handoff.md",
+      "source_line": 40,
+      "reference": "statectl.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/tess-prompt.md",
+      "source_line": 33,
+      "reference": "test_events_completion.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/tess-prompt.md",
+      "source_line": 33,
+      "reference": "test_events_usage.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 85,
+      "reference": "references/style-gate.md",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 8,
+      "reference": "render_prompt.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 58,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/detect_tautological_tests.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 74,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 88,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_style_limits.py",
+      "exact_literal": true
+    },
+    {
+      "source_path": "skills/work/references/test-author-prompt.md",
+      "source_line": 96,
+      "reference": "render_prompt.py",
+      "exact_literal": true
+    }
+  ],
+  "missing_helper_verification": {
+    "map_sha256": "bc9a4c0770109911410b8273c6676c13cfce1196dcd007f510711a78d6b45c4c",
+    "method": "Read-only basename projection of asset destination/source/hash/gate fields; no helper assets match.",
+    "checks": [
+      {
+        "helper_basename": "__main__.py",
+        "packaged_asset_matches": []
+      },
+      {
+        "helper_basename": "_walk_up.py",
+        "packaged_asset_matches": []
+      },
+      {
+        "helper_basename": "autopilot_context_cap_hook.py",
+        "packaged_asset_matches": []
+      },
+      {
+        "helper_basename": "check_qwen_output.py",
+        "packaged_asset_matches": []
+      },
+      {
+        "helper_basename": "check_reflow.py",
+        "packaged_asset_matches": []
+      },
+      {
+        "helper_basename": "check_style_limits.py",
+        "packaged_asset_matches": []
+      },
+      {
+        "helper_basename": "detect_tautological_tests.py",
+        "packaged_asset_matches": []
+      },
+      {
+        "helper_basename": "qwen-run.sh",
+        "packaged_asset_matches": []
+      },
+      {
+        "helper_basename": "record_dispatch.py",
+        "packaged_asset_matches": []
+      },
+      {
+        "helper_basename": "render_prompt.py",
+        "packaged_asset_matches": []
+      },
+      {
+        "helper_basename": "statectl.py",
+        "packaged_asset_matches": []
+      }
+    ]
+  },
+  "packaged_asset_verification": [
+    {
+      "source_asset_id": "skills/work/references/red-check.md",
+      "destination_path": "plugins/autopilot/skills/work/references/red-check.md",
+      "source_blob_sha256": "aed6de346f66a98a8a6f8d5c31aed5c9985455d509821e1a31becd7f4c633e9b",
+      "destination_blob_sha256": "aed6de346f66a98a8a6f8d5c31aed5c9985455d509821e1a31becd7f4c633e9b",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/work/references/final-verification.md",
+      "destination_path": "plugins/autopilot/skills/work/references/final-verification.md",
+      "source_blob_sha256": "8081f4ab5ff8d63d72a13771b2745964cc13529da0244bbfd154d372f6bcf180",
+      "destination_blob_sha256": "8081f4ab5ff8d63d72a13771b2745964cc13529da0244bbfd154d372f6bcf180",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/work/references/test-author-prompt.md",
+      "destination_path": "plugins/autopilot/skills/work/references/test-author-prompt.md",
+      "source_blob_sha256": "df865cd007e07efe72f8f36c93a6563a7002f5f2135e4f9281742be9a9a31080",
+      "destination_blob_sha256": "df865cd007e07efe72f8f36c93a6563a7002f5f2135e4f9281742be9a9a31080",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/work/references/gate-failure.md",
+      "destination_path": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "source_blob_sha256": "d5ea92235dc6b9281fd0f415e705f3681ba30518981bff164e62271974caf038",
+      "destination_blob_sha256": "d5ea92235dc6b9281fd0f415e705f3681ba30518981bff164e62271974caf038",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/work/references/per-task-review.md",
+      "destination_path": "plugins/autopilot/skills/work/references/per-task-review.md",
+      "source_blob_sha256": "7d532acc306e3f27702898fff1348cb50f5e264184a540f9deca77052891bd7f",
+      "destination_blob_sha256": "7d532acc306e3f27702898fff1348cb50f5e264184a540f9deca77052891bd7f",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/work/references/codex-implementor.md",
+      "destination_path": "plugins/autopilot/skills/work/references/codex-implementor.md",
+      "source_blob_sha256": "22dd25ac8118d571804e7fc5c42bc227593f539d13ea3ed82045b051a853d58a",
+      "destination_blob_sha256": "22dd25ac8118d571804e7fc5c42bc227593f539d13ea3ed82045b051a853d58a",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/work/references/subagent-dispatch.md",
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "source_blob_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "destination_blob_sha256": "beacf2c1737571cdd5bcd85d52d098592d3587cebecd8b558722905fa29d59fb",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/work/references/style-gate.md",
+      "destination_path": "plugins/autopilot/skills/work/references/style-gate.md",
+      "source_blob_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
+      "destination_blob_sha256": "58d652d0963f9456aaf7241fd0581383e5000f00261f873a58c16b4c1cf44f3f",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/work/references/qwen-integration.md",
+      "destination_path": "plugins/autopilot/skills/work/references/qwen-integration.md",
+      "source_blob_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "destination_blob_sha256": "40d1283c66e2626e1efd6e7c703d90c287400a83d1944a6172d7291f0153eda7",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/work/references/attempt-logging.md",
+      "destination_path": "plugins/autopilot/skills/work/references/attempt-logging.md",
+      "source_blob_sha256": "ca6847fc6b0c3b5dd16501486f512c8b6f15eb007c04043a4dd2a9a0278f5873",
+      "destination_blob_sha256": "ca6847fc6b0c3b5dd16501486f512c8b6f15eb007c04043a4dd2a9a0278f5873",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/work/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "source_blob_sha256": "2779a455ce2e920e1a84e3297c04e6fe6b44393d26a75baec525b5d20435e7fc",
+      "destination_blob_sha256": "fe953675c9b6a93286b0a351c3fe0877ecb1659a09bfa7ee98cf94328bfd8311",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/phase-build.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-build.md",
+      "source_blob_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "destination_blob_sha256": "358591daac5ce25bf0b4ae8e4015dc0431dcce91202059b50da60fd49c47af5f",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/phase-review.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "source_blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+      "destination_blob_sha256": "d9595b449306b182d29a3292571a3d0862e782a0d14d301973e0db129eb77bf4",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/references/phase-done.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-done.md",
+      "source_blob_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "destination_blob_sha256": "848a36c96dbf66ad444643ef135476b0a7adcf622610472cca5bf15dbd2f19ca",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/run-autopilot/SKILL.md",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "source_blob_sha256": "8e327f1e91c8190626bed6dbe29adcaa0cec49e8683b1fa8420fb3e2ee473ce1",
+      "destination_blob_sha256": "9ebb0d5011b249b310e6782dcbbf31f0cd338c2d74219bfbcf4c3923a1659587",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/work/references/tess-prompt.md",
+      "destination_path": "plugins/autopilot/skills/work/references/tess-prompt.md",
+      "source_blob_sha256": "c3226d2e2068d8efe46052b51ea21b949334f3e48842337ae8f58e611fc0d43c",
+      "destination_blob_sha256": "c3226d2e2068d8efe46052b51ea21b949334f3e48842337ae8f58e611fc0d43c",
+      "installed_hash_matches": true
+    },
+    {
+      "source_asset_id": "skills/work/references/tess-retry-prompt.md",
+      "destination_path": "plugins/autopilot/skills/work/references/tess-retry-prompt.md",
+      "source_blob_sha256": "539029694924b4675c6f930a079bbd2d86d5d0e03b851e7a38aa850e500631db",
+      "destination_blob_sha256": "539029694924b4675c6f930a079bbd2d86d5d0e03b851e7a38aa850e500631db",
+      "installed_hash_matches": true
+    }
+  ],
+  "total_input_context_below_100K": true
+}

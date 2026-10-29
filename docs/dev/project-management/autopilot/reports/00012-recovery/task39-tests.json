@@ -1,0 +1,7 @@
+{
+  "task": 39,
+  "task_base_sha": "79da423991e4bb23d8ce5a5a040e4ab9ba602dc0",
+  "command": "uv run --python 3.12 --no-project --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_map_slice.py tests/autopilot/test_provenance.py -q --tb=line",
+  "exit_code": 0,
+  "runner_summary": "........................                                                 [100%]\n24 passed in 0.98s"
+}

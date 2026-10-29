@@ -1,0 +1,21 @@
+{
+  "task_base_sha": "94f424517c54fb54ac2be8a8148c3ab5c6c0675f",
+  "base_map_sha256": "23164ade6796fbb78d00ab89e352a04ba096d193d1830f63e427fd271bca2311",
+  "current_map_sha256": "83419cb94ea4e7e72deb7b37483058d60e4fe3f2fcaf13b99260433f2f1590c8",
+  "only_listed_resource_edge_scopes_changed": true,
+  "complete_complement_preserved": true,
+  "all_existing_identities_preserved": true,
+  "protected_metadata_preserved": true,
+  "all_changed_source_lines_and_exact_references_verified": true,
+  "packaged_destinations_and_gates_contained": true,
+  "new_edges": 36,
+  "changed_existing_edges": 3,
+  "complete_diff_bytes": 23844,
+  "full_diff": "docs/dev/tmp/task40-full.diff",
+  "style_gate": "clean: config-only diff; no Python changed",
+  "self_deslop": "noop: data-only dependency classifications; no implementation abstractions",
+  "pat": "coordinator supplies independent complete-diff review",
+  "test_gate": "passed",
+  "verification_after_tests": true,
+  "no_commits_or_autopilot_state_writes": true
+}

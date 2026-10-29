@@ -1,0 +1,366 @@
+{
+  "task": 39,
+  "task_base_sha": "79da423991e4bb23d8ce5a5a040e4ab9ba602dc0",
+  "source_path": "skills/work/SKILL.md",
+  "source_sha256": "2779a455ce2e920e1a84e3297c04e6fe6b44393d26a75baec525b5d20435e7fc",
+  "source_hash_matches_pin": true,
+  "source_reconstruction": "Remove exactly 742 bytes at byte offset 383 after frontmatter; preserve all other bytes.",
+  "all_slice_excerpt_lines_equal_frozen_source": true,
+  "asset_method": "Read-only needed-field projection after helper oversized-asset refusal; map SHA retained; helper caps unchanged.",
+  "checks": [
+    {
+      "source_line": 316,
+      "reference": "check_qwen_output.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 334,
+      "reference": "check_qwen_output.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 326,
+      "reference": "run-autopilot/cli/records.py",
+      "literal_present": true,
+      "kind": "informational-provenance"
+    },
+    {
+      "source_line": 352,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_reflow.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 367,
+      "reference": "validate_commit_msg.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 377,
+      "reference": "./tests/integration.sh",
+      "literal_present": true,
+      "kind": "informational-provenance"
+    },
+    {
+      "source_line": 377,
+      "reference": "./tests/smoke.sh",
+      "literal_present": true,
+      "kind": "informational-provenance"
+    },
+    {
+      "source_line": 389,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/work_routing.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 420,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/work_routing.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 400,
+      "reference": "record_dispatch.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 408,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_split_hygiene.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 425,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 436,
+      "reference": "parse_review.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 436,
+      "reference": "sonnet-run.sh",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 447,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/statectl.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 458,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/cli/__main__.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 473,
+      "reference": "render_prompt.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 474,
+      "reference": "render_prompt.py",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 316,
+      "reference": "references/qwen-integration.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/qwen-integration.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 320,
+      "reference": "model-ladder.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/run-autopilot/references/model-ladder.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 322,
+      "reference": "references/qwen-integration.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/qwen-integration.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 328,
+      "reference": "references/gemini-integration.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/gemini-integration.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 328,
+      "reference": "references/subagent-dispatch.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 330,
+      "reference": "references/codex-implementor.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/codex-implementor.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 334,
+      "reference": "references/qwen-integration.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/qwen-integration.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 334,
+      "reference": "references/gate-failure.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 340,
+      "reference": "references/gate-failure.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 352,
+      "reference": "references/subagent-dispatch.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 367,
+      "reference": "run-autopilot/references/recovery.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 373,
+      "reference": "references/gate-failure.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 375,
+      "reference": "ivan.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/references/personas/ivan.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 375,
+      "reference": "references/gate-failure.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 379,
+      "reference": "model-ladder.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/run-autopilot/references/model-ladder.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 381,
+      "reference": "references/gate-failure.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 383,
+      "reference": "references/gate-failure.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/gate-failure.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 400,
+      "reference": "references/self-deslop-prompt.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/self-deslop-prompt.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 431,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/references/simplification-mandate.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/simplification-mandate.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 425,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/pat.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/references/personas/pat.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 435,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/pat.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/references/personas/pat.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 436,
+      "reference": "references/per-task-review.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/per-task-review.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 450,
+      "reference": "references/attempt-logging.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/attempt-logging.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 472,
+      "reference": "references/test-author-prompt.md",
+      "literal_present": true,
+      "kind": "packaged-resource",
+      "destination": "plugins/autopilot/skills/work/references/test-author-prompt.md",
+      "contained_existing_file": true
+    },
+    {
+      "source_line": 365,
+      "reference": "rules/changelog.md",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 367,
+      "reference": "rules/development-workflow.md",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_line": 344,
+      "reference": "debug-stuck-agent",
+      "literal_present": true,
+      "kind": "external-capability",
+      "no_packaged_asset": true,
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    }
+  ]
+}

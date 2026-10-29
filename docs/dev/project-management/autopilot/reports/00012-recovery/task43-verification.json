@@ -1,0 +1,17 @@
+{
+  "task_base_sha": "715afc06f4d23b9181556e0f36e723996c57c8fb",
+  "task_base_map_sha256": "bc9a4c0770109911410b8273c6676c13cfce1196dcd007f510711a78d6b45c4c",
+  "current_map_sha256": "f9b7f59104bf3b5389d0534f4a8cc27f750fed4f65d51cd2e262bc0649a0f9ed",
+  "complete_complement_unchanged": true,
+  "all_other_collections_unchanged": true,
+  "existing_identities_preserved": true,
+  "protected_metadata_preserved": true,
+  "all_changes_within_listed_scopes": true,
+  "every_changed_source_hash_line_and_literal_verified": true,
+  "gate_paths_contained": true,
+  "new_edges": 28,
+  "existing_edges_updated": 9,
+  "full_diff_bytes": 23626,
+  "full_diff_path": "docs/dev/tmp/task43-full.diff",
+  "all_checks_passed": true
+}

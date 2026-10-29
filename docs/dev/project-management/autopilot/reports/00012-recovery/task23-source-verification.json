@@ -1,0 +1,15 @@
+{
+  "verified": true,
+  "sources": [
+    {
+      "source_path": "skills/fast-track/SKILL.md",
+      "sha256": "608277a9b273e98289d1818eead2c5d22cf4404ef4d4af43dd653396c7ce7227",
+      "excerpt_lines_verified": 65
+    },
+    {
+      "source_path": "skills/fast-track/references/lane-dispatch.md",
+      "sha256": "0e363fb1ee7085e879274e9079ed6e87343e1c30c8321a5c00ef969e05809d38",
+      "excerpt_lines_verified": 90
+    }
+  ]
+}

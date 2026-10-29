@@ -1,0 +1,91 @@
+{
+  "task": 29,
+  "task_base": "e8215b78725685a74c2920bdba37e80147ec8a98",
+  "deferred": [
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 37,
+      "reference": "SKILL.md",
+      "reason": "Verified repeated core-skill reference deferred to keep complete task diff within the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 65,
+      "reference": "SKILL.md",
+      "reason": "Verified repeated core-skill reference deferred to keep complete task diff within the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-solo.md",
+      "source_line": 244,
+      "reference": "SKILL.md",
+      "reason": "Verified repeated core-skill reference deferred to keep complete task diff within the 24000-byte ceiling."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 26,
+      "reference": "cards_from_prd.py",
+      "reason": "Verified repeated reference deferred for complete 24000-byte task diff ceiling; corresponding capability/resource has another mapped occurrence in this scope."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 92,
+      "reference": "fablectl.py",
+      "reason": "Verified repeated reference deferred for complete 24000-byte task diff ceiling; corresponding capability/resource has another mapped occurrence in this scope."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 69,
+      "reference": "skills/fast-track/SKILL.md",
+      "reason": "Verified repeated reference deferred for complete 24000-byte task diff ceiling; corresponding capability/resource has another mapped occurrence in this scope."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 98,
+      "reference": "references/state-schema.md",
+      "reason": "Verified repeated reference deferred for complete 24000-byte task diff ceiling; corresponding capability/resource has another mapped occurrence in this scope."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 167,
+      "reference": "~/.codex/hooks.json",
+      "reason": "Live host hook registration config; unavailable host capability remains to be mapped. Complete task diff is 23689 bytes, leaving only 311 bytes under the 24000-byte ceiling.",
+      "source_line_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 173,
+      "reference": "settings.json",
+      "reason": "Live host dispatch hook registration config remains to be mapped. Complete task diff is 23689 bytes, leaving only 311 bytes under the 24000-byte ceiling.",
+      "source_line_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 89,
+      "reference": "autoclaude",
+      "reason": "Human Fable approval wrapper capability remains to be mapped; direct fablectl fallback is mapped. Complete task diff is 23689 bytes, leaving only 311 bytes under the 24000-byte ceiling.",
+      "source_line_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 279,
+      "reference": "docs/dev/project-management/autopilot/ledger/attempts.jsonl",
+      "reason": "Tuning helper ledger input contract remains to be mapped; tuning helper itself is mapped. Complete task diff is 23689 bytes, leaving only 311 bytes under the 24000-byte ceiling.",
+      "source_line_verified": true
+    }
+  ],
+  "scope_boundary": "Only the four slice08 source scopes were inspected. Uninspected portions and other source files remain task20 source-scope work; this slice does not close task20.",
+  "original_proposal_deferrals": [
+    {
+      "source_path": "skills/run-autopilot/references/lane-fast-track.md",
+      "source_line": 26,
+      "reference": "cards_from_prd.py"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/model-ladder.md",
+      "source_line": 92,
+      "reference": "fablectl.py"
+    }
+  ],
+  "complete_diff_bytes": 23689,
+  "remaining_budget_bytes": 311
+}

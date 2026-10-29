@@ -1,0 +1,17 @@
+{
+  "task_base": "be5dd023ab1dc45913439324a58bd8521ef9545d",
+  "task_base_matches_initial_map": true,
+  "base_map_sha256": "503f215b45d1994878c1ba921d54e019785002c52b9a5d0c99043839da133f71",
+  "current_map_sha256": "a2338f24369f496dafc6702d46d517e29aad23365bae407fc21254f6491d68a6",
+  "only_scoped_resource_edges_changed": true,
+  "complete_complement_preserved": true,
+  "all_existing_identities_and_rows_preserved": true,
+  "all_other_collections_preserved": true,
+  "all_new_lines_and_references_verified": true,
+  "new_resource_edges": 46,
+  "external_capabilities": 26,
+  "packaged_resources": 20,
+  "complete_diff_bytes": 23986,
+  "diff_limit_bytes": 24000,
+  "source_verification": "docs/dev/tmp/task25-source-verification.json"
+}

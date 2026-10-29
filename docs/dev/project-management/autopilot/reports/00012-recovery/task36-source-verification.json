@@ -1,0 +1,301 @@
+{
+  "task_base": "b64da4bfed195db488013af7d644d3b675496c6e",
+  "method": "Pinned packaged source hashes; remove exactly 742 inserted gate bytes from SKILL; verify exact literal reference at frozen source line before helper writes.",
+  "source_hashes": [
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "expected_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+      "actual_sha256": "6553091dfc905ec6e76934701eea0ab902551cf2f1fa73f6a3ef0b0915967b51",
+      "gate_removed_bytes": 0,
+      "gate_offset": null
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "expected_sha256": "06fb468da688a4db0cd84a903d78bfc0aeb8e403aed36119a0645ec3255659c3",
+      "actual_sha256": "06fb468da688a4db0cd84a903d78bfc0aeb8e403aed36119a0645ec3255659c3",
+      "gate_removed_bytes": 0,
+      "gate_offset": null
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "expected_sha256": "eb6b977de437a1243454fb41e65a8ec5824bf42e0edcd85054c71367bc0a755b",
+      "actual_sha256": "eb6b977de437a1243454fb41e65a8ec5824bf42e0edcd85054c71367bc0a755b",
+      "gate_removed_bytes": 742,
+      "gate_offset": 350
+    }
+  ],
+  "reference_checks": [
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 306,
+      "reference": "scripts/tune_routing.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 340,
+      "reference": "scripts/tracon/model.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 285,
+      "reference": "cli/statectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 285,
+      "reference": "statectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 312,
+      "reference": "cli/loop.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 336,
+      "reference": "gate.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 377,
+      "reference": "fablectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 390,
+      "reference": "fablectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 392,
+      "reference": "fablectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 394,
+      "reference": "skills/run-autopilot/scripts/fablectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 394,
+      "reference": "statectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 397,
+      "reference": "fablectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 398,
+      "reference": "fablectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 399,
+      "reference": "fablectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 400,
+      "reference": "fablectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 410,
+      "reference": "statectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 418,
+      "reference": "fablectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 421,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/fablectl.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 517,
+      "reference": "cli/routing.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 519,
+      "reference": "cli/routing.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 547,
+      "reference": "cli/cap_check.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 285,
+      "reference": "references/phase-done.md",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 388,
+      "reference": "references/recovery.md",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 521,
+      "reference": "references/lane-solo.md",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 547,
+      "reference": "references/phase-review.md",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 340,
+      "reference": "cli/render_metrics.load_event_rows",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 7,
+      "reference": "references/state-schema.md",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 132,
+      "reference": "references/recovery.md",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 5,
+      "reference": "cli/wave.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 5,
+      "reference": "cli/wave_launch.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 181,
+      "reference": "gather-context.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 243,
+      "reference": "$_skill/cli/__main__.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 249,
+      "reference": "skills/run-autopilot/cli/records.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 248,
+      "reference": "skills/run-autopilot/SKILL.md",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 248,
+      "reference": "skills/run-autopilot/references/state-schema.md",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 25,
+      "reference": "references/dispatch-contract.md",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 16,
+      "reference": "codex-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 49,
+      "reference": "codex-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 75,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 78,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 81,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 84,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 87,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 90,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 94,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex_hook_doctor.py",
+      "literal_verified": true
+    }
+  ],
+  "checked_rows": 45,
+  "all_literal_references_verified": true
+}

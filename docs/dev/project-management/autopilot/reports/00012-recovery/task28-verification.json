@@ -1,0 +1,17 @@
+{
+  "task_base": "35ef517ff427670f3e523240988f2dc2d7e6d1f4",
+  "before_sha256": "645b1866f2ec7744a30b3df9fcd5cc160b60bc4bf567de132833aa855a392fbe",
+  "after_sha256": "62f1ee64236748a6b73e8e8fe424525384e2f7cd58a99d06f39221e878e0b31f",
+  "complete_diff": "docs/dev/tmp/task28-complete.diff",
+  "complete_diff_bytes": 23605,
+  "only_listed_resource_scopes_changed": true,
+  "all_other_collections_equal": true,
+  "complete_unselected_complement_equal": true,
+  "all_existing_identities_preserved": true,
+  "protected_existing_fields_preserved": true,
+  "all_new_and_changed_source_references_verified": true,
+  "new_edges": 36,
+  "modified_existing_edges": 5,
+  "distinct_additional_rows": 5,
+  "proposal_rows_adjudicated": 34
+}

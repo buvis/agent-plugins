@@ -1,0 +1,103 @@
+{
+  "task_base_sha": "78d7c99b16abc4800203cd9a826b70a908067c00",
+  "items": [
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 229,
+      "reference": "~/.pi/agent/models.json",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 164,
+      "reference": "use-qwen/SKILL.md",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 47,
+      "reference": "SKILL.md",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 51,
+      "reference": "SKILL.md",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 225,
+      "reference": "use-qwen",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 144,
+      "reference": "AGENTS.md",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 147,
+      "reference": "AGENTS.md",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 190,
+      "reference": "AGENTS.md",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 193,
+      "reference": "AGENTS.md",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 31,
+      "reference": "~/.agents/skills/use-qwen/scripts/approved-models.txt",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 164,
+      "reference": "use-qwen/scripts/approved-models.txt",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 54,
+      "reference": "model-ladder.md",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/self-deslop-prompt.md",
+      "source_line": 94,
+      "reference": "prompts/de-sloppify.md",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/style-gate.md",
+      "source_line": 74,
+      "reference": "agents/ivan.md",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 28,
+      "reference": "SKILL.md",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    },
+    {
+      "source_path": "skills/work/references/subagent-dispatch.md",
+      "source_line": 32,
+      "reference": "SKILL.md",
+      "reason": "Complete task diff ceiling is 24000 bytes; concrete additional scoped reference deferred to task20."
+    }
+  ],
+  "outside_scope": [],
+  "closure": "Slice only; does not close task20."
+}

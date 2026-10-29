@@ -1,0 +1,93 @@
+{
+  "task": "task45",
+  "task_base": "0f0a251ad555850f17586163424505013c471eea",
+  "task_base_equals_start": true,
+  "complete_complement_preserved": true,
+  "all_existing_identities_preserved": true,
+  "only_listed_scopes_changed": true,
+  "new_identities": 12,
+  "updated_existing_rows": 1,
+  "complete_diff_bytes": 8707,
+  "source_references": [
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 38,
+      "reference": "scripts/codex-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/plan-tasks/references/design-rationale.md",
+      "source_line": 46,
+      "reference": "classify_tier.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 16,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 19,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 105,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 118,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 108,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/references/unattended-contract.md",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 66,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 87,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 140,
+      "reference": "gather-context.sh",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 39,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 87,
+      "reference": "use-gemini/SKILL.md",
+      "literal_verified": true
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 140,
+      "reference": "review-stage",
+      "literal_verified": true
+    }
+  ],
+  "before_sha256": "0515541156f9a8dcf4eb71e487c7a3a5487b50e6b59a798a5f81848faf9a0cde",
+  "after_sha256": "503f215b45d1994878c1ba921d54e019785002c52b9a5d0c99043839da133f71"
+}

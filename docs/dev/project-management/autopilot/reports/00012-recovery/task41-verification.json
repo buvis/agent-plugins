@@ -1,0 +1,258 @@
+{
+  "task_base_sha": "da13f81b2f1b9b785e9c6579f6429a3fc1518d25",
+  "map_base_sha256": "83419cb94ea4e7e72deb7b37483058d60e4fe3f2fcaf13b99260433f2f1590c8",
+  "map_current_sha256": "f2b92aed1a87ca25e09f133fb54595fdec9be19ced28825911e380e894ba6b24",
+  "complete_diff_bytes": 23927,
+  "complete_complement_preserved": true,
+  "non_resource_collections_unchanged": true,
+  "existing_identities_preserved": true,
+  "protected_metadata_preserved": true,
+  "only_selected_scopes_differ": true,
+  "new_rows": 32,
+  "modified_rows": 8,
+  "changed_reference_checks": [
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 132,
+      "reference": "scripts/work_routing.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 133,
+      "reference": "scripts/test_work_routing.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 25,
+      "reference": "scripts/work_routing.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 25,
+      "reference": "scripts/test_work_routing.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 110,
+      "reference": "references/attempt-logging.md",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 194,
+      "reference": "references/style-gate.md",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 228,
+      "reference": "references/subagent-dispatch.md",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 121,
+      "reference": "references/attempt-logging.md",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 87,
+      "reference": "test_fablectl.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 88,
+      "reference": "test_dispatch_prose.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 90,
+      "reference": "test_dispatch_prose.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 96,
+      "reference": "test_fablectl.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 97,
+      "reference": "render_prompt.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 97,
+      "reference": "test_dispatch_prose.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 100,
+      "reference": "work_routing.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 136,
+      "reference": "test_work_routing.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 87,
+      "reference": "gate-failure.md",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/final-verification.md",
+      "source_line": 18,
+      "reference": "./tests/smoke.sh",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/final-verification.md",
+      "source_line": 19,
+      "reference": "./tests/integration.sh",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/final-verification.md",
+      "source_line": 22,
+      "reference": "setup.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 35,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/diagnose_task.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 37,
+      "reference": "_walk_up.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 156,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_qwen_output.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 181,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 201,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 228,
+      "reference": "record_dispatch.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 179,
+      "reference": "ivan.md",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 181,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/ivan.md",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gemini-integration.md",
+      "source_line": 3,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gemini-integration.md",
+      "source_line": 43,
+      "reference": "gemini-run.sh",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gemini-integration.md",
+      "source_line": 115,
+      "reference": "gemini-run.sh",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/gemini-integration.md",
+      "source_line": 138,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 16,
+      "reference": "skills/work/scripts/work_routing.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 45,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 74,
+      "reference": "render_prompt.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 88,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 98,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 104,
+      "reference": "parse_review.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 139,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/parse_review.py",
+      "literal_at_exact_line": true
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 3,
+      "reference": "~/.agents/skills/use-qwen/scripts/qwen-run.sh",
+      "literal_at_exact_line": true
+    }
+  ],
+  "test_status": "passed",
+  "pat_review": "coordinator-owned; complete diff available in docs/dev/tmp/task41.diff",
+  "original_finding_closed": false
+}

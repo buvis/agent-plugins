@@ -1,0 +1,24 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "--python",
+    "3.12",
+    "--no-project",
+    "--with-requirements",
+    "tools/autopilot/requirements-test.txt",
+    "python",
+    "-m",
+    "pytest",
+    "tests/autopilot/test_map_slice.py",
+    "tests/autopilot/test_provenance.py",
+    "-q",
+    "--tb=line"
+  ],
+  "exit_code": 0,
+  "runner_summary": "24 passed in 0.94s",
+  "stdout": "........................                                                 [100%]\n24 passed in 0.94s\n",
+  "stderr": "",
+  "elapsed_seconds": 1.218,
+  "task_base": "6696ff5afbf68e275e289e3a2b15cc6204385c51"
+}

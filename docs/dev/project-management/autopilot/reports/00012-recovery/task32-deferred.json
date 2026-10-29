@@ -1,0 +1,105 @@
+{
+  "task_base": "6696ff5afbf68e275e289e3a2b15cc6204385c51",
+  "deferred": [
+    {
+      "source_path": "skills/run-autopilot/references/recovery.md",
+      "source_line": 272,
+      "reference": "SKILL.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24070
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 247,
+      "reference": "references/model-ladder.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24110
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 250,
+      "reference": "references/model-ladder.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24110
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 251,
+      "reference": "references/model-ladder.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24110
+    },
+    {
+      "source_path": "skills/run-autopilot/references/recovery.md",
+      "source_line": 66,
+      "reference": "references/state-schema.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24105
+    },
+    {
+      "source_path": "skills/run-autopilot/references/recovery.md",
+      "source_line": 98,
+      "reference": "references/phase-build.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24103
+    },
+    {
+      "source_path": "skills/run-autopilot/references/recovery.md",
+      "source_line": 104,
+      "reference": "references/phase-review.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24106
+    },
+    {
+      "source_path": "skills/run-autopilot/references/recovery.md",
+      "source_line": 118,
+      "reference": "references/phase-build.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24104
+    },
+    {
+      "source_path": "skills/run-autopilot/references/recovery.md",
+      "source_line": 118,
+      "reference": "references/state-schema.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24106
+    },
+    {
+      "source_path": "skills/run-autopilot/references/recovery.md",
+      "source_line": 131,
+      "reference": "references/phase-review.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24106
+    },
+    {
+      "source_path": "skills/run-autopilot/references/recovery.md",
+      "source_line": 254,
+      "reference": "references/state-schema.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24106
+    },
+    {
+      "source_path": "skills/run-autopilot/references/recovery.md",
+      "source_line": 258,
+      "reference": "references/phase-review.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24106
+    },
+    {
+      "source_path": "skills/run-autopilot/references/recovery.md",
+      "source_line": 272,
+      "reference": "references/state-schema.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24106
+    },
+    {
+      "source_path": "skills/run-autopilot/references/phase-review.md",
+      "source_line": 327,
+      "reference": "references/design-rationale.md",
+      "reason": "Additional verified repeated source occurrence omitted because adding its complete row exceeds the 24000-byte complete task diff ceiling.",
+      "complete_diff_bytes_if_added": 24029
+    }
+  ],
+  "out_of_scope": [],
+  "generated_artifacts_note": "Runtime state, reports, design documents and ledgers are generated project artifacts, not missing shipped helper dependencies."
+}

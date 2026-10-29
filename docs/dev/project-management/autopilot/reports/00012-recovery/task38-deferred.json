@@ -1,0 +1,70 @@
+{
+  "task": "task38",
+  "task_base_sha": "930d75ca603ba0ffc615cdb44c4fa7b07efa2b98",
+  "original_finding_closed": false,
+  "complete_diff_bytes": 23864,
+  "remaining_budget_bytes": 136,
+  "deferred_references": [
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 89,
+      "reference": "references/subagent-dispatch.md",
+      "reason": "Additional occurrence of an already mapped packaged citation; full addition set produced 27806-byte diff, exceeding 24000-byte complete-task cap. Remaining headroom is 136 bytes."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 129,
+      "reference": "references/subagent-dispatch.md",
+      "reason": "Additional occurrence of an already mapped packaged citation; full addition set produced 27806-byte diff, exceeding 24000-byte complete-task cap. Remaining headroom is 136 bytes."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 139,
+      "reference": "references/attempt-logging.md",
+      "reason": "Additional occurrence of an already mapped packaged citation; full addition set produced 27806-byte diff, exceeding 24000-byte complete-task cap. Remaining headroom is 136 bytes."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 142,
+      "reference": "references/attempt-logging.md",
+      "reason": "Additional occurrence of an already mapped packaged citation; full addition set produced 27806-byte diff, exceeding 24000-byte complete-task cap. Remaining headroom is 136 bytes."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 246,
+      "reference": "references/gate-failure.md",
+      "reason": "Additional occurrence of an already mapped packaged citation; full addition set produced 27806-byte diff, exceeding 24000-byte complete-task cap. Remaining headroom is 136 bytes."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 258,
+      "reference": "references/design-rationale.md",
+      "reason": "Additional occurrence of an already mapped packaged citation; full addition set produced 27806-byte diff, exceeding 24000-byte complete-task cap. Remaining headroom is 136 bytes."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 276,
+      "reference": "references/rework-mode.md",
+      "reason": "Additional occurrence of an already mapped packaged citation; full addition set produced 27806-byte diff, exceeding 24000-byte complete-task cap. Remaining headroom is 136 bytes."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 296,
+      "reference": "references/code-quality-examples.md",
+      "reason": "Additional occurrence of an already mapped packaged citation; full addition set produced 27806-byte diff, exceeding 24000-byte complete-task cap. Remaining headroom is 136 bytes."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 310,
+      "reference": "references/qwen-integration.md",
+      "reason": "Verified adjacent source occurrence outside authorized scope ending at line 309; reserve for task20 or its assigned slice."
+    },
+    {
+      "source_path": "skills/work/SKILL.md",
+      "source_line": 311,
+      "reference": "references/qwen-integration.md",
+      "reason": "Verified adjacent source occurrence outside authorized scope ending at line 309; reserve for task20 or its assigned slice."
+    }
+  ],
+  "legacy_exact_202": "Final task20 owns legacy test_package.py assertion; not run or modified."
+}

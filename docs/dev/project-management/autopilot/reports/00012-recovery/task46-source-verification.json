@@ -1,0 +1,58 @@
+{
+  "task": 46,
+  "references": [
+    {
+      "source_path": "README.md",
+      "source_line": 99,
+      "reference": "scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "delivered_sha256": "060377125dd9e45a215e2d1c48d60d1611497d95b0a33305c7c904ec85005938",
+      "exact_source_line_verified": true,
+      "reference_verified": true,
+      "origin": "delivered adapted README; target-only AP00012 reference"
+    },
+    {
+      "source_path": "README.md",
+      "source_line": 232,
+      "reference": "plugins/autopilot/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "delivered_sha256": "060377125dd9e45a215e2d1c48d60d1611497d95b0a33305c7c904ec85005938",
+      "exact_source_line_verified": true,
+      "reference_verified": true,
+      "origin": "delivered adapted README; target-only AP00012 reference"
+    },
+    {
+      "source_path": "README.md",
+      "source_line": 233,
+      "reference": "plugins/autopilot/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "delivered_sha256": "060377125dd9e45a215e2d1c48d60d1611497d95b0a33305c7c904ec85005938",
+      "exact_source_line_verified": true,
+      "reference_verified": true,
+      "origin": "delivered adapted README; target-only AP00012 reference"
+    },
+    {
+      "source_path": "README.md",
+      "source_line": 234,
+      "reference": "plugins/autopilot/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "delivered_sha256": "060377125dd9e45a215e2d1c48d60d1611497d95b0a33305c7c904ec85005938",
+      "exact_source_line_verified": true,
+      "reference_verified": true,
+      "origin": "delivered adapted README; target-only AP00012 reference"
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 253,
+      "reference": "path/to/test_file.py",
+      "kind": "external-capability",
+      "delivered_sha256": "d5ea92235dc6b9281fd0f415e705f3681ba30518981bff164e62271974caf038",
+      "exact_source_line_verified": true,
+      "reference_verified": true,
+      "origin": "byte-preserved pinned source reference"
+    }
+  ],
+  "readme_provenance_exception": "Four facade references are target-only AP00012 additions anchored to the adapted delivered README, not upstream frozen-line anchors.",
+  "consumer_capability": "Host resolves and executes Contract-named consumer-project Python tests; unavailable work gate refuses execution until supplied; no source checkout fallback.",
+  "gate_sha256": "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75"
+}

@@ -1,0 +1,45 @@
+{
+  "task_base": "b64da4bfed195db488013af7d644d3b675496c6e",
+  "full_diff_bytes": 23883,
+  "remaining_diff_bytes": 117,
+  "scope_complete": false,
+  "original_task20_closed": false,
+  "deferred": [
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 312,
+      "reference": "phase-review.md",
+      "classification": "informational-provenance",
+      "capability_or_reason": "Historical mention of the prose metrics writer replaced by the CLI loop.",
+      "literal_verified": true,
+      "reason": "Complete task diff ceiling; even this individual additional row exceeds the remaining 117 bytes.",
+      "hypothetical_total_diff_bytes": 24305
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 337,
+      "reference": "gate.VERDICT_RE",
+      "classification": "external-capability",
+      "capability_or_reason": "Review verdict parser constant used when reading convergence metrics.",
+      "literal_verified": true,
+      "reason": "Complete task diff ceiling; even this individual additional row exceeds the remaining 117 bytes.",
+      "hypothetical_total_diff_bytes": 24408
+    },
+    {
+      "source_path": "skills/run-autopilot/references/waves.md",
+      "source_line": 125,
+      "reference": "dev/bin/release-checks",
+      "classification": "external-capability",
+      "capability_or_reason": "Run repository release validation after each assembled lane merge.",
+      "literal_verified": true,
+      "reason": "Complete task diff ceiling; even this individual additional row exceeds the remaining 117 bytes.",
+      "hypothetical_total_diff_bytes": 24405
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 283,
+      "reference": "SKILL.md",
+      "reason": "Outside this slice: first permitted state-schema line is 285; retention durable list citation discovered in supplied context."
+    }
+  ]
+}

@@ -1,0 +1,271 @@
+{
+  "deferred": [
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 188,
+      "reference": "ivan.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/ivan.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 201,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/ivan.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/ivan.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 88,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/references/pat-rerun-prompt.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/work/references/pat-rerun-prompt.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 106,
+      "reference": "pat.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/pat.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 118,
+      "reference": "pat.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/pat.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 88,
+      "reference": "test-author-prompt.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 88,
+      "reference": "tess-prompt.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 89,
+      "reference": "gate-failure.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 90,
+      "reference": "final-verification.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 91,
+      "reference": "subagent-dispatch.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 92,
+      "reference": "gate-failure.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 93,
+      "reference": "gate-failure.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 94,
+      "reference": "gate-failure.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 95,
+      "reference": "attempt-logging.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 96,
+      "reference": "attempt-logging.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 96,
+      "reference": "SKILL.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 97,
+      "reference": "subagent-dispatch.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 98,
+      "reference": "gemini-integration.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 99,
+      "reference": "attempt-logging.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 100,
+      "reference": "design-rationale.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 136,
+      "reference": "model-ladder.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/final-verification.md",
+      "source_line": 22,
+      "reference": "AGENTS.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/final-verification.md",
+      "source_line": 22,
+      "reference": "CLAUDE.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/final-verification.md",
+      "source_line": 22,
+      "reference": "Cargo.toml",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/final-verification.md",
+      "source_line": 22,
+      "reference": "pyproject.toml",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    },
+    {
+      "source_path": "skills/work/references/final-verification.md",
+      "source_line": 22,
+      "reference": "package.json",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content.",
+      "deferral_reason": "Complete task diff would exceed the 24000-byte cap; retain this concrete resource obligation for task 20."
+    }
+  ],
+  "scope_limit": "Only listed source lines and their permitted adjacent context were inspected.",
+  "original_finding_closed": false
+}

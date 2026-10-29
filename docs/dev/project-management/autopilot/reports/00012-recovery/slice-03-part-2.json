@@ -1,0 +1,357 @@
+{
+  "status": "unreviewed proposal; never apply wholesale",
+  "scopes": [
+    {
+      "collection": "resource_edges",
+      "path": "skills/plan-tasks/references/design-rationale.md",
+      "first": 46,
+      "last": 46
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/review-blindly/SKILL.md",
+      "first": 16,
+      "last": 118
+    },
+    {
+      "collection": "resource_edges",
+      "path": "skills/review-work-completion/SKILL.md",
+      "first": 38,
+      "last": 140
+    }
+  ],
+  "source_context": [
+    {
+      "source_path": "skills/plan-tasks/references/design-rationale.md",
+      "source_sha256": "5716cb58ac5d987717d5d070e6130c64e3724f1058f0e8be761fc1b3ea0f52cc",
+      "destination_path": "plugins/autopilot/skills/plan-tasks/references/design-rationale.md",
+      "lines": [
+        [
+          44,
+          "`novel algorithm`, `concurrency`, `migrate`, `refactor across`) plus two size"
+        ],
+        [
+          45,
+          "clauses, one on `files_touched` and one on `estimated_tokens`. All of it is"
+        ],
+        [
+          46,
+          "gone. `classify_tier.py` decides the tier now, from the task's own file slice"
+        ],
+        [
+          47,
+          "and the two facts step 4.7 makes the planner assert with evidence."
+        ],
+        [
+          48,
+          ""
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_sha256": "be813d8bce2d098503b67d777fb86dfd6f0aaf370f3a9476cae52b55ea7516f3",
+      "destination_path": "plugins/autopilot/skills/review-blindly/SKILL.md",
+      "lines": [
+        [
+          14,
+          ""
+        ],
+        [
+          15,
+          "- Personal skills: `use-sonnet` - the reviewer itself runs via"
+        ],
+        [
+          16,
+          "  `${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh` (and the `claude` CLI it"
+        ],
+        [
+          17,
+          "  wraps)"
+        ],
+        [
+          18,
+          "- Files read from other skill dirs:"
+        ],
+        [
+          19,
+          "  `${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py` - hard"
+        ],
+        [
+          20,
+          "  gate, a non-zero exit fails the review"
+        ],
+        [
+          21,
+          "- Own reference inlined into the reviewer prompt: `references/rubric.md`"
+        ],
+        [
+          103,
+          ""
+        ],
+        [
+          104,
+          "```bash"
+        ],
+        [
+          105,
+          "timeout 600 ${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh --effort high -y -f <ABSOLUTE path to docs/dev/project-management/reviews/.blind-reviewer-prompt.md>"
+        ],
+        [
+          106,
+          "```"
+        ],
+        [
+          107,
+          ""
+        ],
+        [
+          116,
+          "2. **Gate the file (PRD 00016) and fail loud:**"
+        ],
+        [
+          117,
+          "   ```bash"
+        ],
+        [
+          118,
+          "   python3 ${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py --review-file docs/dev/project-management/reviews/<prd>-blind-review.md"
+        ],
+        [
+          119,
+          "   ```"
+        ],
+        [
+          120,
+          "   Non-zero exit \u2192 the blind review FAILS; the gap is named on stderr (missing section, missing verdict or tests line). Fix the file \u2014 do NOT produce a clean verdict over a failing gate. (This filename is intentionally distinct from the `-review-NN.md` pattern, so it does not collide with autopilot's cycle-skip glob.)"
+        ]
+      ]
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_sha256": "6eedec5febaac6d818d71eb5e50d7369ce73d7748e64e89be10318e249af9688",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/SKILL.md",
+      "lines": [
+        [
+          36,
+          "not name:"
+        ],
+        [
+          37,
+          ""
+        ],
+        [
+          38,
+          "- Personal skills: `use-codex` (hard - `scripts/codex-run.sh`, STOP if missing)"
+        ],
+        [
+          39,
+          "- The agent registry `${CLAUDE_PLUGIN_ROOT}/agents/` (hard - every reviewer prompt is"
+        ],
+        [
+          40,
+          "  assembled from it; conventions and the roster in"
+        ],
+        [
+          64,
+          "Check these exist:"
+        ],
+        [
+          65,
+          ""
+        ],
+        [
+          66,
+          "1. `${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh` - executable"
+        ],
+        [
+          67,
+          "2. `docs/dev/project-management/prds/wip/` contains at least one `.txt` or `.md` file"
+        ],
+        [
+          68,
+          ""
+        ],
+        [
+          85,
+          "create state; fall through to the binary check below."
+        ],
+        [
+          86,
+          ""
+        ],
+        [
+          87,
+          "**Carl binary check (only when not batch-skipped):** check `${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh` is executable AND a backend CLI resolves - `copilot` (preferred; pin owned by the helper) OR native `gemini` (`mise which`/`command -v` succeeds for either). If both pass, Carl is active; binary presence alone does not establish model availability. If neither CLI resolves, skip Carl and record `Carl: unavailable (no backend CLI)` in the final review file. Do not run a live probe here; the opt-in operator probe lives in `use-gemini/SKILL.md`. Step 5 classifies dispatch results: exit 4 records `Carl: permanently unavailable` with the stderr reason; a quota or other runtime failure records a one-off failure. Carl on copilot spends Copilot AI credits."
+        ],
+        [
+          88,
+          ""
+        ],
+        [
+          89,
+          "Create if missing: `docs/dev/tmp/`, `docs/dev/project-management/reviews/`"
+        ],
+        [
+          138,
+          "**Determine review scope (full vs incremental).** List existing review files for this PRD with Bash `ls` (the native `Glob` tool is absent in this build): `docs/dev/project-management/reviews/<prd-name>-review-*.md` (PRD filename without the `.md` extension)."
+        ],
+        [
+          139,
+          ""
+        ],
+        [
+          140,
+          "- **No prior review file** \u2192 cycle 1, a **full review**. When `state.work_start_sha` is set in `docs/dev/project-management/autopilot/state.json` (running under autopilot), pass `--since <state.work_start_sha>` to `review-stage` \u2014 the PRD's whole work range, the same value `COVERAGE_DIFF_RANGE` uses below. Without it, the `gather-context.sh` run inside `review-stage` diffs against the detected base branch, which is empty (and refused with exit 3) for a repo worked on directly on that branch. Without `state.work_start_sha` (an interactive, non-autopilot run), omit `--since`."
+        ],
+        [
+          141,
+          "- **A prior review file exists** \u2192 this is a rework cycle, an **incremental review**. Read the highest-numbered prior file's `head_sha` frontmatter field."
+        ],
+        [
+          142,
+          "  - `head_sha` present \u2192 pass `--since <head_sha>` to `review-stage`. The diff then covers only the rework commits since that cycle, not the whole PRD branch \u2014 the prior cycle already reviewed the full diff. Also read that file's consolidated findings; step 4 hands them to the reviewers to verify."
+        ]
+      ]
+    }
+  ],
+  "proposed_rows": [
+    {
+      "source_path": "skills/plan-tasks/references/design-rationale.md",
+      "source_line": 46,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "classify_tier.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/plan-tasks/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 16,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-blindly/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 19,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-blindly/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 105,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-blindly/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 118,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/review-work-completion/scripts/check_review_file.py",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-blindly/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 38,
+      "reference": "scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 66,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 87,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 140,
+      "reference": "gather-context.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "gather-context.sh",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/review-work-completion/SKILL.md"
+    }
+  ],
+  "existing_rows": [
+    {
+      "source_path": "skills/review-blindly/SKILL.md",
+      "source_line": 21,
+      "reference": "references/rubric.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/review-blindly/references/rubric.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 38,
+      "reference": "scripts/codex-run.sh",
+      "kind": "external-capability",
+      "status": "planned",
+      "capability": "scripts/codex-run.sh",
+      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 41,
+      "reference": "references/agent-registry.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-registry.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 55,
+      "reference": "agents/blake.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/blake.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/review-work-completion/SKILL.md",
+      "source_line": 58,
+      "reference": "references/agent-invocation.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/skills/review-work-completion/references/agent-invocation.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    }
+  ]
+}

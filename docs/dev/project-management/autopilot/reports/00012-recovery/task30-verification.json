@@ -1,0 +1,15 @@
+{
+  "task": 30,
+  "task_base": "fca7c122de2b74e07924fcbcd58b9111bf0a4e8c",
+  "result": "passed",
+  "complete_complement_preserved": true,
+  "all_existing_identities_preserved": true,
+  "protected_metadata_preserved": true,
+  "all_changed_source_references_verified": true,
+  "changed_edges": 42,
+  "added_edges": 31,
+  "complete_diff_bytes": 23990,
+  "before_sha256": "7a2ec34822346e901d5905ef6a267d9675c3bcc7a6c771ff900a9357f1eeab01",
+  "after_sha256": "aa1a35594732f9ecd94b94b123b547ed9c7969a686a4a82c0c9bc6bc528f9c85",
+  "diff_artifact": "docs/dev/tmp/task30-complete.diff"
+}
