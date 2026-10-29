@@ -1,0 +1,40 @@
+Cycle-2 incremental review of `3dda8f1..HEAD`. Both prior findings that went to rework are resolved. One medium gap remains in the new closure oracle, plus small cleanups.
+
+**Prior findings:**
+- **Cycle-1 R1 (changelog list break): resolved.** Commit `afbed6a` removes the blank line and `d41c4ec` refreshes the receipt. `test_content_roster` passes.
+- **Cycle-1 R2 (resource closure gaps): mostly resolved.**
+  - The map adds 776 edges, for 978 in total. Every helper the finding named is now mapped as an active edge and guarded at least once.
+  - The fixed-202 check is gone. The test now requires the 202 frozen identities as a subset, rejects duplicates and runs the source-derived oracle.
+  - One way past the oracle remains, listed below.
+
+**Gates I ran:**
+- Python 3.12 autopilot suite: 104 passed, 0 failed, 0 skipped.
+- `scripts/validate.py`: 3 packages, 15 skills.
+- Validator unit tests: 12 OK.
+- `test_resource_closure.py` takes 0.4s.
+
+[ALICE] 🟡 `dependencies()` misses script invocations whose path is in quotes. `prefix = line[:match.start()].rstrip("`` ` `` ")` strips backticks and spaces but not `"` or `'`. So `` `caffeinate -is python3 "$_skill/cli/__main__.py" wave run "$@"` `` at skills/run-autopilot/references/waves.md:243 never matches `COMMAND`. I checked by deleting that edge from the map: `closure_errors` still returns `[]` and every test passes. Changing the strip set to ``rstrip("`\"' ")`` closes the gap: with that change the current map still has 0 errors, and deleting the edge gives `edge count 0`. Add a `python3 "scripts/x.py"` case to `test_dependency_mutations` | File: tests/autopilot/test_resource_closure.py:56 | Task: 20
+[ALICE] 🟡 The [MECH] line "test_dependency_mutations has no assertion" is a false positive: `eq, yes = self.assertEqual, self.assertTrue` renames the assert methods, so the detector cannot see them. The test does assert. Call `self.assertEqual` and `self.assertTrue` directly and drop the alias line. That is easier to read and clears the MECH line. | File: tests/autopilot/test_resource_closure.py:124 | Task: 20
+[ALICE] 🟡 `GATE_SIZE` and `GATE_SHA` are defined twice, in test_resource_closure.py:13-14 and tests/autopilot/test_package.py:87-88. test_package.py already does `from test_resource_closure import closure_errors`, so it can import both constants from there and delete its own copies. | File: tests/autopilot/test_resource_closure.py:13 | Task: 20
+[ALICE] 🟡 The `failure_rule` check for packaged-resource edges sits after the if/elif chain and repeats the `kind == "packaged-resource"` test. Move it into the `if kind == "packaged-resource":` branch at line 94; behavior is unchanged. | File: tests/autopilot/test_resource_closure.py:108 | Task: 20
+[ALICE] ⚪ `FROZEN_EDGES` is about 55 lines of base85 zlib data that no reviewer can read. map_slice only replaces rows in place or appends them, and I checked that `digest("\n".join(sorted(identities[:202])))` equals `EDGE_SHA` today. That one line could replace the blob. The tradeoff: if someone reorders the map rows, the check fails, but it never passes by mistake. Otherwise move the 202 lines into a plain-text fixture pinned by `EDGE_SHA`. | File: tests/autopilot/test_package.py:32 | Task: 20
+
+R1: fail
+R2: pass
+R3: pass
+R4: pass
+R6: pass
+R7: pass
+R8: pass
+R9: pass
+R10: pass
+R11: pass
+R12: pass
+R13: pass
+
+Notes:
+- **Not flagged:**
+  - About 232 prose mentions mapped as external-capability (for example "run Codex through the `codex-run.sh` helper") are outside the oracle's expected set by design. Only 2 literal invocations are missed: the quoted one above, and `…/statectl.py`, which is already mapped.
+  - The 13 external-capability edges marked `planned` are all frozen pre-existing UTIL rows.
+  - ruff reports I001, SIM905 and PLW1510, but CI does not run ruff and the import layout matches existing house style.
+- **Scratch files:** my probe scripts are in `/tmp/alice-ap12/`. I wrote nothing in the repo.

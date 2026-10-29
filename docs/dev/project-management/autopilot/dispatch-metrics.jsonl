@@ -306,3 +306,7 @@
 {"id":"dd4e1df2","kind":"pat","task":"21","queued_at":1793287189,"prompt_bytes":8768}
 {"id":"dd4e1df2","ended_at":1793287425,"elapsed_s":236,"outcome":"ok","detail":"CLOSURE resolved; NO FINDINGS; archive/provenance20pass."}
 {"kind":"handoff","site":"review","edge":"leave","at":1793288953,"phase":"review","prd":"00012-autopilot-package-contract-v1.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1793289208,"phase":"review","prd":"00012-autopilot-package-contract-v1.md"}
+{"id":"2244e3db","kind":"bob","task":"review-ap00012-c2","queued_at":1793289221,"prompt_bytes":52994}
+{"id":"2244e3db","ended_at":1793289998,"elapsed_s":777,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1793290156,"phase":"review","prd":"00012-autopilot-package-contract-v1.md"}

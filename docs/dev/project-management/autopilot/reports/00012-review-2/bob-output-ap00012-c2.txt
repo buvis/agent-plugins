@@ -1,0 +1,47 @@
+Cycle-2 review of the rework (`3dda8f1..HEAD`): both prior findings are mostly resolved, with three Medium and four Low residual issues. I didn't run any tests. The gate's 104 passes were recorded at d41c4ec, and every commit after that touches only `docs/`.
+
+**Prior findings:**
+- **R1 (changelog blank line):** resolved. The blank line is gone, and the CHANGELOG receipt hash (`44f68ed9…`) matches the file.
+- **R2 (HIGH, missing script edges):** resolved for the helpers Blake named. Each named site now has an external-capability edge, including `consolidate_findings.py` at `lane-solo.md:168` and `review-work-completion/SKILL.md:381`, and `compute_mech_facts.py` at `fast-track/SKILL.md:265`. The 202 frozen identities are kept as a subset. The issues below are what remains of R2.
+
+[BOB] 🟡 The closure oracle misses active script references. Its prose exemption (`decision model|does not use|hand-maintained model`) skips `qwen-integration.md:79` `scripts/work_routing.py`, even though the same paragraph says the output guard calls its classifier. Its verb regex only matches `run|invoke|execute|call`, so "invoking `fablectl.py`" at `model-ladder.md:91` is never found. Both sites have external-capability edges today, but deleting either edge or reclassifying it as informational would still pass. Task 20 required the oracle to catch exactly that. | File: tests/autopilot/test_resource_closure.py:64 | Task: 20
+[BOB] 🟡 62 line-anchored external-capability edges have a capability that only repeats the path: 31 read "Host adapter for <reference>" and 31 equal the reference. One is `lane-solo.md:168` `consolidate_findings.py` (source-map.json:277993), a helper Blake named. All are new in this rework: `git grep` finds 0 "Host adapter for" rows at 3dda8f1 and 31 at HEAD. The contract requires an explicit capability and task 20 a concrete one. The oracle only checks that the field is not empty. | File: tests/autopilot/test_resource_closure.py:100 | Task: 20
+[BOB] 🟡 The deferrals were never reviewed as a set, though task 20 required it. The slices deferred 125 observations, and 122 still have no edge. No disposition appears in rework-completion.md or task20-verification.json. I checked the 3 script entries and none is an active call: `agent-invocation.md:116` says "There is no `fable-run.sh` wrapper", `lane-fast-track.md:26` is an error message, and `model-ladder.md:92` is a section link. Some of the 119 non-script entries are host capabilities with no edge: `model-ladder.md:89` autoclaude, `:167` `~/.codex/hooks.json`, `:173` settings.json, `phase-review.md:145` and `:168` AskUserQuestion. The same capabilities are mapped at other sites (`use-sonnet/SKILL.md:31`, `state-schema.md:217`). | File: docs/dev/project-management/autopilot/reports/00012-recovery/rework-completion.md | Task: 20
+[BOB] 🟡 The [MECH] line "test_dependency_mutations has no assertion" is a false positive: line 124 aliases the asserts (`eq, yes = self.assertEqual, self.assertTrue`), which hides them from the detector. The test does assert. | File: tests/autopilot/test_resource_closure.py:124 | Task: 20
+[BOB] ⚪ Two external-capability rows still carry the stale informational rule "Historical/source citation only; must not supply missing runtime content.": `dashboard-format.md:10` `scripts/tracon/` (source-map.json:273894), which is the active dashboard, and `:30` `scripts/README.md`. This is the task-28 contradiction the operator asked to resolve, and no check rejects `runtime_rule` on rows that are not informational. | File: tools/autopilot/source-map.json:273894 | Task: 20
+[BOB] ⚪ `except UnicodeDecodeError: continue` silently drops a file from the closure scan. Every package file is text (.md, .json, `autopilot.py`, LICENSE), so the guard covers a case that can't happen now and would hide a file if one appeared. | File: tests/autopilot/test_resource_closure.py:40 | Task: 20
+[BOB] ⚪ `FROZEN_EDGES` is a 58-line base85+zlib blob. The EDGE_SHA digest proves it is intact, but no reviewer can read which 202 identities are frozen. | File: tests/autopilot/test_package.py:30 | Task: 20
+
+R1: pass
+R2: fail
+R3: pass
+R4: pass
+R6: pass
+R7: pass
+R8: pass
+R9: fail
+R10: fail
+R11: pass
+R12: pass
+R13: pass
+
+FIX:
+- Oracle misses active references — tests/autopilot/test_resource_closure.py:64 — widen the verb regex at line 58 to `(?i)\b(?:run|invok|execut|call)\w*(?: the)?$`. Replace the phrase-based `cite` test with an explicit frozen set of reviewed citation sites `(src, line, ref)`, built from today's phrase hits minus `skills/work/references/qwen-integration.md:79`. Add mutation cases that delete the edges at `qwen-integration.md:79` and `model-ladder.md:91` and expect errors.
+- Capability fields that only repeat the path — tests/autopilot/test_resource_closure.py:100 — rewrite the 62 capability strings as functional descriptions, the way `review-work-completion/SKILL.md:381` reads "Merge reviewer findings, consensus and ledger dismissals." Do it in `map_slice.py` slices under the 24 KB diff limit. Then make `closure_errors` reject a capability that equals the reference, contains it, or starts with "Host adapter for ".
+- Deferrals not reviewed — docs/dev/project-management/autopilot/reports/00012-recovery/rework-completion.md:5 — write a deferral disposition file that lists each of the 122 unmapped observations as mapped, informational with a reason, or outside the script-closure scope with an owner PRD. Add external-capability/unavailable edges for the five host-capability sites named above, or record why they are excluded.
+- Aliased asserts — tests/autopilot/test_resource_closure.py:124 — delete the alias line and call `self.assertEqual` and `self.assertTrue` directly.
+- Stale `runtime_rule` on active rows — tools/autopilot/source-map.json:273894 — remove `runtime_rule` from both dashboard-format rows, or reclassify `:30` as informational. Then assert in `closure_errors` that non-informational rows carry no `runtime_rule`.
+- Silent decode skip — tests/autopilot/test_resource_closure.py:38 — remove the try/except so a file that is not UTF-8 fails the test.
+- Unreadable frozen blob — tests/autopilot/test_package.py:30 — move the 202 identity lines into a plain-text fixture next to the test, keep the `len == 202` and EDGE_SHA digest asserts on it, and drop the `base64` and `zlib` imports.
+
+VERIFY:
+- (none)
+
+KNOWN:
+- (none)
+
+D1: pass
+D2: pass
+D3: pass
+D4: pass
+D5: pass

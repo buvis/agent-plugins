@@ -1,0 +1,44 @@
+Done. I traced every rule against the code. The package is faithful to the PRD; I found only four low-severity scope and traceability items.
+
+What I checked myself (not taken from the test gate):
+- `python3 tools/autopilot/check-source.py --source-root …/claude-autopilot` passed: 679 files, 92 assets, 1381 behaviors, 4950 regression cases at the pinned commit.
+- A byte comparison against the pinned source:
+  - All 59 skill references, the 18 personas and `LICENSE` are byte-identical.
+  - Each of the 11 `SKILL.md` files differs only by one inserted 5-line refusal gate after the frontmatter.
+- `python3 scripts/validate.py` passed: 3 packages, 15 skills.
+- `prerequisites.py --prd 00016` exits 1 and lists `00015`, `00020` and `00021` as missing. `--prd 99999` exits 1 and reports it as unknown.
+- The policy matches the pinned source:
+  - Full lane: Alice, Blake and Bob required. Carl joins when Gemini is available. Eve joins when the doubt reviewer is Fable or a Codex implementor took part. Rework cap is 2.
+  - Fast-track: Alice, Blake, Eve and Bob required, Carl conditional, delta pass by Eve only.
+  - Solo: one zero-context Alice review, with Alice also on the delta.
+  - The consensus rubric has no R5; that matches the source rubric.
+- The 55 golden cases cover everything the PRD names: clean rosters, missing and failed roles, missing rubric verdicts, a group pointing at an unknown finding, and stale PRD/tree/scope/input/result bindings under the same policy.
+
+```
+[BLAKE] ⚪ Maintainer tool tools/autopilot/map_slice.py (file locking, atomic rewrite, git diff subprocess) and its tests are not in the PRD's repository structure or exports; it came in with a rework commit (20ca08e) | File: tools/autopilot/map_slice.py:1 | Task: general
+[BLAKE] ⚪ The facade adds an `--out PATH` option (also passed through by export-policy.py); the PRD only names capability output and policy export | File: plugins/autopilot/scripts/autopilot.py:26 | Task: Phase 1 task 3
+[BLAKE] ⚪ PyYAML added as a test dependency for the CI wiring test; the PRD names only test-only jsonschema (and pytest through the test command) | File: tools/autopilot/requirements-test.txt:3 | Task: Phase 2 task 2
+[BLAKE] ⚪ Three named acceptance scenarios (source_inventory_mapping, review_schema, package_self_contained) have no test or source-map ID with that name; the others appear inside longer test names. Tracing them needs judgment, and the target-only tests copy committed HEAD via `git archive`, so they need git and do not see working-tree edits | File: tests/autopilot/test_package.py:129 | Task: general
+```
+
+B1: pass
+B2: pass
+B3: pass
+B4: pass
+B5: pass
+B6: fail
+B7: fail
+B8: fail
+B9: pass
+B10: pass
+B11: pass
+B12: pass
+B13: pass
+B14: pass
+B15: pass
+B16: pass
+B17: pass
+B18: pass
+B19: pass
+
+The comparison script is still at `/tmp/blake-audit/compare.py`. I left it because every `rm` needs warden approval.

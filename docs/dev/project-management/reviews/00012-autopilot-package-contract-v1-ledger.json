@@ -142,5 +142,109 @@
     "issue": "The only semantic validator is the test oracle; there is no runtime one. This is by design: task 14 forbids a validator runtime, and AP 00020 owns it.",
     "file": "tests/autopilot/test_contract_semantics.py:269",
     "reason": "Known intended boundary: AP00020 owns runtime semantic validation; this PRD deliberately ships only a test oracle."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The [MECH] line \"test_dependency_mutations has no assertion\" is a false positive: `eq, yes = self.assertEqual, self.assertTrue` renames the assert methods, so the detector cannot see them. The test does assert. Call `self.assertEqual` and `self.assertTrue` directly and drop the alias line. That is easier to read and clears the MECH line.",
+    "file": "tests/autopilot/test_resource_closure.py:124",
+    "reason": "False positive: bound self.assertEqual/self.assertTrue aliases execute real unittest assertions; no missing assertion."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "`dependencies()` misses script invocations whose path is in quotes. `prefix = line[:match.start()].rstrip(\"`` ` `` \")` strips backticks and spaces but not `\"` or `'`. So `` `caffeinate -is python3 \"$_skill/cli/__main__.py\" wave run \"$@\"` `` at skills/run-autopilot/references/waves.md:243 never matches `COMMAND`. I checked by deleting that edge from the map: `closure_errors` still returns `[]` and every test passes. Changing the strip set to ``rstrip(\"`\\\"' \")`` closes the gap: with that change the current map still has 0 errors, and deleting the edge gives `edge count 0`. Add a `python3 \"scripts/x.py\"` case to `test_dependency_mutations`",
+    "file": "tests/autopilot/test_resource_closure.py:56",
+    "reason": "single-voice; retained limitation/observation, no fix task under canonical Medium/Low rule."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "`GATE_SIZE` and `GATE_SHA` are defined twice, in test_resource_closure.py:13-14 and tests/autopilot/test_package.py:87-88. test_package.py already does `from test_resource_closure import closure_errors`, so it can import both constants from there and delete its own copies.",
+    "file": "tests/autopilot/test_resource_closure.py:13",
+    "reason": "single-voice; retained limitation/observation, no fix task under canonical Medium/Low rule."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The `failure_rule` check for packaged-resource edges sits after the if/elif chain and repeats the `kind == \"packaged-resource\"` test. Move it into the `if kind == \"packaged-resource\":` branch at line 94; behavior is unchanged.",
+    "file": "tests/autopilot/test_resource_closure.py:108",
+    "reason": "single-voice; retained limitation/observation, no fix task under canonical Medium/Low rule."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The closure oracle misses active script references. Its prose exemption (`decision model|does not use|hand-maintained model`) skips `qwen-integration.md:79` `scripts/work_routing.py`, even though the same paragraph says the output guard calls its classifier. Its verb regex only matches `run|invoke|execute|call`, so \"invoking `fablectl.py`\" at `model-ladder.md:91` is never found. Both sites have external-capability edges today, but deleting either edge or reclassifying it as informational would still pass. Task 20 required the oracle to catch exactly that.",
+    "file": "tests/autopilot/test_resource_closure.py:64",
+    "reason": "single-voice; retained limitation/observation, no fix task under canonical Medium/Low rule."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "62 line-anchored external-capability edges have a capability that only repeats the path: 31 read \"Host adapter for <reference>\" and 31 equal the reference. One is `lane-solo.md:168` `consolidate_findings.py` (source-map.json:277993), a helper Blake named. All are new in this rework: `git grep` finds 0 \"Host adapter for\" rows at 3dda8f1 and 31 at HEAD. The contract requires an explicit capability and task 20 a concrete one. The oracle only checks that the field is not empty.",
+    "file": "tests/autopilot/test_resource_closure.py:100",
+    "reason": "single-voice; retained limitation/observation, no fix task under canonical Medium/Low rule."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The deferrals were never reviewed as a set, though task 20 required it. The slices deferred 125 observations, and 122 still have no edge. No disposition appears in rework-completion.md or task20-verification.json. I checked the 3 script entries and none is an active call: `agent-invocation.md:116` says \"There is no `fable-run.sh` wrapper\", `lane-fast-track.md:26` is an error message, and `model-ladder.md:92` is a section link. Some of the 119 non-script entries are host capabilities with no edge: `model-ladder.md:89` autoclaude, `:167` `~/.codex/hooks.json`, `:173` settings.json, `phase-review.md:145` and `:168` AskUserQuestion. The same capabilities are mapped at other sites (`use-sonnet/SKILL.md:31`, `state-schema.md:217`).",
+    "file": "docs/dev/project-management/autopilot/reports/00012-recovery/rework-completion.md",
+    "reason": "single-voice; retained limitation/observation, no fix task under canonical Medium/Low rule."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Maintainer tool tools/autopilot/map_slice.py (file locking, atomic rewrite, git diff subprocess) and its tests are not in the PRD's repository structure or exports; it came in with a rework commit (20ca08e)",
+    "file": "tools/autopilot/map_slice.py:1",
+    "reason": "single-voice; retained limitation/observation, no fix task under canonical Medium/Low rule."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The facade adds an `--out PATH` option (also passed through by export-policy.py); the PRD only names capability output and policy export",
+    "file": "plugins/autopilot/scripts/autopilot.py:26",
+    "reason": "single-voice; retained limitation/observation, no fix task under canonical Medium/Low rule."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "PyYAML added as a test dependency for the CI wiring test; the PRD names only test-only jsonschema (and pytest through the test command)",
+    "file": "tools/autopilot/requirements-test.txt:3",
+    "reason": "single-voice; retained limitation/observation, no fix task under canonical Medium/Low rule."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Three named acceptance scenarios (source_inventory_mapping, review_schema, package_self_contained) have no test or source-map ID with that name; the others appear inside longer test names. Tracing them needs judgment, and the target-only tests copy committed HEAD via `git archive`, so they need git and do not see working-tree edits",
+    "file": "tests/autopilot/test_package.py:129",
+    "reason": "single-voice; retained limitation/observation, no fix task under canonical Medium/Low rule."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Two external-capability rows still carry the stale informational rule \"Historical/source citation only; must not supply missing runtime content.\": `dashboard-format.md:10` `scripts/tracon/` (source-map.json:273894), which is the active dashboard, and `:30` `scripts/README.md`. This is the task-28 contradiction the operator asked to resolve, and no check rejects `runtime_rule` on rows that are not informational.",
+    "file": "tools/autopilot/source-map.json:273894",
+    "reason": "single-voice; retained limitation/observation, no fix task under canonical Medium/Low rule."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`except UnicodeDecodeError: continue` silently drops a file from the closure scan. Every package file is text (.md, .json, `autopilot.py`, LICENSE), so the guard covers a case that can't happen now and would hide a file if one appeared.",
+    "file": "tests/autopilot/test_resource_closure.py:40",
+    "reason": "single-voice; retained limitation/observation, no fix task under canonical Medium/Low rule."
   }
 ]
