@@ -274240,25 +274240,31 @@
       "source_path": "skills/run-autopilot/references/state-schema.md",
       "source_line": 189,
       "reference": "references/recovery.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "resolved",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/recovery.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "reason": "Runtime guidance for the task model, escalation, or solo-lane attempt semantics described in this schema row."
     },
     {
       "source_path": "skills/run-autopilot/references/state-schema.md",
       "source_line": 189,
       "reference": "references/phase-review.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "resolved",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/phase-review.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "reason": "Runtime guidance for the task model, escalation, or solo-lane attempt semantics described in this schema row."
     },
     {
       "source_path": "skills/run-autopilot/references/state-schema.md",
       "source_line": 190,
       "reference": "references/lane-solo.md",
-      "kind": "informational-provenance",
-      "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "kind": "packaged-resource",
+      "status": "resolved",
+      "destination_path": "plugins/autopilot/skills/run-autopilot/references/lane-solo.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "reason": "Runtime guidance for the task model, escalation, or solo-lane attempt semantics described in this schema row."
     },
     {
       "source_path": "skills/run-autopilot/references/state-schema.md",
@@ -279145,6 +279151,145 @@
       "capability": "Stamp the PRD budget window only for a newly selected PRD or an absent timestamp.",
       "failure_rule": "Refuse the affected entry point before execution while this capability is unavailable; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md"
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 182,
+      "reference": "cli/lane.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify PRD effort lanes from paths, frontmatter overrides, design requirements and card size.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "reason": "Active state-writing, lane-selection, or task verification dependency described by this schema row."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 182,
+      "reference": "cli/records.PER_PRD_RESET_FIELDS",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Define which task and review state fields reset at each PRD transition.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "reason": "Active state-writing, lane-selection, or task verification dependency described by this schema row."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 184,
+      "reference": "lane.RELEASED_LANES",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Identify released effort lanes before selecting the effective lane.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "reason": "Active state-writing, lane-selection, or task verification dependency described by this schema row."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 184,
+      "reference": "cards_from_prd.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Extract bounded task cards from a PRD and refuse uncardable input so the runbook selects the full lane.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "reason": "Active state-writing, lane-selection, or task verification dependency described by this schema row."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 185,
+      "reference": "lane.security_triggered",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Detect security-sensitive changes that require escalation to the full review gate.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "reason": "Active state-writing, lane-selection, or task verification dependency described by this schema row."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 185,
+      "reference": "cli/records.PER_PRD_RESET_FIELDS",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Reset per-PRD escalation state at PRD transitions.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "reason": "Active state-writing, lane-selection, or task verification dependency described by this schema row."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 189,
+      "reference": "classify_tier.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify task model tiers for plan-tasks step 4.7.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "reason": "Active state-writing, lane-selection, or task verification dependency described by this schema row."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 190,
+      "reference": "check_reflow.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Inspect staged files for reflow violations and report affected paths and hunk counts.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "reason": "Active state-writing, lane-selection, or task verification dependency described by this schema row."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 190,
+      "reference": "parse_review.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Validate reviewer replies against the reporting contract and reject invalid output.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this unavailable helper and the source-prescribed fallback; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/run-autopilot/SKILL.md",
+      "reason": "Active state-writing, lane-selection, or task verification dependency described by this schema row."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 190,
+      "reference": "SKILL.md",
+      "kind": "packaged-resource",
+      "status": "resolved",
+      "destination_path": "plugins/autopilot/skills/work/SKILL.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "reason": "Work step 4 defines the dispatch boundary for the latched no-edit probe."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 190,
+      "reference": "work/references/rework-mode.md",
+      "kind": "packaged-resource",
+      "status": "resolved",
+      "destination_path": "plugins/autopilot/skills/work/references/rework-mode.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "reason": "Defines the post-edit ceiling recorded by the micro-lane attempt field."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 190,
+      "reference": "work/references/subagent-dispatch.md",
+      "kind": "packaged-resource",
+      "status": "resolved",
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "reason": "Defines foreground command budgets recorded by the verification field."
+    },
+    {
+      "source_path": "skills/run-autopilot/references/state-schema.md",
+      "source_line": 190,
+      "reference": "work/references/attempt-logging.md",
+      "kind": "packaged-resource",
+      "status": "resolved",
+      "destination_path": "plugins/autopilot/skills/work/references/attempt-logging.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "reason": "Defines attempt field semantics, atomic writes and row ownership."
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
