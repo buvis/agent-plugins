@@ -274688,19 +274688,19 @@
       "source_path": "skills/work/references/design-rationale.md",
       "source_line": 132,
       "reference": "scripts/work_routing.py",
-      "kind": "external-capability",
+      "kind": "informational-provenance",
       "status": "planned",
-      "capability": "scripts/work_routing.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "reason": "Documents the source refactor or its routing-model regression coverage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
     },
     {
       "source_path": "skills/work/references/design-rationale.md",
       "source_line": 133,
       "reference": "scripts/test_work_routing.py",
-      "kind": "external-capability",
+      "kind": "informational-provenance",
       "status": "planned",
-      "capability": "scripts/test_work_routing.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "reason": "Documents the source refactor or its routing-model regression coverage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
     },
     {
       "source_path": "skills/work/references/final-verification.md",
@@ -274746,35 +274746,39 @@
       "source_path": "skills/work/references/gate-failure.md",
       "source_line": 25,
       "reference": "scripts/work_routing.py",
-      "kind": "external-capability",
+      "kind": "informational-provenance",
       "status": "planned",
-      "capability": "scripts/work_routing.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "reason": "Documents the source refactor or its routing-model regression coverage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
     },
     {
       "source_path": "skills/work/references/gate-failure.md",
       "source_line": 25,
       "reference": "scripts/test_work_routing.py",
-      "kind": "external-capability",
+      "kind": "informational-provenance",
       "status": "planned",
-      "capability": "scripts/test_work_routing.py",
-      "failure_rule": "Refuse affected entry point before execution until a supported adapter supplies the source-prescribed fallback or capability."
+      "reason": "Documents the source refactor or its routing-model regression coverage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
     },
     {
       "source_path": "skills/work/references/gate-failure.md",
       "source_line": 110,
       "reference": "references/attempt-logging.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/work/references/attempt-logging.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/gate-failure.md",
       "source_line": 194,
       "reference": "references/style-gate.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/work/references/style-gate.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/gate-failure.md",
@@ -274789,9 +274793,11 @@
       "source_path": "skills/work/references/gate-failure.md",
       "source_line": 228,
       "reference": "references/subagent-dispatch.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/work/references/subagent-dispatch.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/gate-failure.md",
@@ -274822,9 +274828,11 @@
       "source_path": "skills/work/references/per-task-review.md",
       "source_line": 121,
       "reference": "references/attempt-logging.md",
-      "kind": "informational-provenance",
+      "kind": "packaged-resource",
       "status": "planned",
-      "runtime_rule": "Historical/source citation only; must not supply missing runtime content."
+      "destination_path": "plugins/autopilot/skills/work/references/attempt-logging.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     },
     {
       "source_path": "skills/work/references/per-task-review.md",
@@ -281908,6 +281916,314 @@
       "status": "informational",
       "reason": "Historical extraction-table destination or retained prompt citation; not a runtime instruction to load this resource.",
       "runtime_rule": "Citation only; must never supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 87,
+      "reference": "test_fablectl.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Documents the source refactor or its routing-model regression coverage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 88,
+      "reference": "test_dispatch_prose.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Documents the source refactor or its routing-model regression coverage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 90,
+      "reference": "test_dispatch_prose.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Documents the source refactor or its routing-model regression coverage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 96,
+      "reference": "test_fablectl.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Documents the source refactor or its routing-model regression coverage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 97,
+      "reference": "render_prompt.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Documents the source refactor or its routing-model regression coverage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 97,
+      "reference": "test_dispatch_prose.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Documents the source refactor or its routing-model regression coverage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 100,
+      "reference": "work_routing.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Documents the source refactor or its routing-model regression coverage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 136,
+      "reference": "test_work_routing.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Documents the source refactor or its routing-model regression coverage.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/design-rationale.md",
+      "source_line": 87,
+      "reference": "gate-failure.md",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Cites the historical refactor table or an illustrative target-project manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/final-verification.md",
+      "source_line": 18,
+      "reference": "./tests/smoke.sh",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Illustrates a target project verification command or stack manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/final-verification.md",
+      "source_line": 19,
+      "reference": "./tests/integration.sh",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Illustrates a target project verification command or stack manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/final-verification.md",
+      "source_line": 22,
+      "reference": "setup.py",
+      "kind": "informational-provenance",
+      "status": "planned",
+      "reason": "Illustrates a target project verification command or stack manifest.",
+      "runtime_rule": "Informational citation only; must not supply runtime content."
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 35,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/diagnose_task.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Classify a task specification gap using the project root before selecting repair.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 37,
+      "reference": "_walk_up.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Resolve the project root by walking upward to docs/dev/project-management.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 156,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/check_qwen_output.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Check Qwen output against its snapshot and restore changed tests.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 181,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render complete dispatch personas with required placeholders; reject missing fields or empty command output.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 201,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render complete dispatch personas with required placeholders; reject missing fields or empty command output.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 228,
+      "reference": "record_dispatch.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Open dispatch telemetry for a hand-built continuation prompt using its kind, task, and prompt file.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 179,
+      "reference": "ivan.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/ivan.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/gate-failure.md",
+      "source_line": 181,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/agents/ivan.md",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/references/personas/ivan.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/gemini-integration.md",
+      "source_line": 3,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Invoke, resume, and probe Gemini task implementation; record failures and redispatch to Claude at the task tier.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/gemini-integration.md",
+      "source_line": 43,
+      "reference": "gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Invoke, resume, and probe Gemini task implementation; record failures and redispatch to Claude at the task tier.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/gemini-integration.md",
+      "source_line": 115,
+      "reference": "gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Invoke, resume, and probe Gemini task implementation; record failures and redispatch to Claude at the task tier.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/gemini-integration.md",
+      "source_line": 138,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Invoke, resume, and probe Gemini task implementation; record failures and redispatch to Claude at the task tier.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 16,
+      "reference": "skills/work/scripts/work_routing.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Evaluate test_only_gate for the complete task diff before deciding whether per-task review is skipped.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 45,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Run Pat review with a recorded Sonnet session; resume by session id and redispatch full diff on failed or empty resume.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 74,
+      "reference": "render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render complete dispatch personas with required placeholders; reject missing fields or empty command output.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 88,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/render_prompt.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Render complete dispatch personas with required placeholders; reject missing fields or empty command output.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 98,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Run Pat review with a recorded Sonnet session; resume by session id and redispatch full diff on failed or empty resume.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 104,
+      "reference": "parse_review.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Parse Pat review output and enforce its reporting contract before the review severity ladder.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/per-task-review.md",
+      "source_line": 139,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/work/scripts/parse_review.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Parse Pat review output and enforce its reporting contract before the review severity ladder.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "skills/work/references/qwen-integration.md",
+      "source_line": 3,
+      "reference": "~/.agents/skills/use-qwen/scripts/qwen-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Run local Qwen through pi with a live approved model id and file-based task prompt.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
