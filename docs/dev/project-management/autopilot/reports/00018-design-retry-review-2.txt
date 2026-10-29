@@ -1,0 +1,78 @@
+Status: I read the design against the PRD, the umbrella design 00011, pinned OVCAQ `store.py`, the existing facade and the package tests. I'm now reporting. I ran nothing and edited nothing.
+
+**Totals: cardinal-sin 0, blocker 0, non-blocker 8, question 3.** I checked the fifteen cardinal-sin items. Each is either covered or explicitly accepted in the Risks section, with the exceptions noted in findings 1, 2 and 10.
+
+## Findings
+
+```json
+[
+ {"severity":"non-blocker","title":"Intent reconciliation can wedge the workflow with no sanctioned exit",
+  "evidence":"Actors and lease, 'Reconciliation admission': only the identical request, authenticated by the intent's old/new descriptor, may finish an intent. The intent stores the request digest, not the request. Everything else returns recovery_required, and Snapshot never reconciles. The operator exit procedure needs an owner-null snapshot, which an existing intent refuses. owner.release 'revokes owner credentials', but the design never says whether the owner file is deleted before state commit. If it is, a retried release by path cannot authenticate. The operator cannot help, because owner.recover is a different request.",
+  "suggested_fix":"Keep revoked owner files untouched until the cleanup stage. Store the canonical (non-secret) request in the intent so it can be rebuilt. Admit any request authenticated by the operator old/new descriptor already recorded in every epoch-changing intent to complete the intent. Or document an operator 'archive despite intent' step in the README procedure, with a test."},
+
+ {"severity":"non-blocker","title":"Fenced restore is unreachable through the protocol, and corrupt current state has no procedure",
+  "evidence":"Kernel, restore fence: the backup's receipts must equal current. Every successful apply adds a receipt, and the workflow reserves are immutable, so after any operation backup.receipts != current.receipts and restore always refuses. After initialize there is no backup at all. Only a direct StateStore call with a receipt-neutral mutator can exercise 'security-identical backup restore'. Pinned store.py restore() also decodes current first, so corrupt current state was never restorable. The design says only 'operator forensic recovery'.",
+  "suggested_fix":"Say plainly that restore is a test-only primitive, or drop it from the retained surface. Add a README procedure for the corrupt-state case: copy and hash the directory, rename it to the archive, open a new workflow. That case cannot satisfy the exit procedure's owner-null snapshot step."},
+
+ {"severity":"non-blocker","title":"Credential publication inside the store lock is not expressible with the retained StateStore API",
+  "evidence":"Pinned store.py: transaction() acquires the exclusive flock internally, and _locked is private. The design requires 'Never acquire a second flock' and publishes credentials before and around state publication under one lock. It factors a locked entry only for bootstrap initialization. For non-bootstrap operations, the intent write and credential publish either run outside the lock (race) or take a second flock on a new descriptor (flock deadlocks across descriptors in the same process).",
+  "suggested_fix":"Specify the mechanism. Either run intent plus credential publish inside the transaction mutator, using publication_guard to verify credential hashes, or add an internal locked-section entry shared by bootstrap and transaction. Say which one."},
+
+ {"severity":"non-blocker","title":"Error mapping is incomplete for designed refusals, and ID-reuse conflict is marked retryable",
+  "evidence":"Only seven error codes exist, and only revision_conflict is retryable. The design gives no code for: the sealed workflow at 4094/4096 receipts; refusal of an oversized candidate or response; StateIOError, lock failure and DurabilityUnsupportedError; FutureSchemaError. Fresh-open and changed-envelope request_id reuse map to revision_conflict (retryable=true), yet the same ID can never succeed. There is also no audit or diagnostic channel beyond redacted responses, although 'no way to know it's broken' is a cardinal-sin item. Receipts and snapshot are the only evidence.",
+  "suggested_fix":"Add a mapping table, with a test per row. Suggested: capacity and corruption to recovery_required, ID reuse to invalid_request with retryable false, unsupported schema to incompatible_contract. Name stderr or exit-code behaviour for I/O failures. State that flock waits are unbounded and that the caller's deadline is the only bound."},
+
+ {"severity":"non-blocker","title":"Output limit equals the state ceiling, and the exit procedure depends on snapshot at saturation",
+  "evidence":"Protocol: snapshot/response output limit is 16777216. Kernel: MAX_STATE_BYTES is 16777216 and emergency candidates may reach it. The snapshot wrapper plus json.dumps escaping of non-ASCII (stored with ensure_ascii=False) can exceed the limit. The design does not say whether snapshot includes receipt bodies. The exit procedure's 'verify an owner-null snapshot' is needed exactly at saturation. The intent file embeds the full candidate state, but no read bound is stated for it, and store._read_bytes caps at MAX_STATE_BYTES.",
+  "suggested_fix":"Make the output limit greater than the state ceiling plus the wrapper. Or have snapshot return receipt digests and counts instead of bodies. State a bound for intent reads. Test snapshot at the byte-saturation fixture."},
+
+ {"severity":"non-blocker","title":"Python 3.12 floor is not guarded, and the failure collides with exit code 1",
+  "evidence":"The argv is fixed to bare `python3`. The pinned source uses `type Mutator = ...` (3.12 syntax) and StrEnum. On an older python3 the import raises a SyntaxError traceback and exits 1. That is the same code as a structured rejection, with no JSON on stdout.",
+  "suggested_fix":"Keep main.py itself syntax-neutral. Check sys.version_info before importing autopilot_state. On failure, emit a response with incompatible_contract and exit 1. Add an installed-package test with a stubbed older interpreter."},
+
+ {"severity":"non-blocker","title":"Existing package gate will fail: source-map.json is not in module placement",
+  "evidence":"tests/autopilot/test_package.py::test_content_roster_matches_frozen_inventory_and_actual_package_bytes asserts that the set of files under plugins/autopilot equals the destination_path set in tools/autopilot/source-map.json. It also asserts each row's destination_blob_sha256, which covers the README.md and CHANGELOG.md the design edits. assert_authored_owners_and_history pins 21 authored owners by hash. The design lists neither source-map.json nor this test. Running the controller in-tree would also leave __pycache__ files that break the rglob equality.",
+  "suggested_fix":"Add tools/autopilot/source-map.json and the frozen test constants to module placement. Run installed and subprocess tests from a copied root with PYTHONDONTWRITEBYTECODE=1."},
+
+ {"severity":"non-blocker","title":"Reuse inventory misdescribes the export pattern",
+  "evidence":"tools/autopilot/export-policy.py is a 12-line runpy delegate to plugins/autopilot/scripts/autopilot.py. That facade computes an in-band canonical-JSON policy_digest (sorted keys, digest field excluded), not a raw-byte SHA-256. It also resolves its root with Path.resolve() (follows symlinks). The design claims to reuse a 'raw-byte digest/version' pattern, and puts the new exporter outside the plugin under tools/. Both differ from the existing convention.",
+  "suggested_fix":"State that the controller bundle deliberately uses raw-byte digests and a maintainer-only exporter. Say how the runtime contract, which must hash installed bytes, avoids the facade's resolve() symlink-following."},
+
+ {"severity":"question","title":"How does a caller learn project_id before workflow.open?",
+  "evidence":"Fresh open requires a matching project_id, defined as SHA-256 of the resolved root path's UTF-8 bytes. Snapshot on an absent store is unspecified. Callers must reimplement resolution. On macOS, /tmp resolves to /private/tmp, and case-variant spellings yield different IDs. Non-UTF-8 paths are also unaddressed.",
+  "suggested_fix":"Define snapshot on an absent store, for example ok with revision 0 and the project_id. Or have contract accept --project-root and return it."},
+
+ {"severity":"question","title":"Is the 4096-receipt lifetime sized against later families?",
+  "evidence":"The design makes capacity a terminal boundary. The exit procedure archives the workflow and 'never merges identities', so batch, work and task context cannot carry over. There is no estimate of operations per PRD for AP00019-21 (task, job, review, record operations).",
+  "suggested_fix":"Record an ops-per-PRD estimate and the expected workflow lifetime. Or state explicitly that continuity loss at rollover is accepted."},
+
+ {"severity":"question","title":"Envelope rules for job_id and existing workflow.open are unspecified",
+  "evidence":"Only 'Operator job_id is null' is stated. For an owner actor, a non-null job_id is neither accepted nor rejected, and no error code is given (invalid_request or wrong_binding). Whether an existing-workflow.open consumes a receipt slot is not stated. This is a retained dispatch-3 concern.",
+  "suggested_fix":"Require job_id null for all kernel actors, with a negative fixture. Say whether a no-op open writes a receipt."}
+]
+```
+
+## Checked-correct notes and engagement
+
+- **StateStore, pinned `store.py` at `cf8be72`:**
+  - **Matches the source:** the retained API, the six boundaries, the flock/NOFOLLOW/single-link checks, the bounded reads and the fsync-before-replace behaviour.
+  - **Repair and CAS:** `_commit_pair` repairs the pair on failure. CAS uses `_check_revision`.
+  - **Revision handling:** `transaction` sets `revision = current + 1` itself, so a candidate stored in the intent must carry revision old+1. The design is consistent with this.
+  - **Create-only init:** this is done with `os.link` in `initialize`.
+  - **Restore fence:** it does block the epoch rollback and credential resurrection that the earlier dispatch found. Only its reachability is in question, per finding 2.
+- **Contract A (PRD 00018 and umbrella 00011):**
+  - **Envelope and response:** the fields match exactly.
+  - **Errors and CLI:** the seven error codes, the CLI suffixes and the argv match.
+  - **Bundle:** the bundle keys and types match the PRD. Bootstrap returns a path and never a secret.
+  - **Replay:** the replay semantics follow 00011 line 60.
+- **Package facade, `plugin.json` and `validate.py`:**
+  - **Manifest version:** it is 0.10.0, which is the source for `package_version`.
+  - **Validator:** `scripts/validate.py` does not constrain a `controller/` directory, and `scripts/` is existing precedent.
+  - **Unaffected by this PRD:** `export-policy.py` and the facade stay as they are.
+- **Lost-ack walk-through (owner.acquire):**
+  - **Operator rotation:** the operator rotates in place. A retry with the current file at a later epoch retrieves the original receipt using the historical envelope.
+  - **No new mutation:** that path grants no new mutation authority. This holds.
+- **Capacity arithmetic:**
+  - **Sizes:** 14 MiB + 2 MiB = 16 MiB.
+  - **Emergency growth:** at most two responses of 64 KiB plus two descriptors, far inside the reserve.
+  - **Second reserve slot:** it is never usable, because the first clearing operation leaves no owner. This is harmless, and one slot would suffice.

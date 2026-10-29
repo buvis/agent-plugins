@@ -136,3 +136,9 @@ GitHub refresh: zero open issues or PRs, no releases, latest master Validate suc
 AP00013 is in hold after the mandatory check-plan exited 3 for module_drift. The 11-task plan is below the count ceiling and has expansion 2.20; four module groups contain paths not explicitly listed in the PRD. File-only tree entries grant exact paths, not their implicit parent directories. No implementation started and no package code changed. The completed three-dispatch design, raw failed external dispatch, native fallback findings, final external findings and complete task snapshot remain durable. No gate override or cap increase occurred. The canonical stall leaves phase/next_phase build, allowing a fresh session to select the next eligible backlog PRD.
 
 Repository validation passed: 3 plugin packages and 15 skills. Recovery evidence: reviews/00013-plan-gate-stall.md; autopilot/reports/00013-plan-before-stall.json; autopilot/split-notes/00013-autopilot-session-helpers-v1.md.
+
+## 2026-10-30 AP00018 build catchup
+
+AP00018 is selected in wip on master; no implementation tasks exist. AP00013 remains held. The kernel must extract pinned OVCAQ workflow transactions without process/TUI dependencies; later lifecycle/review/records families stay unavailable until implemented. Contract A and the immutable bundle are producer-owned. All canaries use temporary roots.
+
+GitHub: zero open issues/PRs, no releases; latest recorded master Validate succeeded, no failed master runs. Related-context topic: Autopilot canonical controller kernel and protocol. Repo/portfolio hits point to AP00018 overview (0.0328), integration (0.0304/0.0311), Kernel (0.0161), Protocol (0.0159). Index refresh failed with database locked; queries may be stale. Portfolio memory stale24/dead1, code stale80/dead1466, PRD dead3115. Review harvest partially succeeded; older/scratch files lack frontmatter. Task restore: no_tasks_dir.

@@ -1,0 +1,99 @@
+No cardinal sins. Rollback, secret handling, bounded resources, versioning, owner and alternatives are all present, though some are weak (see findings). I found 3 blockers, 8 non-blockers and 4 questions. I ran no code and changed no files.
+
+## Interface engagement
+
+- **Kernel `StateStore` / `autopilot_state.schema`:** I traced the lock, backup and restore invariants against the receipt and capacity limits (Findings 3, 10, 12). Not checked: the OVCAQ pin `cf8be72`, because that checkout isn't in this repo.
+- **CLI protocol (`contract`, `snapshot`, `apply`; envelope, response, error codes):** I traced every failure scenario named in the test strategy to one of the seven codes (Finding 5).
+- **Actors, lease and `credential-intent.json`:** I walked the crash and lost-ack paths for acquire, release, recover and bootstrap (Findings 1, 2, 6, 9).
+- **Export bundle and exporter:** I checked the design against the repo. `tools/autopilot/export-policy.py` is a 12-line delegate to `plugins/autopilot/scripts/autopilot.py --export-policy`, and the sha256 logic lives in that script (Finding 7). `tests/autopilot/test_package.py:260-278` asserts that the package file set equals the `source-map.json` assets (Finding 8).
+
+## Findings
+
+```
+{severity: blocker,
+ title: "Lost-ack replay fails after in-place operator credential rotation",
+ evidence: "Actors/lease: the operator keeps a stable actor_id and its 'new secret replaces the old secret'. Replay: an identical request is served only to 'a credential matching the receipt's authorizing descriptor'. Fixtures: 'the original caller can retrieve the exact receipt using its historical credential'. After a lost acknowledgement for owner.acquire, owner.release or owner.recover, the caller holds only the file now on disk, which carries the new secret. That secret matches the current descriptor, not the old authorizing one, so authentication fails. The old secret exists only in rollback files that are deleted at cleanup. lost_ack_replay therefore cannot pass for operator-initiated operations, and the sentence about the historical credential contradicts the rotation rule.",
+ suggested_fix: "Choose one. (a) Receipt retrieval for an identical envelope accepts any descriptor of the same actor_id and role whose epoch is at or after the authorizing epoch. (b) Write operator credentials to per-epoch file paths, never overwrite, and return the path. Then state which one the lost_ack_replay and fresh_open_replay fixtures use."}
+
+{severity: blocker,
+ title: "Plaintext credentials sit inside the project tree with no VCS guard",
+ evidence: "Kernel: the store is '<project-root>/.autopilot/controller/' and 'actors/' holds credential files with plaintext secrets, 0600. Nothing says the store is ignored by git (no .gitignore, no info/exclude). This repo's AGENTS.md forbids committing agent-private folders and relies on conventions. A 'git add -A' by the operator or an agent would commit bearer secrets, including the operator recovery credential. A Risks line says credentials stop only accidental cross-role use, but the leak path through git is accidental too.",
+ suggested_fix: "On store creation, write '.autopilot/controller/.gitignore' containing '*' (0600, create-only). Add a test that 'git check-ignore' covers state.json and actors/*. Document it in README."}
+
+{severity: blocker,
+ title: "Capacity limits wedge the workflow permanently, with no exit path",
+ evidence: "Kernel: actors and receipts are 'bound to 256/4096 entries; refuse growth rather than evicting replay evidence'. Protocol: 'Retain each receipt's original authorizing digest and response until explicit future migration.' Every acquire adds an owner actor, and every epoch change rotates a descriptor. If rotated descriptors are retained for historical receipt auth, roughly 100 to 250 acquire/release cycles exhaust 256 actors. Receipts are consumed by every future operation; AP00019 and later add about 20 operation names, so 4096 is reachable in one long batch. Past the cap, owner.acquire and owner.recover are refused, and recovery needs a migration that does not exist. This is 'figure it out later' on an availability and data-integrity concern, and the operator's own recovery path is affected.",
+ suggested_fix: "Define a compaction or archive operation now: an operator-only 'receipts.archive' that moves old receipts to an append-only sidecar and keeps a digest chain. Or state that operator.recover and release are always admitted past the cap, and give per-actor retention rules (for example, drop descriptors that no receipt references). Alternatively, name the AP that owns the migration and add a refusal fixture for the cap."}
+
+{severity: non-blocker,
+ title: "Project identity breaks on any move or rename of the repo",
+ evidence: "Kernel: project_id is the SHA-256 of the resolved root path. 'Relocating an existing project requires explicit future migration, not identity rewriting.' After mv or rename the controller returns wrong_binding forever, and git worktrees get distinct identities. Recovery is deferred ('future migration'), and repo moves are common.",
+ suggested_fix: "Add an operator-only 'workflow.rebind' to the closed reserved-name list, or at minimum document the manual procedure and add a fixture that shows the refusal. Consider deriving project_id from a generated UUID stored in state, with repo_root as a checked hint."}
+
+{severity: non-blocker,
+ title: "Failure scenarios do not map to the seven error codes, and one mapping is wrong",
+ evidence: "Protocol: no code is assigned for a bad credential secret, scope violation (owner calling recover), epoch_revoked, owner-exists conflict, or I/O and ENOSPC failures. missing_capability doubles as 'unsupported operation' and may also be used for scope. Fresh-open: 'conflicting ID returns revision_conflict', but revision_conflict is the only retryable code, so a supervisor retries a permanently conflicting request_id forever. The reuse of a request_id with a different digest has no code either.",
+ suggested_fix: "Add a scenario-to-code table to workflow-v1.json and the design. Examples: bad secret or wrong actor gives wrong_binding; non-owner recover gives missing_capability, or add an 'unauthorized' code. request_id reuse with a changed digest gives invalid_request, not retryable. Reserve revision_conflict for CAS only."}
+
+{severity: non-blocker,
+ title: "Snapshot has no defined locking and can report a false recovery_required",
+ evidence: "Protocol: 'Snapshot never reconciles; it reports recovery_required while an intent exists.' Credential-changing operations create the intent while holding the store lock, so a snapshot that does not take the lock sees a healthy in-flight operation as a crash. The design never says whether snapshot takes the lock. If it does, a hung holder blocks snapshot as well. Snapshot also needs no actor, so any local process can read workflow state, which the Risks section accepts.",
+ suggested_fix: "Specify that snapshot takes a bounded shared-lock attempt and returns retryable 'revision_conflict' (or similar) on timeout. Report recovery_required only when the intent is present and the lock is acquired. Add a concurrent snapshot-versus-acquire test."}
+
+{severity: non-blocker,
+ title: "Reuse inventory points at the wrong file; the exporter may duplicate digest logic",
+ evidence: "Reuse inventory cites tools/autopilot/export-policy.py for 'raw-byte digest/version' patterns. That file is a 12-line runpy delegate. The sha256 verification lives in plugins/autopilot/scripts/autopilot.py (about line 57) behind '--export-policy'. The design adds a standalone tools/autopilot/export-controller-contract.py with no stated link to that facade.",
+ suggested_fix: "State whether the controller export is a '--export-controller-contract' mode in the facade (the existing pattern) or a standalone script. Cite scripts/autopilot.py as the reuse source."}
+
+{severity: non-blocker,
+ title: "Adding controller files will break the package-roster and README tests unless updated",
+ evidence: "tests/autopilot/test_package.py:275-278 asserts that rglob('*') files equal the source-map.json assets, with per-asset blob sha256. The design lists about 12 new runtime and bundle files plus README and CHANGELOG edits and does not mention updating source-map.json or its digests. test_package.py:225 requires the 'What intentionally stays out' README section to match controller|host|external|unavailable, and the README now ships a controller. Running python3 main.py also writes __pycache__ into the plugin root, which the roster test would count.",
+ suggested_fix: "Add roster, source-map and README-section updates to the module placement and test strategy. Run the controller with PYTHONDONTWRITEBYTECODE=1 in tests and ignore __pycache__ in the roster."}
+
+{severity: non-blocker,
+ title: "Rollback copies have no defined consumer",
+ evidence: "Actors/lease: the design stages 'rollback copies' of old credentials, but it defines only forward reconciliation or recovery_required with retained evidence. No path ever restores from a rollback copy. The copies are plaintext revoked secrets that sit in actors/ until cleanup, and they add write amplification.",
+ suggested_fix: "Define the rollback path (when, who, which fixture), or drop rollback copies and keep only intent plus staged new bytes."}
+
+{severity: non-blocker,
+ title: "No lock timeout, and no code for unexpected I/O failure",
+ evidence: "Kernel retains the exclusive flock but states no timeout. The protocol says CLI callers must bound execution time and tests use 30 seconds, but the controller has no bounded-wait rule. A hung or paused holder stalls every other apply. The seven error codes have no entry for ENOSPC, EIO or a permission error mid-publication, and a raw traceback conflicts with 'Exit 1 for structured rejection'.",
+ suggested_fix: "Add a bounded non-blocking flock retry (for example 5 seconds) that returns a retryable result. Map unexpected OSError to recovery_required if an intent exists; otherwise use an explicit internal-error code, or document that it is an uncaught exit code 1 with a redacted message."}
+
+{severity: non-blocker,
+ title: "No observability for operations or recovery events",
+ evidence: "The Data flow and Risks sections define no audit trail, log or metric. Failed reconciliations, recovery_required states, restores and epoch changes have no operator-visible record beyond the response. The only record is the receipts map, and rejected calls deliberately leave no receipt. Bob is named owner of recovery, but the only way to learn that something broke is to run snapshot.",
+ suggested_fix: "Add an append-only 0600 'events.jsonl' next to the state. Cap its size and keep it secret-free, with one line per rejection and per reconcile or restore. At minimum, add a 'health' field in snapshot (intent present, backup validity, receipt and actor capacity usage)."}
+
+{severity: non-blocker,
+ title: "macOS durability and platform baseline are underspecified",
+ evidence: "Kernel: 'fsync-before-replace' and 'Unsupported directory fsync refuses explicitly.' On macOS (the maintainer platform), fsync does not flush the drive cache; F_FULLFSYNC does. The Risks section requires POSIX but names no Unix baseline declaration. The source-map reason says 'fcntl/process-group behavior requires a declared Unix baseline'. On Windows, 'import fcntl' fails at import, so even 'contract' would crash with a traceback instead of structured output.",
+ suggested_fix: "State whether F_FULLFSYNC is used on Darwin. Guard the fcntl import in main.py so that 'contract' still works and 'apply' returns a structured refusal. Declare the Unix baseline in README and plugin metadata."}
+
+{severity: question,
+ title: "Python floor and interpreter selection",
+ evidence: "Kernel: the floor is 3.12, but the argv is a literal 'python3'. The source map (about line 38738 of tools/autopilot/source-map.json) records the legacy requirement as 'python3 (>= 3.11)'. A host whose python3 is older than 3.12 fails with a SyntaxError or ImportError traceback.",
+ suggested_fix: "Add a sys.version_info check first in main.py with exit code 2 and a bounded message. State whether the 3.12 floor intentionally exceeds the legacy 3.11."}
+
+{severity: question,
+ title: "Canonical request digest is unspecified",
+ evidence: "Protocol: receipts store the 'canonical request digest' over the complete envelope, including expected_revision. The canonical form is not defined (key order, separators, ensure_ascii, Unicode normalization, integer form). Digest drift between implementations or versions silently turns a replay into a conflict.",
+ suggested_fix: "Freeze the form: json.dumps(sort_keys=True, separators=(',', ':'), ensure_ascii=False) encoded as UTF-8, or RFC 8785. Add a digest golden fixture to fixtures-v1.json."}
+
+{severity: question,
+ title: "Operator credential loss has no recovery path; '+<build>' is unowned",
+ evidence: "Actors/lease: recovery authority is the operator credential only. If it is deleted, or its epoch is stale after a lost rotation without an intent, the design offers only 'operator forensic recovery'. Export: 'package version may add +<build> only', but it never says who appends the suffix, and the exporter writes package_version equal to the plugin manifest version.",
+ suggested_fix: "Document a manual operator-credential reissue procedure (filesystem-level, with an explicit audit event), or say it is unsupported. State who adds +<build> and add a bundle-match test that tolerates it."}
+
+{severity: question,
+ title: "Existing-workflow workflow.open semantics",
+ evidence: "Protocol: 'Existing workflow.open requires a valid actor and all existing bindings; it cannot reset or acquire ownership.' It is unclear whether it needs expected_revision to equal the current revision, whether it creates a receipt (and so bumps the revision), and what result it returns (the operator path for a non-operator actor?). The fresh-open path sets revision 0 and a receipt together, which breaks the assumption that every receipt corresponds to a revision increment.",
+ suggested_fix: "State that existing-workflow open is a read-only check with no receipt, or give its revision and receipt rules. Add fixtures for both paths."}
+```
+
+## Checked and correct
+
+- **Kernel:** The closed top-level keys, the reserved workflow object with no generic setter, and the explicit bans on process and PID fields are consistent with the stated extraction boundary and with Alternatives 1 and 2.
+- **Protocol:** Reserved operation names return missing_capability without writes, and unknown operations return invalid_request. Together with "advertises only workflow.core.v1", that gives a clean versioning story.
+- **Actors/lease:** Secrets are generated with `secrets.token_urlsafe(32)`, stored as digests, and compared with `hmac.compare_digest`. Intents contain no plaintext secrets. A successful receipt is not emitted before the final credential files match the descriptors.
+- **Export:** The bundle has exactly six keys, with digests over raw bytes, a symlink-free read, and deterministic export that does not read live workflow state.

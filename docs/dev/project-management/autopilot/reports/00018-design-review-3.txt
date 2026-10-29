@@ -1,0 +1,132 @@
+Cardinal sins: 0. Blockers: 1. Non-blockers: 4. Questions: 4. The three prior blockers are fixed. I read the pinned OVCAQ `store.py` with `git show cf8be72…:src/ovcaq/state/store.py` and checked the draft against it. I ran nothing else and edited nothing.
+
+## Prior blockers
+
+**Rotation loses replay credentials: fixed.**
+- Receipts keep the authorizing digest and the original response.
+- The recorded request can be retrieved with the historical credential, or with the current credential of the same actor and role at an epoch no earlier than the authorizing epoch.
+- I traced a lost acknowledgement for `owner.acquire`: the caller reopens the in-place operator path, which now holds epoch N+1, and gets the receipt.
+- I traced `owner.release`: the owner descriptor is gone, but the historical digest in the receipt still matches.
+- A residual question remains (Q1 below).
+
+**Git can stage plaintext secrets: fixed.**
+- `Interfaces & contracts > Kernel` now creates the `*` ignore files before any credential exists.
+- The `*` file ignores itself.
+- A deeper `.gitignore` outranks parent and global rules.
+- Only `git add -f` bypasses it, which is acceptable under the stated threat model: "prevent accidental cross-role use".
+- A side effect remains (NB4 below).
+
+**Capacity has no recovery exit: fixed by count, not by bytes.**
+- `Kernel > receipts` reserves slots 4095 and 4096 for `owner.release` and `owner.recover`.
+- Those two can clear an owner but never acquire one.
+- A sealed workflow still allows receipt retrieval and snapshot.
+- The ordered archive, hash-verify, rename and re-open procedure is coherent, and the archive rename is guarded by the ancestor inode recheck.
+- The byte side is open (NB1 below).
+
+## Findings
+
+```json
+[
+  {
+    "severity": "blocker",
+    "title": "StateStore.restore breaks the epoch/credential fence and is the stated rollback plan",
+    "evidence": "Risks says 'Backup/restore tests and immutable package rollback provide recovery'. Kernel retains restore() 'matching source'. In the pinned store, _commit_pair writes backup_bytes=current_raw, so .bak is the previous revision. restore() only runs precondition(current) and then swaps the pair. Actors: every epoch-changing op rotates the operator secret in place and writes new owner files. Restoring across such a revision brings back old descriptor digests while the files on disk hold new secrets.",
+    "failure_scenario": "owner.release/recover/acquire commits at revision N and rotates the operator file. An operator then calls restore() to revert a bad revision. (1) The operator file no longer matches the restored descriptor, so every apply is refused and the operator is locked out. (2) lease_epoch goes backwards, breaking the 'increases' invariant. (3) The revoked owner's retained file matches the resurrected descriptor and regains authority. (4) Receipts from revision N vanish, so lost-ack replay fails. restore() cannot catch this because precondition receives only current.",
+    "suggested_fix": "Make restore a controller-level offline operator procedure, not a bare StateStore call. Decode the backup first. Refuse unless backup lease_epoch and actor descriptors equal current and no credential intent exists. Needs a store hook that sees the backup. Otherwise redefine the rollback plan as package rollback plus archive and new workflow, with restore forensic-only. Add a test: acquire, then restore, must refuse."
+  },
+  {
+    "severity": "non-blocker",
+    "title": "Receipt reserve is count-based only; byte ceiling can seal before 4094 and strand an owner",
+    "evidence": "Kernel: MAX_STATE_BYTES = 16777216; the 4094/4096 reserve counts entries. Pinned _canonical_bytes writes indent=2 JSON and raises ResourceLimitError over the limit. Receipts store complete responses. owner.acquire/recover responses carry absolute actor_file and operator_actor_file paths. The reserve is never specified in bytes.",
+    "failure_scenario": "Project root near PATH_MAX (about 4 KB) makes each acquire response over 8 KB. State reaches 16 MB at roughly 1.9k receipts. The next owner.release fails with ResourceLimitError, because the reserve slots are not reachable by count. An active owner cannot be cleared and the exit procedure cannot start.",
+    "suggested_fix": "Return and store project-relative paths. Admit normal operations only while serialized size plus a worst-case release/recover receipt stays under MAX_STATE_BYTES. Add a test with a maximal root path and a saturation-by-bytes scenario."
+  },
+  {
+    "severity": "non-blocker",
+    "title": "Pending credential intent can only be finished by the identical request; no operator abort or completion path",
+    "evidence": "Actors: the intent keeps only the canonical request digest. Reconciliation requires 'the identical intent request authenticated by its recorded old/new descriptor'. Rollback copies are staged but never used (retained non-blocker). Snapshot never reconciles.",
+    "failure_scenario": "The process dies after the intent is persisted and the caller's request file is deleted (temp cleanup, host crash). Every later apply returns recovery_required. The state is not corrupt, but nothing in the design can complete or abort the workflow. Only manual forensics remain.",
+    "suggested_fix": "Document that clients must keep the request file until the response is seen. Better: store the non-secret envelope in the intent so an operator authenticated by the old or new descriptor can complete it. Or define an explicit operator rollback that uses the staged rollback copies."
+  },
+  {
+    "severity": "non-blocker",
+    "title": "Credential publication placement relative to StateStore.transaction is unspecified",
+    "evidence": "Actors: 'Never acquire a second flock'; sequence is stage, intent, publish credentials, then state via StateStore. In the pinned store, transaction() takes the lock itself, runs the mutator after the CAS check, and publication_guard fires at all six boundaries and must not lock. A guard failure repairs the pair back to old state.",
+    "failure_scenario": "An implementer puts credential I/O in publication_guard. It then runs three or six times, including after STATE_REPLACED, and a failure there repairs state while credentials are already replaced. Or the intent is written outside the lock and races a concurrent writer.",
+    "suggested_fix": "State that intent persistence and credential publication run inside the mutator under the store lock. The guard only rechecks. Fixtures should cover failure at each of the six boundaries with credentials already published."
+  },
+  {
+    "severity": "non-blocker",
+    "title": "Parent .autopilot/.gitignore with '*' and refuse-if-incompatible makes controller opt-in fragile",
+    "evidence": "Kernel: both .autopilot/ and the controller dir get '*' ignore files, and an existing incompatible file refuses. The controller-dir ignore alone already protects the secrets. The parent file exists only so sibling archives are ignored.",
+    "failure_scenario": "A project that already has .autopilot/.gitignore with other rules cannot use the controller. In a project with other untracked content under .autopilot/, that content silently becomes ignored.",
+    "suggested_fix": "Keep the controller-dir ignore as the hard requirement. Make the parent file best-effort, or accept an existing file that already ignores archive names. Alternatively put archives inside the controller's own ignored parent."
+  },
+  {
+    "severity": "non-blocker",
+    "title": "No-op existing workflow.open creates receipts that burn finite capacity",
+    "evidence": "Protocol: existing workflow.open 'requires a valid actor and all existing bindings; it cannot reset or acquire'. Receipt semantics for it are an open question from dispatch 2. Receipts are never evicted and admission stops at 4094.",
+    "failure_scenario": "A client retry loop that generates a fresh request_id on every success seals the workflow after about 4k no-ops, forcing the manual archive exit.",
+    "suggested_fix": "Existing-workflow open should return the current state result without a receipt (or be rejected). State it in the contract and add a fixture."
+  },
+  {
+    "severity": "question",
+    "title": "Is owner actor_id fresh per acquire, or stable?",
+    "evidence": "Protocol: retrieval allows the 'current credential of that same actor_id and role at an epoch not earlier than the authorizing epoch'. Only the operator ID is stated to be stable.",
+    "failure_scenario": "With a stable owner ID, a later owner at a higher epoch could retrieve an earlier owner's receipts (paths and IDs only, no secrets, but it widens the retrieval scope).",
+    "suggested_fix": "State that the owner actor_id is unique per acquire."
+  },
+  {
+    "severity": "question",
+    "title": "Behaviour of release/recover at saturation when owner is already null",
+    "evidence": "Kernel: reserve slots exist 'exclusively for owner.release/owner.recover; these may clear an active owner'. Nothing says whether a call with no active owner is admitted or consumes a slot.",
+    "failure_scenario": "Repeated no-op recovers burn both reserve slots. That is harmless once the owner is null, but a fixture could expect either outcome.",
+    "suggested_fix": "State that reserve slots are admitted only when they clear an active owner, and add a fixture."
+  },
+  {
+    "severity": "question",
+    "title": "Bare `python3` may resolve below the 3.12 floor",
+    "evidence": "Protocol argv is ['python3', '<root>/controller/main.py']; the floor is 3.12. Interpreter handling was a retained question.",
+    "failure_scenario": "On 3.9, main.py fails at import or on match/type syntax with a raw traceback instead of exit 2 and a structured error.",
+    "suggested_fix": "Put a version guard at the top of main.py, using 3.8-safe syntax, that exits 2 with a fixed message. Add a test."
+  },
+  {
+    "severity": "question",
+    "title": "Raw-byte digests vs git EOL normalization",
+    "evidence": "Export: schema_digest and fixture_digest are SHA-256 of raw bytes. Canonical digest bytes are a retained question.",
+    "failure_scenario": "A checkout with autocrlf or an editor that rewrites newlines changes the digests, so contract_bundle_pinnable fails on a clean tree.",
+    "suggested_fix": "Add .gitattributes with '-text' for contracts/controller/*.json, or assert LF in the exporter and the validator."
+  }
+]
+```
+
+## Checked correct, by interface
+
+**StateStore** (`Kernel`, pinned `store.py`)
+- The design keeps single-link regular-file checks, bounded reads, flock CAS, fsync before replace, create-only `initialize`, and pair repair on failure. These match the pinned source.
+- `initialize` needs revision 0 and writes no `.bak`. This is consistent with "Initialize receipt and revision 0 together".
+- The `.lock` file is created lazily with `O_CREAT`. The gitignore-first ordering therefore covers it.
+
+**Protocol envelope and receipts** (`Protocol`)
+- The closed envelope and response, the closed error-code set, and "only `revision_conflict` retryable" are coherent.
+- Reserved operations return `missing_capability` and never write.
+- Rejections never create receipts.
+- Lease-epoch revocation applies to new requests, while historical retrieval stays receipt-only. That separation is sound.
+
+**Actors and lease** (`Actors and lease`)
+- Epoch increases on acquire, recover and release, and the operator is rotated every time.
+- The crash matrix covers stage, intent, credential publication, state publication and cleanup.
+- Reconciliation is limited to the matching request, and a changed bootstrap request ID cannot reconcile another bootstrap.
+
+**Export** (`Export and installed evidence`)
+- The bundle has a closed key set and the exporter does not read live state.
+
+**Cardinal-sin sweep**
+- Rollback: package rollback plus the store backup and archive exit exist, subject to the blocker above.
+- Migration: v1 refuses unsupported durable versions, no live state is migrated, and future expansion is owned by later PRDs.
+- Write-path SPOF: explicitly accepted, with Bob named as operator.
+- Observability: error codes, snapshot, and the `recovery_required` signal. Local-CLI-adequate.
+- Resource bounds: sizes, depth and digits are bounded, and the CLI is bounded by caller deadlines.
+- Deletion and export: handled by the never-delete archive and snapshot.
+- Versioning: `protocol_major` plus the contract bundle.
+- Secrets: gitignored, 0600, digest-only in state, and absent from responses and snapshot.
