@@ -310,3 +310,9 @@
 {"id":"2244e3db","kind":"bob","task":"review-ap00012-c2","queued_at":1793289221,"prompt_bytes":52994}
 {"id":"2244e3db","ended_at":1793289998,"elapsed_s":777,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1793290156,"phase":"review","prd":"00012-autopilot-package-contract-v1.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1793290300,"phase":"review","prd":"00012-autopilot-package-contract-v1.md"}
+{"id":"46393ef5","kind":"ivan","task":"47","queued_at":1793290334,"prompt_bytes":7800}
+{"id":"46393ef5","ended_at":1793290438,"elapsed_s":104,"outcome":"ok","detail":null}
+{"id":"7c061e73","kind":"pat","task":"47","queued_at":1793290488,"prompt_bytes":37213}
+{"id":"7c061e73","ended_at":1793290543,"elapsed_s":55,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1793290686,"phase":"paused","prd":"00012-autopilot-package-contract-v1.md"}
