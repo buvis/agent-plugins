@@ -6,14 +6,55 @@
       "site": "oversized_task",
       "detail": "Required 110179-byte state-schema.md reference estimates at least 82545 tokens under the installed formula; file/capability split cannot satisfy byte-identical single-file acceptance under 75000-token replan budget; reports/00012-replan-1-budget.md",
       "op_id": "90ea9adeb4fa",
-      "prd": "00012-autopilot-package-contract-v1.md"
+      "prd": "00012-autopilot-package-contract-v1.md",
+      "issue": "Required 110179-byte state-schema.md reference estimates at least 82545 tokens under the installed formula; file/capability split cannot satisfy byte-identical single-file acceptance under 75000-token replan budget; reports/00012-replan-1-budget.md",
+      "resolved": {
+        "date": "2026-10-29",
+        "action": "completed",
+        "reason": "AP00012 completed 47/47 tasks and cycle2 review plus Tail sweep; bounded recovery resolved historical stalls and tasks20/21 repaired resource closure. See 00012-tail-sweep-handoff.md and completed review artifacts."
+      }
     },
     {
       "type": "stall",
       "site": "oversized_task",
       "detail": "Replan budget 75000 tokens. source-map.json is 13229895 bytes; required bytes/4 plus 55000 overhead gives at least 3362474 tokens before PRD and description. File split isolates the map; capability splits still touch the same 13.2MB file and exceed the cap. No worker dispatched, candidate unapplied. Historical work and review evidence retained in archived reports.",
       "op_id": "0c4292dfaeab",
-      "prd": "00012-autopilot-package-contract-v1.md"
+      "prd": "00012-autopilot-package-contract-v1.md",
+      "issue": "Replan budget 75000 tokens. source-map.json is 13229895 bytes; required bytes/4 plus 55000 overhead gives at least 3362474 tokens before PRD and description. File split isolates the map; capability splits still touch the same 13.2MB file and exceed the cap. No worker dispatched, candidate unapplied. Historical work and review evidence retained in archived reports.",
+      "resolved": {
+        "date": "2026-10-29",
+        "action": "completed",
+        "reason": "AP00012 completed 47/47 tasks and cycle2 review plus Tail sweep; bounded recovery resolved historical stalls and tasks20/21 repaired resource closure. See 00012-tail-sweep-handoff.md and completed review artifacts."
+      }
+    },
+    {
+      "cycle": 1,
+      "issue": "Resource closure repair under existing edge schema",
+      "severity": "high",
+      "action": "fix",
+      "reason": "Confirmed omitted script edges, including consolidate_findings.py and compute_mech_facts.py. Add complete source-anchored resource edges and gap-detecting tests using the existing schema; preserve frozen inventory, owners, prior edges and gates. Protocol C proceeds: the design Source-to-destination mapping explicitly defines resource edge kinds and failure rules. No public API or schema change is needed.",
+      "research": {
+        "category": "C",
+        "verdict": "proceed",
+        "checks": [
+          {
+            "check": "PRD explicitly specifies resource-edge kinds and failure rules",
+            "pass": true
+          },
+          {
+            "check": "Additive missing-edge repair preserves existing schema and ownership",
+            "pass": true
+          }
+        ],
+        "evidence_summary": "Design Source-to-destination mapping lines117-124; reviewed map has no consolidate_findings.py or compute_mech_facts.py edge. No persisted shape/API change."
+      },
+      "type": "autonomous_research",
+      "prd": "00012-autopilot-package-contract-v1.md",
+      "resolved": {
+        "date": "2026-10-29",
+        "action": "completed",
+        "reason": "AP00012 completed 47/47 tasks and cycle2 review plus Tail sweep; bounded recovery resolved historical stalls and tasks20/21 repaired resource closure. See 00012-tail-sweep-handoff.md and completed review artifacts."
+      }
     }
   ]
 }
