@@ -274357,13 +274357,11 @@
       "source_path": "skills/use-gemini/SKILL.md",
       "source_line": 9,
       "reference": "scripts/gemini-run.sh",
-      "kind": "informational-provenance",
+      "kind": "external-capability",
       "status": "unavailable",
-      "destination_path": "plugins/autopilot/skills/use-gemini/scripts/gemini-run.sh",
-      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/use-gemini/SKILL.md",
-      "runtime_rule": "Never read historical unavailable scripts to supply missing runtime content; refuse the owning skill before old-script invocation.",
-      "classification_reason": "AP00012 has no controller or host implementation; scripts/autopilot.py is the only current public executable. This historical helper is outside the frozen required asset set and its owning skill is unconditionally gated. Preserve future behavior delivery and its frozen owners; this classification does not waive an asset or drop a capability."
+      "capability": "Dispatch Gemini with stable flags, backend and model selection, and recursion refusal."
     },
     {
       "source_path": "skills/work/SKILL.md",
@@ -280439,6 +280437,363 @@
       "capability": "Verify registered Codex hook targets against their owning plugin.",
       "failure_rule": "Refuse the affected entry point until an adapter supplies this capability; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 104,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex_hook_doctor.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Check hook health; repair canonical hooks only as an operator.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 109,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/scripts/codex_hook_doctor.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Check hook health; repair canonical hooks only as an operator.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 130,
+      "reference": "test_codex_hook_doctor.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Test doctor check return values and CLI defaults.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 131,
+      "reference": "test_codex_hook_doctor_extra.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Test doctor check edge cases and documentation synchronization.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 132,
+      "reference": "test_codex_hook_doctor_repair.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Test doctor repair behavior.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 133,
+      "reference": "test_codex_hook_doctor_repair_cycle.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Test the complete doctor check, repair, and recheck cycle.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/SKILL.md",
+      "source_line": 125,
+      "reference": "work/references/codex-implementor.md",
+      "kind": "packaged-resource",
+      "destination_path": "plugins/autopilot/skills/work/references/codex-implementor.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-codex/references/dispatch-contract.md",
+      "source_line": 5,
+      "reference": "~/.agents/skills/use-<backend>/scripts/<backend>-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Dispatch the four model backends with prompt files and failure handling.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/references/dispatch-contract.md",
+      "source_line": 14,
+      "reference": "~/.agents/skills/use-<backend>/scripts/<backend>-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Dispatch the four model backends with prompt files and failure handling.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/references/dispatch-contract.md",
+      "source_line": 61,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Dispatch Codex with backend detection, recursion refusal, and real exit codes.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/references/dispatch-contract.md",
+      "source_line": 61,
+      "reference": "codex_review_run.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Salvage complete exit-4 review sidecars; fail without a complete result.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/references/dispatch-contract.md",
+      "source_line": 61,
+      "reference": "run-autopilot/scripts/codex_review_run.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Salvage complete exit-4 review sidecars; fail without a complete result.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/references/host-markers.md",
+      "source_line": 4,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Dispatch Codex with backend detection, recursion refusal, and real exit codes.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/references/host-markers.md",
+      "source_line": 5,
+      "reference": "gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Dispatch Gemini with stable flags, backend and model selection, and recursion refusal.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/references/host-markers.md",
+      "source_line": 37,
+      "reference": "codex-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Dispatch Codex with backend detection, recursion refusal, and real exit codes.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/references/host-markers.md",
+      "source_line": 38,
+      "reference": "gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Dispatch Gemini with stable flags, backend and model selection, and recursion refusal.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-codex/references/host-markers.md",
+      "source_line": 60,
+      "reference": "gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-codex/SKILL.md",
+      "capability": "Dispatch Gemini with stable flags, backend and model selection, and recursion refusal.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-gemini/SKILL.md",
+      "source_line": 50,
+      "reference": "scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-gemini/SKILL.md",
+      "capability": "Dispatch Gemini with stable flags, backend and model selection, and recursion refusal.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-gemini/SKILL.md",
+      "source_line": 71,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-gemini/SKILL.md",
+      "capability": "Dispatch Gemini with stable flags, backend and model selection, and recursion refusal.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-gemini/SKILL.md",
+      "source_line": 114,
+      "reference": "gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-gemini/SKILL.md",
+      "capability": "Dispatch Gemini with stable flags, backend and model selection, and recursion refusal.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-gemini/SKILL.md",
+      "source_line": 134,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-gemini/SKILL.md",
+      "capability": "Dispatch Gemini with stable flags, backend and model selection, and recursion refusal.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-gemini/SKILL.md",
+      "source_line": 137,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-gemini/SKILL.md",
+      "capability": "Dispatch Gemini with stable flags, backend and model selection, and recursion refusal.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-gemini/SKILL.md",
+      "source_line": 140,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-gemini/SKILL.md",
+      "capability": "Dispatch Gemini with stable flags, backend and model selection, and recursion refusal.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-gemini/SKILL.md",
+      "source_line": 143,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-gemini/SKILL.md",
+      "capability": "Dispatch Gemini with stable flags, backend and model selection, and recursion refusal.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-gemini/SKILL.md",
+      "source_line": 146,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-gemini/scripts/gemini-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-gemini/SKILL.md",
+      "capability": "Dispatch Gemini with stable flags, backend and model selection, and recursion refusal.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-gemini/SKILL.md",
+      "source_line": 21,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/references/dispatch-contract.md",
+      "kind": "packaged-resource",
+      "destination_path": "plugins/autopilot/skills/use-codex/references/dispatch-contract.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-gemini/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-sonnet/SKILL.md",
+      "source_line": 16,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/detect_usage_limit.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md",
+      "capability": "Parse quota reset epochs; report FAILED and refuse retry until reset.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-sonnet/SKILL.md",
+      "source_line": 29,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/run-autopilot/scripts/detect_usage_limit.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md",
+      "capability": "Parse quota reset epochs; report FAILED and refuse retry until reset.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-sonnet/SKILL.md",
+      "source_line": 29,
+      "reference": "detect_usage_limit.py",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md",
+      "capability": "Parse quota reset epochs; report FAILED and refuse retry until reset.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-sonnet/SKILL.md",
+      "source_line": 70,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md",
+      "capability": "Dispatch Sonnet with prompt files, permission flags, and resume.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-sonnet/SKILL.md",
+      "source_line": 73,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md",
+      "capability": "Dispatch Sonnet with prompt files, permission flags, and resume.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-sonnet/SKILL.md",
+      "source_line": 76,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md",
+      "capability": "Dispatch Sonnet with prompt files, permission flags, and resume.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-sonnet/SKILL.md",
+      "source_line": 79,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md",
+      "capability": "Dispatch Sonnet with prompt files, permission flags, and resume.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-sonnet/SKILL.md",
+      "source_line": 82,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-sonnet/scripts/sonnet-run.sh",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md",
+      "capability": "Dispatch Sonnet with prompt files, permission flags, and resume.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback."
+    },
+    {
+      "source_path": "skills/use-sonnet/SKILL.md",
+      "source_line": 23,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/skills/use-codex/references/dispatch-contract.md",
+      "kind": "packaged-resource",
+      "destination_path": "plugins/autopilot/skills/use-codex/references/dispatch-contract.md",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md"
+    },
+    {
+      "source_path": "skills/use-sonnet/SKILL.md",
+      "source_line": 31,
+      "reference": "autoclaude",
+      "kind": "external-capability",
+      "status": "unavailable",
+      "capability": "Pause the autopilot loop until reset; standalone Sonnet stops.",
+      "failure_rule": "Refuse the affected entry point before execution until a supported adapter supplies this capability and its source-prescribed failure behavior; no source checkout fallback.",
+      "gate_entry_point": "plugins/autopilot/skills/use-sonnet/SKILL.md"
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
