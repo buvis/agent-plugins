@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import base64
 import hashlib
 import json
 import os
@@ -14,7 +13,6 @@ import sys
 import tarfile
 import tempfile
 import unittest
-import zlib
 
 from test_resource_closure import closure_errors
 
@@ -27,62 +25,6 @@ CHECKOUT = "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
 SETUP = "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97"
 INVENTORY_SHA = "f55c98bba2b4b3c94ce588b6c616258186dd0bb2164800b2d34271acc25dfb5d"
 EDGE_SHA = "b10e71c1b359f953f028cf9d84b7063e826c5df51e4791c3b7f89aa388ca8a93"
-# Original 202 identities from 491ebd7; compressed JSON lines, independent of current map.
-FROZEN_EDGES = (
-    'c-'
-    'rlpTaV+m6@cISD~x$cfNGa_Qh95W4G?r&1Wk)R6oo;Nl&y{|Ig&h+L6HAmO7_gy)`gTMIS<{3#qR8o{KUh<a}EzL'
-    'zdjTuHigNQdHCkx^AF#C`rA*R9{%`H=7&O=b(&=M{~;!C|Ff6X)|UMHr$2r7*H0gI`r)@f{Cd%b+?cE?Kgu*wrvC'
-    'j^TL@e?RX!$ZT7E3dQ(~Tj=e&3fRKDA%rb_bc<6G0V$-3nr$)0j0>)+i%CuAJ{r@#F0`SUHHFzf-vvaEutkm~W~#'
-    ')WXVeI~b5W+u={Y0IkZ04_@9V;2qsF}*K+jZ-'
-    '@Bfb?+$x`*CHdDNv02;U6P57quq1#w>NWL1twley*Fjp@_&y7}|&s9c+0tSl?DDQ*<z95buC>4oN%l117%G;H3X>'
-    'EU1irVFg6ZHn(Pt9sxI4VQW9vL6tNdvvu2PSHKP%Ej{LsvAAKx$4GXID-vIo@CY~y-'
-    ';}C!i}s<5X&Sz6lOe!a!*WIy`(0nVdEjp*RGd`=&0o$T4#UXH73XtWq%tKrZ{B5zOaf=b&?KMzE9G;T9@`8>usJt'
-    'e%QafBW0$xc~L%m^Y33Dj{mlm;>4sn(56&HvahwPv=vOI&vkQaq)xJpE&Y96diC99=_{SJ-'
-    '}v?=mqStyeW|u)Cr_f-'
-    'N<^8hiVTSe1uB9e)D#;?6^9_yG6XCJh*5zR(9nJcAXvmo%2*H@g+eGsLWS$LDp^#o+Q`sv|9R_nWVZ4t$%}QOE$W'
-    '~D_~CN^0BK1tN^|wNwsW{1i$l3}i|**wZGSfxB7>Zti|pIF)aq2qQ&c-'
-    '!Ck;}mwJEMdr2&ei{Sy<RFwh(d!Ug3BDihKeBPN&tG6FP`gvSICOaxS6gs2JuMCMvl&?zd`BdUF#rt37%_vIH+ok'
-    'YcZL{-'
-    'mb+r_oc)nRAN!MZRyDU7PVi0)N%q9r<$9Vg>+kyK_~s(f$U(z3!WUV?pYgY8R0#xBJ5sV=tq@wM2Hz}`IKnRplk8'
-    'Y2p*WID2TNk@t?psg9>k<r|64H-'
-    '}ZsYnqbQAk+C5x0UOl*^dGEAde3kPZed>BKU!4$gk+hjQzZ$y4od>*DlMg~+8$p3Lg2@9T0a`gL0<HwAp>Dizb1n'
-    'lMxphcx7jbB2W$LUR)F&?u+~6i^BlGlL*78gjt3uw|@-G14uSA}*n!meA^WU~`a#w(?L-'
-    'z^2TX8F&&`+jwn~YI}%+#&NsVEUF`*KuPQ11N%okUPuc=crL9!*M(P2;nizlPoeF%vNS<-'
-    'NK$<zGpGSTh)GS5jF^E6MIyGE1WbehrcxOlOU59DG!~2qgpm~(6x;?BjDq+|W=Oc^C27ygEU%LI#jRA&TUj+Jfvl'
-    'b@GEHA<Ilq*FT})i686xL``<Jb^x~R8m>aC9TTA9i-'
-    '@mP_FkkTlQ7)Fs4n&FVZ7)KD>DF#AeHHU>pa!F8a&WMVmm|K+#IT2b%*D3|DLp&6=#ItXHSXX(Te(`;;VxlcE{rq'
-    'e)KjZ%Y8NbtZP<rl(^phz{StK$IDr48S?`x*(r8gr(3$WhRu-oljtXjoP>-!eAFq@>bp-cyqz~2E%7flzP7q2Q~h'
-    'crm@&Bm&BXYLBjl#&>U4JT`q8-k#3-'
-    'oO+=CCkU)I0BQ&*f#;wSTIM*dlb1haePgV6YCZOYXOotnMs!zm@^}Ejy~w50iTkGU1JS;)6L!MlxaBZM{C7nI?r5'
-    '_=NKRsW}g>T{|6vM#(u%IXPW#CnEuW}z?9B5=*q5lnki8xS=lA<K9mhAl1&zrd3x~n5Ou^B{CtpUQoRJ`7g?M7PH'
-    '3-Idz;A%)V@eEl`ISUB}nS-)Crut=-fh>-'
-    '{JUhQSS&&HBUZt49Pu&OBZrHoqMybohUH1i&~c3C~q<ky@sBW+2;H^?qnNZGBpb6-!Y?-'
-    '(uysJ3%N6OwJseY^Z76@V0fbe_llBEcJZh#GVR_tT_is9B8M}I+KofL8-'
-    'Jxq<9eN%=KFy?tdVrGn4k8bqy8n<eY6bmKD)F}W!C6bIoCj=1=g@$Sbm#~-'
-    '|~ag_#93)kSAAbg_G5L?A4eM>|lG+cql(qeu%1*b_K;DDiYNhTk_c~ME6>&Wh3}P@rf6nOwaLnahPuu*0J6kU|$D'
-    '|t)LSv;%Z#jkS?_xcaV{{Zyl>m4lt$5M4%2Vo9D=jKTu3Ic^k7!vcwToW5A|zS|`3*&I3(2@pKJ(uQSRO&)}!rcr'
-    'iL_Qy7)oN%`V~F7q_+v;knjOwAA(f%$^mK@JO-'
-    '8`X|2sQX2iE;uC%DU<_D=UXVYPi3}N4{U5FFO+2pn}7wjXPi_XPTZe4-'
-    '})K&kd9E}ZeHBYCJ0USJnb_Gm$Qd0Xc&jt_$HOUbS`&>d(5X{EFlY8N(VYz$W9JpIh)N)US>pE3BvFm`qW2fi;rs'
-    '$84<Mj4DLhspB9*B7WHuPXkmBlCf-VCWM+l#wf<0qiw|wT+aqGRfYQYd7fY5p$eiD6a6`C|IsW-'
-    'z$~q((+S7F13#*f|UY+bpAhd2L&y)G}Kw&s}_sfGq;Ud|y^WkkBtQfs~y<WWB2*#tG%d>nk<pkoQHg5oo;9@psfQ'
-    'r$4rzeImoXj%`2N-0*w9){Uh6_es1Kf}-8*UaxAJ3-'
-    'Wb(>;{+MhV|wys0XFSIF9nBz5@G*R8t9?YNJI91ij&SdogfX)PmxKDzkXbv6(wLj?eEa5^@AEa_VS(Ezq43Q&S71'
-    '?4seVGO!Xu%uUJ|94DPmf(shyi@}L5Nn20G2ve;l;;d@-gPJKG5~H=@;x|rcZlQtsKha<9Qu-'
-    '6TG73$xCVnc)|F`MW%Q`7w&+QrFIV-'
-    'T)sqH?O=vz!BvEdJzt!AxqIB&=_B(WZ5<>MAg0@df%f@QrxymP!Z#XgZY|jX+~$R+QSS;#eXZd1PW#Y9KJK}s%j3'
-    'Wk>HcS=N1opBgNp^Gj}I8n`9jr5I9?_Q_CXWh;HlXtjPipGO>FqKwINC#$8&tZ<WRi#%dSaO%z_%oYm(l*+L3vV2'
-    '2|Rhu&TQ6Ss`zo88K0uR3awFpVnTN{lPTh3j^kTvFI9mTHEyZj?B=z4tICABLjYTJULPG7Hzi9?9X@VrH^sLwxT-'
-    ')oMitss#?FEY+lz_&3tb4ABzWd@n$`3f2fy;g$YiDF0QcG8&~JI{g1U*b?wzx@6}gt)xW;sNf&7pH!4=hNKiijK('
-    '+mwaYiB~;)rMhAc%wsqd4M5LuQ!f5iywH2*5Z3*KbEa*V_@S{dUChR(|>M;`N5hGm~S-'
-    'u<PDYAGXOMu6Jga7cc95VW)m=T+fH|^($`64P0`XK-spqORio)@_8A}&3Jt|;^GAb$5jUJ3y(e&JlBPZSJ>%PZ8t'
-    '3(xIl2M=mykl@ItTOjAnaKU^uG@eg|iEDZD<J-m$tcky=)Tk-'
-    'H8m!eW|L_60Gr<gB*y_^>l;YnwKvOSllwxw`29p}F_6-pTchS~nRaJO1sL4_^m#-'
-    'ZbDVzRa`CRDEWEPqJf;4^~y$(VeMxDqj(G^s|0{JMuV;ODakOth>K1@<S7ocfhdk(zWXn*A%jMqQJETd4t+$#oG6'
-    '_IG3FDJy61D8p31qO(wI;V3XNz26&RkpT`_8)%9~B_j_y6Wtu#7&J@q?yTyFS%z&!)U!j>SX6N)o3rtVf%=FFbT<'
-    'w$IiksUIICwmqF+=%eb+g`XvrchmBkc9A+_)EJG&q(H)K+F2bNP}OX5xGqMn9~+Z3?g63lBNC^Vc&YLMVocMvCYV'
-    'Qx%C2#sI`RwlM-=Va%aGFtk5Kv56Gsk_u(CQc_@Su9sSvFvn6$(1+jt2k>cY0R'
-)
 OWNER_SHA = "d7ded009798a6d0437bda8384b0e8ac02bdd258e17bda0d098611160ab30fa52"
 GATE_SIZE = 742
 GATE_SHA = "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75"
@@ -388,7 +330,8 @@ class TargetPackageTest(unittest.TestCase):
         fields = ("source_path", "source_line", "source_behavior_id", "source_anchors", "reference")
         identities = [json.dumps({k: e[k] for k in fields if k in e},
                                  sort_keys=True, separators=(",", ":")) for e in edges]
-        frozen = zlib.decompress(base64.b85decode(FROZEN_EDGES)).decode().splitlines()
+        # Original 202 identities from 491ebd7, independent of current map.
+        frozen = Path(__file__).with_name("frozen_edges.txt").read_text().splitlines()
         self.assertEqual(len(frozen), 202)
         self.assertEqual(digest("\n".join(frozen).encode()), EDGE_SHA)
         self.assertEqual(len(identities), len(set(identities)))
