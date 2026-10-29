@@ -6,7 +6,7 @@ eligibility: ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecyc
 ---
 # Autopilot standalone and managed conformance
 
-Source: [three-layer design](../../designs/00011-autopilot-standalone-design.md). Revised 2026-10-25. Planning only; no publication, live installation, source retirement or hold activation.
+Source: [three-layer design](../../designs/00011-autopilot-standalone-design.md). Revised 2026-10-29. Planning only; no publication, live installation, source retirement or hold activation.
 
 ## Overview
 
@@ -29,6 +29,8 @@ standalone_independent → one controller works with upper layers unavailable. N
 - **Outputs**: Artifact-only, standalone-stateful, managed and advanced evidence.
 - **Behavior**: Standalone requires same controller core/jobs/reviews/records and supported host identity/guards, never OVCAQ. Exercise init/entry/task/review/rework/complete/records with OVCAQ and Lantern removed from PATH/imports. Managed checks use an OVCAQ 00060 artifact passed explicitly as `tools/autopilot/conformance.py --ovcaq-argv JSON` (an argv array); without that flag managed is unavailable; waves require 00061. Missing managed inputs report unavailable without blocking standalone. Fake hosts certify protocol behavior only. Export separate implementation and real-host certification statuses; unavailable capabilities cannot produce a passed completion receipt. Profile checks use AP 00012's frozen behavior/regression inventory and evidence map; every obligation required by that profile needs current passing evidence.
 
+Plugin artifact for OVCAQ: commit `plugins/autopilot/contracts/plugin-conformance-v1.json` as a regular file (no symlink in its path, under 16 MiB), the same shape as AP 00021's controller artifact: a JSON object with exactly the keys evidence (list of str containing the exact string "AP00017", written only after standalone_independent passes), package_version (str, the plugin manifest version), controller_digest (str, the sha256 of AP 00018's `plugins/autopilot/contracts/controller-v1.json`), source_pin (str, the OVCAQ commit the profile was verified against). Document the `sha256sum plugins/autopilot/contracts/plugin-conformance-v1.json` output in `plugins/autopilot/README.md`; OVCAQ 00061 pins path and digest as `[autopilot] plugin_artifact` and `plugin_artifact_sha256`.
+
 User-selected certification profile (2026-10-25): Codex builds; Gemini supplies the independent provider's doubt voice, including Eve when required. Every resolved role uses an isolated Codex or Gemini context under AP 00012's unchanged roster/rubric rules, including Carl's availability predicate. No Claude fallback or Codex-only completion certificate. Run real standalone build/fresh-review/rework/complete/records; managed adds next-PRD continuation and final drain. Isolate Claude executables/configuration/credentials, source checkout and author-home runtime resources; expose only required Codex/Gemini authentication. Standalone handoffs remain manual; any automated test harness stays maintainer-only. Receipts bind exact package/controller/driver versions/digests, policy, actual provider/model/session, allowed inputs and code identity. Missing auth or capability reports unavailable and prevents port completion/cutover, without blocking unrelated implementation.
 
 ### Capability: Distribution
@@ -48,6 +50,7 @@ tools/autopilot/conformance.py
 tests/autopilot/test_profiles.py
 tests/autopilot/test_installed_standalone.py
 tests/autopilot/test_installed_managed.py
+plugins/autopilot/contracts/plugin-conformance-v1.json
 tools/autopilot/package.py
 tools/autopilot/source-inventory.json
 tools/autopilot/source-map.json
@@ -64,7 +67,7 @@ docs/dev/tmp/autopilot/
 - **Maps to capability**: Conformance
 - **Responsibility**: Prove standalone stateful behavior and optional managed parity.
 - **Exports**: Artifact-only, standalone-stateful, managed and advanced evidence.
-New symbols: `tools/autopilot/conformance.py`, `tests/autopilot/test_profiles.py`, `tests/autopilot/test_installed_standalone.py`, `tests/autopilot/test_installed_managed.py`
+New symbols: `tools/autopilot/conformance.py`, `tests/autopilot/test_profiles.py`, `tests/autopilot/test_installed_standalone.py`, `tests/autopilot/test_installed_managed.py`, `plugins/autopilot/contracts/plugin-conformance-v1.json`
 
 ### Module: Distribution
 - **Maps to capability**: Distribution
@@ -108,7 +111,7 @@ AP 00016 completed. OVCAQ and Lantern are not prerequisites. Recheck existing pa
 **Goal**: Prove installed behavior and record evidence.
 
 **Tasks**:
-- [ ] Generate unpublished candidates, wire offline CI and the separate opt-in real-host certification command, and update package documentation, the root `README.md` plugin table and the `AGENTS.md` boundaries (`plugins/autopilot/`, `tools/autopilot/`, `tests/autopilot/`, `docs/dev/tmp/autopilot/`). (depends on: Phase 1) — Acceptance: documentation_matches_evidence and archived_relocation verify shipped resources and unsupported-profile refusal; persist real Codex + Gemini receipts when supported, otherwise record certification incomplete without making ordinary CI require credentials.
+- [ ] Generate unpublished candidates, wire offline CI and the separate opt-in real-host certification command, and update package documentation, the root `README.md` plugin table and the `AGENTS.md` boundaries (`plugins/autopilot/`, `tools/autopilot/`, `tests/autopilot/`, `docs/dev/tmp/autopilot/`). (depends on: Phase 1) — Acceptance: documentation_matches_evidence and archived_relocation verify shipped resources and unsupported-profile refusal; persist real Codex + Gemini receipts when supported, otherwise record certification incomplete without making ordinary CI require credentials. plugin_artifact_pinnable asserts `plugins/autopilot/contracts/plugin-conformance-v1.json` is a regular file under 16 MiB with no symlink in its path, parses as a JSON object with exactly the keys evidence, package_version, controller_digest, source_pin, that evidence contains "AP00017", that controller_digest equals the sha256 of `plugins/autopilot/contracts/controller-v1.json`, and that the README digest equals the sha256 of its raw bytes.
 
 **Exit Criteria**: Named integration scenarios, `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` and `python3 scripts/validate.py` pass.
 

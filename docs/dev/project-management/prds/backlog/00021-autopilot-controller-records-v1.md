@@ -6,7 +6,7 @@ eligibility: ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecyc
 ---
 # Autopilot controller record commits and extraction conformance
 
-Source: [three-layer design](../../designs/00011-autopilot-standalone-design.md). Revised 2026-10-25. Planning only; no publication, live installation, source retirement or hold activation.
+Source: [three-layer design](../../designs/00011-autopilot-standalone-design.md). Revised 2026-10-29. Planning only; no publication, live installation, source retirement or hold activation.
 
 ## Overview
 
@@ -37,6 +37,8 @@ controller_installed_lifecycle → one controller records a complete fresh workf
 - **Outputs**: Relocatable controller with complete core/jobs/reviews/records contracts.
 - **Behavior**: Carry source store/workflow tests as mapped behavioral cases, including cf8be72 and any 00062 reversion changes available at integration. Generate provenance and exact source disposition in AP 00012's independent inventory/map, including retained/replaced/obsolete regression-case evidence; current-source mismatch requires reconciliation before consumers remove old code. Normal target conformance consumes committed fixtures without source checkout or home-directory dependencies. No hidden OVCAQ import or plugin supervisor.
 
+Controller artifact for OVCAQ: commit `plugins/autopilot/contracts/controller-conformance-v1.json` as a regular file (no symlink in its path, under 16 MiB). It is a JSON object with exactly these keys: evidence (list of str containing the exact strings "core", "jobs", "reviews", "records"), package_version (str, the plugin manifest version), controller_digest (str, the sha256 of AP 00018's `plugins/autopilot/contracts/controller-v1.json`), source_pin (str, the OVCAQ commit the extraction was verified against). Document the `sha256sum plugins/autopilot/contracts/controller-conformance-v1.json` output in `plugins/autopilot/README.md`; OVCAQ pins path and digest as `[workflow] controller_artifact` and `controller_artifact_sha256`.
+
 ## Structural Decomposition
 
 ### Repository Structure
@@ -49,6 +51,7 @@ tests/autopilot/test_controller_record_recovery.py
 plugins/autopilot/contracts/controller/workflow-v1.json
 plugins/autopilot/contracts/controller/fixtures-v1.json
 plugins/autopilot/contracts/controller/provenance.json
+plugins/autopilot/contracts/controller-conformance-v1.json
 tools/autopilot/controller-conformance.py
 tools/autopilot/source-inventory.json
 tools/autopilot/source-map.json
@@ -67,7 +70,7 @@ New symbols: `plugins/autopilot/controller/autopilot_state/records.py`, `tests/a
 - **Maps to capability**: Conformance
 - **Responsibility**: Provide the installed artifact required by OVCAQ cutover.
 - **Exports**: Relocatable controller with complete core/jobs/reviews/records contracts.
-New symbols: `tools/autopilot/controller-conformance.py`, `tests/autopilot/test_controller_installed.py`
+New symbols: `plugins/autopilot/contracts/controller-conformance-v1.json`, `tools/autopilot/controller-conformance.py`, `tests/autopilot/test_controller_installed.py`
 
 ## Dependency Graph
 
@@ -105,7 +108,7 @@ AP 00020 completed. OVCAQ 00058 later verifies extraction against its then-curre
 **Goal**: Prove installed behavior and record evidence.
 
 **Tasks**:
-- [ ] Produce an installed controller conformance bundle for independent consumers. (depends on: Phase 1) — Acceptance: controller_installed_lifecycle and controller_no_upper_imports pass with OVCAQ/Lantern unavailable; source-disposition rows contain evidence.
+- [ ] Produce an installed controller conformance bundle for independent consumers. (depends on: Phase 1) — Acceptance: controller_installed_lifecycle and controller_no_upper_imports pass with OVCAQ/Lantern unavailable; source-disposition rows contain evidence. controller_artifact_pinnable asserts `plugins/autopilot/contracts/controller-conformance-v1.json` is a regular file under 16 MiB with no symlink in its path, parses as a JSON object with exactly the keys evidence, package_version, controller_digest, source_pin, that evidence contains "core", "jobs", "reviews", "records", that controller_digest equals the sha256 of `plugins/autopilot/contracts/controller-v1.json`, and that the README digest equals the sha256 of its raw bytes.
 
 **Exit Criteria**: Named integration scenarios, `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` and `python3 scripts/validate.py` pass. Record missing real-host capabilities as unavailable.
 

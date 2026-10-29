@@ -8,7 +8,7 @@ eligibility: ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecyc
 ---
 # Autopilot canonical controller kernel and protocol
 
-Source: [three-layer design](../../designs/00011-autopilot-standalone-design.md). Revised 2026-10-25. Planning only; no publication, live installation, source retirement or hold activation.
+Source: [three-layer design](../../designs/00011-autopilot-standalone-design.md). Revised 2026-10-29. Planning only; no publication, live installation, source retirement or hold activation.
 
 ## Overview
 
@@ -39,6 +39,8 @@ controller_without_upper_layers → one installed writer runs without either upp
 - **Outputs**: Contract/snapshot/apply CLI, immutable export bundle and request receipts.
 - **Behavior**: Implement protocol-major 1 and exact envelope/errors from Contract A. Define JSON schemas for every core operation, including explicit fresh-open bootstrap (expected revision zero, workflow ID assigned once). Fresh workflow.open alone permits null workflow/actor/epoch and revision zero on an absent store. Bootstrap creates an operator credential under the private state root (directory 0700, file 0600) and returns only its path. Other apply calls require --actor-file PATH matched to actor ID/scope; credentials never appear in command values or logs. Opening an existing workflow is not an ownership bypass. One execution lease, epoch-fenced job/operator credentials, CAS, identical-payload replay, conflicting-ID refusal and path containment. Bound output/time in clients; no credential values in logs. Publish only implemented kernel operations; later families remain declared but unavailable. CLI: `--json contract`, `--json snapshot --project-root PATH`, `--json apply --project-root PATH --request FILE`, `--actor-file PATH`. Contract output: protocol_major=1, package_version, schema_digest, fixture_digest, operations, capabilities; capability IDs workflow.core.v1, workflow.jobs.v1, workflow.reviews.v1, workflow.records.v1 and optional workflow.waves.v1. Envelope fields: protocol_major, operation, request_id, expected_revision, project_id, workflow_id, actor_id, job_id (nullable for operator actions), lease_epoch, payload. Response fields: ok, revision, result, error_code, retryable. Error codes, exactly: invalid_request, incompatible_contract, revision_conflict, wrong_binding, missing_capability, rejected_evidence, recovery_required. Closed operations: workflow.open, policy.bind, owner.acquire/release/recover, prd.enter, task.replace/start/finish/attempt, lane.route, job.plan/claim/record_exit, review.record_stage/close, custody.record/discharge, verification.record, phase.handoff, prd.stall/park/defer/complete, artifact.record, records.commit, plus the optional wave operations.
 
+Contract A bundle for OVCAQ: commit `plugins/autopilot/contracts/controller-v1.json` as a regular file (no symlink in its path, under 16 MiB). It is a strict JSON object (no duplicate keys, no NaN/Infinity) with exactly these keys: protocol_major (int 1), package_version (nonempty str, the plugin manifest version), schema_digest (nonempty str), fixture_digest (nonempty str), operations (list of str), capabilities (list of str). `python3 controller/main.py --json contract` returns the same protocol_major, schema_digest and fixture_digest, a package_version equal to the bundle's or the bundle's plus `+<build>`, and operations/capabilities that are supersets of the bundle's lists. Document the `sha256sum plugins/autopilot/contracts/controller-v1.json` output (sha256 of the raw file bytes) in `plugins/autopilot/README.md`; OVCAQ pins path and digest as `[workflow] contract_bundle` and `contract_bundle_sha256`. The installed controller argv, stated once here and set by OVCAQ as `[workflow] controller_argv`, is `["python3", "<installed-plugin-root>/controller/main.py"]`.
+
 ## Structural Decomposition
 
 ### Repository Structure
@@ -55,6 +57,7 @@ plugins/autopilot/controller/autopilot_state/actors.py
 plugins/autopilot/contracts/controller/workflow-v1.json
 plugins/autopilot/contracts/controller/fixtures-v1.json
 plugins/autopilot/contracts/controller/provenance.json
+plugins/autopilot/contracts/controller-v1.json
 tools/autopilot/export-controller-contract.py
 tests/autopilot/test_controller_protocol.py
 tests/autopilot/test_controller_actors.py
@@ -72,7 +75,7 @@ New symbols: `plugins/autopilot/controller/main.py`, `plugins/autopilot/controll
 - **Maps to capability**: Protocol
 - **Responsibility**: Publish the canonical controller boundary.
 - **Exports**: Contract/snapshot/apply CLI, immutable export bundle and request receipts.
-New symbols: `plugins/autopilot/controller/autopilot_state/protocol.py`, `plugins/autopilot/controller/autopilot_state/actors.py`, `plugins/autopilot/contracts/controller/workflow-v1.json`, `plugins/autopilot/contracts/controller/fixtures-v1.json`, `plugins/autopilot/contracts/controller/provenance.json`, `tools/autopilot/export-controller-contract.py`, `tests/autopilot/test_controller_protocol.py`, `tests/autopilot/test_controller_actors.py`
+New symbols: `plugins/autopilot/controller/autopilot_state/protocol.py`, `plugins/autopilot/controller/autopilot_state/actors.py`, `plugins/autopilot/contracts/controller/workflow-v1.json`, `plugins/autopilot/contracts/controller/fixtures-v1.json`, `plugins/autopilot/contracts/controller/provenance.json`, `plugins/autopilot/contracts/controller-v1.json`, `tools/autopilot/export-controller-contract.py`, `tests/autopilot/test_controller_protocol.py`, `tests/autopilot/test_controller_actors.py`
 
 ## Dependency Graph
 
@@ -110,7 +113,7 @@ AP 00012 completed. No OVCAQ runtime prerequisite. Characterize OVCAQ source pin
 **Goal**: Prove installed behavior and record evidence.
 
 **Tasks**:
-- [ ] Export canonical schemas/fixtures/provenance and prove installed relocation. (depends on: Phase 1) — Acceptance: controller_bundle_reproducible and controller_without_upper_layers run with OVCAQ/Lantern/source checkout inaccessible.
+- [ ] Export canonical schemas/fixtures/provenance and prove installed relocation. (depends on: Phase 1) — Acceptance: controller_bundle_reproducible and controller_without_upper_layers run with OVCAQ/Lantern/source checkout inaccessible. contract_bundle_pinnable asserts `plugins/autopilot/contracts/controller-v1.json` is a regular file under 16 MiB with no symlink in its path, parses as a strict JSON object with exactly the keys protocol_major, package_version, schema_digest, fixture_digest, operations, capabilities and the stated types, that `--json contract` matches it as the Protocol feature states, and that the README digest equals the sha256 of its raw bytes.
 - [ ] Document Python floor and supported kernel capabilities. (depends on: Phase 2 task 1) — Acceptance: unsupported_operation_refused verifies later operation families are unavailable until implemented.
 
 **Exit Criteria**: Named integration scenarios, `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` and `python3 scripts/validate.py` pass. Record missing real-host capabilities as unavailable.
