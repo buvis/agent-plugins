@@ -77,3 +77,39 @@ review ran.
 - The current workflow state remains untouched. The recorded host rejection
   still needs a supported resolution before completing AP00018's required
   validation. Do not substitute partial adversary output for a verdict.
+
+## Operator exception — 2026-10-30
+
+- The operator granted a documented, task-scoped exception (resolution path 3
+  of the recovery report): run task 3's mandated Devon round on the supported
+  Claude Opus capability, because the GPT route is filter-blocked. This is a
+  different, in-policy model — not a bypass of the OpenAI filter, no prompt
+  disguise, no provider substitution for any other step, no partial pass
+  accepted as a verdict.
+- Devon was executed on an isolated Claude Opus agent with Devon-contract inputs
+  only (the two committed test files + public signatures + the narrow runner).
+  Verdict: **EXPLOITED** — one deliberately-wrong `autopilot_state.schema`
+  passed all 21 tests (`21 passed`, exit 0) with 8 proven weak points. Full
+  evidence: `00018-replan1-task3-devon-result.md`.
+- The wrong implementation was never committed; its residue was removed and the
+  tree is clean with the test files byte-unchanged. The Devon gate is NOT yet
+  satisfied: Devon broke the tests, so the protocol requires one Tess strengthen
+  (closing all 8 points) before red-check and Ivan. That strengthen is benign
+  test engineering and runs on the normal GPT pipeline.
+- Resumption artifact: `00018-replan1-task3-devon-exception.scope.md`, to be
+  passed as `autocodex --scope <that file>`. It instructs the resumed session to
+  skip the redundant/filter-blocked Devon re-dispatch for task 3 only, run the
+  one Tess strengthen with the recorded 8 weak points, record the devon_* attempt
+  fields, then continue at step 2.95 and Ivan.
+- Durable fix recommendation: later opus tasks (4, 6, 7) write security-relevant
+  code and may re-hit the same filter on their own Devon rounds; Daybreak access
+  for the org/project/model is the real fix and removes the need for per-task
+  exceptions.
+
+### Authorized transition performed
+
+- Cleared the pause via the state CLI (not a direct edit): `phase` and
+  `next_phase` set to `build`, `pause_reason` removed. The two completed tasks,
+  the preserved aborted task-3 attempt, model provenance, quarantine evidence,
+  and the fresh work/review boundary are unchanged. The resumed session re-enters
+  the build gate at the first non-completed task (task 3).
