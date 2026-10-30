@@ -1,0 +1,549 @@
+{
+  "phase": "paused",
+  "next_phase": "paused",
+  "schema_version": 1,
+  "batch": {
+    "id": "202610250001",
+    "mode": "autopilot",
+    "completed_prds": [
+      {
+        "filename": "00012-autopilot-package-contract-v1.md",
+        "cycles": 2,
+        "autonomous_decisions": 40,
+        "escalated_decisions": 0,
+        "tasks_completed": 47,
+        "tasks_total": 47,
+        "lane": "full",
+        "lane_reason": "override",
+        "lane_effective": "full",
+        "lane_escalated": null
+      }
+    ],
+    "plugin_versions": {
+      "aegis@buvis-plugins": "0.4.1",
+      "warden@buvis-plugins": "0.14.1"
+    },
+    "catchup_completed_at": "2026-10-30T00:42:46.179578+00:00",
+    "catchup_head_sha": "686202a58868e85994b2b3539add2920e2affd22",
+    "parks_consecutive": 0,
+    "skips": [
+      {
+        "prd": "00013-autopilot-session-helpers-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00014-autopilot-host-execution-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* docs/dev/project-management/prds/done/00013-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00018-autopilot-controller-kernel-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00019-autopilot-controller-lifecycle-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00018-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00013-autopilot-session-helpers-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00014-autopilot-host-execution-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* docs/dev/project-management/prds/done/00013-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00018-autopilot-controller-kernel-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00019-autopilot-controller-lifecycle-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00018-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00014-autopilot-host-execution-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* docs/dev/project-management/prds/done/00013-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-29T23:17:12Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-29T23:17:12Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-29T23:17:12Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-29T23:17:12Z"
+      }
+    ],
+    "minted_stubs": []
+  },
+  "prd": "00018-autopilot-controller-kernel-v1.md",
+  "catchup_mode": "run",
+  "doubt_reviewer": "codex",
+  "consensus_engine": "legacy",
+  "session_model": "sonnet",
+  "rework_cap": 3,
+  "lane": "full",
+  "lane_reason": "override",
+  "lane_effective": "full",
+  "catchup_probe": {
+    "batch_id": "202610250001",
+    "gh": "ok",
+    "engram": "ok",
+    "checked_at": "2026-10-25T22:40:48Z"
+  },
+  "tasks_total": 10,
+  "tasks_completed": 2,
+  "replan_count": 1,
+  "phases_completed": [],
+  "cycle": 1,
+  "applied_review_batches": [
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-01.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-02.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-02.md::tail-sweep"
+  ],
+  "codex_probe": {
+    "batch_id": "202610250001",
+    "verdict": "unhealthy",
+    "backend": "codex",
+    "detail": "hook_doctor: missing /Users/bob/.codex/codex-hook",
+    "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
+    "checked_at": "2026-10-28T03:07:08.511437+00:00"
+  },
+  "contract_card": "step: AP00018 replan 1 persisted; tasks 1 and 2 completed; task 3 paused at mandatory native schema adversary host filter\ninvariants: original work_start_sha and all prior model/test evidence retained; 44 test methods unchanged; no cap increase, production schema acceptance or completion review\nnext: attended host/workflow reconciliation for pause_reason.site host_worker_policy; retain partial adversary evidence; do not auto-clear or bypass the required round",
+  "prd_budget_since": "2026-10-29T23:17:12Z",
+  "design_mode": "run",
+  "plan_expansion_override": true,
+  "design_doc": "docs/dev/project-management/designs/00018-autopilot-controller-kernel-v1-design.md",
+  "autonomous_decisions": [
+    {
+      "issue": "Controller architecture and design review",
+      "action": "Extract pinned transaction mechanics with four core operations; retain forensic restore fence, authenticated intents and receipt-only revoked credential retrieval",
+      "reason": "First design invocation failed; sole bounded retry passed native GPT and external Claude with no blockers. Advisory findings remain durable for implementation and completion review.",
+      "cycle": 1,
+      "severity": "n/a"
+    },
+    {
+      "type": "assumed-ambiguity",
+      "question": "Retained design questions need deterministic protocol defaults and bounded generated provenance integration.",
+      "assumption": "Planning defaults for retained questions (requirements, not implementation hints): canonical complete-envelope bytes are json.dumps(sort_keys=True,separators=(\",\",\":\"),ensure_ascii=False,allow_nan=False).encode(\"utf-8\"), with no Unicode normalization. Kernel job_id must be null for every actor. Existing workflow.open is an authenticated ordinary apply with matching current binding/CAS and a receipt/revision increment; replay is receipt-only. Snapshot takes a shared lock; absent store returns ok/revision 0/result containing project_id, workflow_id:null, lease_epoch:0, owner:null and health:\"absent\", with no persistent creation. Existing snapshot projects workflow identity, owner, epoch, workflow reserves, actor IDs/roles, receipt count and health/capacity; excludes secrets, digests and receipt bodies, so output remains bounded at saturation. Intent read limit is 33554432 bytes and includes the canonical non-secret request so a caller can reconstruct the identical request after losing its file. Owner actor_id is fresh on each acquire. Keep revoked credential files for historical exact receipt retrieval; no secret deletion before intent cleanup. Error mapping: bad envelope/unknown operation/changed request-ID payload/oversized request or response => invalid_request; protocol/schema mismatch => incompatible_contract; stale revision => revision_conflict; actor/scope/epoch/job/project/workflow mismatch or occupied owner => wrong_binding; declared unavailable operation => missing_capability; invalid submitted evidence => rejected_evidence; corrupt state, pending unrelated intent, capacity, path/durability/I/O failure => recovery_required. Only revision_conflict is retryable. Guard Python version before importing 3.12-only modules using syntax-neutral main.py, emit fixed redacted structured incompatible_contract. Public contract reads installed bytes without symlink traversal. No real-host support is claimed. Treat source-map.json as generated metadata maintained solely through bounded snapshots/full diffs; worker context budgets count those bounded inputs, never the 13.6MB generated output. Existing source identity/history gates remain intact."
+    },
+    {
+      "issue": "Task 1 worker reported context_overrun using a 100KB byte threshold",
+      "severity": "low",
+      "cycle": 1,
+      "action": "Retain aborted attempt and use one bounded gpt-6-astra/high feedback retry at logical opus with unchanged caps",
+      "reason": "Raw worker turn_context shows gpt-6.1-sol/high; latest input context is 52036 tokens, below the source 100K-token context bound. Reported exhaustion is a unit/reasoning error, so the actual-context split branch does not apply. Host expressly permits Astra after a concrete failed-opus reasoning blocker."
+    }
+  ],
+  "tasks": [
+    {
+      "name": "Freeze pinned controller ownership, schemas and fixtures",
+      "description": "Freeze pinned controller ownership, schemas and fixtures.\n\nLocation: plugins/autopilot/contracts/controller/workflow-v1.json, plugins/autopilot/contracts/controller/fixtures-v1.json, plugins/autopilot/contracts/controller/provenance.json, tests/autopilot/test_controller_protocol.py\n\nReuse: pinned OVCAQ transactional services; existing export-policy/facade, map_slice and package test patterns as applicable.\n\nContract (verbatim):\n### Kernel\nPython floor is 3.12; stdlib only. `autopilot_state.schema` exports `SCHEMA_VERSION = 1`, `MAX_STATE_BYTES = 16777216`, `MAX_COMMAND_PAYLOAD_BYTES = 2097152`, `MAX_STRING_BYTES = 1048576`, `MAX_JSON_DEPTH = 32`, `MAX_JSON_INTEGER_DIGITS = 640`, `SchemaError`, `ResourceLimitError`, `decode_json(text: str, *, source: str)`, `validate_state(value: object) -> dict`, and `new_state(*, repo_root: Path, project_id: str, workflow_id: str) -> dict`. Reject duplicate JSON keys, nonfinite numbers, bool integers, unknown owned fields and unsupported durable versions; validate before deep copying. Default review cap is 2. Reject process identity, PID, launcher, heartbeat, resource usage and TUI state as workflow fields. Model/session observations later arrive only as explicitly bounded workflow evidence, never execution authority.\n\nRetain source `StateStore(path: Path, *, boundary_hook=None)`, `read()`, `initialize(initial)`, `transaction(mutator, *, expected_revision=None, publication_guard=None)`, `restore(*, expected_revision=None, precondition=None)`, source exception names and six `DurabilityBoundary` values. Preserve source lock/read/publication guards, single-link regular-file checks, bounded reads, CAS under exclusive flock, deep-copy mutation, revision increment, fsync-before-replace, backup/state pair repair and create-only initialization. Keep one last-good `.bak` and `.lock`; failed validation/conflict/publication cannot change the pair. Restore is an offline forensic library primitive, never a CLI operation or a protocol recovery path. It requires readable valid current state and valid backup and refuses with BackupError unless backup lease_epoch, owner, actors and receipts exactly equal current and no credential-intent.json exists. Check these invariants under the same exclusive lock after decoding backup and before any pair publication; precondition(current) alone is insufficient. Only security-identical backups may be restored, with current revision +1. This deliberate tightening of source restore prevents epoch rollback, credential resurrection and receipt loss; characterize it explicitly. Test acquire followed by restore refuses with exact state/backup/credential bytes preserved, and a security-identical backup restore retains source revision and repair outcomes. Corrupt current state refuses with recovery_required and preserves bytes for operator forensic recovery. Never silently overwrite corruption. Test backup/restore and each injected boundary. Unsupported directory fsync refuses explicitly.\n\n`resolve_project_root(path: Path) -> Path` resolves an existing directory without ancestor workflow inference. The private controller store is `<project-root>/.autopilot/controller/`, directory 0700, with `state.json`, `state.json.bak`, `state.json.lock`, and `actors/`. Before creating any credential, create regular private `.gitignore` files containing `*\\n` in both `.autopilot/` and the private controller directory (parent 0700, files 0600; sibling archives are ignored too), refuse an existing incompatible or aliased ignore file, and verify a temporary Git repository ignores state and actor files. This is separate from the implementation batch's legacy state. Reject symlink components below the resolved project root, escapes, nonregular/multiply-linked artifacts and payload-selected state paths. Preserve directory descriptor/no-follow creation and ancestor inode identity rechecks from the pinned root resolver; Path.resolve containment alone is insufficient. Project identity is SHA-256 of the resolved root's UTF-8 path. Relocating the installed package preserves functionality; relocating an existing project requires explicit future migration, not identity rewriting.\n\nDurable state has closed top-level keys `schema_version`, `revision`, `project_id`, `workflow_id`, `repo_root`, `lease_epoch`, `owner`, `actors`, `receipts`, `workflow`. `workflow` is exactly `{batch: null, work: null, tasks: [], review: {cap: 2}, recovery: null, jobs: []}` in this kernel; no operation may mutate these reserves. Later producer PRDs define their expanded schemas and migration. Characterization records each source workflow field and its deferred owner; it does not import process fields or claim full legacy schema equivalence. No generic JSON setter is exported. `owner` is null or `{actor_id, mode, native_session_id, lease_epoch}`; `mode` is `manual|supervised`. `actors` contains descriptors, never credential secrets. `receipts` maps request IDs to canonical request digests, actor binding and complete original responses. `jobs` is empty and cannot be mutated in AP00018. Actor registry retains only the current operator and current owner descriptors (at most two); historical authorizing digests are receipt-owned, never actor rows. Normal receipt admission stops at 4094 entries. Before writing durable intent or any final credential, serialize and validate the complete candidate and complete response. Normal operation candidates may occupy at most 14680064 bytes (14 MiB), leaving 2097152 bytes for the two emergency operations below the 16777216-byte state ceiling. Each stored core response is bounded to 65536 UTF-8 bytes, including all absolute paths; refuse a root/response that cannot meet this bound before bootstrap. Emergency release/recover may use the reserved bytes only when clearing an active owner; their complete candidate must still validate under the state ceiling. A no-owner call cannot consume reserve capacity. Maximum response/descriptor growth for both emergency operations fits within 2 MiB under these explicit core bounds; test byte saturation independently of receipt-count saturation and reject oversized candidates before preparing intent. This prepublication check is part of the transaction admission, not a later _canonical_bytes failure after credentials changed. Reserve two further slots exclusively for owner.release/owner.recover; these may clear an active owner at saturation, never acquire a new one. At 4096 entries the workflow is sealed against all new mutations; exact receipt retrieval and snapshot remain available. Capacity is an explicit terminal boundary, not an unspecified future repair. Operator exit procedure: finish/reconcile jobs (none supported here), release/recover ownership using reserve capacity, verify an owner-null snapshot, copy the entire private controller directory to a private offline archive and verify every file hash, then rename the original private directory into a sibling private archive named by workflow ID, and open a new workflow at the fixed empty controller path. Never delete the archive. Archived state, credentials, receipts and schema remain replayable by placing the original directory back at its original project binding while the new workflow is offline; never merge identities. README documents the ordered manual procedure; tests saturate normal capacity, clear the owner through reserved capacity, validate the archive/hash/restore roundtrip and open a distinct workflow. No archival or state removal runs automatically. If an active owner reaches hard capacity through externally corrupted state, return recovery_required and retain all evidence rather than overriding it. Top-level `lease_epoch` starts at 0 and increases on acquire/recover/release, retained even while owner is null.\n\n### Protocol\nCLI argv is `[\"python3\", \"<installed-plugin-root>/controller/main.py\"]`. Commands are `--json contract`, `--json snapshot --project-root PATH`, `--json apply --project-root PATH --request FILE`; apply accepts `--actor-file PATH`. No shell invocation or process launch. Request file limit is 2097152 bytes; snapshot/response output limit is 16777216 bytes. Use strict bounded JSON parsing. Exit 0 for success, 1 for structured rejection, 2 for argument misuse; never print credentials or untrusted request values in diagnostics. CLI callers must bound execution time; tests use a 30-second subprocess deadline.\n\nEnvelope is exactly `{protocol_major, operation, request_id, expected_revision, project_id, workflow_id, actor_id, job_id, lease_epoch, payload}`. `protocol_major` is integer 1; request_id and nonnull identities are nonempty strings of at most 256 UTF-8 bytes; expected_revision and nonnull lease_epoch are nonnegative integers, never bool. Operator job_id is null. Response is exactly `{ok, revision, result, error_code, retryable}`; success has error_code null and retryable false; failure has result null. Error codes are exactly `invalid_request`, `incompatible_contract`, `revision_conflict`, `wrong_binding`, `missing_capability`, `rejected_evidence`, `recovery_required`. Only revision_conflict is retryable. Rejections retain current revision, or 0 before initialization. Reject malformed envelopes before touching state. Redact diagnostics.\n\nAP00018 implements `workflow.open`, `owner.acquire`, `owner.release`, `owner.recover` and advertises only `workflow.core.v1`. Closed later names are `policy.bind`, `prd.enter`, `task.replace`, `task.start`, `task.finish`, `task.attempt`, `lane.route`, `job.plan`, `job.claim`, `job.record_exit`, `review.record_stage`, `review.close`, `custody.record`, `custody.discharge`, `verification.record`, `phase.handoff`, `prd.stall`, `prd.park`, `prd.defer`, `prd.complete`, `artifact.record`, `records.commit`; these return missing_capability without writes. Unknown operation returns invalid_request. Jobs/reviews/records/waves capabilities are declared unavailable, never advertised or returned as successful stubs.\n\nPayload schemas are closed objects: workflow.open `{}`; owner.acquire `{mode: \"manual\"|\"supervised\", native_session_id: nonempty string}`; owner.release `{}`; owner.recover `{reason: nonempty string, reconciled_job_ids: unique string[]}`. Strings obey the identity bound except reason, bounded to 4096 bytes. Freeze schemas and positive/negative fixtures for all four implemented operations. Reserved operation names and their unavailable capability mappings are explicit contract declarations, not implemented payload schemas.\n\nFresh workflow.open on an absent store alone accepts null workflow_id/actor_id/lease_epoch, null job_id, expected_revision 0 and matching project_id. Assign workflow ID once, create operator credential, state and receipt recoverably under one bootstrap lock. Result contains `workflow_id`, `actor_id`, `actor_file`, `lease_epoch`; only credential path is returned. Initialize receipt and revision 0 together. Identical fresh-open replay after lost acknowledgement returns that exact result without creating credentials or workflows; conflicting ID returns revision_conflict. Existing workflow.open requires a valid actor and all existing bindings; it cannot reset or acquire ownership.\n\nOther apply calls authenticate actor-file against its stored current descriptor or a receipt-retained historical descriptor before any mutation. Check project/workflow binding, scope and job first. For an identical recorded request, either a credential matching the receipt's historical authorizing digest or the authenticated current credential of that same actor_id and role at an epoch not earlier than the authorizing epoch may retrieve only that receipt even if its epoch was revoked; this never grants mutation authority. For any new request, require current descriptor and exact current envelope/credential epoch, then CAS and operation preconditions, then persist state plus receipt atomically. Current-credential receipt retrieval uses the historical envelope unchanged and does not require its lease_epoch to equal the current epoch. Historical credentials cannot submit new operations, altered envelopes or recover ownership. Thus in-place operator-file rotation does not prevent the caller reopening that path and retrieving its original receipt after lost acknowledgement; a caller retaining the old bytes may also retrieve that receipt only. Same canonical complete envelope (including expected_revision) under an authenticated binding returns the original response even after revision changes; changed request ID payload/envelope conflicts. Historical receipt retrieval is the sole exception to execution-epoch revocation and returns no credential contents; it cannot replay effects into new ownership. Retain each receipt's original authorizing digest and response until explicit future migration; capacity refusal never evicts them. Unsupported operation and rejected requests never create receipts or change revisions. Contract/snapshot do not acquire execution ownership; snapshot excludes all credential material.\n\n### Actors and lease\nCredential files are strict JSON with closed keys `{actor_id, project_id, workflow_id, role, lease_epoch, native_session_id, secret}`. Generate secrets using `secrets.token_urlsafe(32)`, store only SHA-256 digests in durable actor descriptors, compare with `hmac.compare_digest`. Credential root 0700/file 0600; reject symlinks, hardlinks, wrong permissions and bindings. File contents never enter logs, responses, bundle fixtures or public snapshot. Bootstrap operator is role operator at epoch 0. Execution credential role is owner; its scope allows release and future permitted lifecycle actions, never operator recovery. Future job role is declared but no job credential issuance occurs here.\n\nowner.acquire requires current operator authority and no owner; increment epoch, rotate the operator credential to that epoch, and issue one owner credential bound to mode/native_session_id. Operator actor ID remains stable, its new secret replaces the old secret; every epoch-changing operation rotates it in the same recoverable publication. owner.acquire returns `actor_file`/`actor_id`/`lease_epoch` for the owner and `operator_actor_file` for the refreshed operator. Return its path, actor ID and epoch. Concurrent acquires have exactly one winner; an existing owner blocks even when mode differs. owner.release requires the current owner credential; increment epoch and revoke owner credentials. Preserve operator recovery authority across every acquire/release/recover by rotating its descriptor and credential through recoverable intent; do not make an old execution credential an operator. owner.recover requires operator authority plus reason and reconciliation of the durable active/unreconciled jobs; never timeout alone. AP00018 has no jobs and requires both durable jobs and reconciled_job_ids empty. Increment epoch, revoke prior execution actors and clear owner; acquiring again is explicit. Return current operator credential path/epoch where rotation is required. Lost acknowledgements at every credential publication boundary must leave either the old consistent pair or a recoverable intent; never a committed receipt pointing at missing credential bytes. Recovery retries reconcile intent before new work. Failure to reconcile returns recovery_required without accepting another owner. Intent records contain paths/digests/IDs, never plaintext secrets; staged credential bytes remain private 0600. Use one fixed private `credential-intent.json` and private staged/rollback files under actors. Before changing final credentials, stage+fsync all new bytes and rollback copies, then persist+directory-fsync intent containing the canonical request digest, old revision/state digest, candidate state, response/receipt and old/new credential descriptors/paths/digests. Candidate state contains no secrets. Publish final credential files with fsync/replace/directory-fsync, then publish state+receipt through StateStore, then remove intent and private stages with directory fsync. Bootstrap uses the state sidecar lock without recursively locking; factor a locked initialization entry internally. Never acquire a second flock for the same operation. A crash before durable intent leaves only unreferenced private stages; it changes no final credential or state. A crash after intent is reconciled forward exactly once from validated old/candidate state and verified staged/final hashes, or returns recovery_required retaining evidence. A successful receipt is never emitted until final files match its descriptors. Reconciliation admission: strict envelope and project/workflow binding validation precede reconciliation; only the identical intent request authenticated by its recorded old/new authorizing descriptor (or the identical null-bootstrap request) may finish it. All unrelated/invalid requests return recovery_required/wrong_binding without changing bytes. Snapshot never reconciles; it reports recovery_required while an intent exists. A changed bootstrap request ID cannot reconcile another bootstrap. Frozen fixtures enumerate crashes at stage, intent, each credential publication, state publication and cleanup; after recovery the original caller can retrieve the exact receipt using its historical credential. Rejection byte preservation is measured after admitted intent reconciliation only for that successful matching recovery request; rejected calls never reconcile.\n\n### Export and installed evidence\n`contracts/controller/workflow-v1.json` is canonical JSON Schema for durable state and protocol/payload/response definitions. `fixtures-v1.json` freezes named positive/negative scenarios with explicit expected errors and no real secrets. `provenance.json` records OVCAQ repository, exact pin, source-to-target symbol and test maps, hashes, preserved invariants and deliberate exclusions/divergences; preserve MIT attribution in extracted files. Exporter computes SHA-256 of raw schema/fixture bytes and produces `contracts/controller-v1.json`, strict JSON with exactly `{protocol_major, package_version, schema_digest, fixture_digest, operations, capabilities}`. protocol_major is integer 1; package_version equals plugin manifest version; digests are lowercase SHA-256 hex; operations/capabilities are unique string lists containing only implemented items. No symlink path components, regular file, under 16777216 bytes. Runtime contract reads installed assets and matches digests/identities; package version may add `+<build>` only. Export is deterministic and cannot read live workflow state. README documents raw bundle SHA-256 and the single installed argv above. No package version bump/publication or installation is authorized.\n\nDetails:\nCharacterize source commit cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7 via git show, including source symbols/tests, hashes, field ownership and all intentional divergences. JSON schemas and fixtures are executable configuration. Add JSON-schema tests for kernel_field_ownership and contract_examples; no runtime imports yet. Freeze exact owned nested shapes including current actor descriptors and receipts; fixture values are synthetic, never real credentials. Resolve protocol defaults as recorded below.\nAll workflow, process and git tests use temporary roots; never the implementation batch state. Keep later families unavailable. No host certification, publication, installation or OVCAQ mutation. Preserve all original tests and evidence.\nPlanning defaults for retained questions (requirements, not implementation hints): canonical complete-envelope bytes are json.dumps(sort_keys=True,separators=(\",\",\":\"),ensure_ascii=False,allow_nan=False).encode(\"utf-8\"), with no Unicode normalization. Kernel job_id must be null for every actor. Existing workflow.open is an authenticated ordinary apply with matching current binding/CAS and a receipt/revision increment; replay is receipt-only. Snapshot takes a shared lock; absent store returns ok/revision 0/result containing project_id, workflow_id:null, lease_epoch:0, owner:null and health:\"absent\", with no persistent creation. Existing snapshot projects workflow identity, owner, epoch, workflow reserves, actor IDs/roles, receipt count and health/capacity; excludes secrets, digests and receipt bodies, so output remains bounded at saturation. Intent read limit is 33554432 bytes and includes the canonical non-secret request so a caller can reconstruct the identical request after losing its file. Owner actor_id is fresh on each acquire. Keep revoked credential files for historical exact receipt retrieval; no secret deletion before intent cleanup. Error mapping: bad envelope/unknown operation/changed request-ID payload/oversized request or response => invalid_request; protocol/schema mismatch => incompatible_contract; stale revision => revision_conflict; actor/scope/epoch/job/project/workflow mismatch or occupied owner => wrong_binding; declared unavailable operation => missing_capability; invalid submitted evidence => rejected_evidence; corrupt state, pending unrelated intent, capacity, path/durability/I/O failure => recovery_required. Only revision_conflict is retryable. Guard Python version before importing 3.12-only modules using syntax-neutral main.py, emit fixed redacted structured incompatible_contract. Public contract reads installed bytes without symlink traversal. No real-host support is claimed.\n\nAcceptance criteria:\nkernel_field_ownership and contract_examples reject unowned fields; recheck source pin and preserve existing fixes.\n\nVerify: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_protocol.py -q (narrow task-owned tests only; docs task uses documented CLI/bundle checks).\nPremise: OVCAQ state/store.py and schema.py implement atomic writes, locking and revisions.",
+      "files": [
+        "plugins/autopilot/contracts/controller/workflow-v1.json",
+        "plugins/autopilot/contracts/controller/fixtures-v1.json",
+        "plugins/autopilot/contracts/controller/provenance.json",
+        "tests/autopilot/test_controller_protocol.py"
+      ],
+      "blocked_by": [],
+      "estimated_tokens": 63296,
+      "est_context_peak": 83296,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "id": "1",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "aborted",
+          "review_cycle": null,
+          "cause": "context_overrun",
+          "implementor": "codex",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "actual_model": "gpt-6.1-sol",
+          "actual_provider": "openai",
+          "red_check": "n/a:config-only-task",
+          "host_detail": "Worker aborted without edits after treating 100K-token context bound as 100KB. Observed last context 52036 input tokens; failure is a documented unit/reasoning blocker, not actual context exhaustion. Retain history; bounded feedback retry uses host-authorized gpt-6-astra/high at logical opus."
+        },
+        {
+          "attempt": 2,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "codex",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "actual_model": "gpt-6-astra",
+          "actual_provider": "openai",
+          "red_check": "n/a:config-only-task",
+          "self_deslop": "noop",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "host_detail": "Config/schema/fixtures plus configuration tests only; Tess and Pat skipped under config-only rule, no earlier-task tests for Devon. Independent narrow verification:13 passed. Raw worker metadata retained; initial GPT-6.1-sol no-edit abort preserved as attempt1."
+        }
+      ]
+    },
+    {
+      "name": "Split retained kernel tests by public API without changing assertions",
+      "description": "Split retained kernel tests by public API without changing assertions\n\nLocation: /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_controller_kernel.py, /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_controller_kernel_adversarial.py, /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_controller_schema.py, /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_controller_paths.py, /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/controller_test_support.py\n\nReuse: pinned OVCAQ services at cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7 and existing frozen controller contracts.\n\nContract (verbatim):\nPython floor is 3.12; stdlib only. `autopilot_state.schema` exports `SCHEMA_VERSION = 1`, `MAX_STATE_BYTES = 16777216`, `MAX_COMMAND_PAYLOAD_BYTES = 2097152`, `MAX_STRING_BYTES = 1048576`, `MAX_JSON_DEPTH = 32`, `MAX_JSON_INTEGER_DIGITS = 640`, `SchemaError`, `ResourceLimitError`, `decode_json(text: str, *, source: str)`, `validate_state(value: object) -> dict`, and `new_state(*, repo_root: Path, project_id: str, workflow_id: str) -> dict`. Reject duplicate JSON keys, nonfinite numbers, bool integers, unknown owned fields and unsupported durable versions; validate before deep copying. Default review cap is 2. Reject process identity, PID, launcher, heartbeat, resource usage and TUI state as workflow fields. Model/session observations later arrive only as explicitly bounded workflow evidence, never execution authority.\n\nDetails:\nMove SchemaTest, DecoderRegressionTest and SchemaRegressionTest into test_controller_schema.py; move ProjectRootTest into test_controller_paths.py. Keep StoreTest and StoreRegressionTest in their original modules. Extract only shared fixture helpers into controller_test_support.py. Preserve all 44 test method ASTs, assertion expressions, subprocess programs and fixture values exactly. Remove unrelated imports so each API slice collects independently. Verify original-vs-new test method AST multisets and total 44 methods. Runtime is absent; record that tests are not yet executable. Do not add skips or weaken assertions.\nPreserve existing completed characterization and all prior test/model evidence. Read only bounded relevant snapshots. Append precise Unreleased changelog entry before feat/fix commit.\n\nAcceptance criteria:\nkernel_equivalence, concurrent_cas and corrupt_state_recovery preserve source outcomes under real subprocess contention.\n\nVerify: narrow task-owned tests only with Python 3.12 and tools/autopilot/requirements-test.txt; final full suite and validator run after all tasks.\n",
+      "files": [
+        "tests/autopilot/test_controller_kernel.py",
+        "tests/autopilot/test_controller_kernel_adversarial.py",
+        "tests/autopilot/test_controller_schema.py",
+        "tests/autopilot/test_controller_paths.py",
+        "tests/autopilot/controller_test_support.py"
+      ],
+      "estimated_tokens": 70573,
+      "est_context_peak": 90573,
+      "model": "opus",
+      "tier_reason": "floor",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        1
+      ],
+      "id": "2",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "codex",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "actual_model": "gpt-6.1-sol",
+          "actual_provider": "openai",
+          "red_check": "n/a:test-only-task",
+          "self_deslop": "skipped:test-only",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "review": "skipped:test-only",
+          "verification": "skipped:runtime absent; test relocation verified by exact AST equivalence",
+          "host_detail": "Pure test relocation; no new behavioral tests. Retained original Devon/strengthening round in task2 source evidence. 44 method ASTs independently equal. Worker Python 3.12 compile and diff check passed. Raw observed metadata: reports/00018-replan1-task2-ivan-metadata.jsonl. Commit8610806."
+        }
+      ]
+    },
+    {
+      "name": "Implement strict kernel schema and package namespace",
+      "description": "Implement strict kernel schema and package namespace\n\nLocation: /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/controller/autopilot_state/__init__.py, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/controller/autopilot_state/schema.py, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\n\nReuse: pinned OVCAQ services at cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7 and existing frozen controller contracts.\n\nContract (verbatim):\nPython floor is 3.12; stdlib only. `autopilot_state.schema` exports `SCHEMA_VERSION = 1`, `MAX_STATE_BYTES = 16777216`, `MAX_COMMAND_PAYLOAD_BYTES = 2097152`, `MAX_STRING_BYTES = 1048576`, `MAX_JSON_DEPTH = 32`, `MAX_JSON_INTEGER_DIGITS = 640`, `SchemaError`, `ResourceLimitError`, `decode_json(text: str, *, source: str)`, `validate_state(value: object) -> dict`, and `new_state(*, repo_root: Path, project_id: str, workflow_id: str) -> dict`. Reject duplicate JSON keys, nonfinite numbers, bool integers, unknown owned fields and unsupported durable versions; validate before deep copying. Default review cap is 2. Reject process identity, PID, launcher, heartbeat, resource usage and TUI state as workflow fields. Model/session observations later arrive only as explicitly bounded workflow evidence, never execution authority.\n\nDurable state has closed top-level keys `schema_version`, `revision`, `project_id`, `workflow_id`, `repo_root`, `lease_epoch`, `owner`, `actors`, `receipts`, `workflow`. `workflow` is exactly `{batch: null, work: null, tasks: [], review: {cap: 2}, recovery: null, jobs: []}` in this kernel; no operation may mutate these reserves. Later producer PRDs define their expanded schemas and migration. Characterization records each source workflow field and its deferred owner; it does not import process fields or claim full legacy schema equivalence. No generic JSON setter is exported. `owner` is null or `{actor_id, mode, native_session_id, lease_epoch}`; `mode` is `manual|supervised`. `actors` contains descriptors, never credential secrets. `receipts` maps request IDs to canonical request digests, actor binding and complete original responses. `jobs` is empty and cannot be mutated in AP00018. Actor registry retains only the current operator and current owner descriptors (at most two); historical authorizing digests are receipt-owned, never actor rows. Normal receipt admission stops at 4094 entries. Before writing durable intent or any final credential, serialize and validate the complete candidate and complete response. Normal operation candidates may occupy at most 14680064 bytes (14 MiB), leaving 2097152 bytes for the two emergency operations below the 16777216-byte state ceiling. Each stored core response is bounded to 65536 UTF-8 bytes, including all absolute paths; refuse a root/response that cannot meet this bound before bootstrap. Emergency release/recover may use the reserved bytes only when clearing an active owner; their complete candidate must still validate under the state ceiling. A no-owner call cannot consume reserve capacity. Maximum response/descriptor growth for both emergency operations fits within 2 MiB under these explicit core bounds; test byte saturation independently of receipt-count saturation and reject oversized candidates before preparing intent. This prepublication check is part of the transaction admission, not a later _canonical_bytes failure after credentials changed. Reserve two further slots exclusively for owner.release/owner.recover; these may clear an active owner at saturation, never acquire a new one. At 4096 entries the workflow is sealed against all new mutations; exact receipt retrieval and snapshot remain available. Capacity is an explicit terminal boundary, not an unspecified future repair. Operator exit procedure: finish/reconcile jobs (none supported here), release/recover ownership using reserve capacity, verify an owner-null snapshot, copy the entire private controller directory to a private offline archive and verify every file hash, then rename the original private directory into a sibling private archive named by workflow ID, and open a new workflow at the fixed empty controller path. Never delete the archive. Archived state, credentials, receipts and schema remain replayable by placing the original directory back at its original project binding while the new workflow is offline; never merge identities. README documents the ordered manual procedure; tests saturate normal capacity, clear the owner through reserved capacity, validate the archive/hash/restore roundtrip and open a distinct workflow. No archival or state removal runs automatically. If an active owner reaches hard capacity through externally corrupted state, return recovery_required and retain all evidence rather than overriding it. Top-level `lease_epoch` starts at 0 and increases on acquire/recover/release, retained even while owner is null.\n\nDetails:\nImplement strict schema only. Reuse pinned OVCAQ strict decoder patterns and frozen workflow-v1.json definitions. Retained test_controller_schema.py is the immutable test surface; no new Tess authoring is needed. This task does not publish credentials or implement operation admission.\nPreserve existing completed characterization and all prior test/model evidence. Read only bounded relevant snapshots. Append precise Unreleased changelog entry before feat/fix commit.\n\nAcceptance criteria:\nkernel_field_ownership and contract_examples reject unowned fields; recheck source pin and preserve existing fixes.\n\nVerify: narrow task-owned tests only with Python 3.12 and tools/autopilot/requirements-test.txt; final full suite and validator run after all tasks.\n",
+      "files": [
+        "plugins/autopilot/controller/autopilot_state/__init__.py",
+        "plugins/autopilot/controller/autopilot_state/schema.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 60238,
+      "est_context_peak": 80238,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        2
+      ],
+      "id": "3",
+      "status": "in_progress",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "aborted",
+          "review_cycle": null,
+          "cause": "error",
+          "implementor": "codex",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "actual_model": "gpt-6.1-sol",
+          "actual_provider": "openai",
+          "host_detail": "Mandatory native schema adversary /root/schema_devon failed: host content filter flagged possible cybersecurity risk. Partial wrong implementation quarantined; no Ivan dispatch or completed adversary verdict. See reports/00018-replan1-task3-host-block.md. Attended host/workflow reconciliation required; do not auto-clear. Actual dispatched role was Devon; no production implementor ran and no adversarial candidate was retained as product code."
+        }
+      ]
+    },
+    {
+      "name": "Extract atomic store with guarded forensic restore",
+      "description": "Extract atomic store with guarded forensic restore\n\nLocation: /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/controller/autopilot_state/store.py, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\n\nReuse: pinned OVCAQ services at cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7 and existing frozen controller contracts.\n\nContract (verbatim):\nRetain source `StateStore(path: Path, *, boundary_hook=None)`, `read()`, `initialize(initial)`, `transaction(mutator, *, expected_revision=None, publication_guard=None)`, `restore(*, expected_revision=None, precondition=None)`, source exception names and six `DurabilityBoundary` values. Preserve source lock/read/publication guards, single-link regular-file checks, bounded reads, CAS under exclusive flock, deep-copy mutation, revision increment, fsync-before-replace, backup/state pair repair and create-only initialization. Keep one last-good `.bak` and `.lock`; failed validation/conflict/publication cannot change the pair. Restore is an offline forensic library primitive, never a CLI operation or a protocol recovery path. It requires readable valid current state and valid backup and refuses with BackupError unless backup lease_epoch, owner, actors and receipts exactly equal current and no credential-intent.json exists. Check these invariants under the same exclusive lock after decoding backup and before any pair publication; precondition(current) alone is insufficient. Only security-identical backups may be restored, with current revision +1. This deliberate tightening of source restore prevents epoch rollback, credential resurrection and receipt loss; characterize it explicitly. Test acquire followed by restore refuses with exact state/backup/credential bytes preserved, and a security-identical backup restore retains source revision and repair outcomes. Corrupt current state refuses with recovery_required and preserves bytes for operator forensic recovery. Never silently overwrite corruption. Test backup/restore and each injected boundary. Unsupported directory fsync refuses explicitly.\n\nDetails:\nRead pinned OVCAQ state/store.py at cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7, preserve MIT attribution and source fixes. Reuse committed schema. Preserve retained StoreTest and StoreRegressionTest; factor private already-locked entry points for later protocol use without nested flock. Initialize requires exact integer revision zero. Read/init/transaction/restore return isolated dicts. Preserve source exception names and boundary values from frozen provenance. Store parent must already exist. Do not create CLI layout here.\nPreserve existing completed characterization and all prior test/model evidence. Read only bounded relevant snapshots. Append precise Unreleased changelog entry before feat/fix commit.\n\nAcceptance criteria:\nkernel_equivalence, concurrent_cas and corrupt_state_recovery preserve source outcomes under real subprocess contention.\n\nVerify: narrow task-owned tests only with Python 3.12 and tools/autopilot/requirements-test.txt; final full suite and validator run after all tasks.\n",
+      "files": [
+        "plugins/autopilot/controller/autopilot_state/store.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 59590,
+      "est_context_peak": 79590,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        3
+      ],
+      "id": "4",
+      "status": "pending"
+    },
+    {
+      "name": "Extract explicit project root containment resolver",
+      "description": "Extract explicit project root containment resolver\n\nLocation: /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/controller/autopilot_state/paths.py, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\n\nReuse: pinned OVCAQ services at cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7 and existing frozen controller contracts.\n\nContract (verbatim):\n`resolve_project_root(path: Path) -> Path` resolves an existing directory without ancestor workflow inference. The private controller store is `<project-root>/.autopilot/controller/`, directory 0700, with `state.json`, `state.json.bak`, `state.json.lock`, and `actors/`. Before creating any credential, create regular private `.gitignore` files containing `*\\n` in both `.autopilot/` and the private controller directory (parent 0700, files 0600; sibling archives are ignored too), refuse an existing incompatible or aliased ignore file, and verify a temporary Git repository ignores state and actor files. This is separate from the implementation batch's legacy state. Reject symlink components below the resolved project root, escapes, nonregular/multiply-linked artifacts and payload-selected state paths. Preserve directory descriptor/no-follow creation and ancestor inode identity rechecks from the pinned root resolver; Path.resolve containment alone is insufficient. Project identity is SHA-256 of the resolved root's UTF-8 path. Relocating the installed package preserves functionality; relocating an existing project requires explicit future migration, not identity rewriting.\n\nDetails:\nImplement resolve_project_root only, using pinned root resolver descriptor and ancestor-identity concepts. Raise the same StateIOError exported by store for absent/nondirectory roots and unsafe fixed descendants. No arbitrary coercion or persistent creation. Retained test_controller_paths.py is immutable. Private layout/ignore creation belongs to bootstrap task.\nPreserve existing completed characterization and all prior test/model evidence. Read only bounded relevant snapshots. Append precise Unreleased changelog entry before feat/fix commit.\n\nAcceptance criteria:\nkernel_equivalence, concurrent_cas and corrupt_state_recovery preserve source outcomes under real subprocess contention.\n\nVerify: narrow task-owned tests only with Python 3.12 and tools/autopilot/requirements-test.txt; final full suite and validator run after all tasks.\n",
+      "files": [
+        "plugins/autopilot/controller/autopilot_state/paths.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 59417,
+      "est_context_peak": 79417,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        4
+      ],
+      "id": "5",
+      "status": "pending"
+    },
+    {
+      "name": "Implement bounded CLI bootstrap, snapshot and matching-intent recovery",
+      "description": "Implement bounded CLI bootstrap, snapshot and matching-intent recovery\n\nLocation: /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/controller/main.py, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/controller/autopilot_state/protocol.py, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/controller/autopilot_state/actors.py, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\n\nReuse: pinned OVCAQ services at cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7 and existing frozen controller contracts.\n\nContract (verbatim):\nCLI argv is `[\"python3\", \"<installed-plugin-root>/controller/main.py\"]`. Commands are `--json contract`, `--json snapshot --project-root PATH`, `--json apply --project-root PATH --request FILE`; apply accepts `--actor-file PATH`. No shell invocation or process launch. Request file limit is 2097152 bytes; snapshot/response output limit is 16777216 bytes. Use strict bounded JSON parsing. Exit 0 for success, 1 for structured rejection, 2 for argument misuse; never print credentials or untrusted request values in diagnostics. CLI callers must bound execution time; tests use a 30-second subprocess deadline.\n\nEnvelope is exactly `{protocol_major, operation, request_id, expected_revision, project_id, workflow_id, actor_id, job_id, lease_epoch, payload}`. `protocol_major` is integer 1; request_id and nonnull identities are nonempty strings of at most 256 UTF-8 bytes; expected_revision and nonnull lease_epoch are nonnegative integers, never bool. Operator job_id is null. Response is exactly `{ok, revision, result, error_code, retryable}`; success has error_code null and retryable false; failure has result null. Error codes are exactly `invalid_request`, `incompatible_contract`, `revision_conflict`, `wrong_binding`, `missing_capability`, `rejected_evidence`, `recovery_required`. Only revision_conflict is retryable. Rejections retain current revision, or 0 before initialization. Reject malformed envelopes before touching state. Redact diagnostics.\n\nAP00018 implements `workflow.open`, `owner.acquire`, `owner.release`, `owner.recover` and advertises only `workflow.core.v1`. Closed later names are `policy.bind`, `prd.enter`, `task.replace`, `task.start`, `task.finish`, `task.attempt`, `lane.route`, `job.plan`, `job.claim`, `job.record_exit`, `review.record_stage`, `review.close`, `custody.record`, `custody.discharge`, `verification.record`, `phase.handoff`, `prd.stall`, `prd.park`, `prd.defer`, `prd.complete`, `artifact.record`, `records.commit`; these return missing_capability without writes. Unknown operation returns invalid_request. Jobs/reviews/records/waves capabilities are declared unavailable, never advertised or returned as successful stubs.\n\nPayload schemas are closed objects: workflow.open `{}`; owner.acquire `{mode: \"manual\"|\"supervised\", native_session_id: nonempty string}`; owner.release `{}`; owner.recover `{reason: nonempty string, reconciled_job_ids: unique string[]}`. Strings obey the identity bound except reason, bounded to 4096 bytes. Freeze schemas and positive/negative fixtures for all four implemented operations. Reserved operation names and their unavailable capability mappings are explicit contract declarations, not implemented payload schemas.\n\nFresh workflow.open on an absent store alone accepts null workflow_id/actor_id/lease_epoch, null job_id, expected_revision 0 and matching project_id. Assign workflow ID once, create operator credential, state and receipt recoverably under one bootstrap lock. Result contains `workflow_id`, `actor_id`, `actor_file`, `lease_epoch`; only credential path is returned. Initialize receipt and revision 0 together. Identical fresh-open replay after lost acknowledgement returns that exact result without creating credentials or workflows; conflicting ID returns revision_conflict. Existing workflow.open requires a valid actor and all existing bindings; it cannot reset or acquire ownership.\n\nOther apply calls authenticate actor-file against its stored current descriptor or a receipt-retained historical descriptor before any mutation. Check project/workflow binding, scope and job first. For an identical recorded request, either a credential matching the receipt's historical authorizing digest or the authenticated current credential of that same actor_id and role at an epoch not earlier than the authorizing epoch may retrieve only that receipt even if its epoch was revoked; this never grants mutation authority. For any new request, require current descriptor and exact current envelope/credential epoch, then CAS and operation preconditions, then persist state plus receipt atomically. Current-credential receipt retrieval uses the historical envelope unchanged and does not require its lease_epoch to equal the current epoch. Historical credentials cannot submit new operations, altered envelopes or recover ownership. Thus in-place operator-file rotation does not prevent the caller reopening that path and retrieving its original receipt after lost acknowledgement; a caller retaining the old bytes may also retrieve that receipt only. Same canonical complete envelope (including expected_revision) under an authenticated binding returns the original response even after revision changes; changed request ID payload/envelope conflicts. Historical receipt retrieval is the sole exception to execution-epoch revocation and returns no credential contents; it cannot replay effects into new ownership. Retain each receipt's original authorizing digest and response until explicit future migration; capacity refusal never evicts them. Unsupported operation and rejected requests never create receipts or change revisions. Contract/snapshot do not acquire execution ownership; snapshot excludes all credential material.\n\nCredential files are strict JSON with closed keys `{actor_id, project_id, workflow_id, role, lease_epoch, native_session_id, secret}`. Generate secrets using `secrets.token_urlsafe(32)`, store only SHA-256 digests in durable actor descriptors, compare with `hmac.compare_digest`. Credential root 0700/file 0600; reject symlinks, hardlinks, wrong permissions and bindings. File contents never enter logs, responses, bundle fixtures or public snapshot. Bootstrap operator is role operator at epoch 0. Execution credential role is owner; its scope allows release and future permitted lifecycle actions, never operator recovery. Future job role is declared but no job credential issuance occurs here.\n\nowner.acquire requires current operator authority and no owner; increment epoch, rotate the operator credential to that epoch, and issue one owner credential bound to mode/native_session_id. Operator actor ID remains stable, its new secret replaces the old secret; every epoch-changing operation rotates it in the same recoverable publication. owner.acquire returns `actor_file`/`actor_id`/`lease_epoch` for the owner and `operator_actor_file` for the refreshed operator. Return its path, actor ID and epoch. Concurrent acquires have exactly one winner; an existing owner blocks even when mode differs. owner.release requires the current owner credential; increment epoch and revoke owner credentials. Preserve operator recovery authority across every acquire/release/recover by rotating its descriptor and credential through recoverable intent; do not make an old execution credential an operator. owner.recover requires operator authority plus reason and reconciliation of the durable active/unreconciled jobs; never timeout alone. AP00018 has no jobs and requires both durable jobs and reconciled_job_ids empty. Increment epoch, revoke prior execution actors and clear owner; acquiring again is explicit. Return current operator credential path/epoch where rotation is required. Lost acknowledgements at every credential publication boundary must leave either the old consistent pair or a recoverable intent; never a committed receipt pointing at missing credential bytes. Recovery retries reconcile intent before new work. Failure to reconcile returns recovery_required without accepting another owner. Intent records contain paths/digests/IDs, never plaintext secrets; staged credential bytes remain private 0600. Use one fixed private `credential-intent.json` and private staged/rollback files under actors. Before changing final credentials, stage+fsync all new bytes and rollback copies, then persist+directory-fsync intent containing the canonical request digest, old revision/state digest, candidate state, response/receipt and old/new credential descriptors/paths/digests. Candidate state contains no secrets. Publish final credential files with fsync/replace/directory-fsync, then publish state+receipt through StateStore, then remove intent and private stages with directory fsync. Bootstrap uses the state sidecar lock without recursively locking; factor a locked initialization entry internally. Never acquire a second flock for the same operation. A crash before durable intent leaves only unreferenced private stages; it changes no final credential or state. A crash after intent is reconciled forward exactly once from validated old/candidate state and verified staged/final hashes, or returns recovery_required retaining evidence. A successful receipt is never emitted until final files match its descriptors. Reconciliation admission: strict envelope and project/workflow binding validation precede reconciliation; only the identical intent request authenticated by its recorded old/new authorizing descriptor (or the identical null-bootstrap request) may finish it. All unrelated/invalid requests return recovery_required/wrong_binding without changing bytes. Snapshot never reconciles; it reports recovery_required while an intent exists. A changed bootstrap request ID cannot reconcile another bootstrap. Frozen fixtures enumerate crashes at stage, intent, each credential publication, state publication and cleanup; after recovery the original caller can retrieve the exact receipt using its historical credential. Rejection byte preservation is measured after admitted intent reconciliation only for that successful matching recovery request; rejected calls never reconcile.\n\n`resolve_project_root(path: Path) -> Path` resolves an existing directory without ancestor workflow inference. The private controller store is `<project-root>/.autopilot/controller/`, directory 0700, with `state.json`, `state.json.bak`, `state.json.lock`, and `actors/`. Before creating any credential, create regular private `.gitignore` files containing `*\\n` in both `.autopilot/` and the private controller directory (parent 0700, files 0600; sibling archives are ignored too), refuse an existing incompatible or aliased ignore file, and verify a temporary Git repository ignores state and actor files. This is separate from the implementation batch's legacy state. Reject symlink components below the resolved project root, escapes, nonregular/multiply-linked artifacts and payload-selected state paths. Preserve directory descriptor/no-follow creation and ancestor inode identity rechecks from the pinned root resolver; Path.resolve containment alone is insufficient. Project identity is SHA-256 of the resolved root's UTF-8 path. Relocating the installed package preserves functionality; relocating an existing project requires explicit future migration, not identity rewriting.\n\nDurable state has closed top-level keys `schema_version`, `revision`, `project_id`, `workflow_id`, `repo_root`, `lease_epoch`, `owner`, `actors`, `receipts`, `workflow`. `workflow` is exactly `{batch: null, work: null, tasks: [], review: {cap: 2}, recovery: null, jobs: []}` in this kernel; no operation may mutate these reserves. Later producer PRDs define their expanded schemas and migration. Characterization records each source workflow field and its deferred owner; it does not import process fields or claim full legacy schema equivalence. No generic JSON setter is exported. `owner` is null or `{actor_id, mode, native_session_id, lease_epoch}`; `mode` is `manual|supervised`. `actors` contains descriptors, never credential secrets. `receipts` maps request IDs to canonical request digests, actor binding and complete original responses. `jobs` is empty and cannot be mutated in AP00018. Actor registry retains only the current operator and current owner descriptors (at most two); historical authorizing digests are receipt-owned, never actor rows. Normal receipt admission stops at 4094 entries. Before writing durable intent or any final credential, serialize and validate the complete candidate and complete response. Normal operation candidates may occupy at most 14680064 bytes (14 MiB), leaving 2097152 bytes for the two emergency operations below the 16777216-byte state ceiling. Each stored core response is bounded to 65536 UTF-8 bytes, including all absolute paths; refuse a root/response that cannot meet this bound before bootstrap. Emergency release/recover may use the reserved bytes only when clearing an active owner; their complete candidate must still validate under the state ceiling. A no-owner call cannot consume reserve capacity. Maximum response/descriptor growth for both emergency operations fits within 2 MiB under these explicit core bounds; test byte saturation independently of receipt-count saturation and reject oversized candidates before preparing intent. This prepublication check is part of the transaction admission, not a later _canonical_bytes failure after credentials changed. Reserve two further slots exclusively for owner.release/owner.recover; these may clear an active owner at saturation, never acquire a new one. At 4096 entries the workflow is sealed against all new mutations; exact receipt retrieval and snapshot remain available. Capacity is an explicit terminal boundary, not an unspecified future repair. Operator exit procedure: finish/reconcile jobs (none supported here), release/recover ownership using reserve capacity, verify an owner-null snapshot, copy the entire private controller directory to a private offline archive and verify every file hash, then rename the original private directory into a sibling private archive named by workflow ID, and open a new workflow at the fixed empty controller path. Never delete the archive. Archived state, credentials, receipts and schema remain replayable by placing the original directory back at its original project binding while the new workflow is offline; never merge identities. README documents the ordered manual procedure; tests saturate normal capacity, clear the owner through reserved capacity, validate the archive/hash/restore roundtrip and open a distinct workflow. No archival or state removal runs automatically. If an active owner reaches hard capacity through externally corrupted state, return recovery_required and retain all evidence rather than overriding it. Top-level `lease_epoch` starts at 0 and increases on acquire/recover/release, retained even while owner is null.\n\nDetails:\nImplement workflow.open, strict parsing/error mapping, shared-lock snapshot and private credential/intent publication. This task owns bootstrap recovery only; owner mutation handlers are added next. Test only bootstrap/snapshot and intent crash/replay boundaries, including concurrent bootstrap, identical/changed fresh-open and existing-open authorization. Return missing_capability for unimplemented owner handlers until the next task; publish no false implemented bundle claim. Version guard precedes imports requiring Python 3.12. Canonical bytes use json.dumps(sort_keys=True,separators=(\",\",\":\"),ensure_ascii=False,allow_nan=False).encode(\"utf-8\"). No Unicode normalization; job_id must be null for every actor. Snapshot absent result contains project_id, workflow_id:null, lease_epoch:0, owner:null, health:\"absent\" and creates nothing; existing snapshot is bounded metadata only. Intent limit 33554432 bytes and includes canonical non-secret request. Schema/contract loading reads installed bytes without symlink traversal. Only revision_conflict is retryable. No tests on implementation batch state.\nPreserve existing completed characterization and all prior test/model evidence. Read only bounded relevant snapshots. Append precise Unreleased changelog entry before feat/fix commit.\n\nAcceptance criteria:\nlease_exclusion, wrong_actor, epoch_revoked, lost_ack_replay and fresh_open_replay reject bypasses without partial writes.\n\nVerify: narrow task-owned tests only with Python 3.12 and tools/autopilot/requirements-test.txt; final full suite and validator run after all tasks.\n",
+      "files": [
+        "plugins/autopilot/controller/main.py",
+        "plugins/autopilot/controller/autopilot_state/protocol.py",
+        "plugins/autopilot/controller/autopilot_state/actors.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 62967,
+      "est_context_peak": 82967,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        5
+      ],
+      "id": "6",
+      "status": "pending"
+    },
+    {
+      "name": "Implement epoch-fenced owner operations and receipt capacity",
+      "description": "Implement epoch-fenced owner operations and receipt capacity\n\nLocation: /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/controller/autopilot_state/protocol.py, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/controller/autopilot_state/actors.py, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\n\nReuse: pinned OVCAQ services at cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7 and existing frozen controller contracts.\n\nContract (verbatim):\nCLI argv is `[\"python3\", \"<installed-plugin-root>/controller/main.py\"]`. Commands are `--json contract`, `--json snapshot --project-root PATH`, `--json apply --project-root PATH --request FILE`; apply accepts `--actor-file PATH`. No shell invocation or process launch. Request file limit is 2097152 bytes; snapshot/response output limit is 16777216 bytes. Use strict bounded JSON parsing. Exit 0 for success, 1 for structured rejection, 2 for argument misuse; never print credentials or untrusted request values in diagnostics. CLI callers must bound execution time; tests use a 30-second subprocess deadline.\n\nEnvelope is exactly `{protocol_major, operation, request_id, expected_revision, project_id, workflow_id, actor_id, job_id, lease_epoch, payload}`. `protocol_major` is integer 1; request_id and nonnull identities are nonempty strings of at most 256 UTF-8 bytes; expected_revision and nonnull lease_epoch are nonnegative integers, never bool. Operator job_id is null. Response is exactly `{ok, revision, result, error_code, retryable}`; success has error_code null and retryable false; failure has result null. Error codes are exactly `invalid_request`, `incompatible_contract`, `revision_conflict`, `wrong_binding`, `missing_capability`, `rejected_evidence`, `recovery_required`. Only revision_conflict is retryable. Rejections retain current revision, or 0 before initialization. Reject malformed envelopes before touching state. Redact diagnostics.\n\nAP00018 implements `workflow.open`, `owner.acquire`, `owner.release`, `owner.recover` and advertises only `workflow.core.v1`. Closed later names are `policy.bind`, `prd.enter`, `task.replace`, `task.start`, `task.finish`, `task.attempt`, `lane.route`, `job.plan`, `job.claim`, `job.record_exit`, `review.record_stage`, `review.close`, `custody.record`, `custody.discharge`, `verification.record`, `phase.handoff`, `prd.stall`, `prd.park`, `prd.defer`, `prd.complete`, `artifact.record`, `records.commit`; these return missing_capability without writes. Unknown operation returns invalid_request. Jobs/reviews/records/waves capabilities are declared unavailable, never advertised or returned as successful stubs.\n\nPayload schemas are closed objects: workflow.open `{}`; owner.acquire `{mode: \"manual\"|\"supervised\", native_session_id: nonempty string}`; owner.release `{}`; owner.recover `{reason: nonempty string, reconciled_job_ids: unique string[]}`. Strings obey the identity bound except reason, bounded to 4096 bytes. Freeze schemas and positive/negative fixtures for all four implemented operations. Reserved operation names and their unavailable capability mappings are explicit contract declarations, not implemented payload schemas.\n\nFresh workflow.open on an absent store alone accepts null workflow_id/actor_id/lease_epoch, null job_id, expected_revision 0 and matching project_id. Assign workflow ID once, create operator credential, state and receipt recoverably under one bootstrap lock. Result contains `workflow_id`, `actor_id`, `actor_file`, `lease_epoch`; only credential path is returned. Initialize receipt and revision 0 together. Identical fresh-open replay after lost acknowledgement returns that exact result without creating credentials or workflows; conflicting ID returns revision_conflict. Existing workflow.open requires a valid actor and all existing bindings; it cannot reset or acquire ownership.\n\nOther apply calls authenticate actor-file against its stored current descriptor or a receipt-retained historical descriptor before any mutation. Check project/workflow binding, scope and job first. For an identical recorded request, either a credential matching the receipt's historical authorizing digest or the authenticated current credential of that same actor_id and role at an epoch not earlier than the authorizing epoch may retrieve only that receipt even if its epoch was revoked; this never grants mutation authority. For any new request, require current descriptor and exact current envelope/credential epoch, then CAS and operation preconditions, then persist state plus receipt atomically. Current-credential receipt retrieval uses the historical envelope unchanged and does not require its lease_epoch to equal the current epoch. Historical credentials cannot submit new operations, altered envelopes or recover ownership. Thus in-place operator-file rotation does not prevent the caller reopening that path and retrieving its original receipt after lost acknowledgement; a caller retaining the old bytes may also retrieve that receipt only. Same canonical complete envelope (including expected_revision) under an authenticated binding returns the original response even after revision changes; changed request ID payload/envelope conflicts. Historical receipt retrieval is the sole exception to execution-epoch revocation and returns no credential contents; it cannot replay effects into new ownership. Retain each receipt's original authorizing digest and response until explicit future migration; capacity refusal never evicts them. Unsupported operation and rejected requests never create receipts or change revisions. Contract/snapshot do not acquire execution ownership; snapshot excludes all credential material.\n\nCredential files are strict JSON with closed keys `{actor_id, project_id, workflow_id, role, lease_epoch, native_session_id, secret}`. Generate secrets using `secrets.token_urlsafe(32)`, store only SHA-256 digests in durable actor descriptors, compare with `hmac.compare_digest`. Credential root 0700/file 0600; reject symlinks, hardlinks, wrong permissions and bindings. File contents never enter logs, responses, bundle fixtures or public snapshot. Bootstrap operator is role operator at epoch 0. Execution credential role is owner; its scope allows release and future permitted lifecycle actions, never operator recovery. Future job role is declared but no job credential issuance occurs here.\n\nowner.acquire requires current operator authority and no owner; increment epoch, rotate the operator credential to that epoch, and issue one owner credential bound to mode/native_session_id. Operator actor ID remains stable, its new secret replaces the old secret; every epoch-changing operation rotates it in the same recoverable publication. owner.acquire returns `actor_file`/`actor_id`/`lease_epoch` for the owner and `operator_actor_file` for the refreshed operator. Return its path, actor ID and epoch. Concurrent acquires have exactly one winner; an existing owner blocks even when mode differs. owner.release requires the current owner credential; increment epoch and revoke owner credentials. Preserve operator recovery authority across every acquire/release/recover by rotating its descriptor and credential through recoverable intent; do not make an old execution credential an operator. owner.recover requires operator authority plus reason and reconciliation of the durable active/unreconciled jobs; never timeout alone. AP00018 has no jobs and requires both durable jobs and reconciled_job_ids empty. Increment epoch, revoke prior execution actors and clear owner; acquiring again is explicit. Return current operator credential path/epoch where rotation is required. Lost acknowledgements at every credential publication boundary must leave either the old consistent pair or a recoverable intent; never a committed receipt pointing at missing credential bytes. Recovery retries reconcile intent before new work. Failure to reconcile returns recovery_required without accepting another owner. Intent records contain paths/digests/IDs, never plaintext secrets; staged credential bytes remain private 0600. Use one fixed private `credential-intent.json` and private staged/rollback files under actors. Before changing final credentials, stage+fsync all new bytes and rollback copies, then persist+directory-fsync intent containing the canonical request digest, old revision/state digest, candidate state, response/receipt and old/new credential descriptors/paths/digests. Candidate state contains no secrets. Publish final credential files with fsync/replace/directory-fsync, then publish state+receipt through StateStore, then remove intent and private stages with directory fsync. Bootstrap uses the state sidecar lock without recursively locking; factor a locked initialization entry internally. Never acquire a second flock for the same operation. A crash before durable intent leaves only unreferenced private stages; it changes no final credential or state. A crash after intent is reconciled forward exactly once from validated old/candidate state and verified staged/final hashes, or returns recovery_required retaining evidence. A successful receipt is never emitted until final files match its descriptors. Reconciliation admission: strict envelope and project/workflow binding validation precede reconciliation; only the identical intent request authenticated by its recorded old/new authorizing descriptor (or the identical null-bootstrap request) may finish it. All unrelated/invalid requests return recovery_required/wrong_binding without changing bytes. Snapshot never reconciles; it reports recovery_required while an intent exists. A changed bootstrap request ID cannot reconcile another bootstrap. Frozen fixtures enumerate crashes at stage, intent, each credential publication, state publication and cleanup; after recovery the original caller can retrieve the exact receipt using its historical credential. Rejection byte preservation is measured after admitted intent reconciliation only for that successful matching recovery request; rejected calls never reconcile.\n\nDurable state has closed top-level keys `schema_version`, `revision`, `project_id`, `workflow_id`, `repo_root`, `lease_epoch`, `owner`, `actors`, `receipts`, `workflow`. `workflow` is exactly `{batch: null, work: null, tasks: [], review: {cap: 2}, recovery: null, jobs: []}` in this kernel; no operation may mutate these reserves. Later producer PRDs define their expanded schemas and migration. Characterization records each source workflow field and its deferred owner; it does not import process fields or claim full legacy schema equivalence. No generic JSON setter is exported. `owner` is null or `{actor_id, mode, native_session_id, lease_epoch}`; `mode` is `manual|supervised`. `actors` contains descriptors, never credential secrets. `receipts` maps request IDs to canonical request digests, actor binding and complete original responses. `jobs` is empty and cannot be mutated in AP00018. Actor registry retains only the current operator and current owner descriptors (at most two); historical authorizing digests are receipt-owned, never actor rows. Normal receipt admission stops at 4094 entries. Before writing durable intent or any final credential, serialize and validate the complete candidate and complete response. Normal operation candidates may occupy at most 14680064 bytes (14 MiB), leaving 2097152 bytes for the two emergency operations below the 16777216-byte state ceiling. Each stored core response is bounded to 65536 UTF-8 bytes, including all absolute paths; refuse a root/response that cannot meet this bound before bootstrap. Emergency release/recover may use the reserved bytes only when clearing an active owner; their complete candidate must still validate under the state ceiling. A no-owner call cannot consume reserve capacity. Maximum response/descriptor growth for both emergency operations fits within 2 MiB under these explicit core bounds; test byte saturation independently of receipt-count saturation and reject oversized candidates before preparing intent. This prepublication check is part of the transaction admission, not a later _canonical_bytes failure after credentials changed. Reserve two further slots exclusively for owner.release/owner.recover; these may clear an active owner at saturation, never acquire a new one. At 4096 entries the workflow is sealed against all new mutations; exact receipt retrieval and snapshot remain available. Capacity is an explicit terminal boundary, not an unspecified future repair. Operator exit procedure: finish/reconcile jobs (none supported here), release/recover ownership using reserve capacity, verify an owner-null snapshot, copy the entire private controller directory to a private offline archive and verify every file hash, then rename the original private directory into a sibling private archive named by workflow ID, and open a new workflow at the fixed empty controller path. Never delete the archive. Archived state, credentials, receipts and schema remain replayable by placing the original directory back at its original project binding while the new workflow is offline; never merge identities. README documents the ordered manual procedure; tests saturate normal capacity, clear the owner through reserved capacity, validate the archive/hash/restore roundtrip and open a distinct workflow. No archival or state removal runs automatically. If an active owner reaches hard capacity through externally corrupted state, return recovery_required and retain all evidence rather than overriding it. Top-level `lease_epoch` starts at 0 and increases on acquire/recover/release, retained even while owner is null.\n\nDetails:\nExtend the working bootstrap pipeline with owner.acquire/release/recover, historical/current credential receipt-only replay, bounded normal/reserved admission and every rotation crash boundary. Reuse the single-lock journal, never invent a second writer. Fresh owner actor ID on each acquire; operator actor ID stable. Keep revoked credential files for historical receipt retrieval. Test byte saturation independently of count saturation, archive/hash/restore/new-workflow roundtrip, real subprocess lease exclusion and corrupt/unrelated intent byte preservation. No automatic archive or migration.\nPreserve existing completed characterization and all prior test/model evidence. Read only bounded relevant snapshots. Append precise Unreleased changelog entry before feat/fix commit.\n\nAcceptance criteria:\nlease_exclusion, wrong_actor, epoch_revoked, lost_ack_replay and fresh_open_replay reject bypasses without partial writes.\n\nVerify: narrow task-owned tests only with Python 3.12 and tools/autopilot/requirements-test.txt; final full suite and validator run after all tasks.\n",
+      "files": [
+        "plugins/autopilot/controller/autopilot_state/protocol.py",
+        "plugins/autopilot/controller/autopilot_state/actors.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 62518,
+      "est_context_peak": 82518,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        6
+      ],
+      "id": "7",
+      "status": "pending"
+    },
+    {
+      "name": "Export pinnable bundle and prove installed isolation",
+      "description": "Export pinnable bundle and prove installed isolation\n\nLocation: /Users/bob/git/src/github.com/buvis/agent-plugins/tools/autopilot/export-controller-contract.py, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/contracts/controller-v1.json, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\n\nReuse: pinned OVCAQ services at cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7 and existing frozen controller contracts.\n\nContract (verbatim):\n`contracts/controller/workflow-v1.json` is canonical JSON Schema for durable state and protocol/payload/response definitions. `fixtures-v1.json` freezes named positive/negative scenarios with explicit expected errors and no real secrets. `provenance.json` records OVCAQ repository, exact pin, source-to-target symbol and test maps, hashes, preserved invariants and deliberate exclusions/divergences; preserve MIT attribution in extracted files. Exporter computes SHA-256 of raw schema/fixture bytes and produces `contracts/controller-v1.json`, strict JSON with exactly `{protocol_major, package_version, schema_digest, fixture_digest, operations, capabilities}`. protocol_major is integer 1; package_version equals plugin manifest version; digests are lowercase SHA-256 hex; operations/capabilities are unique string lists containing only implemented items. No symlink path components, regular file, under 16777216 bytes. Runtime contract reads installed assets and matches digests/identities; package version may add `+<build>` only. Export is deterministic and cannot read live workflow state. README documents raw bundle SHA-256 and the single installed argv above. No package version bump/publication or installation is authorized.\n\nDetails:\nUse installed raw schema/fixture bytes and manifest version. Add isolated relocation tests in test_controller_installed.py from public CLI contract; no OVCAQ/Lantern/source/home imports. Exporter is deterministic, rejects path aliases and never reads workflow state. Use existing export-policy.py patterns.\nPreserve existing completed characterization and all prior test/model evidence. Read only bounded relevant snapshots. Append precise Unreleased changelog entry before feat/fix commit.\n\nAcceptance criteria:\ncontroller_bundle_reproducible and controller_without_upper_layers run with OVCAQ/Lantern/source checkout inaccessible. contract_bundle_pinnable asserts `plugins/autopilot/contracts/controller-v1.json` is a regular file under 16 MiB with no symlink in its path, parses as a strict JSON object with exactly the keys protocol_major, package_version, schema_digest, fixture_digest, operations, capabilities and the stated types, that `--json contract` matches it as the Protocol feature states, and that the README digest equals the sha256 of its raw bytes.\n\nVerify: narrow task-owned tests only with Python 3.12 and tools/autopilot/requirements-test.txt; final full suite and validator run after all tasks.\n",
+      "files": [
+        "tools/autopilot/export-controller-contract.py",
+        "plugins/autopilot/contracts/controller-v1.json",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 59546,
+      "est_context_peak": 79546,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        7
+      ],
+      "id": "8",
+      "status": "pending"
+    },
+    {
+      "name": "Integrate bounded asset registration with package provenance",
+      "description": "Integrate bounded asset registration with package provenance\n\nLocation: /Users/bob/git/src/github.com/buvis/agent-plugins/tools/autopilot/map_slice.py, /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_map_slice.py, /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_package.py, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\n\nReuse: pinned OVCAQ services at cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7 and existing frozen controller contracts.\n\nContract (verbatim):\n`contracts/controller/workflow-v1.json` is canonical JSON Schema for durable state and protocol/payload/response definitions. `fixtures-v1.json` freezes named positive/negative scenarios with explicit expected errors and no real secrets. `provenance.json` records OVCAQ repository, exact pin, source-to-target symbol and test maps, hashes, preserved invariants and deliberate exclusions/divergences; preserve MIT attribution in extracted files. Exporter computes SHA-256 of raw schema/fixture bytes and produces `contracts/controller-v1.json`, strict JSON with exactly `{protocol_major, package_version, schema_digest, fixture_digest, operations, capabilities}`. protocol_major is integer 1; package_version equals plugin manifest version; digests are lowercase SHA-256 hex; operations/capabilities are unique string lists containing only implemented items. No symlink path components, regular file, under 16777216 bytes. Runtime contract reads installed assets and matches digests/identities; package version may add `+<build>` only. Export is deterministic and cannot read live workflow state. README documents raw bundle SHA-256 and the single installed argv above. No package version bump/publication or installation is authorized.\n\nDetails:\nRegister only newly implemented controller runtime/assets in existing source-map and package roster. Generated source-map.json is maintained only by bounded snapshots and full diff, never read 13.6MB into worker context. Reuse map_slice.py; preserve historical pinned source identities and byte-copy gates. Test expected roster additions independently. Do not activate held helpers or change package version.\nPreserve existing completed characterization and all prior test/model evidence. Read only bounded relevant snapshots. Append precise Unreleased changelog entry before feat/fix commit.\n\nAcceptance criteria:\ncontroller_bundle_reproducible and controller_without_upper_layers run with OVCAQ/Lantern/source checkout inaccessible.\n\nVerify: narrow task-owned tests only with Python 3.12 and tools/autopilot/requirements-test.txt; final full suite and validator run after all tasks.\n",
+      "files": [
+        "tools/autopilot/map_slice.py",
+        "tests/autopilot/test_map_slice.py",
+        "tests/autopilot/test_package.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 69434,
+      "est_context_peak": 89434,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        8
+      ],
+      "id": "9",
+      "status": "pending"
+    },
+    {
+      "name": "Document kernel support, capacity recovery and bundle digest",
+      "description": "Document kernel support, capacity recovery and bundle digest\n\nLocation: /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/README.md, /Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\n\nReuse: pinned OVCAQ services at cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7 and existing frozen controller contracts.\n\nContract (verbatim):\n`contracts/controller/workflow-v1.json` is canonical JSON Schema for durable state and protocol/payload/response definitions. `fixtures-v1.json` freezes named positive/negative scenarios with explicit expected errors and no real secrets. `provenance.json` records OVCAQ repository, exact pin, source-to-target symbol and test maps, hashes, preserved invariants and deliberate exclusions/divergences; preserve MIT attribution in extracted files. Exporter computes SHA-256 of raw schema/fixture bytes and produces `contracts/controller-v1.json`, strict JSON with exactly `{protocol_major, package_version, schema_digest, fixture_digest, operations, capabilities}`. protocol_major is integer 1; package_version equals plugin manifest version; digests are lowercase SHA-256 hex; operations/capabilities are unique string lists containing only implemented items. No symlink path components, regular file, under 16777216 bytes. Runtime contract reads installed assets and matches digests/identities; package version may add `+<build>` only. Export is deterministic and cannot read live workflow state. README documents raw bundle SHA-256 and the single installed argv above. No package version bump/publication or installation is authorized.\n\nDurable state has closed top-level keys `schema_version`, `revision`, `project_id`, `workflow_id`, `repo_root`, `lease_epoch`, `owner`, `actors`, `receipts`, `workflow`. `workflow` is exactly `{batch: null, work: null, tasks: [], review: {cap: 2}, recovery: null, jobs: []}` in this kernel; no operation may mutate these reserves. Later producer PRDs define their expanded schemas and migration. Characterization records each source workflow field and its deferred owner; it does not import process fields or claim full legacy schema equivalence. No generic JSON setter is exported. `owner` is null or `{actor_id, mode, native_session_id, lease_epoch}`; `mode` is `manual|supervised`. `actors` contains descriptors, never credential secrets. `receipts` maps request IDs to canonical request digests, actor binding and complete original responses. `jobs` is empty and cannot be mutated in AP00018. Actor registry retains only the current operator and current owner descriptors (at most two); historical authorizing digests are receipt-owned, never actor rows. Normal receipt admission stops at 4094 entries. Before writing durable intent or any final credential, serialize and validate the complete candidate and complete response. Normal operation candidates may occupy at most 14680064 bytes (14 MiB), leaving 2097152 bytes for the two emergency operations below the 16777216-byte state ceiling. Each stored core response is bounded to 65536 UTF-8 bytes, including all absolute paths; refuse a root/response that cannot meet this bound before bootstrap. Emergency release/recover may use the reserved bytes only when clearing an active owner; their complete candidate must still validate under the state ceiling. A no-owner call cannot consume reserve capacity. Maximum response/descriptor growth for both emergency operations fits within 2 MiB under these explicit core bounds; test byte saturation independently of receipt-count saturation and reject oversized candidates before preparing intent. This prepublication check is part of the transaction admission, not a later _canonical_bytes failure after credentials changed. Reserve two further slots exclusively for owner.release/owner.recover; these may clear an active owner at saturation, never acquire a new one. At 4096 entries the workflow is sealed against all new mutations; exact receipt retrieval and snapshot remain available. Capacity is an explicit terminal boundary, not an unspecified future repair. Operator exit procedure: finish/reconcile jobs (none supported here), release/recover ownership using reserve capacity, verify an owner-null snapshot, copy the entire private controller directory to a private offline archive and verify every file hash, then rename the original private directory into a sibling private archive named by workflow ID, and open a new workflow at the fixed empty controller path. Never delete the archive. Archived state, credentials, receipts and schema remain replayable by placing the original directory back at its original project binding while the new workflow is offline; never merge identities. README documents the ordered manual procedure; tests saturate normal capacity, clear the owner through reserved capacity, validate the archive/hash/restore roundtrip and open a distinct workflow. No archival or state removal runs automatically. If an active owner reaches hard capacity through externally corrupted state, return recovery_required and retain all evidence rather than overriding it. Top-level `lease_epoch` starts at 0 and increases on acquire/recover/release, retained even while owner is null.\n\nDetails:\nDocument Python 3.12/POSIX floor, exact argv, four operations, synthetic bootstrap example, permissions/ignore, replay and recovery. Document ordered manual archive/hash/restore/new-workflow procedure and unavailable future families/real hosts. Refresh README/CHANGELOG digests through bounded updater as generated metadata. No publication, installation, source retirement, host certification or version bump.\nPreserve existing completed characterization and all prior test/model evidence. Read only bounded relevant snapshots. Append precise Unreleased changelog entry before feat/fix commit.\n\nAcceptance criteria:\nunsupported_operation_refused verifies later operation families are unavailable until implemented.\n\nVerify: narrow task-owned tests only with Python 3.12 and tools/autopilot/requirements-test.txt; final full suite and validator run after all tasks.\n",
+      "files": [
+        "plugins/autopilot/README.md",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 63484,
+      "est_context_peak": 83484,
+      "model": "opus",
+      "tier_reason": "floor",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        9
+      ],
+      "id": "10",
+      "status": "pending"
+    }
+  ],
+  "work_start_sha": "535e433cf83351bca3c12c9e87c5da08eed8d666",
+  "repo_root": "/Users/bob/git/src/github.com/buvis/agent-plugins",
+  "task_aborts": [
+    {
+      "task_id": "2",
+      "turn": -1,
+      "total_input_tokens": 12508,
+      "cause": "subagent_prompt_overrun"
+    }
+  ],
+  "loop_entry": {
+    "entered_by": "loop",
+    "prd": "00018-autopilot-controller-kernel-v1.md",
+    "result": {
+      "stop": null,
+      "detail": "",
+      "prd": "00018-autopilot-controller-kernel-v1.md",
+      "source": "wip",
+      "parked": null,
+      "custody_pending": 0,
+      "lane_effective": "full",
+      "catchup": "full",
+      "design": "reuse",
+      "resume_target": "build: catchup then planning",
+      "batch": "open"
+    }
+  },
+  "rework_task_ids": [],
+  "pause_reason": {
+    "site": "host_worker_policy",
+    "detail": "Mandatory native schema adversary /root/schema_devon failed: host content filter flagged possible cybersecurity risk. Partial wrong implementation quarantined; no Ivan dispatch or completed adversary verdict. See reports/00018-replan1-task3-host-block.md. Attended host/workflow reconciliation required; do not auto-clear."
+  }
+}

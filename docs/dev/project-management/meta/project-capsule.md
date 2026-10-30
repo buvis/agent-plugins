@@ -142,3 +142,7 @@ Repository validation passed: 3 plugin packages and 15 skills. Recovery evidence
 AP00018 is selected in wip on master; no implementation tasks exist. AP00013 remains held. The kernel must extract pinned OVCAQ workflow transactions without process/TUI dependencies; later lifecycle/review/records families stay unavailable until implemented. Contract A and the immutable bundle are producer-owned. All canaries use temporary roots.
 
 GitHub: zero open issues/PRs, no releases; latest recorded master Validate succeeded, no failed master runs. Related-context topic: Autopilot canonical controller kernel and protocol. Repo/portfolio hits point to AP00018 overview (0.0328), integration (0.0304/0.0311), Kernel (0.0161), Protocol (0.0159). Index refresh failed with database locked; queries may be stale. Portfolio memory stale24/dead1, code stale80/dead1466, PRD dead3115. Review harvest partially succeeded; older/scratch files lack frontmatter. Task restore: no_tasks_dir.
+
+## 2026-10-30 AP00018 replan build
+
+Preserve completed characterization and 44 retained kernel tests. Remaining work is split into API-isolated test files, schema, store, paths, bootstrap, owner lease, export, provenance registration and docs. No cap changes or completion review. GitHub has no open issues/PRs/releases; latest master Validate passed. Engram repository index succeeded; related topic returns AP00018 overview/kernel/protocol. Portfolio: memory stale24/dead1, code stale82/dead1466, PRD dead3151. Review harvest partially failed on old frontmatter; task restore no_tasks_dir.

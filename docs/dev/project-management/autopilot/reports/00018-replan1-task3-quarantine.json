@@ -1,0 +1,14 @@
+[
+  {
+    "path": "plugins/autopilot/controller/autopilot_state/schema.py",
+    "quarantine": "docs/dev/tmp/00018-task3-blocked-adversary/schema.py",
+    "sha256": "c999c097749ec13ed2a15df7817d5a197e93720d169016f773d5c50fbf424098",
+    "bytes": 7249
+  },
+  {
+    "path": "plugins/autopilot/controller/autopilot_state/__init__.py",
+    "quarantine": "docs/dev/tmp/00018-task3-blocked-adversary/__init__.py",
+    "sha256": "846053c3a5c82386a17f749118eb62ad3ecba6deeec22f6b2676b1346174c79d",
+    "bytes": 34
+  }
+]

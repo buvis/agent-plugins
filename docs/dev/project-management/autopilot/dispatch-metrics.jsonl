@@ -344,3 +344,9 @@
 {"id":"ecf7dec5","ended_at":1793320159,"elapsed_s":69,"outcome":"error","detail":null}
 {"kind":"handoff","site":"build","edge":"leave","at":1793320403,"phase":"build","prd":"00018-autopilot-controller-kernel-v1.md"}
 {"kind":"handoff","site":"build","edge":"leave","at":1793320563,"phase":"build","prd":"00018-autopilot-controller-kernel-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793320604,"phase":"build","prd":"00018-autopilot-controller-kernel-v1.md"}
+{"id":"b5468de8","kind":"ivan","task":"2","queued_at":1793320972,"prompt_bytes":7411}
+{"id":"b5468de8","ended_at":1793321180,"elapsed_s":208,"outcome":"ok","detail":null}
+{"id":"500ea573","kind":"devon","task":"3","queued_at":1793321273,"prompt_bytes":20791}
+{"id":"500ea573","ended_at":1793321516,"elapsed_s":243,"outcome":"error","detail":null}
+{"kind":"handoff","site":"build","edge":"leave","at":1793321598,"phase":"paused","prd":"00018-autopilot-controller-kernel-v1.md"}
