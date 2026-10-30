@@ -42,10 +42,15 @@ The named behavior scenarios pass, and source-map evidence assigns every affecte
 ### Repository Structure
 
 ```text
+docs/dev/project-management/reviews/00013-helper-source-characterization.md  # Helpers characterization
 plugins/autopilot/scripts/review_stage.py  # Helpers
 plugins/autopilot/scripts/findings.py  # Helpers
 plugins/autopilot/scripts/rework_groups.py  # Helpers
 plugins/autopilot/scripts/gate_lead.py  # Helpers
+plugins/autopilot/scripts/review_evidence.py  # Helpers
+plugins/autopilot/scripts/evidence_shapes.py  # Helpers
+plugins/autopilot/scripts/review_close.py  # Helpers
+plugins/autopilot/scripts/cap_check.py  # Helpers
 plugins/autopilot/scripts/custody.py  # Helpers
 plugins/autopilot/scripts/catchup.py  # Helpers
 plugins/autopilot/scripts/autopilot.py  # Helpers
@@ -53,12 +58,22 @@ tests/autopilot/test_review_helpers.py  # Helpers
 tests/autopilot/test_finding_groups.py  # Helpers
 tests/autopilot/test_catchup.py  # Helpers
 plugins/autopilot/scripts/verification.py  # Artifacts
+plugins/autopilot/scripts/dirty_tree.py  # Artifacts
+plugins/autopilot/scripts/log_sink_refusal.py  # Artifacts
 plugins/autopilot/contracts/review-fixtures-v1.json  # Artifacts
+plugins/autopilot/README.md  # Artifacts documentation
 plugins/autopilot/CHANGELOG.md  # Artifacts
 tools/autopilot/source-map.json  # Artifacts
+tools/autopilot/update_helper_map.py  # Artifacts provenance maintenance
 tests/autopilot/test_verification.py  # Artifacts
 tests/autopilot/test_local_boundary.py  # Artifacts
 ```
+
+The explicit file list includes the function-level extraction and supporting
+artifacts in the reviewed 00013 design and archived eleven-task plan. These
+paths implement the existing helper and artifact capabilities; they grant no
+directory-wide scope or controller-owned effects. The plan-expansion gate and
+its existing limits remain enabled.
 
 ### Module: Helpers
 - **Maps to capability**: Helpers

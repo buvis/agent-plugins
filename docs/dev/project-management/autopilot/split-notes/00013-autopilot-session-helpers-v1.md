@@ -1,6 +1,18 @@
 # Split note: 00013-autopilot-session-helpers-v1.md
 planned=11 prd_tasks=5 expansion=2.20 reasons=module_drift
 
+## Recovery — 2026-10-30
+
+Reconciled the PRD's exact file roster with the reviewed design and archived
+eleven-task plan (`reports/00013-plan-before-stall.json`). Added the nine
+previously unlisted paths without directory-wide grants or new capabilities.
+The installed 0.10.0 `cli.policy.plan_expansion` now reports `stall: false`,
+`drift: []`, `unfiled: 0`, `override: false`, with 11 tasks and expansion 2.20.
+Returned the PRD from hold to backlog. The original gate evidence below is
+retained. AP00018 remains paused separately; its unfinished runtime also leaves
+the shared full test suite unable to import controller modules, so this repair
+alone does not authorize or guarantee a successful backlog run.
+
 ## docs/dev/project-management/reviews (UNLISTED)
 
 - 1 Characterize pinned helper semantics and ownership exclusions: docs/dev/project-management/reviews/00013-helper-source-characterization.md

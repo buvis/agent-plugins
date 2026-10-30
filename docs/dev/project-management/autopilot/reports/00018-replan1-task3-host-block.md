@@ -41,3 +41,39 @@ they are not production implementation verification. No Ivan dispatch occurred.
 Task 1 characterization and task 2 test relocation remain completed. The eight
 remaining tasks and the original work_start_sha are preserved. No completion
 review ran.
+
+## Attended recovery inspection — 2026-10-30
+
+- Read the resolved autocodex host contract, installed autopilot 0.10.0 skill,
+  its Resuming and Phase 0 procedures, and the work gate's Error handling.
+- The raw terminal error confirms a host content-filter rejection, separate
+  from command approval. No evidence establishes that the restriction has
+  changed or that the required validation has subsequently completed.
+- `autopilot resume-target` returned `paused: await user`. State records two
+  completed tasks out of ten; task 3 retains its aborted Devon attempt.
+- Independently verified both quarantine SHA-256 hashes against the manifest
+  and confirmed both partial files remain absent from the runtime package.
+- The source's unconditional pause-marker cleanup is not sufficient recovery:
+  the host's interactive-recovery contract explicitly withholds authorization
+  to clear a pause merely from unattended execution instructions.
+- Result: blocked at the host boundary. No worker retry, provider substitution,
+  gate waiver, production edit, or state transition was performed. Preserve
+  the existing evidence until the host restriction is resolved through a
+  supported process; then complete the required validation before implementation.
+
+## Backlog impact — 2026-10-30
+
+- AP00019 requires completed AP00018; AP00020 requires AP00019; AP00021
+  requires AP00020. AP00016 requires AP00015, AP00020 and AP00021; AP00017
+  requires AP00016. These eligibility checks must remain intact.
+- The independent AP00013 planning block was repaired by reconciling its exact
+  file roster with the reviewed design and retained plan. The normal gate
+  passes without an override; AP00013 is back in backlog. AP00014 and AP00015
+  depend on that branch of work.
+- Simply parking AP00018 in the current checkout is insufficient: retained
+  controller tests import its absent runtime at collection time (for example,
+  `tests/autopilot/test_controller_schema.py:19`). Do not suppress these tests
+  to claim a clean whole-repository gate.
+- The current workflow state remains untouched. The recorded host rejection
+  still needs a supported resolution before completing AP00018's required
+  validation. Do not substitute partial adversary output for a verdict.
