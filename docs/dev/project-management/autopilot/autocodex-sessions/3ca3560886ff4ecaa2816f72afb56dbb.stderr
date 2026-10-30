@@ -1,0 +1,11 @@
+2026-10-29T23:17:24.144583Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: [Fact-Forcing Gate]
+
+Before the first Bash command this session, present these facts:
+
+1. The current user request in one sentence
+2. What this specific command verifies or produces
+
+Present the facts, then retry the same operation.. Command: cat ~/.claude/AGENTS.md AGENTS.md /Users/bob/.claude/plugins/cache/buvis-plugins/autopilot/0.10.0/skills/run-autopilot/SKILL.md
+2026-10-29T23:44:25.297005Z ERROR codex_models_manager::manager: failed to refresh available models: request timed out
+2026-10-30T00:03:23.353839Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when Client(HttpRequest(HttpRequest("http/request failed: error sending request for url (https://chatgpt.com/backend-api/ps/mcp)")))
+2026-10-30T00:25:10.117274Z ERROR codex_models_manager::manager: failed to refresh available models: request timed out

@@ -1,17 +1,10 @@
-# Build assumptions
+# AP00018 implementation assumptions
 
-## 1: Freeze independent source inventory and provenance
+## 1: Freeze pinned controller ownership, schemas and fixtures
 
-- Supplementary IDs use deterministic typed names.
-- Inventory binding hashes committed file bytes.
-- Regression replacements describe planned equivalence obligations.
-
-## 18: Implement golden fixtures after bounded test strengthening
-
-- Fixture hashes, artifact paths, input references, session identities, and verification arguments use deterministic synthetic values. They describe self-contained contract examples, not real host execution or certification evidence.
-
-## 16: Isolated package verification
-
-- The active Python interpreter and its declared test dependencies are trusted runtime inputs. The child guard permits narrowly resolved installed dependency roots, including uv symlink origins; author/source files and network remain denied. Focused probes verified those boundaries and all 55 semantic fixtures.
-- README topic checks identify documented subjects, not semantic equivalence. Independent review and exact reconstruction of all eleven pinned source bodies provide separate evidence.
-- Required CI jobs and steps use unconditional or default-success execution. Tests preserve automatic events and read-only workflow permissions.
+- actors is keyed by actor ID; descriptors use secret_digest.
+- Receipts contain request_digest, authorizing_actor and response.
+- Operator descriptors have null native_session_id.
+- Release/recover results contain actor_id, operator_actor_file and lease_epoch.
+- Deferred capability IDs use workflow.<family>.v1.
+- Core apply responses and snapshot/contract projections have separate schemas.
