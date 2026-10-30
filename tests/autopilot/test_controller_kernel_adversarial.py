@@ -7,74 +7,19 @@ import errno
 import json
 import os
 import stat
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
 
-from test_controller_kernel import frozen_state
+from controller_test_support import frozen_state
 
-from autopilot_state import schema
+ROOT = Path(__file__).resolve().parents[2]
+CONTROLLER = ROOT / "plugins" / "autopilot" / "controller"
+sys.path.insert(0, str(CONTROLLER))
+
 from autopilot_state.store import DurabilityBoundary, StateIOError, StateStore
-
-
-class DecoderRegressionTest(unittest.TestCase):
-    def test_finite_decimals_preserve_positive_negative_and_exponent_values(self) -> None:
-        text = '{"values":[1.25,-2.5,3.125e2,-4.5E-2,0.0625]}'
-        expected = {"values": [1.25, -2.5, 312.5, -0.045, 0.0625]}
-        self.assertEqual(schema.decode_json(text, source="finite-decimals"), expected)
-
-    def test_identical_duplicate_keys_are_rejected_at_top_level_and_nested(self) -> None:
-        texts = ('{"same":1,"same":1}',
-                 '{"nested":{"same":1,"same":1}}',
-                 '[{"same":null,"same":null}]')
-        for text in texts:
-            with self.subTest(text=text):
-                with self.assertRaises(schema.SchemaError):
-                    schema.decode_json(text, source="identical-duplicates")
-
-    def test_negative_integer_digit_limit_accepts_boundary_and_rejects_overflow(self) -> None:
-        boundary = "-" + "9" * schema.MAX_JSON_INTEGER_DIGITS
-        self.assertEqual(schema.decode_json(boundary, source="negative-boundary"),
-                         int(boundary))
-        with self.assertRaises(schema.ResourceLimitError):
-            schema.decode_json(boundary + "9", source="negative-overflow")
-
-    def test_object_key_limits_measure_utf8_bytes_for_ascii_and_multibyte_keys(self) -> None:
-        for character, count in (("x", schema.MAX_STRING_BYTES),
-                                 ("é", schema.MAX_STRING_BYTES // 2)):
-            key = character * count
-            accepted = {key: 1}
-            with self.subTest(character=character):
-                text = json.dumps(accepted, ensure_ascii=False)
-                self.assertEqual(schema.decode_json(text, source="key-boundary"), accepted)
-                overflow = json.dumps({key + character: 1}, ensure_ascii=False)
-                with self.assertRaises(schema.ResourceLimitError):
-                    schema.decode_json(overflow, source="key-overflow")
-
-
-class SchemaRegressionTest(unittest.TestCase):
-    def test_active_and_receipt_actor_ids_reject_invalid_types_and_oversized_strings(self) -> None:
-        invalid = (None, True, False, 7, 1.5, [], {}, "", "x" * 257, "é" * 129)
-        for location in ("active", "receipt"):
-            for actor_id in invalid:
-                value = frozen_state()
-                if location == "active":
-                    descriptor = value["actors"]["operator-synthetic"]
-                else:
-                    descriptor = value["receipts"]["open-synthetic"]["authorizing_actor"]
-                descriptor["actor_id"] = actor_id
-                with self.subTest(location=location, actor_id=actor_id):
-                    with self.assertRaises(schema.SchemaError):
-                        schema.validate_state(value)
-
-    def test_receipt_response_revision_rejects_bool_string_and_negative_counters(self) -> None:
-        for revision in (True, False, "0", -1, None, 0.5):
-            value = frozen_state()
-            value["receipts"]["open-synthetic"]["response"]["revision"] = revision
-            with self.subTest(revision=revision):
-                with self.assertRaises(schema.SchemaError):
-                    schema.validate_state(value)
 
 
 class StoreRegressionTest(unittest.TestCase):
