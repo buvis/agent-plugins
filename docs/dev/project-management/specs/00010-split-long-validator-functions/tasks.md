@@ -26,7 +26,7 @@ Run these tasks only after helper status opens the implementation gate. Use Pyth
   - Verify: `python3 -B -m unittest discover -s scripts -p test_validate_characterization.py -k McpCharacterization` and the full characterization module pass against original `validate.py`; compare that file with commit `6c16d03d7f5e878a3033de747866c931edcf12bf`. Record the original-code evidence, then run the shared pre-commit checks and commit `test: characterize MCP validation`.
   - Outcome: Added 13 McpCharacterization tests, passing on original validator at 6c16d03d7f5e878a3033de747866c931edcf12bf with Python 3.10.22 via unittest discover -s scripts -p test_validate_characterization.py -k McpCharacterization; all 26 characterization and 12 existing validator tests pass, Ruff and the eight-command gate pass; original tests and validator unchanged; logs retained under docs/dev/tmp/review-tools/t002-logs.
 
-- [ ] T-003 Characterize CLI output and failure ordering on the original code
+- [x] T-003 Characterize CLI output and failure ordering on the original code
   - Requirements: REQ-004, REQ-005
   - Depends on: T-002
   - Location: `scripts/test_validate_characterization.py` (CliCharacterization tests and CLI fixture setup).
@@ -36,6 +36,7 @@ Run these tasks only after helper status opens the implementation gate. Use Pyth
   - Details: Add direct-main tests for default discovery versus explicit paths, exact package/skill success output, empty success stderr, multiple plugin errors in order, manifest failure suppressing later checks, and maintainer-skill selection. Add subprocess success/failure smoke tests asserting actual exit codes and full stdout/stderr. Use no network or real credentials. Finish all preservation tests and run them together while both validators remain original; preserve those assertions during subsequent extraction. Existing release tests and the gate cover release callers; no caller edits or 00008 implementation are needed.
   - Acceptance criteria: REQ-004 criteria 1, 2; REQ-005 criteria 1, 2, 3 (CLI and completed baseline corpus portions).
   - Verify: `python3 -B -m unittest discover -s scripts -p test_validate_characterization.py -k CliCharacterization` and the full characterization module pass; verify `scripts/validate.py` still matches the baseline. Record the baseline commit, interpreter, command and full preservation test count in this task's Outcome, then run the shared pre-commit checks and commit `test: characterize validator CLI behavior`.
+  - Outcome: Added 9 CliCharacterization tests; Python 3.10.22 unittest discover -s scripts -p test_validate_characterization.py passes all 35 characterization tests on original validate.py from 6c16d03d7f5e878a3033de747866c931edcf12bf, including exact CLI streams and exit codes; all 12 pre-existing validator tests remain unchanged, Ruff and eight CI checks pass; baseline logs preserved at docs/dev/tmp/review-tools/t003-logs.
 
 - [ ] T-004 Split manifest validation into four ordered checks
   - Requirements: REQ-001, REQ-002, REQ-004, REQ-005

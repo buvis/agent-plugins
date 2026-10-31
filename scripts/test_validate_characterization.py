@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import contextlib
 import copy
+import io
 import json
 import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -492,3 +496,147 @@ class McpCharacterization(PluginFixture):
             validate.validate_mcp(self.plugin)
         self.assertEqual(caught.exception.args, expected.exception.args)
         self.assertEqual(str(caught.exception), str(expected.exception))
+
+
+class CliCharacterization(PluginFixture):
+    def run_main(self, *paths: Path) -> tuple[int, str, str]:
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with (
+            mock.patch.object(validate, "ROOT", self.root.resolve()),
+            mock.patch.object(sys, "argv", ["validate.py", *map(str, paths)]),
+            contextlib.redirect_stdout(stdout),
+            contextlib.redirect_stderr(stderr),
+        ):
+            code = validate.main()
+        return code, stdout.getvalue(), stderr.getvalue()
+
+    def add_plugin(self, parent: str, name: str) -> Path:
+        plugin = self.root.resolve() / parent / name
+        shutil.copytree(TEMPLATE, plugin)
+        manifest = {**self.manifest, "name": name}
+        (plugin / "plugin.json").write_text(json.dumps(manifest), encoding="utf-8")
+        return plugin
+
+    def add_maintainer_skill(self, name: str) -> Path:
+        skill = self.root.resolve() / ".agents/skills/example/SKILL.md"
+        skill.parent.mkdir(parents=True)
+        skill.write_text(
+            f"---\nname: {name}\ndescription: Example skill.\n---\n", encoding="utf-8"
+        )
+        return skill
+
+    def test_empty_default_and_explicit_success_counts(self) -> None:
+        self.assertEqual(
+            self.run_main(), (0, "Validated 0 plugin package(s) and 0 skill(s).\n", "")
+        )
+        self.assertEqual(
+            self.run_main(self.plugin),
+            (0, "Validated 1 plugin package(s) and 1 skill(s).\n", ""),
+        )
+
+    def test_default_template_plugins_and_maintainer_counts(self) -> None:
+        self.add_plugin("templates", "example-plugin")
+        self.add_plugin("plugins", "another")
+        self.add_maintainer_skill("example")
+        self.assertEqual(
+            self.run_main(), (0, "Validated 2 plugin package(s) and 3 skill(s).\n", "")
+        )
+
+    def test_default_sorted_errors_and_explicit_argument_order(self) -> None:
+        zeta = self.add_plugin("plugins", "zeta")
+        alpha = self.add_plugin("plugins", "alpha")
+        for plugin in (zeta, alpha):
+            (plugin / "plugin.json").write_text("{}", encoding="utf-8")
+        a_error = f"error: {alpha / 'plugin.json'}: unsupported or missing $schema\n"
+        z_error = f"error: {zeta / 'plugin.json'}: unsupported or missing $schema\n"
+        self.assertEqual(self.run_main(), (1, "", a_error + z_error))
+        self.assertEqual(self.run_main(zeta, alpha), (1, "", z_error + a_error))
+
+    def test_template_error_precedes_plugins_and_maintainer(self) -> None:
+        template = self.add_plugin("templates", "example-plugin")
+        plugin = self.add_plugin("plugins", "aaa")
+        for path in (template, plugin):
+            (path / "plugin.json").write_text("{}", encoding="utf-8")
+        skill = self.add_maintainer_skill("wrong")
+        errors = (
+            f"error: {template / 'plugin.json'}: unsupported or missing $schema\n"
+            f"error: {plugin / 'plugin.json'}: unsupported or missing $schema\n"
+            f"error: {skill}: frontmatter name must match the skill directory\n"
+        )
+        self.assertEqual(self.run_main(), (1, "", errors))
+
+    def test_explicit_paths_skip_invalid_maintainer_skills(self) -> None:
+        skill = self.add_maintainer_skill("wrong")
+        self.assertEqual(
+            self.run_main(),
+            (
+                1,
+                "",
+                f"error: {skill}: frontmatter name must match the skill directory\n",
+            ),
+        )
+        self.assertEqual(
+            self.run_main(self.plugin),
+            (0, "Validated 1 plugin package(s) and 1 skill(s).\n", ""),
+        )
+
+    def test_manifest_failure_precedes_other_plugin_failures(self) -> None:
+        self.write_manifest({"$schema": "invalid"})
+        (self.plugin / "escape").symlink_to(self.root)
+        (self.plugin / "skills/example-skill/SKILL.md").write_text(
+            "invalid", encoding="utf-8"
+        )
+        (self.plugin / "mcp.json").write_text("{}", encoding="utf-8")
+        expected = (
+            f"error: {self.manifest_path.resolve()}: unsupported or missing $schema\n"
+        )
+        self.assertEqual(self.run_main(self.plugin), (1, "", expected))
+
+    def test_missing_plugin_path(self) -> None:
+        missing = self.root.resolve() / "missing"
+        self.assertEqual(
+            self.run_main(missing),
+            (1, "", f"error: {missing}: plugin path must be a directory\n"),
+        )
+
+    def test_subprocess_exit_codes_and_streams(self) -> None:
+        command = [
+            sys.executable,
+            "-B",
+            str(Path(validate.__file__).resolve()),
+            str(self.plugin),
+        ]
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        self.assertEqual(
+            (result.returncode, result.stdout, result.stderr),
+            (0, "Validated 1 plugin package(s) and 1 skill(s).\n", ""),
+        )
+        self.write_manifest({"$schema": None})
+        result = subprocess.run(command, capture_output=True, text=True, check=False)
+        expected = (
+            f"error: {self.manifest_path.resolve()}: unsupported or missing $schema\n"
+        )
+        self.assertEqual(
+            (result.returncode, result.stdout, result.stderr), (1, "", expected)
+        )
+
+    def test_subprocess_invalid_argument(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-B",
+                str(Path(validate.__file__).resolve()),
+                "--not-a-flag",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(
+            (result.returncode, result.stdout, result.stderr),
+            (
+                2,
+                "",
+                "usage: validate.py [-h] [paths ...]\nvalidate.py: error: unrecognized arguments: --not-a-flag\n",
+            ),
+        )
