@@ -4,6 +4,8 @@
 
 ### Added
 
+- Add the locked, atomic controller state store with fsynced state/backup publication, exact failure repair, revision checks, artifact alias guards, directory binding, and security-identical offline restore.
+
 - Add the versioned controller state schema with bounded JSON decoding and isolated state creation and validation.
 - Add read-only local PRD prerequisite diagnostics based on completed PRD filenames.
 - Add the local contract-capabilities and canonical policy-export facade, with packaged-policy digest and integer-domain checks and a delegating maintainer exporter.
