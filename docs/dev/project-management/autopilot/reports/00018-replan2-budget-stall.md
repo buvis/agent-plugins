@@ -1,3 +1,9 @@
+# Replan 2 budget stall
+
+Installed plan-tasks step 4.5 requires estimated_tokens = content + 55000. Replan 2 hard threshold is 40000. Every split has lower bound 55000, so no permitted task can satisfy the threshold. No estimator override or cap increase was applied. Canonical oversized_task stall exited 0. Tasks 1–6 and task7 tests remain intact; see 00018-replan2-prior-state.json and b4655fe. No workers dispatched.
+
+## Preserved replan context
+
 # Replan Context
 
 PRD: 00018-autopilot-controller-kernel-v1.md

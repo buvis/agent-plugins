@@ -201,7 +201,7 @@
   },
   "tasks_total": 0,
   "tasks_completed": 0,
-  "replan_count": 2,
+  "replan_count": 0,
   "phases_completed": [],
   "cycle": 1,
   "applied_review_batches": [
@@ -216,49 +216,5 @@
     "detail": "hook_doctor: missing /Users/bob/.codex/codex-hook",
     "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
     "checked_at": "2026-10-28T03:07:08.511437+00:00"
-  },
-  "contract_card": "step: AP00018 replan #2 prepared; tasks1-6 completed; task7 Tess tests committed b4655fe; Devon not dispatched\ninvariants: preserve original work_start_sha, all commits and prior-state/model evidence; task3 exception stays task3-only; caps unchanged\nnext: fresh build session plans remaining scope at <=40000 tokens/task using replan-context.md; mandatory prompts <=50000 bytes; then normal work pipeline",
-  "prd_budget_since": "2026-10-29T23:17:12Z",
-  "design_mode": "run",
-  "plan_expansion_override": true,
-  "design_doc": "docs/dev/project-management/designs/00018-autopilot-controller-kernel-v1-design.md",
-  "autonomous_decisions": [
-    {
-      "issue": "Controller architecture and design review",
-      "action": "Extract pinned transaction mechanics with four core operations; retain forensic restore fence, authenticated intents and receipt-only revoked credential retrieval",
-      "reason": "First design invocation failed; sole bounded retry passed native GPT and external Claude with no blockers. Advisory findings remain durable for implementation and completion review.",
-      "cycle": 1,
-      "severity": "n/a"
-    },
-    {
-      "type": "assumed-ambiguity",
-      "question": "Retained design questions need deterministic protocol defaults and bounded generated provenance integration.",
-      "assumption": "Planning defaults for retained questions (requirements, not implementation hints): canonical complete-envelope bytes are json.dumps(sort_keys=True,separators=(\",\",\":\"),ensure_ascii=False,allow_nan=False).encode(\"utf-8\"), with no Unicode normalization. Kernel job_id must be null for every actor. Existing workflow.open is an authenticated ordinary apply with matching current binding/CAS and a receipt/revision increment; replay is receipt-only. Snapshot takes a shared lock; absent store returns ok/revision 0/result containing project_id, workflow_id:null, lease_epoch:0, owner:null and health:\"absent\", with no persistent creation. Existing snapshot projects workflow identity, owner, epoch, workflow reserves, actor IDs/roles, receipt count and health/capacity; excludes secrets, digests and receipt bodies, so output remains bounded at saturation. Intent read limit is 33554432 bytes and includes the canonical non-secret request so a caller can reconstruct the identical request after losing its file. Owner actor_id is fresh on each acquire. Keep revoked credential files for historical exact receipt retrieval; no secret deletion before intent cleanup. Error mapping: bad envelope/unknown operation/changed request-ID payload/oversized request or response => invalid_request; protocol/schema mismatch => incompatible_contract; stale revision => revision_conflict; actor/scope/epoch/job/project/workflow mismatch or occupied owner => wrong_binding; declared unavailable operation => missing_capability; invalid submitted evidence => rejected_evidence; corrupt state, pending unrelated intent, capacity, path/durability/I/O failure => recovery_required. Only revision_conflict is retryable. Guard Python version before importing 3.12-only modules using syntax-neutral main.py, emit fixed redacted structured incompatible_contract. Public contract reads installed bytes without symlink traversal. No real-host support is claimed. Treat source-map.json as generated metadata maintained solely through bounded snapshots/full diffs; worker context budgets count those bounded inputs, never the 13.6MB generated output. Existing source identity/history gates remain intact."
-    },
-    {
-      "issue": "Task 1 worker reported context_overrun using a 100KB byte threshold",
-      "severity": "low",
-      "cycle": 1,
-      "action": "Retain aborted attempt and use one bounded gpt-6-astra/high feedback retry at logical opus with unchanged caps",
-      "reason": "Raw worker turn_context shows gpt-6.1-sol/high; latest input context is 52036 tokens, below the source 100K-token context bound. Reported exhaustion is a unit/reasoning error, so the actual-context split branch does not apply. Host expressly permits Astra after a concrete failed-opus reasoning blocker."
-    }
-  ],
-  "tasks": [],
-  "work_start_sha": "535e433cf83351bca3c12c9e87c5da08eed8d666",
-  "repo_root": "/Users/bob/git/src/github.com/buvis/agent-plugins",
-  "task_aborts": [
-    {
-      "task_id": "2",
-      "turn": -1,
-      "total_input_tokens": 12508,
-      "cause": "subagent_prompt_overrun"
-    },
-    {
-      "task_id": "7",
-      "turn": -1,
-      "total_input_tokens": 12690,
-      "cause": "subagent_prompt_overrun"
-    }
-  ],
-  "rework_task_ids": []
+  }
 }
