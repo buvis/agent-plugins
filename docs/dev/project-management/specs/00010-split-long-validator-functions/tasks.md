@@ -14,7 +14,7 @@ Run these tasks only after helper status opens the implementation gate. Use Pyth
   - Verify: `python3 -B -m unittest discover -s scripts -p test_validate_characterization.py -k ManifestCharacterization` passes against original code; `git diff --exit-code 6c16d03d7f5e878a3033de747866c931edcf12bf -- scripts/validate.py scripts/test_validate.py` confirms the baseline; `sh -n docs/dev/tmp/review-tools/gate.sh` and its first complete run pass, with logs confirming this worktree and Python 3.10. Record that original-code evidence before committing `test: characterize manifest validation`.
   - Outcome: Added 13 ManifestCharacterization tests, passing on original validator at 6c16d03d7f5e878a3033de747866c931edcf12bf with Python 3.10.22 via unittest discover -s scripts -p test_validate_characterization.py -k ManifestCharacterization; existing tests unchanged, Ruff passes, worktree gate passes all eight CI checks (25 validator, 54 release, 387 contract, 58 rules, 41 review tests); logs retained under docs/dev/tmp/review-tools/t001-logs.
 
-- [ ] T-002 Characterize MCP validation on the original code
+- [x] T-002 Characterize MCP validation on the original code
   - Requirements: REQ-003, REQ-004, REQ-005
   - Depends on: T-001
   - Location: `scripts/test_validate_characterization.py` (McpCharacterization tests and MCP fixture setup).
@@ -24,6 +24,7 @@ Run these tasks only after helper status opens the implementation gate. Use Pyth
   - Details: Add accepted absent-file/empty-server cases, stdio bare/contained commands, empty args/env/headers, all permitted cwd root spellings, both remote transports, HTTPS and accepted HTTP loopback forms, None returns, and unchanged input bytes. Add rejection cases for files, JSON roots, schema, servers, names, server objects, transport, command separators/traversal, args/env/cwd/header types and values, reserved variables, and URL/userinfo/fragment/TLS rules. Pin first-failure order within a server and between servers. Characterize broken-symlink early return, invalid UTF-8, deterministic read failures, malformed URL parsing exceptions, and unhashable transport exceptions without adding runtime guards. Preserve existing tests and T-001's assertions; only additive cases and fixture support are in scope.
   - Acceptance criteria: REQ-003 criteria 1, 2, 3; REQ-004 criterion 3; REQ-005 criteria 1, 2, 3 (MCP preservation portions).
   - Verify: `python3 -B -m unittest discover -s scripts -p test_validate_characterization.py -k McpCharacterization` and the full characterization module pass against original `validate.py`; compare that file with commit `6c16d03d7f5e878a3033de747866c931edcf12bf`. Record the original-code evidence, then run the shared pre-commit checks and commit `test: characterize MCP validation`.
+  - Outcome: Added 13 McpCharacterization tests, passing on original validator at 6c16d03d7f5e878a3033de747866c931edcf12bf with Python 3.10.22 via unittest discover -s scripts -p test_validate_characterization.py -k McpCharacterization; all 26 characterization and 12 existing validator tests pass, Ruff and the eight-command gate pass; original tests and validator unchanged; logs retained under docs/dev/tmp/review-tools/t002-logs.
 
 - [ ] T-003 Characterize CLI output and failure ordering on the original code
   - Requirements: REQ-004, REQ-005

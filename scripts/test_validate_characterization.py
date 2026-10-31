@@ -224,3 +224,271 @@ class ManifestCharacterization(PluginFixture):
             validate.validate_manifest(self.plugin)
         self.assertEqual(caught.exception.args, expected.exception.args)
         self.assertEqual(str(caught.exception), str(expected.exception))
+
+
+class McpCharacterization(PluginFixture):
+    def setUp(self) -> None:
+        super().setUp()
+        self.mcp_path = self.plugin / "mcp.json"
+
+    def write_config(self, config: object) -> None:
+        self.mcp_path.write_text(json.dumps(config), encoding="utf-8")
+
+    def write_servers(self, servers: object) -> None:
+        self.write_config({"$schema": validate.MCP_SCHEMA, "mcpServers": servers})
+
+    def assert_mcp_failure(self, message: str, name: str | None = "s") -> None:
+        path = self.mcp_path if name is None else Path(f"{self.mcp_path}#{name}")
+        with self.assertRaises(validate.ValidationError) as caught:
+            validate.validate_mcp(self.plugin)
+        self.assertIs(type(caught.exception), validate.ValidationError)
+        self.assertEqual(str(caught.exception), f"{path}: {message}")
+
+    def test_absent_empty_and_broken_link(self) -> None:
+        self.assertIsNone(validate.validate_mcp(self.plugin))
+        self.write_servers({})
+        self.assertIsNone(validate.validate_mcp(self.plugin))
+        self.mcp_path.unlink()
+        self.mcp_path.symlink_to(self.root / "missing.json")
+        self.assertIsNone(validate.validate_mcp(self.plugin))
+
+    def test_valid_stdio_and_cwd_forms_without_writes(self) -> None:
+        cases = [
+            {"type": "stdio", "command": command}
+            for command in ("node", " ", "./", "./bin/server", "./a/../server")
+        ]
+        cases.extend(
+            {"type": "stdio", "command": "node", "cwd": cwd, "args": [], "env": {}}
+            for cwd in (
+                "./",
+                "./dir",
+                "./a/../b",
+                "${PLUGIN_ROOT}",
+                "${PLUGIN_DATA}",
+                "${PLUGIN_ROOT}/bin",
+                "${PLUGIN_DATA}/a/../b",
+            )
+        )
+        cases.append(
+            {
+                "type": "stdio",
+                "command": "node",
+                "args": ["", "日本語"],
+                "env": {"": "", "EXAMPLE": "synthetic"},
+            }
+        )
+        for server in cases:
+            with self.subTest(server=server):
+                self.write_servers({"s": server})
+                before = self.mcp_path.read_bytes()
+                self.assertIsNone(validate.validate_mcp(self.plugin))
+                self.assertEqual(self.mcp_path.read_bytes(), before)
+
+    def test_valid_remote_transports_without_writes(self) -> None:
+        for transport in ("streamable-http", "sse"):
+            for url in (
+                "https://example.com/mcp",
+                "http://localhost/",
+                "http://127.0.0.1/",
+                "http://[::1]/",
+            ):
+                for headers in ({}, {"": "", "X-Example": "synthetic"}):
+                    with self.subTest(transport=transport, url=url, headers=headers):
+                        self.write_servers(
+                            {"s": {"type": transport, "url": url, "headers": headers}}
+                        )
+                        before = self.mcp_path.read_bytes()
+                        self.assertIsNone(validate.validate_mcp(self.plugin))
+                        self.assertEqual(self.mcp_path.read_bytes(), before)
+
+    def test_root_rejections(self) -> None:
+        cases = [
+            ([], "must contain a JSON object"),
+            (None, "must contain a JSON object"),
+            ({}, "must contain only $schema and mcpServers"),
+            ({"mcpServers": {}}, "must contain only $schema and mcpServers"),
+            (
+                {"$schema": "bad", "mcpServers": {}, "extra": 0},
+                "must contain only $schema and mcpServers",
+            ),
+            ({"$schema": "bad", "mcpServers": []}, "unsupported or missing $schema"),
+            (
+                {"$schema": validate.MCP_SCHEMA, "mcpServers": []},
+                "mcpServers must be an object",
+            ),
+            (
+                {"$schema": validate.MCP_SCHEMA, "mcpServers": None},
+                "mcpServers must be an object",
+            ),
+        ]
+        for config, message in cases:
+            with self.subTest(config=config):
+                self.write_config(config)
+                self.assert_mcp_failure(message, name=None)
+
+    def test_server_shape_and_transport(self) -> None:
+        self.write_servers({"": None})
+        self.assert_mcp_failure("server name must be non-empty", name="")
+        for server, message in [
+            (None, "server must be an object"),
+            ([], "server must be an object"),
+            ({}, "unknown MCP transport None"),
+            ({"type": "other"}, "unknown MCP transport 'other'"),
+            ({"type": False}, "unknown MCP transport False"),
+        ]:
+            with self.subTest(server=server):
+                self.write_servers({"s": server})
+                self.assert_mcp_failure(message)
+
+    def test_stdio_rejections_and_field_order(self) -> None:
+        cases = [
+            ({"extra": 0, "command": None}, "stdio server contains unknown fields"),
+            ({"command": None, "args": 0}, "stdio server requires command"),
+            ({"command": ""}, "stdio server requires command"),
+            ({"command": "./../bin"}, "command escapes the plugin root"),
+            (
+                {"command": "./a/../../bin", "args": 0},
+                "command escapes the plugin root",
+            ),
+            ({"command": "./..\\bin"}, "command escapes the plugin root"),
+            ({"command": "/bin/node"}, "command must be bare or start with ./"),
+            ({"command": "a\\node"}, "command must be bare or start with ./"),
+            ({"command": "a/node"}, "command must be bare or start with ./"),
+            ({"args": None, "env": []}, "args must be strings"),
+            ({"args": [1]}, "args must be strings"),
+            ({"env": None, "cwd": None}, "env must be an object"),
+            ({"env": {"PLUGIN_ROOT": 0}}, "env must not override reserved variables"),
+            (
+                {"env": {"PLUGIN_DATA": "synthetic", "X": 0}},
+                "env must not override reserved variables",
+            ),
+            ({"env": {"X": 0}, "cwd": None}, "env keys and values must be strings"),
+            ({"cwd": None}, "cwd must be a string"),
+            ({"cwd": ""}, "cwd must be plugin-relative or rooted at a plugin variable"),
+            (
+                {"cwd": "."},
+                "cwd must be plugin-relative or rooted at a plugin variable",
+            ),
+            (
+                {"cwd": "/tmp"},
+                "cwd must be plugin-relative or rooted at a plugin variable",
+            ),
+            (
+                {"cwd": "${PLUGIN_ROOT}other"},
+                "cwd must be plugin-relative or rooted at a plugin variable",
+            ),
+            ({"cwd": "./../outside"}, "cwd escapes its permitted root"),
+            ({"cwd": "${PLUGIN_ROOT}/../outside"}, "cwd escapes its permitted root"),
+            ({"cwd": "${PLUGIN_DATA}/..\\outside"}, "cwd escapes its permitted root"),
+        ]
+        for changes, message in cases:
+            with self.subTest(changes=changes):
+                self.write_servers(
+                    {"s": {"type": "stdio", "command": "node", **changes}}
+                )
+                self.assert_mcp_failure(message)
+        self.write_servers({"s": {"type": "stdio"}})
+        self.assert_mcp_failure("stdio server requires command")
+
+    def test_remote_rejections_and_field_order(self) -> None:
+        cases = [
+            ({"extra": 0, "url": None}, "remote server contains unknown fields"),
+            (
+                {"url": None, "headers": []},
+                "remote server URL must be a non-empty string",
+            ),
+            ({"url": ""}, "remote server URL must be a non-empty string"),
+            ({"url": "/mcp"}, "remote URL must be absolute HTTP(S)"),
+            ({"url": "ftp://example.com"}, "remote URL must be absolute HTTP(S)"),
+            ({"url": "https:///missing"}, "remote URL must be absolute HTTP(S)"),
+            (
+                {"url": "http://name:synthetic@example.com/#frag"},
+                "remote URL must not contain user information",
+            ),
+            (
+                {"url": "http://example.com/#frag"},
+                "remote URL must not contain a fragment",
+            ),
+            (
+                {"url": "http://example.com/", "headers": []},
+                "non-loopback MCP URLs must use HTTPS",
+            ),
+            ({"headers": None}, "headers must be an object"),
+            ({"headers": {"X": 1}}, "header names and values must be strings"),
+        ]
+        for transport in ("streamable-http", "sse"):
+            for changes, message in cases:
+                with self.subTest(transport=transport, changes=changes):
+                    self.write_servers(
+                        {
+                            "s": {
+                                "type": transport,
+                                "url": "https://example.com/",
+                                **changes,
+                            }
+                        }
+                    )
+                    self.assert_mcp_failure(message)
+            self.write_servers({"s": {"type": transport}})
+            self.assert_mcp_failure("remote server URL must be a non-empty string")
+
+    def test_server_iteration_order(self) -> None:
+        for names in (("z", "a"), ("a", "z")):
+            with self.subTest(names=names):
+                self.write_servers({name: {"type": "bad"} for name in names})
+                self.assert_mcp_failure("unknown MCP transport 'bad'", name=names[0])
+
+    def test_directory_mcp(self) -> None:
+        self.mcp_path.mkdir()
+        self.assert_mcp_failure("must be a regular file", name=None)
+
+    def test_escaping_mcp_precedes_json(self) -> None:
+        outside = self.root / "outside.json"
+        outside.write_text("{", encoding="utf-8")
+        self.mcp_path.symlink_to(outside)
+        self.assert_mcp_failure("resolves outside plugin root", name=None)
+
+    def test_malformed_json_has_cause(self) -> None:
+        self.mcp_path.write_text("{", encoding="utf-8")
+        with self.assertRaises(validate.ValidationError) as caught:
+            validate.validate_mcp(self.plugin)
+        self.assertEqual(
+            str(caught.exception),
+            f"{self.mcp_path}: invalid JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)",
+        )
+        self.assertIsInstance(caught.exception.__cause__, json.JSONDecodeError)
+
+    def test_read_error_has_original_cause(self) -> None:
+        self.write_servers({})
+        failure = OSError("read denied")
+        with (
+            mock.patch.object(Path, "read_text", autospec=True, side_effect=failure),
+            self.assertRaises(validate.ValidationError) as caught,
+        ):
+            validate.validate_mcp(self.plugin)
+        self.assertEqual(
+            str(caught.exception), f"{self.mcp_path}: invalid JSON: read denied"
+        )
+        self.assertIs(caught.exception.__cause__, failure)
+
+    def test_uncaught_exception_types_and_messages(self) -> None:
+        for transport, message in [
+            ([], "unhashable type: 'list'"),
+            ({}, "unhashable type: 'dict'"),
+        ]:
+            with self.subTest(transport=transport):
+                self.write_servers({"s": {"type": transport}})
+                with self.assertRaises(TypeError) as caught:
+                    validate.validate_mcp(self.plugin)
+                self.assertEqual(str(caught.exception), message)
+        self.write_servers({"s": {"type": "sse", "url": "https://[invalid"}})
+        with self.assertRaises(ValueError) as caught:
+            validate.validate_mcp(self.plugin)
+        self.assertEqual(str(caught.exception), "Invalid IPv6 URL")
+        self.mcp_path.write_bytes(b"\xff")
+        with self.assertRaises(UnicodeDecodeError) as expected:
+            b"\xff".decode("utf-8")
+        with self.assertRaises(UnicodeDecodeError) as caught:
+            validate.validate_mcp(self.plugin)
+        self.assertEqual(caught.exception.args, expected.exception.args)
+        self.assertEqual(str(caught.exception), str(expected.exception))
