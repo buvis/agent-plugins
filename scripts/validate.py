@@ -58,16 +58,9 @@ def is_string(value: object, *, nonempty: bool = False) -> bool:
     return isinstance(value, str) and (not nonempty or bool(value))
 
 
-def validate_manifest(plugin: Path) -> dict[str, object]:
-    path = plugin / "plugin.json"
-    require(path.is_file(), path, "missing required manifest")
-    require(
-        path.resolve().is_relative_to(plugin.resolve()),
-        path,
-        "resolves outside plugin root",
-    )
-    manifest = load_object(path)
-
+def _validate_manifest_identity(
+    path: Path, manifest: dict[str, object], plugin_name: str
+) -> None:
     unknown = sorted(set(manifest) - MANIFEST_FIELDS)
     require(not unknown, path, f"unknown top-level fields: {', '.join(unknown)}")
     require(
@@ -84,8 +77,10 @@ def validate_manifest(plugin: Path) -> dict[str, object]:
         path,
         "invalid plugin name",
     )
-    require(name == plugin.name, path, "name must match the plugin directory")
+    require(name == plugin_name, path, "name must match the plugin directory")
 
+
+def _validate_manifest_metadata(path: Path, manifest: dict[str, object]) -> None:
     for field in ("description", "homepage", "repository", "license"):
         if field in manifest:
             require(is_string(manifest[field]), path, f"{field} must be a string")
@@ -113,7 +108,8 @@ def validate_manifest(plugin: Path) -> dict[str, object]:
         "repository policy requires a license",
     )
 
-    author = manifest.get("author")
+
+def _validate_manifest_author(path: Path, author: object) -> None:
     require(
         isinstance(author, dict),
         path,
@@ -133,6 +129,8 @@ def validate_manifest(plugin: Path) -> dict[str, object]:
     for field, value in author.items():
         require(is_string(value), path, f"author.{field} must be a string")
 
+
+def _validate_manifest_optional(path: Path, manifest: dict[str, object]) -> None:
     if "keywords" in manifest:
         keywords = manifest["keywords"]
         require(isinstance(keywords, list), path, "keywords must be an array")
@@ -153,6 +151,20 @@ def validate_manifest(plugin: Path) -> dict[str, object]:
             "each extension value must be an object",
         )
 
+
+def validate_manifest(plugin: Path) -> dict[str, object]:
+    path = plugin / "plugin.json"
+    require(path.is_file(), path, "missing required manifest")
+    require(
+        path.resolve().is_relative_to(plugin.resolve()),
+        path,
+        "resolves outside plugin root",
+    )
+    manifest = load_object(path)
+    _validate_manifest_identity(path, manifest, plugin.name)
+    _validate_manifest_metadata(path, manifest)
+    _validate_manifest_author(path, manifest.get("author"))
+    _validate_manifest_optional(path, manifest)
     return manifest
 
 

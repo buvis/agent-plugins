@@ -38,7 +38,7 @@ Run these tasks only after helper status opens the implementation gate. Use Pyth
   - Verify: `python3 -B -m unittest discover -s scripts -p test_validate_characterization.py -k CliCharacterization` and the full characterization module pass; verify `scripts/validate.py` still matches the baseline. Record the baseline commit, interpreter, command and full preservation test count in this task's Outcome, then run the shared pre-commit checks and commit `test: characterize validator CLI behavior`.
   - Outcome: Added 9 CliCharacterization tests; Python 3.10.22 unittest discover -s scripts -p test_validate_characterization.py passes all 35 characterization tests on original validate.py from 6c16d03d7f5e878a3033de747866c931edcf12bf, including exact CLI streams and exit codes; all 12 pre-existing validator tests remain unchanged, Ruff and eight CI checks pass; baseline logs preserved at docs/dev/tmp/review-tools/t003-logs.
 
-- [ ] T-004 Split manifest validation into four ordered checks
+- [x] T-004 Split manifest validation into four ordered checks
   - Requirements: REQ-001, REQ-002, REQ-004, REQ-005
   - Depends on: T-003
   - Location: `scripts/validate.py` (validate_manifest and its four new private helpers only).
@@ -50,6 +50,7 @@ Run these tasks only after helper status opens the implementation gate. Use Pyth
   - Details: Preserve `validate_manifest(plugin: Path) -> dict[str, object]`. Extract `_validate_manifest_identity(path: Path, manifest: dict[str, object], plugin_name: str) -> None`, `_validate_manifest_metadata(path: Path, manifest: dict[str, object]) -> None`, `_validate_manifest_author(path: Path, author: object) -> None`, and `_validate_manifest_optional(path: Path, manifest: dict[str, object]) -> None` with the exact responsibilities and check sequence in the approved design table. Keep each expression, short-circuit, cast, diagnostic literal, and iteration order unchanged. No other existing function, constant, caller, test, or package file changes. The still-original MCP function reaches its line limit in T-005.
   - Acceptance criteria: REQ-001 criteria 1, 2 (manifest portion); REQ-002 criteria 1, 2, 3; REQ-004 criteria 2, 3; REQ-005 criteria 1, 2.
   - Verify: Run all unchanged characterization tests and the existing validator/release tests through the shared gate. Measure the manifest wrapper and four helpers with AST `end_lineno - lineno + 1 <= 50`. Inspect the diff for identical predicate/message sequence, manifest return, and unchanged caller APIs; confirm existing tests remain unchanged. Run repository helper status and commit `refactor: split manifest validation checks`.
+  - Outcome: Extracted four ordered manifest checks in scripts/validate.py; wrapper 14 lines and helpers 20/27/19/20 lines by AST; all 35 unchanged characterization tests and the eight-command Python 3.10.22 gate pass, Ruff lint/format pass, original tests and other functions/callers unchanged; logs retained at docs/dev/tmp/review-tools/t004-logs.
 
 - [ ] T-005 Split MCP validation into five ordered checks
   - Requirements: REQ-001, REQ-003, REQ-004, REQ-005
