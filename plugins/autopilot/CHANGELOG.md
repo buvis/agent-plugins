@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add the versioned controller state schema with bounded JSON decoding and isolated state creation and validation.
 - Add read-only local PRD prerequisite diagnostics based on completed PRD filenames.
 - Add the local contract-capabilities and canonical policy-export facade, with packaged-policy digest and integer-domain checks and a delegating maintainer exporter.
 - Add the explicit pinned-source provenance audit for source files, asset sections, behavior anchors, and regression identities and digests.
