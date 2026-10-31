@@ -300,8 +300,6 @@ class StateStore:
                 chunks.append(chunk)
                 remaining -= len(chunk)
             raw = b"".join(chunks)
-        except StateIOError:
-            raise
         except OSError as error:
             detail = " is a symlink" if error.errno == errno.ELOOP else f": {error}"
             raise StateIOError(f"cannot read state {path}{detail}") from error
