@@ -195,8 +195,6 @@ def _actors(state: dict) -> None:
 
 
 def _result(value: object) -> None:
-    if not isinstance(value, dict):
-        raise SchemaError("Response result must be an object")
     fields = set(value)
     if fields == {"workflow_id", "actor_id", "actor_file", "lease_epoch"}:
         _identity(value["workflow_id"])
