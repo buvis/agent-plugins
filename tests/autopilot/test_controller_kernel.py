@@ -51,6 +51,7 @@ class StoreTest(unittest.TestCase):
     def test_initialization_is_create_only_and_returned_states_are_isolated(self) -> None:
         result = self.store.initialize(self.initial)
         self.assertEqual(result, self.initial)
+        self.assertEqual(stat.S_IMODE(self.path.stat().st_mode) & 0o077, 0)
         self.initial["workflow"]["tasks"].append("caller mutation")
         result["actors"].clear()
         expected = frozen_state()
@@ -65,8 +66,16 @@ class StoreTest(unittest.TestCase):
             self.store.initialize(owned_initial)
         self.assertEqual(self.path.read_bytes(), before)
         other = self.directory / "state-extra.json"
-        StateStore(other).initialize(owned_initial)
-        self.assertEqual(StateStore(other).read(), dict(frozen_state(owned=True), revision=0))
+        owned_initial["workflow_id"] = "workflow-independent"
+        for descriptor in owned_initial["actors"].values():
+            descriptor["workflow_id"] = owned_initial["workflow_id"]
+        receipt = owned_initial["receipts"]["open-synthetic"]
+        receipt["authorizing_actor"]["workflow_id"] = owned_initial["workflow_id"]
+        receipt["response"]["result"]["workflow_id"] = owned_initial["workflow_id"]
+        self.assertEqual(schema.validate_state(owned_initial), owned_initial)
+        self.assertEqual(StateStore(other).initialize(owned_initial), owned_initial)
+        self.assertEqual(StateStore(other).read(), owned_initial)
+        self.assertEqual(stat.S_IMODE(other.stat().st_mode) & 0o077, 0)
         self.assertEqual(self.store.read(), expected)
 
     def test_initialization_refuses_nonzero_revision_without_creating_state_or_backup(self) -> None:
@@ -131,6 +140,13 @@ class StoreTest(unittest.TestCase):
         self.assertEqual(called, ["publication"])
         self.assertEqual(self.pair(), before)
         self.assertEqual(self.store.read(), current)
+        called.clear()
+        result = self.store.transaction(lambda value: None,
+                                        publication_guard=lambda: called.append("success"))
+        self.assertEqual(called, ["success"])
+        self.assertEqual(result, dict(current, revision=2))
+        self.assertEqual(self.store.read(), result)
+        self.assertEqual(json.loads(self.backup.read_bytes()), current)
 
     def test_all_six_boundaries_surface_errors_and_interrupts_and_repair_the_pair(self) -> None:
         expected = {
@@ -177,7 +193,9 @@ class StoreTest(unittest.TestCase):
     def test_corrupt_current_is_never_replaced_by_backup_or_restore(self) -> None:
         self.seed_pair()
         backup = self.backup.read_bytes()
+        duplicate = canonical(self.initial)[:-1] + b',"revision":999}'
         corruptions = ((b"{", StateIOError), (b"\xff", StateIOError),
+                       (duplicate, StateIOError),
                        (b"{}", schema.SchemaError),
                        (canonical(dict(self.initial, schema_version=2)), FutureSchemaError))
         for content, error in corruptions:
@@ -237,13 +255,18 @@ class StoreTest(unittest.TestCase):
 
     def test_security_identical_restore_advances_current_revision_and_preserves_security(self) -> None:
         current = self.seed_pair()
+        backup = copy.deepcopy(current)
+        backup["revision"] = 0
+        backup["repo_root"] = "/synthetic/restored-project"
+        self.assertEqual(schema.validate_state(backup), backup)
+        self.backup.write_bytes(canonical(backup))
         checked = []
 
         def precondition(value: dict) -> None:
             checked.append(copy.deepcopy(value))
 
         restored = self.store.restore(expected_revision=1, precondition=precondition)
-        expected = copy.deepcopy(current)
+        expected = copy.deepcopy(backup)
         expected["revision"] = 2
         self.assertEqual(restored, expected)
         self.assertEqual(self.store.read(), expected)
@@ -251,10 +274,12 @@ class StoreTest(unittest.TestCase):
         self.assertEqual(json.loads(self.backup.read_bytes()), current)
         restored["actors"].clear()
         self.assertEqual(self.store.read(), expected)
+        previous = copy.deepcopy(expected)
         again = self.store.restore(expected_revision=2)
-        expected["revision"] = 3
+        expected = dict(current, revision=3)
         self.assertEqual(again, expected)
-        self.assertEqual(json.loads(self.backup.read_bytes())["revision"], 2)
+        self.assertEqual(self.store.read(), expected)
+        self.assertEqual(json.loads(self.backup.read_bytes()), previous)
 
     def test_restore_checks_intent_conflict_precondition_and_invalid_backup_before_publication(self) -> None:
         self.seed_pair()

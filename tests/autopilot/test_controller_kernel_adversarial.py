@@ -13,13 +13,16 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from controller_test_support import frozen_state
+from controller_test_support import canonical, frozen_state
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTROLLER = ROOT / "plugins" / "autopilot" / "controller"
 sys.path.insert(0, str(CONTROLLER))
 
-from autopilot_state.store import DurabilityBoundary, StateIOError, StateStore
+from autopilot_state import schema
+from autopilot_state.store import (
+    DurabilityBoundary, RevisionConflictError, StateError, StateIOError, StateStore,
+)
 
 
 class StoreRegressionTest(unittest.TestCase):
@@ -33,6 +36,50 @@ class StoreRegressionTest(unittest.TestCase):
     def seed_pair(self) -> dict:
         self.store.initialize(frozen_state())
         return self.store.transaction(lambda value: None, expected_revision=0)
+
+    def test_revision_tokens_reject_booleans_and_strings_without_changing_the_pair(self) -> None:
+        initial = frozen_state()
+        self.store.initialize(initial)
+        self.backup.write_bytes(canonical(initial))
+        before = self.path.read_bytes(), self.backup.read_bytes()
+        for token in (False, True, "0"):
+            for operation in (
+                lambda: self.store.transaction(lambda value: None, expected_revision=token),
+                lambda: self.store.restore(expected_revision=token),
+            ):
+                with self.subTest(token=token, operation=operation):
+                    with self.assertRaises(StateError) as raised:
+                        operation()
+                    self.assertNotIsInstance(raised.exception, RevisionConflictError)
+                    self.assertEqual((self.path.read_bytes(), self.backup.read_bytes()), before)
+                    self.assertEqual(self.store.read(), initial)
+
+    def test_root_binding_change_is_preserved_or_explicitly_refused_without_publication(self) -> None:
+        current = self.seed_pair()
+        requested = dict(current, repo_root="/synthetic/relocated-project")
+        self.assertEqual(schema.validate_state(requested), requested)
+        before = self.path.read_bytes(), self.backup.read_bytes()
+        try:
+            result = self.store.transaction(lambda value: requested, expected_revision=1)
+        except StateError:
+            self.assertEqual((self.path.read_bytes(), self.backup.read_bytes()), before)
+            self.assertEqual(self.store.read(), current)
+        else:
+            expected = dict(requested, revision=2)
+            self.assertEqual(result, expected)
+            self.assertEqual(self.store.read(), expected)
+            self.assertEqual(json.loads(self.backup.read_bytes()), current)
+
+    def test_schema_valid_receipt_removal_persists_and_keeps_the_previous_backup(self) -> None:
+        current = self.seed_pair()
+        expected = dict(current, revision=2, receipts={})
+        self.assertEqual(schema.validate_state(expected), expected)
+        result = self.store.transaction(lambda value: value["receipts"].clear(),
+                                        expected_revision=1)
+        self.assertEqual(result, expected)
+        self.assertEqual(self.store.read(), expected)
+        self.assertEqual(json.loads(self.path.read_bytes()), expected)
+        self.assertEqual(json.loads(self.backup.read_bytes()), current)
 
     def test_actor_digest_rotation_survives_unchanged_ownership_and_keeps_previous_backup(self) -> None:
         initial = frozen_state(owned=True)
