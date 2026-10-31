@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "specId": "00010-split-long-validator-functions",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "f278ac71bbbadce8013c197f1bc25f496efb154924017a751fc5fb3f8804f66b",
+      "approvedSha256": "f278ac71bbbadce8013c197f1bc25f496efb154924017a751fc5fb3f8804f66b",
+      "approvedAt": "2026-10-31T10:22:53Z",
+      "approvedCommit": "6c16d03d7f5e878a3033de747866c931edcf12bf"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "7b70d383092a743f99064b3dbf77f9512b960462c45459b4799b76475bb5da0d",
+      "approvedSha256": "7b70d383092a743f99064b3dbf77f9512b960462c45459b4799b76475bb5da0d",
+      "approvedAt": "2026-10-31T11:06:31Z",
+      "approvedCommit": "6c16d03d7f5e878a3033de747866c931edcf12bf",
+      "upstreamSha256": {
+        "requirements": "f278ac71bbbadce8013c197f1bc25f496efb154924017a751fc5fb3f8804f66b"
+      },
+      "approvedCode": {
+        "status": "captured",
+        "files": [
+          {
+            "path": "scripts/test_validate_characterization.py",
+            "missing": true
+          },
+          {
+            "path": "scripts/test_validate_structure.py",
+            "missing": true
+          },
+          {
+            "path": "scripts/validate.py",
+            "sha256": "2756144e5c5a6db44b4089bc206e67d36ed45ad3b11201f80b01cfa0acc2fbe6"
+          }
+        ]
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "35b839d8285e9e92ad0c9daea6109bd4812749c134c93997401318a3e5929bb7",
+      "approvedSha256": "35b839d8285e9e92ad0c9daea6109bd4812749c134c93997401318a3e5929bb7",
+      "approvedAt": "2026-10-31T11:11:37Z",
+      "approvedCommit": "6c16d03d7f5e878a3033de747866c931edcf12bf",
+      "upstreamSha256": {
+        "requirements": "f278ac71bbbadce8013c197f1bc25f496efb154924017a751fc5fb3f8804f66b",
+        "design": "7b70d383092a743f99064b3dbf77f9512b960462c45459b4799b76475bb5da0d"
+      }
+    }
+  }
+}
