@@ -25,6 +25,20 @@ def canonical(value: object) -> bytes:
                       ensure_ascii=False, allow_nan=False).encode("utf-8")
 
 
+def strict_json(raw: bytes) -> object:
+    def unique_object(pairs: list[tuple[str, object]]) -> dict:
+        result = dict(pairs)
+        if len(result) != len(pairs):
+            raise ValueError("duplicate JSON output keys")
+        return result
+
+    def reject_constant(value: str) -> None:
+        raise ValueError("nonfinite JSON output")
+
+    return json.loads(raw.decode("utf-8"), object_pairs_hook=unique_object,
+                      parse_constant=reject_constant)
+
+
 def project_id(root: Path) -> str:
     return hashlib.sha256(str(root.resolve()).encode("utf-8")).hexdigest()
 
@@ -100,7 +114,7 @@ class ControllerCLITest(unittest.TestCase):
         self.assertEqual(completed.returncode, 0 if error is None else 1,
                          completed.stderr.decode("utf-8", errors="replace"))
         self.assertLessEqual(len(completed.stdout), 16777216)
-        response = json.loads(completed.stdout)
+        response = strict_json(completed.stdout)
         self.assertEqual(set(response), RESPONSE_KEYS)
         self.assertIs(response["ok"], error is None)
         self.assertEqual(response["error_code"], error)

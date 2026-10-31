@@ -13,7 +13,7 @@ from pathlib import Path
 
 from controller_cli_support import (
     CONTRACT, MAIN, ControllerCLITest, canonical, cli, existing_request,
-    fresh_request, private_path, project_id, tree,
+    fresh_request, private_path, project_id, strict_json, tree,
 )
 
 
@@ -35,6 +35,7 @@ class ControllerBootstrapTest(ControllerCLITest):
 
     def test_bootstrap_publishes_one_private_operator_state_and_receipt(self) -> None:
         results = []
+        secrets = []
         for name in ("project", "project-extra"):
             self.root = self.base / name
             self.root.mkdir(exist_ok=True)
@@ -42,9 +43,30 @@ class ControllerBootstrapTest(ControllerCLITest):
             self.assertEqual(set(self.state()["receipts"]), {request["request_id"]})
             self.assert_private()
             results.append(response["result"])
+            secrets.append(json.loads(Path(response["result"]["actor_file"])
+                                      .read_bytes())["secret"])
         self.assertNotEqual(results[0]["workflow_id"], results[1]["workflow_id"])
         self.assertNotEqual(results[0]["actor_id"], results[1]["actor_id"])
         self.assertNotEqual(results[0]["actor_file"], results[1]["actor_file"])
+        self.assertNotEqual(secrets[0], secrets[1])
+
+    def test_archiving_controller_allows_new_identities_at_the_same_project_path(self) -> None:
+        _, first = self.open("open-before-archive")
+        private = private_path(self.root)
+        original = tree(private)
+        old_secret = json.loads(Path(first["result"]["actor_file"]).read_bytes())["secret"]
+        archive = private.with_name("archive-" + first["result"]["workflow_id"])
+        private.rename(archive)
+        self.assertEqual(tree(archive), original)
+        self.assertFalse(private.exists())
+        request, second = self.open("open-after-archive")
+        for field in ("workflow_id", "actor_id"):
+            self.assertNotEqual(first["result"][field], second["result"][field])
+        self.assertEqual(self.state()["project_id"], project_id(self.root))
+        new_secret = json.loads(Path(second["result"]["actor_file"]).read_bytes())["secret"]
+        self.assertNotEqual(old_secret, new_secret)
+        self.assertEqual(set(self.state()["receipts"]), {request["request_id"]})
+        self.assertEqual(tree(archive), original)
 
     def test_lost_ack_replay_returns_exact_response_and_preserves_all_bytes(self) -> None:
         request, original = self.open("open-é")
@@ -169,7 +191,77 @@ class ControllerBootstrapTest(ControllerCLITest):
         response = self.response(self.apply(request, raw=raw), revision=0)
         self.assert_open_consistent(request, response)
         before = tree(self.root)
-        self.response(self.apply(request, raw=raw + b" "), "invalid_request", revision=0)
+        for excess in (1, 2, 65, 1048576, 2097152):
+            with self.subTest(excess=excess):
+                self.response(self.apply(request, raw=raw + b" " * excess),
+                              "invalid_request", revision=0)
+                self.assertEqual(tree(self.root), before)
+
+    def test_request_identity_utf8_limit_applies_to_varied_ascii_and_multibyte_values(self) -> None:
+        positives = ["z" * 256, "π" * 128, "w" * 250 + "字" * 2]
+        negatives = ["z" * 257, "z" * 258, "ø" * 130, "a" * 255 + "é",
+                     "🧪" * 65, "w" * 251 + "字" * 2, "long-prefix-" * 40]
+        for index, request_id in enumerate(positives):
+            self.root = self.base / f"identity-{index}"
+            self.root.mkdir()
+            self.assertEqual(len(request_id.encode()), 256)
+            request, opened = self.open(request_id)
+            actor = Path(opened["result"]["actor_file"])
+            before = tree(self.root)
+            for invalid in negatives:
+                with self.subTest(valid=index, invalid=invalid[:12]):
+                    malformed = existing_request(self.root, opened["result"], invalid)
+                    self.response(self.apply(malformed, actor), "invalid_request", revision=0)
+                    self.assertEqual(tree(self.root), before)
+            self.assertEqual(self.response(self.apply(request)), opened)
+
+    def test_unknown_operation_names_never_alias_workflow_open(self) -> None:
+        operations = ["workflow.open-suffix", "workflow.open.extra", "workflow.opened",
+                      "workflow.open/extra", "workflow.open-extra-extra",
+                      "workflow.open\u0000suffix", "prefix.workflow.open", "WORKFLOW.OPEN"]
+        request = fresh_request(self.root)
+        for operation in operations:
+            with self.subTest(operation=operation):
+                self.response(self.apply(dict(request, operation=operation)),
+                              "invalid_request", revision=0)
+                self.assertEqual(tree(self.root), {})
+        _, opened = self.open()
+        actor = Path(opened["result"]["actor_file"])
+        request = existing_request(self.root, opened["result"], "existing-unknown")
+        before = tree(self.root)
+        for operation in operations:
+            with self.subTest(existing=operation):
+                self.response(self.apply(dict(request, operation=operation), actor),
+                              "invalid_request", revision=0)
+                self.assertEqual(tree(self.root), before)
+
+    def test_contract_without_project_root_matches_public_metadata_and_current_scope(self) -> None:
+        before = tree(self.root)
+        completed = cli(["--json", "contract"], cwd=self.root)
+        self.assertEqual(completed.returncode, 0, completed.stderr.decode(errors="replace"))
+        self.assertLessEqual(len(completed.stdout), 16777216)
+        declared = strict_json(completed.stdout)
+        self.assertEqual(set(declared), {"protocol_major", "package_version",
+                         "schema_digest", "fixture_digest", "operations", "capabilities"})
+        self.assertIs(type(declared["protocol_major"]), int)
+        self.assertEqual(declared["protocol_major"], 1)
+        manifest = json.loads((CONTRACT.parents[1] / "plugin.json").read_bytes())
+        self.assertIsInstance(declared["package_version"], str)
+        version, separator, build = declared["package_version"].partition("+")
+        self.assertEqual(version, manifest["version"])
+        if separator:
+            self.assertTrue(build)
+        for field in ("schema_digest", "fixture_digest"):
+            self.assertIsInstance(declared[field], str)
+            self.assertRegex(declared[field], r"^[a-f0-9]{64}$")
+        schema = json.loads((CONTRACT / "workflow-v1.json").read_bytes())["x-controller"]
+        self.assertIsInstance(declared["operations"], list)
+        self.assertTrue(all(isinstance(value, str) for value in declared["operations"]))
+        self.assertEqual(len(declared["operations"]), len(set(declared["operations"])))
+        self.assertIn("workflow.open", declared["operations"])
+        self.assertLessEqual(set(declared["operations"]), set(schema["implemented_operations"]))
+        self.assertIsInstance(declared["capabilities"], list)
+        self.assertEqual(declared["capabilities"], ["workflow.core.v1"])
         self.assertEqual(tree(self.root), before)
 
     def test_reserved_operations_reject_without_receipts_or_credentials(self) -> None:
@@ -257,9 +349,17 @@ class ControllerBootstrapTest(ControllerCLITest):
         actor = Path(opened["result"]["actor_file"])
         request = existing_request(self.root, opened["result"], "existing-alpha")
         original = actor.read_bytes()
+        credential = json.loads(original)
         copied = self.base / "copy.json"
-        variants = [{**json.loads(original), "secret": "SENTINEL-UNTRUSTED-SECRET"},
-                    {**json.loads(original), "extra": "SENTINEL-UNTRUSTED-SECRET"}]
+        variants = [{**credential, "secret": "SENTINEL-UNTRUSTED-SECRET"},
+                    {**credential, "extra": "SENTINEL-UNTRUSTED-SECRET"}]
+        mismatches = [("actor_id", credential["actor_id"] + "-extra"),
+                      ("project_id", "0" * 64),
+                      ("workflow_id", credential["workflow_id"] + "-extra"),
+                      ("role", "owner"), ("role", "job"), ("lease_epoch", 1),
+                      ("lease_epoch", 2), ("native_session_id", "session-alpha"),
+                      ("native_session_id", "session-alpha-extra")]
+        variants += [dict(credential, **{key: value}) for key, value in mismatches]
         for credential in variants:
             copied.write_bytes(canonical(credential))
             copied.chmod(0o600)
