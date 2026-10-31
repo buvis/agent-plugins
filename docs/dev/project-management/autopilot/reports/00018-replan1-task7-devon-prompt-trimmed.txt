@@ -1,0 +1,920 @@
+Abort and report if you read more than100K input tokens, not bytes. Return partial result and abort_reason:context_overrun.
+
+You are an adversarial test validator. Your job is to BREAK these tests by writing a wrong implementation that passes all of them.
+
+Test files:
+FILE /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_controller_owner.py
+"""Epoch fencing, owner exclusion, and receipt-only historical authority."""
+
+from __future__ import annotations
+
+import copy
+import hashlib
+import subprocess
+import sys
+import unittest
+from pathlib import Path
+
+from controller_cli_support import MAIN, canonical, fresh_request, private_path, tree
+from controller_owner_support import OwnerCLITest, credential, operation
+
+
+class OwnerTest(OwnerCLITest):
+    def test_rotates_operator_and_issues_fresh_owners_for_both_modes_and_sessions(self) -> None:
+        _, opened, operator = self.bootstrap()
+        identity = opened["result"]["actor_id"]
+        original_operator = operator
+        owner_ids = set()
+        for index, (mode, session) in enumerate((("manual", "session-alpha"),
+                                               ("supervised", "session-alpha-extra"))):
+            old = credential(operator)
+            _, acquired, owner, operator = self.acquire(
+                operator, mode, session, f"acquire-{index}")
+            current = credential(operator)
+            self.assertEqual(operator, original_operator)
+            self.assertEqual(current["actor_id"], identity)
+            self.assertTrue(current["secret"] != old["secret"], "operator secret did not rotate")
+            self.assertEqual(credential(owner)["native_session_id"], session)
+            self.assertEqual(credential(owner)["actor_id"], acquired["result"]["actor_id"])
+            self.assertNotIn(acquired["result"]["actor_id"], owner_ids)
+            owner_ids.add(acquired["result"]["actor_id"])
+            self.snapshot()
+            name = "owner.release" if index == 0 else "owner.recover"
+            authorizer = owner if index == 0 else operator
+            previous = credential(operator)
+            _, cleared, operator = self.clear(authorizer, name, f"clear-{index}")
+            self.assertEqual(operator, original_operator)
+            self.assertEqual(cleared["result"]["actor_id"], identity)
+            self.assertTrue(credential(operator)["secret"] != previous["secret"])
+            self.assertEqual(self.state()["lease_epoch"], 2 * index + 2)
+            self.assertTrue(owner.exists(), "revoked owner evidence was removed")
+            self.snapshot()
+        self.assertEqual(len(owner_ids), 2)
+
+    def test_historical_and_reopened_operator_retrieve_only_exact_receipts_after_all_rotations(self) -> None:
+        fresh, opened, operator = self.bootstrap()
+        old_operator = self.retain(operator, "operator-epoch-zero.json")
+        acquired, acquire_response, owner, operator = self.acquire(operator)
+        released, release_response, operator = self.clear(owner)
+        _, _, newer_owner, operator = self.acquire(
+            operator, "supervised", "session-beta", "acquire-second")
+        recovery_authorizer = self.retain(operator, "operator-epoch-three.json")
+        recovered, recovery_response, operator = self.clear(
+            operator, "owner.recover", "recover-second")
+        before = tree(private_path(self.root))
+        self.assertEqual(self.response(self.apply(fresh)), opened)
+        self.assertTrue(tree(private_path(self.root)) == before)
+        self.reject_unchanged(fresh_request(self.root, "open-first-extra"),
+                              None, "revision_conflict")
+        for request, response, paths in (
+                (acquired, acquire_response, (old_operator, operator)),
+                (released, release_response, (owner,)),
+                (recovered, recovery_response, (recovery_authorizer, operator))):
+            for path in paths:
+                self.assertEqual(self.response(self.apply(request, path)), response)
+                self.assertTrue(tree(private_path(self.root)) == before)
+        self.assertEqual(self.state()["receipts"][acquired["request_id"]][
+            "authorizing_actor"]["secret_digest"],
+            hashlib.sha256(credential(old_operator)["secret"].encode()).hexdigest())
+        for path, name in ((old_operator, "owner.acquire"), (owner, "owner.release"),
+                           (newer_owner, "owner.release"),
+                           (recovery_authorizer, "owner.recover")):
+            payload = ({"mode": "manual", "native_session_id": "session-new"}
+                       if name == "owner.acquire" else
+                       {"reason": "new recovery", "reconciled_job_ids": []}
+                       if name == "owner.recover" else {})
+            request = self.request(path, name, f"revoked-{path.name}", payload)
+            self.reject_unchanged(request, path, "wrong_binding")
+        self.reject_unchanged(released, operator, "wrong_binding")
+
+    def test_changed_historical_envelopes_conflict_without_reapplying_effects(self) -> None:
+        _, _, operator = self.bootstrap()
+        historical = self.retain(operator, "old-operator.json")
+        request, _, owner, operator = self.acquire(operator)
+        _, _, operator = self.clear(owner)
+        before = self.state()
+        for path in (historical, operator):
+            for change in ({"expected_revision": request["expected_revision"] + 1},
+                           {"payload": {"mode": "manual", "native_session_id": "session-alpha-extra"}},
+                           {"payload": {"mode": "supervised", "native_session_id": "session-alpha"}}):
+                changed = copy.deepcopy(request)
+                changed.update(change)
+                self.reject_unchanged(changed, path, "invalid_request")
+                self.assertEqual(self.state(), before)
+
+    def test_checks_exact_identity_scope_epoch_job_and_role_before_mutation(self) -> None:
+        _, opened, operator = self.bootstrap()
+        _, _, owner, operator = self.acquire(operator)
+        occupied = self.request(operator, "owner.acquire", "occupied", {
+            "mode": "supervised", "native_session_id": "session-alpha-extra"})
+        self.reject_unchanged(occupied, operator, "wrong_binding")
+        valid = self.request(owner, "owner.release", "release-binding")
+        for key, values in (
+                ("actor_id", (valid["actor_id"] + "-extra", "prefix-" + valid["actor_id"])),
+                ("workflow_id", (valid["workflow_id"] + "-extra", "prefix-" + valid["workflow_id"])),
+                ("project_id", ("0" * 64, "f" * 64)),
+                ("lease_epoch", (0, valid["lease_epoch"] + 1)),
+                ("job_id", ("job-alpha", "job-alpha-extra"))):
+            for value in values:
+                with self.subTest(field=key, value=value):
+                    self.reject_unchanged(valid | {key: value}, owner, "wrong_binding")
+        self.reject_unchanged(valid, operator, "wrong_binding")
+        self.reject_unchanged(self.request(operator, "owner.release", "operator-release"),
+                              operator, "wrong_binding")
+        for name, payload in (("owner.acquire", {"mode": "manual", "native_session_id": "a"}),
+                              ("owner.recover", {"reason": "a", "reconciled_job_ids": []})):
+            self.reject_unchanged(self.request(owner, name, name + "-wrong-role", payload),
+                                  owner, "wrong_binding")
+        self.assertEqual(self.state()["workflow_id"], opened["result"]["workflow_id"])
+        self.clear(owner)
+
+    def test_rejects_near_miss_credentials_and_does_not_fall_back_to_cwd_binding(self) -> None:
+        _, _, operator = self.bootstrap()
+        _, _, owner, operator = self.acquire(operator)
+        request = self.request(owner, "owner.release", "release-evidence")
+        for key, suffix in (("secret", "x"), ("native_session_id", "-extra"),
+                            ("actor_id", "-extra"), ("workflow_id", "-extra")):
+            fake = self.retain(owner, f"wrong-{key}.json")
+            value = credential(fake)
+            value[key] = (value[key][:-1] + ("A" if value[key][-1] != "A" else "B")
+                          if key == "secret" else value[key] + suffix)
+            fake.write_bytes(canonical(value))
+            self.reject_unchanged(request, fake, "wrong_binding")
+        near_root = self.base / "project-extra"
+        near_root.mkdir()
+        self.reject_unchanged(request, owner, "wrong_binding", root=near_root)
+        self.assertFalse(private_path(near_root).exists())
+        self.clear(owner)
+
+    def test_closed_payloads_reject_empty_oversized_and_multielement_reconciliation(self) -> None:
+        _, _, operator = self.bootstrap()
+        for payload in ({}, {"mode": "manual", "native_session_id": ""},
+                        {"mode": "manual-extra", "native_session_id": "session-alpha"},
+                        {"mode": "supervised-extra", "native_session_id": "session-beta"},
+                        {"mode": "manual", "native_session_id": "é" * 129},
+                        {"mode": "manual", "native_session_id": "s", "extra": 1}):
+            request = self.request(operator, "owner.acquire", "bad-acquire", payload)
+            self.reject_unchanged(request, operator, "invalid_request")
+        _, _, owner, operator = self.acquire(operator, session="é" * 128)
+        for payload in ({}, {"reason": "", "reconciled_job_ids": []},
+                        {"reason": "é" * 2049, "reconciled_job_ids": []},
+                        {"reason": "explicit", "reconciled_job_ids": None},
+                        {"reason": "explicit", "reconciled_job_ids": "job-a"},
+                        {"reason": "explicit", "reconciled_job_ids": [1]},
+                        {"reason": "explicit", "reconciled_job_ids": ["job-a", "job-a"]},
+                        {"reason": "explicit", "reconciled_job_ids": [], "extra": 1}):
+            request = self.request(operator, "owner.recover", "bad-recover", payload)
+            self.reject_unchanged(request, operator, "invalid_request")
+        for jobs in (["job-a", "job-b"], ["job-a-extra", "job-b-extra"]):
+            request = self.request(operator, "owner.recover", "unreconciled-recover", {
+                "reason": "Explicit reconciliation", "reconciled_job_ids": jobs})
+            self.reject_unchanged(request, operator, "rejected_evidence")
+        bad_release = self.request(owner, "owner.release", "bad-release", {"reason": "extra"})
+        self.reject_unchanged(bad_release, owner, "invalid_request")
+        request = self.request(operator, "owner.recover", "recover-at-bound", {
+            "reason": "é" * 2048, "reconciled_job_ids": []})
+        self.response(self.apply(request, operator), revision=2)
+        self.assertIsNone(self.state()["owner"])
+
+    def test_two_independent_subprocess_acquires_have_exactly_one_winner(self) -> None:
+        _, _, operator = self.bootstrap()
+        gate = self.base / "start-gate"
+        script = ("import pathlib,runpy,sys,time; gate=pathlib.Path(sys.argv.pop(1)); "
+                  "deadline=time.monotonic()+25\n"
+                  "while not gate.exists():\n"
+                  " if time.monotonic()>deadline: raise TimeoutError('gate')\n"
+                  " time.sleep(0.005)\n"
+                  "main=sys.argv.pop(1); sys.argv[0]=main; "
+                  "sys.path.insert(0,str(pathlib.Path(main).parent)); "
+                  "runpy.run_path(main,run_name='__main__')")
+        processes, requests = [], []
+        for index, mode in enumerate(("manual", "supervised")):
+            actor = self.retain(operator, f"client-{index}.json")
+            request = self.request(actor, "owner.acquire", f"racing-{index}", {
+                "mode": mode, "native_session_id": f"independent-session-{index}"})
+            requests.append(request)
+            arguments = [sys.executable, "-c", script, str(gate), str(MAIN), "--json",
+                         "apply", "--project-root", str(self.root), "--request",
+                         str(self.write_request(request)), "--actor-file", str(actor)]
+            process = subprocess.Popen(arguments, cwd=self.base, stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            self.addCleanup(lambda p=process: p.kill() if p.poll() is None else None)
+            processes.append(process)
+        gate.touch()
+        results = [subprocess.CompletedProcess(p.args, p.wait(timeout=30), *p.communicate(timeout=30))
+                   for p in processes]
+        self.assertEqual(sorted(p.returncode for p in results), [0, 1])
+        winner = next(index for index, value in enumerate(results) if value.returncode == 0)
+        response = self.response(results[winner], revision=1)
+        loser = results[1 - winner]
+        self.response(loser, "wrong_binding", revision=1)
+        self.assert_transition(requests[winner], response, operator)
+        self.assertEqual(set(self.state()["receipts"]), {"open-first", f"racing-{winner}"})
+        self.assertEqual(self.state()["owner"]["native_session_id"], f"independent-session-{winner}")
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+FILE /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_controller_owner_recovery.py
+"""Public CLI crash recovery and strict admission to credential intents."""
+
+from __future__ import annotations
+
+import json
+import sys
+import unittest
+from pathlib import Path
+
+from controller_cli_support import MAIN, cli, private_path, tree
+from controller_owner_support import OwnerCLITest, credential
+
+BOUNDARIES = ("stage_fsynced", "intent_dir_fsynced", "operator_credential_published",
+              "state_published", "cleanup_dir_fsynced")
+
+
+class OwnerRecoveryTest(OwnerCLITest):
+    def prepared(self, name: str, suffix: str = "first") -> tuple[dict, Path, Path]:
+        _, _, operator = self.bootstrap()
+        actor = operator
+        if name != "owner.acquire":
+            _, _, owner, operator = self.acquire(operator)
+            actor = owner if name == "owner.release" else operator
+        payload = ({"mode": "supervised", "native_session_id": "session-crash-extra"}
+                   if name == "owner.acquire" else
+                   {"reason": "Explicit crash reconciliation", "reconciled_job_ids": []}
+                   if name == "owner.recover" else {})
+        return self.request(actor, name, f"crash-{suffix}", payload), actor, operator
+
+    def pending_intent(self) -> Path:
+        return private_path(self.root) / "credential-intent.json"
+
+    def assert_pending_rejections(self, request: dict, actor: Path) -> None:
+        before = tree(private_path(self.root))
+        snapshot = cli(["--json", "snapshot", "--project-root", str(self.root)], cwd=self.base)
+        self.response(snapshot, "recovery_required", revision=self.state()["revision"])
+        self.assertTrue(tree(private_path(self.root)) == before)
+        self.reject_unchanged(request | {"request_id": request["request_id"] + "-extra"},
+                              actor, "recovery_required")
+        for key, values in (("workflow_id", (request["workflow_id"] + "-extra",
+                                              "prefix-" + request["workflow_id"])),
+                            ("project_id", ("0" * 64, "f" * 64))):
+            for value in values:
+                self.reject_unchanged(request | {key: value}, actor, "wrong_binding")
+        self.reject_unchanged(request | {"unexpected": True}, actor, "invalid_request")
+        self.reject_unchanged(request | {"lease_epoch": True}, actor, "invalid_request")
+
+    def assert_no_intent_secrets(self, intent: Path) -> None:
+        encoded = intent.read_bytes()
+        json.loads(encoded)
+        for path in (private_path(self.root) / "actors").iterdir():
+            if not path.is_file() or path == intent:
+                continue
+            try:
+                value = json.loads(path.read_bytes())
+            except (OSError, ValueError):
+                continue
+            if isinstance(value, dict) and isinstance(value.get("secret"), str):
+                self.assertTrue(value["secret"].encode() not in encoded,
+                                "intent contains plaintext credential material")
+        self.assert_private()
+
+    def recover_matching(self, request: dict, historical: Path, operator: Path) -> None:
+        before = tree(private_path(self.root))
+        completed = self.apply(request, historical)
+        if completed.returncode == 1:
+            self.response(completed, "recovery_required", revision=self.state()["revision"])
+            self.assertTrue(tree(private_path(self.root)) == before,
+                            "failed reconciliation discarded evidence")
+            self.assertTrue(self.pending_intent().exists())
+            return
+        response = self.response(completed, revision=request["expected_revision"] + 1)
+        self.assert_transition(request, response, historical)
+        self.assertFalse(self.pending_intent().exists())
+        after = tree(private_path(self.root))
+        self.assertEqual(self.response(self.apply(request, historical)), response)
+        if request["operation"] != "owner.release":
+            current = Path(response["result"]["operator_actor_file"])
+            self.assertEqual(self.response(self.apply(request, current)), response)
+        self.assertTrue(tree(private_path(self.root)) == after)
+        self.snapshot()
+
+    def test_crashes_at_every_owner_publication_boundary_preserve_replay_or_evidence(self) -> None:
+        project_base = self.root
+        for name in ("owner.acquire", "owner.release", "owner.recover"):
+            boundaries = BOUNDARIES + (("owner_credential_published",)
+                                      if name == "owner.acquire" else ())
+            for boundary in boundaries:
+                with self.subTest(operation=name, boundary=boundary):
+                    self.root = project_base / name / boundary
+                    self.root.mkdir(parents=True)
+                    request, actor, operator = self.prepared(name, boundary)
+                    historical = self.retain(actor, f"historical-{name}-{boundary}.json")
+                    old_state = self.state()
+                    finals = {path: path.read_bytes() for path in (
+                        private_path(self.root) / "actors").iterdir() if path.is_file()}
+                    self.crash(request, actor, boundary)
+                    if boundary == "stage_fsynced":
+                        self.assertEqual(self.state(), old_state)
+                        self.assertFalse(self.pending_intent().exists())
+                        for path, payload in finals.items():
+                            self.assertTrue(path.read_bytes() == payload)
+                    if self.pending_intent().exists():
+                        self.assert_no_intent_secrets(self.pending_intent())
+                        self.assert_pending_rejections(request, historical)
+                    self.recover_matching(request, historical, operator)
+
+    def test_corrupt_real_intents_preserve_all_bytes_for_matching_and_unrelated_requests(self) -> None:
+        original = self.root
+        for name in ("owner.acquire", "owner.release", "owner.recover"):
+            with self.subTest(operation=name):
+                self.root = original / name
+                self.root.mkdir(parents=True)
+                request, actor, _ = self.prepared(name)
+                historical = self.retain(actor, f"corrupt-intent-{name}.json")
+                self.crash(request, actor, "intent_dir_fsynced")
+                intent = self.pending_intent()
+                self.assertTrue(intent.exists())
+                intent.write_bytes(intent.read_bytes()[:19])
+                self.reject_unchanged(request, historical, "recovery_required")
+                self.reject_unchanged(request | {"request_id": "unrelated-corrupt-extra"},
+                                      historical, "recovery_required")
+                self.reject_unchanged(request | {"workflow_id": request["workflow_id"] + "-extra"},
+                                      historical, "wrong_binding")
+
+    def test_missing_or_corrupt_staged_credentials_cannot_finish_an_intent(self) -> None:
+        original = self.root
+        for damage in ("missing", "corrupt"):
+            with self.subTest(damage=damage):
+                self.root = original / damage
+                self.root.mkdir()
+                request, actor, _ = self.prepared("owner.acquire", damage)
+                initial_paths = set((private_path(self.root) / "actors").iterdir())
+                historical = self.retain(actor, f"historical-stage-{damage}.json")
+                old_secret = credential(actor)["secret"]
+                self.crash(request, actor, "intent_dir_fsynced")
+                stages = []
+                for path in (private_path(self.root) / "actors").iterdir():
+                    if path in initial_paths or path == self.pending_intent() or not path.is_file():
+                        continue
+                    try:
+                        value = json.loads(path.read_bytes())
+                    except (OSError, ValueError):
+                        continue
+                    if isinstance(value, dict) and value.get("role") == "operator" and (
+                            value.get("secret") != old_secret and "secret" in value):
+                        stages.append(path)
+                self.assertEqual(len(stages), 1, "one private staged operator credential is required")
+                if damage == "missing":
+                    stages[0].unlink()
+                else:
+                    stages[0].write_bytes(b"corrupt credential evidence")
+                self.reject_unchanged(request, historical, "recovery_required")
+                self.assert_pending_rejections(request, historical)
+
+    def test_directory_fsync_failure_never_acknowledges_or_changes_final_credentials(self) -> None:
+        original = self.root
+        script = ("import errno,os,runpy,stat,sys; original=os.fsync\n"
+                  "def fsync(fd):\n"
+                  " if stat.S_ISDIR(os.fstat(fd).st_mode): raise OSError(errno.EINVAL,'fsync')\n"
+                  " return original(fd)\n"
+                  "os.fsync=fsync; main=sys.argv.pop(1); sys.argv[0]=main; "
+                  "sys.path.insert(0,os.path.dirname(main)); runpy.run_path(main,run_name='__main__')")
+        for name in ("owner.acquire", "owner.release", "owner.recover"):
+            with self.subTest(operation=name):
+                self.root = original / name
+                self.root.mkdir()
+                request, actor, _ = self.prepared(name)
+                state = self.state()
+                finals = {path: path.read_bytes() for path in (
+                    private_path(self.root) / "actors").iterdir() if path.is_file()}
+                completed = self.apply(request, actor, prefix=[sys.executable, "-c", script, str(MAIN)])
+                self.response(completed, "recovery_required", revision=state["revision"])
+                self.assertEqual(self.state(), state)
+                for path, value in finals.items():
+                    self.assertTrue(path.read_bytes() == value)
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+FILE /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_controller_capacity.py
+"""Normal admission, emergency reserves, and private archival round trips."""
+
+from __future__ import annotations
+
+import shutil
+import stat
+import unittest
+from pathlib import Path
+
+from controller_cli_support import cli, fresh_request, private_path, tree
+from controller_owner_support import (
+    NORMAL_BYTES, STATE_BYTES, OwnerCLITest, credential, hashes, seed_bytes,
+    seed_receipts, state_bytes,
+)
+
+
+class CapacityTest(OwnerCLITest):
+    def test_last_normal_slot_then_release_reserve_preserve_every_prior_receipt(self) -> None:
+        _, _, operator = self.bootstrap()
+        self.seed(seed_receipts(self.state(), self.root, 4093))
+        prior = self.state()["receipts"]
+        _, _, owner, operator = self.acquire(operator)
+        self.assertEqual(len(self.state()["receipts"]), 4094)
+        self.assertLess(len(state_bytes(self.state())), NORMAL_BYTES)
+        normal = self.request(operator, "workflow.open", "normal-after-cap")
+        self.reject_unchanged(normal, operator, "recovery_required")
+        _, _, operator = self.clear(owner)
+        self.assertEqual(len(self.state()["receipts"]), 4095)
+        retained = self.state()["receipts"]
+        for request_id, receipt in prior.items():
+            self.assertEqual(retained[request_id], receipt)
+        self.assertIsNone(self.snapshot()["owner"])
+        no_owner = self.request(operator, "owner.recover", "no-owner-reserve", {
+            "reason": "Explicit empty-owner reconciliation", "reconciled_job_ids": []})
+        self.reject_unchanged(no_owner, operator, "recovery_required")
+
+    def saturated_recovery(self) -> tuple[dict, dict, Path, Path]:
+        _, _, operator = self.bootstrap()
+        old_operator = self.retain(operator, "archive-old-operator.json")
+        acquired, response, _, operator = self.acquire(operator)
+        self.seed(seed_receipts(self.state(), self.root, 4095))
+        prior = self.state()["receipts"]
+        _, _, operator = self.clear(operator, "owner.recover", "emergency-recover")
+        self.assertEqual(len(self.state()["receipts"]), 4096)
+        self.assertEqual(len(self.state()["actors"]), 1)
+        retained = self.state()["receipts"]
+        for name, receipt in prior.items():
+            self.assertEqual(retained[name], receipt)
+        return acquired, response, old_operator, operator
+
+    def assert_sealed_replay(self, request: dict, response: dict,
+                             historical: Path, operator: Path) -> None:
+        before = tree(private_path(self.root))
+        for actor in (historical, operator):
+            self.assertEqual(self.response(self.apply(request, actor)), response)
+        for name, payload in (("owner.acquire", {"mode": "manual", "native_session_id": "sealed"}),
+                              ("owner.recover", {"reason": "sealed", "reconciled_job_ids": []}),
+                              ("workflow.open", {})):
+            self.reject_unchanged(self.request(operator, name, f"sealed-{name}", payload),
+                                  operator, "recovery_required")
+        self.assertIsNone(self.snapshot()["owner"])
+        self.assertTrue(tree(private_path(self.root)) == before)
+
+    def test_hard_capacity_seals_new_mutations_but_preserves_snapshot_and_exact_replay(self) -> None:
+        self.assert_sealed_replay(*self.saturated_recovery())
+
+    def test_no_owner_cannot_use_either_reserved_count_slot(self) -> None:
+        original = self.root
+        for count in (4094, 4095):
+            with self.subTest(count=count):
+                self.root = original / str(count)
+                self.root.mkdir()
+                _, _, operator = self.bootstrap()
+                self.seed(seed_receipts(self.state(), self.root, count))
+                before = self.state()
+                request = self.request(operator, "owner.recover", "reserve-empty", {
+                    "reason": "No active owner", "reconciled_job_ids": []})
+                self.reject_unchanged(request, operator, "recovery_required")
+                acquire = self.request(operator, "owner.acquire", "reserve-acquire", {
+                    "mode": "supervised", "native_session_id": "reserve-session"})
+                self.reject_unchanged(acquire, operator, "recovery_required")
+                self.assertEqual(self.state()["receipts"], before["receipts"])
+                self.assertEqual(self.state()["revision"], before["revision"])
+                self.assertIsNone(self.state()["owner"])
+
+    def test_both_emergency_operations_use_either_reserve_but_never_override_hard_capacity(self) -> None:
+        original = self.root
+        for count in (4094, 4095, 4096):
+            for name in ("owner.release", "owner.recover"):
+                with self.subTest(count=count, operation=name):
+                    self.root = original / str(count) / name
+                    self.root.mkdir(parents=True)
+                    _, _, operator = self.bootstrap()
+                    _, _, owner, operator = self.acquire(operator)
+                    self.seed(seed_receipts(self.state(), self.root, count))
+                    actor = owner if name == "owner.release" else operator
+                    payload = ({"reason": "Capacity reconciliation", "reconciled_job_ids": []}
+                               if name == "owner.recover" else {})
+                    request = self.request(actor, name, f"capacity-{name}", payload)
+                    if count == 4096:
+                        self.reject_unchanged(request, actor, "recovery_required")
+                    else:
+                        response = self.response(self.apply(request, actor), revision=2)
+                        self.assert_transition(request, response, actor)
+                        self.assertEqual(len(self.state()["receipts"]), count + 1)
+
+    def test_normal_byte_admission_is_independent_of_receipt_count(self) -> None:
+        original = self.root
+        for offset, succeeds in ((-40000, True), (-1, False)):
+            with self.subTest(offset=offset):
+                self.root = original / str(offset)
+                self.root.mkdir()
+                _, _, operator = self.bootstrap()
+                self.seed(seed_bytes(self.state(), self.root, NORMAL_BYTES + offset))
+                self.assertLess(len(self.state()["receipts"]), 4094)
+                request = self.request(operator, "owner.acquire", "byte-acquire", {
+                    "mode": "supervised", "native_session_id": "byte-session-extra"})
+                if succeeds:
+                    response = self.response(self.apply(request, operator), revision=1)
+                    self.assert_transition(request, response, operator)
+                    self.assertLessEqual(len(state_bytes(self.state())), NORMAL_BYTES)
+                else:
+                    self.reject_unchanged(request, operator, "recovery_required")
+
+    def test_only_active_owner_clearing_can_use_reserved_bytes_below_hard_ceiling(self) -> None:
+        original = self.root
+        for name in ("owner.release", "owner.recover"):
+            with self.subTest(operation=name):
+                self.root = original / name
+                self.root.mkdir()
+                _, _, operator = self.bootstrap()
+                _, _, owner, operator = self.acquire(operator)
+                self.seed(seed_bytes(self.state(), self.root, NORMAL_BYTES + 1000))
+                self.assertLess(len(self.state()["receipts"]), 4094)
+                prior = self.state()["receipts"]
+                self.clear(owner if name == "owner.release" else operator, name)
+                self.assertGreater(len(state_bytes(self.state())), NORMAL_BYTES)
+                self.assertLessEqual(len(state_bytes(self.state())), STATE_BYTES)
+                retained = self.state()["receipts"]
+                for request_id, receipt in prior.items():
+                    self.assertEqual(retained[request_id], receipt)
+
+    def test_no_owner_cannot_consume_byte_reserve_and_emergency_cannot_exceed_state_ceiling(self) -> None:
+        original = self.root
+        for owned in (False, True):
+            with self.subTest(owned=owned):
+                self.root = original / str(owned)
+                self.root.mkdir()
+                _, _, operator = self.bootstrap()
+                if owned:
+                    _, _, owner, operator = self.acquire(operator)
+                target = STATE_BYTES - 1 if owned else NORMAL_BYTES + 1000
+                self.seed(seed_bytes(self.state(), self.root, target))
+                self.assertLess(len(self.state()["receipts"]), 4094)
+                recover = self.request(operator, "owner.recover", "oversize-recover", {
+                    "reason": "Boundary reconciliation", "reconciled_job_ids": []})
+                self.reject_unchanged(recover, operator, "recovery_required")
+                if owned:
+                    release = self.request(owner, "owner.release", "oversize-release")
+                    self.reject_unchanged(release, owner, "recovery_required")
+
+    def test_private_archive_hash_restore_and_distinct_workflow_roundtrip(self) -> None:
+        acquired, response, historical, operator = self.saturated_recovery()
+        self.assertIsNone(self.snapshot()["owner"])
+        private = private_path(self.root)
+        old_id = self.state()["workflow_id"]
+        original = hashes(private)
+        offline = self.base / "private-offline-archive"
+        shutil.copytree(private, offline)
+        self.assertEqual(stat.S_IMODE(offline.stat().st_mode), 0o700)
+        self.assertEqual(hashes(offline), original)
+        archived = private.with_name(old_id)
+        private.rename(archived)
+        self.assertEqual(stat.S_IMODE(archived.stat().st_mode), 0o700)
+        self.assertEqual(hashes(archived), original)
+        new_request = fresh_request(self.root, "open-distinct-after-archive")
+        opened = self.response(self.apply(new_request), revision=0)
+        self.assert_open_consistent(new_request, opened)
+        self.assertNotEqual(opened["result"]["workflow_id"], old_id)
+        self.assertNotEqual(opened["result"]["actor_id"], credential(historical)["actor_id"])
+        newer = private.with_name(opened["result"]["workflow_id"])
+        private.rename(newer)
+        archived.rename(private)
+        self.assertEqual(hashes(private), original)
+        self.assertEqual(hashes(offline), original)
+        self.assertTrue(newer.exists())
+        self.assert_sealed_replay(acquired, response, historical, operator)
+        self.assertEqual(hashes(private), original)
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+FILE /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/controller_owner_support.py
+"""Owner test helpers using only the public CLI and private JSON artifacts."""
+
+from __future__ import annotations
+
+import copy
+import hashlib
+import json
+import shutil
+import stat
+import sys
+from pathlib import Path
+
+from controller_cli_support import (
+    CREDENTIAL_KEYS, MAIN, ControllerCLITest, canonical, cli, fresh_request,
+    private_path, project_id, strict_json, tree,
+)
+
+NORMAL_BYTES = 14680064
+STATE_BYTES = 16777216
+
+
+def state_bytes(state: dict) -> bytes:
+    return (json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True)
+            + "\n").encode("utf-8")
+
+
+def credential(path: Path) -> dict:
+    return strict_json(path.read_bytes())
+
+
+def operation(root: Path, actor: Path, name: str, request_id: str,
+              revision: int, payload: dict | None = None) -> dict:
+    value = credential(actor)
+    request = fresh_request(root, request_id)
+    request.update(operation=name, expected_revision=revision,
+                   workflow_id=value["workflow_id"], actor_id=value["actor_id"],
+                   lease_epoch=value["lease_epoch"], payload=payload or {})
+    return request
+
+
+def hashes(root: Path) -> dict:
+    return {str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in root.rglob("*") if path.is_file()}
+
+
+def seed_receipts(state: dict, root: Path, count: int) -> dict:
+    value = copy.deepcopy(state)
+    first = next(iter(value["receipts"].values()))
+    while len(value["receipts"]) < count:
+        name = f"capacity-history-{len(value['receipts']):04d}"
+        receipt = copy.deepcopy(first)
+        receipt["request_digest"] = hashlib.sha256(
+            canonical(fresh_request(root, name))).hexdigest()
+        value["receipts"][name] = receipt
+    return value
+
+
+def seed_bytes(state: dict, root: Path, target: int) -> dict:
+    value = copy.deepcopy(state)
+    first = copy.deepcopy(next(iter(value["receipts"].values())))
+    sample = copy.deepcopy(first)
+    sample["response"]["result"]["actor_file"] = "/" + "p" * 54000
+    before = len(state_bytes(value))
+    value["receipts"]["byte-size-sample"] = sample
+    increment = len(state_bytes(value)) - before + 2
+    del value["receipts"]["byte-size-sample"]
+    count = max(0, (target - before - 3000) // increment)
+    for _ in range(count):
+        name = f"byte-history-{len(value['receipts']):04d}"
+        receipt = copy.deepcopy(sample)
+        receipt["request_digest"] = hashlib.sha256(
+            canonical(fresh_request(root, name))).hexdigest()
+        value["receipts"][name] = receipt
+    name = f"byte-history-{len(value['receipts']):04d}"
+    value["receipts"][name] = copy.deepcopy(first)
+    value["receipts"][name]["request_digest"] = hashlib.sha256(
+        canonical(fresh_request(root, name))).hexdigest()
+    result = value["receipts"][name]["response"]["result"]
+    result["actor_file"] += "x" * (target - len(state_bytes(value)))
+    if len(state_bytes(value)) != target:
+        raise AssertionError("capacity fixture does not meet its exact byte target")
+    return value
+
+
+# This subprocess wraps OS boundaries, never a controller module or private API.
+CRASH_SCRIPT = r'''
+import json, os, runpy, stat, sys
+from pathlib import Path
+main, project, boundary, target = sys.argv[1:5]
+target = int(target)
+root = Path(project) / ".autopilot" / "controller"
+actors = root / "actors"
+intent = root / "credential-intent.json"
+original_files = {p.resolve() for p in actors.iterdir() if p.is_file()}
+real_fsync, real_replace = os.fsync, os.replace
+
+def pending():
+    return intent.exists()
+
+def published():
+    try:
+        return json.loads((root / "state.json").read_bytes())["revision"] == target
+    except (OSError, ValueError, KeyError):
+        return False
+
+def destination(value, directory):
+    path = Path(os.fsdecode(value))
+    if path.is_absolute() or directory is None:
+        return path.resolve()
+    identity = os.fstat(directory)
+    for parent in (root, actors, root.parent, root.parent.parent):
+        info = parent.stat()
+        if (info.st_dev, info.st_ino) == (identity.st_dev, identity.st_ino):
+            return parent / path
+    return None
+
+def fsync(fd):
+    real_fsync(fd)
+    info = os.fstat(fd)
+    if stat.S_ISDIR(info.st_mode):
+        if boundary == "intent_dir_fsynced" and pending():
+            os._exit(87)
+        if boundary == "cleanup_dir_fsynced" and published() and not pending():
+            os._exit(87)
+    elif boundary == "stage_fsynced" and not pending() and not published():
+        for path in actors.iterdir():
+            candidate = path.stat()
+            if path.resolve() not in original_files and (
+                    candidate.st_dev, candidate.st_ino) == (info.st_dev, info.st_ino):
+                os._exit(87)
+
+def replace(source, dest, *args, **kwargs):
+    real_replace(source, dest, *args, **kwargs)
+    path = destination(dest, kwargs.get("dst_dir_fd"))
+    if boundary == "state_published" and path == root / "state.json" and published():
+        os._exit(87)
+    if path is None or path.parent != actors:
+        return
+    try:
+        value = json.loads(path.read_bytes())
+    except (OSError, ValueError):
+        return
+    label = value.get("role", "") + "_credential_published"
+    if boundary == label and value.get("lease_epoch") == target:
+        os._exit(87)
+
+os.fsync, os.replace = fsync, replace
+sys.argv = [main] + sys.argv[5:]
+sys.path.insert(0, str(Path(main).parent))
+runpy.run_path(main, run_name="__main__")
+'''
+
+
+class OwnerCLITest(ControllerCLITest):
+    def bootstrap(self) -> tuple[dict, dict, Path]:
+        request, opened = self.open()
+        return request, opened, Path(opened["result"]["actor_file"])
+
+    def request(self, actor: Path, name: str, request_id: str,
+                payload: dict | None = None) -> dict:
+        return operation(self.root, actor, name, request_id,
+                         self.state()["revision"], payload)
+
+    def acquire(self, operator: Path, mode: str = "manual",
+                session: str = "session-alpha", request_id: str = "acquire-first"
+                ) -> tuple[dict, dict, Path, Path]:
+        request = self.request(operator, "owner.acquire", request_id,
+                               {"mode": mode, "native_session_id": session})
+        response = self.response(self.apply(request, operator),
+                                 revision=request["expected_revision"] + 1)
+        self.assert_transition(request, response, operator)
+        result = response["result"]
+        return (request, response, Path(result["actor_file"]),
+                Path(result["operator_actor_file"]))
+
+    def clear(self, actor: Path, name: str = "owner.release",
+              request_id: str = "clear-first") -> tuple[dict, dict, Path]:
+        payload = ({"reason": "Explicit reconciliation alpha", "reconciled_job_ids": []}
+                   if name == "owner.recover" else {})
+        request = self.request(actor, name, request_id, payload)
+        response = self.response(self.apply(request, actor),
+                                 revision=request["expected_revision"] + 1)
+        self.assert_transition(request, response, actor)
+        return request, response, Path(response["result"]["operator_actor_file"])
+
+    def retain(self, actor: Path, name: str) -> Path:
+        path = self.base / name
+        shutil.copyfile(actor, path)
+        path.chmod(0o600)
+        return path
+
+    def reject_unchanged(self, request: dict, actor: Path | None,
+                         error: str, root: Path | None = None) -> None:
+        before = tree(private_path(self.root))
+        completed = self.apply(request, actor, root=root)
+        self.response(completed, error, revision=self.state()["revision"])
+        self.assertTrue(tree(private_path(self.root)) == before,
+                        "rejection changed private evidence")
+
+    def assert_transition(self, request: dict, response: dict,
+                          authorizer: Path) -> None:
+        state = self.state()
+        self.assertEqual(state["revision"], response["revision"])
+        self.assertEqual(state["lease_epoch"], response["result"]["lease_epoch"])
+        self.assertEqual(state["lease_epoch"], request["lease_epoch"] + 1)
+        self.assertEqual(state["workflow"], {"batch": None, "work": None,
+                         "tasks": [], "review": {"cap": 2}, "recovery": None,
+                         "jobs": []})
+        receipt = state["receipts"][request["request_id"]]
+        self.assertEqual(receipt["request_digest"], hashlib.sha256(canonical(request)).hexdigest())
+        self.assertEqual(receipt["response"], response)
+        self.assertEqual(receipt["authorizing_actor"]["actor_id"], request["actor_id"])
+        self.assertEqual(receipt["authorizing_actor"]["lease_epoch"], request["lease_epoch"])
+        self.assertLessEqual(len(canonical(response)), 65536)
+        operator = Path(response["result"]["operator_actor_file"])
+        self.assert_current_credential(operator, "operator", state)
+        if request["operation"] == "owner.acquire":
+            self.assertEqual(set(response["result"]),
+                             {"actor_id", "actor_file", "lease_epoch", "operator_actor_file"})
+            owner = Path(response["result"]["actor_file"])
+            self.assert_current_credential(owner, "owner", state)
+            self.assertEqual(state["owner"], {
+                "actor_id": response["result"]["actor_id"],
+                "lease_epoch": response["result"]["lease_epoch"],
+                **request["payload"]})
+            self.assertEqual(set(state["actors"]),
+                             {credential(operator)["actor_id"], credential(owner)["actor_id"]})
+        else:
+            self.assertEqual(set(response["result"]),
+                             {"actor_id", "operator_actor_file", "lease_epoch"})
+            self.assertIsNone(state["owner"])
+            self.assertEqual(set(state["actors"]), {credential(operator)["actor_id"]})
+        self.assert_private()
+
+    def assert_current_credential(self, path: Path, role: str, state: dict) -> None:
+        value = credential(path)
+        self.assertEqual(set(value), CREDENTIAL_KEYS)
+        self.assertTrue(path.is_absolute())
+        self.assertTrue(path.is_relative_to(private_path(self.root) / "actors"))
+        self.assertEqual(value["role"], role)
+        self.assertEqual(value["project_id"], project_id(self.root))
+        self.assertEqual(value["workflow_id"], state["workflow_id"])
+        self.assertEqual(value["lease_epoch"], state["lease_epoch"])
+        expected = {key: item for key, item in value.items() if key != "secret"}
+        expected["secret_digest"] = hashlib.sha256(value["secret"].encode()).hexdigest()
+        self.assertTrue(state["actors"][value["actor_id"]] == expected,
+                        "published credential does not match its descriptor")
+        self.assertNotIn(value["secret"], json.dumps(state))
+        self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
+
+    def snapshot(self) -> dict:
+        before = tree(private_path(self.root))
+        result = cli(["--json", "snapshot", "--project-root", str(self.root)], cwd=self.base)
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        self.assertLessEqual(len(result.stdout), STATE_BYTES)
+        response = self.response(result, revision=self.state()["revision"])
+        value = response["result"]
+        self.assertTrue(tree(private_path(self.root)) == before,
+                        "snapshot changed private evidence")
+        encoded = json.dumps(value)
+        self.assertNotIn('"secret"', encoded)
+        self.assertNotIn('"secret_digest"', encoded)
+        self.assertNotIn('"request_digest"', encoded)
+        for key in ("project_id", "workflow_id", "lease_epoch", "owner"):
+            self.assertEqual(value[key], self.state()[key])
+        return value
+
+    def seed(self, state: dict) -> None:
+        sys.path.insert(0, str(MAIN.parent))
+        from autopilot_state.schema import validate_state
+        validate_state(state)
+        path = private_path(self.root) / "state.json"
+        path.write_bytes(state_bytes(state))
+        path.chmod(0o600)
+
+    def crash(self, request: dict, actor: Path, boundary: str):
+        prefix = [sys.executable, "-c", CRASH_SCRIPT, str(MAIN), str(self.root),
+                  boundary, str(request["expected_revision"] + 1)]
+        completed = self.apply(request, actor, prefix=prefix)
+        self.assertEqual(completed.returncode, 87,
+                         f"OS crash boundary was not reached: {boundary}")
+        self.assertEqual(completed.stdout, b"")
+        return completed
+
+
+Public interfaces/types (so your implementation compiles):
+Public CLI calls autopilot_state.protocol.execute(command: str, root: Path|None, request_file: Path|None, actor_file: Path|None)->dict. main.py prints returned dict as JSON. command is apply/snapshot/contract. Full public field shapes, limits, credential/state/scenario expectations are in tests. No other internal API required. Existing schema/store/paths and bootstrap actors may be imported unchanged as dependencies, but never inspect production implementation or architecture. No acceptance/task prose provided.
+
+Test runner command: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_owner.py tests/autopilot/test_controller_owner_recovery.py tests/autopilot/test_controller_capacity.py -q --tb=line
+
+Your goal:
+Write an implementation that makes ALL tests pass but is clearly WRONG. Strategies:
+- Return hardcoded values that happen to match test expectations
+- Ignore parameters and return constants
+- Handle only the exact cases the tests check, fail on everything else
+- Use if/else chains that match test inputs specifically
+- Skip validation that tests don't verify
+
+Process:
+1. Read the tests carefully
+2. Write a deliberately wrong implementation
+3. Run the test runner command above against your wrong implementation
+4. If tests pass: you broke them. Keep going: show every other weak point you can prove the same way, up to 8 in total, before reporting.
+5. If tests fail: try a different exploit. After 3 failed attempts, report "Tests are robust."
+
+Rules:
+1. You MUST run the tests to verify your exploit actually works - no guessing
+2. Your implementation MUST be obviously wrong (not just suboptimal)
+3. Do NOT modify test files
+4. For each exploit, explain which test is too weak and what assertion would prevent it
+5. Clean up your wrong implementation before returning. Do NOT use `rm` — it is denied to subagents and will fail. Instead, use the Write tool to OVERWRITE every file you created with a single placeholder line (`# adversarial placeholder - overwritten by implementor`). The Write tool always works. Never ask for permission to delete; just overwrite and report the path.
+6. Run only the test runner command above, once per exploit; never a whole test directory.
+
+Output format:
+- If you CAN break the tests: show the wrong implementation and the passing test output, then a numbered `Weak points:` list, one line each: `N. <test name> - <what a wrong implementation gets away with> - <assertion that would prevent it>`
+- If you CANNOT break the tests: say "Tests are robust" and explain why each shortcut you tried was caught
+
+You receive NOTHING about what the code should actually do. You only see tests and types.
+
+Host cwd /Users/bob/git/src/github.com/buvis/agent-plugins. Task7 ONLY. Writable ONLY:
+/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/controller/autopilot_state/protocol.py
+/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/controller/autopilot_state/actors.py
+Existing production slice is backed up by coordinator and will be restored exactly after your round; candidate changes are never accepted as product code. Never modify main.py, schema/store/paths, tests, changelog, state or reports. You may read test/helper files listed in the prompt; no implementation/architecture reads. Run exact narrow owner suite only, max3 failed attempts; require actual all-pass evidence for weakness, max8. Clean wrong candidate by mandated placeholder in any modified/created allowed file, then report every touched path. Coordinator restores baseline; do not commit or change task state.
+
+Additional read-only test dependency (contents trimmed once for prompt bound): /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/controller_cli_support.py. Read it only as a test harness; no production input supplied.

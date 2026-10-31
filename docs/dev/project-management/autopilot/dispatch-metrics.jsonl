@@ -353,3 +353,50 @@
 {"kind":"handoff","site":"build","edge":"resume","at":1793364011,"phase":"build","prd":"00018-autopilot-controller-kernel-v1.md"}
 {"id":"58b84430","kind":"tess","task":"3","queued_at":1793364069,"prompt_bytes":14796}
 {"id":"58b84430","ended_at":1793364253,"elapsed_s":184,"outcome":"ok","detail":"Tess gpt-6.1-sol/high strengthened all 8; missing-module collection expected"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793444763,"phase":"build","prd":"00018-autopilot-controller-kernel-v1.md"}
+{"id":"df7c4941","kind":"ivan","task":"3","queued_at":1793444847,"prompt_bytes":53344}
+{"id":"1c67ba6d","kind":"ivan","task":"3","queued_at":1793444853,"prompt_bytes":30589}
+{"id":"df7c4941","ended_at":1793444955,"elapsed_s":108,"outcome":"error","detail":"53344-byte render not dispatched; one context trim produced 30589-byte prompt for dispatch 1c67ba6d"}
+{"id":"1c67ba6d","ended_at":1793445025,"elapsed_s":172,"outcome":"ok","detail":"native /root/schema_ivan gpt-6.1-sol/high; 22 passed; no test edits"}
+{"id":"f0c402af","kind":"deslop","task":"3","queued_at":1793445046,"prompt_bytes":13530}
+{"id":"f0c402af","ended_at":1793445119,"elapsed_s":73,"outcome":"ok","detail":"native gpt-6.1-sol/high committed 9ff9be3eb7198f6c23acac507b34ba6ec6e7f4a2"}
+{"id":"38a6c57c","kind":"pat","task":"3","queued_at":1793445133,"prompt_bytes":28424}
+{"id":"38a6c57c","ended_at":1793445182,"elapsed_s":49,"outcome":"error","detail":"Claude weekly quota exhausted; resets 10am Europe/Prague; no retry before reset; review failed:usage_limit"}
+{"id":"cb7847a0","kind":"devon","task":"4","queued_at":1793445222,"prompt_bytes":31969}
+{"id":"cb7847a0","ended_at":1793445367,"elapsed_s":145,"outcome":"ok","detail":"native gpt-6.1-sol/high proved 8 gaps; eight runs 20 passed; candidate overwritten with placeholder"}
+{"id":"1378a53c","kind":"tess","task":"4","queued_at":1793445384,"prompt_bytes":10210}
+{"id":"1378a53c","ended_at":1793445525,"elapsed_s":141,"outcome":"ok","detail":"8 dispositions returned; quality review catches invalid cap=3 fixture; one correction required before commit"}
+{"id":"7a2fe7cb","kind":"tess","task":"4","queued_at":1793445525,"prompt_bytes":7144}
+{"id":"7a2fe7cb","ended_at":1793445560,"elapsed_s":35,"outcome":"ok","detail":"invalid cap fixture corrected to schema-valid repo_root; all 8 gaps strengthened"}
+{"id":"4f59099c","kind":"ivan","task":"4","queued_at":1793445563,"prompt_bytes":40628}
+{"id":"4f59099c","ended_at":1793445703,"elapsed_s":140,"outcome":"ok","detail":"native gpt-6.1-sol/high; 23 passed; store and changelog only"}
+{"id":"a671cf67","kind":"deslop","task":"4","queued_at":1793445714,"prompt_bytes":11225}
+{"id":"a671cf67","ended_at":1793445764,"elapsed_s":50,"outcome":"ok","detail":"native gpt-6.1-sol/high; cleanup8ad0d6f; narrow tests passed"}
+{"id":"a98c7792","kind":"devon","task":"5","queued_at":1793445815,"prompt_bytes":7558}
+{"id":"a98c7792","ended_at":1793445968,"elapsed_s":153,"outcome":"ok","detail":"native GPT proved8 weaknesses; each exact run3 passed; candidate overwritten"}
+{"id":"f640f3a0","kind":"tess","task":"5","queued_at":1793445968,"prompt_bytes":11402}
+{"id":"f640f3a0","ended_at":1793446046,"elapsed_s":78,"outcome":"ok","detail":"all8 weaknesses strengthened; shape/style clean; target absent, no false passing claim"}
+{"id":"8d99abfd","kind":"ivan","task":"5","queued_at":1793446047,"prompt_bytes":18900}
+{"id":"8d99abfd","ended_at":1793446140,"elapsed_s":93,"outcome":"ok","detail":"native gpt-6.1-sol/high;6 passed; paths and changelog only"}
+{"id":"5bce9002","kind":"deslop","task":"5","queued_at":1793446141,"prompt_bytes":10371}
+{"id":"5bce9002","ended_at":1793446184,"elapsed_s":43,"outcome":"ok","detail":"native gpt-6.1-sol/high; no slop found; no edits"}
+{"id":"146b7a5f","kind":"tess","task":"6","queued_at":1793446247,"prompt_bytes":32722}
+{"id":"146b7a5f","ended_at":1793446555,"elapsed_s":308,"outcome":"ok","detail":"new runtime tests authored; expected missing-main red; quality correction before commit"}
+{"id":"d709b8c6","kind":"tess","task":"6","queued_at":1793446555,"prompt_bytes":23281}
+{"id":"d709b8c6","ended_at":1793446615,"elapsed_s":60,"outcome":"ok","detail":"quality correction fixed pinned errors; no interim-only owner tests"}
+{"id":"1179d71e","kind":"devon","task":"6","queued_at":1793446655,"prompt_bytes":39807}
+{"id":"1179d71e","ended_at":1793446954,"elapsed_s":299,"outcome":"ok","detail":"native GPT eight cumulative gaps; eight20-passed runs; main candidate placeholder cleanup"}
+{"id":"4cce1ec2","kind":"tess","task":"6","queued_at":1793446980,"prompt_bytes":27651}
+{"id":"4cce1ec2","ended_at":1793447230,"elapsed_s":250,"outcome":"ok","detail":"all8 numbered points strengthened; shape/style clean; no Devon rerun"}
+{"id":"44e90b55","kind":"ivan","task":"6","queued_at":1793447232,"prompt_bytes":46418}
+{"id":"44e90b55","ended_at":1793447908,"elapsed_s":676,"outcome":"ok","detail":"native gpt-6.1-sol/high; final25 passed in16.35s; allowed four files only"}
+{"id":"915fd6da","kind":"deslop","task":"6","queued_at":1793447934,"prompt_bytes":24978}
+{"id":"915fd6da","ended_at":1793448020,"elapsed_s":86,"outcome":"ok","detail":"native gpt-6.1-sol/high; cleanupc5bad90;25 passed"}
+{"id":"4f56fe94","kind":"ivan","task":"6","queued_at":1793448020,"prompt_bytes":11158}
+{"id":"4f56fe94","ended_at":1793448081,"elapsed_s":61,"outcome":"ok","detail":"no edit: CONTRACT required export imported by both test modules; deletion unsupported"}
+{"id":"f3918f7c","kind":"tess","task":"7","queued_at":1793448152,"prompt_bytes":31909}
+{"id":"f3918f7c","ended_at":1793448982,"elapsed_s":830,"outcome":"ok","detail":"19 expected red tests; author reports45KB; quality correction for intent path required"}
+{"id":"35dd3376","kind":"tess","task":"7","queued_at":1793449256,"prompt_bytes":23742}
+{"id":"35dd3376","ended_at":1793449942,"elapsed_s":686,"outcome":"ok","detail":"intent path, snapshot envelope, evidence error and MECH cases corrected; shape/style clean"}
+{"id":"d476cee7","kind":"devon","task":"7","queued_at":1793450360,"prompt_bytes":50760}
+{"id":"d476cee7","ended_at":1793450516,"elapsed_s":156,"outcome":"error","detail":"NOT DISPATCHED: initial59119 bytes, one allowed trim50760 exceeds50000; canonical subagent_prompt_overrun replan handoff"}
