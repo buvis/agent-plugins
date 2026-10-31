@@ -54,7 +54,12 @@ class SchemaTest(unittest.TestCase):
                     schema.decode_json(text, source="invalid-fixture")
 
     def test_decoder_rejects_byte_depth_and_integer_resource_overflow(self) -> None:
-        texts = ("[" * 34 + "0" + "]" * 34, "9" * 641,
+        boundary = 0
+        for _ in range(32):
+            boundary = [boundary]
+        self.assertEqual(schema.decode_json("[" * 32 + "0" + "]" * 32,
+                                            source="depth-boundary"), boundary)
+        texts = ("[" * 33 + "0" + "]" * 33, "[" * 34 + "0" + "]" * 34, "9" * 641,
                  json.dumps("x" * 1048577), json.dumps("é" * 524289, ensure_ascii=False),
                  " " * 16777216 + "{}")
         for text in texts:
@@ -69,7 +74,13 @@ class SchemaTest(unittest.TestCase):
             value = frozen_state(owned=owned)
             original = copy.deepcopy(value)
             with self.subTest(owned=owned):
-                self.assertEqual(schema.validate_state(value), original)
+                validated = schema.validate_state(value)
+                self.assertEqual(validated, original)
+                validated["workflow"]["tasks"].append("local mutation")
+                validated["actors"]["operator-synthetic"]["role"] = "local mutation"
+                validated["receipts"]["open-synthetic"]["response"]["result"]["actor_file"] = "/mutated"
+                if owned:
+                    validated["owner"]["mode"] = "manual"
                 self.assertEqual(value, original)
                 decoded = schema.decode_json(canonical(value).decode(), source="frozen")
                 self.assertEqual(schema.validate_state(decoded), original)
@@ -162,10 +173,20 @@ class SchemaTest(unittest.TestCase):
             value["workflow_id"] = identity
             with self.subTest(identity=identity):
                 self.assert_invalid(value)
+        for identity in ("x" * 256, "é" * 128):
+            value = frozen_state()
+            value["workflow_id"] = identity
+            value["actors"]["operator-synthetic"]["workflow_id"] = identity
+            receipt = value["receipts"]["open-synthetic"]
+            receipt["authorizing_actor"]["workflow_id"] = identity
+            receipt["response"]["result"]["workflow_id"] = identity
+            with self.subTest(valid_identity=identity):
+                self.assertEqual(schema.validate_state(value), value)
 
     def test_actor_roles_owner_modes_and_secret_fields_reject_near_matches(self) -> None:
         changes = (("role", "operator-extra"), ("role", "owner-extra"),
                    ("secret_digest", "b" * 63), ("secret_digest", "B" * 64),
+                   ("secret_digest", "z" * 64),
                    ("native_session_id", "session-for-operator"),
                    ("lease_epoch", True), ("secret", "credential-secret"))
         for key, replacement in changes:
@@ -173,10 +194,19 @@ class SchemaTest(unittest.TestCase):
             value["actors"]["operator-synthetic"][key] = replacement
             with self.subTest(key=key, replacement=replacement):
                 self.assert_invalid(value)
-        for mode in ("manual-extra", "supervised-extra", "", None):
+        owner_changes = (("mode", "manual-extra"), ("mode", "supervised-extra"),
+                         ("mode", ""), ("mode", None),
+                         ("lease_epoch", -1), ("lease_epoch", True),
+                         ("lease_epoch", False), ("lease_epoch", 0.5),
+                         ("lease_epoch", "1"), ("lease_epoch", None),
+                         ("actor_id", None), ("actor_id", True),
+                         ("actor_id", ""), ("actor_id", "x" * 257),
+                         ("native_session_id", None), ("native_session_id", True),
+                         ("native_session_id", ""), ("native_session_id", "x" * 257))
+        for key, replacement in owner_changes:
             value = frozen_state(owned=True)
-            value["owner"]["mode"] = mode
-            with self.subTest(mode=mode):
+            value["owner"][key] = replacement
+            with self.subTest(owner_key=key, replacement=replacement):
                 self.assert_invalid(value)
         for mode in ("manual", "supervised"):
             value = frozen_state(owned=True)
@@ -193,6 +223,15 @@ class SchemaTest(unittest.TestCase):
             changed = copy.deepcopy(value)
             del changed["receipts"]["open-synthetic-extra"]["response"][key]
             with self.subTest(missing=key):
+                self.assert_invalid(changed)
+        changes = (("ok", 1), ("ok", "true"), ("ok", None),
+                   ("retryable", 0), ("retryable", "false"), ("retryable", None),
+                   ("error_code", 0), ("error_code", "unknown"),
+                   ("result", []), ("result", None), ("result", "result"))
+        for key, replacement in changes:
+            changed = copy.deepcopy(value)
+            changed["receipts"]["open-synthetic-extra"]["response"][key] = replacement
+            with self.subTest(key=key, replacement=replacement):
                 self.assert_invalid(changed)
         changed = copy.deepcopy(value)
         changed["receipts"]["open-synthetic-extra"]["response"]["result"]["actor_file"] = "/" + "x" * 65536
@@ -220,6 +259,10 @@ class SchemaTest(unittest.TestCase):
         receipt = value["receipts"]["open-synthetic"]
         receipt["response"]["result"]["actor_file"] = "/" + "x" * 60000
         self.assertLess(len(canonical(receipt["response"])), 65536)
+        self.assertEqual(schema.validate_state(value), value)
+        value["receipts"] = {f"request-{index}": copy.deepcopy(receipt) for index in range(200)}
+        self.assertGreater(len(canonical(value)), 12000000)
+        self.assertLess(len(canonical(value)), schema.MAX_STATE_BYTES)
         self.assertEqual(schema.validate_state(value), value)
         value["receipts"] = {f"request-{index}": copy.deepcopy(receipt) for index in range(280)}
         self.assertLess(len(value["receipts"]), 4094)
@@ -278,6 +321,12 @@ class DecoderRegressionTest(unittest.TestCase):
 
 
 class SchemaRegressionTest(unittest.TestCase):
+    def test_active_actor_ids_match_registry_keys(self) -> None:
+        value = frozen_state()
+        value["actors"]["operator-synthetic"]["actor_id"] = "ghost"
+        with self.assertRaises(schema.SchemaError):
+            schema.validate_state(value)
+
     def test_active_and_receipt_actor_ids_reject_invalid_types_and_oversized_strings(self) -> None:
         invalid = (None, True, False, 7, 1.5, [], {}, "", "x" * 257, "é" * 129)
         for location in ("active", "receipt"):
