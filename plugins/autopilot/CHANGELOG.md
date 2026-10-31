@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add the bounded public controller CLI with private workflow bootstrap, authenticated exact replay, read-only snapshots, installed contract metadata, and durable matching-request credential-intent recovery.
 - Add read-only explicit project-root resolution with descriptor-based private path and fixed artifact alias checks.
 - Add the locked, atomic controller state store with fsynced state/backup publication, exact failure repair, revision checks, artifact alias guards, directory binding, and security-identical offline restore.
 
