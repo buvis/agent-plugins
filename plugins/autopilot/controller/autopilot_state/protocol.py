@@ -12,7 +12,6 @@ from .paths import resolve_project_root
 from .store import FutureSchemaError, RevisionConflictError, StateError, StateIOError, StateStore
 
 REQUEST_LIMIT = 2097152
-RESPONSE_LIMIT = 16777216
 ENVELOPE_KEYS = {"protocol_major", "operation", "request_id", "expected_revision",
                  "project_id", "workflow_id", "actor_id", "job_id", "lease_epoch", "payload"}
 OWNER_OPERATIONS = {"owner.acquire", "owner.release", "owner.recover"}
