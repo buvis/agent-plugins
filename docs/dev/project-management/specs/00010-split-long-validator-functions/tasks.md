@@ -52,7 +52,7 @@ Run these tasks only after helper status opens the implementation gate. Use Pyth
   - Verify: Run all unchanged characterization tests and the existing validator/release tests through the shared gate. Measure the manifest wrapper and four helpers with AST `end_lineno - lineno + 1 <= 50`. Inspect the diff for identical predicate/message sequence, manifest return, and unchanged caller APIs; confirm existing tests remain unchanged. Run repository helper status and commit `refactor: split manifest validation checks`.
   - Outcome: Extracted four ordered manifest checks in scripts/validate.py; wrapper 14 lines and helpers 20/27/19/20 lines by AST; all 35 unchanged characterization tests and the eight-command Python 3.10.22 gate pass, Ruff lint/format pass, original tests and other functions/callers unchanged; logs retained at docs/dev/tmp/review-tools/t004-logs.
 
-- [ ] T-005 Split MCP validation into five ordered checks
+- [x] T-005 Split MCP validation into five ordered checks
   - Requirements: REQ-001, REQ-003, REQ-004, REQ-005
   - Depends on: T-004
   - Location: `scripts/validate.py` (validate_mcp and its five new private helpers only).
@@ -64,6 +64,7 @@ Run these tasks only after helper status opens the implementation gate. Use Pyth
   - Details: Preserve `validate_mcp(plugin: Path) -> None`. Extract `_validate_mcp_server(path: Path, name: str, server: object) -> None`, `_validate_stdio_server(path: Path, server: dict[str, object]) -> None`, `_validate_mcp_env(path: Path, env: object) -> None`, `_validate_mcp_cwd(path: Path, cwd: object) -> None`, and `_validate_remote_server(path: Path, server: dict[str, object]) -> None` with the approved responsibility table. Construct the server diagnostic path before name/object checks; retain transport expressions, command/args/env/cwd order, remote fields/URL/headers order, and original key-presence guards. Preserve runtime exceptions, diagnostic text, and containment predicates. Do not revise T-004's manifest split, tests, other helpers, callers, or package files.
   - Acceptance criteria: REQ-001 criteria 1, 2 (MCP portion); REQ-003 criteria 1, 2, 3; REQ-004 criteria 1, 2, 3; REQ-005 criteria 1, 2.
   - Verify: Run all unchanged characterization tests and existing validator/release tests through the shared gate. Measure the MCP wrapper and five helpers with AST `end_lineno - lineno + 1 <= 50`. Inspect the diff for preserved ordering, presence checks, malformed-value exceptions and None returns; confirm all existing tests remain unchanged. Run repository helper status and commit `refactor: split MCP validation checks`.
+  - Outcome: Extracted five ordered MCP checks in scripts/validate.py; wrapper 23 lines, env/cwd/stdio/remote/server helpers 13/19/37/21/16 lines; all 35 unchanged characterization tests and the eight-command Python 3.10.22 gate pass, Ruff passes, all other definitions remain byte-identical to T-004; original tests and callers unchanged; logs retained at docs/dev/tmp/review-tools/t005-logs.
 
 - [ ] T-006 Enforce the line limit and verify the completed split
   - Requirements: REQ-001, REQ-002, REQ-003, REQ-004, REQ-005

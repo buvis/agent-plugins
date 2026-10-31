@@ -312,6 +312,122 @@ def validate_url(path: Path, value: object) -> None:
     )
 
 
+def _validate_mcp_env(path: Path, env: object) -> None:
+    require(isinstance(env, dict), path, "env must be an object")
+    env = cast("dict[str, object]", env)
+    require(
+        not {"PLUGIN_ROOT", "PLUGIN_DATA"} & set(env),
+        path,
+        "env must not override reserved variables",
+    )
+    require(
+        all(is_string(key) and is_string(value) for key, value in env.items()),
+        path,
+        "env keys and values must be strings",
+    )
+
+
+def _validate_mcp_cwd(path: Path, cwd: object) -> None:
+    require(is_string(cwd), path, "cwd must be a string")
+    cwd = cast("str", cwd)
+    if cwd.startswith("./"):
+        suffix = cwd[2:]
+    elif cwd in {"${PLUGIN_ROOT}", "${PLUGIN_DATA}"}:
+        suffix = ""
+    elif cwd.startswith("${PLUGIN_ROOT}/"):
+        suffix = cwd[len("${PLUGIN_ROOT}/") :]
+    elif cwd.startswith("${PLUGIN_DATA}/"):
+        suffix = cwd[len("${PLUGIN_DATA}/") :]
+    else:
+        message = f"{path}: cwd must be plugin-relative or rooted at a plugin variable"
+        raise ValidationError(message)
+    require(
+        contained_suffix(suffix),
+        path,
+        "cwd escapes its permitted root",
+    )
+
+
+def _validate_stdio_server(path: Path, server: dict[str, object]) -> None:
+    allowed = {"type", "command", "args", "env", "cwd"}
+    require(
+        not set(server) - allowed,
+        path,
+        "stdio server contains unknown fields",
+    )
+    command = server.get("command")
+    require(
+        is_string(command, nonempty=True),
+        path,
+        "stdio server requires command",
+    )
+    command = cast("str", command)
+    if command.startswith("./"):
+        require(
+            contained_suffix(command[2:]),
+            path,
+            "command escapes the plugin root",
+        )
+    else:
+        require(
+            "/" not in command and "\\" not in command,
+            path,
+            "command must be bare or start with ./",
+        )
+    if "args" in server:
+        require(
+            isinstance(server["args"], list)
+            and all(is_string(item) for item in server["args"]),
+            path,
+            "args must be strings",
+        )
+    if "env" in server:
+        _validate_mcp_env(path, server["env"])
+    if "cwd" in server:
+        _validate_mcp_cwd(path, server["cwd"])
+
+
+def _validate_remote_server(path: Path, server: dict[str, object]) -> None:
+    allowed = {"type", "url", "headers"}
+    require(
+        not set(server) - allowed,
+        path,
+        "remote server contains unknown fields",
+    )
+    validate_url(path, server.get("url"))
+    if "headers" in server:
+        headers = server["headers"]
+        require(
+            isinstance(headers, dict),
+            path,
+            "headers must be an object",
+        )
+        headers = cast("dict[str, object]", headers)
+        require(
+            all(is_string(key) and is_string(value) for key, value in headers.items()),
+            path,
+            "header names and values must be strings",
+        )
+
+
+def _validate_mcp_server(path: Path, name: str, server: object) -> None:
+    server_path = Path(f"{path}#{name}")
+    require(
+        isinstance(name, str) and bool(name),
+        server_path,
+        "server name must be non-empty",
+    )
+    require(isinstance(server, dict), server_path, "server must be an object")
+    server = cast("dict[str, object]", server)
+    transport = server.get("type")
+    if transport == "stdio":
+        _validate_stdio_server(server_path, server)
+    elif transport in {"streamable-http", "sse"}:
+        _validate_remote_server(server_path, server)
+    else:
+        raise ValidationError(f"{server_path}: unknown MCP transport {transport!r}")
+
+
 def validate_mcp(plugin: Path) -> None:
     path = plugin / "mcp.json"
     if not path.exists():
@@ -334,114 +450,7 @@ def validate_mcp(plugin: Path) -> None:
     servers = cast("dict[str, object]", servers)
 
     for name, server in servers.items():
-        server_path = Path(f"{path}#{name}")
-        require(
-            isinstance(name, str) and bool(name),
-            server_path,
-            "server name must be non-empty",
-        )
-        require(isinstance(server, dict), server_path, "server must be an object")
-        server = cast("dict[str, object]", server)
-        transport = server.get("type")
-        if transport == "stdio":
-            allowed = {"type", "command", "args", "env", "cwd"}
-            require(
-                not set(server) - allowed,
-                server_path,
-                "stdio server contains unknown fields",
-            )
-            command = server.get("command")
-            require(
-                is_string(command, nonempty=True),
-                server_path,
-                "stdio server requires command",
-            )
-            command = cast("str", command)
-            if command.startswith("./"):
-                require(
-                    contained_suffix(command[2:]),
-                    server_path,
-                    "command escapes the plugin root",
-                )
-            else:
-                require(
-                    "/" not in command and "\\" not in command,
-                    server_path,
-                    "command must be bare or start with ./",
-                )
-            if "args" in server:
-                require(
-                    isinstance(server["args"], list)
-                    and all(is_string(item) for item in server["args"]),
-                    server_path,
-                    "args must be strings",
-                )
-            if "env" in server:
-                env = server["env"]
-                require(isinstance(env, dict), server_path, "env must be an object")
-                env = cast("dict[str, object]", env)
-                require(
-                    not {"PLUGIN_ROOT", "PLUGIN_DATA"} & set(env),
-                    server_path,
-                    "env must not override reserved variables",
-                )
-                require(
-                    all(
-                        is_string(key) and is_string(value)
-                        for key, value in env.items()
-                    ),
-                    server_path,
-                    "env keys and values must be strings",
-                )
-            if "cwd" in server:
-                cwd = server["cwd"]
-                require(is_string(cwd), server_path, "cwd must be a string")
-                cwd = cast("str", cwd)
-                if cwd.startswith("./"):
-                    suffix = cwd[2:]
-                elif cwd in {"${PLUGIN_ROOT}", "${PLUGIN_DATA}"}:
-                    suffix = ""
-                elif cwd.startswith("${PLUGIN_ROOT}/"):
-                    suffix = cwd[len("${PLUGIN_ROOT}/") :]
-                elif cwd.startswith("${PLUGIN_DATA}/"):
-                    suffix = cwd[len("${PLUGIN_DATA}/") :]
-                else:
-                    message = (
-                        f"{server_path}: cwd must be plugin-relative or rooted at "
-                        "a plugin variable"
-                    )
-                    raise ValidationError(message)
-                require(
-                    contained_suffix(suffix),
-                    server_path,
-                    "cwd escapes its permitted root",
-                )
-        elif transport in {"streamable-http", "sse"}:
-            allowed = {"type", "url", "headers"}
-            require(
-                not set(server) - allowed,
-                server_path,
-                "remote server contains unknown fields",
-            )
-            validate_url(server_path, server.get("url"))
-            if "headers" in server:
-                headers = server["headers"]
-                require(
-                    isinstance(headers, dict),
-                    server_path,
-                    "headers must be an object",
-                )
-                headers = cast("dict[str, object]", headers)
-                require(
-                    all(
-                        is_string(key) and is_string(value)
-                        for key, value in headers.items()
-                    ),
-                    server_path,
-                    "header names and values must be strings",
-                )
-        else:
-            raise ValidationError(f"{server_path}: unknown MCP transport {transport!r}")
+        _validate_mcp_server(path, name, server)
 
 
 def validate_containment(plugin: Path) -> None:
