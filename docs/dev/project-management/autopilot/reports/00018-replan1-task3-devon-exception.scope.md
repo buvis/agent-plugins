@@ -1,37 +1,30 @@
-Operator exception for PRD 00018 task 3 — Devon host-filter block.
+Operator exception for PRD 00018 task 3 — status after signing recovery.
 
-Context: the mandatory step-2.9 Devon adversarial round for task 3 cannot run on
-the native GPT route — OpenAI's cyber-safety filter (cyber_policy) blocks a GPT
-model from generating the deliberately-wrong schema implementation Devon needs.
-The operator has authorized running that one round on Claude Opus instead. This
-is a different, in-policy model, not a filter bypass.
+Task 3's Devon adversarial round AND its one mandated Tess strengthen are
+COMPLETE:
 
-That round has ALREADY been executed under this exception. Verdict: EXPLOITED.
-The 8 proven weak points and the full evidence are in
-docs/dev/project-management/autopilot/reports/00018-replan1-task3-devon-result.md.
+- Devon ran under operator exception on Claude Opus (the GPT route is blocked by
+  OpenAI's cyber-safety filter; this is a different in-policy model, not a
+  bypass). Verdict: EXPLOITED, 8 proven weak points. Evidence:
+  docs/dev/project-management/autopilot/reports/00018-replan1-task3-devon-result.md.
+- Tess strengthened the tests on the normal GPT pipeline to close all 8 weak
+  points. That change is committed as the `test(autopilot): strengthen
+  controller schema for task 3` commit. The task-3 attempt already records
+  devon: exploit_fixed and devon_weak_points: 8.
 
-Apply the following to PRD 00018 task 3 ONLY:
+Apply to PRD 00018 task 3 ONLY:
 
-1. Do NOT re-dispatch Devon (step 2.9) for task 3. Its GPT dispatch re-trips the
-   filter, and its verdict already exists. Re-running it is redundant and will
-   re-pause the batch for the same host reason.
-2. Treat Devon as having returned those 8 weak points. Run exactly ONE Tess
-   strengthen dispatch that addresses all 8 — each either strengthened with a
-   new assertion or answered "N. in-contract: <why allowed>" per
-   work/references/adversarial-test-prompt.md § Feedback to Tess. Any weak point
-   Tess neither strengthens nor marks in-contract goes back in the same
-   dispatch's one correction retry; never dismiss one in the orchestrator.
-3. Commit the strengthened tests as `test(autopilot): strengthen controller
-   schema for task 3`. Record on the task-3 attempt: devon: exploit_fixed,
-   devon_exploit (a one-line summary), devon_weak_points: 8, and devon_in_contract
-   (each "N. in-contract: …" line Tess returned, if any).
-4. Continue the normal pipeline at step 2.95 (red-check) and step 3 (Ivan) on
-   the standard GPT tiers. Ivan implements real production code; its provider is
-   unchanged, and review routing for task 3's implementation stays GPT→Claude.
+1. Do NOT re-dispatch Devon (step 2.9) and do NOT run Tess again. Both rounds are
+   done and the strengthened tests are committed. Re-running Devon re-trips the
+   host filter; re-running Tess would duplicate the strengthen.
+2. Continue the normal pipeline at step 2.95 (red-check) then step 3 (Ivan) on
+   the standard GPT tiers. Ivan implements the real production schema to satisfy
+   the strengthened tests. Review routing for task 3's implementation stays
+   GPT -> Claude.
 
 Scope limits:
-- This exception covers task 3's Devon round only. It does not authorize
-  skipping or routing any other gate, tier, or review lens.
+- This exception covers task 3 only. It does not authorize skipping or routing
+  any other gate, tier, or review lens.
 - Later opus-tier tasks (notably 4, 6, 7) write security-relevant code and their
   own Devon rounds may hit the same filter. This directive does NOT pre-authorize
   those; each needs its own operator decision, or — the durable fix — Daybreak

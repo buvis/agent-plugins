@@ -146,3 +146,11 @@ GitHub: zero open issues/PRs, no releases; latest recorded master Validate succe
 ## 2026-10-30 AP00018 replan build
 
 Preserve completed characterization and 44 retained kernel tests. Remaining work is split into API-isolated test files, schema, store, paths, bootstrap, owner lease, export, provenance registration and docs. No cap changes or completion review. GitHub has no open issues/PRs/releases; latest master Validate passed. Engram repository index succeeded; related topic returns AP00018 overview/kernel/protocol. Portfolio: memory stale24/dead1, code stale82/dead1466, PRD dead3151. Review harvest partially failed on old frontmatter; task restore no_tasks_dir.
+
+## 2026-10-30 AP00018 task 3 recovery build
+
+Task 3 resumes after an operator-scoped Claude Devon round proved eight schema test gaps. Exactly one GPT Tess strengthen pass precedes standard GPT Ivan implementation; no Devon rerun is authorized for task 3. Later tasks retain their original gates. The original work start and prior attempt evidence remain intact.
+
+GitHub refresh: zero open issues/PRs/releases; latest master Validate succeeded and no failed master runs. Related-context topic: Autopilot canonical controller kernel and protocol. Repo/portfolio hits: AP00018 overview (0.0328), integration (0.0311/0.0304), protocol (0.0290/0.0159), kernel (0.0161). Engram indexing failed; queries may be stale. Portfolio stamp: memory stale24/dead1, code stale57/dead21, PRD dead3115. Task restoration returned no_tasks_dir; authoritative workflow tasks remain intact.
+
+Review harvest completed with parse failures on old files without frontmatter.
