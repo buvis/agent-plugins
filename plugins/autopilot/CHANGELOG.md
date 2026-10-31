@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add read-only explicit project-root resolution with descriptor-based private path and fixed artifact alias checks.
 - Add the locked, atomic controller state store with fsynced state/backup publication, exact failure repair, revision checks, artifact alias guards, directory binding, and security-identical offline restore.
 
 - Add the versioned controller state schema with bounded JSON decoding and isolated state creation and validation.
