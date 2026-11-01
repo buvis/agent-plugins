@@ -53,9 +53,17 @@ No test was skipped or marked xfail to hide them.
 
 ## Required before AP 00013 can close or master can be pushed
 
-1. AP 00013 (task 11 or its review rework): add the helper rows, update the
-   `test_package.py` owner pin and `FORMATS`, and name the 7 IDs in the README.
-2. Add asset and owner rows for the 10 AP 00018 files. Either AP 00018 does it
-   when it resumes, or a small separate change does it now.
-3. AP 00018 task 7 makes the 19 controller tests pass. Until then they stay
-   red on purpose, and pushing master publishes a red CI job.
+1. Done in AP 00013 task 11 (`fbbdc3f` and before): helper rows, the
+   `test_package.py` owner pin, the capability list and the README IDs.
+2. Done in `4cb0ff7`: asset and owner rows for the 10 AP 00018 files
+   (`delivery_prd` 00018, evidence `planned`). Task 11 had added
+   `test_helper_provenance_real.py` assertions that banned every controller
+   row from the committed map, so no one could satisfy the package roster
+   test. They now check that AP 00013 never claims a controller row.
+   Each AP 00018 task that changes one of these files must refresh its digest.
+3. Open: AP 00018 tasks 7a-7d (`plans/00018-replan-3.md`) make the 19
+   controller tests pass. Until then they stay red on purpose, and pushing
+   master publishes a red CI job.
+
+Measured after `4cb0ff7` (2026-11-02): 19 failed, 801 passed. All 19 are the
+controller tests above.
