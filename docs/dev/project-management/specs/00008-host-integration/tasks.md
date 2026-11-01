@@ -69,7 +69,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - `scripts/test_generate_marketplace.py` passes with the six tests the design names; `claude plugin validate --strict .` passes on the generated file; `specflow:spec-workflow` is listed after the install from the local checkout.
   - Outcome: scripts/generate_marketplace.py writes .claude-plugin/marketplace.json (one entry, specflow 0.1.0) through build_manifest, its six tests pass on Python 3.10 and 3.14, CI and the local gate run --check, and README.md, AGENTS.md, and CONTRIBUTING.md each say the catalog is generated. claude plugin validate --strict passed; Claude Code 2.1.312 added the checkout as marketplace buvis-agent-plugins, installed specflow through it, listed specflow:spec-workflow in a headless session, and both were removed from the profile again. Recorded in claude-code.md.
 
-- [ ] T-045 Add host compatibility documentation
+- [x] T-045 Add host compatibility documentation
   - Requirements: PKG-003
   - Depends on: T-040, T-042, T-043, T-046
   - Location: `plugins/specflow/README.md`, `tests/specflow/compatibility/kiro-ide.md`, `tests/specflow/compatibility/codex.md`, `tests/specflow/compatibility/claude-code.md`, `docs/dev/project-management/specs/00008-host-integration/design.md`
@@ -88,6 +88,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - Each host's record holds the result of each install route tried in a fresh host profile, and whether the route takes a ref; the install steps of the README work as written there. Two kinds of line cannot run before the release and are left to it: the public route of Claude Code, and any line that T-062 (00001) later pins to the release tag.
     - The host section of `plugins/specflow/README.md` lists exactly Kiro IDE, Codex, and Claude Code as supported, and names Kiro CLI and Kiro Crew as expected to work but untested.
     - No line under `### Kiro IDE`, `### Codex`, or `### Claude Code` of this spec's design still says "to be verified": each is a confirmed path or a stated limit.
+  - Outcome: Kiro IDE installed the Power from the repository subdirectory URL on GitHub (developer trial, 2026-11-01); Codex installed from a fresh profile through .claude-plugin/marketplace.json from the checkout and from GitHub with --ref; the README host section lists Kiro IDE, Codex, and Claude Code, names Kiro CLI and Kiro Crew as untested, and names buvis-agent-plugins; the design's Kiro and Codex install lines state confirmed paths, and the developer re-approved the design and this plan on 2026-11-01 at commit 5f5aad5.
 
 ## Completion criteria
 

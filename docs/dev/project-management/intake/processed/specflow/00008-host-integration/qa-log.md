@@ -318,3 +318,30 @@ each landing exactly once.
   the past tense. No other line changed. The edit stales the design and
   tasks approvals by the normal rule; the re-approval question follows with
   the fresh hashes and a fresh code baseline.
+
+## Design and tasks re-approval (2026-11-01)
+
+- Question: "Re-approval of spec 00008 at commit 5f5aad5 ... Do you approve
+  both artifacts as they now read?" Answer: "Approve both (Recommended)".
+- Design: `docs/dev/project-management/specs/00008-host-integration/design.md`,
+  git blob `3a8bfb9adbb5e8722e35f72bc2f2be7dcf747117`, canonical SHA-256
+  `bd1187018c13104da716216ecfb0239ad0db47a6ca902532e6f95fb6c077a400`,
+  approved at `2026-11-01T19:29:40Z` against commit
+  `5f5aad52428b82c69231e0dac0076eb96c12c1a5`; upstream requirements
+  `74b92ee7388e37c40d58c0ed9ea6ae17202b92e0118e393b9b1d513cbb060985`.
+  Scope: the whole artifact as it now reads, after the T-045 batched edit.
+- Code baseline: captured over the 12 distinct paths of Module placement,
+  all present at that commit.
+- Tasks: `tasks.md`, git blob `b12419a1061cdafdfbda13294482f0f258f21ad9`,
+  canonical SHA-256 unchanged at
+  `9b034e391fccb02fc2b859a61d8beb6bde15222c602b7a53341339845685e758`,
+  approved at `2026-11-01T19:29:41Z` against the same commit; upstream
+  requirements as above and design `bd118701...`. Re-approved rather than
+  left standing, since the approval binds the exact upstream text.
+- Upstream markers accepted by name: none. Validation before the approval:
+  only the two expected `stale-approvals` errors, the progress-field
+  warnings on the Outcome lines of a stale plan, and the documented
+  `~/.kiro/powers/installed/<name>/` host path.
+- Written to `.specflow.json` from the helper's values, then `reconcile` and
+  `status`; T-045 checked with its Outcome line. The four completion
+  criteria stay unchecked for the completion review.

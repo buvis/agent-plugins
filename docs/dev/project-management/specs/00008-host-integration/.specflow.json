@@ -17,10 +17,10 @@
     "design": {
       "path": "design.md",
       "status": "approved",
-      "sha256": "268685ba9c743229ad978481e23fd865698ef8ba81ba8d2c1163e019b51058c6",
-      "approvedSha256": "268685ba9c743229ad978481e23fd865698ef8ba81ba8d2c1163e019b51058c6",
-      "approvedAt": "2026-10-25T22:09:26Z",
-      "approvedCommit": "b1e05c75d6f0dad01db35258baf565ecaf5a77ad",
+      "sha256": "bd1187018c13104da716216ecfb0239ad0db47a6ca902532e6f95fb6c077a400",
+      "approvedSha256": "bd1187018c13104da716216ecfb0239ad0db47a6ca902532e6f95fb6c077a400",
+      "approvedAt": "2026-11-01T19:29:40Z",
+      "approvedCommit": "5f5aad52428b82c69231e0dac0076eb96c12c1a5",
       "upstreamSha256": {
         "requirements": "74b92ee7388e37c40d58c0ed9ea6ae17202b92e0118e393b9b1d513cbb060985"
       },
@@ -29,51 +29,51 @@
         "files": [
           {
             "path": ".claude-plugin/marketplace.json",
-            "missing": true
+            "sha256": "4e8cde9535e7cfc05b64946f6887c398530e3c67091028ecc1f67b88143e176b"
           },
           {
             "path": ".github/workflows/validate.yml",
-            "sha256": "1f28b6931707239d058d56b722f2d377a370d21f5d4cad86f92ac2b6886eaf6c"
+            "sha256": "8531acfde94f028961ed527a59dd72b0deab918f7a2a854769303f58d58904e8"
           },
           {
             "path": "AGENTS.md",
-            "sha256": "474ac7e26a214c8e6ba9fc6cebe0a72e9c57469b4ecde9cb592d239d50066e15"
+            "sha256": "1a7e7422d93b6dc9731252400648266e338b2f5d52c880202367236c4c10fbf6"
           },
           {
             "path": "CONTRIBUTING.md",
-            "sha256": "815956b63f6a31b9ff7548e4275fce7b9530e49c5970a5a3adcbe68c91d891d6"
+            "sha256": "503dbaba7ae77addd6411dceccd701c5f87a1b43a97e0244eea8b36ee521a274"
           },
           {
             "path": "README.md",
-            "sha256": "ed3ab526ef01d8a73c11d568247fcf880ff4fce4f17cf1ca71b196bbd05a58b9"
+            "sha256": "27cbe854e0145a9940c498dda3cfaa9e08b3755ab52db1a075110a16ce9b14de"
           },
           {
             "path": "docs/dev/project-management/specs/00008-host-integration/design.md",
-            "sha256": "268685ba9c743229ad978481e23fd865698ef8ba81ba8d2c1163e019b51058c6"
+            "sha256": "bd1187018c13104da716216ecfb0239ad0db47a6ca902532e6f95fb6c077a400"
           },
           {
             "path": "plugins/specflow/README.md",
-            "sha256": "f0a40f4502124ba6437752b56ca03b43d957f770b42f717dc53ecd069bcfdbb5"
+            "sha256": "59e0b7243e204343ac399647236f66fd9779d9656e5d2dbe8835f199469ee7d3"
           },
           {
             "path": "scripts/generate_marketplace.py",
-            "missing": true
+            "sha256": "a3f9259e5c1ad5f982fd218d03a4d2caa8fd02e224e1ad05e8c0e71aec5f2dfa"
           },
           {
             "path": "scripts/test_generate_marketplace.py",
-            "missing": true
+            "sha256": "af7d30b11d581350306e59d7e67c07e0a946f2f977342b35a700a3383c538ad2"
           },
           {
             "path": "tests/specflow/compatibility/claude-code.md",
-            "missing": true
+            "sha256": "2c512947dce3b070dd3c65e6ab695927b6c4a7760a543096739458e9100fd40d"
           },
           {
             "path": "tests/specflow/compatibility/codex.md",
-            "missing": true
+            "sha256": "088e87f75dd60dda5f0a891ba0da744d52356f0b0a148ad539e4fbb09cede9cb"
           },
           {
             "path": "tests/specflow/compatibility/kiro-ide.md",
-            "missing": true
+            "sha256": "4bf0c3c31af727e55fd905dcc8a825e0940f5b8778c300e0ad87d52361cd5ea4"
           }
         ]
       }
@@ -83,11 +83,11 @@
       "status": "approved",
       "sha256": "9b034e391fccb02fc2b859a61d8beb6bde15222c602b7a53341339845685e758",
       "approvedSha256": "9b034e391fccb02fc2b859a61d8beb6bde15222c602b7a53341339845685e758",
-      "approvedAt": "2026-10-25T22:09:26Z",
-      "approvedCommit": "b1e05c75d6f0dad01db35258baf565ecaf5a77ad",
+      "approvedAt": "2026-11-01T19:29:41Z",
+      "approvedCommit": "5f5aad52428b82c69231e0dac0076eb96c12c1a5",
       "upstreamSha256": {
         "requirements": "74b92ee7388e37c40d58c0ed9ea6ae17202b92e0118e393b9b1d513cbb060985",
-        "design": "268685ba9c743229ad978481e23fd865698ef8ba81ba8d2c1163e019b51058c6"
+        "design": "bd1187018c13104da716216ecfb0239ad0db47a6ca902532e6f95fb6c077a400"
       }
     }
   }
