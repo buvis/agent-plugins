@@ -247,6 +247,21 @@ def test_no_hidden_workflow_state_target_project_state_inputs_are_refused_unread
     assert accepted.returncode == 0, accepted.stderr
 
 
+def test_no_hidden_workflow_state_inputs_spelling_live_state_in_another_case_are_refused_unread(
+    world: World,
+) -> None:
+    # On a case-insensitive filesystem this is the poisoned live state.json; elsewhere it is absent.
+    variant = world.host / "DOCS" / "dev" / "Project-Management" / "AUTOPILOT" / "state.json"
+    live = real(world.host / STATE).casefold() + os.sep
+    before = watched(world)
+    proc, audit = run_cli(world, "--group-findings", variant, cwd=world.host, audited=True)
+    assert proc.returncode == 2, (proc.returncode, proc.stderr)
+    assert proc.stderr.strip()
+    touched = [path for path in opened(audit) if path.casefold().startswith(live)]
+    assert touched == [], touched
+    assert_no_hidden_state(world, audit, before)
+
+
 def test_no_hidden_workflow_state_verification_never_reuses_or_rewrites_the_live_record(
     world: World,
 ) -> None:

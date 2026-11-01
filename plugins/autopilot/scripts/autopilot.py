@@ -90,7 +90,8 @@ def _in_live_state(path: Path) -> bool:
     realpath follows symlinks without opening the file."""
     for candidate in (os.path.abspath(path), os.path.realpath(path)):
         parts = Path(candidate).parts
-        if any(parts[i:i + 4] == _LIVE_STATE for i in range(len(parts))):
+        if any(tuple(p.casefold() for p in parts[i:i + 4]) == _LIVE_STATE
+               for i in range(len(parts))):
             return True
     return False
 
