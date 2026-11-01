@@ -1,0 +1,36 @@
+{
+  "name": "review-readonly",
+  "description": "Read-only reviewer lane for autopilot review cycles (temporary, created 2026-10-31 for the 00010 review)",
+  "prompt": null,
+  "mcpServers": {},
+  "tools": [
+    "glob",
+    "grep",
+    "read"
+  ],
+  "allowedTools": [
+    "read",
+    "grep",
+    "glob"
+  ],
+  "resources": [],
+  "includeMcpJson": false,
+  "model": "claude-sonnet-5.5",
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      }
+    ]
+  },
+  "kiroUpgrade": {
+    "revision": 2,
+    "fingerprint": "sha256:9e3fe6dd6026606bea7d2c10bfdc7aef63672552fdcd62b31c407e725372eaaf",
+    "source": "sha256:440e211398ab8ae6749fba63ec8f04117e2765564eb0f66fb14c814222b2ee64"
+  }
+}
