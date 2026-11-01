@@ -15,9 +15,10 @@ uncommitted), so a repin now would churn its bindings under it.
 
 Decision: record every post-pin change here with its planned row. Run the
 repin as the first step of AP 00015 Phase 0, which already must "recheck
-ownership/pin before edits". Repin to the source HEAD at that time. If the
-source owner has committed the `subagent-dispatch.md` fix by then (see
-below), it comes in with the repin. Until the repin, these rows are open
+ownership/pin before edits". claude-autopilot is frozen as of 2026-11-01
+(`~/.claude/AGENTS.md`; the user kept the freeze for this cleanup), so the
+repin target is its final commit `7e17947b`. The uncommitted source edits
+below will never land there. Until the repin, these rows are open
 obligations, not passed evidence.
 
 ## Post-pin commits
@@ -36,14 +37,16 @@ subdirectory root for its git toplevel. The new test failed before the fix.
 
 ## Uncommitted claude-autopilot edits (2026-10-27/28)
 
-Not committed, not changed. Read only.
+Not committed, not changed. Read only. The repo is frozen, so these edits
+stay uncommitted there. Copies of the ones worth keeping are in
+`00012-post-pin-source-drift/`.
 
 | Path | What it is | Owner work | Disposition |
 | --- | --- | --- | --- |
-| `skills/work/references/subagent-dispatch.md` | Oversized-dispatch recovery sets `phase` and `next_phase` to `build` and drops the signal file. The old text sets `next_phase` to `planning`, which `statectl` rejects. | AP 00012 recovery, session `cdd23c1a` (`docs/dev/project-management/autopilot/reports/00012-state-write-recovery.md`): it fixed source and the installed 0.10.0 copy, and never committed source. | Real fix. The source owner should commit it with its CHANGELOG line. The ported copy `plugins/autopilot/skills/work/references/subagent-dispatch.md` still has the `planning` text (byte-identical to the pin). It is not live: the package refuses execution until certified. Planned row: asset becomes `adapted` for that step, owner `buvis/agent-plugins#00015` (owns the file's behavior rows `OPT-015`, `OPT-141`, `BEH-535`, `BEH-536`), and comes in through the repin or a section adaptation in AP 00015. |
-| `CHANGELOG.md` | The fix's "oversized dispatch recovery uses the valid `build` phase" line, plus two stray blank lines. | Same as above. | Commit with the fix and drop the blank lines. |
-| `skills/run-autopilot/cli/loop_act.py`, `cli/test_loop_act.py` | Formatter reflow only (lines joined past 88 columns, imports merged). No change in behavior. Made by the edit-time autofixer, which falls back to `~/.config/ruff` because that repo has no ruff config. | None. | Discard (`git checkout` by the source owner). No port row. |
-| `docs/dev/project-management/prds/hold/00370-retire-source-package-v1.md` (untracked) | Source-side retirement PRD, sourced from discovery 00011 and the port completeness review here. | Port retirement plan (discovery 00011). | Keep in source; the source owner should commit it. Its readiness gate needs "the complete AP source inventory/map", so it also needs the repin above. No port row. |
+| `skills/work/references/subagent-dispatch.md` | Oversized-dispatch recovery sets `phase` and `next_phase` to `build` and drops the signal file. The old text sets `next_phase` to `planning`, which `statectl` rejects. | AP 00012 recovery, session `cdd23c1a` (`docs/dev/project-management/autopilot/reports/00012-state-write-recovery.md`): it fixed source and the installed 0.10.0 copy, and never committed source. | Real fix, saved as `00012-post-pin-source-drift/subagent-dispatch-fix.patch`. The repin cannot bring it in. The ported copy `plugins/autopilot/skills/work/references/subagent-dispatch.md` still has the `planning` text (byte-identical to the pin). It is not live: the package refuses execution until certified. Planned row: AP 00015 applies the patch to the ported copy and turns the asset row `adapted` for step 2-3 of the oversize handler (reason: the pinned text names a phase the state schema rejects), owner `buvis/agent-plugins#00015` (owns the file's behavior rows `OPT-015`, `OPT-141`, `BEH-535`, `BEH-536`). |
+| `CHANGELOG.md` | The fix's "oversized dispatch recovery uses the valid `build` phase" line, plus two stray blank lines. | Same as above. | AP 00015 writes the matching entry in `plugins/autopilot/CHANGELOG.md` when it applies the patch. No source action. |
+| `skills/run-autopilot/cli/loop_act.py`, `cli/test_loop_act.py` | Formatter reflow only (lines joined past 88 columns, imports merged). No change in behavior. Made by the edit-time autofixer, which falls back to `~/.config/ruff` because that repo has no ruff config. | None. | Ignore. The user may discard them. No port row. |
+| `docs/dev/project-management/prds/hold/00370-retire-source-package-v1.md` (untracked) | Source-side retirement PRD, sourced from discovery 00011 and the port completeness review here. | Port retirement plan (discovery 00011). | Copied verbatim to `00012-post-pin-source-drift/claude-autopilot-00370-retire-source-package-v1.md` (its relative links point from the source location). Where retirement runs under the freeze is the user's call when the readiness inputs exist. Its gate needs "the complete AP source inventory/map", so it also needs the repin above. No port row. |
 
 ## Ruff target
 
