@@ -221,7 +221,9 @@ def _supplied(refs: list[str], texts: dict[str, str]) -> str | None:
 
 def _history(settled: str | None, prior: str | None) -> list[str | None]:
     ledger = (
-        f"{SETTLED_HEADING}\n\n{SETTLED_INTRO}\n\n{settled.strip()}" if settled else None
+        f"{SETTLED_HEADING}\n\n{SETTLED_INTRO}\n\n{settled.strip()}"
+        if settled
+        else None
     )
     incremental = (
         f"## Incremental review\n\n{INCREMENTAL_NOTE}\n\n"
@@ -439,6 +441,29 @@ def _write_all(staged: dict, prompts: dict[str, tuple[Path, str]]) -> dict:
     return {"artifacts": artifacts, "prompts": paths}
 
 
+def _write_cycle(
+    real: Path, cycle_id: str, inputs: dict, context: dict, bodies: dict
+) -> dict:
+    jobs = list(bodies)
+    staged = _staged_files(real, cycle_id, inputs)
+    run = _run_inputs(staged, context, inputs, jobs)
+    prompts = {
+        job: (real / f"{job}-prompt-{cycle_id}.md", _render(job, bodies[job], run))
+        for job in jobs
+    }
+    try:
+        real.mkdir(parents=True, exist_ok=True)
+        written = _write_all(staged, prompts)
+    except OSError as err:
+        return _refusal("write-failed", str(err))
+    return {
+        "schema_version": 1,
+        "ok": True,
+        **written,
+        "input_manifest": run["manifest"],
+    }
+
+
 def stage_review(
     *,
     project_root: Path,
@@ -486,16 +511,4 @@ def stage_review(
     problem = _destination_problem(project, art, outputs)
     if problem:
         return _refusal("unsafe-output", problem)
-    real = art.resolve()
-    staged = _staged_files(real, cycle_id, inputs)
-    run = _run_inputs(staged, expected_context, inputs, jobs)
-    prompts = {
-        job: (real / f"{job}-prompt-{cycle_id}.md", _render(job, bodies[job], run))
-        for job in jobs
-    }
-    try:
-        real.mkdir(parents=True, exist_ok=True)
-        written = _write_all(staged, prompts)
-    except OSError as err:
-        return _refusal("write-failed", str(err))
-    return {"schema_version": 1, "ok": True, **written, "input_manifest": run["manifest"]}
+    return _write_cycle(art.resolve(), cycle_id, inputs, expected_context, bodies)
