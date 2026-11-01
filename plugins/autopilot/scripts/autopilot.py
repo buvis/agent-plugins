@@ -111,7 +111,6 @@ def _read_json(path: Path) -> object:
 
 
 def _request(path: Path, fields: set[str] | None = None) -> dict:
-    """The request's keyword fields with only the schema_version envelope stripped."""
     body = _read_json(path)
     version = body.get("schema_version") if isinstance(body, dict) else None
     if type(version) is not int or version != 1:
