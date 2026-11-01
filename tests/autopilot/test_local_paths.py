@@ -6,11 +6,13 @@ import importlib
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from test_contract import ROOT
 
@@ -70,6 +72,17 @@ class RepoCase(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.base = Path(temporary.name).resolve()
+        isolated = mock.patch.dict(os.environ, self.git_env())
+        isolated.start()
+        self.addCleanup(isolated.stop)
+
+    def git_env(self) -> dict[str, str]:
+        """Hermetic git: no user/system config, ignore files or hooks."""
+        return {
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "XDG_CONFIG_HOME": str(self.base / "xdg"),
+        }
 
     def make_repo(self, name: str = "repo", files: dict | None = None) -> Path:
         root = self.base / name
@@ -178,12 +191,14 @@ class StoreRootsTest(RepoCase):
             {
                 PM + "p.md": "edited\n",
                 PM + "new.md": "n\n",
+                PM + 'a "b" ž.md': "q\n",
                 "b.py": "edited\n",
                 "docs/dev/project-management-old/x.md": "x\n",
             },
         )
         self.assertEqual(
-            sorted(self.dt._dirty_store_paths(root)), [PM + "new.md", PM + "p.md"]
+            sorted(self.dt._dirty_store_paths(root)),
+            [PM + 'a "b" ž.md', PM + "new.md", PM + "p.md"],
         )
         write(root, {"sub/" + PM + "q.md": "edited\n"})
         self.assertEqual(
@@ -209,16 +224,24 @@ class DirtyOutsideStoreTest(RepoCase):
                 "docs/dev/tmp/scratch.txt": "s\n",
                 "docs/dev/project-management-old/x.md": "x\n",
                 "docs/dev/tmpfile": "t\n",
+                "a b.py": "s\n",
+                'q"uote.py': "q\n",
+                "ž.py": "z\n",
+                "x -> y.py": "r\n",
             },
         )
         self.assertEqual(
             self.dt._dirty_outside_store_paths(root),
             [
+                "a b.py",
                 "b.py",
                 "c.py",
                 "docs/dev/project-management-old/x.md",
                 "docs/dev/tmpfile",
+                'q"uote.py',
+                "x -> y.py",
                 "zz/new/deep.txt",
+                "ž.py",
             ],
         )
 
@@ -289,11 +312,14 @@ class DirtyOutsideStoreTest(RepoCase):
         git(root, "update-index", "--skip-worktree", "b.py", PM + "p.md")
         git(root, "update-index", "--assume-unchanged", "c.py")
         git(root, "update-index", "--skip-worktree", "logs/keep.txt")
-        self.assertEqual(self.dt._dirty_outside_store_paths(root), [])
-        write(root, {"b.py": "hidden\n", "c.py": "hidden\n", PM + "p.md": "s\n"})
-        self.assertEqual(self.dt._dirty_outside_store_paths(root), ["b.py", "c.py"])
-        self.assertFalse(self.dt._dirty_check(root, ("b.py", "c.py"))[0])
-        self.assertTrue(self.dt._dirty_outside_store(root, ("b.py",)))
+        paths = self.dt._dirty_outside_store_paths
+        flagged = ["b.py", "c.py", "logs/keep.txt"]
+        self.assertEqual(paths(root), flagged)
+        write(root, {"b.py": "x\n", PM + "p.md": "s\n"})
+        self.assertEqual(git(root, "status", "--porcelain=1"), "")
+        self.assertEqual(paths(root), flagged)
+        self.assertEqual(tuple(self.dt._dirty_check(root, ())), (True, flagged))
+        self.assertTrue(self.dt._dirty_outside_store(root, ("b.py", "c.py")))
 
     def test_git_failure_raises_for_paths_and_counts_as_dirty_for_checks(
         self,
@@ -342,14 +368,17 @@ class SelfLogExclusionTest(RepoCase):
         )
         self.assertIsNone(rel(root, None))
         self.assertIsNone(rel(root, self.plain_dir() / "out.log"))
+        staged = root / "logs/staged.log"
+        write(root, {"logs/staged.log": "s"})
+        git(root, "add", "logs/staged.log")
+        self.assertEqual(tuple(rel(root, staged)), ("logs/staged.log", True))
+        self.assertEqual(tuple(self.dt._untracked_log_exclusion(root, staged)), ())
 
     def test_only_an_untracked_log_inside_the_toplevel_is_excused(self) -> None:
         root = self.make_repo()
         write(root, {"logs/run.log": "r", "logs/run.log.1": "s"})
         excuse = self.dt._untracked_log_exclusion
-        self.assertEqual(
-            tuple(excuse(root, root / "logs/run.log")), ("logs/run.log",)
-        )
+        self.assertEqual(tuple(excuse(root, root / "logs/run.log")), ("logs/run.log",))
         self.assertEqual(tuple(excuse(root, root / "logs/keep.txt")), ())
         self.assertEqual(tuple(excuse(root, self.plain_dir() / "x.log")), ())
         self.assertEqual(tuple(excuse(root, None)), ())
@@ -371,6 +400,9 @@ class StoreSymlinkTargetTest(RepoCase):
         os.symlink("../" + PM + "p.md", root / "product" / "conf.md")
         os.symlink("../" + PM + "sub", root / "product" / "pmdir")
         os.symlink("p2.md", root / PM / "alias.md")
+        os.symlink(root / PM / "p2.md", root / "product" / "abs.md")
+        os.symlink("../" + PM + "p2.md", root / "escape.md")
+        os.symlink("x/../../other/" + PM + "p2.md", root / "product" / "suffix.md")
         git(root, "add", "-A")
         git(root, "commit", "-qm", "links")
         os.symlink("../" + PM + "p2.md", root / "product" / "untracked.md")
@@ -382,6 +414,8 @@ class StoreSymlinkTargetTest(RepoCase):
         cases = [
             ([], False),
             ([PM + "p.md"], True),
+            # p2.md links: store-internal, untracked, absolute (face value,
+            # never toplevel-relative), escaping the root, or suffix-only.
             ([PM + "p2.md"], False),
             ([PM + "p.md.bak"], False),
             ([PM + "sub/x.md"], True),
@@ -424,6 +458,7 @@ class AncestorAndCleanTest(RepoCase):
         git(root, "checkout", "-q", "-b", "other", base)
         other = self.commit(root, {"c.py": "other\n"})
         git(root, "checkout", "-q", "master")
+        self.assertIs(clean(root, side, reverted), False)
         git(root, "merge", "-q", "--no-edit", "side")
         merged = self.head(root)
         self.assertIs(clean(root, base, merged), True)
@@ -433,7 +468,7 @@ class AncestorAndCleanTest(RepoCase):
     def test_dirt_git_errors_and_store_symlink_retarget_are_not_clean(self) -> None:
         root = self.make_repo()
         clean = self.dt._ancestor_and_clean
-        os.symlink("../" + PM + "p.md", root / "c.link")
+        os.symlink(PM + "p.md", root / "c.link")
         base = self.commit(root, {}, "link")
         write(root, {PM + "p2.md": "dirty store\n"})
         self.assertIs(clean(root, base, base), True)
@@ -495,6 +530,11 @@ class LogSinkRefusalTest(RepoCase):
         self.assertTrue((worktree / ".git").is_file())
         self.assertEqual(refuse(worktree / ".git", worktree), self.GITDIR)
         self.assertIsNone(refuse(worktree / "logs/new.log", worktree))
+        separate = self.base / "separate"
+        separate.mkdir()
+        git(separate, "init", "-q", "--separate-git-dir", str(separate / "meta"))
+        self.assertTrue((separate / ".git").is_file())
+        self.assertEqual(refuse(separate / "meta/run.log", separate), self.GITDIR)
 
     def test_tracked_and_symlinked_destinations_are_refused(self) -> None:
         root = self.make_repo()
@@ -521,7 +561,8 @@ class LogSinkRefusalTest(RepoCase):
         self.assertEqual(refuse(root / "logs/fifo.log", root), "is not a regular file")
         write(root, {"logs/run.log": "r", "logs/a.log": "a"})
         modes = ((0o755, "is executable"), (0o744, "is executable"))
-        modes += ((0o654, "is executable"), (0o644, None))
+        modes += ((0o654, "is executable"), (0o645, "is executable"))
+        modes += ((0o601, "is executable"), (0o644, None))
         for mode, expected in modes:
             with self.subTest(mode=oct(mode)):
                 (root / "logs/run.log").chmod(mode)
@@ -532,6 +573,50 @@ class LogSinkRefusalTest(RepoCase):
         self.assertEqual(refuse(root / "logs/b.log", root), many)
         (root / "logs/b.log").unlink()
         self.assertIsNone(refuse(root / "logs/a.log", root))
+
+
+class SafeSinkOpenerTest(RepoCase):
+    def test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file(
+        self,
+    ) -> None:
+        real = self.plain_dir()
+        root = self.base / "alias"
+        os.symlink(real, root)
+        handle = self.sink._open_log_sink(root / "logs/deep/run.log", root)
+        try:
+            handle.write(b"chunk")
+            self.assertEqual((real / "logs/deep/run.log").read_bytes(), b"chunk")
+        finally:
+            handle.close()
+        mode = (real / "logs/deep/run.log").lstat().st_mode
+        self.assertTrue(stat.S_ISREG(mode))
+        self.assertEqual(mode & 0o111, 0)
+        write(real, {"logs/old.log": "previous contents\n"})
+        with self.sink._open_log_sink(root / "logs/old.log", root) as again:
+            again.write(b"new")
+        self.assertEqual((real / "logs/old.log").read_bytes(), b"new")
+
+    def test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf(
+        self,
+    ) -> None:
+        root, outside = self.plain_dir(), self.base / "outside"
+        outside.mkdir()
+        (root / "logs").mkdir()
+        os.symlink(outside, root / "logs/via")
+        with self.assertRaises(OSError):
+            self.sink._open_log_sink(root / "logs/via/run.log", root)
+        self.assertEqual(list(outside.iterdir()), [])
+        target = outside / "target.log"
+        target.write_bytes(b"keep")
+        os.symlink(target, root / "logs/leaf.log")
+        with self.sink._open_log_sink(root / "logs/leaf.log", root) as handle:
+            handle.write(b"fresh")
+        self.assertFalse((root / "logs/leaf.log").is_symlink())
+        self.assertEqual((root / "logs/leaf.log").read_bytes(), b"fresh")
+        self.assertEqual(target.read_bytes(), b"keep")
+        with self.assertRaises(OSError):
+            self.sink._open_log_sink(self.base / "elsewhere/run.log", root)
+        self.assertFalse((self.base / "elsewhere").exists())
 
 
 DECOY = (
@@ -602,6 +687,7 @@ class PrimitiveIsolationTest(RepoCase):
                 "PATH": f"{git_dir}:/usr/bin:/bin",
                 "PYTHONNOUSERSITE": "1",
                 "LANG": "C.UTF-8",
+                **self.git_env(),
             },
         )
 
