@@ -98,7 +98,7 @@ New symbols: `plugins/autopilot/scripts/integrations.py`, `plugins/autopilot/scr
 ## Dependency Graph
 
 ### Foundation Layer (Phase 0)
-Plugin 00013/00014 completed. Preserve the 00012 reference tree and section mappings; recheck ownership/pin before edits, skip/report conflicts. Before any mapped edit, repin the source and land the open rows in `docs/dev/project-management/reviews/00012-post-pin-source-drift.md`. Containment rules: AGENTS.md:39. Runtime-only behavior may be tested with fake responses, but remains unavailable to real users until 00016. Phase-wide review still needs the required fresh-session boundary; local invocation does not waive it.
+Plugin 00013/00014 completed. Preserve the 00012 reference tree and section mappings; recheck ownership/pin before edits, skip/report conflicts. Before any mapped edit, repin the source and land the open rows in `docs/dev/project-management/reviews/00012-post-pin-source-drift.md`. Fix the replan budget defect D1-D3 in `docs/dev/project-management/plans/00018-replan-3.md` (the 40000 floor sits below the 55000 estimator overhead, so every replan from 2 on stalls) when adapting `recovery.md`, `plan-tasks/SKILL.md` and `state-schema.md`. Containment rules: AGENTS.md:39. Runtime-only behavior may be tested with fake responses, but remains unavailable to real users until 00016. Phase-wide review still needs the required fresh-session boundary; local invocation does not waive it.
 - **Characterization/contracts**: Establish the inputs consumed by Procedures and Review.
 
 ### Core Layer (Phase 1)
