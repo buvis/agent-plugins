@@ -144,7 +144,7 @@ def _input_refusal(
     if problem is not None:
         return _refusal("review_artifact_mismatch", problem)
     unknown = [r.get("classification") for r in rows]
-    unknown = [c for c in unknown if not (isinstance(c, str) and c in KNOWN_CLASSIFICATIONS)]
+    unknown = [c for c in unknown if c not in KNOWN_CLASSIFICATIONS]
     if unknown:
         return _refusal(
             "unknown_classification",
@@ -407,7 +407,7 @@ def _task_proposals(
             "description": _findings_block(grp["findings"]),
             "model": tier,
         }
-        for grp in (rework_groups.group(fixes) if fixes else [])
+        for grp in rework_groups.group(fixes)
     ]
 
 
