@@ -108,6 +108,10 @@ Client-specific catalogs will be added only after that client is tested; if
 more than one catalog is needed, they should be generated from the portable
 plugin manifests to prevent metadata drift.
 
+The Claude Code catalog, `.claude-plugin/marketplace.json`, is generated from
+the portable manifests by `python3 scripts/generate_marketplace.py`, is never
+edited by hand, and CI checks it with `--check`.
+
 The current list of implementations is maintained on the
 [compatible clients](https://agent-plugins.org/compatible-clients) page.
 

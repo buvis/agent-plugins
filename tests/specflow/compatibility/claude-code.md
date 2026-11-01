@@ -427,3 +427,30 @@ Source: idea.md
 - Answer: "In requirements.md replace each of the three occurrences of "Hello, world!" with "Hello from Claude Code!". This deliberately invalidates the prior approval. Keep the single LF, exit 0, standard-library test, and all other requirements. Do not change design.md or tasks.md."
 - Reading: REQ-001.1, REQ-003.1, and the out-of-scope bullet now name `Hello from Claude Code!`; nothing else in requirements.md changes. design.md and tasks.md stay as approved, so the requirements, design, and tasks approvals go stale and the implementation gate closes until the developer re-approves each artifact. No approval is recorded by this change.
 ~~~~
+
+## Marketplace install check (T-046)
+
+- Run: 2026-11-01, Europe/Prague, 11:20 to 11:30 CET, from the same agent
+  session, with CLI `2.1.312 (Claude Code)`.
+- Catalog: `.claude-plugin/marketplace.json` at the checkout root, written by
+  `python3 scripts/generate_marketplace.py` from `plugins/specflow/plugin.json`
+  (one entry: `specflow`, `./plugins/specflow`, version `0.1.0`).
+  `claude plugin validate --strict .` printed
+  `Validating marketplace manifest: <checkout>/.claude-plugin/marketplace.json`
+  and `✔ Validation passed`, with one piece of advice that does not change
+  the verdict: the plugin README has no line that installs `specflow` from a
+  marketplace (`/plugin install specflow --marketplace <owner>/<repo>`,
+  one step on Claude Code 2.1.275 or later). T-045 adds that line.
+- Before the check, `claude plugin list` held no plugin containing `specflow`
+  and `claude plugin marketplace list` held no `buvis-agent-plugins`.
+
+| Step | Command | Result |
+|---|---|---|
+| Add the marketplace from the local checkout | `claude plugin marketplace add <checkout> --json` | `outcome: ok`, `marketplace: buvis-agent-plugins`, "declared in user settings"; `marketplace list` shows `buvis-agent-plugins` with `Source: Folder (<checkout>)`; `~/.claude/plugins/known_marketplaces.json` records `source.source` `directory` with the checkout as `path` and `installLocation` |
+| Install specflow through it | `claude plugin install specflow@buvis-agent-plugins --json` | `outcome: ok`, `pluginId: specflow@buvis-agent-plugins`, `scope: user`; `plugin list` shows `specflow@buvis-agent-plugins`, version 0.1.0, `Read from: <checkout>/plugins/specflow`, enabled; `installed_plugins.json` records `installPath` `~/.claude/plugins/cache/buvis-agent-plugins/specflow/0.1.0` (that folder existed) and `gitCommitSha` `654b1be` |
+| `specflow:spec-workflow` is listed | `claude plugin details specflow@buvis-agent-plugins`, then a headless `claude --print` run without `--plugin-dir` (`docs/dev/tmp/specflow/hosts/claude-marketplace-check.bash`) | details: `Skills (2)  convert-prd, spec-workflow`, source `specflow@buvis-agent-plugins`; the headless session's init event lists plugin `specflow` with source `specflow@buvis-agent-plugins`, version `0.1.0`, path `<checkout>/plugins/specflow`, and the skills `specflow:convert-prd` and `specflow:spec-workflow`, both also as slash commands; the one-turn session answered `ok` |
+| Remove the plugin and the marketplace again | `claude plugin uninstall specflow@buvis-agent-plugins --json`, then `claude plugin marketplace remove buvis-agent-plugins` | `outcome: ok`, `keptData: false`; `✔ Successfully removed marketplace: buvis-agent-plugins`; afterwards `plugin list` holds no `specflow` and `marketplace list` no `buvis-agent-plugins`, so a later `--plugin-dir` run sees one copy of the plugin |
+
+The folder route takes no ref: the marketplace reads the checkout as it is on
+disk, and the registry only records the commit it saw. The public route
+through GitHub is left to the release, as the design says.

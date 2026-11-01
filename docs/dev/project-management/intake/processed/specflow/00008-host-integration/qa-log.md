@@ -259,3 +259,21 @@ each landing exactly once.
 - Record: `tests/specflow/compatibility/claude-code.md`. No requirement,
   design, hashed task text, or approval of this spec changed. T-043 is
   checked; the next task is T-046.
+
+## Marketplace entry and install check (2026-11-01)
+
+- T-046 built `scripts/generate_marketplace.py` to the approved contract and
+  generated `.claude-plugin/marketplace.json`; the six named tests pass under
+  Python 3.10 and 3.14, and the CI step `--check` guards the file. The three
+  root documents each gained the one line the design asks for.
+- `claude plugin validate --strict .` passed with one advisory: the plugin
+  README has no marketplace install line. That line belongs to the README
+  host section of T-045.
+- The install check ran in the developer's own Claude Code profile, as the
+  plan says: marketplace `buvis-agent-plugins` added from the local checkout
+  (a folder source, no ref), `specflow` installed through it and listed as
+  `specflow:spec-workflow` by a headless session, then both removed again.
+  The record holds each command and result. The code-baseline files the
+  design names (`validate.yml`, `AGENTS.md`, `CONTRIBUTING.md`, `README.md`,
+  the generator, its tests, the catalog) now draw code-drift warnings until
+  the T-045 re-approval refreshes the baseline. Next task: T-045.
