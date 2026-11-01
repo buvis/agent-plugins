@@ -4,6 +4,11 @@ The function/effect/regression facts are copied from
 docs/dev/project-management/reviews/00013-helper-source-characterization.md.
 This maintainer tool is not shipped, certifies no controller execution and no
 host profile, and never reads or writes live autopilot workflow state.
+
+Without --receipts it uses DEFAULT_RECEIPTS under the root when that file
+exists, and otherwise records delivery evidence as "unavailable". The README.md
+and CHANGELOG.md rows get self-referential evidence pinned to the receipts'
+optional package_revision; the other refreshed and new rows cite the receipts.
 """
 
 from __future__ import annotations
@@ -13,6 +18,7 @@ import copy
 import hashlib
 import json
 import os
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -22,6 +28,9 @@ CLI = "skills/run-autopilot/cli/"
 SCRIPTS = "skills/run-autopilot/scripts/"
 TESTS = "tests/autopilot/"
 OWNER = "buvis/agent-plugins"
+DEFAULT_RECEIPTS = (
+    "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json"
+)
 CONTROLLER_SCENARIO = "controller_action_not_yet_wired"
 CONTROLLER_EVIDENCE = TESTS + "test_local_boundary.py"
 MIXED_EXCLUSION = (
@@ -393,6 +402,10 @@ def validate_receipts(receipts: dict) -> None:
         raise ValueError(
             "receipts real_host must be unavailable with a reason; never passed"
         )
+    if "package_revision" in receipts:
+        revision = receipts["package_revision"]
+        if not isinstance(revision, str) or not re.fullmatch(r"[0-9a-f]{40}", revision):
+            raise ValueError("receipts package_revision must be 40 lowercase hex")
 
 
 def asset_row(path: str, digest: str, evidence: dict) -> dict:
@@ -460,12 +473,13 @@ def apply(
         validate_receipts(receipts)
     result = copy.deepcopy(document)
     result["helper_dispositions"] = build_dispositions(document)
-    evidence = {
+    unavailable = {
         "status": "unavailable",
         "artifact_id": None,
         "artifact_sha256": None,
         "tested_package_revision": None,
     }
+    evidence = dict(unavailable)
     if receipts is not None and artifact is not None:
         evidence.update(status="passed", **artifact)
     for path in HELPER_PATHS:
@@ -476,12 +490,25 @@ def apply(
             asset_row(path, digest, dict(evidence)),
         )
         upsert(result["authored_file_owners"], "path", owner_row(path))
+    revision = (receipts or {}).get("package_revision")
     for row in result["assets"]:
-        if row["destination_path"] in REFRESHED:
-            row["destination_blob_sha256"] = hashlib.sha256(
-                (root / row["destination_path"]).read_bytes()
-            ).hexdigest()
+        path = row["destination_path"]
+        if path not in REFRESHED:
+            continue
+        sha = hashlib.sha256((root / path).read_bytes()).hexdigest()
+        row["destination_blob_sha256"] = sha
+        if path == REFRESHED[0]:
             row["evidence"] = dict(evidence)
+        elif revision is None:
+            row["evidence"] = dict(unavailable)
+        else:
+            # README.md and CHANGELOG.md keep the legacy self-referential evidence.
+            row["evidence"] = {
+                "status": "passed",
+                "artifact_id": path,
+                "artifact_sha256": sha,
+                "tested_package_revision": revision,
+            }
     return result
 
 
@@ -503,8 +530,11 @@ def run(arguments: argparse.Namespace) -> int:
     root = (arguments.root or path.parents[2]).resolve()
     raw = path.read_bytes()
     receipts = artifact = None
-    if arguments.receipts is not None:
-        receipt_path = arguments.receipts.resolve()
+    receipt_path = arguments.receipts
+    if receipt_path is None and os.path.isfile(root / DEFAULT_RECEIPTS):
+        receipt_path = root / DEFAULT_RECEIPTS
+    if receipt_path is not None:
+        receipt_path = receipt_path.resolve()
         receipt_bytes = receipt_path.read_bytes()
         receipts = json.loads(receipt_bytes)
         artifact = {
@@ -532,7 +562,10 @@ def main() -> int:
         "--root", type=Path, help="Repository root; defaults to the map's repo root"
     )
     parser.add_argument(
-        "--receipts", type=Path, help="Coordinator-authored task receipts JSON"
+        "--receipts",
+        type=Path,
+        help="Coordinator-authored task receipts JSON; defaults to "
+        f"ROOT/{DEFAULT_RECEIPTS} when that file exists",
     )
     parser.add_argument(
         "--check", action="store_true", help="Exit 0 only if the map is generated"

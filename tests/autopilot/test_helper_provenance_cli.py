@@ -39,6 +39,9 @@ from test_helper_provenance import (
 EVIDENCE_FIELDS = set(asset_row("x")["evidence"])
 REVISION = re.compile(r"^[0-9a-f]{40}$")
 FSIZE_LIMIT = 4096
+DEFAULT_RECEIPTS = (
+    "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json"
+)
 
 
 @pytest.fixture(scope="module")
@@ -120,6 +123,7 @@ def receipts_variant(change) -> dict:
         receipts_variant(lambda d: d.update(schema_version=True)),
         receipts_variant(lambda d: d["tasks"][0].update(tests="  ")),
         receipts_variant(lambda d: d["tasks"][1].update(command="")),
+        receipts_variant(lambda d: d.update(package_revision="A" * 40)),
     ],
     ids=[
         "real-host-passed",
@@ -133,6 +137,7 @@ def receipts_variant(change) -> dict:
         "bool-schema",
         "blank-tests",
         "blank-command",
+        "bad-package-revision",
     ],
 )
 def test_receipts_claiming_success_without_counts_or_a_real_host_are_rejected(
@@ -181,6 +186,29 @@ def assert_receipt_evidence(evidence: dict, root: Path, receipts: Path | None) -
     assert revision is None or REVISION.match(revision), revision
 
 
+def assert_refreshed_assets(assets: dict, root: Path, receipts: Path | None) -> None:
+    helper_evidence = assets[sorted(HELPER_TARGETS)[0]]["evidence"]
+    revision = None
+    if receipts is not None:
+        revision = json.loads(receipts.read_bytes()).get("package_revision")
+        assert assets[REFRESHED[0]]["evidence"] == helper_evidence
+    for relative in REFRESHED:
+        sha = digest((root / relative).read_bytes())
+        assert assets[relative]["destination_blob_sha256"] == sha
+    for relative in REFRESHED[1:]:
+        evidence = assets[relative]["evidence"]
+        if revision is None:
+            assert evidence["status"] == "unavailable", relative
+            assert evidence["tested_package_revision"] is None, relative
+            continue
+        assert evidence == {
+            "status": "passed",
+            "artifact_id": relative,
+            "artifact_sha256": digest((root / relative).read_bytes()),
+            "tested_package_revision": revision,
+        }, relative
+
+
 def assert_helper_assets(document: dict, root: Path, receipts: Path | None) -> None:
     assets = assets_by_path(document)
     template = assets[REFRESHED[0]]
@@ -191,13 +219,7 @@ def assert_helper_assets(document: dict, root: Path, receipts: Path | None) -> N
         assert row["destination_blob_sha256"] == digest((root / relative).read_bytes())
         assert_authored_row(row, template)
         assert_receipt_evidence(row["evidence"], root, receipts)
-    helper_evidence = assets[sorted(HELPER_TARGETS)[0]]["evidence"]
-    for relative in REFRESHED:
-        assert assets[relative]["destination_blob_sha256"] == digest(
-            (root / relative).read_bytes()
-        )
-        if receipts is not None:
-            assert assets[relative]["evidence"] == helper_evidence, relative
+    assert_refreshed_assets(assets, root, receipts)
     assert not [p for p in assets if "/controller/" in p]
     skill = assets["plugins/autopilot/skills/work/SKILL.md"]
     assert canon(skill) == canon(
@@ -226,7 +248,7 @@ def test_cli_writes_canonical_map_with_helper_assets_owners_and_receipts(
 ) -> None:
     root = tmp_path / "repo"
     mapping = make_repo(root, "4" * 40, "first")
-    receipts = write_receipts(root, valid_receipts())
+    receipts = write_receipts(root, {**valid_receipts(), "package_revision": "a" * 40})
     receipt_bytes = receipts.read_bytes()
     elsewhere = tmp_path / "cwd"
     elsewhere.mkdir()
@@ -255,6 +277,22 @@ def test_cli_without_receipts_records_unavailable_evidence(tmp_path: Path) -> No
     result = run_tool("--map", mapping, "--root", tmp_path, cwd=tmp_path)
     assert result.returncode == 0, result.stderr
     assert_helper_assets(json.loads(mapping.read_bytes()), tmp_path, None)
+
+
+def test_cli_without_receipts_uses_the_default_receipts_file_when_present(
+    tmp_path: Path,
+) -> None:
+    mapping = make_repo(tmp_path, "5" * 40, "default")
+    receipts = tmp_path / DEFAULT_RECEIPTS
+    receipts.parent.mkdir(parents=True)
+    receipts.write_text(
+        json.dumps({**valid_receipts(), "package_revision": "b" * 40}) + "\n"
+    )
+    result = run_tool("--map", mapping, "--root", tmp_path, cwd=tmp_path)
+    assert result.returncode == 0, result.stderr
+    assert_helper_assets(json.loads(mapping.read_bytes()), tmp_path, receipts)
+    check = run_tool("--map", mapping, "--root", tmp_path, "--check", cwd=tmp_path)
+    assert check.returncode == 0, check.stderr
 
 
 def test_asset_digests_follow_the_selected_root(tmp_path: Path) -> None:

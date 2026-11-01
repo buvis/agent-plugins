@@ -225,8 +225,7 @@ The source role and effort settings below are historical documentation only. The
 
 ## Current local facade
 
-These are the original public operations; the local helper operations follow in
-the next section. Run them from this repository root,
+These are the original public operations; the local helper operations follow in the next section. Run them from this repository root,
 or replace `plugins/autopilot` with the absolute path of your local package copy:
 
 ```sh
@@ -250,18 +249,19 @@ slots must receive a complete permitted replacement or cause refusal.
 
 ## Local helper operations
 
-The facade also runs local helper operations. Each request file is a JSON object
-with `"schema_version": 1`, and each operation prints one JSON report with
-`"schema_version": 1`:
+The facade also runs local helper operations. Pass one of the options below to
+the packaged facade script, run the same way as the original operations above.
+Each request file is a JSON object with `"schema_version": 1`, and each
+operation prints one JSON report with `"schema_version": 1`:
 
-```sh
-python3 plugins/autopilot/scripts/autopilot.py --stage-review REQUEST.json
-python3 plugins/autopilot/scripts/autopilot.py --group-findings REQUEST.json
-python3 plugins/autopilot/scripts/autopilot.py --check-evidence REQUEST.json --expected-context CONTEXT.json [--policy POLICY.json]
-python3 plugins/autopilot/scripts/autopilot.py --prepare-close REQUEST.json
-python3 plugins/autopilot/scripts/autopilot.py --catchup-probe --project-root PATH
-python3 plugins/autopilot/scripts/autopilot.py --verify --project-root PATH --head-sha SHA --artifact PATH --log PATH [--timeout SECONDS] -- ARGV...
-python3 plugins/autopilot/scripts/autopilot.py --controller-action NAME
+```text
+--stage-review REQUEST.json
+--group-findings REQUEST.json
+--check-evidence REQUEST.json --expected-context CONTEXT.json [--policy POLICY.json]
+--prepare-close REQUEST.json
+--catchup-probe --project-root PATH
+--verify --project-root PATH --head-sha SHA --artifact PATH --log PATH [--timeout SECONDS] -- ARGV...
+--controller-action NAME
 ```
 
 `--list-capabilities` prints the three legacy IDs `review-policy-v1`,

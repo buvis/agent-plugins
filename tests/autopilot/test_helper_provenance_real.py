@@ -255,6 +255,29 @@ def assert_receipts_file(evidence: dict) -> None:
     assert receipts["real_host"]["reason"].strip()
 
 
+def assert_refreshed_evidence(assets: dict) -> None:
+    receipts_evidence = assets[sorted(HELPER_TARGETS)[0]]["evidence"]
+    assert assets[REFRESHED[0]]["evidence"] == receipts_evidence
+    receipts = json.loads((ROOT / receipts_evidence["artifact_id"]).read_bytes())
+    revision = receipts["package_revision"]
+    assert re.fullmatch(r"[0-9a-f]{40}", revision), revision
+    for path in REFRESHED[1:]:
+        sha = digest((ROOT / path).read_bytes())
+        assert assets[path]["evidence"] == {
+            "status": "passed",
+            "artifact_id": path,
+            "artifact_sha256": sha,
+            "tested_package_revision": revision,
+        }, path
+        shown = subprocess.run(
+            ["git", "-C", str(ROOT), "show", f"{revision}:{path}"],
+            capture_output=True,
+            timeout=60,
+        )
+        assert shown.returncode == 0, shown.stderr
+        assert digest(shown.stdout) == sha, path
+
+
 def test_new_helper_files_are_owned_and_digested_from_current_bytes(
     mapping: dict,
 ) -> None:
@@ -273,6 +296,7 @@ def test_new_helper_files_are_owned_and_digested_from_current_bytes(
         assert owner["owner_repository"] == "buvis/agent-plugins"
         assert owner["source_asset_id"] is None and owner["source_blob_sha256"] is None
         assert owner["acceptance_cases"]
+    assert_refreshed_evidence(assets)
     assert not [
         row
         for row in mapping["assets"]
