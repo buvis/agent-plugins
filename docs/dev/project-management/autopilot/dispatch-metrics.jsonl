@@ -404,3 +404,49 @@
 {"kind":"handoff","site":"build","edge":"resume","at":1793451615,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}
 {"kind":"handoff","site":"build","edge":"resume","at":1793451701,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}
 {"kind":"handoff","site":"build","edge":"resume","at":1793524294,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}
+{"id":"9ae68372","kind":"ivan","task":"1","queued_at":1793524514,"prompt_bytes":11094}
+{"id":"9ae68372","ended_at":1793524941,"elapsed_s":427,"outcome":"ok","detail":null}
+{"id":"902dffc5","kind":"tess","task":"2","queued_at":1793524991,"prompt_bytes":46428}
+{"id":"902dffc5","ended_at":1793525270,"elapsed_s":279,"outcome":"ok","detail":null}
+{"id":"f0cfe555","kind":"devon","task":"2","queued_at":1793525300,"prompt_bytes":20172}
+{"id":"f0cfe555","ended_at":1793525473,"elapsed_s":173,"outcome":"ok","detail":"exploited: 8 weak points"}
+{"id":"137d4488","kind":"tess","task":"2","queued_at":1793525492,"prompt_bytes":13216}
+{"id":"137d4488","ended_at":1793525661,"elapsed_s":169,"outcome":"ok","detail":null}
+{"id":"ee097c82","kind":"tess","task":"2","queued_at":1793525685,"prompt_bytes":9972}
+{"id":"ee097c82","ended_at":1793525749,"elapsed_s":64,"outcome":"ok","detail":null}
+{"id":"011742d9","kind":"ivan","task":"2","queued_at":1793525773,"prompt_bytes":28447}
+{"id":"011742d9","ended_at":1793525962,"elapsed_s":189,"outcome":"ok","detail":null}
+{"id":"7b34df3c","kind":"deslop","task":"2","queued_at":1793525999,"prompt_bytes":14323}
+{"id":"7b34df3c","ended_at":1793526058,"elapsed_s":59,"outcome":"ok","detail":"noop"}
+{"id":"2aaf706b","kind":"pat","task":"2","queued_at":1793526089,"prompt_bytes":47147}
+{"id":"2aaf706b","ended_at":1793526186,"elapsed_s":97,"outcome":"ok","detail":"native worker route; sonnet-run auth revoked"}
+{"id":"017c86de","kind":"tess","task":"3","queued_at":1793526250,"prompt_bytes":42569}
+{"id":"017c86de","ended_at":1793526554,"elapsed_s":304,"outcome":"ok","detail":null}
+{"id":"2026ddec","kind":"devon","task":"3","queued_at":1793526576,"prompt_bytes":22059}
+{"id":"2026ddec","ended_at":1793526667,"elapsed_s":91,"outcome":"ok","detail":"exploited: 6 weak points"}
+{"id":"1d11f852","kind":"tess","task":"3","queued_at":1793526680,"prompt_bytes":13484}
+{"id":"1d11f852","ended_at":1793558166,"elapsed_s":31486,"outcome":"lost","detail":"API ENOTFOUND (host slept)"}
+{"id":"1d11f852","ended_at":1793558405,"elapsed_s":31725,"outcome":"ok","detail":"re-dispatch after host sleep"}
+{"id":"2f96437f","kind":"ivan","task":"3","queued_at":1793558429,"prompt_bytes":27676}
+{"id":"2f96437f","ended_at":1793558865,"elapsed_s":436,"outcome":"ok","detail":"blocked: test bug in EvidenceCase.check"}
+{"id":"0e542769","kind":"tess","task":"3","queued_at":1793558881,"prompt_bytes":10459}
+{"id":"0e542769","ended_at":1793558913,"elapsed_s":32,"outcome":"ok","detail":null}
+{"id":"1d9c2907","kind":"deslop","task":"3","queued_at":1793558954,"prompt_bytes":15033}
+{"id":"1d9c2907","ended_at":1793559027,"elapsed_s":73,"outcome":"ok","detail":null}
+{"id":"cb274464","kind":"pat","task":"3","queued_at":1793559047,"prompt_bytes":65638}
+{"id":"14be326c","kind":"pat","task":"3","queued_at":1793559062,"prompt_bytes":44922}
+{"id":"cb274464","ended_at":1793559066,"elapsed_s":19,"outcome":"killed","detail":"over budget, re-rendered trimmed"}
+{"id":"14be326c","ended_at":1793559111,"elapsed_s":49,"outcome":"ok","detail":"native worker route; sonnet-run auth revoked"}
+{"id":"126123e6","kind":"tess","task":"4","queued_at":1793559163,"prompt_bytes":36922}
+{"id":"126123e6","ended_at":1793559556,"elapsed_s":393,"outcome":"ok","detail":null}
+{"id":"8cc7a5c1","kind":"devon","task":"4","queued_at":1793559582,"prompt_bytes":32012}
+{"id":"8cc7a5c1","ended_at":1793559932,"elapsed_s":350,"outcome":"ok","detail":"exploited: 8 weak points + env defect"}
+{"id":"fb717839","kind":"tess","task":"4","queued_at":1793559954,"prompt_bytes":16672}
+{"id":"fb717839","ended_at":1793560147,"elapsed_s":193,"outcome":"ok","detail":null}
+{"id":"61a435a1","kind":"ivan","task":"4","queued_at":1793560175,"prompt_bytes":37360}
+{"id":"61a435a1","ended_at":1793560355,"elapsed_s":180,"outcome":"ok","detail":null}
+{"id":"691afca4","kind":"deslop","task":"4","queued_at":1793560375,"prompt_bytes":16160}
+{"id":"691afca4","ended_at":1793560424,"elapsed_s":49,"outcome":"ok","detail":"noop"}
+{"id":"156c5ce2","kind":"pat","task":"4","queued_at":1793560435,"prompt_bytes":31946}
+{"id":"156c5ce2","ended_at":1793560475,"elapsed_s":40,"outcome":"ok","detail":"native worker route"}
+{"kind":"handoff","site":"build","edge":"leave","at":1793560524,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}

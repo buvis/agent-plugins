@@ -200,7 +200,7 @@
     "checked_at": "2026-10-25T22:40:48Z"
   },
   "tasks_total": 11,
-  "tasks_completed": 0,
+  "tasks_completed": 4,
   "replan_count": 0,
   "phases_completed": [],
   "cycle": 1,
@@ -251,7 +251,23 @@
       "qwen_eligible": false,
       "qwen_excluded_reason": "tier",
       "id": "1",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "red_check": "n/a:docs-only-task",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "split_hygiene": "skipped:no-tests"
+        }
+      ]
     },
     {
       "name": "Extract finding parsing, lead stripping and deterministic grouping",
@@ -272,7 +288,26 @@
         1
       ],
       "id": "2",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "noop",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "section found by substring, row shape/duplicate refs checked partially, unchecked severity, blind bullet split, greedy strip_lead, char-prefix shared dir, empty name_hint",
+          "devon_weak_points": 8,
+          "devon_in_contract": []
+        }
+      ]
     },
     {
       "name": "Implement advisory AP00012 evidence consistency checking",
@@ -292,7 +327,26 @@
         2
       ],
       "id": "3",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:17377a8b5106764168e825034a495be21d960a12",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "helper could import the in-process test oracle; blocked-subprocess checks covered only two order-dependent inputs",
+          "devon_weak_points": 6,
+          "devon_in_contract": []
+        }
+      ]
     },
     {
       "name": "Port read-only dirty-tree and safe artifact path primitives",
@@ -312,7 +366,28 @@
         3
       ],
       "id": "4",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "noop",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "no ancestor check, lexical symlink targets, non -z porcelain, partial exec bits, unsafe sink open, HEAD-based tracking, size-only hidden flags, name-based git-dir check; tests not hermetic against global git config",
+          "devon_weak_points": 8,
+          "devon_in_contract": [
+            "2. absolute-target symlink can never match toplevel-relative store paths under the pinned rule, so skip-absolute is indistinguishable"
+          ]
+        }
+      ]
     },
     {
       "name": "Prepare isolated review artifacts and complete reviewer prompts",
@@ -449,5 +524,17 @@
       "id": "11",
       "status": "pending"
     }
-  ]
+  ],
+  "work_start_sha": "843e6e7d51c56377adc1c01fab9ae7ea7755e1f4",
+  "repo_root": "/Users/bob/git/src/github.com/buvis/agent-plugins",
+  "autonomous_decisions": [
+    {
+      "issue": "Pat task 2 MEDIUM: findings._row_from_table yields a wrong row (not unreadable-table) for a File-before-Issue table or an escaped pipe in a trailing column when a row has extra cells",
+      "action": "rejected; no change",
+      "reason": "Packaged _row_from_table is equivalent to pinned findings_section._row_from_table (e960ef1) and the task contract says 'Preserve pinned findings_section._reviewed_keys'. Diverging is outside parity; left for the PRD-level review. LOW dead _cap branch kept for the same parity reason.",
+      "cycle": 1,
+      "severity": "medium"
+    }
+  ],
+  "contract_card": "step: build/work, PRD 00013, tasks 1-4 completed, resume at task 5 (review_stage.py) | invariants: one task per dispatch, Tess->2.8 gate->commit->Devon (opus)->red->Ivan->5.5->deslop->style->Pat; work_start_sha 843e6e7 fixed; PRD 00018 stays on hold (no resume, no cap/estimator change) | host notes: nested `claude -p` (sonnet-run.sh) fails \"OAuth token revoked\" -> run Pat via native autopilot:worker-opus with model sonnet; a formatter hook reflows any file an agent touches -> `git checkout --` formatter-only churn on committed files before staging; never `git show ... --output` (dumps to stdout) | next: finish tasks 5-11, step 7 full suite via `autopilot verify`, then phase-done tasks_done -> fresh review session"
 }
