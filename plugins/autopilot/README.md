@@ -225,7 +225,8 @@ The source role and effort settings below are historical documentation only. The
 
 ## Current local facade
 
-These are the only current public operations. Run them from this repository root,
+These are the original public operations; the local helper operations follow in
+the next section. Run them from this repository root,
 or replace `plugins/autopilot` with the absolute path of your local package copy:
 
 ```sh
@@ -246,3 +247,46 @@ without network access, a source checkout, author-home files, or a controller.
 Skill execution remains gated: preserved source instructions and references
 cannot establish runtime availability. Failed or unavailable required review
 slots must receive a complete permitted replacement or cause refusal.
+
+## Local helper operations
+
+The facade also runs local helper operations. Each request file is a JSON object
+with `"schema_version": 1`, and each operation prints one JSON report with
+`"schema_version": 1`:
+
+```sh
+python3 plugins/autopilot/scripts/autopilot.py --stage-review REQUEST.json
+python3 plugins/autopilot/scripts/autopilot.py --group-findings REQUEST.json
+python3 plugins/autopilot/scripts/autopilot.py --check-evidence REQUEST.json --expected-context CONTEXT.json [--policy POLICY.json]
+python3 plugins/autopilot/scripts/autopilot.py --prepare-close REQUEST.json
+python3 plugins/autopilot/scripts/autopilot.py --catchup-probe --project-root PATH
+python3 plugins/autopilot/scripts/autopilot.py --verify --project-root PATH --head-sha SHA --artifact PATH --log PATH [--timeout SECONDS] -- ARGV...
+python3 plugins/autopilot/scripts/autopilot.py --controller-action NAME
+```
+
+`--list-capabilities` prints the three legacy IDs `review-policy-v1`,
+`review-evidence-v1` and `review-fixtures-v1` first. The helper operation IDs
+follow: `stage-review-v1`, `group-findings-v1`, `check-evidence-v1`,
+`prepare-close-v1`, `catchup-probe-v1`, `verification-artifact-v1` and
+`controller-required-v1`. A missing, unknown or higher request `schema_version`
+is a usage error that exits with `2` before any effect.
+
+`--controller-action NAME` never runs a workflow action. It prints
+`{"schema_version": 1, "ok": false, "error": "controller-required", "operation": NAME}`
+and exits with `3` before it reads or writes a request file. A helper step that
+needs the controller returns the same `controller-required` report and exit code 3.
+
+The helpers never run the cap or custody workflow; cap ranges, custody markers,
+journals and locks stay with the controller. They do not find the project root on
+their own, read or write `docs/dev/project-management/autopilot/`, move PRDs,
+dispatch reviewers or start supervisors. Every artifact path is explicit, and
+relative paths resolve against the explicit project root.
+
+`tools/autopilot/source-map.json` records each helper function and regression in
+`helper_dispositions`. Controller-owned functions stay controller-only, and no
+existing regression owner is reassigned.
+
+This package is not published to any marketplace. No installation is supported
+yet; the historical Install and Update sections describe the source plugin.
+Real-host evidence is unavailable: the helpers are tested in a sandbox only, and
+no host profile is certified.

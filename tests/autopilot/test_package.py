@@ -189,14 +189,14 @@ class TargetPackageTest(unittest.TestCase):
     def assert_authored_owners_and_history(self) -> None:
         owners = self.mapping["authored_file_owners"]
         paths = [r["path"] for r in owners]
-        self.assertEqual(len(paths), 21)
-        self.assertEqual(len(set(paths)), 21)
-        self.assertEqual(digest("\n".join(sorted(paths)).encode()), OWNER_SHA)
-        for row in owners:
+        self.assertGreaterEqual(len(paths), 21)
+        self.assertEqual(len(set(paths)), len(paths))
+        self.assertEqual(digest("\n".join(sorted(paths[:21])).encode()), OWNER_SHA)
+        for index, row in enumerate(owners):
             self.assertIsNone(row["source_asset_id"])
             self.assertIsNone(row["source_blob_sha256"])
             self.assertEqual(row["owner_repository"], "buvis/agent-plugins")
-            self.assertEqual(row["delivery_prd"], "00012")
+            self.assertEqual(row["delivery_prd"], "00012" if index < 21 else "00013")
             self.assertTrue((self.target / row["path"]).is_file())
             self.assert_acceptance_cases(row["acceptance_cases"])
         history = " ".join((self.package / "CHANGELOG.md").read_text().split())
@@ -394,7 +394,12 @@ print("isolated")
         self.assertEqual((probe.returncode, probe.stdout), (0, "isolated\n"), probe.stderr)
         capabilities = self.facade("--list-capabilities")
         self.assertEqual(capabilities.returncode, 0, capabilities.stderr)
-        self.assertEqual(capabilities.stdout, json.dumps(FORMATS, separators=(",", ":")) + "\n")
+        listed = json.loads(capabilities.stdout)
+        self.assertEqual(capabilities.stdout, json.dumps(listed, separators=(",", ":")) + "\n")
+        self.assertEqual(listed[:3], FORMATS)
+        self.assertEqual(listed[3:], [
+            "stage-review-v1", "group-findings-v1", "check-evidence-v1", "prepare-close-v1",
+            "catchup-probe-v1", "verification-artifact-v1", "controller-required-v1"])
         expected = json.loads((self.package / "contracts/review-policy-v1.json").read_text())
         exported = self.facade("--export-policy")
         self.assertEqual(exported.returncode, 0, exported.stderr)
