@@ -216,6 +216,37 @@ def test_no_hidden_workflow_state_inputs_inside_live_state_are_refused_unread(
         assert {real(a) for a in arguments[1::2]} <= opened(audit)
 
 
+def test_no_hidden_workflow_state_target_project_state_inputs_are_refused_unread(
+    world: World,
+) -> None:
+    live = world.target / STATE
+    bodies = {
+        "stage.json": {"schema_version": 1, **stage_payload(world.target)},
+        "findings.json": {"schema_version": 1, "findings": findings_sets()[0]},
+        "evidence.json": {"schema_version": 1, "evidence": CASES["full-clean"]["input"]},
+    }
+    for name, body in bodies.items():
+        (live / name).write_text(json.dumps(body), encoding="utf-8")
+    alias = world.base / "inputs" / "target-stage.json"
+    alias.symlink_to(live / "stage.json")
+    context = write_input(world, {"expected_context": CASES["full-clean"]["expected_context"]})
+    refused = (
+        ("--stage-review", live / "stage.json"), ("--stage-review", alias),
+        ("--group-findings", live / "findings.json"),
+        ("--check-evidence", live / "evidence.json", "--expected-context", context),
+    )
+    before = watched(world)
+    for arguments in refused:
+        proc, audit = run_cli(world, *arguments, cwd=world.cwd, audited=True)
+        assert proc.returncode == 2, (arguments, proc.returncode, proc.stderr)
+        assert proc.stderr.strip()
+        assert_no_hidden_state(world, audit, before, *(live / name for name in bodies))
+    assert not (world.target / STAGED).exists()
+    outside = write_input(world, stage_payload(world.target))
+    accepted, _ = run_cli(world, "--stage-review", outside, cwd=world.cwd)
+    assert accepted.returncode == 0, accepted.stderr
+
+
 def test_no_hidden_workflow_state_verification_never_reuses_or_rewrites_the_live_record(
     world: World,
 ) -> None:

@@ -75,8 +75,10 @@ def test_green_verification_resolves_relative_paths_against_the_project_root(
          {"passed": 7, "failed": 2, "skipped": 0, "exit_code": 1}),
         (("import time", "print('started', flush=True)", "time.sleep(30)"), "1",
          "timed_out", True),
-        (("import sys", "sys.stdout.write('x' * 2_500_000)", f"print({GREEN!r})"), None,
-         "output_limit_exceeded", True),
+        # The on-disk log cap is 20_000_000 bytes; 21 MB really exceeds it.
+        (("import sys", "chunk = b'x' * 1_000_000",
+          "for _ in range(21): sys.stdout.buffer.write(chunk)",
+          "sys.stdout.flush()", f"print({GREEN!r})"), None, "output_limit_exceeded", True),
     ],
     ids=["nonzero-exit", "summary-failure", "timeout", "output-overflow"],
 )
@@ -88,6 +90,49 @@ def test_real_verification_failures_exit_1_with_the_written_artifact(
     art = written_artifact(world, one_json(proc))
     assert art[field] == value
     assert art["reusable"] is False
+
+
+@pytest.mark.parametrize(
+    ("mutation", "field"),
+    [(("open('src/mid.py', 'w').write('x = 1')",), "dirty_paths"),
+     (("import subprocess",
+       "subprocess.run(['git', 'commit', '-q', '--allow-empty', '-m', 'mid'], check=True)"),
+      "head_moved")],
+    ids=["tree-dirtied-mid-run", "head-moved-mid-run"],
+)
+def test_green_run_that_mutates_the_checkout_is_not_reusable_and_exits_1(
+    world: World, mutation: tuple[str, ...], field: str,
+) -> None:
+    proc, _ = verify(world, py(*mutation, f"print({GREEN!r})"))
+    assert proc.returncode == 1, (proc.returncode, proc.stderr)
+    art = written_artifact(world, one_json(proc))
+    assert art["exit_code"] == 0 and art["timed_out"] is False
+    assert art["summary"] == {"passed": 3, "failed": 0, "skipped": 1, "exit_code": 0}
+    assert art[field] and art["reusable"] is False
+
+
+def test_explicit_timeout_is_honoured_for_a_run_longer_than_one_second(world: World) -> None:
+    proc, _ = verify(world, py("import time", "time.sleep(2)", f"print({GREEN!r})"),
+                     timeout="5")
+    assert proc.returncode == 0, (proc.returncode, proc.stderr)
+    art = written_artifact(world, one_json(proc))
+    assert art["timed_out"] is False and art["reusable"] is True
+
+
+def test_unsupported_platform_refusal_exits_1_without_spawning(world: World) -> None:
+    helper = world.facade.parent / "verification.py"
+    source = helper.read_text("utf-8")
+    probe = '    return os.name == "posix" and hasattr(os, "killpg")\n'
+    assert source.count(probe) == 1
+    helper.write_text(source.replace(probe, "    return False\n"), encoding="utf-8")
+    proc, audit = verify(world, marker_argv(world), audited=True)
+    assert proc.returncode == 1, (proc.returncode, proc.stderr)
+    report = one_json(proc)
+    assert report["schema_version"] == 1 and type(report["schema_version"]) is int
+    assert (report["ok"], report["error"]) == (False, "unsupported-platform")
+    assert not (world.base / "spawned").exists()
+    assert {name for kind, name in audit["events"] if kind == "spawn"} <= {"git"}
+    assert not (world.target / ARTIFACT).exists() and not (world.target / LOG).exists()
 
 
 def dirty(world: World) -> dict[str, str]:

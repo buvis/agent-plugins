@@ -122,7 +122,9 @@ def poison(project: Path) -> None:
 def make_world(tmp_path: Path) -> World:
     """Target-only package copy in a poisoned host project, plus a poisoned target project."""
     host, target = tmp_path / "host project", tmp_path / "target project"
-    shutil.copytree(PACKAGE, host / "plugins" / "autopilot")
+    # python -I ignores PYTHONDONTWRITEBYTECODE; a copied stale .pyc would be rewritten.
+    shutil.copytree(PACKAGE, host / "plugins" / "autopilot",
+                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
     cwd, home, bindir = tmp_path / "unrelated cwd", tmp_path / "empty home", tmp_path / "bin"
     for directory in (cwd, home, bindir, tmp_path / "inputs"):
         directory.mkdir()
@@ -322,6 +324,33 @@ def test_malformed_missing_and_non_object_inputs_are_usage_errors(world: World) 
     assert proc.returncode == 2 and proc.stderr.strip()
 
 
+def test_requests_with_missing_mistyped_or_unknown_keyword_fields_are_usage_errors(
+    world: World,
+) -> None:
+    case, chosen = valid_batch()
+    close, stage = kwargs_for(case, chosen), stage_payload(world.target)
+    invalid = (
+        ("--group-findings", {}), ("--group-findings", {"findings": "x"}),
+        ("--group-findings", {"findings": {}}),
+        ("--group-findings", {"findings": findings_sets()[0], "extra": 1}),
+        ("--prepare-close", {}),
+        ("--prepare-close", {key: v for key, v in close.items() if key != "review_ref"}),
+        ("--prepare-close", {**close, "extra": 1}),
+        ("--stage-review", {}),
+        ("--stage-review", {key: v for key, v in stage.items() if key != "cycle_id"}),
+        ("--stage-review", {**stage, "extra": 1}),
+    )
+    before = tree(world.target)
+    for option, payload in invalid:
+        proc, _ = run_cli(world, option, write_input(world, payload))
+        assert_usage(proc)
+    assert tree(world.target) == before
+    for option, payload in (("--group-findings", {"findings": findings_sets()[0]}),
+                            ("--prepare-close", close)):
+        accepted, _ = run_cli(world, option, write_input(world, payload))
+        assert accepted.returncode == 0, (option, accepted.stderr)
+
+
 # --- group findings -------------------------------------------------------------------------------
 
 
@@ -421,6 +450,25 @@ def test_stage_review_refuses_a_live_state_artifact_root_as_a_path_error(world: 
     assert proc.returncode == 0, proc.stderr
 
 
+@pytest.mark.parametrize(
+    ("override", "error", "code"),
+    [({"cycle_id": "../x"}, "invalid-input", 2),
+     ({"expected_context": {"schema_version": 1}}, "invalid-expected-context", 1)],
+    ids=["unsafe-cycle-id", "invalid-expected-context"],
+)
+def test_stage_review_input_and_preparation_refusals_exit_nonzero_without_writes(
+    world: World, override: dict[str, Any], error: str, code: int,
+) -> None:
+    before = tree(world.target)
+    request = write_input(world, {**stage_payload(world.target), **override})
+    proc, _ = run_cli(world, "--stage-review", request)
+    assert proc.returncode == code, (proc.returncode, proc.stderr)
+    report = one_json(proc)
+    assert report["schema_version"] == 1 and type(report["schema_version"]) is int
+    assert (report["ok"], report["error"]) == (False, error)
+    assert tree(world.target) == before and list(world.cwd.iterdir()) == []
+
+
 # --- prepare close --------------------------------------------------------------------------------
 
 
@@ -428,11 +476,15 @@ def test_prepare_close_emits_library_proposals_and_maps_refusals(world: World) -
     review_close = library("review_close")
     case, chosen = valid_batch()
     mismatch = scenario(["R1", "R2", "R3"], table_refs=["R1", "R3"])
+    missing_alice = {**kwargs_for(case, chosen),
+                     "evidence": CASES["full-missing-alice"]["input"],
+                     "expected_context": CASES["full-missing-alice"]["expected_context"]}
     calls = (
         (kwargs_for(case, chosen), 0),
         (kwargs_for(case, chosen, cycle=5, default_tier="opus"), 0),
         (kwargs_for(mismatch, chosen[:2] + [row("R3", "defer")]), 1),
         (kwargs_for(scenario([]), []), 0),
+        (missing_alice, 1),
     )
     reports = []
     for kwargs, code in calls:
@@ -442,6 +494,7 @@ def test_prepare_close_emits_library_proposals_and_maps_refusals(world: World) -
         assert reports[-1] == review_close.prepare_close(**copy.deepcopy(kwargs))
     assert reports[0] != reports[1]
     assert reports[2]["error"] == "findings_mismatch"
+    assert (reports[4]["ok"], reports[4]["error"]) == (False, "invalid-evidence")
 
 
 def test_prepare_close_without_a_needed_snapshot_is_controller_required(world: World) -> None:
@@ -461,10 +514,11 @@ def test_prepare_close_without_a_needed_snapshot_is_controller_required(world: W
 # --- catch-up probe -------------------------------------------------------------------------------
 
 
-def fake_tool(world: World, name: str, code: int) -> Path:
+def fake_tool(world: World, name: str, code: int, stderr: str = "") -> Path:
     log = world.base / f"{name}-cwd.txt"
     tool = world.bin / name
-    tool.write_text(f"#!/bin/sh\npwd -P > '{log}'\nexit {code}\n", encoding="utf-8")
+    tool.write_text(f"#!/bin/sh\npwd -P > '{log}'\nprintf '%s\\n' '{stderr}' >&2\nexit {code}\n",
+                    encoding="utf-8")
     tool.chmod(0o755)
     return log
 
@@ -476,24 +530,30 @@ def test_catchup_probe_without_tools_is_a_successful_observation(world: World) -
     report = one_json(proc)
     assert report["schema_version"] == 1 and type(report["schema_version"]) is int
     assert (report["gh"], report["engram"]) == ("absent", "absent")
-    assert sorted(report["skip"]) == ["engram", "gh"]
+    assert sorted(report["skip"]) == ["engram", "github-state"]
     assert tree(world.target) == before
     missing, _ = run_cli(world, "--catchup-probe")
     assert_usage(missing)
 
 
-@pytest.mark.parametrize(("gh_code", "gh_token"), [(0, "ok"), (1, "unauthenticated")])
+@pytest.mark.parametrize(
+    ("gh_code", "gh_token", "engram_err", "engram_token"),
+    [(0, "ok", "", "ok"), (1, "unauthenticated", "", "ok"),
+     (2, "unauthenticated", "error: not inside a registered repo", "unregistered")],
+    ids=["all-ok", "gh-exit-1", "gh-exit-2-engram-unregistered"],
+)
 def test_catchup_probe_runs_the_tools_in_the_explicit_project_root(
-    world: World, gh_code: int, gh_token: str,
+    world: World, gh_code: int, gh_token: str, engram_err: str, engram_token: str,
 ) -> None:
-    gh_log, engram_log = fake_tool(world, "gh", gh_code), fake_tool(world, "engram", 0)
+    gh_log = fake_tool(world, "gh", gh_code)
+    engram_log = fake_tool(world, "engram", 0, engram_err)
     for project in (world.target, world.base / "second root"):
         project.mkdir(exist_ok=True)
         proc, _ = run_cli(world, "--catchup-probe", "--project-root", project)
         assert proc.returncode == 0, proc.stderr
         report = one_json(proc)
-        assert (report["gh"], report["engram"]) == (gh_token, "ok")
-        assert ("gh" in report["skip"]) is (gh_token != "ok")
-        assert "engram" not in report["skip"]
+        assert (report["gh"], report["engram"]) == (gh_token, engram_token)
+        assert ("github-state" in report["skip"]) is (gh_token != "ok")
+        assert ("engram" in report["skip"]) is (engram_token != "ok")
         for log in (gh_log, engram_log):
             assert log.read_text("utf-8").strip() == str(project.resolve())
