@@ -46,8 +46,6 @@ _STALE: tuple[str, dict] = ("stale", {})
 
 
 def _validate_inputs(argv: object, timeout: object) -> None:
-    """Raises ValueError for a timeout that is not a finite number in
-    (0, GATE_TIMEOUT_S] (booleans included) or an empty argv/executable."""
     if (
         isinstance(timeout, bool)
         or not isinstance(timeout, (int, float))
@@ -260,7 +258,6 @@ def _reusable_shape(prior: object, argv: list[str]) -> bool:
         type(prior["schema_version"]) is int
         and prior["schema_version"] == 1
         and prior["kind"] == KIND
-        and type(prior["argv"]) is list
         and prior["argv"] == argv
         and isinstance(prior["head_sha"], str)
         and _SHA_RE.fullmatch(prior["head_sha"]) is not None
@@ -271,7 +268,6 @@ def _reusable_shape(prior: object, argv: list[str]) -> bool:
         and prior["output_limit_exceeded"] is False
         and prior["head_moved"] is False
         and prior["reusable"] is True
-        and type(prior["dirty_paths"]) is list
         and prior["dirty_paths"] == []
         and isinstance(log, dict)
         and set(log) == {"path", "sha256"}
