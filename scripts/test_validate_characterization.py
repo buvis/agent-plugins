@@ -50,14 +50,19 @@ class ManifestCharacterization(PluginFixture):
             {
                 "author": {"name": "Author", "email": "", "url": ""},
                 "keywords": ["", "日本語", "same", "same"],
-                "extensions": {"example": {"nested": [None, 3, {"key": "value"}]}},
+                "extensions": {
+                    "example": {"nested": [None, 3, 1.0, True, {"key": "value"}]}
+                },
             },
         ]
         for changes in cases:
             with self.subTest(changes=changes):
                 expected = self.write_manifest(changes)
                 before = self.manifest_path.read_bytes()
-                self.assertEqual(validate.validate_manifest(self.plugin), expected)
+                result = validate.validate_manifest(self.plugin)
+                self.assertEqual(result, expected)
+                # Dict equality ignores key order and equates 1, 1.0 and True.
+                self.assertEqual(json.dumps(result), before.decode("utf-8"))
                 self.assertEqual(self.manifest_path.read_bytes(), before)
 
     def test_minimal_manifest(self) -> None:
@@ -197,6 +202,13 @@ class ManifestCharacterization(PluginFixture):
         self.manifest_path.unlink()
         self.manifest_path.symlink_to(outside)
         self.assert_manifest_failure("resolves outside plugin root")
+
+    def test_file_check_precedes_containment(self) -> None:
+        outside = self.root / "outside"
+        outside.mkdir()
+        self.manifest_path.unlink()
+        self.manifest_path.symlink_to(outside)
+        self.assert_manifest_failure("missing required manifest")
 
     def test_json_errors(self) -> None:
         self.manifest_path.write_text("{", encoding="utf-8")
@@ -452,6 +464,12 @@ class McpCharacterization(PluginFixture):
         self.mcp_path.symlink_to(outside)
         self.assert_mcp_failure("resolves outside plugin root", name=None)
 
+    def test_file_check_precedes_containment(self) -> None:
+        outside = self.root / "outside"
+        outside.mkdir()
+        self.mcp_path.symlink_to(outside)
+        self.assert_mcp_failure("must be a regular file", name=None)
+
     def test_malformed_json_has_cause(self) -> None:
         self.mcp_path.write_text("{", encoding="utf-8")
         with self.assertRaises(validate.ValidationError) as caught:
@@ -476,15 +494,15 @@ class McpCharacterization(PluginFixture):
         self.assertIs(caught.exception.__cause__, failure)
 
     def test_uncaught_exception_types_and_messages(self) -> None:
-        for transport, message in [
-            ([], "unhashable type: 'list'"),
-            ({}, "unhashable type: 'dict'"),
-        ]:
+        for transport in ([], {}):
             with self.subTest(transport=transport):
+                # The wording varies by Python version; take it from this one.
+                with self.assertRaises(TypeError) as expected:
+                    {"streamable-http", "sse"}.__contains__(transport)
                 self.write_servers({"s": {"type": transport}})
                 with self.assertRaises(TypeError) as caught:
                     validate.validate_mcp(self.plugin)
-                self.assertEqual(str(caught.exception), message)
+                self.assertEqual(str(caught.exception), str(expected.exception))
         self.write_servers({"s": {"type": "sse", "url": "https://[invalid"}})
         with self.assertRaises(ValueError) as caught:
             validate.validate_mcp(self.plugin)
@@ -509,6 +527,15 @@ class CliCharacterization(PluginFixture):
         ):
             code = validate.main()
         return code, stdout.getvalue(), stderr.getvalue()
+
+    def run_cli(self, *args: str) -> tuple[int, str, str]:
+        result = subprocess.run(
+            [sys.executable, "-B", str(Path(validate.__file__).resolve()), *args],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return result.returncode, result.stdout, result.stderr
 
     def add_plugin(self, parent: str, name: str) -> Path:
         plugin = self.root.resolve() / parent / name
@@ -592,6 +619,25 @@ class CliCharacterization(PluginFixture):
         )
         self.assertEqual(self.run_main(self.plugin), (1, "", expected))
 
+    def test_later_plugin_checks_report_in_order(self) -> None:
+        plugin = self.plugin.resolve()
+        link = plugin / "escape"
+        link.symlink_to(self.root)
+        skill = plugin / "skills/example-skill/SKILL.md"
+        valid_skill = skill.read_text(encoding="utf-8")
+        skill.write_text("invalid", encoding="utf-8")
+        mcp = plugin / "mcp.json"
+        config = {"$schema": validate.MCP_SCHEMA, "mcpServers": {"s": {"type": "bad"}}}
+        mcp.write_text(json.dumps(config), encoding="utf-8")
+        escape = f"error: {link}: symlink resolves outside plugin root\n"
+        self.assertEqual(self.run_main(plugin), (1, "", escape))
+        link.unlink()
+        bad_skill = f"error: {skill}: must start with YAML frontmatter\n"
+        self.assertEqual(self.run_main(plugin), (1, "", bad_skill))
+        skill.write_text(valid_skill, encoding="utf-8")
+        bad_mcp = f"error: {mcp}#s: unknown MCP transport 'bad'\n"
+        self.assertEqual(self.run_main(plugin), (1, "", bad_mcp))
+
     def test_missing_plugin_path(self) -> None:
         missing = self.root.resolve() / "missing"
         self.assertEqual(
@@ -600,40 +646,19 @@ class CliCharacterization(PluginFixture):
         )
 
     def test_subprocess_exit_codes_and_streams(self) -> None:
-        command = [
-            sys.executable,
-            "-B",
-            str(Path(validate.__file__).resolve()),
-            str(self.plugin),
-        ]
-        result = subprocess.run(command, capture_output=True, text=True, check=False)
         self.assertEqual(
-            (result.returncode, result.stdout, result.stderr),
+            self.run_cli(str(self.plugin)),
             (0, "Validated 1 plugin package(s) and 1 skill(s).\n", ""),
         )
         self.write_manifest({"$schema": None})
-        result = subprocess.run(command, capture_output=True, text=True, check=False)
         expected = (
             f"error: {self.manifest_path.resolve()}: unsupported or missing $schema\n"
         )
-        self.assertEqual(
-            (result.returncode, result.stdout, result.stderr), (1, "", expected)
-        )
+        self.assertEqual(self.run_cli(str(self.plugin)), (1, "", expected))
 
     def test_subprocess_invalid_argument(self) -> None:
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-B",
-                str(Path(validate.__file__).resolve()),
-                "--not-a-flag",
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
         self.assertEqual(
-            (result.returncode, result.stdout, result.stderr),
+            self.run_cli("--not-a-flag"),
             (
                 2,
                 "",
