@@ -300,3 +300,21 @@ each landing exactly once.
   URL is a manual run by the developer; the batched design edit of the two
   install lines, and the design and task re-approval, follow its result.
   The branch is pushed and PR #9 is open so CI runs on each push.
+
+## Kiro import trial and design edits for T-045 (2026-11-01)
+
+- Question: "What happened when you imported from GitHub in the Powers
+  panel?" Answer: "Subdirectory URL installed".
+- Reading: Kiro IDE installs the Power from
+  `https://github.com/buvis/agent-plugins/tree/master/plugins/specflow`
+  through Add Custom Power, Import power from GitHub. The installed copy
+  matches master's package, and `~/.kiro/powers/installed.json` records only
+  the name. The ref is the branch in the URL.
+- The developer then said "edit the design", so the batched edit of T-045
+  was applied to `design.md`: the Kiro install line now states the GitHub
+  subdirectory route, the Codex install line states that Codex reads
+  `.claude-plugin/marketplace.json` from a checkout and from GitHub with
+  `--ref`, and the Context sentence that announced the open lines reads in
+  the past tense. No other line changed. The edit stales the design and
+  tasks approvals by the normal rule; the re-approval question follows with
+  the fresh hashes and a fresh code baseline.

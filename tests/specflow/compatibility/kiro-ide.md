@@ -683,3 +683,27 @@ Source: idea.md
 - Internationalization or localization of the greeting.
 - Packaging, distribution, or installation of the program.
 ```
+
+## Install trial from GitHub (T-045)
+
+Run on 2026-11-01, Europe/Prague, by the developer in Kiro IDE, as the
+T-045 hand-off asked: remove the `specflow` Power that T-040 installed from
+the local folder, then Powers panel, **Add Custom Power**, **Import power
+from GitHub**, repository URL, **Install**.
+
+| Route | URL | Result | Takes a ref |
+|---|---|---|---|
+| Repository subdirectory URL | `https://github.com/buvis/agent-plugins/tree/master/plugins/specflow` | Pass: the developer reported "Subdirectory URL installed" | The branch is part of the URL (`tree/master`); no separate branch or tag field was reported |
+
+The developer reported the selection only, not the dialog text, the folder
+name, or whether the folder import was repeated afterwards. Evidence read
+from this machine afterwards: `~/.kiro/powers/installed.json`, modified at
+20:17 CET, lists one Power, `{"name": "specflow", "registryId":
+"user-added"}`, with no source URL or ref; `~/.kiro/powers/installed/specflow/`
+holds the package, and its `README.md`, `CHANGELOG.md`, and `plugin.json`
+have the blob ids of `origin/master` (`56ca4c1`, `918835e`, `7bc00bb`),
+which differ from this branch only where T-045 and T-046 edited the README
+and the CHANGELOG. The installed copy is therefore the package as it stands
+on `master`, where the subdirectory URL points. This resolves the "to be
+verified" Kiro install line of the 00008 design; the local-folder route of
+T-040 stays the development route.

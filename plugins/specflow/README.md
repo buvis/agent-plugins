@@ -38,8 +38,10 @@ Code both read it.
 ### Kiro IDE
 
 - Install: open the Powers panel, choose **Add Custom Power**, then
-  **Import power from a folder**, and select this package folder in a local
-  clone of the repository. Kiro copies it to
+  **Import power from GitHub**, and enter
+  `https://github.com/buvis/agent-plugins/tree/master/plugins/specflow`.
+  From a local clone, choose **Import power from a folder** instead and
+  select this package folder. Either way Kiro copies the package to
   `~/.kiro/powers/installed/specflow/` and asks for approval before it
   activates the Power.
 - Invoke: ask in your own words ("Create a spec for X", "Continue spec X",
