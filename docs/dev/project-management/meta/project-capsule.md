@@ -43,12 +43,12 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 ### Batch 202610250001
 - [x] 00012-autopilot-package-contract-v1.md (2 cycles; 47/47 tasks)
-- [ ] 00013-autopilot-session-helpers-v1.md (hold: plan_expansion scope gate; reviewed design preserved)
+- [ ] 00013-autopilot-session-helpers-v1.md (wip: PRD now lists explicit paths; replanning on reviewed design)
 - [ ] 00014-autopilot-host-execution-v1.md
 - [ ] 00015-autopilot-workflow-parity-v1.md
 - [ ] 00016-autopilot-controller-integration-v1.md
 - [ ] 00017-autopilot-profile-conformance-v1.md
-- [ ] 00018-autopilot-controller-kernel-v1.md
+- [ ] 00018-autopilot-controller-kernel-v1.md (hold: replan budget 40K below 55K estimator overhead; tasks 1-6 + task 7 tests committed; do not resume this batch)
 - [ ] 00019-autopilot-controller-lifecycle-v1.md
 - [ ] 00020-autopilot-controller-review-v1.md
 - [ ] 00021-autopilot-controller-records-v1.md
@@ -154,3 +154,7 @@ Task 3 resumes after an operator-scoped Claude Devon round proved eight schema t
 GitHub refresh: zero open issues/PRs/releases; latest master Validate succeeded and no failed master runs. Related-context topic: Autopilot canonical controller kernel and protocol. Repo/portfolio hits: AP00018 overview (0.0328), integration (0.0311/0.0304), protocol (0.0290/0.0159), kernel (0.0161). Engram indexing failed; queries may be stale. Portfolio stamp: memory stale24/dead1, code stale57/dead21, PRD dead3115. Task restoration returned no_tasks_dir; authoritative workflow tasks remain intact.
 
 Review harvest completed with parse failures on old files without frontmatter.
+
+## 2026-11-01 AP00013 resume build catchup
+
+AP00013 back in wip after AP00018 hold. Two autocodex sessions made no progress on a stale `--scope` (AP00018 task 3, already done); that directive is obsolete. AP00018 task-3 exception stays historical only. GitHub: 0 issues; open PRs #7 (specflow-00010 validator refactor, green) and #8 (dependabot setup-python 7.1.0); no master failures. Related topic: Autopilot session-local helpers; repo hits AP00013 PRD (0.0328), resource-closure helpers test (0.0156), AP00014 adapters (0.0154). Engram index succeeded; portfolio stamp: memory stale24/dead1, code stale52/dead21, PRD dead3031 (exit 1).

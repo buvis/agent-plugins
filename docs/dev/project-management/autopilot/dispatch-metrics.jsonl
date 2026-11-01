@@ -401,3 +401,6 @@
 {"id":"d476cee7","kind":"devon","task":"7","queued_at":1793450360,"prompt_bytes":50760}
 {"id":"d476cee7","ended_at":1793450516,"elapsed_s":156,"outcome":"error","detail":"NOT DISPATCHED: initial59119 bytes, one allowed trim50760 exceeds50000; canonical subagent_prompt_overrun replan handoff"}
 {"kind":"handoff","site":"build","edge":"resume","at":1793451489,"phase":"build","prd":"00018-autopilot-controller-kernel-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793451615,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793451701,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793524294,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}
