@@ -35,7 +35,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - The record is `tests/specflow/compatibility/codex.md`; the design and the task plan end approved, which T-043 needs.
   - Outcome: Codex 0.165.0 installed the real package, discovered specflow:spec-workflow, resumed Kiro's files without reconciliation changes, and drafted and recorded explicit developer approval of design and tasks. The record contains the final open implementation gate, unchanged missing-file baseline, and full artifact snapshot; no implementation was started.
 
-- [ ] T-043 Test Claude Code compatibility loading
+- [x] T-043 Test Claude Code compatibility loading
   - Requirements: 00002 PKG-003 criterion 3
   - Depends on: T-042
   - Location: `tests/specflow/compatibility/claude-code.md`
@@ -49,6 +49,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - edit requirements, invalidate downstream state, and hand back to another host.
     - The record is `tests/specflow/compatibility/claude-code.md`; the other host of the hand-back is Codex, and its report of the stale design and tasks is in the record.
+  - Outcome: Ran 2026-11-01 after the developer's deferral. Claude Code 2.1.312 loaded plugins/specflow through --plugin-dir as specflow@inline, exposed specflow:spec-workflow, resumed the spec Codex approved, replaced the greeting in requirements.md, and reconciled requirements, design, and tasks to stale with every gate closed; Codex 0.166.0 then resumed the same files and reported the same stale design and tasks. The record holds both runs, the final status, state, and artifact snapshot; no workspace file changed during the hand-back.
 
 - [ ] T-046 Add the monorepo Claude Code marketplace entry
   - Requirements: 00002 PKG-003 criterion 3

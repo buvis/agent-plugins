@@ -226,3 +226,36 @@ each landing exactly once.
 - Tasks: confirms the re-approval of 2026-10-12; unchanged blob `59664a60f1246cb04261e5daf73c163e044125c6`; canonical SHA-256 `9b034e391fccb02fc2b859a61d8beb6bde15222c602b7a53341339845685e758`.
 - All three artifact validations passed. The sole validation warning names the documented Kiro installation path `~/.kiro/powers/installed/<name>/`; it is a host path, not a repository link. Upstream markers accepted by name: none.
 - `reconcile --dry-run`, `reconcile`, and `status --json` report phase `implementation`, all approvals valid, all gates open, next task T-040, and no stale files, hold, blockers, warnings, or specs-folder problems. Dependencies 00002 and 00006 are complete. Implementation-phase validation passed with the same host-path warning.
+
+## Claude Code test deferred (2026-10-30)
+
+- The developer reported Claude unavailable for the rest of the week and
+  instructed: "defer it for Sunday". T-043 is deferred to 2026-11-01,
+  Europe/Prague. No Claude model session has run for it.
+- T-040 and T-042 are complete. The approved order stays T-043, T-046,
+  T-045; the dependent tasks remain pending. No requirement, design,
+  hashed task text, or approval changes. Kiro cannot supply Claude Code
+  host-loading evidence in place of T-043.
+- Resume with the retained throwaway workspace and prepared
+  `docs/dev/tmp/specflow/hosts/claude-start.bash` from a regular Terminal,
+  then complete the Codex stale-state hand-back. The existing launcher
+  cannot start a nested Seatbelt sandbox from this agent session.
+
+## Claude Code test run and Codex hand-back (2026-11-01)
+
+- T-043 ran on 2026-11-01 as deferred. Claude Code 2.1.312
+  (`claude-fable-5-1`) was launched from inside a Claude Code agent session
+  with the same setup token the `run-agent` launcher exports, through
+  `docs/dev/tmp/specflow/hosts/claude-start-insession.bash`: no nested
+  Seatbelt, no Keychain login. The three pinned hashes matched; the
+  requirements edit staled requirements, design, and tasks; every gate closed.
+- Codex 0.166.0 then resumed the same workspace through
+  `codex-handback.bash`. Codex's own sandbox cannot apply inside the session's
+  Seatbelt (probe: exit 71, `sandbox_apply: Operation not permitted`), so the
+  `use-codex` wrapper ran with `-y`; the session's Seatbelt still applied, the
+  prompt forbade every write, and the raw hashes of all seven workspace files
+  were identical before and after. Codex reported the same stale design and
+  tasks and printed its completion marker.
+- Record: `tests/specflow/compatibility/claude-code.md`. No requirement,
+  design, hashed task text, or approval of this spec changed. T-043 is
+  checked; the next task is T-046.
