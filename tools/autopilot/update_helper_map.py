@@ -502,7 +502,6 @@ def apply(
         elif revision is None:
             row["evidence"] = dict(unavailable)
         else:
-            # README.md and CHANGELOG.md keep the legacy self-referential evidence.
             row["evidence"] = {
                 "status": "passed",
                 "artifact_id": path,
