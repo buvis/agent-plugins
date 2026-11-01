@@ -75,13 +75,84 @@ def with_findings(evidence: dict[str, Any]) -> dict[str, Any]:
     return evidence
 
 
-class EvidenceCase(unittest.TestCase):
+RUNNER = r"""
+import json, os, sys
+sys.dont_write_bytecode = True
+BLOCKED = ("jsonschema", "test_contract", "test_contract_semantics")
+for name in BLOCKED:
+    sys.modules[name] = None
+calls = json.loads(sys.stdin.read())["calls"]
+events = []
+WRITE = os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_APPEND
+def hook(name, args):
+    if name == "open" and isinstance(args[0], (str, bytes)):
+        mode = args[1] if isinstance(args[1], str) else ""
+        flags = args[2] if isinstance(args[2], int) else 0
+        events.append([os.fsdecode(args[0]), any(m in mode for m in "wax+") or bool(flags & WRITE)])
+sys.addaudithook(hook)
+sys.path.insert(0, sys.argv[1])
+import review_evidence
+reports, mutated = [], []
+for call in calls:
+    before = json.dumps(call)
+    reports.append(review_evidence.check_evidence(*call))
+    mutated.append(json.dumps(call) != before)
+packaged = review_evidence.load_policy()
+loaded = [m for m in BLOCKED if sys.modules.get(m) is not None]
+print(json.dumps({"reports": reports, "mutated": mutated, "packaged": packaged,
+                  "blocked_loaded": loaded, "events": events}))
+"""
+
+
+def snapshot(root: str) -> dict[str, bytes | None]:
+    return {str(p.relative_to(root)): p.read_bytes() if p.is_file() else None for p in Path(root).rglob("*")}
+
+
+class BlockedCase(unittest.TestCase):
+    """Runs check_evidence in a fresh -I interpreter that cannot reach the oracle or jsonschema."""
+
+    def run_blocked(self, calls: list[list[Any]]) -> list[dict[str, Any]]:
+        with tempfile.TemporaryDirectory() as tmp:
+            state = Path(tmp) / "docs" / "dev" / "project-management" / "autopilot"
+            state.mkdir(parents=True)
+            (state / "state.json").write_text('{"phase": "review"}', encoding="utf-8")
+            before = snapshot(tmp)
+            proc = subprocess.run(
+                [sys.executable, "-I", "-c", RUNNER, str(SCRIPTS)],
+                input=json.dumps({"calls": calls}), cwd=tmp, capture_output=True, text=True, timeout=120,
+            )
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertEqual(snapshot(tmp), before)
+            tmp_real = os.path.realpath(tmp)
+        out = json.loads(proc.stdout)
+        self.assertEqual(out["blocked_loaded"], [])
+        self.assertEqual(out["mutated"], [False] * len(calls))
+        self.assertEqual(out["packaged"], contract.load(contract.POLICY_FILE))
+        self.assert_no_forbidden_access(out["events"], tmp_real)
+        self.assertEqual(len(out["reports"]), len(calls))
+        return out["reports"]
+
+    def assert_no_forbidden_access(self, events: list[list[Any]], tmp_real: str) -> None:
+        contracts = os.path.realpath(PACKAGE / "contracts") + os.sep
+        tests = os.path.realpath(ROOT / "tests") + os.sep
+        for path, writes in events:
+            real = os.path.realpath(os.path.join(tmp_real, path))
+            self.assertFalse(writes, path)
+            self.assertFalse(real.startswith((tmp_real + os.sep, tests)), path)
+            self.assertNotIn("jsonschema", real, path)
+            if not real.endswith((".py", ".pyc", ".so")):
+                self.assertTrue(real.startswith(contracts), path)
+
+
+class EvidenceCase(BlockedCase):
     def setUp(self) -> None:
         self.module = load_helper("review_evidence")
 
     def check(self, policy: Any, context: Any, evidence: Any) -> dict[str, Any]:
-        report = self.module.check_evidence(policy, context, evidence)
-        self.assertEqual(report, mapped(validate_review(policy, context, evidence)))
+        args = copy.deepcopy([policy, context, evidence])
+        expected = mapped(validate_review(*copy.deepcopy(args)))
+        [report] = self.run_blocked(args)
+        self.assertEqual(report, expected)
         return report
 
 
@@ -113,15 +184,14 @@ class LoadPolicyTest(EvidenceCase):
 
 class FixtureParityTest(EvidenceCase):
     def test_all_55_fixtures_match_their_mapped_defect_sets(self) -> None:
-        self.assertEqual(len(FIXTURES["cases"]), 55)
-        outcomes = set()
-        for case in FIXTURES["cases"]:
+        cases = FIXTURES["cases"]
+        self.assertEqual(len(cases), 55)
+        calls = [[FIXTURES["policies"][c["policy"]], c["expected_context"], c["input"]] for c in cases]
+        reports = self.run_blocked(calls)
+        for case, report in zip(cases, reports, strict=True):
             with self.subTest(case=case["name"]):
-                policy = FIXTURES["policies"][case["policy"]]
-                report = self.module.check_evidence(policy, case["expected_context"], case["input"])
                 self.assertEqual(report, mapped(case["expect"]))
-                outcomes.add(report["ok"])
-        self.assertEqual(outcomes, {True, False})
+        self.assertEqual({report["ok"] for report in reports}, {True, False})
 
     def test_v1_alt_is_a_valid_policy_and_only_the_stale_binding_is_reported(self) -> None:
         case = CASES["full-stale-policy-binding"]
@@ -204,7 +274,7 @@ class AttributionTest(EvidenceCase):
     def test_duplicate_result_ids_are_reported(self) -> None:
         context, evidence = clean()
         result(evidence, "blake")["result_id"] = "alice-1"
-        report = self.module.check_evidence(V1, context, evidence)
+        [report] = self.run_blocked([[V1, context, evidence]])
         self.assertFalse(report["ok"])
         self.assertIn("duplicate_id", report["defects"])
 
@@ -307,66 +377,44 @@ class ReportTest(EvidenceCase):
                 self.assertNotIn("outcome", report)
 
     def test_inputs_are_not_mutated(self) -> None:
-        for name in ("full-clean", "full-findings-mismatch", "full-schema-invalid"):
-            case = CASES[name]
-            policy = copy.deepcopy(FIXTURES["policies"][case["policy"]])
-            context, evidence = copy.deepcopy(case["expected_context"]), copy.deepcopy(case["input"])
-            self.module.check_evidence(policy, context, evidence)
-            self.assertEqual((policy, context, evidence), (FIXTURES["policies"][case["policy"]], case["expected_context"], case["input"]))
+        # run_blocked asserts every call leaves its inputs byte-identical
+        cases = [CASES[n] for n in ("full-clean", "full-findings-mismatch", "full-schema-invalid")]
+        calls = [[FIXTURES["policies"][c["policy"]], c["expected_context"], c["input"]] for c in cases]
+        self.assertEqual(self.run_blocked(calls), [mapped(c["expect"]) for c in cases])
 
 
-AUDIT_SCRIPT = r"""
-import json, os, sys
-scripts, fixtures_path = sys.argv[1], sys.argv[2]
-for blocked in ("jsonschema", "test_contract", "test_contract_semantics"):
-    sys.modules[blocked] = None
-sys.path.insert(0, scripts)
-import review_evidence
-fixtures = json.loads(open(fixtures_path, encoding="utf-8").read())
-policy = review_evidence.load_policy()
-case = next(c for c in fixtures["cases"] if c["name"] == "full-clean")
-events = []
-WRITE = os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_APPEND
-def hook(name, args):
-    if name == "open" and isinstance(args[0], (str, bytes)):
-        mode = args[1] if isinstance(args[1], str) else ""
-        flags = args[2] if isinstance(args[2], int) else 0
-        events.append([os.fsdecode(args[0]), any(m in mode for m in "wax+") or bool(flags & WRITE)])
-sys.addaudithook(hook)
-reports = [review_evidence.check_evidence(policy, case["expected_context"], case["input"])]
-stale = json.loads(json.dumps(case["input"]))
-stale["source_bindings"]["prd_sha256"] = "0" * 64
-reports.append(review_evidence.check_evidence(policy, case["expected_context"], stale))
-blocked_loaded = [m for m in ("jsonschema", "test_contract") if sys.modules.get(m) is not None]
-print(json.dumps({"reports": reports, "events": events, "blocked_loaded": blocked_loaded}))
-"""
+def no_state_calls() -> list[list[Any]]:
+    """Varied policy/context/evidence in a non-alternating order: stale, clean, clean, ..., stale."""
+    context, evidence = clean()
+    stale, near = copy.deepcopy(evidence), copy.deepcopy(evidence)
+    stale["source_bindings"]["prd_sha256"] = "0" * 64
+    near["source_bindings"]["prd_sha256"] = "1" * 63 + "0"
+    moved, corrupt = copy.deepcopy(context), copy.deepcopy(context)
+    moved["source_bindings"]["prd_sha256"] = "5" * 64
+    corrupt["session_identities"]["independent_contexts_required"] = False
+    blind = copy.deepcopy(evidence)
+    result(blind, "blake")["received_input_refs"].append("diff:review-fixtures")
+    alt = CASES["full-stale-policy-binding"]
+    return [
+        [V1, context, stale], [V1, context, evidence], [V1, context, evidence], [V1, context, near],
+        [V1, moved, evidence], [V1, context, blind], [V1_ALT, alt["expected_context"], alt["input"]],
+        [V1, corrupt, evidence], [V1, context, stale],
+    ]
 
 
-class NoStateAccessTest(unittest.TestCase):
+class NoStateAccessTest(BlockedCase):
     def test_check_runs_without_tests_or_jsonschema_and_touches_no_project_state(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            state = Path(tmp) / "docs" / "dev" / "project-management" / "autopilot"
-            state.mkdir(parents=True)
-            (state / "state.json").write_text('{"phase": "review"}', encoding="utf-8")
-            before = sorted(str(p.relative_to(tmp)) for p in Path(tmp).rglob("*"))
-            proc = subprocess.run(
-                [sys.executable, "-I", "-c", AUDIT_SCRIPT, str(SCRIPTS), str(contract.FIXTURES_FILE)],
-                cwd=tmp, capture_output=True, text=True, timeout=120,
-            )
-            self.assertEqual(proc.returncode, 0, proc.stderr)
-            after = sorted(str(p.relative_to(tmp)) for p in Path(tmp).rglob("*"))
-            tmp_real = os.path.realpath(tmp)
-        out = json.loads(proc.stdout)
-        self.assertEqual(out["reports"], [OK, invalid({"source_binding_mismatch"})])
-        self.assertEqual(out["blocked_loaded"], [])
-        self.assertEqual(before, after)
-        contracts = os.path.realpath(PACKAGE / "contracts")
-        for path, writes in out["events"]:
-            real = os.path.realpath(path)
-            self.assertFalse(writes, path)
-            self.assertFalse(real.startswith(tmp_real), path)
-            if not real.endswith((".py", ".pyc")):
-                self.assertTrue(real.startswith(contracts + os.sep), path)
+        calls = no_state_calls()
+        mismatch = invalid({"source_binding_mismatch"})
+        expected = [
+            mismatch, OK, OK, mismatch, mismatch, invalid({"prohibited_input"}),
+            invalid({"policy_digest_mismatch"}), invalid({"invalid_expected_context"}), mismatch,
+        ]
+        self.assertEqual(expected, [mapped(validate_review(*copy.deepcopy(c))) for c in calls])
+        reports = self.run_blocked(calls)
+        for index, (report, want) in enumerate(zip(reports, expected, strict=True)):
+            with self.subTest(call=index):
+                self.assertEqual(report, want)
 
 
 if __name__ == "__main__":
