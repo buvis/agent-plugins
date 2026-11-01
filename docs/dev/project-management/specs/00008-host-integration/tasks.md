@@ -2,7 +2,7 @@
 
 The first sub-bullets of `Details:` and `Verify:` are carried from the source plan in intake item 00001. In them, `design §n` means the source design, `.kiro/specs` means the specs folder, and a task ID may belong to another spec; `docs/dev/project-management/reviews/2026-10-04-specflow-split-map.md` names the spec that now holds each section and each task. Lines written for this plan name a task of another spec with its spec, as in `T-030 (00006)`.
 
-- [ ] T-040 Test Kiro IDE custom Power loading
+- [x] T-040 Test Kiro IDE custom Power loading
   - Requirements: 00002 PKG-003 criterion 1
   - Depends on: none
   - Location: `tests/specflow/compatibility/kiro-ide.md`
@@ -17,8 +17,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - create, approve requirements, close session, and resume.
     - The record is `tests/specflow/compatibility/kiro-ide.md`, with every step of the design's table passed.
+  - Outcome: Kiro loaded spec-workflow, read its installed contracts, created and approved 00001-hello-world, and resumed it in a fresh chat with approval intact. The developer confirmed native Specs-panel discovery on 2026-10-29. The record includes the full state and artifacts, earlier terminal failures, and the persistent Bash-it correction verified after restart in two fresh terminals.
 
-- [ ] T-042 Test Codex Agent Plugins v1 loading
+- [x] T-042 Test Codex Agent Plugins v1 loading
   - Requirements: 00002 PKG-003 criterion 2
   - Depends on: T-040
   - Location: `tests/specflow/compatibility/codex.md`
@@ -32,8 +33,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - resume a Kiro-created spec, reconcile hashes, and continue the correct phase.
     - The record is `tests/specflow/compatibility/codex.md`; the design and the task plan end approved, which T-043 needs.
+  - Outcome: Codex 0.165.0 installed the real package, discovered specflow:spec-workflow, resumed Kiro's files without reconciliation changes, and drafted and recorded explicit developer approval of design and tasks. The record contains the final open implementation gate, unchanged missing-file baseline, and full artifact snapshot; no implementation was started.
 
-- [ ] T-043 Test Claude Code compatibility loading
+- [x] T-043 Test Claude Code compatibility loading
   - Requirements: 00002 PKG-003 criterion 3
   - Depends on: T-042
   - Location: `tests/specflow/compatibility/claude-code.md`
@@ -47,8 +49,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - edit requirements, invalidate downstream state, and hand back to another host.
     - The record is `tests/specflow/compatibility/claude-code.md`; the other host of the hand-back is Codex, and its report of the stale design and tasks is in the record.
+  - Outcome: Ran 2026-11-01 after the developer's deferral. Claude Code 2.1.312 loaded plugins/specflow through --plugin-dir as specflow@inline, exposed specflow:spec-workflow, resumed the spec Codex approved, replaced the greeting in requirements.md, and reconciled requirements, design, and tasks to stale with every gate closed; Codex 0.166.0 then resumed the same files and reported the same stale design and tasks. The record holds both runs, the final status, state, and artifact snapshot; no workspace file changed during the hand-back.
 
-- [ ] T-046 Add the monorepo Claude Code marketplace entry
+- [x] T-046 Add the monorepo Claude Code marketplace entry
   - Requirements: 00002 PKG-003 criterion 3
   - Depends on: T-043
   - Location: `tests/specflow/compatibility/claude-code.md`, `scripts/generate_marketplace.py`, `scripts/test_generate_marketplace.py`, `.claude-plugin/marketplace.json`, `.github/workflows/validate.yml`, `README.md`, `AGENTS.md`, `CONTRIBUTING.md`
@@ -64,8 +67,9 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Verify:
     - `claude plugin` installs specflow from the local checkout through the marketplace.
     - `scripts/test_generate_marketplace.py` passes with the six tests the design names; `claude plugin validate --strict .` passes on the generated file; `specflow:spec-workflow` is listed after the install from the local checkout.
+  - Outcome: scripts/generate_marketplace.py writes .claude-plugin/marketplace.json (one entry, specflow 0.1.0) through build_manifest, its six tests pass on Python 3.10 and 3.14, CI and the local gate run --check, and README.md, AGENTS.md, and CONTRIBUTING.md each say the catalog is generated. claude plugin validate --strict passed; Claude Code 2.1.312 added the checkout as marketplace buvis-agent-plugins, installed specflow through it, listed specflow:spec-workflow in a headless session, and both were removed from the profile again. Recorded in claude-code.md.
 
-- [ ] T-045 Add host compatibility documentation
+- [x] T-045 Add host compatibility documentation
   - Requirements: PKG-003
   - Depends on: T-040, T-042, T-043, T-046
   - Location: `plugins/specflow/README.md`, `tests/specflow/compatibility/kiro-ide.md`, `tests/specflow/compatibility/codex.md`, `tests/specflow/compatibility/claude-code.md`, `docs/dev/project-management/specs/00008-host-integration/design.md`
@@ -84,10 +88,11 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - Each host's record holds the result of each install route tried in a fresh host profile, and whether the route takes a ref; the install steps of the README work as written there. Two kinds of line cannot run before the release and are left to it: the public route of Claude Code, and any line that T-062 (00001) later pins to the release tag.
     - The host section of `plugins/specflow/README.md` lists exactly Kiro IDE, Codex, and Claude Code as supported, and names Kiro CLI and Kiro Crew as expected to work but untested.
     - No line under `### Kiro IDE`, `### Codex`, or `### Claude Code` of this spec's design still says "to be verified": each is a confirmed path or a stated limit.
+  - Outcome: Kiro IDE installed the Power from the repository subdirectory URL on GitHub (developer trial, 2026-11-01); Codex installed from a fresh profile through .claude-plugin/marketplace.json from the checkout and from GitHub with --ref; the README host section lists Kiro IDE, Codex, and Claude Code, names Kiro CLI and Kiro Crew as untested, and names buvis-agent-plugins; the design's Kiro and Codex install lines state confirmed paths, and the developer re-approved the design and this plan on 2026-11-01 at commit 5f5aad5.
 
 ## Completion criteria
 
-- [ ] Every task above is checked, each with its `Outcome:` line.
-- [ ] Each of the three records under `tests/specflow/compatibility/` holds a passing run on the real package, with the host version, and holds the status document that run ended with.
-- [ ] CI is green on the final commit, with `python3 scripts/generate_marketplace.py --check`.
-- [ ] No line under `### Kiro IDE`, `### Codex`, or `### Claude Code` of this spec's design still says "to be verified", and the design and this plan are approved again after that edit.
+- [x] Every task above is checked, each with its `Outcome:` line.
+- [x] Each of the three records under `tests/specflow/compatibility/` holds a passing run on the real package, with the host version, and holds the status document that run ended with.
+- [x] CI is green on the final commit, with `python3 scripts/generate_marketplace.py --check`.
+- [x] No line under `### Kiro IDE`, `### Codex`, or `### Claude Code` of this spec's design still says "to be verified", and the design and this plan are approved again after that edit.

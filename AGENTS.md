@@ -16,6 +16,9 @@ plugin package.
 - `plugins/` — published packages; each immediate child is one plugin root.
 - `templates/example-plugin/` — valid copyable starter, not a published plugin.
 - `scripts/validate.py` — repository and portable-format validation.
+- `.claude-plugin/marketplace.json` — the Claude Code catalog, generated from
+  `plugins/*/plugin.json` by `scripts/generate_marketplace.py`; never edit it
+  by hand, CI checks it with `--check`.
 - `.github/workflows/validate.yml` — CI entry point.
 
 specflow boundaries (only `plugins/specflow/` ships):

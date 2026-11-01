@@ -54,3 +54,7 @@ a credential store. Prefer generated client catalogs over hand-maintained
 duplicates, but commit generated files when clients install them directly from
 the repository. Lockfiles and distributable plugin assets are intentional
 source artifacts and should normally remain tracked.
+
+The Claude Code catalog `.claude-plugin/marketplace.json` is generated: run
+`python3 scripts/generate_marketplace.py` after a plugin manifest changes,
+never edit it by hand, and CI checks it with `--check`.

@@ -1,0 +1,12 @@
+{
+  "batch_id": "202610251922",
+  "items": [
+    {
+      "type": "stall",
+      "site": "design_gate",
+      "detail": "PRD and design doc were externally amended mid-build (corrected port-completeness review) to a materially different contract shape (JSON-Schema evidence, source-inventory.json, check-source.py, 1034-row inventory, reviewer_results); task 1's committed tests/contracts were built against the pre-amendment design and must be redesigned/replanned from scratch",
+      "op_id": "2e9aa11b5554",
+      "prd": "00012-autopilot-package-contract-v1.md"
+    }
+  ]
+}

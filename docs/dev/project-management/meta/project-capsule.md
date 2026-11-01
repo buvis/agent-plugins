@@ -22,10 +22,8 @@ Generated: 2026-10-16
 
 ## Active Work
 
-- 00002 to 00005 complete and merged (PR #1 to #4; 00005 merged 2026-10-16 as `f53085c` after its cycle-1 review converged). `validate_spec.py status` shows them `complete`.
-- 00006 on `feature/specflow-00006` (2026-10-16): approvals recovered into `.specflow.json`; next T-030. Carries two 00005 deferrals: the approval procedure refuses while `validate` reports an error (F8); each reference task appends its area to the CI `check_rules.py --area` step (F10).
-- Python target is 3.10 (CI). The user's global ruff config does not pin a target, so `ruff check --fix` rewrites code to 3.11+ APIs (UP017 broke the helper once). Run the contract tests on `mise exec python@3.10.22` after any ruff fix.
-- Intake `new/00010-split-long-validator-functions/` is pending (numbered 2026-10-16).
+- specflow track: 00002-00006 complete/merged (PR #1-#5), `feature/specflow-00007` open as PR #6 (reviews/conversion skill, rework landed 2026-10-25). Python target 3.10 (CI); `ruff check --fix` rewrites to 3.11+ APIs, re-run contract tests on `mise exec python@3.10.22` after any ruff fix.
+- New autopilot-port track (00011/00012+): porting the `claude-autopilot` plugin content into `plugins/autopilot/` as a standalone, OVCAQ-independent package. Design doc `designs/00011-autopilot-standalone-design.md` plus three reviews (`boundary-correction`, `split-design`, `three-layer`) already landed; discovery docs `00011-autopilot-agent-plugins-{inventory,port}.md` map the source. PRD 00012 (this run) is Phase 0 of that port: pin the source commit (`e960ef1` in `claude-autopilot`), port assets 1:1, and define the plugin-owned review-evidence/policy contracts — no runtime wiring, no publishing. Later PRDs (00013-00021) build the controller/TUI on top.
 
 ## Related context
 

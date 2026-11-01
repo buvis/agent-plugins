@@ -1,0 +1,4 @@
+{"kind":"handoff","site":"build","edge":"resume","at":1792952561,"phase":"build","prd":"00012-autopilot-package-contract-v1.md"}
+{"id":"d82a6a9d","kind":"tess","task":"1","queued_at":1792953666,"prompt_bytes":17635}
+{"id":"d82a6a9d","ended_at":1792954605,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
+{"kind":"handoff","site":"build","edge":"leave","at":1792954605,"phase":"done","prd":"00012-autopilot-package-contract-v1.md"}

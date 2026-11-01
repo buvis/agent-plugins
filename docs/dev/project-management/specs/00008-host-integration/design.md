@@ -10,7 +10,7 @@ This spec proves on the real package what the probe of 00002 showed on a throwaw
 - This spec owns one criterion, PKG-003 criterion 4. Its host tests prove criteria that 00002 owns, PKG-003 criteria 1 to 3, on the real package, and cite them across the dependency.
 - Kiro IDE has no headless mode, so its test is a recorded manual run by the developer. Codex and Claude Code can run a prompt without a session, but these three tests are run by hand once and recorded; the scripted runs belong to 00009.
 - `README.md` and `AGENTS.md` (repository root): a client catalog is added only after that client is tested, and it is generated from the portable manifests, never maintained by hand.
-- The host lines below still say "to be verified" where the source design did. T-006 (00002) and T-045 turn each into a confirmed path or a documented limit.
+- The host lines below said "to be verified" where the source design did; T-006 (00002) and T-045 turned each into a confirmed path or a documented limit.
 
 Section numbers such as `§7.3` in carried passages are those of the source design in intake item 00001; `docs/dev/project-management/reviews/2026-10-04-specflow-split-map.md` names the spec that now holds each section.
 
@@ -55,7 +55,7 @@ Kiro IDE, Codex, and Claude Code are the supported hosts of the first release (P
 
 ### Kiro IDE
 
-- Install: `plugins/specflow/` as a custom Power from a local folder; confirmed by the probe (T-006 of 00002): Kiro copies the folder to `~/.kiro/powers/installed/<name>/` and lists the skill unprefixed. It asks for approval before it activates a Power, and runs bundled scripts in its own terminal, which must work. Installing from the repository subdirectory URL is to be verified.
+- Install: `plugins/specflow/` as a custom Power from a local folder; confirmed by the probe (T-006 of 00002): Kiro copies the folder to `~/.kiro/powers/installed/<name>/` and lists the skill unprefixed. It asks for approval before it activates a Power, and runs bundled scripts in its own terminal, which must work. Installing from the repository subdirectory URL works (T-045, 2026-11-01): **Add Custom Power**, **Import power from GitHub** with `https://github.com/buvis/agent-plugins/tree/master/plugins/specflow` installs the Power; the ref is the branch in the URL, and Kiro records only the Power's name, not its source.
 - Keywords in the portable manifest support contextual activation.
 - The runtime skill writes Kiro-native artifact paths.
 - Kiro's native Spec agent may edit the same Markdown files; the next plugin resume reconciles hashes.
@@ -63,7 +63,7 @@ Kiro IDE, Codex, and Claude Code are the supported hosts of the first release (P
 
 ### Codex
 
-- Install: Codex installs plugins only from a marketplace, never from a bare folder (probe, T-006 of 00002). A local install adds the monorepo checkout as a marketplace (`codex plugin marketplace add <checkout>`), then runs `codex plugin add specflow@<marketplace>`. The probe tested a marketplace at `.agents/plugins/marketplace.json` only. Codex copies the plugin into `$CODEX_HOME/plugins/cache/` and lists the skill as `specflow:<skill>`. Whether Codex reads the monorepo's `.claude-plugin/marketplace.json` entry as written, and a Git marketplace install, is to be verified.
+- Install: Codex installs plugins only from a marketplace, never from a bare folder (probe, T-006 of 00002). A local install adds the monorepo checkout as a marketplace (`codex plugin marketplace add <checkout>`), then runs `codex plugin add specflow@<marketplace>`. Codex copies the plugin into `$CODEX_HOME/plugins/cache/` and lists the skill as `specflow:<skill>`. T-045 confirmed on Codex 0.166.0 that Codex reads the monorepo's `.claude-plugin/marketplace.json` entry as written, from the local checkout and from GitHub (`codex plugin marketplace add buvis/agent-plugins --ref <ref>`, which takes a ref); each route installs the same copy into the cache, and no `.agents/plugins/marketplace.json` is needed.
 - Load the root Agent Plugins v1 manifest directly.
 - Skills are discovered from `plugins/specflow/skills/`.
 - OpenAI-specific metadata, if later needed, goes under `extensions.com.openai`; no OpenAI-specific workflow copy is introduced.
