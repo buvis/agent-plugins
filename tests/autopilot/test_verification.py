@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import hashlib
 import importlib
 import json
@@ -26,8 +25,18 @@ BASE_FILES = {
     "logs/tracked.log": "tracked\n",
 }
 ARTIFACT_KEYS = {
-    "schema_version", "kind", "argv", "head_sha", "exit_code", "summary", "timed_out",
-    "output_limit_exceeded", "dirty_paths", "head_moved", "log", "reusable",
+    "schema_version",
+    "kind",
+    "argv",
+    "head_sha",
+    "exit_code",
+    "summary",
+    "timed_out",
+    "output_limit_exceeded",
+    "dirty_paths",
+    "head_moved",
+    "log",
+    "reusable",
 }
 SUMMARY_KEYS = {"passed", "failed", "skipped", "exit_code"}
 GREEN = "PASS 3 FAIL 0 SKIP 1 EXIT 0"
@@ -75,6 +84,12 @@ def write(repo: Path, files: dict[str, str]) -> None:
         path.write_text(text, encoding="utf-8")
 
 
+def apply_dirt(repo: Path, dirt: dict[str, str | None]) -> None:
+    write(repo, {rel: text for rel, text in dirt.items() if text is not None})
+    for rel in (rel for rel, text in dirt.items() if text is None):
+        (repo / rel).unlink()
+
+
 def commit(repo: Path, files: dict[str, str], message: str) -> str:
     write(repo, files)
     git(repo, "add", "-A")
@@ -110,13 +125,19 @@ def paths(repo: Path) -> tuple[Path, Path]:
 def run(verification, repo: Path, argv: list[str], **overrides):
     artifact, log = paths(repo)
     kwargs = {
-        "argv": argv, "project_root": repo, "head_sha": head(repo),
-        "artifact_path": artifact, "log_path": log, **overrides,
+        "argv": argv,
+        "project_root": repo,
+        "head_sha": head(repo),
+        "artifact_path": artifact,
+        "log_path": log,
+        **overrides,
     }
     return verification.run_verification(**kwargs)
 
 
-def checked_artifact(result: dict, repo: Path, artifact_path: Path, log_path: Path) -> dict:
+def checked_artifact(
+    result: dict, repo: Path, artifact_path: Path, log_path: Path
+) -> dict:
     assert set(result) == {"schema_version", "ok", "artifact", "controller_required"}
     assert result["schema_version"] == 1 and result["ok"] is True
     assert result["controller_required"] is True
@@ -196,14 +217,22 @@ def test_failing_command_still_returns_attempted_run_for_its_own_head(
     assert art["summary"] == {"passed": 7, "failed": 2, "skipped": 0, "exit_code": 1}
 
 
-@pytest.mark.parametrize(("line", "code", "summary_exit"), [
-    ("PASS 1 FAIL 0 SKIP 0 EXIT 5", 0, 5),
-    ("PASS 1 FAIL 0 SKIP 0 EXIT 0", 2, 0),
-], ids=["summary-fails-process-passes", "summary-passes-process-fails"])
+@pytest.mark.parametrize(
+    ("line", "code", "summary_exit"),
+    [
+        ("PASS 1 FAIL 0 SKIP 0 EXIT 5", 0, 5),
+        ("PASS 1 FAIL 0 SKIP 0 EXIT 0", 2, 0),
+    ],
+    ids=["summary-fails-process-passes", "summary-passes-process-fails"],
+)
 def test_actual_exit_is_kept_apart_from_summary_exit(
     verification, repo: Path, line: str, code: int, summary_exit: int
 ) -> None:
-    art = checked_run(verification, repo, script("import sys", f"print({line!r})", f"sys.exit({code})"))
+    art = checked_run(
+        verification,
+        repo,
+        script("import sys", f"print({line!r})", f"sys.exit({code})"),
+    )
     assert art["exit_code"] == code
     assert art["summary"]["exit_code"] == summary_exit
 
@@ -219,11 +248,24 @@ def test_last_complete_summary_line_wins(verification, repo: Path) -> None:
     assert art["summary"] == {"passed": 9, "failed": 0, "skipped": 2, "exit_code": 0}
 
 
-@pytest.mark.parametrize(("lines", "code", "expected_log"), [
-    (["import sys", "print('just output')", "print('PASS 2 FAIL 0 SKIP 0')",
-      "sys.stderr.write('boom\\n')", "sys.exit(4)"], 4, [b"just output\n", b"boom\n"]),
-    (["pass"], 0, []),
-], ids=["output-without-summary", "empty-output"])
+@pytest.mark.parametrize(
+    ("lines", "code", "expected_log"),
+    [
+        (
+            [
+                "import sys",
+                "print('just output')",
+                "print('PASS 2 FAIL 0 SKIP 0')",
+                "sys.stderr.write('boom\\n')",
+                "sys.exit(4)",
+            ],
+            4,
+            [b"just output\n", b"boom\n"],
+        ),
+        (["pass"], 0, []),
+    ],
+    ids=["output-without-summary", "empty-output"],
+)
 def test_command_without_summary_keeps_actual_output_and_exit_but_is_not_reusable(
     verification, repo: Path, lines: list[str], code: int, expected_log: list[bytes]
 ) -> None:
@@ -237,9 +279,16 @@ def test_command_without_summary_keeps_actual_output_and_exit_but_is_not_reusabl
         assert log == b""
 
 
-def test_argv_tokens_reach_the_process_verbatim_without_a_shell(verification, repo: Path) -> None:
+def test_argv_tokens_reach_the_process_verbatim_without_a_shell(
+    verification, repo: Path
+) -> None:
     tokens = ["a  b", " lead", "$HOME", "*", "x;echo INJECTED", "naïve"]
-    argv = [*script("import json, sys", "print(json.dumps(sys.argv[1:]))", f"print({GREEN!r})"), *tokens]
+    argv = [
+        *script(
+            "import json, sys", "print(json.dumps(sys.argv[1:]))", f"print({GREEN!r})"
+        ),
+        *tokens,
+    ]
     art = checked_run(verification, repo, argv)
     assert art["argv"] == argv
     log = paths(repo)[1].read_bytes()
@@ -247,20 +296,51 @@ def test_argv_tokens_reach_the_process_verbatim_without_a_shell(verification, re
     assert b"\nINJECTED\n" not in log
 
 
-@pytest.mark.parametrize("timeout", [
-    True, False, 0, 0.0, -1, float("nan"), float("inf"), 1800.001, 1801, "10", None,
-], ids=["true", "false", "zero", "zero-float", "negative", "nan", "inf", "over-max-float",
-        "over-max", "string", "none"])
+@pytest.mark.parametrize(
+    "timeout",
+    [
+        True,
+        False,
+        0,
+        0.0,
+        -1,
+        float("nan"),
+        float("inf"),
+        1800.001,
+        1801,
+        "10",
+        None,
+    ],
+    ids=[
+        "true",
+        "false",
+        "zero",
+        "zero-float",
+        "negative",
+        "nan",
+        "inf",
+        "over-max-float",
+        "over-max",
+        "string",
+        "none",
+    ],
+)
 def test_invalid_timeout_is_refused_before_spawn(
     verification, repo: Path, tmp_path: Path, timeout
 ) -> None:
     marker = tmp_path / "spawned"
-    assert refused(lambda: run(verification, repo, marker_script(marker), timeout=timeout))
+    assert refused(
+        lambda: run(verification, repo, marker_script(marker), timeout=timeout)
+    )
     assert not marker.exists()
     assert snapshot(*paths(repo)) == dict.fromkeys(paths(repo))
 
 
-@pytest.mark.parametrize("timeout", [1800, 1800.0, 5, 0.5], ids=["max-int", "max-float", "small-int", "fraction"])
+@pytest.mark.parametrize(
+    "timeout",
+    [1800, 1800.0, 5, 0.5],
+    ids=["max-int", "max-float", "small-int", "fraction"],
+)
 def test_finite_timeout_within_bounds_is_accepted(
     verification, repo: Path, tmp_path: Path, timeout
 ) -> None:
@@ -270,23 +350,45 @@ def test_finite_timeout_within_bounds_is_accepted(
     assert art["timed_out"] is False
 
 
-@pytest.mark.parametrize("argv", [[], [""], ["", "-c", "print(1)"]], ids=["empty", "empty-exe", "empty-exe-with-args"])
-def test_empty_argv_or_executable_is_refused_before_writing(verification, repo: Path, argv) -> None:
+@pytest.mark.parametrize(
+    "argv",
+    [[], [""], ["", "-c", "print(1)"]],
+    ids=["empty", "empty-exe", "empty-exe-with-args"],
+)
+def test_empty_argv_or_executable_is_refused_before_writing(
+    verification, repo: Path, argv
+) -> None:
     assert refused(lambda: run(verification, repo, argv))
     assert snapshot(*paths(repo)) == dict.fromkeys(paths(repo))
 
 
-@pytest.mark.parametrize(("dirt", "is_refused"), [
-    ({"src/app.py": "print('edited')\n"}, True),
-    ({"src/new.py": "x = 1\n"}, True),
-    ({"docs/dev/project-management-old/x.md": "x\n"}, True),
-    ({PM + "notes.md": "edited store\n"}, False),
-    ({SCRATCH + "scratch.txt": "s\n"}, False),
-], ids=["tracked-product-edit", "untracked-product", "store-name-near-miss", "store-edit", "scratch-file"])
+@pytest.mark.parametrize(
+    ("dirt", "is_refused"),
+    [
+        ({"src/app.py": "print('edited')\n"}, True),
+        ({"src/new.py": "x = 1\n"}, True),
+        ({"docs/dev/project-management-old/x.md": "x\n"}, True),
+        ({PM + "notes.md": "edited store\n"}, False),
+        ({SCRATCH + "scratch.txt": "s\n"}, False),
+        ({"src/app.py": None}, True),
+    ],
+    ids=[
+        "tracked-product-edit",
+        "untracked-product",
+        "store-name-near-miss",
+        "store-edit",
+        "scratch-file",
+        "tracked-product-deletion",
+    ],
+)
 def test_pre_spawn_dirt_outside_store_and_scratch_refuses_without_effects(
-    verification, repo: Path, tmp_path: Path, dirt: dict[str, str], is_refused: bool
+    verification,
+    repo: Path,
+    tmp_path: Path,
+    dirt: dict[str, str | None],
+    is_refused: bool,
 ) -> None:
-    write(repo, dirt)
+    apply_dirt(repo, dirt)
     marker = tmp_path / "spawned"
     result = run(verification, repo, marker_script(marker))
     if not is_refused:
@@ -315,38 +417,89 @@ def test_head_sha_mismatch_refuses_before_spawn(
     assert snapshot(*paths(repo)) == dict.fromkeys(paths(repo))
 
 
-def _symlinked_parent(repo: Path, tmp_path: Path) -> tuple[Path, Path]:
+def _symlinked_dir(repo: Path) -> Path:
     os.symlink(repo / "logs", repo / SCRATCH / "linkdir")
-    return paths(repo)[0], repo / SCRATCH / "linkdir" / "run.log"
+    return repo / SCRATCH / "linkdir"
+
+
+def _symlinked_parent(repo: Path, tmp_path: Path) -> tuple[Path, Path]:
+    return paths(repo)[0], _symlinked_dir(repo) / "run.log"
+
+
+def _symlinked_artifact_parent(repo: Path, tmp_path: Path) -> tuple[Path, Path]:
+    return _symlinked_dir(repo) / "artifact.json", paths(repo)[1]
+
+
+def _executable(repo: Path, name: str) -> Path:
+    target = repo / SCRATCH / name
+    target.write_text("{}")
+    target.chmod(0o755)
+    return target
 
 
 def _executable_artifact(repo: Path, tmp_path: Path) -> tuple[Path, Path]:
-    target = repo / SCRATCH / "exec.json"
-    target.write_text("{}")
-    target.chmod(0o755)
-    return target, paths(repo)[1]
+    return _executable(repo, "exec.json"), paths(repo)[1]
 
 
-def _nested_repo_log(repo: Path, tmp_path: Path) -> tuple[Path, Path]:
+def _executable_log(repo: Path, tmp_path: Path) -> tuple[Path, Path]:
+    return paths(repo)[0], _executable(repo, "exec.log")
+
+
+def _nested_repo(repo: Path) -> Path:
     inner = repo / SCRATCH / "inner"
     inner.mkdir()
     git(inner, "init", "-q")
-    return paths(repo)[0], inner / "run.log"
+    return inner
+
+
+def _nested_repo_log(repo: Path, tmp_path: Path) -> tuple[Path, Path]:
+    return paths(repo)[0], _nested_repo(repo) / "run.log"
+
+
+def _nested_repo_artifact(repo: Path, tmp_path: Path) -> tuple[Path, Path]:
+    return _nested_repo(repo) / "artifact.json", paths(repo)[1]
+
+
+def _outside_link(leaf: Path, tmp_path: Path) -> Path:
+    target = tmp_path / "outside" / leaf.name
+    target.parent.mkdir(exist_ok=True)
+    target.write_text("outside\n")
+    os.symlink(target, leaf)
+    return leaf
+
+
+def _symlink_leaf_log(repo: Path, tmp_path: Path) -> tuple[Path, Path]:
+    return paths(repo)[0], _outside_link(paths(repo)[1], tmp_path)
+
+
+def _symlink_leaf_artifact(repo: Path, tmp_path: Path) -> tuple[Path, Path]:
+    return _outside_link(paths(repo)[0], tmp_path), paths(repo)[1]
 
 
 UNSAFE = {
     "log-outside-root": lambda r, t: (paths(r)[0], t / "outside.log"),
     "artifact-outside-root": lambda r, t: (t / "outside.json", paths(r)[1]),
-    "log-escapes-root": lambda r, t: (paths(r)[0], r / SCRATCH / ".." / ".." / ".." / ".." / "x.log"),
-    "artifact-in-live-state": lambda r, t: (r / PM / "autopilot" / "artifact.json", paths(r)[1]),
+    "log-escapes-root": lambda r, t: (
+        paths(r)[0],
+        r / SCRATCH / ".." / ".." / ".." / ".." / "x.log",
+    ),
+    "artifact-in-live-state": lambda r, t: (
+        r / PM / "autopilot" / "artifact.json",
+        paths(r)[1],
+    ),
     "log-in-store": lambda r, t: (paths(r)[0], r / PM / "run.log"),
     "log-in-git-dir": lambda r, t: (paths(r)[0], r / ".git" / "run.log"),
     "tracked-log": lambda r, t: (paths(r)[0], r / "logs" / "tracked.log"),
     "tracked-artifact": lambda r, t: (r / "logs" / "tracked.log", paths(r)[1]),
     "equal-paths": lambda r, t: (r / SCRATCH / "same.out", r / SCRATCH / "same.out"),
     "symlinked-log-parent": _symlinked_parent,
+    "symlinked-artifact-parent": _symlinked_artifact_parent,
     "executable-artifact": _executable_artifact,
+    "executable-log": _executable_log,
     "nested-repo-log": _nested_repo_log,
+    "nested-repo-artifact": _nested_repo_artifact,
+    "symlink-leaf-log": _symlink_leaf_log,
+    "symlink-leaf-artifact": _symlink_leaf_artifact,
 }
 
 
@@ -356,38 +509,73 @@ def test_unsafe_artifact_or_log_path_refuses_before_spawn_and_writes_nothing(
 ) -> None:
     artifact, log = UNSAFE[case](repo, tmp_path)
     before = snapshot(artifact, log)
+    outside = sorted((tmp_path / "outside").glob("*"))
+    outside_before = snapshot(*outside)
     marker = tmp_path / "spawned"
-    result = run(verification, repo, marker_script(marker), artifact_path=artifact, log_path=log)
+    result = run(
+        verification, repo, marker_script(marker), artifact_path=artifact, log_path=log
+    )
     assert result["schema_version"] == 1 and result["ok"] is False
     assert result["error"] == "unsafe-artifact-path"
     assert not marker.exists()
     assert snapshot(artifact, log) == before
+    assert snapshot(*outside) == outside_before
     assert not (repo / PM / "autopilot").exists()
 
 
-def test_safe_log_outside_scratch_is_accepted_as_the_near_miss(verification, repo: Path) -> None:
+def test_safe_log_outside_scratch_is_accepted_as_the_near_miss(
+    verification, repo: Path
+) -> None:
     artifact, log = repo / SCRATCH / "a.json", repo / "logs" / "fresh.log"
-    result = run(verification, repo, script(f"print({GREEN!r})"), artifact_path=artifact, log_path=log)
+    result = run(
+        verification,
+        repo,
+        script(f"print({GREEN!r})"),
+        artifact_path=artifact,
+        log_path=log,
+    )
     art = checked_artifact(result, repo, artifact, log)
     assert art["dirty_paths"] == [] and art["reusable"] is True
 
 
-@pytest.mark.parametrize(("created", "dirty"), [
-    ("src/generated.py", ["src/generated.py"]),
-    (SCRATCH + "out.txt", []),
-], ids=["product-dirt", "scratch-only"])
+FRESH_LOG = "logs/fresh.log"
+
+
+@pytest.mark.parametrize(
+    ("action", "log_rel", "dirty"),
+    [
+        ("open('src/generated.py', 'w').write('x')", None, ["src/generated.py"]),
+        (f"open('{SCRATCH}out.txt', 'w').write('x')", None, []),
+        ("os.unlink('src/app.py')", None, ["src/app.py"]),
+        ("open('logs/other.py', 'w').write('x')", FRESH_LOG, ["logs/other.py"]),
+        ("open('logs/tracked.log', 'a').write('x')", FRESH_LOG, ["logs/tracked.log"]),
+    ],
+    ids=[
+        "product-dirt",
+        "scratch-only",
+        "tracked-deletion",
+        "untracked-beside-log",
+        "tracked-edit-beside-log",
+    ],
+)
 def test_post_run_dirt_invalidates_reusable_evidence(
-    verification, repo: Path, created: str, dirty: list[str]
+    verification, repo: Path, action: str, log_rel: str | None, dirty: list[str]
 ) -> None:
-    target = repo / created
-    argv = script(f"open({str(target)!r}, 'w').write('x')", f"print({GREEN!r})")
-    art = checked_run(verification, repo, argv)
+    artifact = paths(repo)[0]
+    log = paths(repo)[1] if log_rel is None else repo / log_rel
+    argv = script(
+        "import os", f"os.chdir({str(repo)!r})", action, f"print({GREEN!r})"
+    )
+    result = run(verification, repo, argv, log_path=log)
+    art = checked_artifact(result, repo, artifact, log)
     assert art["dirty_paths"] == dirty
     assert art["head_moved"] is False
     assert art["reusable"] is (not dirty)
 
 
-def test_post_run_head_movement_invalidates_reusable_evidence(verification, repo: Path) -> None:
+def test_post_run_head_movement_invalidates_reusable_evidence(
+    verification, repo: Path
+) -> None:
     before = head(repo)
     argv = script(
         "import subprocess",
@@ -401,35 +589,53 @@ def test_post_run_head_movement_invalidates_reusable_evidence(verification, repo
     assert art["head_moved"] is True and art["reusable"] is False
 
 
-@pytest.mark.parametrize("summary_first", [True, False], ids=["summary-before-cap", "summary-in-tail"])
+@pytest.mark.parametrize(
+    "summary_first", [True, False], ids=["summary-before-cap", "summary-in-tail"]
+)
 def test_retained_stdout_is_only_the_final_output_cap_bytes(
     verification, repo: Path, summary_first: bool
 ) -> None:
     rows = verification.GATE_OUTPUT_CAP // 100 + 41
     flood = f"sys.stdout.write(('x' * 99 + '\\n') * {rows})"
     green = f"print({GREEN!r})"
-    lines = ["import sys", green, flood] if summary_first else ["import sys", flood, green]
+    lines = (
+        ["import sys", green, flood] if summary_first else ["import sys", flood, green]
+    )
     art = checked_run(verification, repo, script(*lines))
     assert art["exit_code"] == 0
     if summary_first:
         assert art["summary"] is None and art["reusable"] is False
     else:
-        assert art["summary"] == {"passed": 3, "failed": 0, "skipped": 1, "exit_code": 0}
+        assert art["summary"] == {
+            "passed": 3,
+            "failed": 0,
+            "skipped": 1,
+            "exit_code": 0,
+        }
     assert paths(repo)[1].stat().st_size == rows * 100 + len(GREEN) + 1
 
 
+def _killed(art: dict) -> bool:
+    return art["exit_code"] is None or art["exit_code"] != 0
+
+
+@pytest.mark.parametrize(
+    "streams",
+    [("stdout", "stderr"), ("stderr",)],
+    ids=["both-streams", "stderr-only"],
+)
 def test_output_overflow_caps_log_kills_command_and_fails(
-    verification, repo: Path, monkeypatch: pytest.MonkeyPatch
+    verification, repo: Path, monkeypatch: pytest.MonkeyPatch, streams: tuple
 ) -> None:
     monkeypatch.setattr(verification, "GATE_LOG_CAP", 8192)
+    flood = [f"    sys.{s}.buffer.write(block); sys.{s}.buffer.flush()" for s in streams]
     argv = script(
         "import sys, time",
         "sys.stdout.write('FIRST-MARK\\n'); sys.stdout.flush()",
         f"sys.stdout.write({GREEN!r} + '\\n'); sys.stdout.flush()",
         "block = b'o' * 65536",
         "for _ in range(64):",
-        "    sys.stdout.buffer.write(block); sys.stdout.buffer.flush()",
-        "    sys.stderr.buffer.write(block); sys.stderr.buffer.flush()",
+        *flood,
         "time.sleep(30)",
     )
     started = time.monotonic()
@@ -440,6 +646,7 @@ def test_output_overflow_caps_log_kills_command_and_fails(
     assert log.startswith(b"FIRST-MARK\n")
     assert art["output_limit_exceeded"] is True
     assert art["reusable"] is False
+    assert _killed(art)
 
 
 def test_output_under_log_cap_is_kept_whole_and_not_flagged(
@@ -469,8 +676,9 @@ def _gone(pid: int, wait_s: float) -> bool:
     return False
 
 
+@pytest.mark.parametrize("timeout", [1.5, 10.5], ids=["short", "ten-or-more"])
 def test_timeout_kills_and_reaps_the_whole_process_group(
-    verification, repo: Path, tmp_path: Path
+    verification, repo: Path, tmp_path: Path, timeout: float
 ) -> None:
     pidfile = tmp_path / "grandchild.pid"
     argv = script(
@@ -481,141 +689,10 @@ def test_timeout_kills_and_reaps_the_whole_process_group(
         "time.sleep(60)",
     )
     started = time.monotonic()
-    art = checked_run(verification, repo, argv, timeout=1.5)
-    assert time.monotonic() - started < 20
+    art = checked_run(verification, repo, argv, timeout=timeout)
+    assert time.monotonic() - started < timeout + 15
     assert art["timed_out"] is True
     assert art["reusable"] is False
+    assert _killed(art)
     assert _gone(int(pidfile.read_text()), 5.0)
 
-
-REUSE_ARGV = [*script(f"print({GREEN!r})"), "a  b"]
-
-
-@pytest.fixture
-def prior(verification, repo: Path) -> dict:
-    art = checked_run(verification, repo, REUSE_ARGV)
-    assert art["reusable"] is True
-    for item in paths(repo):
-        item.unlink()
-    return art
-
-
-def verdict(verification, repo: Path, prior, argv=None, head_sha=None) -> tuple[str, dict]:
-    return verification.reuse_verdict(
-        prior=prior, argv=REUSE_ARGV if argv is None else argv,
-        project_root=repo, head_sha=head(repo) if head_sha is None else head_sha,
-    )
-
-
-@pytest.mark.parametrize("change", ["none", "store-commit", "store-dirt"])
-def test_green_artifact_is_reused_across_store_only_changes(
-    verification, repo: Path, prior: dict, change: str
-) -> None:
-    if change == "store-commit":
-        commit(repo, {PM + "notes.md": "later notes\n"}, "store only")
-    elif change == "store-dirt":
-        write(repo, {PM + "draft.md": "draft\n"})
-    assert verdict(verification, repo, copy.deepcopy(prior)) == ("reused", prior)
-
-
-def _mutate(art: dict, path: tuple, value) -> dict:
-    changed = copy.deepcopy(art)
-    target = changed
-    for key in path[:-1]:
-        target = target[key]
-    if value is KeyError:
-        del target[path[-1]]
-    else:
-        target[path[-1]] = value
-    return changed
-
-
-MUTATIONS = {
-    "kind-near-miss": (("kind",), "verification-artifact-v2"),
-    "schema-bool": (("schema_version",), True),
-    "schema-two": (("schema_version",), 2),
-    "missing-reusable": (("reusable",), KeyError),
-    "extra-field": (("extra",), 1),
-    "reusable-false": (("reusable",), False),
-    "reusable-int": (("reusable",), 1),
-    "output-limit": (("output_limit_exceeded",), True),
-    "exit-nonzero": (("exit_code",), 1),
-    "exit-null": (("exit_code",), None),
-    "exit-string": (("exit_code",), "0"),
-    "summary-null": (("summary",), None),
-    "summary-missing-passed": (("summary", "passed"), KeyError),
-    "summary-passed-null": (("summary", "passed"), None),
-    "summary-failed": (("summary", "failed"), 1),
-    "summary-exit": (("summary", "exit_code"), 1),
-    "argv-not-list": (("argv",), "python"),
-}
-
-
-@pytest.mark.parametrize("case", sorted(MUTATIONS))
-def test_malformed_or_failed_artifact_is_stale(verification, repo: Path, prior: dict, case: str) -> None:
-    path, value = MUTATIONS[case]
-    assert verdict(verification, repo, _mutate(prior, path, value)) == ("stale", {})
-
-
-@pytest.mark.parametrize("bad", [None, "artifact", [], {}], ids=["none", "string", "list", "empty"])
-def test_missing_or_non_object_prior_is_stale(verification, repo: Path, bad) -> None:
-    assert verdict(verification, repo, bad) == ("stale", {})
-
-
-@pytest.mark.parametrize("form", ["short", "upper", "symbolic"])
-def test_prior_sha_must_be_full_lowercase_hex(verification, repo: Path, prior: dict, form: str) -> None:
-    sha = prior["head_sha"]
-    forged = {"short": sha[:12], "upper": sha.upper(), "symbolic": "HEAD"}[form]
-    assert verdict(verification, repo, _mutate(prior, ("head_sha",), forged)) == ("stale", {})
-
-
-@pytest.mark.parametrize("argv", [
-    [*REUSE_ARGV[:-1], "a b"],
-    [*REUSE_ARGV[:-1], "a  b "],
-    REUSE_ARGV[:-1],
-    [*REUSE_ARGV, "extra"],
-    [],
-], ids=["collapsed-space", "trailing-space", "fewer", "more", "empty"])
-def test_argv_must_match_exactly_without_normalization(
-    verification, repo: Path, prior: dict, argv: list[str]
-) -> None:
-    assert verdict(verification, repo, prior, argv=argv) == ("stale", {})
-
-
-def test_product_change_after_artifact_head_is_stale(verification, repo: Path, prior: dict) -> None:
-    commit(repo, {"src/app.py": "print('changed')\n"}, "product change")
-    assert verdict(verification, repo, prior) == ("stale", {})
-
-
-def test_scratch_commit_after_artifact_head_is_stale(verification, repo: Path, prior: dict) -> None:
-    commit(repo, {SCRATCH + "keep.txt": "changed\n"}, "scratch change")
-    assert verdict(verification, repo, prior) == ("stale", {})
-
-
-@pytest.mark.parametrize("dirt", [{"src/app.py": "print('dirty')\n"}, {"untracked.py": "x\n"}], ids=["tracked", "untracked"])
-def test_dirty_product_tree_is_stale(verification, repo: Path, prior: dict, dirt: dict[str, str]) -> None:
-    write(repo, dirt)
-    assert verdict(verification, repo, prior) == ("stale", {})
-
-
-def test_artifact_head_that_is_not_an_ancestor_is_stale(verification, repo: Path, prior: dict) -> None:
-    git(repo, "checkout", "-q", "-b", "side")
-    side = commit(repo, {PM + "side.md": "side\n"}, "side")
-    git(repo, "checkout", "-q", "master")
-    master = commit(repo, {PM + "main.md": "main\n"}, "master store")
-    sibling = _mutate(prior, ("head_sha",), side)
-    assert verdict(verification, repo, sibling, head_sha=master) == ("stale", {})
-    assert verdict(verification, repo, prior, head_sha=master) == ("reused", prior)
-
-
-@pytest.mark.parametrize("failure", ["not-a-repo", "unknown-prior-sha", "unknown-head"])
-def test_git_errors_are_stale(
-    verification, repo: Path, tmp_path: Path, prior: dict, failure: str
-) -> None:
-    plain = tmp_path / "plain"
-    plain.mkdir()
-    root = plain if failure == "not-a-repo" else repo
-    art = _mutate(prior, ("head_sha",), "f" * 40) if failure == "unknown-prior-sha" else prior
-    head_sha = "e" * 40 if failure == "unknown-head" else prior["head_sha"]
-    result = verification.reuse_verdict(prior=art, argv=REUSE_ARGV, project_root=root, head_sha=head_sha)
-    assert result == ("stale", {})
