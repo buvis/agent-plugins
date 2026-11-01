@@ -19,8 +19,6 @@ _UNREGISTERED_MARKER = "not inside a registered repo"
 def _run_probe(
     argv: list[str], *, run: Callable, which: Callable, cwd: Path
 ) -> subprocess.CompletedProcess | None:
-    """Return the CompletedProcess, or None when the binary is absent,
-    times out, or cannot be executed."""
     if which(argv[0]) is None:
         return None
     try:
