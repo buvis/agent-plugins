@@ -4,6 +4,7 @@
 
 ### Added
 
+- Add stdlib-only, read-only dirty-tree checks and verify log-sink refusal with a descriptor-pinned sink opener, keeping the pinned semantics.
 - Add the advisory local AP00012 review evidence checker that validates policy invariants, closed wire shapes, and every semantic defect against an independent expected context, without certifying host execution.
 - Add stdlib-only session helpers that read consolidated review findings, strip finding-line leads, and group findings into rework tasks with the pinned semantics.
 - Add the bounded public controller CLI with private workflow bootstrap, authenticated exact replay, read-only snapshots, installed contract metadata, and durable matching-request credential-intent recovery.
