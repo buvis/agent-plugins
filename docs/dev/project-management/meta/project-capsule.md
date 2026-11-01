@@ -158,3 +158,7 @@ Review harvest completed with parse failures on old files without frontmatter.
 ## 2026-11-01 AP00013 resume build catchup
 
 AP00013 back in wip after AP00018 hold. Two autocodex sessions made no progress on a stale `--scope` (AP00018 task 3, already done); that directive is obsolete. AP00018 task-3 exception stays historical only. GitHub: 0 issues; open PRs #7 (specflow-00010 validator refactor, green) and #8 (dependabot setup-python 7.1.0); no master failures. Related topic: Autopilot session-local helpers; repo hits AP00013 PRD (0.0328), resource-closure helpers test (0.0156), AP00014 adapters (0.0154). Engram index succeeded; portfolio stamp: memory stale24/dead1, code stale52/dead21, PRD dead3031 (exit 1).
+
+## 2026-11-01 AP00013 mid-build catchup (tasks 1-4 done)
+
+AP00013 resumes at task 5 (review_stage.py) of 11; tasks 1-4 committed (characterization, finding groups, evidence checker, dirty-tree/log-sink). work_start_sha 843e6e7. AP00018 stays on hold. GitHub: 0 issues; open PRs #9 (specflow-00008 host integration) and #8 (dependabot setup-python 7.1.0); latest Validate runs green, no master failures, no releases. Related context: engram queries skipped this refresh (cache expired mid-build; topic unchanged: Autopilot session-local helpers), so no new hits are claimed. Review harvest and task restore not re-run.

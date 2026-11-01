@@ -1,6 +1,6 @@
 {
-  "phase": "build",
-  "next_phase": "build",
+  "phase": "review",
+  "next_phase": "review",
   "schema_version": 1,
   "batch": {
     "id": "202610250001",
@@ -23,8 +23,8 @@
       "aegis@buvis-plugins": "0.4.1",
       "warden@buvis-plugins": "0.14.1"
     },
-    "catchup_completed_at": "2026-11-01T09:12:32+00:00",
-    "catchup_head_sha": "ab15d21947657195267ae78684360429afef4d6e",
+    "catchup_completed_at": "2026-11-01T19:40:00+00:00",
+    "catchup_head_sha": "70c01b0deb5cf15f20afb84261b900a00e1fc50c",
     "parks_consecutive": 0,
     "skips": [
       {
@@ -200,7 +200,7 @@
     "checked_at": "2026-10-25T22:40:48Z"
   },
   "tasks_total": 11,
-  "tasks_completed": 4,
+  "tasks_completed": 11,
   "replan_count": 0,
   "phases_completed": [],
   "cycle": 1,
@@ -406,7 +406,31 @@
         4
       ],
       "id": "5",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "noop",
+          "style_gate": "fixed:22bfad63ab422a1e54435a686f5d0036cbb12d1f",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "context validated only for independent_contexts_required, hardcoded tree sha, unchecked outside-project roots, design_text None stringified, settled/prior/gate/pack text dropped, empty alice/eve prompts, unanchored precedent heading, manifest copied from context; two test-file bugs (trimmed variant equals PRD, ignored tmp/ in tracked-output setup)",
+          "devon_weak_points": 8,
+          "devon_in_contract": [
+            "3. exact home of the full PACK text is not pinned by the contract (only pack use through the findings precedent)",
+            "6. a bare artifact root outside the project is allowed: the contract refuses only escape from the explicit artifact root",
+            "7. an extra unknown ref and a diff_text vs input_texts diff mismatch are not pinned as refusals",
+            "8. DIFF_REF stays in manifests when diff_text is None, and artifact kind values are not pinned"
+          ]
+        }
+      ]
     },
     {
       "name": "Prepare authenticated classified review-close proposals",
@@ -425,7 +449,27 @@
         5
       ],
       "id": "6",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:7afee40",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "review": "medium-retry:fixed",
+          "devon": "exploit_fixed",
+          "devon_exploit": "first-finding-only task description, tail sweep single-voice and above-medium checks limited to some rows, only first chosen row compared with deferrals, only carry_refs[0] matched, made-up rubric verdict allowed by subset check, snapshot cycle checked only with carry rows, off-table defer row accepted; one test-file bug (row() called with ref twice)",
+          "devon_weak_points": 8,
+          "devon_in_contract": []
+        }
+      ]
     },
     {
       "name": "Extract regression classification and pure custody proposals",
@@ -445,7 +489,28 @@
         6
       ],
       "id": "7",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:fc3c638",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "severity read from the whole row, file column fixed at index 4, range checked only at endpoints, first casefold match wins, any non-previous commit counts as regression, head must equal HEAD, capture_range skips base ancestry (source parity, in-contract), notice after last heading",
+          "devon_weak_points": 8,
+          "devon_in_contract": [
+            "6. capture_range does not require the base to be an ancestor of HEAD: the pinned source only checks 40-hex, directory and commit resolution"
+          ]
+        }
+      ]
     },
     {
       "name": "Expose stateless optional catchup probes",
@@ -464,7 +529,26 @@
         7
       ],
       "id": "8",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:78bd603",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "custom env passed to run, gh returncode > 0 rule, engram absent derived from gh, engram marker matched by loose words, every exception except exact RuntimeError swallowed as absent",
+          "devon_weak_points": 5,
+          "devon_in_contract": []
+        }
+      ]
     },
     {
       "name": "Execute bounded verification and assess explicit artifact reuse",
@@ -483,7 +567,27 @@
         8
       ],
       "id": "9",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:fa89472",
+          "style_gate": "clean",
+          "split_hygiene": "fixed:4dab90f687fa40bc9a022c840f88c2dbdd8e1532",
+          "review": "medium-retry:fixed",
+          "devon": "exploit_fixed",
+          "devon_exploit": "post-run dirt skipped under the log folder, deleted tracked files not dirt, timeout applied only under 10 s, only stdout counted toward the log cap, final path part (symlink) unchecked, symlink-parent/nested-repo/executable checks on one path only, reuse shape checks only some types, killed run reports exit 0",
+          "devon_weak_points": 8,
+          "devon_in_contract": []
+        }
+      ]
     },
     {
       "name": "Wire versioned local facade operations and controller refusals",
@@ -502,7 +606,27 @@
         9
       ],
       "id": "10",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:d20093d",
+          "style_gate": "clean",
+          "split_hygiene": "failed:UNUSED HELPERS in test_local_boundary.py (read by test_local_boundary_state.py; single-file checker false positive)",
+          "review": "medium-retry:fixed",
+          "devon": "exploit_fixed",
+          "devon_exploit": "own catchup probe with loose tokens, stage-review and prepare-close refusals exiting 0, any --timeout replaced by 1 s, reusable ignored in verify exit code, unsupported-platform exit 0, missing/unknown request keys dropped, live-state check limited to the host project; three test-file bugs (overflow below the log cap, bytecode leak from copied __pycache__, wrong skip token)",
+          "devon_weak_points": 8,
+          "devon_in_contract": []
+        }
+      ]
     },
     {
       "name": "Record helper provenance and document delivered capability limits",
@@ -522,7 +646,29 @@
         10
       ],
       "id": "11",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:c064a11",
+          "style_gate": "clean",
+          "split_hygiene": "failed:UNUSED HELPER_TARGETS/HELPER_ONLY/SELECTORS in test_helper_provenance.py (read by test_helper_provenance_cli.py and _real.py; single-file checker false positive)",
+          "review": "medium-retry:fixed",
+          "devon": "exploit_fixed",
+          "devon_exploit": "hardcoded function table with an invented extracted row, regression selection hardcoded to synthetic paths with substring dispositions, constant scenario/exclusion/evidence, duplicate check only over selected rows, shallow receipt validation, bogus helper asset rows and wiped refreshed evidence, non-atomic in-place write",
+          "devon_weak_points": 8,
+          "devon_in_contract": [
+            "2. a regression row selected by both a helper-only and a mixed module cannot be built from the fixed selectors (no shared test file), so the mixed-row rule is covered only through tampered rows"
+          ]
+        }
+      ]
     }
   ],
   "work_start_sha": "843e6e7d51c56377adc1c01fab9ae7ea7755e1f4",
@@ -536,5 +682,5 @@
       "severity": "medium"
     }
   ],
-  "contract_card": "step: build/work, PRD 00013, tasks 1-4 completed, resume at task 5 (review_stage.py) | invariants: one task per dispatch, Tess->2.8 gate->commit->Devon (opus)->red->Ivan->5.5->deslop->style->Pat; work_start_sha 843e6e7 fixed; PRD 00018 stays on hold (no resume, no cap/estimator change) | host notes: nested `claude -p` (sonnet-run.sh) fails \"OAuth token revoked\" -> run Pat via native autopilot:worker-opus with model sonnet; a formatter hook reflows any file an agent touches -> `git checkout --` formatter-only churn on committed files before staging; never `git show ... --output` (dumps to stdout) | next: finish tasks 5-11, step 7 full suite via `autopilot verify`, then phase-done tasks_done -> fresh review session"
+  "contract_card": "step: build complete, PRD 00013 tasks 1-11 done (work_start_sha 843e6e7), handed off to review | invariants: review runs in a FRESH session with all lenses (Alice consensus, Blake blind, Bob doubt) every cycle; PRD 00018 stays on hold; the 19 failing tests in tests/autopilot/test_controller_{capacity,owner,owner_recovery}.py are AP00018 task-7 red tests (commit b4655fe, no implementation) and are NOT AP00013 regressions; test_package roster test now passes after the foreign commit 4cb0ff7 registered the AP00018 controller files in the source map | host notes: native autopilot:worker-opus with model sonnet for Pat (nested claude -p fails OAuth); a formatter hook reflows touched files, check `git diff` is AST-equal before `git checkout --`; never `git show ... --output`; assumptions ledger docs/dev/project-management/meta/assumptions.md lists every unpinned decision and Pat LOW | next: /autopilot:review-work-completion in the fresh session (state.next_phase = review); review diff range work_start_sha..HEAD"
 }
