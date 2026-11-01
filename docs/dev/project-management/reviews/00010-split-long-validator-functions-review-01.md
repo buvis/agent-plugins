@@ -194,3 +194,14 @@ The lead ruled on each finding under the developer's standing authorization; no 
 - F10: accepted (ledger). The design limits the check to the two validators and new names; the AST comparison shows no baseline helper changed.
 - F11: accepted as a fact (ledger), required by REQ-005.2.
 - F12: refuted (ledger), a pytest `subTest` artifact; the unittest replay fails both structure tests at base.
+
+### Outcome (2026-11-01)
+
+Review and ledger `374ce76`; sweep `c330b24` (F1, F2, F4, F5, F6, F8); this record in the commit after it. The loop converged at cycle 1: no 🔴 or 🟠, and the codex guard is met through the Claude doubt substitute, so no cycle 2 runs. `scripts/validate.py`, the pre-existing tests and every approved spec artifact are unchanged by the sweep.
+
+- Base replay: the swept characterization module, copied into a worktree at `6c16d03`, runs 38 tests OK on Python 3.10.22 and on 3.14.6, so REQ-005.2 still holds for every new or changed test.
+- Fail-first: the old F1 test fails both subtests on Python 3.14.6 at `801f0d0`; the new one passes on 3.10 and 3.14.
+- Mutation evidence (mutants of `validate.py` at `801f0d0`): the F4 test fails when the manifest's containment check runs before its file check, the F5 test when MCP's does, and the F6 test when `main` checks MCP before skills. The F8 assertion fails when the manifest is returned with sorted keys and when a nested `1.0` comes back as `1`; the old assertion passes both mutants.
+- F1: the expected text comes from `{"streamable-http", "sse"}.__contains__(transport)`, which raises the same message as the validator's `in` test on both interpreters (probed on 3.10.22 and 3.14.6); the bare `in` statement trips ruff B015.
+- Pat (patch review of `374ce76..c330b24` on codex `gpt-6-astra`, high effort, chosen because the sweep was written by Claude): CLOSURE resolved for all six findings, no new findings.
+- Gates at `c330b24`, Python 3.10.22: validator 52, release 54, contract 387, rules 58, review 41, all OK; `validate.py`, `check_rules.py` with the CI areas, `verify_release.py` and `validate_spec.py status --json` pass; ruff check and format pass on `scripts/`. The validator suite also passes on Python 3.14.6. `status` reports 00010 at `verification`, `stale` and `blockers` empty, with the three expected code-drift warnings.
