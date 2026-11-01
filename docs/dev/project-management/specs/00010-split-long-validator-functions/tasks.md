@@ -80,10 +80,10 @@ Run these tasks only after helper status opens the implementation gate. Use Pyth
 
 ## Completion criteria
 
-- [ ] Every task above is checked after its verification, with a one-line Outcome under that task and original-code characterization evidence preserved.
-- [ ] All approved requirements are verified, every changed validation function is at most 50 physical lines, and existing tests and unrelated code remain unchanged.
-- [ ] The worktree-local Python 3.10 gate passes, the branch is pushed, a PR to master is open, and CI is green on the final PR head.
-- [ ] A separate fresh session completes autopilot's review-work-completion workflow and records its result before these completion criteria are checked.
+- [x] Every task above is checked after its verification, with a one-line Outcome under that task and original-code characterization evidence preserved.
+- [x] All approved requirements are verified, every changed validation function is at most 50 physical lines, and existing tests and unrelated code remain unchanged.
+- [x] The worktree-local Python 3.10 gate passes, the branch is pushed, a PR to master is open, and CI is green on the final PR head.
+- [x] A separate fresh session completes autopilot's review-work-completion workflow and records its result before these completion criteria are checked.
 
 ## Unresolved questions
 
