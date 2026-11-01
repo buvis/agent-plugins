@@ -231,6 +231,30 @@ def test_malformed_supplied_snapshot_is_invalid_input(rc, snap):
     assert report["error"] == "invalid-input"
 
 
+@pytest.mark.parametrize(
+    "snap",
+    [
+        snapshot(tasks=[carry_task(carry_refs=5)]),
+        snapshot(tasks=[carry_task(carry_refs="R1")]),
+        snapshot(rework_task_ids=[1]),
+        snapshot(tasks=[carry_task(carry_cycle=True)]),
+        snapshot(deferred_decisions=["x"]),
+    ],
+    ids=[
+        "carry-refs-int",
+        "carry-refs-string",
+        "rework-int-id",
+        "carry-cycle-bool",
+        "deferral-string",
+    ],
+)
+def test_malformed_snapshot_entries_are_invalid_input(rc, snap):
+    case, chosen = carry_batch()
+    report = run(rc, case, chosen, read_snapshot=snap)
+    assert_refused(report)
+    assert report["error"] == "invalid-input"
+
+
 # --- tail sweep -----------------------------------------------------------------------------------
 
 

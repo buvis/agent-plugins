@@ -122,11 +122,19 @@ def _snapshot_valid(snap: Any) -> bool:
         isinstance(snap, dict)
         and type(snap.get("cycle")) is int
         and isinstance(snap.get("tasks"), list)
-        and all(isinstance(t, dict) for t in snap["tasks"])
+        and all(
+            isinstance(t, dict)
+            and isinstance(t.get("carry_refs"), list)
+            and all(isinstance(r, str) for r in t["carry_refs"])
+            and type(t.get("carry_cycle")) is int
+            for t in snap["tasks"]
+        )
         and isinstance(snap.get("rework_task_ids"), list)
+        and all(isinstance(i, str) for i in snap["rework_task_ids"])
         and "decision_gate_review_ref" in snap
         and isinstance(snap["decision_gate_review_ref"], (str, type(None)))
         and isinstance(snap.get("deferred_decisions"), list)
+        and all(isinstance(d, dict) for d in snap["deferred_decisions"])
     )
 
 
@@ -280,7 +288,9 @@ def _found_by_count(row: dict, jobs: set[str]) -> int:
     return len({j for j in found_by if isinstance(j, str)} & jobs)
 
 
-def _single_voice_refusal(rows: list[dict], batch_id: str, jobs: set[str]) -> dict | None:
+def _single_voice_refusal(
+    rows: list[dict], batch_id: str, jobs: set[str]
+) -> dict | None:
     """A decision gate refuses the first medium/low fix row with fewer than
     two finders; a tail sweep refuses the first row of any kind."""
     if batch_id == "decision-gate":
@@ -306,7 +316,9 @@ def _single_voice_refusal(rows: list[dict], batch_id: str, jobs: set[str]) -> di
 
 def _deferral_key(entry: dict) -> tuple[str, str]:
     """Normalized (severity word, file) of a row or a deferral entry."""
-    return finding_key(str(entry.get("severity", "")), str(entry.get("file", "")), "")[:2]
+    return finding_key(str(entry.get("severity", "")), str(entry.get("file", "")), "")[
+        :2
+    ]
 
 
 def _tail_sweep_refusal(
@@ -316,7 +328,9 @@ def _tail_sweep_refusal(
     receipt for this review, empty, above medium, single voice, duplicate
     open deferral."""
     if any(r["classification"] == "carry" for r in rows):
-        return _refusal("carry_in_tail_sweep", "a tail-sweep batch never carries a carry row")
+        return _refusal(
+            "carry_in_tail_sweep", "a tail-sweep batch never carries a carry row"
+        )
     if snap["decision_gate_review_ref"] != review_ref:
         return _refusal(
             "tail_sweep_before_decision_gate",
@@ -333,7 +347,9 @@ def _tail_sweep_refusal(
     single_voice = _single_voice_refusal(rows, "tail-sweep", jobs)
     if single_voice is not None:
         return single_voice
-    open_keys = {_deferral_key(d) for d in snap["deferred_decisions"] if isinstance(d, dict)}
+    open_keys = {
+        _deferral_key(d) for d in snap["deferred_decisions"] if isinstance(d, dict)
+    }
     for row in rows:
         if _deferral_key(row) in open_keys:
             return _refusal(
@@ -359,7 +375,12 @@ def _carry_unmatched(row: dict, cycle: int, snap: dict) -> bool:
 
 
 def _gate_refusal(
-    snap: dict | None, review_ref: str, rows: list[dict], cycle: int, batch_id: str, jobs: set[str]
+    snap: dict | None,
+    review_ref: str,
+    rows: list[dict],
+    cycle: int,
+    batch_id: str,
+    jobs: set[str],
 ) -> dict | None:
     if batch_id == "tail-sweep":
         return _tail_sweep_refusal(snap, review_ref, rows, jobs)
@@ -487,8 +508,14 @@ def prepare_close(
         "ok": True,
         "controller_required": True,
         "task_proposals": _task_proposals(rows, links, cycle, batch_id, default_tier),
-        "decision_proposals": [_decision(r, links.get(n), cycle) for n, r in enumerate(rows)],
+        "decision_proposals": [
+            _decision(r, links.get(n), cycle) for n, r in enumerate(rows)
+        ],
         # A tail sweep proposes no lens close-out.
-        "rubric_verdicts": [] if tail_sweep else copy.deepcopy(evidence["rubric_verdicts"]),
-        "reviewer_results": [] if tail_sweep else copy.deepcopy(evidence["reviewer_results"]),
+        "rubric_verdicts": []
+        if tail_sweep
+        else copy.deepcopy(evidence["rubric_verdicts"]),
+        "reviewer_results": []
+        if tail_sweep
+        else copy.deepcopy(evidence["reviewer_results"]),
     }
