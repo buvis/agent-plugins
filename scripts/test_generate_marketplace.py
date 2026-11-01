@@ -89,6 +89,13 @@ class GenerateMarketplace(unittest.TestCase):
         self.assertIn("out of date", err)
         self.assertNotIn("beta", self.target.read_text(encoding="utf-8"))
 
+    def test_check_fails_when_the_committed_file_is_missing(self) -> None:
+        self.add_plugin("alpha")
+        code, _, err = self.run_main("--check")
+        self.assertEqual(code, 1)
+        self.assertIn("out of date", err)
+        self.assertFalse(self.target.exists())
+
     def test_check_compares_the_exact_text(self) -> None:
         self.add_plugin("alpha")
         self.run_main()
