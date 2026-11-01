@@ -345,12 +345,26 @@ def validate(dispositions: dict, document: dict) -> None:
         raise ValueError(f"unknown regression ids: {sorted(unknown)}")
     helper_owned = [
         row["key"]
-        for row in dispositions["functions"] + dispositions["regressions"]
+        for row in dispositions["functions"]
         if row["owner_scope"] == "helper-facet" and row["key"] in CONTROLLER_KEYS
     ]
     if helper_owned:
         raise ValueError(
             f"controller-owned functions given a helper facet: {helper_owned}"
+        )
+    unknown_keys = [
+        row["key"] for row in dispositions["regressions"] if row["key"] not in TABLE
+    ]
+    if unknown_keys:
+        raise ValueError(f"unknown helper regression keys: {unknown_keys}")
+    mixed_helper = [
+        row["source_regression_id"]
+        for row in dispositions["regressions"]
+        if row["owner_scope"] == "helper-facet" and TABLE[row["key"]][4]
+    ]
+    if mixed_helper:
+        raise ValueError(
+            f"mixed-module regressions given a helper facet: {mixed_helper}"
         )
 
 

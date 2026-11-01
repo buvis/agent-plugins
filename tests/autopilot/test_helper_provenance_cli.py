@@ -103,6 +103,33 @@ def test_tampered_dispositions_are_never_kept(
     assert mapping.read_bytes() == before
 
 
+@pytest.mark.parametrize(
+    "identity",
+    [
+        CLI + "test_custody.py::test_writes_marker",
+        CLI + "test_review_close_carry.py::test_carries",
+    ],
+    ids=["custody", "review-close"],
+)
+def test_mixed_module_regression_given_a_helper_facet_is_rejected(
+    tool: ModuleType, tmp_path: Path, identity: str
+) -> None:
+    tampered = tool.apply(synthetic_map("1" * 40), None)
+    row = next(
+        r
+        for r in tampered["helper_dispositions"]["regressions"]
+        if r["source_regression_id"] == identity
+    )
+    row.update(owner_scope="helper-facet", disposition="helper-facet")
+    with pytest.raises(ValueError, match=re.escape(identity)):
+        tool.apply(tampered, None)
+    mapping = make_repo(tmp_path, "1" * 40, "m", tampered)
+    before = mapping.read_bytes()
+    result = run_tool("--map", mapping, "--root", tmp_path, cwd=tmp_path)
+    assert result.returncode != 0
+    assert mapping.read_bytes() == before
+
+
 def receipts_variant(change) -> dict:
     data = valid_receipts()
     change(data)
