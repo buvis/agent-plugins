@@ -454,3 +454,14 @@ Source: idea.md
 The folder route takes no ref: the marketplace reads the checkout as it is on
 disk, and the registry only records the commit it saw. The public route
 through GitHub is left to the release, as the design says.
+
+## Install routes (T-045)
+
+The 00008 design has no "to be verified" line for Claude Code, so T-045
+tried no further route here. The routes the README names and their evidence:
+
+| Route | Tried by | Takes a ref |
+|---|---|---|
+| `claude --plugin-dir <checkout>/plugins/specflow` | T-043 above (and the probe of 00002): loads the folder in place | No |
+| `claude plugin marketplace add <checkout>` then `claude plugin install specflow@buvis-agent-plugins` | T-046 above, in the developer's own profile, then removed again | No |
+| `claude plugin marketplace add buvis/agent-plugins`, or `/plugin install specflow --marketplace buvis/agent-plugins` inside Claude Code | Not run before the release: the catalog reaches `master` only when this branch merges, and T-065 of 00001 runs the public route from the tag | Left to T-062 of 00001 to pin |

@@ -158,6 +158,28 @@ from the Kiro record was needed.
 | Approve design | Pass: explicit developer command, matching hash and placement baseline |
 | Draft and approve tasks | Pass: explicit developer command, matching upstream hashes, implementation gate open |
 
+## Install trials in a fresh profile (T-045)
+
+Run on 2026-11-01 with `codex-cli 0.166.0`, each in a fresh, empty
+`CODEX_HOME` under the session scratchpad, through
+`docs/dev/tmp/specflow/hosts/codex-fresh-trial.bash`. The temporary
+`.agents/plugins/marketplace.json` of T-042 had been removed from the
+checkout first, so the only marketplace file in the repository was the
+generated `.claude-plugin/marketplace.json` of T-046. No model session ran;
+the trials cover the install route only, and skill discovery from this cache
+layout is the T-042 result above.
+
+| Route | Commands | Result | Takes a ref |
+|---|---|---|---|
+| Local checkout, read through `.claude-plugin/marketplace.json` | `codex plugin marketplace add <checkout> --json`, then `codex plugin add specflow@buvis-agent-plugins --json` | Pass: marketplace `buvis-agent-plugins`, `installedRoot` = the checkout, `alreadyAdded: false`; `codex plugin list` names `<checkout>/.claude-plugin/marketplace.json` as the marketplace file and shows `specflow@buvis-agent-plugins` `installed, enabled` `0.1.0` with the source `<checkout>/plugins/specflow`; the plugin was copied to `$CODEX_HOME/plugins/cache/buvis-agent-plugins/specflow/0.1.0` with `authPolicy: ON_INSTALL` | No: a folder marketplace reads the checkout as it is on disk |
+| Git marketplace from GitHub | `codex plugin marketplace add buvis/agent-plugins --ref feature/specflow-00008 --json`, then `codex plugin add specflow@buvis-agent-plugins --json` | Pass: Codex cloned the ref into `$CODEX_HOME/.tmp/marketplaces/buvis-agent-plugins`, read its `.claude-plugin/marketplace.json`, and installed `specflow@buvis-agent-plugins` `0.1.0` from `<clone>/plugins/specflow` into the same cache path | Yes: `--ref <branch-or-tag>` or `owner/repo@ref`; without a ref the default branch is used, which carries the catalog only once this branch is merged |
+
+`diff -rq` between `plugins/specflow/` and each cache copy (Python bytecode
+excluded) reports no difference, so both routes install the same package.
+Codex's own marketplace file, `.agents/plugins/marketplace.json`, is not
+needed: the Claude-compatible catalog is read as written, which resolves the
+"to be verified" Codex install line of the 00008 design.
+
 ## Final status
 
 ```json

@@ -277,3 +277,26 @@ each landing exactly once.
   design names (`validate.yml`, `AGENTS.md`, `CONTRIBUTING.md`, `README.md`,
   the generator, its tests, the catalog) now draw code-drift warnings until
   the T-045 re-approval refreshes the baseline. Next task: T-045.
+
+## Host install trials and README host section (2026-11-01)
+
+- T-045 premise checked: the design still said "to be verified" on the Kiro
+  line (repository subdirectory URL) and the Codex line (the
+  `.claude-plugin/marketplace.json` entry and a Git marketplace install).
+- Codex trials, each in a fresh empty `CODEX_HOME`, with the temporary
+  `.agents/plugins/marketplace.json` removed from the checkout: the local
+  checkout installs through `.claude-plugin/marketplace.json` alone, and
+  `codex plugin marketplace add buvis/agent-plugins --ref feature/specflow-00008`
+  installs from GitHub; both caches match `plugins/specflow/` byte for byte.
+  The Git route takes a ref. Recorded in `codex.md`.
+- Claude Code: no open line; the routes and their evidence (T-043, T-046,
+  the public route left to T-065 of 00001) are tabled in `claude-code.md`.
+- The host section of `plugins/specflow/README.md` is written for the three
+  hosts, with the Python 3 prerequisite, the `.kiro/specs` link rule and the
+  T-027 result, the untested Kiro CLI and Kiro Crew, that sessions do not
+  transfer, and the marketplace of T-046. `claude plugin validate --strict`
+  no longer advises a missing install line.
+- Open: the Kiro IDE import from the repository URL and from its subdirectory
+  URL is a manual run by the developer; the batched design edit of the two
+  install lines, and the design and task re-approval, follow its result.
+  The branch is pushed and PR #9 is open so CI runs on each push.
