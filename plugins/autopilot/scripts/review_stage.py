@@ -492,6 +492,10 @@ def stage_review(
     if unavailable:
         return _refusal("persona-unavailable", f"no packaged persona: {unavailable}")
     project = Path(project_root).absolute()
+    # Source 9dba4206: a subdirectory root stages under the repo toplevel.
+    top = _toplevel(project)
+    if top is not None and top != project.resolve():
+        project = top
     art = Path(artifact_root)
     art = art if art.is_absolute() else project / art
     inputs = {

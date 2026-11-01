@@ -213,6 +213,17 @@ def test_relative_artifact_root_resolves_against_project_root_not_cwd(
     assert all(Path(row["path"]).is_absolute() for row in report["artifacts"])
 
 
+def test_subdirectory_project_root_stages_under_the_repo_toplevel(stage, root):
+    """Source 9dba4206: a run from a subdirectory once left a stray
+    docs/dev/tmp/ tree there instead of under the repo root."""
+    sub = root / "sub" / "deeper"
+    sub.mkdir(parents=True)
+    report = call(stage, sub, artifact_root=Path("docs/dev/tmp/subrev"))
+    assert report["ok"] is True, report
+    assert (root / "docs" / "dev" / "tmp" / "subrev" / "review-prd-raw-c1.md").is_file()
+    assert not (sub / "docs").exists()
+
+
 def test_diff_file_is_written_only_when_diff_text_is_supplied(stage, root):
     art = root / "docs" / "dev" / "tmp" / "rev"
     with_diff = call(stage, root, cycle_id="d1")
