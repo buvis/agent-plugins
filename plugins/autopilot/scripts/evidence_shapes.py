@@ -16,7 +16,6 @@ HEX40 = re.compile(r"^[0-9a-f]{40}$")
 INPUT_REF = re.compile(r"^[a-z][a-z-]*:[^\s]+(?![\s\S])")
 RULE_ID = re.compile(r"^[RBD][0-9]+(?![\s\S])")
 UNSAFE_PATH = re.compile(r"^/|\\|^[A-Za-z]:|(^|/)\.\.(/|(?![\s\S]))")
-BINDING_SHA = re.compile(r"^[a-f0-9]{64}$")
 ROLES = ("consensus", "blind", "doubt", "ui")
 PASSES = ("initial", "delta")
 POLICY_ERRORS = (KeyError, TypeError, AttributeError, IndexError)
@@ -467,13 +466,13 @@ def policy_bindings_valid(policy: dict[str, Any], reference: dict[str, Any]) -> 
             or (row["source_path"], row["section"]) != base[row["binding_id"]]
         ):
             return False
-        if BINDING_SHA.search(row["blob_sha256"]) is None:
+        if HEX64.search(row["blob_sha256"]) is None:
             return False
         if row["section"] is None and row["section_sha256"] is not None:
             return False
         if (
             row["section"] is not None
-            and BINDING_SHA.search(row["section_sha256"]) is None
+            and HEX64.search(row["section_sha256"]) is None
         ):
             return False
     return True
