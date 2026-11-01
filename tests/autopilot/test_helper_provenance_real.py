@@ -44,6 +44,7 @@ FROZEN = {
     "owner_bindings": "bbc225221cb8cdc514c1abddaa6e5cfd5aa69a5442103cd4b74f46b9f3b07e46",
     "regression_cases": "e7331e78365b23d430469e0edbcd4be456b1fffe69ca16e2e27411c59dca3648",
 }
+CONTROLLER_PREFIXES = ("plugins/autopilot/controller/", "plugins/autopilot/contracts/controller/")
 OTHER_ASSETS_SHA = "381542752d61f87dfecdcc0c88519adbcb37993f24d8edd5157416b8ce72ee4f"
 OLD_OWNERS_SHA = "2fd9c26dc6177f1fb38c6ea26fce2a7df9852892fb02632b07eac3e6925e4d20"
 # Refreshed authored rows without destination_blob_sha256 and evidence.
@@ -224,7 +225,10 @@ def test_unrelated_arrays_and_original_owners_stay_byte_semantic(mapping: dict) 
         assert hashlib.sha256(canon(mapping[key]).encode()).hexdigest() == expected, key
     skipped = set(REFRESHED) | HELPER_TARGETS
     others = [
-        row for row in mapping["assets"] if row["destination_path"] not in skipped
+        row
+        for row in mapping["assets"]
+        if row["destination_path"] not in skipped
+        and not row["destination_path"].startswith(CONTROLLER_PREFIXES)
     ]
     assert hashlib.sha256(canon(others).encode()).hexdigest() == OTHER_ASSETS_SHA
     assets = single_assets(mapping, list(REFRESHED_STABLE))
@@ -297,13 +301,16 @@ def test_new_helper_files_are_owned_and_digested_from_current_bytes(
         assert owner["source_asset_id"] is None and owner["source_blob_sha256"] is None
         assert owner["acceptance_cases"]
     assert_refreshed_evidence(assets)
-    assert not [
-        row
+    # Controller files are registered by AP00018, never claimed by AP00013 helpers.
+    controller = [
+        row["destination_path"]
         for row in mapping["assets"]
-        if row["destination_path"].startswith(
-            ("plugins/autopilot/controller/", "plugins/autopilot/contracts/controller/")
-        )
+        if row["destination_path"].startswith(CONTROLLER_PREFIXES)
     ]
+    controller_assets = single_assets(mapping, controller)
+    for path in controller:
+        assert "AP00013" not in controller_assets[path]["adaptation_reason"], path
+        assert owners[path]["delivery_prd"] == "00018", path
 
 
 def pinned_source_root() -> Path | None:

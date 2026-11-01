@@ -196,7 +196,8 @@ class TargetPackageTest(unittest.TestCase):
             self.assertIsNone(row["source_asset_id"])
             self.assertIsNone(row["source_blob_sha256"])
             self.assertEqual(row["owner_repository"], "buvis/agent-plugins")
-            self.assertEqual(row["delivery_prd"], "00012" if index < 21 else "00013")
+            later = "00018" if "/controller/" in row["path"] else "00013"
+            self.assertEqual(row["delivery_prd"], "00012" if index < 21 else later)
             self.assertTrue((self.target / row["path"]).is_file())
             self.assert_acceptance_cases(row["acceptance_cases"])
         history = " ".join((self.package / "CHANGELOG.md").read_text().split())
