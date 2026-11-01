@@ -92,7 +92,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 
 ## Completion criteria
 
-- [ ] Every task above is checked, each with its `Outcome:` line.
-- [ ] Each of the three records under `tests/specflow/compatibility/` holds a passing run on the real package, with the host version, and holds the status document that run ended with.
-- [ ] CI is green on the final commit, with `python3 scripts/generate_marketplace.py --check`.
-- [ ] No line under `### Kiro IDE`, `### Codex`, or `### Claude Code` of this spec's design still says "to be verified", and the design and this plan are approved again after that edit.
+- [x] Every task above is checked, each with its `Outcome:` line.
+- [x] Each of the three records under `tests/specflow/compatibility/` holds a passing run on the real package, with the host version, and holds the status document that run ended with.
+- [x] CI is green on the final commit, with `python3 scripts/generate_marketplace.py --check`.
+- [x] No line under `### Kiro IDE`, `### Codex`, or `### Claude Code` of this spec's design still says "to be verified", and the design and this plan are approved again after that edit.
