@@ -27,8 +27,6 @@ def upsert_entry(entries: list[dict], entry: dict) -> tuple[list[dict], bool]:
 
 
 def marker_entry(prd: str, batch: str, op_id: str, detail: str, capture: dict) -> dict:
-    """The one custody marker entry: the four scalars plus every capture key
-    copied verbatim, as a new dict."""
     return {"prd": prd, "batch": batch, "op_id": op_id, "detail": detail, **capture}
 
 

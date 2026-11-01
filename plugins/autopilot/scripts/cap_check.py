@@ -70,7 +70,6 @@ def _git(cwd: str | Path, *args: str) -> str:
 
 
 def _parse_number_list(spec: str) -> list[int]:
-    """Every line `spec` (e.g. "3-5,9") names, a range expanded in full."""
     lines: list[int] = []
     for token in spec.split(","):
         if "-" in token:
@@ -133,8 +132,6 @@ def _parse_file_cell(
 
 
 def _verify_range(toplevel: Path, previous_head: str, head: str) -> None:
-    """CapCheckError unless both shas are full 40-hex commits, differ,
-    previous_head is an ancestor of head and head is reachable from HEAD."""
     for sha in (previous_head, head):
         if not _SHA_RE.match(sha):
             raise CapCheckError(f"{sha!r} is not a full 40-hex sha")
@@ -251,7 +248,7 @@ def _classify_row(
     except CapCheckError as err:
         if not _unreadable_cell_error(err):
             raise
-        decider = pairs[0] if pairs else ("", None)
+        decider = pairs[0]
         result = {"regression": None, "commit": None, "reason": f"unresolved cell: {err}"}
     return {
         "ref": row.ref,
