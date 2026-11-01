@@ -417,6 +417,17 @@ def test_head_sha_mismatch_refuses_before_spawn(
     assert snapshot(*paths(repo)) == dict.fromkeys(paths(repo))
 
 
+def test_unsupported_platform_refuses_before_spawn_and_writes_nothing(
+    verification, repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(verification, "_posix_supported", lambda: False)
+    marker = tmp_path / "spawned"
+    result = run(verification, repo, marker_script(marker))
+    assert result == {"schema_version": 1, "ok": False, "error": "unsupported-platform"}
+    assert not marker.exists()
+    assert snapshot(*paths(repo)) == dict.fromkeys(paths(repo))
+
+
 def _symlinked_dir(repo: Path) -> Path:
     os.symlink(repo / "logs", repo / SCRATCH / "linkdir")
     return repo / SCRATCH / "linkdir"

@@ -45,6 +45,11 @@ _SUMMARY_KEYS = {"passed", "failed", "skipped", "exit_code"}
 _STALE: tuple[str, dict] = ("stale", {})
 
 
+def _posix_supported() -> bool:
+    """True when the host has the process-group and pipe mechanisms used."""
+    return os.name == "posix" and hasattr(os, "killpg")
+
+
 def _validate_inputs(argv: object, timeout: object) -> None:
     if (
         isinstance(timeout, bool)
@@ -226,6 +231,8 @@ def run_verification(
     """Runs `argv` once in `project_root` and writes its artifact. Invalid
     argv/timeout raise ValueError; an unsafe output path, a dirty tree or a
     moved HEAD is refused before spawning, with nothing written."""
+    if not _posix_supported():
+        return {"schema_version": 1, "ok": False, "error": "unsupported-platform"}
     _validate_inputs(argv, timeout)
     root = project_root
     artifact = artifact_path if artifact_path.is_absolute() else root / artifact_path
