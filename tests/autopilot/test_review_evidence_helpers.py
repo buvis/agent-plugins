@@ -151,7 +151,7 @@ class EvidenceCase(BlockedCase):
     def check(self, policy: Any, context: Any, evidence: Any) -> dict[str, Any]:
         args = copy.deepcopy([policy, context, evidence])
         expected = mapped(validate_review(*copy.deepcopy(args)))
-        [report] = self.run_blocked(args)
+        [report] = self.run_blocked([args])
         self.assertEqual(report, expected)
         return report
 
