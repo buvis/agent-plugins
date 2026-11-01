@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 from test_verification import (
+    BASE_FILES,
     GREEN,
     PM,
     SCRATCH,
@@ -15,16 +16,44 @@ from test_verification import (
     commit,
     git,
     head,
-    isolated_git,
+    load,
     paths,
-    repo,
     script,
-    verification,
     write,
 )
 
-FIXTURES = (isolated_git, repo, verification)
 REUSE_ARGV = [*script(f"print({GREEN!r})"), "a  b"]
+
+
+@pytest.fixture
+def verification():
+    return load("verification")
+
+
+@pytest.fixture(autouse=True)
+def isolated_git(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    for key in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE"):
+        monkeypatch.delenv(key, raising=False)
+    env = {
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "GIT_CEILING_DIRECTORIES": f"{tmp_path}:{tmp_path.resolve()}",
+        "GIT_AUTHOR_NAME": "Tess",
+        "GIT_AUTHOR_EMAIL": "tess@example.invalid",
+        "GIT_COMMITTER_NAME": "Tess",
+        "GIT_COMMITTER_EMAIL": "tess@example.invalid",
+    }
+    for key, value in env.items():
+        monkeypatch.setenv(key, value)
+
+
+@pytest.fixture
+def repo(tmp_path: Path) -> Path:
+    root = tmp_path / "repo"
+    root.mkdir()
+    git(root, "init", "-q", "-b", "master")
+    commit(root, BASE_FILES, "base")
+    return root
 
 
 @pytest.fixture
