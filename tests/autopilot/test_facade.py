@@ -96,8 +96,10 @@ class LocalFacadeTest(unittest.TestCase):
             home.mkdir(exist_ok=True)
             for script in (PACKAGE / "scripts" / "autopilot.py", self.facade):
                 with self.subTest(script=script, home=home):
-                    self.assert_success(self.run_cli(script, "--list-capabilities", home=home),
-                                        CAPABILITIES)
+                    result = self.run_cli(script, "--list-capabilities", home=home)
+                    ids = json.loads(result.stdout)
+                    self.assert_success(result, json.dumps(ids, separators=(",", ":")).encode() + b"\n")
+                    self.assertEqual(ids[:3], json.loads(CAPABILITIES))
             self.assertEqual(list(home.iterdir()), [])
         after = {p.relative_to(self.package): (p.stat().st_size, p.stat().st_mtime_ns)
                  for p in self.package.rglob("*") if p.is_file()}

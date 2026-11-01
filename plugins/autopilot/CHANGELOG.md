@@ -12,6 +12,7 @@
 - Add stdlib-only cap-check and custody proposal helpers.
 - Add a stateless optional catchup probe for gh and engram.
 - Add a bounded verification runner and artifact reuse check.
+- Add versioned local facade operations for review staging, grouping, evidence checks, close proposals, catchup probes and verification, with a controller-required refusal.
 - Add the bounded public controller CLI with private workflow bootstrap, authenticated exact replay, read-only snapshots, installed contract metadata, and durable matching-request credential-intent recovery.
 - Add read-only explicit project-root resolution with descriptor-based private path and fixed artifact alias checks.
 - Add the locked, atomic controller state store with fsynced state/backup publication, exact failure repair, revision checks, artifact alias guards, directory binding, and security-identical offline restore.
