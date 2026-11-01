@@ -71,7 +71,9 @@ Code both read it.
   ```
 
   The first command also takes a local checkout path, or a Git ref
-  (`--ref <branch-or-tag>`). Codex copies the plugin into
+  (`--ref <branch-or-tag>`). The checkout route was run as written, the
+  GitHub route only with a ref; without one Codex reads the default branch.
+  Codex copies the plugin into
   `$CODEX_HOME/plugins/cache/buvis-agent-plugins/specflow/<version>/` and
   runs it from there.
 - Invoke: the skill appears as `specflow:spec-workflow`; ask in your own
@@ -86,7 +88,7 @@ Code both read it.
 
 ### Claude Code
 
-- Install: inside Claude Code, one step:
+- Install: inside Claude Code 2.1.275 or later, one step:
 
   ```text
   /plugin install specflow --marketplace buvis/agent-plugins
@@ -97,7 +99,8 @@ Code both read it.
   checkout, give `claude plugin marketplace add` the checkout path instead;
   for development without installing, start
   `claude --plugin-dir <checkout>/plugins/specflow`, which loads the folder
-  in place.
+  in place. The two GitHub routes are untested until the release; the
+  checkout and `--plugin-dir` routes were run.
 - Invoke: the skill appears as `specflow:spec-workflow`, also as the slash
   command `/specflow:spec-workflow`.
 - Known differences: Claude Code reads `.claude-plugin/plugin.json`, which
