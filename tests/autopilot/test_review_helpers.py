@@ -251,7 +251,8 @@ def test_cycle_id_matching_the_pattern_is_accepted(stage, root, cycle_id):
 
 
 @pytest.mark.parametrize(
-    "cycle_id", ["", ".c1", "-c1", "_c1", "c1/x", "../c1", "c 1", "c1\n", "c1:x"]
+    "cycle_id",
+    ["", ".c1", "-c1", "_c1", "c1/x", "../c1", "c 1", "c1\n", "c1:x", "é1", "cé1", "c٣"],
 )
 def test_cycle_id_outside_the_pattern_is_refused_before_any_write(
     stage, root, tmp_path, cycle_id
@@ -280,8 +281,8 @@ def test_raw_prd_preserves_exact_utf8_bytes(stage, root, prd_text):
 
 @pytest.mark.parametrize(
     "variant",
-    [PRD.strip(), PRD + "\n", PRD.replace("\r\n", "\n"), PRD[:-1]],
-    ids=["trimmed", "newline-added", "crlf-normalized", "truncated"],
+    [" " + PRD, PRD + "\n", PRD.replace("\r\n", "\n"), PRD[:-1]],
+    ids=["space-prefixed", "newline-added", "crlf-normalized", "truncated"],
 )
 def test_prd_text_differing_from_the_bound_digest_is_refused_before_any_write(
     stage, root, tmp_path, variant
@@ -372,6 +373,16 @@ def test_only_the_merged_prd_appends_design_and_raw_keeps_literal_design_heading
     assert "DESIGN-OTHER-4b4b" in other and DESIGN not in other
 
 
+def test_missing_design_leaves_the_merged_prd_without_a_stringified_none(stage, root):
+    report = call(stage, root, cycle_id="m3", design_text=None)
+    art = root / "docs" / "dev" / "tmp" / "rev"
+    assert report["ok"] is True
+    merged = text(art / "review-prd-m3.md")
+    assert merged.startswith(PRD) and DESIGN not in merged
+    assert "None" not in merged[len(PRD) :]
+    assert (art / "review-prd-raw-m3.md").read_bytes() == PRD.encode("utf-8")
+
+
 # --- task rendering and findings precedent -------------------------------------------------------
 
 TABLE_HEAD = (
@@ -441,8 +452,16 @@ def test_findings_precedent_without_a_pack_uses_the_pinned_fallback(stage):
     assert stage.findings_precedent(None) == "(no pack available this cycle)"
 
 
-def test_findings_precedent_without_the_section_uses_the_pinned_fallback(stage):
-    pack = "# Pack\nFindings precedent is mentioned in prose.\n## Other\nbody\n"
+@pytest.mark.parametrize(
+    "pack",
+    [
+        "# Pack\nFindings precedent is mentioned in prose.\n## Other\nbody\n",
+        "# Pack\n## Findings precedents archive\nNEAR-MISS body\n## Other\nx\n",
+        "# Pack\n## Findings precedent: old\nNEAR-MISS body\n",
+    ],
+    ids=["prose", "plural-suffix", "colon-suffix"],
+)
+def test_findings_precedent_without_the_section_uses_the_pinned_fallback(stage, pack):
     assert stage.findings_precedent(pack) == (
         "(the pack has no Findings precedent section)"
     )
@@ -456,10 +475,14 @@ def test_findings_precedent_stops_at_a_same_or_higher_heading_but_keeps_deeper_o
         "# Pack\nintro\n## Findings precedent\n\nF1 fixed by guard\n"
         f"### Deeper\nkept detail\n\n{stop}\nOUTSIDE\n"
     )
-    assert stage.findings_precedent(pack) == "F1 fixed by guard\n### Deeper\nkept detail"
+    assert (
+        stage.findings_precedent(pack) == "F1 fixed by guard\n### Deeper\nkept detail"
+    )
 
 
-def test_findings_precedent_heading_match_is_case_insensitive_and_runs_to_the_end(stage):
+def test_findings_precedent_heading_match_is_case_insensitive_and_runs_to_the_end(
+    stage,
+):
     pack = "## findings PRECEDENT\n  F2 precedent  \n#### Deep\ntail\n"
     assert stage.findings_precedent(pack) == "F2 precedent  \n#### Deep\ntail"
 
@@ -478,7 +501,9 @@ def test_level_one_findings_precedent_runs_through_subheadings_to_the_next_top_h
 
 def test_staged_task_and_context_files_carry_task_rows_and_precedent_text(stage, root):
     pack = "# Pack\n## Findings precedent\nPRECEDENT-MARKER-9d9d guard\n## Other\nx\n"
-    report = call(stage, root, cycle_id="t5", tasks=copy.deepcopy(FOLDED), pack_text=pack)
+    report = call(
+        stage, root, cycle_id="t5", tasks=copy.deepcopy(FOLDED), pack_text=pack
+    )
     art = root / "docs" / "dev" / "tmp" / "rev"
     assert report["ok"] is True
     tasks_file = text(art / "review-tasks-t5.md")
@@ -628,7 +653,7 @@ def unsafe_tracked_output(root: Path, tmp_path: Path) -> Path:
     art = root / "docs" / "dev" / "tmp" / "rev"
     art.mkdir()
     (art / "review-context-c1.md").write_text("TRACKED", encoding="utf-8")
-    git("-C", str(root), "add", "docs/dev/tmp/rev/review-context-c1.md")
+    git("-C", str(root), "add", "-f", "docs/dev/tmp/rev/review-context-c1.md")
     git(
         "-C",
         str(root),
