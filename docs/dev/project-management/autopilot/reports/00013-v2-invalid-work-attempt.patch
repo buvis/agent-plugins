@@ -1,0 +1,84 @@
+diff --git a/plugins/autopilot/scripts/review_stage.py b/plugins/autopilot/scripts/review_stage.py
+index d0f3d50..b875db4 100644
+--- a/plugins/autopilot/scripts/review_stage.py
++++ b/plugins/autopilot/scripts/review_stage.py
+@@ -282,6 +282,22 @@ def _plan(job: str, body: str, run: dict[str, Any]) -> tuple[str, dict, list]:
+     return body, values, [supplied, precedent, *run["history"]]
+ 
+ 
++_PRD_INLINE_JOBS = frozenset({"blake", "eve"})
++
++
++def _missing_prd_grant(context: dict[str, Any], jobs: list[str]) -> str | None:
++    """The first (by name, for a deterministic refusal message) roster job
++    in _PRD_INLINE_JOBS whose manifest omits a `prd:` ref, or None. Those
++    two jobs inline PRD text into their own prompt body (never only the
++    shared context file), so an omitted grant must refuse rather than
++    substitute an empty PRD."""
++    for job in sorted(_PRD_INLINE_JOBS & set(jobs)):
++        kinds = {ref.split(":", 1)[0] for ref in _manifest(context, job)}
++        if "prd" not in kinds:
++            return job
++    return None
++
++
+ def _scoped(job: str, run: dict[str, Any]) -> dict[str, Any]:
+     """`run` without the diff, pack and history the job's manifest omits."""
+     kinds = {ref.split(":", 1)[0] for ref in run["manifest"][job]}
+@@ -362,7 +378,7 @@ def _staged_files(art: Path, cycle_id: str, inputs: dict[str, Any]) -> dict:
+     paths = {kind: path for kind, (path, _) in staged.items()}
+     findings = findings_precedent(inputs["pack"])
+     variants = inputs.get("variants", {})
+-    shared = CONTEXT_KINDS
++    shared = frozenset().union(*variants.values()) if variants else CONTEXT_KINDS
+     body = _context_file(inputs["context"], paths, findings, inputs, shared)
+     staged["review-context"] = (paths["review-context"], body)
+     for job, variant in variants.items():
+@@ -433,6 +449,27 @@ def _file_problem(path: Path) -> str | None:
+     return None
+ 
+ 
++def _is_inside_git_dir(ancestor: Path) -> bool:
++    """True when `ancestor` is inside git internals. Only git's own fixed
++    "not a git repository" message is treated as benign (nothing here to
++    protect); every other failure - the bare-repo `safe.bareRepository`
++    restriction this PRD reproduced, an ownership/`safe.directory` error,
++    or anything else - fails closed, retried once with
++    `safe.bareRepository=explicit` before refusing. Detection failure on
++    an ACTUAL repository must not silently grant permission, and that
++    includes failures this comment cannot enumerate in advance."""
++    probe = _git(ancestor, "rev-parse", "--is-inside-git-dir")
++    if probe.returncode == 0:
++        return probe.stdout.strip() == "true"
++    if probe.stderr.strip().startswith("fatal: not a git repository"):
++        return False
++    retry = _git(ancestor, "-c", "safe.bareRepository=explicit",
++                 "rev-parse", "--is-inside-git-dir")
++    if retry.returncode == 0:
++        return retry.stdout.strip() == "true"
++    return True
++
++
+ def _destination_problem(project: Path, art: Path, outputs: list[Path]) -> str | None:
+     """Why the planned outputs may not be written, or None. `art` stays
+     unresolved so a symlink below the supplied root is still visible."""
+@@ -461,8 +498,7 @@ def _destination_problem(project: Path, art: Path, outputs: list[Path]) -> str |
+     if not art.is_relative_to(project) and Path(os.path.abspath(art)) != art_real:
+         return "artifact_root is reached through a symlink"
+     ancestor = _existing_ancestor(art_real)
+-    git_probe = _git(ancestor, "rev-parse", "--is-inside-git-dir")
+-    if git_probe.returncode == 0 and git_probe.stdout.strip() == "true":
++    if _is_inside_git_dir(ancestor):
+         return "artifact_root is inside git internals"
+     top = _toplevel(ancestor)
+     return _tracked_problem(top, art_real, outputs) if top else None
+@@ -583,6 +619,9 @@ def stage_review(
+     if not isinstance(tasks, list) or not all(isinstance(t, dict) for t in tasks):
+         return _refusal("invalid-input", "tasks must be a list of objects")
+     jobs = [row["job_id"] for row in expected_context["resolved_roster"]]
++    missing_job = _missing_prd_grant(expected_context, jobs)
++    if missing_job:
++        return _refusal("invalid-input", f"job {missing_job!r} has no prd: grant")
+     bodies = {job: _persona_body(job) for job in jobs}
+     unavailable = sorted(job for job, body in bodies.items() if body is None)
+     if unavailable:
