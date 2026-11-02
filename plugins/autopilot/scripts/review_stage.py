@@ -588,6 +588,17 @@ def _stage_inputs(
     }
 
 
+def _resolve_roots(project_root: Path, artifact_root: Path) -> tuple[Path, Path]:
+    """The staging project root and the artifact root resolved against it."""
+    project = Path(project_root).absolute()
+    # Source 9dba4206: a subdirectory root stages under the repo toplevel.
+    top = _toplevel(project)
+    if top is not None and top != project.resolve():
+        project = top
+    art = Path(artifact_root)
+    return project, art if art.is_absolute() else project / art
+
+
 def stage_review(
     *,
     project_root: Path,
@@ -621,13 +632,7 @@ def stage_review(
     unavailable = sorted(job for job, body in bodies.items() if body is None)
     if unavailable:
         return _refusal("persona-unavailable", f"no packaged persona: {unavailable}")
-    project = Path(project_root).absolute()
-    # Source 9dba4206: a subdirectory root stages under the repo toplevel.
-    top = _toplevel(project)
-    if top is not None and top != project.resolve():
-        project = top
-    art = Path(artifact_root)
-    art = art if art.is_absolute() else project / art
+    project, art = _resolve_roots(project_root, artifact_root)
     inputs = _stage_inputs(
         tasks,
         (prd_text, design_text, context_text, diff_text),
