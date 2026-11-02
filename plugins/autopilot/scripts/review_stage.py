@@ -284,6 +284,7 @@ def _scoped(job: str, run: dict[str, Any]) -> dict[str, Any]:
     """`run` without the diff, pack and history the job's manifest omits."""
     kinds = {ref.split(":", 1)[0] for ref in run["manifest"][job]}
     scoped = dict(run)
+    scoped["context"] = run["job_context"].get(job, run["context"])
     if "diff" not in kinds:
         scoped.update(diff=NO_DIFF, changed=[])
     if "context-pack" not in kinds:
@@ -301,18 +302,35 @@ def _render(job: str, body: str, run: dict[str, Any]) -> str:
     return "\n\n".join(blocks) + "\n"
 
 
+def _variants(context: dict[str, Any], jobs: list[str]) -> dict[str, tuple[bool, bool]]:
+    """{job: (has context-pack, has history)} for jobs whose prompt names the context file."""
+    kinds = {
+        job: {ref.split(":", 1)[0] for ref in _manifest(context, job)}
+        for job in jobs
+        if job not in ("blake", "eve")
+    }
+    return {job: ("context-pack" in k, "history" in k) for job, k in kinds.items()}
+
+
 def _context_file(
-    context_text: str, paths: dict[str, Path], findings: str, inputs: dict
+    context_text: str,
+    paths: dict[str, Path],
+    findings: str,
+    inputs: dict,
+    variant: tuple[bool, bool] = (True, True),
 ) -> str:
     pack = paths.get("review-pack")
     blocks = [
         context_text.rstrip(),
         f"## Review files\n\nTasks: {paths['review-tasks']}\n"
         f"PRD with design doc: {paths['review-prd']}",
-        f"## Context Pack\n\nPack file: {pack or NO_PACK}\n\n"
-        f"### Findings precedent\n\n{findings}",
     ]
-    if inputs["settled"]:
+    if variant[0]:
+        blocks.append(
+            f"## Context Pack\n\nPack file: {pack or NO_PACK}\n\n"
+            f"### Findings precedent\n\n{findings}"
+        )
+    if inputs["settled"] and variant[1]:
         blocks.append(_history(inputs["settled"], None)[0])
     if inputs["gate"]:
         blocks.append(f"## Test gate\n\n{inputs['gate'].strip()}")
@@ -339,8 +357,15 @@ def _staged_files(art: Path, cycle_id: str, inputs: dict[str, Any]) -> dict:
     }
     paths = {kind: path for kind, (path, _) in staged.items()}
     findings = findings_precedent(inputs["pack"])
-    body = _context_file(inputs["context"], paths, findings, inputs)
+    variants = inputs.get("variants", {})
+    shared = (True, True)
+    body = _context_file(inputs["context"], paths, findings, inputs, shared)
     staged["review-context"] = (paths["review-context"], body)
+    for job, variant in variants.items():
+        if variant != shared:
+            body = _context_file(inputs["context"], paths, findings, inputs, variant)
+            path = art / f"{job}-review-context-{cycle_id}.md"
+            staged[f"review-context-{job}"] = (path, body)
     return staged
 
 
@@ -451,6 +476,11 @@ def _run_inputs(staged: dict, context: dict, inputs: dict, jobs: list) -> dict:
     return {
         "prd": inputs["prd"],
         "context": str(staged["review-context"][0]),
+        "job_context": {
+            job: str(staged[f"review-context-{job}"][0])
+            for job in jobs
+            if f"review-context-{job}" in staged
+        },
         "diff": str(diff_path[0]) if diff_path else NO_DIFF,
         "pack": str(pack_path[0]) if pack_path else NO_PACK,
         "findings": findings_precedent(inputs["pack"]),
@@ -562,6 +592,7 @@ def stage_review(
         (pack_text, settled_text, prior_findings_text, test_gate_text),
         input_texts,
     )
+    inputs["variants"] = _variants(expected_context, jobs)
     outputs = [path for path, _ in _staged_files(art, cycle_id, inputs).values()]
     outputs += [art / f"{job}-prompt-{cycle_id}.md" for job in jobs]
     problem = _destination_problem(project, art, outputs)

@@ -33,4 +33,5 @@
 - **autopilot**: malformed `--group-findings`, `--prepare-close` and `--stage-review` request values exit 2 as usage errors instead of crashing.
 - **autopilot**: review staging and `--export-policy` refuse live workflow state in any spelling case, and staging applies the tracked-file, live-state and symlink checks to artifact roots outside the project.
 - **autopilot**: a staged reviewer prompt omits the diff, pack and history its manifest does not list.
+- **autopilot**: a staged reviewer prompt reaches pack findings and settled history only through a per-job context file that its manifest allows.
 - **autopilot**: `--verify` refuses a log or artifact path that is an argv input file, and a modified store file named by a tracked product symlink makes the artifact non-reusable.

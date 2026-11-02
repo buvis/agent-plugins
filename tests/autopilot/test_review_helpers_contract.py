@@ -11,6 +11,7 @@ from typing import Any
 import pytest
 import test_contract as contract
 import test_review_helpers as helpers
+from test_cycle1_boundaries_stage import context_with
 from test_review_helpers import (
     CASES,
     DESIGN,
@@ -182,7 +183,8 @@ def nonblind_texts(report: dict[str, Any]) -> list[str]:
 def test_settled_prior_gate_and_precedent_inputs_reach_a_nonblind_artifact(
     stage, root, marker
 ):
-    report = call(stage, root)
+    # Inputs reach a job only through its manifest: alice's grants the pack and history refs.
+    report = call(stage, root, expected_context=context_with("alice", "bob"))
     assert report["ok"] is True
     assert any(marker in body for body in nonblind_texts(report)), marker
     assert marker not in text(report["prompts"]["blake"])
