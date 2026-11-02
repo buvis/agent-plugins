@@ -220,6 +220,9 @@ def main(argv: list[str] | None = None) -> int:
                           "operation": args.controller_action}))
         return 3
     if args.export_policy:
+        if args.out is not None and _in_live_state(args.out):
+            print(f"autopilot: {args.out} is inside live autopilot state", file=sys.stderr)
+            return 2
         return _export_policy(args.out)
     args.argv = rest
     return _run_operation(mode, args)

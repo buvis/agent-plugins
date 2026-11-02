@@ -67,15 +67,18 @@ def _validate_inputs(argv: object, timeout: object) -> None:
         raise ValueError(f"invalid argv: {argv!r}")
 
 
-def _unsafe_paths(root: Path, artifact: Path, log: Path) -> bool:
+def _unsafe_paths(root: Path, artifact: Path, log: Path, argv: list[str]) -> bool:
     """True when either output path is refused as a sink, escapes `root`,
-    or both name the same file."""
+    names the same file as the other or as an argv token."""
     for path in (artifact, log):
         if refuse(path, root) is not None:
             return True
         if not path.resolve().is_relative_to(root.resolve()):
             return True
-    return artifact.resolve() == log.resolve()
+    outputs = {artifact.resolve(), log.resolve()}
+    if len(outputs) < 2:
+        return True
+    return any((root / token).resolve() in outputs for token in argv)
 
 
 def _head_moved(root: Path, head_sha: str) -> bool:
@@ -237,7 +240,7 @@ def run_verification(
     root = project_root
     artifact = artifact_path if artifact_path.is_absolute() else root / artifact_path
     log = log_path if log_path.is_absolute() else root / log_path
-    if _unsafe_paths(root, artifact, log):
+    if _unsafe_paths(root, artifact, log, argv):
         return {"schema_version": 1, "ok": False, "error": "unsafe-artifact-path"}
     excluded = _untracked_log_exclusion(root, log) + _untracked_log_exclusion(
         root, artifact

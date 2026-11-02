@@ -103,6 +103,8 @@ def group(findings: list[dict]) -> list[dict]:
     """Group `findings` into rework tasks without mutating them. Each finding
     needs a string `file` and a severity emoji; ValueError otherwise."""
     for finding in findings:
+        if not isinstance(finding, dict):
+            raise ValueError(f"finding must be an object: {finding!r}")
         if not isinstance(finding.get("file"), str) or finding.get("severity") not in _RANK:
             raise ValueError(f"finding needs a file string and a severity emoji: {finding!r}")
     critical = []

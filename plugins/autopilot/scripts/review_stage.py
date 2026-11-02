@@ -274,12 +274,28 @@ def _plan(job: str, body: str, run: dict[str, Any]) -> tuple[str, dict, list]:
         eve = _read(PERSONAS_DIR / "eve.md")
         appendix = [_section(eve, title) for title in EVE_DOUBT_SECTIONS]
         body = "\n\n".join([body.rstrip(), *appendix, CITATION_LINE])
-    return body, values, [supplied, *run["history"]]
+    precedent = None
+    if "{PACK_FINDINGS}" not in body and run["pack"] != NO_PACK:
+        precedent = f"## Findings precedent\n\n{run['findings']}"
+    return body, values, [supplied, precedent, *run["history"]]
+
+
+def _scoped(job: str, run: dict[str, Any]) -> dict[str, Any]:
+    """`run` without the diff, pack and history the job's manifest omits."""
+    kinds = {ref.split(":", 1)[0] for ref in run["manifest"][job]}
+    scoped = dict(run)
+    if "diff" not in kinds:
+        scoped.update(diff=NO_DIFF, changed=[])
+    if "context-pack" not in kinds:
+        scoped.update(pack=NO_PACK, findings=NO_PACK)
+    if "history" not in kinds:
+        scoped.update(history=[None, None])
+    return scoped
 
 
 def _render(job: str, body: str, run: dict[str, Any]) -> str:
     """Substitute known tokens in one pass; injected text is never rescanned."""
-    template, values, appends = _plan(job, body, run)
+    template, values, appends = _plan(job, body, _scoped(job, run))
     text = _TOKEN_RE.sub(lambda m: values.get(m.group(1), m.group(0)), template)
     blocks = [text.strip(), *(block.rstrip() for block in appends if block)]
     return "\n\n".join(blocks) + "\n"
@@ -351,6 +367,21 @@ def _repo_problem(project: Path, art_real: Path, outputs: list[Path]) -> str | N
         return "artifact_root is inside git internals"
     if _toplevel(_existing_ancestor(art_real)) != top:
         return "artifact_root is inside a nested repository"
+    return _tracked_problem(top, art_real, outputs)
+
+
+def _in_live_state(*paths: Path) -> bool:
+    """True when any path holds the live-state directory, in any spelling case."""
+    live = tuple(part.casefold() for part in LIVE_STATE_REL.parts)
+    for path in paths:
+        parts = tuple(part.casefold() for part in path.parts)
+        if any(parts[i : i + len(live)] == live for i in range(len(parts))):
+            return True
+    return False
+
+
+def _tracked_problem(top: Path, art_real: Path, outputs: list[Path]) -> str | None:
+    """Refusal reason when an output is tracked in the repo at `top`."""
     rels = [(art_real / p.name).relative_to(top).as_posix() for p in outputs]
     listing = _git(top, "ls-files", "-z", "--", *(":(literal)" + r for r in rels))
     if listing.returncode != 0:
@@ -394,11 +425,14 @@ def _destination_problem(project: Path, art: Path, outputs: list[Path]) -> str |
         return "artifact_root is a symlink loop"
     if ".git" in art_real.parts:
         return "artifact_root is inside git internals"
-    if art_real.is_relative_to((project / LIVE_STATE_REL).resolve()):
+    if _in_live_state(Path(os.path.abspath(art)), art_real):
         return "artifact_root is inside live workflow state"
     if art_real.is_relative_to(project.resolve()):
         return _repo_problem(project, art_real, outputs)
-    return None
+    if not art.is_relative_to(project) and Path(os.path.abspath(art)) != art_real:
+        return "artifact_root is reached through a symlink"
+    top = _toplevel(_existing_ancestor(art_real))
+    return _tracked_problem(top, art_real, outputs) if top else None
 
 
 def _write(path: Path, text: str) -> str:
@@ -486,6 +520,8 @@ def stage_review(
     refusal = _precheck(cycle_id, prd_text, expected_context, input_texts)
     if refusal:
         return refusal
+    if not isinstance(tasks, list) or not all(isinstance(t, dict) for t in tasks):
+        return _refusal("invalid-input", "tasks must be a list of objects")
     jobs = [row["job_id"] for row in expected_context["resolved_roster"]]
     bodies = {job: _persona_body(job) for job in jobs}
     unavailable = sorted(job for job, body in bodies.items() if body is None)

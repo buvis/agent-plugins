@@ -19,6 +19,7 @@ from findings import Row, finding_key, reviewed_rows
 from review_evidence import check_evidence
 
 KNOWN_CLASSIFICATIONS = ("verify", "discard", "fix", "defer", "carry")
+KNOWN_TIERS = ("haiku", "sonnet", "opus")
 # verify/discard rows are never applied, so the source lets them sit outside
 # the consolidated table as bookkeeping notes.
 _SKIPPED_CLASSIFICATIONS = ("verify", "discard")
@@ -484,6 +485,14 @@ def prepare_close(
         isinstance(row, dict) for row in chosen_findings
     ):
         raise ValueError("chosen_findings must be a list of row objects")
+    if type(cycle) is not int:
+        raise ValueError("cycle must be an integer")
+    if not isinstance(batch_id, str) or not batch_id:
+        raise ValueError("batch_id must be a nonempty string")
+    if default_tier not in KNOWN_TIERS:
+        raise ValueError(f"default_tier must be one of {'|'.join(KNOWN_TIERS)}")
+    if not isinstance(review_ref, str):
+        raise ValueError("review_ref must be a string")
     checked = check_evidence(policy, expected_context, evidence)
     if not checked["ok"]:
         return _refusal("invalid-evidence", ", ".join(checked["defects"]))

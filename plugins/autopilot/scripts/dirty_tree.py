@@ -116,17 +116,23 @@ def _dirty_store_paths(repo_root: Path) -> list[str]:
 
 
 def _store_symlink_targets_changed(repo_root: Path, store_paths: list[str]) -> bool:
-    """True iff a tracked symlink outside the store, its blob target resolved
-    against the link's own directory, names one of `store_paths` (all
-    toplevel-relative) or a directory above one. Absolute targets and
-    symlink chains are taken at face value. Raises `_GitProbeFailed` on a
-    git failure."""
+    """True iff `_store_symlink_hits` finds a tracked symlink for `store_paths`."""
+    return bool(_store_symlink_hits(repo_root, store_paths))
+
+
+def _store_symlink_hits(repo_root: Path, store_paths: list[str]) -> list[str]:
+    """Toplevel-relative paths of the tracked symlinks outside the store
+    whose blob target, resolved against the link's own directory, names one
+    of `store_paths` (all toplevel-relative) or a directory above one.
+    Absolute targets and symlink chains are taken at face value. Raises
+    `_GitProbeFailed` on a git failure."""
     if not store_paths:
-        return False
+        return []
     store = _store_roots(repo_root)
     listing = _git(repo_root, "ls-files", "-s", "-z", "--full-name")
     if listing.returncode != 0:
         raise _GitProbeFailed("git ls-files failed")
+    hits = []
     for entry in listing.stdout.split("\0"):
         if not entry:
             continue
@@ -143,8 +149,8 @@ def _store_symlink_targets_changed(repo_root: Path, store_paths: list[str]) -> b
         if target == "." or any(
             p == target or p.startswith(target + "/") for p in store_paths
         ):
-            return True
-    return False
+            hits.append(link)
+    return hits
 
 
 def _dirty_outside_store_paths(
@@ -166,6 +172,9 @@ def _dirty_outside_store_paths(
         if not excused and not _dirty_path_is_in_store(new, old, store):
             offending.update(p for p in (new, old) if p)
     offending.update(_hidden_flag_edits(repo_root, store))
+    # A dirty store file that a tracked product symlink names is product dirt.
+    store_dirt = [p for p in _dirty_store_paths(repo_root) if p not in extra_excluded]
+    offending.update(_store_symlink_hits(repo_root, store_dirt))
     return sorted(offending)
 
 
