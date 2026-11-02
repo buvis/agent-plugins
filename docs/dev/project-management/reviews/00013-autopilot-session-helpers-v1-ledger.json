@@ -1,16 +1,194 @@
 [
-  {"cycle": 1, "disposition": "discarded", "severity": "medium", "issue": "The case-variant live-state test passes against the pre-change code (the fail-first replay flags it) and cannot exercise the casefold branch on a case-sensitive filesystem. The variant path does not exist there, so exit 2 comes from \"cannot read\" (or argparse on the old facade), not from _in_live_state. Create a real directory with the variant spelling, containing valid JSON, so only the casefold check can refuse it.", "file": "tests/autopilot/test_local_boundary_state.py:250", "reason": "single-voice; the test the R5 case-sensitivity fix must add covers it"},
-  {"cycle": 1, "disposition": "discarded", "severity": "medium", "issue": "Verification can fail after the command has run, and the failure is not controlled. _open_log_sink(artifact, root) runs after the child exits, and _pinned_parent_fd raises OSError when an absolute artifact is not lexically under an unresolved or relative root, for example a symlinked /tmp alias. _open_log_sink(log, root) can also raise OSError, and none of these OSErrors is caught.", "file": "plugins/autopilot/scripts/verification.py:4083", "reason": "single-voice"},
-  {"cycle": 1, "disposition": "discarded", "severity": "medium", "issue": "stage_review silently re-roots a subdirectory project_root to the git toplevel (the `top != project.resolve()` branch), and relative artifact_root then resolves against the toplevel. The contract says \"relative paths resolve against explicit project_root\" and \"helpers never discover\" roots.", "file": "plugins/autopilot/scripts/review_stage.py:3662", "reason": "single-voice; deliberate source 9dba4206 parity pinned by a test"},
-  {"cycle": 1, "disposition": "settled-deferral", "severity": "medium", "issue": "Shared Git probes have no timeout, contrary to the required 30-second bound. Verification can hang during preflight or post-run checks regardless of its command timeout. Add the timeout and map timeout failures to refusal or stale evidence.", "file": "plugins/autopilot/scripts/dirty_tree.py:19", "reason": "deferred to batch end: verified (dirty_tree.py has no timeout), single-voice Medium"},
-  {"cycle": 1, "disposition": "discarded", "severity": "medium", "issue": "Regression classification returns false for a cell producing no path pairs, such as `;`, and can return true before examining a later invalid line reference. Validate every pair and line before choosing a verdict; unresolved cells must return null.", "file": "plugins/autopilot/scripts/cap_check.py:220", "reason": "single-voice"},
-  {"cycle": 1, "disposition": "discarded", "severity": "medium", "issue": "Truncated table rows can be accepted when missing trailing columns because `_row_from_table` checks only selected column indexes and treats every unequal cell count as embedded issue pipes. Reject short rows before reconstructing surplus issue cells.", "file": "plugins/autopilot/scripts/findings.py:83", "reason": "single-voice"},
-  {"cycle": 1, "disposition": "settled-deferral", "severity": "medium", "issue": "Generated helper delivery evidence has `status: passed` but retains `tested_package_revision: null`: the receipt artifact dictionary never supplies the revision. Populate it from the validated receipt and assert the binding in provenance tests.", "file": "tools/autopilot/update_helper_map.py:478", "reason": "deferred to batch end: provenance evidence accuracy, single-voice Medium"},
-  {"cycle": 1, "disposition": "settled-deferral", "severity": "medium", "issue": "Function provenance claims extractions that were not delivered: custody journal readers are marked extracted despite being deliberately absent, and custody capture_range points to custody.py although implemented in cap_check.py. Record actual replacements, exclusions and target modules per function.", "file": "tools/autopilot/update_helper_map.py:286", "reason": "deferred to batch end: provenance accuracy, single-voice Medium"},
-  {"cycle": 1, "disposition": "discarded", "severity": "medium", "issue": "`_cap` retains an unreachable fallback: while more than four groups remain, removing at most one prose group cannot leave fewer than two code groups. Remove the `len(code) < 2` branch without changing behavior.", "file": "plugins/autopilot/scripts/rework_groups.py:73", "reason": "single-voice"},
-  {"cycle": 1, "disposition": "discarded", "severity": "low", "issue": "review_stage writes an extra review-pack-ID.md artifact when pack_text is supplied. The contract lists only review-tasks, review-prd-raw, review-prd, review-context, optional review-diff and the JOB prompts.", "file": "plugins/autopilot/scripts/review_stage.py:3484", "reason": "single-voice"},
-  {"cycle": 1, "disposition": "discarded", "severity": "low", "issue": "test_helper_provenance_real.py:331 skips the real-source parity checks when the pinned source checkout is absent, which includes CI. That is an environmental skip, but the source-parity assertions never run in CI.", "file": "tests/autopilot/test_helper_provenance_real.py:331", "reason": "single-voice; environmental skip by design"},
-  {"cycle": 1, "disposition": "discarded", "severity": "low", "issue": "The CHANGELOG mixes \"**autopilot**:\"-prefixed entries with unprefixed ones in the new Added block.", "file": "plugins/autopilot/CHANGELOG.md:179", "reason": "single-voice"},
-  {"cycle": 1, "disposition": "discarded", "severity": "low", "issue": "The named acceptance scenario `source_inventory_mapping` appears in no test, README or characterization doc. The helper-by-helper disposition behavior is covered under other names (`test_dispositions_bind_every_helper_function_and_selected_regression`, `test_writers_and_supervisors_stay_controller_only`). The task 5 acceptance names this scenario, so it cannot be matched by name. The other eight named scenarios are present.", "file": "tests/autopilot/test_helper_provenance.py:527", "reason": "single-voice; behavior is covered under other test names"},
-  {"cycle": 1, "disposition": "discarded", "severity": "low", "issue": "`cap_check.capture_range` accepts a `git_dir` option for a bare-backed store with `repo_root` as work tree. This is a source-store concept carried into a helper that is meant to be stateless, and it is only a read-only git probe. The PRD does not require it, so it is a minor boundary smell.", "file": "plugins/autopilot/scripts/cap_check.py:285", "reason": "single-voice"}
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The case-variant live-state test passes against the pre-change code (the fail-first replay flags it) and cannot exercise the casefold branch on a case-sensitive filesystem. The variant path does not exist there, so exit 2 comes from \"cannot read\" (or argparse on the old facade), not from _in_live_state. Create a real directory with the variant spelling, containing valid JSON, so only the casefold check can refuse it.",
+    "file": "tests/autopilot/test_local_boundary_state.py:250",
+    "reason": "single-voice; the test the R5 case-sensitivity fix must add covers it"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "Verification can fail after the command has run, and the failure is not controlled. _open_log_sink(artifact, root) runs after the child exits, and _pinned_parent_fd raises OSError when an absolute artifact is not lexically under an unresolved or relative root, for example a symlinked /tmp alias. _open_log_sink(log, root) can also raise OSError, and none of these OSErrors is caught.",
+    "file": "plugins/autopilot/scripts/verification.py:4083",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "stage_review silently re-roots a subdirectory project_root to the git toplevel (the `top != project.resolve()` branch), and relative artifact_root then resolves against the toplevel. The contract says \"relative paths resolve against explicit project_root\" and \"helpers never discover\" roots.",
+    "file": "plugins/autopilot/scripts/review_stage.py:3662",
+    "reason": "single-voice; deliberate source 9dba4206 parity pinned by a test"
+  },
+  {
+    "cycle": 1,
+    "disposition": "settled-deferral",
+    "severity": "medium",
+    "issue": "Shared Git probes have no timeout, contrary to the required 30-second bound. Verification can hang during preflight or post-run checks regardless of its command timeout. Add the timeout and map timeout failures to refusal or stale evidence.",
+    "file": "plugins/autopilot/scripts/dirty_tree.py:19",
+    "reason": "deferred to batch end: verified (dirty_tree.py has no timeout), single-voice Medium"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "Regression classification returns false for a cell producing no path pairs, such as `;`, and can return true before examining a later invalid line reference. Validate every pair and line before choosing a verdict; unresolved cells must return null.",
+    "file": "plugins/autopilot/scripts/cap_check.py:220",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "Truncated table rows can be accepted when missing trailing columns because `_row_from_table` checks only selected column indexes and treats every unequal cell count as embedded issue pipes. Reject short rows before reconstructing surplus issue cells.",
+    "file": "plugins/autopilot/scripts/findings.py:83",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "settled-deferral",
+    "severity": "medium",
+    "issue": "Generated helper delivery evidence has `status: passed` but retains `tested_package_revision: null`: the receipt artifact dictionary never supplies the revision. Populate it from the validated receipt and assert the binding in provenance tests.",
+    "file": "tools/autopilot/update_helper_map.py:478",
+    "reason": "deferred to batch end: provenance evidence accuracy, single-voice Medium"
+  },
+  {
+    "cycle": 1,
+    "disposition": "settled-deferral",
+    "severity": "medium",
+    "issue": "Function provenance claims extractions that were not delivered: custody journal readers are marked extracted despite being deliberately absent, and custody capture_range points to custody.py although implemented in cap_check.py. Record actual replacements, exclusions and target modules per function.",
+    "file": "tools/autopilot/update_helper_map.py:286",
+    "reason": "deferred to batch end: provenance accuracy, single-voice Medium"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "`_cap` retains an unreachable fallback: while more than four groups remain, removing at most one prose group cannot leave fewer than two code groups. Remove the `len(code) < 2` branch without changing behavior.",
+    "file": "plugins/autopilot/scripts/rework_groups.py:73",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "review_stage writes an extra review-pack-ID.md artifact when pack_text is supplied. The contract lists only review-tasks, review-prd-raw, review-prd, review-context, optional review-diff and the JOB prompts.",
+    "file": "plugins/autopilot/scripts/review_stage.py:3484",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "test_helper_provenance_real.py:331 skips the real-source parity checks when the pinned source checkout is absent, which includes CI. That is an environmental skip, but the source-parity assertions never run in CI.",
+    "file": "tests/autopilot/test_helper_provenance_real.py:331",
+    "reason": "single-voice; environmental skip by design"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The CHANGELOG mixes \"**autopilot**:\"-prefixed entries with unprefixed ones in the new Added block.",
+    "file": "plugins/autopilot/CHANGELOG.md:179",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The named acceptance scenario `source_inventory_mapping` appears in no test, README or characterization doc. The helper-by-helper disposition behavior is covered under other names (`test_dispositions_bind_every_helper_function_and_selected_regression`, `test_writers_and_supervisors_stay_controller_only`). The task 5 acceptance names this scenario, so it cannot be matched by name. The other eight named scenarios are present.",
+    "file": "tests/autopilot/test_helper_provenance.py:527",
+    "reason": "single-voice; behavior is covered under other test names"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`cap_check.capture_range` accepts a `git_dir` option for a bare-backed store with `repo_root` as work tree. This is a source-store concept carried into a helper that is meant to be stateless, and it is only a read-only git probe. The PRD does not require it, so it is a minor boundary smell.",
+    "file": "plugins/autopilot/scripts/cap_check.py:285",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "External artifact roots are now refused whenever any ancestor is a symlink, so macOS system aliases like `/tmp` and `/var` are refused. I ran `_destination_problem` with a root under `/tmp` and it returned \"artifact_root is reached through a symlink\". The contract only refuses symlink components below the supplied root, and the new test passes only because pytest `tmp_path` is pre-resolved. Compare the root's own components, or accept ancestors that resolve to the same location",
+    "file": "plugins/autopilot/scripts/review_stage.py:457",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "Simplification: `_in_live_state` is implemented twice with the same casefold four-part scan, in the facade and in review_stage. Only the inputs differ (facade also applies realpath). Have the facade import the review_stage helper and pass both spellings",
+    "file": "plugins/autopilot/scripts/autopilot.py:88",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "`reuse_verdict` checks that the prior artifact's head is an ancestor of the supplied `head_sha`, that only store paths changed between them, and that the working tree is clean. It never checks that `head_sha` is the repository's actual HEAD. A caller passing an older `head_sha` while HEAD carries later product commits gets \"reused\", because cleanliness is judged against HEAD. This weakens \"changed code invalidates it\".",
+    "file": "plugins/autopilot/scripts/dirty_tree.py:62",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The facade's live-state refusal covers only request and policy inputs (`_INPUTS`) plus `--out`. `--project-root`, `--artifact` and `--log` are not checked. Writes under the project-management store are still refused by `log_sink_refusal.refuse`, but the facade does not itself refuse a `--project-root` inside `docs/dev/project-management/autopilot`. The verification argv would run with that directory as cwd.",
+    "file": "plugins/autopilot/scripts/autopilot.py:188",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The new pre-run symlink-dirt test accepts either refusal or execution producing non-reusable evidence, although the contract requires refusal before spawning. Assert the dirty-tree refusal and use a spawn marker to prove the command never runs.",
+    "file": "tests/autopilot/test_cycle1_boundaries_verify.py:144",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "`_stage_inputs` packs eight named inputs into two positional tuples solely to unpack them immediately. Keep the extracted helper, but use named keyword parameters so callers cannot silently interchange same-typed inputs.",
+    "file": "plugins/autopilot/scripts/review_stage.py:531",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "Reconciliation D22 remains open: attempt-sequence validation allocates `list(range(1, highest + 1))` from an unbounded supplied attempt. A small evidence document can exhaust memory. Validate sequence length and consecutive values without allocating proportional to the highest attempt.",
+    "file": "plugins/autopilot/scripts/review_evidence.py:276",
+    "reason": "single-voice; restates reconciliation D22, which the reconciliation records as an open coordinator decision"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`_write` opens staged review artifacts with `O_TRUNC` and `O_NOFOLLOW` but not `O_EXCL`. `_file_problem` checks the destination before the write, so a hard link or file swapped in between would be truncated. The window is small and only affects caller-supplied artifact roots.",
+    "file": "plugins/autopilot/scripts/review_stage.py:463",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`cap_check`, `custody` and `gate_lead` have no facade command. They are covered only by function-level tests and source-map entries. This fits the PRD's \"port by function\", and I flag it only because the README's facade list omits them.",
+    "file": "plugins/autopilot/README.md:252",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Resolve reconciliation D30 with a temporary-repository index-refresh check: change only a tracked file's mtime, record index bytes/mtime, call `_dirty_check`, and compare the index afterward; repeat with GIT_OPTIONAL_LOCKS=0 to establish whether the claimed read-only probe writes metadata.",
+    "file": "plugins/autopilot/scripts/dirty_tree.py:19",
+    "reason": "single-voice; restates reconciliation D30, which the reconciliation records as an open coordinator decision"
+  }
 ]

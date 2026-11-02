@@ -152,4 +152,4 @@ R12: pass
 R13: pass
 
 Verdict: 18 findings
-Tests: TESTS_LINE_PLACEHOLDER
+Tests: 900 passed, 19 failed, 0 skipped (`uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q`, run this cycle at head 498ab966e618db7a92a8e8a4c9592c379a9553dd in 206.55s; all 19 failures are the AP 00018 task-7 red-first controller tests in test_controller_capacity.py, test_controller_owner.py and test_controller_owner_recovery.py, documented in reviews/00013-preexisting-suite-failures.md; no AP 00013 helper test failed. This is a red suite, never a pass.)
