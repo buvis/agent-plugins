@@ -1,0 +1,118 @@
+{
+  "prd": "00013-autopilot-session-helpers-v2",
+  "task": "1",
+  "native_session": "9c06e3a6-bd40-42a7-aa1c-c5a4471ade3d",
+  "status": "completed",
+  "work_start_sha": "316557ecbe06895b7f90e33a133bc5d699f841ff",
+  "task_base_sha": "147a4e2998666ab73c4eb89ba7c9142e1e6f8c83",
+  "workers": [
+    {
+      "transcript": "/Users/bob/.claude/projects/-Users-bob-git-src-github-com-buvis-agent-plugins/9c06e3a6-bd40-42a7-aa1c-c5a4471ade3d/subagents/agent-a0749a2615f4bd780.jsonl",
+      "models": [
+        "claude-opus-5"
+      ],
+      "effort_metadata": [
+        "high"
+      ],
+      "initial_instruction": "Your complete instructions are the rendered dispatch prompt at /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/dispatch-ivan-1-style.txt. Read that file FIRST with the Read tool and follow it exactly and in full; it is your entire task brief. Work from the repository root /Users/bob/git/src/github.com/buvis/agent-plugins.\n\nContext you need: the listed violation is that `stage_review` in plugins/autopilot/scripts/review_stage.py is now 53 lines, over the project's 50-line function "
+    },
+    {
+      "transcript": "/Users/bob/.claude/projects/-Users-bob-git-src-github-com-buvis-agent-plugins/9c06e3a6-bd40-42a7-aa1c-c5a4471ade3d/subagents/agent-a50040b78ed270d9a.jsonl",
+      "models": [
+        "claude-opus-5"
+      ],
+      "effort_metadata": [
+        "high"
+      ],
+      "initial_instruction": "Your complete instructions are in the file /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/dispatch-deslop-1.txt. Read that file FIRST with the Read tool and follow it exactly and in full; it is your entire task brief. Work from the repository root /Users/bob/git/src/github.com/buvis/agent-plugins. Do not read any other instruction source for your task definition."
+    },
+    {
+      "transcript": "/Users/bob/.claude/projects/-Users-bob-git-src-github-com-buvis-agent-plugins/9c06e3a6-bd40-42a7-aa1c-c5a4471ade3d/subagents/agent-a681e919d34392153.jsonl",
+      "models": [
+        "claude-opus-5"
+      ],
+      "effort_metadata": [
+        "high"
+      ],
+      "initial_instruction": "Your complete instructions are the rendered dispatch prompt at /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/dispatch-tess-1.txt. Read that file FIRST with the Read tool and follow it exactly and in full; it is your entire task brief (test-author role, scope, required behaviours, acceptance criteria, public interfaces, sample test file, framework, reporting footers). Work from the repository root /Users/bob/git/src/github.com/buvis/agent-plugins. Do not read any other instructio"
+    },
+    {
+      "transcript": "/Users/bob/.claude/projects/-Users-bob-git-src-github-com-buvis-agent-plugins/9c06e3a6-bd40-42a7-aa1c-c5a4471ade3d/subagents/agent-a9e2af6bd753cf9fe.jsonl",
+      "models": [
+        "claude-opus-5"
+      ],
+      "effort_metadata": [
+        "high"
+      ],
+      "initial_instruction": "Your complete instructions are the rendered dispatch prompt at /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/dispatch-ivan-1.txt. Read that file FIRST with the Read tool and follow it exactly and in full; it is your entire task brief (implementor role, the failing tests that are your spec, the implementation contract, your file allowlist, and the reporting footers). Work from the repository root /Users/bob/git/src/github.com/buvis/agent-plugins. Do not read any other instruction"
+    },
+    {
+      "transcript": "/Users/bob/.claude/projects/-Users-bob-git-src-github-com-buvis-agent-plugins/9c06e3a6-bd40-42a7-aa1c-c5a4471ade3d/subagents/agent-a9f93f09124debe7c.jsonl",
+      "models": [
+        "claude-opus-5"
+      ],
+      "effort_metadata": [
+        "high"
+      ],
+      "initial_instruction": "Your complete instructions are the rendered prompt at /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/dispatch-tess-1-retry-2.txt. Read that file FIRST with the Read tool and follow it exactly and in full; it is your entire task brief. The QUALITY FEEDBACK section in it is the authoritative scope: exactly one pre-existing test in one file. Work from the repository root /Users/bob/git/src/github.com/buvis/agent-plugins. Do not read any other instruction source for your task definit"
+    },
+    {
+      "transcript": "/Users/bob/.claude/projects/-Users-bob-git-src-github-com-buvis-agent-plugins/9c06e3a6-bd40-42a7-aa1c-c5a4471ade3d/subagents/agent-ad89d8f12a48c5ed7.jsonl",
+      "models": [
+        "claude-opus-5"
+      ],
+      "effort_metadata": [
+        "high"
+      ],
+      "initial_instruction": "Your complete instructions are in the file /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/dispatch-devon-1.txt. Read that file FIRST with the Read tool and follow it exactly and in full; it is your entire task brief. Work from the repository root /Users/bob/git/src/github.com/buvis/agent-plugins. Do not read any other instruction source for your task definition."
+    },
+    {
+      "transcript": "/Users/bob/.claude/projects/-Users-bob-git-src-github-com-buvis-agent-plugins/9c06e3a6-bd40-42a7-aa1c-c5a4471ade3d/subagents/agent-ad963f2bcbc4d2378.jsonl",
+      "models": [
+        "claude-opus-5"
+      ],
+      "effort_metadata": [
+        "high"
+      ],
+      "initial_instruction": "Your complete instructions are the rendered prompt at /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/dispatch-tess-1-retry-1.txt. Read that file FIRST with the Read tool and follow it exactly and in full; it is your entire task brief. Work from the repository root /Users/bob/git/src/github.com/buvis/agent-plugins. Do not read any other instruction source for your task definition."
+    }
+  ],
+  "pat": {
+    "session": "e24cd6be-6ac6-4698-901a-90ff14c9b3b1",
+    "transcript": "/Users/bob/.claude/projects/-Users-bob-git-src-github-com-buvis-agent-plugins/e24cd6be-6ac6-4698-901a-90ff14c9b3b1.jsonl",
+    "actual_models": [
+      "claude-sonnet-5-5"
+    ],
+    "actual_effort": [
+      "high"
+    ],
+    "tools": [],
+    "findings": {
+      "LOW": 5,
+      "MEDIUM": 0,
+      "HIGH": 0,
+      "CRITICAL": 0
+    }
+  },
+  "red_check": {
+    "failed": 12,
+    "passed": 6,
+    "exit_code": 1
+  },
+  "final_scoped_verification": {
+    "passed": 105,
+    "exit_code": 0,
+    "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_helper_recovery_v2.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_cycle1_boundaries_context.py -q --tb=line"
+  },
+  "quality": {
+    "self_deslop": "noop",
+    "style_gate": "fixed:062badf833c679cdfb3d2554eed826b2a68e44ba",
+    "split_hygiene": "clean"
+  },
+  "scope_adjustment": "Tess added the missing context-pack grant only within the old precedent test; all four original assertions remain. Recorded in state.autonomous_decisions and batch deferred log. Global fixture probe was restored.",
+  "limits": [
+    "Not a full-suite pass or AP13 completion review.",
+    "AP18 controller failures still block push.",
+    "Historical remote CI README pin failure was already fixed before this task; no new repair is claimed."
+  ]
+}
