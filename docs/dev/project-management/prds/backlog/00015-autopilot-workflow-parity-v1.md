@@ -37,7 +37,7 @@ The named behavior scenarios pass, and source-map evidence assigns every affecte
 - **Description**: Lenses, classification and integrations within the declared ownership boundary.
 - **Inputs**: Explicit local procedure choice or controller-issued effort-lane decision, review evidence and optional tools.
 - **Outputs**: Complete required review artifacts and classified proposals ready for runtime persistence.
-- **Behavior**: Keep Alice/Blake/Bob and all source fast-track lenses, blindness, R1–R5, semantic rework grouping and custody/cap classification in the plugin. The Autopilot controller owns effort-lane routing/escalation and durable custody/review updates. Only controller-accepted evidence certifies phase completion in either launch mode. Preserve Qwen, engram, catchup, consensus and notification fallbacks; do not remove required lenses when tools are absent. Full requires Alice/Blake/Bob plus policy-activated roles; fast-track preserves Alice/Blake/Eve/Bob plus conditional Carl; solo requires its zero-context consensus result and escalation checks. Keep roles separate from provider placement and retain the source-parity implementor-diversity guard. Verification records and record-store commits are controller operations, not helper side effects.
+- **Behavior**: Keep Alice/Blake/Bob and all source fast-track lenses, blindness, R1–R5, semantic rework grouping and custody/cap classification in the plugin. The Autopilot controller owns effort-lane routing/escalation and durable custody/review updates. Only controller-accepted evidence certifies phase completion in either launch mode. Preserve Qwen, engram, catchup, consensus and notification fallbacks; do not remove required lenses when tools are absent. Full requires Alice/Blake/Bob plus policy-activated roles; fast-track preserves Alice/Blake/Eve/Bob plus conditional Carl; solo requires its zero-context consensus result and escalation checks. Keep roles separate from provider placement and retain the source-parity implementor-diversity guard. Verification records and record-store commits are controller operations, not helper side effects. Verification counts (decided 2026-11-02 after reproducing the defect: a green `python -m pytest -q` run through `plugins/autopilot/scripts/verification.py` records exit_code 0, summary null and reusable false, and the installed source verb exits 3 on the same run, because only the custom `PASS n FAIL n SKIP n EXIT n` line parses while `final-verification.md` promises "the runner's own summary line"): correct the parser, not each caller. `_parse_summary` keeps that line and also accepts pytest's final summary line (`N passed, M failed, K skipped ... in T s`); the last complete line of either form wins; `failed` folds pytest errors; the summary's `exit_code` is the process exit when the line carries no EXIT token. Output with no recognizable line, or pytest's `no tests ran`, stays null counts and not reusable; failed counts, skips, timeouts, the output cap, a dirty tree and a moved HEAD keep today's behavior. Other runners (nextest, cargo test, npm) keep the explicit line contract until a caller needs more.
 
 ## Structural Decomposition
 
@@ -80,6 +80,7 @@ tools/autopilot/source-map.json  # Review
 tests/autopilot/test_review_rosters.py  # Review
 tests/autopilot/test_integrations.py  # Review
 tests/autopilot/test_inventory.py  # Review
+tests/autopilot/test_verification_pytest_summary.py  # Review
 ```
 
 ### Module: Procedures
@@ -93,7 +94,7 @@ New symbols: `tests/autopilot/test_procedures.py`, `tests/autopilot/test_blind_i
 - **Maps to capability**: Review policy
 - **Responsibility**: Keep semantic procedures and artifact reports external; classify each command/option by runtime requirement.
 - **Exports**: Review artifacts, grouped findings and capability declarations, not runtime routing or transitions.
-New symbols: `plugins/autopilot/scripts/integrations.py`, `plugins/autopilot/scripts/reports.py`, `plugins/autopilot/contracts/capabilities.json`, `tests/autopilot/test_review_rosters.py`, `tests/autopilot/test_integrations.py`, `tests/autopilot/test_inventory.py`
+New symbols: `plugins/autopilot/scripts/integrations.py`, `plugins/autopilot/scripts/reports.py`, `plugins/autopilot/contracts/capabilities.json`, `tests/autopilot/test_review_rosters.py`, `tests/autopilot/test_integrations.py`, `tests/autopilot/test_inventory.py`, `tests/autopilot/test_verification_pytest_summary.py`
 
 ## Dependency Graph
 
@@ -125,6 +126,8 @@ Plugin 00013/00014 completed. Preserve the 00012 reference tree and section mapp
 - [ ] Adapt design-solution, plan-tasks and review-plan to explicit inputs and artifacts. (depends on: Phase 0) — Acceptance: local_design_plan_artifacts preserves rework/expansion/tier recommendations without persisting queue/task state.
 - [ ] Adapt work and provider-runner skills with isolated roles, test-first/adversarial/red checks and actual verification evidence. (depends on: Phase 1 task 1) — Acceptance: local_explicit_task_work proves useful work without runtime bookkeeping or automatic next-task selection.
 - [ ] Adapt review-work-completion, review-blindly and fast-track procedures with complete lenses and retained section-level semantics. (depends on: Phase 1 task 2) — Acceptance: blind_input_exclusion and fast_track_roster prove isolation, rubric coverage and explicit controller-required refusals where lifecycle is needed.
+
+- [ ] Accept pytest's summary line in `plugins/autopilot/scripts/verification.py` and say so in `plugins/autopilot/skills/work/references/final-verification.md`. Premise: `rg -c "SUMMARY_RE" plugins/autopilot/scripts/verification.py` still shows the single PASS/FAIL/SKIP/EXIT pattern; if another parser landed first, skip and report. (depends on: Phase 1 task 2) — Acceptance: verification_counts_pytest_green (a real green pytest run records passed, failed 0, skipped, exit_code 0 and reusable), verification_counts_pytest_failed (failures and collection errors fold into failed and are not reusable), verification_counts_skips_preserved, verification_counts_malformed_null (no line, `no tests ran` and a truncated line give null counts), verification_counts_timeout_unreusable, verification_counts_legacy_line_unchanged (the existing summary tests in `tests/autopilot/test_verification.py` pass untouched) and verification_counts_cli_exit (`autopilot verify` exits 0, not 1, on a green pytest gate).
 
 **Exit Criteria**: The named task tests pass. Recheck changed-content premises; if false, skip/report affected edits without forcing them.
 
