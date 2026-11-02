@@ -41,3 +41,14 @@ AP 00013 must complete before AP 00018 resumes. Then apply all 15 steps of
 `plans/00018-replan-3.md`, including the retrospective Pat reviews. Push only
 after all 19 controller tests and required checks pass. The dry-run wave has
 one overlapping lane, so no backlog lane starts before closeout is pushed.
+
+## Branch handoff
+
+Repair completed in cce5dad, evidence a4d4ad0, map0f86a75. The exact focused
+command in the receipt passed494 tests with no failures or skips; provenance
+tests passed44. Validator and source-map check passed. The branch was clean
+after every commit; no formatter cleanup was needed. The normal merge into
+master is complete. No controller changes, completion review or push occurred
+in the work session. Original15 task records were restored through statectl;
+completed Codex repair task16 was appended. `phase-done --outcome tasks_done`
+queued the fresh review03, with cap2 unchanged.
