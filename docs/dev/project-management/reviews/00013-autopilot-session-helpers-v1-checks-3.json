@@ -1,0 +1,9 @@
+[
+  {
+    "cycle": 3,
+    "finding": "The receipt's \"494 passed / 0 failed / 0 skipped\" binds to cce5dad (pre-merge); hashes match at HEAD but the focused command has not been re-run at 43f2fd9 and I did not run it.",
+    "file": "docs/dev/project-management/autopilot/reports/00013-cap-regression-recovery.md",
+    "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cycle1_boundaries_stage.py tests/autopilot/test_cycle1_boundaries_context.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_verification.py tests/autopilot/test_review_evidence_helpers.py tests/autopilot/test_verification_reuse.py tests/autopilot/test_local_paths.py tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py -q -rs",
+    "source": "eve"
+  }
+]
