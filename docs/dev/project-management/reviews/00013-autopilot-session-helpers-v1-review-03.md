@@ -206,3 +206,25 @@ D2: pass
 D3: pass
 D4: pass
 D5: pass
+
+## Coordinator evidence correction after session exit
+
+This addendum corrects the R7 evidence attribution without changing any
+reviewer's submitted finding or the cap disposition. At unchanged review
+head 43f2fd9519f322ae79e0adee2bd5b3c5192a6f23, the command below passed
+2 tests in 0.28s (exit 0) with the default Git configuration:
+
+`uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py::test_staging_refuses_nonstandard_external_git_directory -q`
+
+The same command with `--tb=short` and command-scoped environment
+`GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.bareRepository GIT_CONFIG_VALUE_0=explicit`
+failed both cases in 0.30s (exit 1): staging returned no refusal/error key.
+Carl's failing-test evidence is reproducible under that configuration; the
+unqualified statement above that his test claim is wrong is withdrawn.
+The default full-suite result remains exactly 917 passed and 19 failed.
+
+Actual reviewer models verified from native session JSONL and launch evidence:
+Alice and Blake: claude-sonnet-5-5; Eve: claude-fable-5-1; Bob:
+gpt-6-astra with high effort, resumed original thread
+01a19b8f-6516-7a22-92b6-f45b995d9744; Carl: Copilot backend,
+gemini-3.8-flash. No unavailable model identifier is inferred.

@@ -1,0 +1,994 @@
+{
+  "phase": "review",
+  "next_phase": "review",
+  "schema_version": 1,
+  "batch": {
+    "id": "202610250001",
+    "mode": "autopilot",
+    "completed_prds": [
+      {
+        "filename": "00012-autopilot-package-contract-v1.md",
+        "cycles": 2,
+        "autonomous_decisions": 40,
+        "escalated_decisions": 0,
+        "tasks_completed": 47,
+        "tasks_total": 47,
+        "lane": "full",
+        "lane_reason": "override",
+        "lane_effective": "full",
+        "lane_escalated": null
+      }
+    ],
+    "plugin_versions": {
+      "aegis@buvis-plugins": "0.4.1",
+      "warden@buvis-plugins": "0.14.1"
+    },
+    "catchup_completed_at": "2026-11-01T19:40:00+00:00",
+    "catchup_head_sha": "70c01b0deb5cf15f20afb84261b900a00e1fc50c",
+    "parks_consecutive": 0,
+    "skips": [
+      {
+        "prd": "00013-autopilot-session-helpers-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00014-autopilot-host-execution-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* docs/dev/project-management/prds/done/00013-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00018-autopilot-controller-kernel-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00019-autopilot-controller-lifecycle-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00018-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:07:47Z"
+      },
+      {
+        "prd": "00013-autopilot-session-helpers-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00014-autopilot-host-execution-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* docs/dev/project-management/prds/done/00013-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00018-autopilot-controller-kernel-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00019-autopilot-controller-lifecycle-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00018-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-26T14:08:28Z"
+      },
+      {
+        "prd": "00014-autopilot-host-execution-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* docs/dev/project-management/prds/done/00013-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-29T23:17:12Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-29T23:17:12Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-29T23:17:12Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-10-29T23:17:12Z"
+      }
+    ],
+    "minted_stubs": [
+      "00022-triage-r6-6984cf5-r8-6984cf5-v1.md",
+      "00023-triage-tail-sweep-close-is-refused-whenever-the-v1.md",
+      "00024-triage-the-prd-phase-2-exit-criterion-is-not-me-v1.md",
+      "00025-triage-cycle-1-r7-remains-incomplete-per-job-co-v1.md",
+      "00026-triage-cycle-1-r8-still-permits-external-git-in-v1.md",
+      "00027-triage-cycle-1-r6-still-permits-live-state-over-v1.md",
+      "00028-triage-the-new-exact-name-git-guard-misses-git-v1.md",
+      "00029-triage-cycle-1-r11-compares-resolved-path-spell-v1.md"
+    ]
+  },
+  "prd": "00013-autopilot-session-helpers-v1.md",
+  "catchup_mode": "run",
+  "doubt_reviewer": "codex",
+  "consensus_engine": "legacy",
+  "session_model": "sonnet",
+  "rework_cap": 2,
+  "lane": "full",
+  "lane_reason": "override",
+  "lane_effective": "full",
+  "catchup_probe": {
+    "batch_id": "202610250001",
+    "gh": "ok",
+    "engram": "ok",
+    "checked_at": "2026-10-25T22:40:48Z"
+  },
+  "tasks_total": 16,
+  "tasks_completed": 16,
+  "replan_count": 0,
+  "phases_completed": [],
+  "cycle": 3,
+  "applied_review_batches": [
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-01.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-02.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-02.md::tail-sweep",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00013-autopilot-session-helpers-v1-review-01.md::decision-gate"
+  ],
+  "codex_probe": {
+    "batch_id": "202610250001",
+    "verdict": "unhealthy",
+    "backend": "codex",
+    "detail": "hook_doctor: missing /Users/bob/.codex/codex-hook",
+    "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
+    "checked_at": "2026-10-28T03:07:08.511437+00:00"
+  },
+  "contract_card": "step: AP 00013 bounded branch repair is complete and merged. This fresh native session owns the post-repair REVIEW only. Read reports/00013-cap-regression-recovery.md and reviews/00013-autopilot-session-helpers-v1-review-02.md. The branch repair fixed supported R1,R2,R4-R8,R13,R15 in cce5dad; receipt a4d4ad0 and map0f86a75. Focused tests494 passed; provenance44 passed; validator and map check passed. Full suite has NOT yet been rerun after repair. All16 tasks are completed, including task16 truthfully attributed to Codex subagent (actual model ID not exposed).\n\ninvariants: review01/02 are immutable history; write NEW review03. state.cycle=3 is post-repair verification numbering; rework_cap remains2, granting NO further automatic rework. The cap limits rework, not a clean Phase5 certification (installed phase-review.md). Documented cap_regression recovery permits branch repair then resume. Never re-run the capped review or reset cycles. Every review runs Alice, Blake, Bob, Carl; task16 activates the additional Anthropic doubt lens Eve. Preserve every doubt/de-slop rubric. A missing lens is not permission to skip it. Preserve explicit model-family/tier routes and record actual backend/model from metadata. Carl last ran copilot/gemini-3.8-flash, not native gemini. Bob original thread is01a19b8f-6516-7a22-92b6-f45b995d9744. No recursion marker clearing or permission bypass.\n\nreview scope: incremental since review02 head498ab966e618db7a92a8e8a4c9592c379a9553dd; implementation-aware lenses receive prior findings/reconciliation and branch-repair evidence. Blake receives ONLY PRD plus raw test-gate result, never duplicate6d files, reviews, design, history or file list. Preserve the settled ledger. R3 is the already-known AP00018 red-first controller suite obligation (reviews/00013-preexisting-suite-failures.md); classify ownership honestly, do not modify controller code during AP13. A red full suite is never a pass and forbids push.\n\nverification: use the full gate command uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python docs/dev/tmp/pytest_gate.py tests/autopilot -q. This scratch adapter runs pytest in a child process, reports actual PASS/FAIL/SKIP/EXIT counts and preserves exit; do not run pytest in-process. Run required review evidence/shape/constraint/cap gates. Commit every new review artifact immediately. At convergence hand off to done and STOP; do not finalize in this review session. If gate stalls, preserve its existing cap-out result; do not invent another recovery loop.\n\ncloseout continuation: root coordinates finalization separately, then explicitly resumes AP00018 through all15 steps in plans/00018-replan-3.md. Retain 75000-token estimator exception,45000-byte target/50000 hardcap; preserved tasks1-6 and completed Codex history; retrospective Pat reviews before completion. Never select AP14 before AP18 completes and closeout push is green. Never push master until all19 controller tests and all required checks pass. Normal pushes only; watch CI and fix forward. Wave202611022006 is planned-only: one overlapping lane for14,15,19,20,21,16,17; no safe early lane. Worktrees only ~/git/src/worktrees/agent-plugins. Standing authorization covers routine reversible work; ask only for indispensable input or irreversible action not already authorized.",
+  "prd_budget_since": "2026-11-02T20:54:41Z",
+  "design_mode": "run",
+  "work_start_sha": "843e6e7d51c56377adc1c01fab9ae7ea7755e1f4",
+  "design_doc": "docs/dev/project-management/designs/00013-autopilot-session-helpers-v1-design.md",
+  "repo_root": "/Users/bob/git/src/github.com/buvis/agent-plugins",
+  "autonomous_decisions": [
+    {
+      "issue": "Pat task 2 MEDIUM: findings._row_from_table yields a wrong row (not unreadable-table) for a File-before-Issue table or an escaped pipe in a trailing column when a row has extra cells",
+      "action": "rejected; no change",
+      "reason": "Packaged _row_from_table is equivalent to pinned findings_section._row_from_table (e960ef1) and the task contract says 'Preserve pinned findings_section._reviewed_keys'. Diverging is outside parity; left for the PRD-level review. LOW dead _cap branch kept for the same parity reason.",
+      "cycle": 1,
+      "severity": "medium"
+    },
+    {
+      "cycle": 1,
+      "issue": "prepare_close is 55 lines and stage_review is 52 lines (def through end), over the 50-line limit. The multi-line contract signatures account for most of the overage. The body of prepare_close can drop the inline tail-sweep ternaries into a helper (for example, build the output dict in _proposal_report), and stage_review (plugins/autopilot/scripts/review_stage.py:467) can move the inputs dict assembly into a helper.",
+      "severity": "medium",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Suite is red beyond the 19 documented AP 00018 controller failures. tests/autopilot/test_package.py::TargetPackageTest::test_ci_autopilot_wired_with_python312_and_complete_pinned_plugins_job fails (steps[:2] mismatch). The test pins SETUP at actions/setup-python@5fda3b95..., but .github/workflows/validate.yml:23 uses 6d4fd22b... (v7.1.0, bumped by c8e9b69 and merged in 6c1352c). Pushing master publishes a second red cause that reviews/00013-preexisting-suite-failures.md does not list. The full-suite run shows 20 failures: 19 controller tests plus this one. Update the pin or the workflow so they agree.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "test_facade's capability test was relaxed to check only ids[:3] plus the canonical format, so it passes against the pre-change code and no longer fails if one of the seven new operation IDs is dropped (they are pinned only in test_package.py and test_local_boundary.py). Pin the full ID list in test_facade too.",
+      "severity": "medium",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Malformed request values escape the documented exit-2 usage boundary. group() assumes every finding is a dict, so --group-findings with findings [\"x\"] or [null] raises AttributeError and exits 1 with a traceback (rework_groups.py:106). prepare_close and staging do not validate the types of cycle, batch_id, default_tier, review_ref or the task shapes: a string cycle formats into task names as \"[D1]\" and never matches snapshot cycle ints, and a non-string batch_id silently takes the decision-gate path. The facade _call maps only TypeError and ValueError to exit 2. Validate these fields explicitly and raise ValueError.",
+      "severity": "medium",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "stage_review's live-state refusal is case-sensitive, so on case-insensitive filesystems (macOS, the owner's platform) an artifact_root spelled with different case, e.g. DOCS/dev/project-management/AUTOPILOT/x, is not refused. I checked: Path('.../DOCS/dev/project-management/AUTOPILOT').resolve() exists on this machine and is_relative_to(<project>/docs/dev/project-management/autopilot) is False. The artifacts (review-tasks-*, review-prd-*, prompts) would be written inside live workflow state, against \"refuse live state\". The facade only casefolds the request-file path (plugins/autopilot/scripts/autopilot.py:345), not the artifact_root carried in the JSON. log_sink_refusal does catch aliases by inode (samefile). Fix: compare by inode identity or casefold, as the verification path does. No test covers it.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "`--export-policy --out PATH` writes without any live-state check. `_INPUTS` (the live-state guard list) omits `out`, so `--out <root>/docs/dev/project-management/autopilot/state.json` overwrote the file with exit 0. I reproduced this in a scratch tree. This breaks the PRD rule that no helper writes the executing repo's live autopilot state directory. `--artifact` and `--log` are protected by `refuse()` in log_sink_refusal.py, which blocks the whole store prefix, and `stage_review` has its own guard. `--out` has neither, and `out.write_bytes` also follows symlinks.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Per-job manifests do not constrain rendered inputs: nonblind prompts receive context, diff, pack and history unconditionally, even when those refs are absent from their allowed inputs. Build each prompt and its referenced artifacts from that job\u2019s validated manifest.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Artifact roots outside the project bypass repository and ancestor-symlink checks. An external root can therefore overwrite tracked files in another repository or write inside another live autopilot directory. Apply destination protections to external roots too.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Sink validation reads arbitrary existing candidate files through `_worktree_gitdir_pointer` before checking containment. With a subdirectory project root, an output naming the parent repository\u2019s live state file reads that state before refusal. Inspect only the identified Git pointer after containment checks.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Nested-repository detection fails open when the output\u2019s immediate parent does not exist: `_git` raises OSError and `_in_nested_repo` returns false. Outputs beneath a new directory inside a nested repository are then created. Probe the nearest existing ancestor.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Verification does not reject output/input overlap. An untracked script under scratch can also be the log destination; opening the log deletes the script before execution. Validate identifiable argv input paths against both destinations before opening either output.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Verification can mark changed product content reusable when a tracked product symlink targets a modified management-store file. `_dirty_check` ignores the target modification; the symlink-target check runs only during later reuse assessment. Include that check before and after execution.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Review-close authenticates the review bytes but permits a referenced table row\u2019s issue to differ from its linked findings. `_backed` compares only ref, severity and file. Compare the linked finding key with the actual selected table row\u2019s complete normalized key.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Carry snapshots can omit task status and still prove an unfinished task because `None != \"completed\"`. Validate all required CarryTaskSnapshot fields and their types before matching carry eligibility.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "issue": "Single-voice Medium/Low rows R15,R16,R17,R19,R20,R23-R28 (cycle 1)",
+      "severity": "medium",
+      "cycle": 1,
+      "action": "discarded, recorded in 00013-autopilot-session-helpers-v1-ledger.json",
+      "reason": "single-voice Medium/Low rule; not a claim each is false"
+    },
+    {
+      "issue": "R2: test_package CI wiring test pins stale setup-python SHA after foreign merge 6c1352c",
+      "severity": "high",
+      "cycle": 1,
+      "action": "fix in rework: align the test pin with validate.yml and list it in 00013-preexisting-suite-failures.md",
+      "reason": "verified second red cause (20 failures, not 19); blocks the push gate; workflow is the source of truth for the bumped pin"
+    },
+    {
+      "issue": "Direct Bob and Carl dispatch refused inherited Codex host identity",
+      "severity": "medium",
+      "cycle": 2,
+      "action": "transfer incomplete cycle to supported native review-once runner",
+      "reason": "Installed runner.child_env implements fresh-host identity isolation while preserving AUTOPILOT_DISPATCH_DEPTH; no guard bypass, no cycle increment, all four lenses still required"
+    },
+    {
+      "cycle": 3,
+      "issue": "Verify documented branch repair after cycle-2 cap_regression stall",
+      "severity": "n/a",
+      "action": "fresh verification only; retain rework_cap=2",
+      "reason": "Standing authorization and installed recovery.md permit branch repair then resume. Preserve reviews01/02; number new evidence03. Cap limits rework, so no new automatic rework budget.",
+      "type": "recovery"
+    }
+  ],
+  "deferred_decisions": [
+    {
+      "cycle": 1,
+      "issue": "Shared Git probes have no timeout, contrary to the required 30-second bound. Verification can hang during preflight or post-run checks regardless of its command timeout. Add the timeout and map timeout failures to refusal or stale evidence.",
+      "severity": "\ud83d\udfe1",
+      "file": "plugins/autopilot/scripts/dirty_tree.py:19",
+      "action": "deferred",
+      "reason": "deferred by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Generated helper delivery evidence has `status: passed` but retains `tested_package_revision: null`: the receipt artifact dictionary never supplies the revision. Populate it from the validated receipt and assert the binding in provenance tests.",
+      "severity": "\ud83d\udfe1",
+      "file": "tools/autopilot/update_helper_map.py:478",
+      "action": "deferred",
+      "reason": "deferred by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Function provenance claims extractions that were not delivered: custody journal readers are marked extracted despite being deliberately absent, and custody capture_range points to custody.py although implemented in cap_check.py. Record actual replacements, exclusions and target modules per function.",
+      "severity": "\ud83d\udfe1",
+      "file": "tools/autopilot/update_helper_map.py:286",
+      "action": "deferred",
+      "reason": "deferred by review-close"
+    }
+  ],
+  "tasks": [
+    {
+      "name": "Characterize pinned helper semantics and ownership exclusions",
+      "description": "Characterize pinned helper semantics and ownership exclusions\n\nLocation:\n/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00013-helper-source-characterization.md\n\nReuse: packaged AP00012 contracts and the exact pinned source functions; production cannot import maintainer tests or author-home/source runtime files.\n\nContract (verbatim):\n### Common boundary\n\nThe helper protocol is version 1. Every new facade JSON request file is an object with schema_version: 1 (a real integer, never bool/float). Stage/prepare-close requests put their keyword fields beside it; the facade strips only this envelope field before calling the library. --group-findings reads {schema_version: 1, findings: [...]} and returns {schema_version: 1, ok: true, groups: [...]}. --check-evidence reads {schema_version: 1, evidence: <AP00012 evidence>}; --expected-context reads {schema_version: 1, expected_context: <AP00012 context>}. --policy consumes the already-versioned AP00012 policy unchanged. Nested AP00012 objects retain their exact original schema, with no added fields. Missing, unknown or higher helper versions are usage errors (exit 2) before effects. All new report/error dictionaries from public report functions and the facade include schema_version: 1; pure Row/list/string utility returns remain Python API values versioned by package semver and are enveloped at the facade boundary. Python API breaking changes require a package major version and a new facade protocol major; version-1 wire changes stay additive only where the schema explicitly allows them. No preexisting durable helper state exists to migrate.\n\n--list-capabilities retains its existing JSON array format and three original versioned capability IDs. Add versioned operation IDs stage-review-v1, group-findings-v1, check-evidence-v1, prepare-close-v1, catchup-probe-v1, verification-artifact-v1 and controller-required-v1 only when implemented. --export-policy keeps the exact AP00012 schema_version=1 canonical policy format. Neither legacy operation is rewrapped.\n\n\nLifecycle refusal is `{\"schema_version\": 1, \"ok\": false, \"error\": \"controller-required\", \"operation\": <string>}` before request-file reads or writes. Helpers never discover OVCAQ, import runtime modules, read/write the executing project's live `docs/dev/project-management/autopilot/`, create markers, move PRDs, persist tasks/attempts, commit the store, dispatch reviewers or invoke supervisors.\n\nAll artifact destinations are explicit. Relative paths resolve against explicit project_root. Validate planned output paths before writing. Refuse live state, Git internals, tracked outputs, nested repositories, symlink components below the supplied root, executable/nonregular/multiply linked existing files, or escape from the explicit artifact root. Preserve unresolved paths for symlink checks. Explicit optional snapshots are in-memory JSON or report files outside live state; they never authorize discovery. Verification log paths additionally preserve the pinned descriptor-relative no-follow protections.\n\n\n- [ ] Characterize source helper decisions and identify stateful side effects in the source map. (depends on: declared prerequisites) \u2014 Acceptance: helper_source_parity covers valid/invalid findings, clean reviewer results, stale PRD/code bindings and blind input exclusions; recheck existing target ownership and skip/report conflicts.\n\nDetails:\nRead the exact pin with git show in the supplied source checkout. Record function-level pure/extracted versus controller-owned effects for review_stage, findings_section, rework_groups, gate_lead, review_close, cap_check, custody, catchup_probe, verification, dirty_tree and log_sink_refusal. Run representative original pure decisions and probe fallbacks in temporary roots; report observed output, exact source hashes and source regression IDs. Inspect bounded projections of the map, never print the full 13MB document. Preserve the 185 preexisting controller-owned selected regression assignments; report conflicts, do not reassign them. This is a characterization report, not a claim of target execution or host certification. No shipped runtime changes.\n\nAcceptance criteria:\nhelper_source_parity covers valid/invalid findings, clean reviewer results, stale PRD/code bindings and blind input exclusions; recheck existing target ownership and skip/report conflicts.\n\nVerify: python3 tools/autopilot/check-source.py --source-root /Users/bob/git/src/github.com/buvis/claude-autopilot\nRun only the named task tests with -q --tb=line; the coordinator runs the full suite after every task completes.",
+      "files": [
+        "docs/dev/project-management/reviews/00013-helper-source-characterization.md"
+      ],
+      "estimated_tokens": 63361,
+      "est_context_peak": 83361,
+      "model": "opus",
+      "tier_reason": "floor",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "id": "1",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "red_check": "n/a:docs-only-task",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "split_hygiene": "skipped:no-tests"
+        }
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
+    },
+    {
+      "name": "Extract finding parsing, lead stripping and deterministic grouping",
+      "description": "Extract finding parsing, lead stripping and deterministic grouping\n\nLocation:\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/findings.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/gate_lead.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/rework_groups.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\nTess-owned tests (read-only to Ivan):\n/Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_finding_groups.py\n\nReuse: packaged AP00012 contracts and the exact pinned source functions; production cannot import maintainer tests or author-home/source runtime files.\n\nContract (verbatim):\n### Common boundary\n\nThe helper protocol is version 1. Every new facade JSON request file is an object with schema_version: 1 (a real integer, never bool/float). Stage/prepare-close requests put their keyword fields beside it; the facade strips only this envelope field before calling the library. --group-findings reads {schema_version: 1, findings: [...]} and returns {schema_version: 1, ok: true, groups: [...]}. --check-evidence reads {schema_version: 1, evidence: <AP00012 evidence>}; --expected-context reads {schema_version: 1, expected_context: <AP00012 context>}. --policy consumes the already-versioned AP00012 policy unchanged. Nested AP00012 objects retain their exact original schema, with no added fields. Missing, unknown or higher helper versions are usage errors (exit 2) before effects. All new report/error dictionaries from public report functions and the facade include schema_version: 1; pure Row/list/string utility returns remain Python API values versioned by package semver and are enveloped at the facade boundary. Python API breaking changes require a package major version and a new facade protocol major; version-1 wire changes stay additive only where the schema explicitly allows them. No preexisting durable helper state exists to migrate.\n\n--list-capabilities retains its existing JSON array format and three original versioned capability IDs. Add versioned operation IDs stage-review-v1, group-findings-v1, check-evidence-v1, prepare-close-v1, catchup-probe-v1, verification-artifact-v1 and controller-required-v1 only when implemented. --export-policy keeps the exact AP00012 schema_version=1 canonical policy format. Neither legacy operation is rewrapped.\n\n\nLifecycle refusal is `{\"schema_version\": 1, \"ok\": false, \"error\": \"controller-required\", \"operation\": <string>}` before request-file reads or writes. Helpers never discover OVCAQ, import runtime modules, read/write the executing project's live `docs/dev/project-management/autopilot/`, create markers, move PRDs, persist tasks/attempts, commit the store, dispatch reviewers or invoke supervisors.\n\nAll artifact destinations are explicit. Relative paths resolve against explicit project_root. Validate planned output paths before writing. Refuse live state, Git internals, tracked outputs, nested repositories, symlink components below the supplied root, executable/nonregular/multiply linked existing files, or escape from the explicit artifact root. Preserve unresolved paths for symlink checks. Explicit optional snapshots are in-memory JSON or report files outside live state; they never authorize discovery. Verification log paths additionally preserve the pinned descriptor-relative no-follow protections.\n\n\n### findings.py / gate_lead.py\n\n```python\nclass Row(NamedTuple):\n    ref: str\n    severity: str\n    file: str\n    issue: str\n\ndef reviewed_rows(text: str) -> tuple[list[Row], str | None]: ...\ndef finding_key(severity: str, file: str, issue: str) -> tuple[str, str, str]: ...\ndef strip_lead(line: str) -> str: ...\n```\n\nPreserve pinned `findings_section._reviewed_keys`. Problems are None, `no-section`, `unreadable-table`. Parse first Consolidated Findings H2 through next H2, bullet and named-column tables, optional Ref/Task columns, uppercase normalized R-digits refs, bracketed consensus, emoji/word severity. Right-split issue pipes. Malformed/truncated table rows, duplicate refs or missing terminal pipes make the table unreadable instead of hiding findings. Normalize escaped pipes/whitespace/severity prefixes consistently; display issue keeps case, finding key lowercases it.\n\n`strip_lead` preserves source `_strip_lead`: repeat ordinal, checkbox, comment/details, inline-code/link and Unicode P/S/Z/C/M leads; exclude bare Ps/Pe brackets; include Hangul filler U+3164; stop before severity emoji. It is lexical classification, not review acceptance.\n\n\n### rework_groups.py\n\n```python\nNON_CRITICAL_CAP = 4\ndef file_key(file: str) -> str: ...\ndef group(findings: list[dict]) -> list[dict]: ...\n```\n\nInput requires file string and severity emoji from \ud83d\udd34/\ud83d\udfe0/\ud83d\udfe1/\u26aa, retaining all other fields. The AP00012 adapter converts severity words without mutating evidence. Output groups contain name_hint, critical, findings. Critical singleton groups retain input order and do not count toward cap. Strip repeated source citation suffixes; only full N/A maps to general; markdown shares prose. Above four noncritical groups: general merges into smallest code group, then deepest shared directory, smallest combined pair, lexical keys; absent shared directory becomes mixed. Preserve within-group finding order. Sort noncritical groups by worst severity, descending size, key. Never mutate input.\n\n\nDetails:\nThis split owns finding_group_equivalence and the parsing facet of helper_source_parity. Stage preparation is owned by the dependent staging task. Preserve table/bullet edge cases, malformed refusal, Unicode lead rules, stable grouping and input immutability. Helpers contain no runtime imports or live-state access.\n\nAcceptance criteria:\nreview_preparation_no_state and finding_group_equivalence assert equivalent semantics with no state access or queue changes.\n\nVerify: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_finding_groups.py\nRun only the named task tests with -q --tb=line; the coordinator runs the full suite after every task completes.",
+      "files": [
+        "plugins/autopilot/scripts/findings.py",
+        "plugins/autopilot/scripts/gate_lead.py",
+        "plugins/autopilot/scripts/rework_groups.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 74076,
+      "est_context_peak": 94076,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        1
+      ],
+      "id": "2",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "noop",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "section found by substring, row shape/duplicate refs checked partially, unchecked severity, blind bullet split, greedy strip_lead, char-prefix shared dir, empty name_hint",
+          "devon_weak_points": 8,
+          "devon_in_contract": []
+        }
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
+    },
+    {
+      "name": "Implement advisory AP00012 evidence consistency checking",
+      "description": "Implement advisory AP00012 evidence consistency checking\n\nLocation:\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/review_evidence.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/evidence_shapes.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\nTess-owned tests (read-only to Ivan):\n/Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_review_evidence_helpers.py\n\nReuse: packaged AP00012 contracts and the exact pinned source functions; production cannot import maintainer tests or author-home/source runtime files.\n\nContract (verbatim):\n### Common boundary\n\nThe helper protocol is version 1. Every new facade JSON request file is an object with schema_version: 1 (a real integer, never bool/float). Stage/prepare-close requests put their keyword fields beside it; the facade strips only this envelope field before calling the library. --group-findings reads {schema_version: 1, findings: [...]} and returns {schema_version: 1, ok: true, groups: [...]}. --check-evidence reads {schema_version: 1, evidence: <AP00012 evidence>}; --expected-context reads {schema_version: 1, expected_context: <AP00012 context>}. --policy consumes the already-versioned AP00012 policy unchanged. Nested AP00012 objects retain their exact original schema, with no added fields. Missing, unknown or higher helper versions are usage errors (exit 2) before effects. All new report/error dictionaries from public report functions and the facade include schema_version: 1; pure Row/list/string utility returns remain Python API values versioned by package semver and are enveloped at the facade boundary. Python API breaking changes require a package major version and a new facade protocol major; version-1 wire changes stay additive only where the schema explicitly allows them. No preexisting durable helper state exists to migrate.\n\n--list-capabilities retains its existing JSON array format and three original versioned capability IDs. Add versioned operation IDs stage-review-v1, group-findings-v1, check-evidence-v1, prepare-close-v1, catchup-probe-v1, verification-artifact-v1 and controller-required-v1 only when implemented. --export-policy keeps the exact AP00012 schema_version=1 canonical policy format. Neither legacy operation is rewrapped.\n\n\nLifecycle refusal is `{\"schema_version\": 1, \"ok\": false, \"error\": \"controller-required\", \"operation\": <string>}` before request-file reads or writes. Helpers never discover OVCAQ, import runtime modules, read/write the executing project's live `docs/dev/project-management/autopilot/`, create markers, move PRDs, persist tasks/attempts, commit the store, dispatch reviewers or invoke supervisors.\n\nAll artifact destinations are explicit. Relative paths resolve against explicit project_root. Validate planned output paths before writing. Refuse live state, Git internals, tracked outputs, nested repositories, symlink components below the supplied root, executable/nonregular/multiply linked existing files, or escape from the explicit artifact root. Preserve unresolved paths for symlink checks. Explicit optional snapshots are in-memory JSON or report files outside live state; they never authorize discovery. Verification log paths additionally preserve the pinned descriptor-relative no-follow protections.\n\n\n### review_evidence.py\n\n```python\ndef load_policy() -> dict: ...\ndef check_evidence(policy: dict, expected_context: dict, evidence: dict) -> dict: ...\n```\n\nLoad policy/schema only from packaged contracts. A supplied policy must satisfy the complete AP00012 normative policy shape/invariants and its own canonical digest; it need not byte-equal the packaged policy. In particular the existing v1-alt execution-profile fixture remains a valid policy and earns policy_digest_mismatch for stale submitted binding, not invalid-policy. load_policy returns the packaged default; explicit policy input is independently checked. Implement exact field-specific input shape checks for the AP00012 fields consumed below; reject booleans where integers are required, invalid enums, unknown/missing object fields and duplicate IDs before indexing. This is a contract-specific checker, not a generic JSON Schema implementation. Differential schema tests use test-only jsonschema to expose holes.\n\nImplement all AP00012 semantic checks: independent source bindings/digests; lane/roster/activation/exclusion correctness; result attempts and provider/adapter/fallback history; finding/group/result/artifact attribution; complete required results and rubric namespaces/rules; allowed per-job inputs; reviewer-context independence from builders; verification/source compatibility. Expected context is supplied independently from current inputs, never derived from submitted evidence. Clean completed results satisfy completion with no findings. Missing/failed/unavailable results do not. Forbidden blind inputs stay forbidden even when other jobs may receive them.\n\nReturn `{\"schema_version\": 1, \"ok\": true, \"checks\": \"local-contract-v1\", \"evidence_valid\": true, \"controller_required\": true}` or `{\"schema_version\": 1, \"ok\": false, \"error\": \"invalid-evidence\", \"defects\": <sorted AP00012 defect strings>}`. Match the AP00012 oracle defect set on every existing fixture. Do not return its authoritative-sounding `accepted` token. Validation does not certify host execution or advance phase.\n\n\nDetails:\nThis split owns clean/missing/failed reviewer results, AP00012 attribution, rubric/input isolation and stale PRD/code bindings. Keep the independent test oracle independent; production cannot import tests or jsonschema. All 55 existing fixtures, including v1-alt, must have matching defect sets after outer outcome mapping. Invalid policy/wire shape returns invalid-evidence with defects [schema_invalid]; invalid expected context uses invalid_expected_context. Pure report dictionaries carry schema_version=1. Never return accepted or infer completion from finding count. evidence_shapes.py is internal shape checking, not a generic JSON Schema interpreter. Existing fixture bytes need no change; reuse them as read-only test inputs.\n\nAcceptance criteria:\nhelper_source_parity covers valid/invalid findings, clean reviewer results, stale PRD/code bindings and blind input exclusions; recheck existing target ownership and skip/report conflicts. review_preparation_no_state and finding_group_equivalence assert equivalent semantics with no state access or queue changes.\n\nVerify: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_review_evidence_helpers.py\nRun only the named task tests with -q --tb=line; the coordinator runs the full suite after every task completes.",
+      "files": [
+        "plugins/autopilot/scripts/review_evidence.py",
+        "plugins/autopilot/scripts/evidence_shapes.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 69227,
+      "est_context_peak": 89227,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        2
+      ],
+      "id": "3",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:17377a8b5106764168e825034a495be21d960a12",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "helper could import the in-process test oracle; blocked-subprocess checks covered only two order-dependent inputs",
+          "devon_weak_points": 6,
+          "devon_in_contract": []
+        }
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
+    },
+    {
+      "name": "Port read-only dirty-tree and safe artifact path primitives",
+      "description": "Port read-only dirty-tree and safe artifact path primitives\n\nLocation:\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/dirty_tree.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/log_sink_refusal.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\nTess-owned tests (read-only to Ivan):\n/Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_local_paths.py\n\nReuse: packaged AP00012 contracts and the exact pinned source functions; production cannot import maintainer tests or author-home/source runtime files.\n\nContract (verbatim):\n### Common boundary\n\nThe helper protocol is version 1. Every new facade JSON request file is an object with schema_version: 1 (a real integer, never bool/float). Stage/prepare-close requests put their keyword fields beside it; the facade strips only this envelope field before calling the library. --group-findings reads {schema_version: 1, findings: [...]} and returns {schema_version: 1, ok: true, groups: [...]}. --check-evidence reads {schema_version: 1, evidence: <AP00012 evidence>}; --expected-context reads {schema_version: 1, expected_context: <AP00012 context>}. --policy consumes the already-versioned AP00012 policy unchanged. Nested AP00012 objects retain their exact original schema, with no added fields. Missing, unknown or higher helper versions are usage errors (exit 2) before effects. All new report/error dictionaries from public report functions and the facade include schema_version: 1; pure Row/list/string utility returns remain Python API values versioned by package semver and are enveloped at the facade boundary. Python API breaking changes require a package major version and a new facade protocol major; version-1 wire changes stay additive only where the schema explicitly allows them. No preexisting durable helper state exists to migrate.\n\n--list-capabilities retains its existing JSON array format and three original versioned capability IDs. Add versioned operation IDs stage-review-v1, group-findings-v1, check-evidence-v1, prepare-close-v1, catchup-probe-v1, verification-artifact-v1 and controller-required-v1 only when implemented. --export-policy keeps the exact AP00012 schema_version=1 canonical policy format. Neither legacy operation is rewrapped.\n\n\nLifecycle refusal is `{\"schema_version\": 1, \"ok\": false, \"error\": \"controller-required\", \"operation\": <string>}` before request-file reads or writes. Helpers never discover OVCAQ, import runtime modules, read/write the executing project's live `docs/dev/project-management/autopilot/`, create markers, move PRDs, persist tasks/attempts, commit the store, dispatch reviewers or invoke supervisors.\n\nAll artifact destinations are explicit. Relative paths resolve against explicit project_root. Validate planned output paths before writing. Refuse live state, Git internals, tracked outputs, nested repositories, symlink components below the supplied root, executable/nonregular/multiply linked existing files, or escape from the explicit artifact root. Preserve unresolved paths for symlink checks. Explicit optional snapshots are in-memory JSON or report files outside live state; they never authorize discovery. Verification log paths additionally preserve the pinned descriptor-relative no-follow protections.\n\n\n### verification.py / dirty_tree.py / log_sink_refusal.py\n\n```python\nGATE_TIMEOUT_S = 1800\nGATE_OUTPUT_CAP = 2_000_000\nGATE_LOG_CAP = 20_000_000\ndef run_verification(*, argv: list[str], project_root: Path, head_sha: str,\n                     artifact_path: Path, log_path: Path,\n                     timeout: float = GATE_TIMEOUT_S) -> dict: ...\ndef reuse_verdict(*, prior: dict | None, argv: list[str],\n                  project_root: Path, head_sha: str) -> tuple[str, dict]: ...\n```\n\nRequire timeout to be a finite number greater than zero and no greater than GATE_TIMEOUT_S; booleans are invalid. Require nonempty argv/executable; shell=False, preserve token bytes, process-group isolation and deadline-bounded drain/exit. Stream real stdout/stderr to explicit safe log; retain final 2MB stdout. Bound combined on-disk stdout/stderr log bytes to GATE_LOG_CAP. Before a chunk would exceed the cap, write only the remaining permitted bytes, terminate/reap the process group, and return output_limit_exceeded=true with reusable=false. Output overflow is a failed verification result, never a green run; the facade exits 1. The hard timeout includes drain and child exit. Last PASS n FAIL n SKIP n EXIT n wins; preserve actual process exit separately from summary EXIT. A command without this summary still returns actual output/exit but is not reusable as a source gate. Close/reap pipes/children; kill group on deadline or log-write error. No default workflow lock/last-verification lookup/deletion/write.\n\nArtifact exact fields: schema_version=1, kind=verification-artifact-v1, argv, head_sha, exit_code (int/null), summary ({passed,failed,skipped,exit_code} integer fields/null), timed_out boolean, output_limit_exceeded boolean, dirty_paths string list, head_moved boolean, log ({path,sha256}), reusable boolean. Return `{\"schema_version\": 1, \"ok\": true, \"artifact\": <object>, \"controller_required\": true}` after an attempted run, even a failing command; facade exit reflects failure. Pre-spawn refusal returns ok=false with error dirty-tree/head-moved/unsafe-artifact-path and writes no reports. Refuse overlapping output/input or equal log/artifact paths.\n\nPreserve pinned NUL porcelain, rename/copy both paths, toplevel prefixes, forced untracked status, hidden index flags, Git error refusal, changed-store targets through product symlinks, endpoint diff for merge resolution, exact self-log exclusion and tracked-log refusal. Dirty-run exclusions retain source store/scratch roots; committed reuse tolerates management-store changes only. Preserve Git main/common-dir inode identity, linked-worktree .git pointer, nested repo, symlink/hardlink/executable/nonregular checks, descriptor-relative O_NOFOLLOW parent descent and exclusive leaf creation. Validate both artifacts before spawning. Post-run dirt/head movement invalidates reusable evidence.\n\nreuse_verdict yields (stale,{}) or (reused,prior). Strict artifact shape/types, full lowercase SHA, identical argv, reusable=true, output_limit_exceeded=false, actual exit zero, summary counts present with failed=0 and EXIT=0, then ancestor/clean/unchanged-product checks. Missing/failed/changed/dirty/nonancestor/Git-error evidence is stale. No whitespace normalization within argv arguments.\n\n\nDetails:\nThis prerequisite split owns the pure dirty-tree/log-sink checks, not the runner. Preserve source read-only function names/signatures where possible and descriptor-relative safe sink opening as private reusable primitives. Source snippets are read-only context. Use temporary Git roots, including rename endpoints, hidden flags, store aliases, linked worktrees, symlink loops, nested repos and hardlinks. Reads means content access to workflow files; explicit Git metadata/status operations must not open poison state contents. Do not copy source state, custody writer, record-store, lock/queue or supervisor imports. The common artifact boundary also applies to staged reports.\n\nAcceptance criteria:\ncatchup_optional_absent and verification_artifact_reuse cover source fallbacks, changed-code rejection and real command exit/output. local_helpers_without_ovcaq, no_hidden_workflow_state and controller_action_not_yet_wired use temporary project roots and poison legacy-state files to prove no access, mutation, marker or runtime lookup.\n\nVerify: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_local_paths.py\nRun only the named task tests with -q --tb=line; the coordinator runs the full suite after every task completes.",
+      "files": [
+        "plugins/autopilot/scripts/dirty_tree.py",
+        "plugins/autopilot/scripts/log_sink_refusal.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 69509,
+      "est_context_peak": 89509,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        3
+      ],
+      "id": "4",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "noop",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "no ancestor check, lexical symlink targets, non -z porcelain, partial exec bits, unsafe sink open, HEAD-based tracking, size-only hidden flags, name-based git-dir check; tests not hermetic against global git config",
+          "devon_weak_points": 8,
+          "devon_in_contract": [
+            "2. absolute-target symlink can never match toplevel-relative store paths under the pinned rule, so skip-absolute is indistinguishable"
+          ]
+        }
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
+    },
+    {
+      "name": "Prepare isolated review artifacts and complete reviewer prompts",
+      "description": "Prepare isolated review artifacts and complete reviewer prompts\n\nLocation:\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/review_stage.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\nTess-owned tests (read-only to Ivan):\n/Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_review_helpers.py\n\nReuse: packaged AP00012 contracts and the exact pinned source functions; production cannot import maintainer tests or author-home/source runtime files.\n\nContract (verbatim):\n### Common boundary\n\nThe helper protocol is version 1. Every new facade JSON request file is an object with schema_version: 1 (a real integer, never bool/float). Stage/prepare-close requests put their keyword fields beside it; the facade strips only this envelope field before calling the library. --group-findings reads {schema_version: 1, findings: [...]} and returns {schema_version: 1, ok: true, groups: [...]}. --check-evidence reads {schema_version: 1, evidence: <AP00012 evidence>}; --expected-context reads {schema_version: 1, expected_context: <AP00012 context>}. --policy consumes the already-versioned AP00012 policy unchanged. Nested AP00012 objects retain their exact original schema, with no added fields. Missing, unknown or higher helper versions are usage errors (exit 2) before effects. All new report/error dictionaries from public report functions and the facade include schema_version: 1; pure Row/list/string utility returns remain Python API values versioned by package semver and are enveloped at the facade boundary. Python API breaking changes require a package major version and a new facade protocol major; version-1 wire changes stay additive only where the schema explicitly allows them. No preexisting durable helper state exists to migrate.\n\n--list-capabilities retains its existing JSON array format and three original versioned capability IDs. Add versioned operation IDs stage-review-v1, group-findings-v1, check-evidence-v1, prepare-close-v1, catchup-probe-v1, verification-artifact-v1 and controller-required-v1 only when implemented. --export-policy keeps the exact AP00012 schema_version=1 canonical policy format. Neither legacy operation is rewrapped.\n\n\nLifecycle refusal is `{\"schema_version\": 1, \"ok\": false, \"error\": \"controller-required\", \"operation\": <string>}` before request-file reads or writes. Helpers never discover OVCAQ, import runtime modules, read/write the executing project's live `docs/dev/project-management/autopilot/`, create markers, move PRDs, persist tasks/attempts, commit the store, dispatch reviewers or invoke supervisors.\n\nAll artifact destinations are explicit. Relative paths resolve against explicit project_root. Validate planned output paths before writing. Refuse live state, Git internals, tracked outputs, nested repositories, symlink components below the supplied root, executable/nonregular/multiply linked existing files, or escape from the explicit artifact root. Preserve unresolved paths for symlink checks. Explicit optional snapshots are in-memory JSON or report files outside live state; they never authorize discovery. Verification log paths additionally preserve the pinned descriptor-relative no-follow protections.\n\n\n### review_stage.py\n\n```python\ndef render_tasks(tasks: list[dict]) -> str: ...\ndef findings_precedent(pack_text: str | None) -> str: ...\ndef stage_review(*, project_root: Path, artifact_root: Path, cycle_id: str,\n                 tasks: list[dict], prd_text: str, design_text: str | None,\n                 context_text: str, diff_text: str | None,\n                 expected_context: dict, input_texts: dict[str, str],\n                 pack_text: str | None = None, settled_text: str | None = None,\n                 prior_findings_text: str | None = None,\n                 test_gate_text: str | None = None) -> dict: ...\n```\n\ncycle_id matches `[A-Za-z0-9][A-Za-z0-9._-]*`. Validate expected context before output. Encode prd_text exactly as UTF-8 without trimming, newline insertion or normalization, and require SHA-256 equality with expected_context.source_bindings.prd_sha256 before any write. The staged raw PRD preserves these exact bytes. The PRD input_texts ref must carry exactly that same content. Supplied repo-tree refs must name expected_context.source_bindings.tree_sha; these are explicit identities, not permission to query workflow state. All non-PRD input_texts are explicit caller-provided content under the validated per-job manifest; this helper does not certify their external origin. Mismatched PRD content or repo identity refuses invalid-input before output. input_texts keys are AP00012 refs; every required per-job ref needs supplied content or a declared explicit reference. Never select a lane/roster or discover CLI availability. Use the independently resolved expected context.\n\nWrite review-tasks-ID.md, review-prd-raw-ID.md, review-prd-ID.md, review-context-ID.md, optional review-diff-ID.diff and JOB-prompt-ID.md beneath artifact_root. Raw PRD remains authoritative for blind input, including literal Design Doc headings inside the actual PRD. Only merged nonblind PRD appends design. Task rendering escapes pipes/newlines and retains each folded task/shared commit/companions. Missing optional pack uses pinned fallback text; precedent section stops at same-or-higher heading.\n\nReuse packaged personas/rubrics/checklist/output formats. Adapt preflight to packaged metadata, not omitted host tools registration. Preserve source Alice/Carl normal inputs, Bob's Eve doubt appendix and citation rule, and Eve's five run inputs. Apply policy allowed refs before rendering. Blake gets raw PRD, blind rubric/output and only explicitly allowed test-results; never design, diff, file list, task table, history, pack, mechanical facts, sibling findings or broad context path. Isolation includes references/paths as well as text. Substitute known template tokens once; injected text containing tokens is not reprocessed.\n\nReturn `{\"schema_version\": 1, \"ok\": true, \"artifacts\": [{\"kind\": <local helper kind>, \"path\": <absolute string>, \"sha256\": <hex>}], \"prompts\": {<job>: <absolute path>}, \"input_manifest\": {<job>: <refs>}}`. Do not extend AP00012 evidence artifact enums to describe these local reports. No dispatch rows, state stamps or completion claims.\n\n\nDetails:\nThis split owns review_preparation_no_state and blind exclusions. input_texts values are inline text only; no value is opened as a path. A repo-tree ref is repo-tree:<40-hex tree_sha>, with the same SHA as its value. Other content refs carry literal text; no undocumented external-reference representation is accepted. Preserve exact PRD bytes, digest refusal, raw-vs-merged PRD, task/companion rows, packaged rubrics/personas, Bob doubt appendix and one-pass substitution. Per-job manifests exclude implicit injected context; Blake never gets task/design/diff/history/file-list or a broad context path. All destinations are explicit. Reuse the safe output primitives; no whole source staging module or process dispatch is ported.\n\nAcceptance criteria:\nreview_preparation_no_state and finding_group_equivalence assert equivalent semantics with no state access or queue changes. helper_source_parity covers valid/invalid findings, clean reviewer results, stale PRD/code bindings and blind input exclusions; recheck existing target ownership and skip/report conflicts.\n\nVerify: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_review_helpers.py\nRun only the named task tests with -q --tb=line; the coordinator runs the full suite after every task completes.",
+      "files": [
+        "plugins/autopilot/scripts/review_stage.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 64452,
+      "est_context_peak": 84452,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        4
+      ],
+      "id": "5",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "noop",
+          "style_gate": "fixed:22bfad63ab422a1e54435a686f5d0036cbb12d1f",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "context validated only for independent_contexts_required, hardcoded tree sha, unchecked outside-project roots, design_text None stringified, settled/prior/gate/pack text dropped, empty alice/eve prompts, unanchored precedent heading, manifest copied from context; two test-file bugs (trimmed variant equals PRD, ignored tmp/ in tracked-output setup)",
+          "devon_weak_points": 8,
+          "devon_in_contract": [
+            "3. exact home of the full PACK text is not pinned by the contract (only pack use through the findings precedent)",
+            "6. a bare artifact root outside the project is allowed: the contract refuses only escape from the explicit artifact root",
+            "7. an extra unknown ref and a diff_text vs input_texts diff mismatch are not pinned as refusals",
+            "8. DIFF_REF stays in manifests when diff_text is None, and artifact kind values are not pinned"
+          ]
+        }
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
+    },
+    {
+      "name": "Prepare authenticated classified review-close proposals",
+      "description": "Prepare authenticated classified review-close proposals\n\nLocation:\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/review_close.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\nTess-owned tests (read-only to Ivan):\n/Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_review_close_helpers.py\n\nReuse: packaged AP00012 contracts and the exact pinned source functions; production cannot import maintainer tests or author-home/source runtime files.\n\nContract (verbatim):\n### Common boundary\n\nThe helper protocol is version 1. Every new facade JSON request file is an object with schema_version: 1 (a real integer, never bool/float). Stage/prepare-close requests put their keyword fields beside it; the facade strips only this envelope field before calling the library. --group-findings reads {schema_version: 1, findings: [...]} and returns {schema_version: 1, ok: true, groups: [...]}. --check-evidence reads {schema_version: 1, evidence: <AP00012 evidence>}; --expected-context reads {schema_version: 1, expected_context: <AP00012 context>}. --policy consumes the already-versioned AP00012 policy unchanged. Nested AP00012 objects retain their exact original schema, with no added fields. Missing, unknown or higher helper versions are usage errors (exit 2) before effects. All new report/error dictionaries from public report functions and the facade include schema_version: 1; pure Row/list/string utility returns remain Python API values versioned by package semver and are enveloped at the facade boundary. Python API breaking changes require a package major version and a new facade protocol major; version-1 wire changes stay additive only where the schema explicitly allows them. No preexisting durable helper state exists to migrate.\n\n--list-capabilities retains its existing JSON array format and three original versioned capability IDs. Add versioned operation IDs stage-review-v1, group-findings-v1, check-evidence-v1, prepare-close-v1, catchup-probe-v1, verification-artifact-v1 and controller-required-v1 only when implemented. --export-policy keeps the exact AP00012 schema_version=1 canonical policy format. Neither legacy operation is rewrapped.\n\n\nLifecycle refusal is `{\"schema_version\": 1, \"ok\": false, \"error\": \"controller-required\", \"operation\": <string>}` before request-file reads or writes. Helpers never discover OVCAQ, import runtime modules, read/write the executing project's live `docs/dev/project-management/autopilot/`, create markers, move PRDs, persist tasks/attempts, commit the store, dispatch reviewers or invoke supervisors.\n\nAll artifact destinations are explicit. Relative paths resolve against explicit project_root. Validate planned output paths before writing. Refuse live state, Git internals, tracked outputs, nested repositories, symlink components below the supplied root, executable/nonregular/multiply linked existing files, or escape from the explicit artifact root. Preserve unresolved paths for symlink checks. Explicit optional snapshots are in-memory JSON or report files outside live state; they never authorize discovery. Verification log paths additionally preserve the pinned descriptor-relative no-follow protections.\n\n\n### review_close.py\n\n```python\nclass CarryTaskSnapshot(TypedDict):\n    id: str\n    name: str\n    carry_refs: list[str]\n    carry_cycle: int\n    escalation_reason: Literal[\"review_flag\", \"fable_rescue\"]\n    status: str\n\nclass CloseReadSnapshot(TypedDict):\n    cycle: int\n    tasks: list[CarryTaskSnapshot]\n    rework_task_ids: list[str]\n    decision_gate_review_ref: str | None\n    deferred_decisions: list[dict]\n\ndef prepare_close(*, policy: dict, expected_context: dict, evidence: dict,\n                  review_ref: str, review_text: str,\n                  chosen_findings: list[dict], cycle: int,\n                  batch_id: str, default_tier: str,\n                  read_snapshot: CloseReadSnapshot | None = None) -> dict: ...\n```\n\nFirst require local evidence validity. Require exactly one evidence artifact of kind review-file with path equal to review_ref; hash review_text encoded as exact UTF-8 with no normalization and require its sha256 to match that artifact. Every chosen consolidated row carries finding_ids: list[str], nonempty and unique. AP00012 findings project to parser rows as follows: severity maps critical/high/medium/low to \ud83d\udd34/\ud83d\udfe0/\ud83d\udfe1/\u26aa for source grouping; issue is finding.title, not finding.evidence; file is finding.file or N/A when null. Normalize severity/file/title through finding_key. The finding.evidence body, task_ref and result_id remain unchanged in the proposal's linked source findings. Each linked finding must match the consolidated row's normalized severity/file/issue. Several independently attributed findings may link to one row when these keys agree. Different normalized titles remain separate rows; speculative semantic title merging is not certified by this deterministic helper. Every evidence finding appears in exactly one row's links, with no missing, unknown or multiply linked finding ID; clean evidence therefore requires zero consolidated rows. Derive found_by as distinct reviewer job_ref values reached through each linked finding.result_id in validated reviewer_results. If caller found_by is present, its distinct values must exactly match that derived set. Duplicate reports from one reviewer count once. Reject conflicting or duplicate chosen refs before proposals rather than creating duplicate tasks. Verify/discard bookkeeping rows that the source permits outside the consolidated table have no finding_ids and cannot contribute tasks or consensus. A ref selects its matched consolidated row and cannot introduce a new finding. Refuse artifact/content/attribution mismatches before proposals. Then cross-check chosen findings against consolidated rows by normalized severity/file/issue or unambiguous ref, never merely their count. Classifications preserve pinned gate.KNOWN_CLASSIFICATIONS exactly: verify/discard/fix/defer/carry. Preserve source exceptions for verify/discard, duplicate-ref conflicting classifications, full coverage, and ref-required checks; do not invent unconditional critical classification. Malformed/mismatch/uncovered/ref-required refuse before proposal generation. Do not inherit source legacy no-section application escape hatch for new AP00012 evidence.\n\nPort pure `_mutation_context`, `_findings_block` and `_add_decisions` transformations from pinned review_close without its mutator. Fixes are grouped through rework_groups; proposed task fields are name=`[D<cycle>] <prefix><name_hint>`, description=`### Findings (verbatim)` followed by source-format rows, model=default_tier; prefix is `Tail sweep: ` only for batch_id tail-sweep. Output has `schema_version: 1`, `ok`, `controller_required: true`, `task_proposals`, `decision_proposals`, `rubric_verdicts`, `reviewer_results`. Task proposals have no durable IDs. Deferred proposal preserves cycle/issue/emoji severity/file/action=deferred/reason. Fix proposal preserves cycle/issue/word severity and action=fix-proposed, avoiding source's premature auto-fixed claim. Verify/discard/carry proposals retain their supplied classification/reason without new task creation. Extract rubric/result completion from validated evidence, not source agents frontmatter or finding count.\n\nPreserve `_single_voice_refusal`: decision-gate medium/low fix needs two distinct list-valued found_by entries; missing/nonlist is zero. Tail sweep needs two distinct finders for every row. A carry row needs supplied read_snapshot tasks/rework_task_ids/current cycle proving one unfinished task with matching carry_refs, carry_cycle, rework membership and review_flag/fable_rescue escalation. Missing snapshot refuses controller-required; never discover it. Tail sweep preserves ordered refusals: carry, missing current-review decision-gate receipt, empty, above medium, single voice, duplicate open deferral by normalized severity/file. Supply receipt/open deferrals explicitly in read_snapshot; never infer them. Tail sweep proposes no lens close-out. No applied-review-batch stamp, dispatch end call, statectl import, task persistence or authoritative lens state is emitted.\n\nThe snapshot is read-only caller data, never a discovered file. Require snapshot.cycle == cycle. For tail sweep, require snapshot.decision_gate_review_ref == review_ref exactly; a receipt from another review is insufficient. Only actual list entries that are validated reviewer job IDs count for found_by; caller labels cannot invent a second reviewer. Missing snapshot required by carry/tail-sweep returns controller-required; malformed supplied snapshot returns invalid-input. Carry matching normalizes refs uppercase and requires one task satisfy all conditions; completed tasks cannot satisfy it. Distinct finder count uses unique list entries, not raw list length. Deferred matching normalizes both emoji and word severity and strips file whitespace. None of these checks writes, reapplies or manufactures the supplied controller receipt.\n\n\nDetails:\nUse AP00012 title/evidence/null-file fields exactly as reviewed. Table rows, including table verify/discard rows, have finding_ids; only off-table bookkeeping verify/discard rows omit them. Derive consensus jobs from validated attribution. Carry uses at least one task satisfying carry_cycle==cycle, rework membership, escalation review_flag/fable_rescue and status != completed, preserving source status semantics. Missing snapshot returns schema_version1 controller-required operation prepare-close (exit3 at facade); the pre-read lifecycle rule applies specifically to controller-action. Preserve source refusal tokens findings_mismatch/findings_uncovered/findings_ref_required/findings_malformed/single_voice_fix/carry_unmatched/carry_in_tail_sweep/tail_sweep_before_decision_gate/tail_sweep_empty/tail_sweep_above_medium/tail_sweep_single_voice/tail_sweep_duplicates_deferral in error, with ok=false, schema_version=1 and reason. These preparation refusals map to exit1; malformed shapes raise ValueError and map to exit2. Never emit applied=true, durable IDs, phase acceptance, auto-fixed, journal writes or an applied batch stamp. Exact-title consensus is intentionally conservative; do not invent semantic merging.\n\nAcceptance criteria:\nreview_preparation_no_state and finding_group_equivalence assert equivalent semantics with no state access or queue changes. helper_source_parity covers valid/invalid findings, clean reviewer results, stale PRD/code bindings and blind input exclusions; recheck existing target ownership and skip/report conflicts.\n\nVerify: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_review_close_helpers.py\nRun only the named task tests with -q --tb=line; the coordinator runs the full suite after every task completes.",
+      "files": [
+        "plugins/autopilot/scripts/review_close.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 65270,
+      "est_context_peak": 85270,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        5
+      ],
+      "id": "6",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:7afee40",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "review": "medium-retry:fixed",
+          "devon": "exploit_fixed",
+          "devon_exploit": "first-finding-only task description, tail sweep single-voice and above-medium checks limited to some rows, only first chosen row compared with deferrals, only carry_refs[0] matched, made-up rubric verdict allowed by subset check, snapshot cycle checked only with carry rows, off-table defer row accepted; one test-file bug (row() called with ref twice)",
+          "devon_weak_points": 8,
+          "devon_in_contract": []
+        }
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
+    },
+    {
+      "name": "Extract regression classification and pure custody proposals",
+      "description": "Extract regression classification and pure custody proposals\n\nLocation:\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/cap_check.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/custody.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\nTess-owned tests (read-only to Ivan):\n/Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_cap_custody_helpers.py\n\nReuse: packaged AP00012 contracts and the exact pinned source functions; production cannot import maintainer tests or author-home/source runtime files.\n\nContract (verbatim):\n### Common boundary\n\nThe helper protocol is version 1. Every new facade JSON request file is an object with schema_version: 1 (a real integer, never bool/float). Stage/prepare-close requests put their keyword fields beside it; the facade strips only this envelope field before calling the library. --group-findings reads {schema_version: 1, findings: [...]} and returns {schema_version: 1, ok: true, groups: [...]}. --check-evidence reads {schema_version: 1, evidence: <AP00012 evidence>}; --expected-context reads {schema_version: 1, expected_context: <AP00012 context>}. --policy consumes the already-versioned AP00012 policy unchanged. Nested AP00012 objects retain their exact original schema, with no added fields. Missing, unknown or higher helper versions are usage errors (exit 2) before effects. All new report/error dictionaries from public report functions and the facade include schema_version: 1; pure Row/list/string utility returns remain Python API values versioned by package semver and are enveloped at the facade boundary. Python API breaking changes require a package major version and a new facade protocol major; version-1 wire changes stay additive only where the schema explicitly allows them. No preexisting durable helper state exists to migrate.\n\n--list-capabilities retains its existing JSON array format and three original versioned capability IDs. Add versioned operation IDs stage-review-v1, group-findings-v1, check-evidence-v1, prepare-close-v1, catchup-probe-v1, verification-artifact-v1 and controller-required-v1 only when implemented. --export-policy keeps the exact AP00012 schema_version=1 canonical policy format. Neither legacy operation is rewrapped.\n\n\nLifecycle refusal is `{\"schema_version\": 1, \"ok\": false, \"error\": \"controller-required\", \"operation\": <string>}` before request-file reads or writes. Helpers never discover OVCAQ, import runtime modules, read/write the executing project's live `docs/dev/project-management/autopilot/`, create markers, move PRDs, persist tasks/attempts, commit the store, dispatch reviewers or invoke supervisors.\n\nAll artifact destinations are explicit. Relative paths resolve against explicit project_root. Validate planned output paths before writing. Refuse live state, Git internals, tracked outputs, nested repositories, symlink components below the supplied root, executable/nonregular/multiply linked existing files, or escape from the explicit artifact root. Preserve unresolved paths for symlink checks. Explicit optional snapshots are in-memory JSON or report files outside live state; they never authorize discovery. Verification log paths additionally preserve the pinned descriptor-relative no-follow protections.\n\n\n### cap_check.py / custody.py\n\n```python\nclass CapCheckError(RuntimeError): ...\ndef classify_findings(*, repo_root: Path, review_text: str,\n                      previous_head: str | None, head: str) -> list[dict]: ...\ndef capture_range(repo_root: str, git_dir: str | None, base: str) -> tuple[str, int, str]: ...\ndef upsert_entry(entries: list[dict], entry: dict) -> tuple[list[dict], bool]: ...\ndef marker_entry(prd: str, batch: str, op_id: str, detail: str, capture: dict) -> dict: ...\ndef refresh_hold_prd(text: str, entry: dict) -> str: ...\ndef migration_records(snapshot: dict, op_id: str, prd: str) -> list[dict]: ...\n```\n\nCap takes heads explicitly instead of inferring current truth from evidence/frontmatter. Missing previous head returns []; medium/low-only makes no Git calls. Require full 40-hex commits, distinct range, previous ancestor of head, head reachable from HEAD; normalize to Git toplevel. Preserve multipath/backtick/annotation/absolute/unambiguous casefold and every-line parsing. Any unresolved path/cell returns regression=null, never false; introduced rework line or first file/subtree touch yields true with abbreviated commit; otherwise false. Missing-path detection reads Git stderr only; unrelated corruption raises. Output source fields ref/severity/file/line/regression/commit and optional reason.\n\ncapture_range uses explicit repo/git-dir/base, captures HEAD once, preserves empty-tree/detached/bare-backed support, 30-second timeout, and returns range/count/branch. Pure constructors/upsert/hold-text/migration retain source semantics, original deferred index/type/cycle, 20-line closed-frontmatter rule, same-batch notice replacement, insertion fallback and idempotence. Any notice instructing custody resolve must identify controller requirement. No disk writes, marker/journal loading, locks, pending discovery, implicit project root, configuration locator, branch pin, revert/reset, record_critical, mirror mutation, cleanup or resolve implementation.\n\n\nDetails:\nPreserve the pinned cap and custody pure functions, using explicit heads/read snapshots/text. No custody records, marker IO, locking, branch/revert/resolve effects, runtime import or implicit state root. Missing previous_head intentionally preserves source [] meaning not evaluated; callers must inspect that input and no complete cap workflow capability is advertised. Bound each Git command to 30 seconds and surface corruption instead of a false negative. Keep source null-versus-false unresolved-path behavior, multipath/line parsing, bare/detached capture and idempotent notice construction. Controller-owned source regression commitments remain unchanged.\n\nAcceptance criteria:\nreview_preparation_no_state and finding_group_equivalence assert equivalent semantics with no state access or queue changes.\n\nVerify: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_cap_custody_helpers.py\nRun only the named task tests with -q --tb=line; the coordinator runs the full suite after every task completes.",
+      "files": [
+        "plugins/autopilot/scripts/cap_check.py",
+        "plugins/autopilot/scripts/custody.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 69138,
+      "est_context_peak": 89138,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        6
+      ],
+      "id": "7",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:fc3c638",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "severity read from the whole row, file column fixed at index 4, range checked only at endpoints, first casefold match wins, any non-previous commit counts as regression, head must equal HEAD, capture_range skips base ancestry (source parity, in-contract), notice after last heading",
+          "devon_weak_points": 8,
+          "devon_in_contract": [
+            "6. capture_range does not require the base to be an ancestor of HEAD: the pinned source only checks 40-hex, directory and commit resolution"
+          ]
+        }
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
+    },
+    {
+      "name": "Expose stateless optional catchup probes",
+      "description": "Expose stateless optional catchup probes\n\nLocation:\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/catchup.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\nTess-owned tests (read-only to Ivan):\n/Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_catchup.py\n\nReuse: packaged AP00012 contracts and the exact pinned source functions; production cannot import maintainer tests or author-home/source runtime files.\n\nContract (verbatim):\n### Common boundary\n\nThe helper protocol is version 1. Every new facade JSON request file is an object with schema_version: 1 (a real integer, never bool/float). Stage/prepare-close requests put their keyword fields beside it; the facade strips only this envelope field before calling the library. --group-findings reads {schema_version: 1, findings: [...]} and returns {schema_version: 1, ok: true, groups: [...]}. --check-evidence reads {schema_version: 1, evidence: <AP00012 evidence>}; --expected-context reads {schema_version: 1, expected_context: <AP00012 context>}. --policy consumes the already-versioned AP00012 policy unchanged. Nested AP00012 objects retain their exact original schema, with no added fields. Missing, unknown or higher helper versions are usage errors (exit 2) before effects. All new report/error dictionaries from public report functions and the facade include schema_version: 1; pure Row/list/string utility returns remain Python API values versioned by package semver and are enveloped at the facade boundary. Python API breaking changes require a package major version and a new facade protocol major; version-1 wire changes stay additive only where the schema explicitly allows them. No preexisting durable helper state exists to migrate.\n\n--list-capabilities retains its existing JSON array format and three original versioned capability IDs. Add versioned operation IDs stage-review-v1, group-findings-v1, check-evidence-v1, prepare-close-v1, catchup-probe-v1, verification-artifact-v1 and controller-required-v1 only when implemented. --export-policy keeps the exact AP00012 schema_version=1 canonical policy format. Neither legacy operation is rewrapped.\n\n\nLifecycle refusal is `{\"schema_version\": 1, \"ok\": false, \"error\": \"controller-required\", \"operation\": <string>}` before request-file reads or writes. Helpers never discover OVCAQ, import runtime modules, read/write the executing project's live `docs/dev/project-management/autopilot/`, create markers, move PRDs, persist tasks/attempts, commit the store, dispatch reviewers or invoke supervisors.\n\nAll artifact destinations are explicit. Relative paths resolve against explicit project_root. Validate planned output paths before writing. Refuse live state, Git internals, tracked outputs, nested repositories, symlink components below the supplied root, executable/nonregular/multiply linked existing files, or escape from the explicit artifact root. Preserve unresolved paths for symlink checks. Explicit optional snapshots are in-memory JSON or report files outside live state; they never authorize discovery. Verification log paths additionally preserve the pinned descriptor-relative no-follow protections.\n\n\n### catchup.py\n\n```python\ndef probe(project_root: Path, *, run=subprocess.run, which=shutil.which) -> dict: ...\n```\n\nOnly gh auth status and engram status --scope repo, explicit cwd, captured text, timeout 15 seconds each. Missing binary/OSError/timeout => absent. gh zero=>ok, otherwise unauthenticated. Engram exact stderr marker `not inside a registered repo`=>unregistered, otherwise ok even nonzero, preserving source fallback. Return schema_version=1, gh token, engram token, skip list; github-state first when gh not ok, engram second when engram not ok. No batch cache/state discovery/persistence. Probe success never narrows required review.\n\n\nDetails:\nThis split owns catchup_optional_absent. Run only the two explicit probes with injected run/which seams, explicit cwd and 15-second timeouts. Preserve the unusual source engram nonzero-but-not-unregistered behavior. Return versioned local observations and skip order. No persistent cache, batch lookup, environment registry lookup or runtime import.\n\nAcceptance criteria:\ncatchup_optional_absent and verification_artifact_reuse cover source fallbacks, changed-code rejection and real command exit/output.\n\nVerify: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_catchup.py\nRun only the named task tests with -q --tb=line; the coordinator runs the full suite after every task completes.",
+      "files": [
+        "plugins/autopilot/scripts/catchup.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 63693,
+      "est_context_peak": 83693,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        7
+      ],
+      "id": "8",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:78bd603",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "custom env passed to run, gh returncode > 0 rule, engram absent derived from gh, engram marker matched by loose words, every exception except exact RuntimeError swallowed as absent",
+          "devon_weak_points": 5,
+          "devon_in_contract": []
+        }
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
+    },
+    {
+      "name": "Execute bounded verification and assess explicit artifact reuse",
+      "description": "Execute bounded verification and assess explicit artifact reuse\n\nLocation:\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/verification.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\nTess-owned tests (read-only to Ivan):\n/Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_verification.py\n\nReuse: packaged AP00012 contracts and the exact pinned source functions; production cannot import maintainer tests or author-home/source runtime files.\n\nContract (verbatim):\n### Common boundary\n\nThe helper protocol is version 1. Every new facade JSON request file is an object with schema_version: 1 (a real integer, never bool/float). Stage/prepare-close requests put their keyword fields beside it; the facade strips only this envelope field before calling the library. --group-findings reads {schema_version: 1, findings: [...]} and returns {schema_version: 1, ok: true, groups: [...]}. --check-evidence reads {schema_version: 1, evidence: <AP00012 evidence>}; --expected-context reads {schema_version: 1, expected_context: <AP00012 context>}. --policy consumes the already-versioned AP00012 policy unchanged. Nested AP00012 objects retain their exact original schema, with no added fields. Missing, unknown or higher helper versions are usage errors (exit 2) before effects. All new report/error dictionaries from public report functions and the facade include schema_version: 1; pure Row/list/string utility returns remain Python API values versioned by package semver and are enveloped at the facade boundary. Python API breaking changes require a package major version and a new facade protocol major; version-1 wire changes stay additive only where the schema explicitly allows them. No preexisting durable helper state exists to migrate.\n\n--list-capabilities retains its existing JSON array format and three original versioned capability IDs. Add versioned operation IDs stage-review-v1, group-findings-v1, check-evidence-v1, prepare-close-v1, catchup-probe-v1, verification-artifact-v1 and controller-required-v1 only when implemented. --export-policy keeps the exact AP00012 schema_version=1 canonical policy format. Neither legacy operation is rewrapped.\n\n\nLifecycle refusal is `{\"schema_version\": 1, \"ok\": false, \"error\": \"controller-required\", \"operation\": <string>}` before request-file reads or writes. Helpers never discover OVCAQ, import runtime modules, read/write the executing project's live `docs/dev/project-management/autopilot/`, create markers, move PRDs, persist tasks/attempts, commit the store, dispatch reviewers or invoke supervisors.\n\nAll artifact destinations are explicit. Relative paths resolve against explicit project_root. Validate planned output paths before writing. Refuse live state, Git internals, tracked outputs, nested repositories, symlink components below the supplied root, executable/nonregular/multiply linked existing files, or escape from the explicit artifact root. Preserve unresolved paths for symlink checks. Explicit optional snapshots are in-memory JSON or report files outside live state; they never authorize discovery. Verification log paths additionally preserve the pinned descriptor-relative no-follow protections.\n\n\n### verification.py / dirty_tree.py / log_sink_refusal.py\n\n```python\nGATE_TIMEOUT_S = 1800\nGATE_OUTPUT_CAP = 2_000_000\nGATE_LOG_CAP = 20_000_000\ndef run_verification(*, argv: list[str], project_root: Path, head_sha: str,\n                     artifact_path: Path, log_path: Path,\n                     timeout: float = GATE_TIMEOUT_S) -> dict: ...\ndef reuse_verdict(*, prior: dict | None, argv: list[str],\n                  project_root: Path, head_sha: str) -> tuple[str, dict]: ...\n```\n\nRequire timeout to be a finite number greater than zero and no greater than GATE_TIMEOUT_S; booleans are invalid. Require nonempty argv/executable; shell=False, preserve token bytes, process-group isolation and deadline-bounded drain/exit. Stream real stdout/stderr to explicit safe log; retain final 2MB stdout. Bound combined on-disk stdout/stderr log bytes to GATE_LOG_CAP. Before a chunk would exceed the cap, write only the remaining permitted bytes, terminate/reap the process group, and return output_limit_exceeded=true with reusable=false. Output overflow is a failed verification result, never a green run; the facade exits 1. The hard timeout includes drain and child exit. Last PASS n FAIL n SKIP n EXIT n wins; preserve actual process exit separately from summary EXIT. A command without this summary still returns actual output/exit but is not reusable as a source gate. Close/reap pipes/children; kill group on deadline or log-write error. No default workflow lock/last-verification lookup/deletion/write.\n\nArtifact exact fields: schema_version=1, kind=verification-artifact-v1, argv, head_sha, exit_code (int/null), summary ({passed,failed,skipped,exit_code} integer fields/null), timed_out boolean, output_limit_exceeded boolean, dirty_paths string list, head_moved boolean, log ({path,sha256}), reusable boolean. Return `{\"schema_version\": 1, \"ok\": true, \"artifact\": <object>, \"controller_required\": true}` after an attempted run, even a failing command; facade exit reflects failure. Pre-spawn refusal returns ok=false with error dirty-tree/head-moved/unsafe-artifact-path and writes no reports. Refuse overlapping output/input or equal log/artifact paths.\n\nPreserve pinned NUL porcelain, rename/copy both paths, toplevel prefixes, forced untracked status, hidden index flags, Git error refusal, changed-store targets through product symlinks, endpoint diff for merge resolution, exact self-log exclusion and tracked-log refusal. Dirty-run exclusions retain source store/scratch roots; committed reuse tolerates management-store changes only. Preserve Git main/common-dir inode identity, linked-worktree .git pointer, nested repo, symlink/hardlink/executable/nonregular checks, descriptor-relative O_NOFOLLOW parent descent and exclusive leaf creation. Validate both artifacts before spawning. Post-run dirt/head movement invalidates reusable evidence.\n\nreuse_verdict yields (stale,{}) or (reused,prior). Strict artifact shape/types, full lowercase SHA, identical argv, reusable=true, output_limit_exceeded=false, actual exit zero, summary counts present with failed=0 and EXIT=0, then ancestor/clean/unchanged-product checks. Missing/failed/changed/dirty/nonancestor/Git-error evidence is stale. No whitespace normalization within argv arguments.\n\n\nDetails:\nThis split owns verification_artifact_reuse and actual command output. artifact_path/log_path must be under explicit project_root, which is the artifact containment root for this API; current batch state is forbidden. Exact stdout/stderr bytes live in the bounded hashed log; the final stdout tail is solely for source summary parsing. Enforce 1800-second finite positive maximum, 2MB retained stdout, 20MB combined disk cap, process-group cleanup, exit/summary disagreement, dirty/head-moved invalidation and exact argv reuse. No last-verification discovery or durable workflow lock. POSIX mechanisms require an explicit unsupported-platform error before spawn on unsupported hosts; no Windows verification capability claim. Reports have schema_version1. Git probes have 30-second timeouts. Reuse is advisory and never controller acceptance.\n\nAcceptance criteria:\ncatchup_optional_absent and verification_artifact_reuse cover source fallbacks, changed-code rejection and real command exit/output.\n\nVerify: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_verification.py\nRun only the named task tests with -q --tb=line; the coordinator runs the full suite after every task completes.",
+      "files": [
+        "plugins/autopilot/scripts/verification.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 64477,
+      "est_context_peak": 84477,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        8
+      ],
+      "id": "9",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:fa89472",
+          "style_gate": "clean",
+          "split_hygiene": "fixed:4dab90f687fa40bc9a022c840f88c2dbdd8e1532",
+          "review": "medium-retry:fixed",
+          "devon": "exploit_fixed",
+          "devon_exploit": "post-run dirt skipped under the log folder, deleted tracked files not dirt, timeout applied only under 10 s, only stdout counted toward the log cap, final path part (symlink) unchecked, symlink-parent/nested-repo/executable checks on one path only, reuse shape checks only some types, killed run reports exit 0",
+          "devon_weak_points": 8,
+          "devon_in_contract": []
+        }
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
+    },
+    {
+      "name": "Wire versioned local facade operations and controller refusals",
+      "description": "Wire versioned local facade operations and controller refusals\n\nLocation:\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/autopilot.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\nTess-owned tests (read-only to Ivan):\n/Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_local_boundary.py\n\nReuse: packaged AP00012 contracts and the exact pinned source functions; production cannot import maintainer tests or author-home/source runtime files.\n\nContract (verbatim):\n### Common boundary\n\nThe helper protocol is version 1. Every new facade JSON request file is an object with schema_version: 1 (a real integer, never bool/float). Stage/prepare-close requests put their keyword fields beside it; the facade strips only this envelope field before calling the library. --group-findings reads {schema_version: 1, findings: [...]} and returns {schema_version: 1, ok: true, groups: [...]}. --check-evidence reads {schema_version: 1, evidence: <AP00012 evidence>}; --expected-context reads {schema_version: 1, expected_context: <AP00012 context>}. --policy consumes the already-versioned AP00012 policy unchanged. Nested AP00012 objects retain their exact original schema, with no added fields. Missing, unknown or higher helper versions are usage errors (exit 2) before effects. All new report/error dictionaries from public report functions and the facade include schema_version: 1; pure Row/list/string utility returns remain Python API values versioned by package semver and are enveloped at the facade boundary. Python API breaking changes require a package major version and a new facade protocol major; version-1 wire changes stay additive only where the schema explicitly allows them. No preexisting durable helper state exists to migrate.\n\n--list-capabilities retains its existing JSON array format and three original versioned capability IDs. Add versioned operation IDs stage-review-v1, group-findings-v1, check-evidence-v1, prepare-close-v1, catchup-probe-v1, verification-artifact-v1 and controller-required-v1 only when implemented. --export-policy keeps the exact AP00012 schema_version=1 canonical policy format. Neither legacy operation is rewrapped.\n\n\nLifecycle refusal is `{\"schema_version\": 1, \"ok\": false, \"error\": \"controller-required\", \"operation\": <string>}` before request-file reads or writes. Helpers never discover OVCAQ, import runtime modules, read/write the executing project's live `docs/dev/project-management/autopilot/`, create markers, move PRDs, persist tasks/attempts, commit the store, dispatch reviewers or invoke supervisors.\n\nAll artifact destinations are explicit. Relative paths resolve against explicit project_root. Validate planned output paths before writing. Refuse live state, Git internals, tracked outputs, nested repositories, symlink components below the supplied root, executable/nonregular/multiply linked existing files, or escape from the explicit artifact root. Preserve unresolved paths for symlink checks. Explicit optional snapshots are in-memory JSON or report files outside live state; they never authorize discovery. Verification log paths additionally preserve the pinned descriptor-relative no-follow protections.\n\n\n### autopilot.py facade\n\nPreserve existing --list-capabilities and --export-policy [--out PATH]. New mutually exclusive operations:\n\n```\n--stage-review REQUEST_JSON\n--group-findings FINDINGS_JSON\n--check-evidence EVIDENCE_JSON --expected-context CONTEXT_JSON [--policy POLICY_JSON]\n--prepare-close REQUEST_JSON\n--catchup-probe --project-root ROOT\n--verify --project-root ROOT --head-sha SHA --artifact PATH --log PATH [--timeout SECONDS] -- ARGV...\n--controller-action OPERATION\n```\n\nRequests map exactly to function keyword names; paths explicit. --check-evidence uses load_policy() when --policy is absent and otherwise reads that explicit policy JSON; alternate valid policies are available to both library and facade. prepare-close request carries expected_context separately from evidence within named sibling fields and explicit cycle/batch/tier. It only emits proposals. Cap/custody pure library APIs are not advertised as complete workflow operations. Exit 0 successful preparation/probe/check; 1 invalid evidence or real verification failure; 2 usage/input/path errors; 3 controller-required. One JSON value stdout; diagnostics stderr. Lifecycle refusal happens before request reads, adapter import, output writes or runtime lookup. Capabilities advertise implemented helpers only; existing skill execution gates stay intact.\n\n\nDetails:\nUse the reviewed version1 request/report envelopes and exact command syntax. Preserve legacy list-capabilities array and canonical policy export format. CLI file inputs must refuse content reads from the executing live autopilot state directory, including explicit poisoned paths and symlink aliases; inputs outside it remain explicit supplied files, not discovered state. Lifecycle controller-action refusal precedes any request-file read, output creation or adapter lookup. Other controller-required returns, such as missing prepare-close snapshot, occur after only explicit input reads. Reject malformed input/unknown versions as exit2, invalid evidence/preparation as exit1, controller-required as exit3; verification nonzero/summary failure/timeout/overflow exit1. Probe unavailability is a successful observation. No OVCAQ, source checkout, author home, supervisor, branch/session launch or hidden runtime fallback. Test target-only copied package with poison states and subprocess/open audits, including os.open/dir_fd. Running tests must not call a helper against this batch live root.\n\nAcceptance criteria:\nlocal_helpers_without_ovcaq, no_hidden_workflow_state and controller_action_not_yet_wired use temporary project roots and poison legacy-state files to prove no access, mutation, marker or runtime lookup.\n\nVerify: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_local_boundary.py\nRun only the named task tests with -q --tb=line; the coordinator runs the full suite after every task completes.",
+      "files": [
+        "plugins/autopilot/scripts/autopilot.py",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 59824,
+      "est_context_peak": 79824,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        9
+      ],
+      "id": "10",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:d20093d",
+          "style_gate": "clean",
+          "split_hygiene": "failed:UNUSED HELPERS in test_local_boundary.py (read by test_local_boundary_state.py; single-file checker false positive)",
+          "review": "medium-retry:fixed",
+          "devon": "exploit_fixed",
+          "devon_exploit": "own catchup probe with loose tokens, stage-review and prepare-close refusals exiting 0, any --timeout replaced by 1 s, reusable ignored in verify exit code, unsupported-platform exit 0, missing/unknown request keys dropped, live-state check limited to the host project; three test-file bugs (overflow below the log cap, bytecode leak from copied __pycache__, wrong skip token)",
+          "devon_weak_points": 8,
+          "devon_in_contract": []
+        }
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
+    },
+    {
+      "name": "Record helper provenance and document delivered capability limits",
+      "description": "Record helper provenance and document delivered capability limits\n\nLocation:\n/Users/bob/git/src/github.com/buvis/agent-plugins/tools/autopilot/update_helper_map.py\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/README.md\n/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/CHANGELOG.md\nTess-owned tests (read-only to Ivan):\n/Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_helper_provenance.py\n\nReuse: packaged AP00012 contracts and the exact pinned source functions; production cannot import maintainer tests or author-home/source runtime files.\n\nContract (verbatim):\n### Common boundary\n\nThe helper protocol is version 1. Every new facade JSON request file is an object with schema_version: 1 (a real integer, never bool/float). Stage/prepare-close requests put their keyword fields beside it; the facade strips only this envelope field before calling the library. --group-findings reads {schema_version: 1, findings: [...]} and returns {schema_version: 1, ok: true, groups: [...]}. --check-evidence reads {schema_version: 1, evidence: <AP00012 evidence>}; --expected-context reads {schema_version: 1, expected_context: <AP00012 context>}. --policy consumes the already-versioned AP00012 policy unchanged. Nested AP00012 objects retain their exact original schema, with no added fields. Missing, unknown or higher helper versions are usage errors (exit 2) before effects. All new report/error dictionaries from public report functions and the facade include schema_version: 1; pure Row/list/string utility returns remain Python API values versioned by package semver and are enveloped at the facade boundary. Python API breaking changes require a package major version and a new facade protocol major; version-1 wire changes stay additive only where the schema explicitly allows them. No preexisting durable helper state exists to migrate.\n\n--list-capabilities retains its existing JSON array format and three original versioned capability IDs. Add versioned operation IDs stage-review-v1, group-findings-v1, check-evidence-v1, prepare-close-v1, catchup-probe-v1, verification-artifact-v1 and controller-required-v1 only when implemented. --export-policy keeps the exact AP00012 schema_version=1 canonical policy format. Neither legacy operation is rewrapped.\n\n\nLifecycle refusal is `{\"schema_version\": 1, \"ok\": false, \"error\": \"controller-required\", \"operation\": <string>}` before request-file reads or writes. Helpers never discover OVCAQ, import runtime modules, read/write the executing project's live `docs/dev/project-management/autopilot/`, create markers, move PRDs, persist tasks/attempts, commit the store, dispatch reviewers or invoke supervisors.\n\nAll artifact destinations are explicit. Relative paths resolve against explicit project_root. Validate planned output paths before writing. Refuse live state, Git internals, tracked outputs, nested repositories, symlink components below the supplied root, executable/nonregular/multiply linked existing files, or escape from the explicit artifact root. Preserve unresolved paths for symlink checks. Explicit optional snapshots are in-memory JSON or report files outside live state; they never authorize discovery. Verification log paths additionally preserve the pinned descriptor-relative no-follow protections.\n\n\nMapping conflicts must be reported and retained. Add top-level helper_dispositions keyed by source module:function and source_regression_id with target scenario, owner scope, controller exclusion and evidence reference; preserve all existing identity/digest/owner fields and controller evidence. Test validator acceptance and byte-semantic equality of unrelated arrays. Use bounded projections rather than opening the 13.66MB map in task prompts.\n\nDetails:\nGenerate additive helper_dispositions in the source map from explicit bounded characterization/delivery data. Preserve all original identity/digest/owner assignments and controller profile evidence; update only legitimately changed package asset hashes/delivery receipts and add ownership for new authored helper files. Never mark controller execution or host profiles passed. The map is generated data, not a 13MB authored prompt; inspect bounded projections and the complete bounded semantic diff. Keep helper_dispositions versioned with source_commit and function/regression rows naming source identity, extracted versus controller-owned scope, target scenario and evidence. Every affected source regression must receive an honest helper-facet or controller-only disposition. Tests reject a helper-owned writer or supervisor and ensure unrelated arrays/owners stay intact. Existing AP00012 fixtures are consumed read-only; no speculative fixture-schema extension. Record actual per-task test receipts and explicit real-host unavailability. README preserves historical sections and current no-publication/no-installation boundary. First commit the package/script/doc edits, then execute the deterministic metadata generator against that committed package revision and commit generated map/receipts before task verification. Generated source-map/receipt paths are legitimate build outputs, staged explicitly by the coordinator; the implementor does not hand-edit the full map.\n\nAcceptance criteria:\nsource_inventory_mapping binds every helper obligation and source regression case to an observable target scenario and rejects a helper-owned writer or supervisor; the separate controller is allowed.\n\nVerify: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line /Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_helper_provenance.py\nRun only the named task tests with -q --tb=line; the coordinator runs the full suite after every task completes.",
+      "files": [
+        "tools/autopilot/update_helper_map.py",
+        "plugins/autopilot/README.md",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "estimated_tokens": 67121,
+      "est_context_peak": 87121,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "blocked_by": [
+        10
+      ],
+      "id": "11",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "committed:c064a11",
+          "style_gate": "clean",
+          "split_hygiene": "failed:UNUSED HELPER_TARGETS/HELPER_ONLY/SELECTORS in test_helper_provenance.py (read by test_helper_provenance_cli.py and _real.py; single-file checker false positive)",
+          "review": "medium-retry:fixed",
+          "devon": "exploit_fixed",
+          "devon_exploit": "hardcoded function table with an invented extracted row, regression selection hardcoded to synthetic paths with substring dispositions, constant scenario/exclusion/evidence, duplicate check only over selected rows, shallow receipt validation, bogus helper asset rows and wiped refreshed evidence, non-atomic in-place write",
+          "devon_weak_points": 8,
+          "devon_in_contract": [
+            "2. a regression row selected by both a helper-only and a mixed module cannot be built from the fixed selectors (no shared test file), so the mixed-row rule is covered only through tampered rows"
+          ]
+        }
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
+    },
+    {
+      "name": "[D1] plugins/autopilot/scripts/",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe1 plugins/autopilot/scripts/autopilot.py:125: Malformed request values escape the documented exit-2 usage boundary. group() assumes every finding is a dict, so --group-findings with findings [\"x\"] or [null] raises AttributeError and exits 1 with a traceback (rework_groups.py:106). prepare_close and staging do not validate the types of cycle, batch_id, default_tier, review_ref or the task shapes: a string cycle formats into task names as \"[D1]\" and never matches snapshot cycle ints, and a non-string batch_id silently takes the decision-gate path. The facade _call maps only TypeError and ValueError to exit 2. Validate these fields explicitly and raise ValueError. (found by: ALICE, BLAKE, BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_stage.py:397: stage_review's live-state refusal is case-sensitive, so on case-insensitive filesystems (macOS, the owner's platform) an artifact_root spelled with different case, e.g. DOCS/dev/project-management/AUTOPILOT/x, is not refused. I checked: Path('.../DOCS/dev/project-management/AUTOPILOT').resolve() exists on this machine and is_relative_to(<project>/docs/dev/project-management/autopilot) is False. The artifacts (review-tasks-*, review-prd-*, prompts) would be written inside live workflow state, against \"refuse live state\". The facade only casefolds the request-file path (plugins/autopilot/scripts/autopilot.py:345), not the artifact_root carried in the JSON. log_sink_refusal does catch aliases by inode (samefile). Fix: compare by inode identity or casefold, as the verification path does. No test covers it. (found by: ALICE)\n- \ud83d\udfe0 plugins/autopilot/scripts/autopilot.py:47: `--export-policy --out PATH` writes without any live-state check. `_INPUTS` (the live-state guard list) omits `out`, so `--out <root>/docs/dev/project-management/autopilot/state.json` overwrote the file with exit 0. I reproduced this in a scratch tree. This breaks the PRD rule that no helper writes the executing repo's live autopilot state directory. `--artifact` and `--log` are protected by `refuse()` in log_sink_refusal.py, which blocks the whole store prefix, and `stage_review` has its own guard. `--out` has neither, and `out.write_bytes` also follows symlinks. (found by: BLAKE)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_stage.py:251: Per-job manifests do not constrain rendered inputs: nonblind prompts receive context, diff, pack and history unconditionally, even when those refs are absent from their allowed inputs. Build each prompt and its referenced artifacts from that job\u2019s validated manifest. (found by: BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_stage.py:376: Artifact roots outside the project bypass repository and ancestor-symlink checks. An external root can therefore overwrite tracked files in another repository or write inside another live autopilot directory. Apply destination protections to external roots too. (found by: BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/verification.py:70: Verification does not reject output/input overlap. An untracked script under scratch can also be the log destination; opening the log deletes the script before execution. Validate identifiable argv input paths against both destinations before opening either output. (found by: BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/dirty_tree.py:209: Verification can mark changed product content reusable when a tracked product symlink targets a modified management-store file. `_dirty_check` ignores the target modification; the symlink-target check runs only during later reuse assessment. Include that check before and after execution. (found by: BOB)\n",
+      "model": "sonnet",
+      "id": "12",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "sonnet",
+          "outcome": "completed",
+          "review_cycle": 1,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "lean",
+          "self_deslop": "noop",
+          "style_gate": "fixed:85c073d",
+          "split_hygiene": "clean"
+        }
+      ]
+    },
+    {
+      "name": "[D1] plugins/autopilot/scripts/",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe1 plugins/autopilot/scripts/review_close.py:467: prepare_close is 55 lines and stage_review is 52 lines (def through end), over the 50-line limit. The multi-line contract signatures account for most of the overage. The body of prepare_close can drop the inline tail-sweep ternaries into a helper (for example, build the output dict in _proposal_report), and stage_review (plugins/autopilot/scripts/review_stage.py:467) can move the inputs dict assembly into a helper. (found by: ALICE, BOB, CARL)\n- \ud83d\udfe0 plugins/autopilot/scripts/log_sink_refusal.py:115: Sink validation reads arbitrary existing candidate files through `_worktree_gitdir_pointer` before checking containment. With a subdirectory project root, an output naming the parent repository\u2019s live state file reads that state before refusal. Inspect only the identified Git pointer after containment checks. (found by: BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/log_sink_refusal.py:143: Nested-repository detection fails open when the output\u2019s immediate parent does not exist: `_git` raises OSError and `_in_nested_repo` returns false. Outputs beneath a new directory inside a nested repository are then created. Probe the nearest existing ancestor. (found by: BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_close.py:232: Review-close authenticates the review bytes but permits a referenced table row\u2019s issue to differ from its linked findings. `_backed` compares only ref, severity and file. Compare the linked finding key with the actual selected table row\u2019s complete normalized key. (found by: BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_close.py:120: Carry snapshots can omit task status and still prove an unfinished task because `None != \"completed\"`. Validate all required CarryTaskSnapshot fields and their types before matching carry eligibility. (found by: BOB)\n",
+      "model": "sonnet",
+      "id": "13",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "sonnet",
+          "outcome": "completed",
+          "review_cycle": 1,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "lean",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "split_hygiene": "clean"
+        }
+      ]
+    },
+    {
+      "name": "[D1] tests/autopilot/test_package.py",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe0 tests/autopilot/test_package.py:454: Suite is red beyond the 19 documented AP 00018 controller failures. tests/autopilot/test_package.py::TargetPackageTest::test_ci_autopilot_wired_with_python312_and_complete_pinned_plugins_job fails (steps[:2] mismatch). The test pins SETUP at actions/setup-python@5fda3b95..., but .github/workflows/validate.yml:23 uses 6d4fd22b... (v7.1.0, bumped by c8e9b69 and merged in 6c1352c). Pushing master publishes a second red cause that reviews/00013-preexisting-suite-failures.md does not list. The full-suite run shows 20 failures: 19 controller tests plus this one. Update the pin or the workflow so they agree. (found by: ALICE, CARL)\n",
+      "model": "sonnet",
+      "id": "14",
+      "status": "completed",
+      "usage_at_start": 264244,
+      "calls_at_start": 4,
+      "started_at": 1793612525,
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "sonnet",
+          "outcome": "completed",
+          "review_cycle": 1,
+          "cause": null,
+          "implementor": "orchestrator",
+          "preflight_outcome": null,
+          "pipeline": "lean",
+          "red_check": "n/a:micro-lane",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "split_hygiene": "skipped:no-tests"
+        }
+      ]
+    },
+    {
+      "name": "[D1] tests/autopilot/test_facade.py",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe1 tests/autopilot/test_facade.py:99: test_facade's capability test was relaxed to check only ids[:3] plus the canonical format, so it passes against the pre-change code and no longer fails if one of the seven new operation IDs is dropped (they are pinned only in test_package.py and test_local_boundary.py). Pin the full ID list in test_facade too. (found by: ALICE, CARL)\n",
+      "model": "sonnet",
+      "id": "15",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "sonnet",
+          "outcome": "completed",
+          "review_cycle": 1,
+          "cause": null,
+          "implementor": "orchestrator",
+          "preflight_outcome": null,
+          "pipeline": "lean",
+          "red_check": "n/a:micro-lane",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "split_hygiene": "skipped:no-tests"
+        }
+      ]
+    },
+    {
+      "name": "Bounded branch recovery after cap_regression",
+      "description": "Fix supported review-02 R1, R2, R4-R8, R13 and R15. Documented branch recovery, not additional automatic rework. Commits cce5dad, a4d4ad0, 0f86a75. Preserve prior work-start SHA and reviews. Verify: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cycle1_boundaries_stage.py tests/autopilot/test_cycle1_boundaries_context.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_verification.py tests/autopilot/test_review_evidence_helpers.py tests/autopilot/test_verification_reuse.py tests/autopilot/test_local_paths.py tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py -q",
+      "files": [
+        "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
+        "plugins/autopilot/CHANGELOG.md",
+        "plugins/autopilot/README.md",
+        "plugins/autopilot/scripts/autopilot.py",
+        "plugins/autopilot/scripts/log_sink_refusal.py",
+        "plugins/autopilot/scripts/review_close.py",
+        "plugins/autopilot/scripts/review_evidence.py",
+        "plugins/autopilot/scripts/review_stage.py",
+        "plugins/autopilot/scripts/verification.py",
+        "tests/autopilot/test_cap_recovery_helpers.py",
+        "tests/autopilot/test_cycle1_boundaries_verify.py",
+        "tests/autopilot/test_review_helpers.py",
+        "tools/autopilot/source-map.json"
+      ],
+      "blocked_by": [],
+      "id": "16",
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "not-exposed",
+          "outcome": "completed",
+          "implementor": "codex",
+          "backend": "Codex collaboration subagent",
+          "agent": "/root/repair_ap13",
+          "model_evidence": "model identifier not exposed by collaboration tool",
+          "commits": [
+            "cce5dadcfe5c951e541ef8e395ffd930b1d56b0e",
+            "a4d4ad0b7d26f0619a14fcd7c368752999eb37d1",
+            "0f86a7515d1eab36019a9b7cf8a6be8e4c81277a"
+          ],
+          "verification": "494 focused passed, 44 provenance passed; validator and source-map check passed. Full suite not claimed green."
+        }
+      ]
+    }
+  ],
+  "rework_task_ids": [],
+  "review_lenses": {
+    "consensus": "running",
+    "blind": "running",
+    "doubt": "running",
+    "fable": "running",
+    "ui": "running"
+  }
+}

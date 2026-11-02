@@ -44,11 +44,39 @@ one overlapping lane, so no backlog lane starts before closeout is pushed.
 
 ## Branch handoff
 
-Repair completed in cce5dad, evidence a4d4ad0, map0f86a75. The exact focused
-command in the receipt passed494 tests with no failures or skips; provenance
-tests passed44. Validator and source-map check passed. The branch was clean
+Repair completed in cce5dad, evidence a4d4ad0, map 0f86a75. The exact focused
+command in the receipt passed 494 tests with no failures or skips; provenance
+tests passed 44. Validator and source-map check passed. The branch was clean
 after every commit; no formatter cleanup was needed. The normal merge into
 master is complete. No controller changes, completion review or push occurred
-in the work session. Original15 task records were restored through statectl;
-completed Codex repair task16 was appended. `phase-done --outcome tasks_done`
-queued the fresh review03, with cap2 unchanged.
+in the work session. Original 15 task records were restored through statectl;
+completed Codex repair task 16 was appended. `phase-done --outcome tasks_done`
+queued the fresh review 03, with cap 2 unchanged.
+
+## Review 03 and bounded v2 recovery
+
+Fresh native session 2126dbe6-a944-4408-8807-3f4d463041b8 completed all five
+lenses and stalled v1 again. The review found three staging regressions
+(R7–R9), plus supported sink defects. The full suite measured 917 passed,
+19 failed, 0 skipped; the exact helper command measured 494 passed,
+0 failed, 0 skipped. Neither result authorizes a push.
+
+The installed cap_regression handler also permits a v2 PRD against the
+triage stub. Admit 00013-autopilot-session-helpers-v2 as one bounded,
+four-task correction retaining the entire original feature contract. Keep
+v1 held and preserve its exhausted cap, reviews, deferrals and task history.
+V2 receives cap 2 and a fresh full review with Alice, Blake, Bob, Carl and
+Eve. Do not automatically create v3 or reset an exhausted counter. Only
+after v2 completion may the coordinator mark v1 superseded by that evidence;
+never describe the failed v1 gate as passed.
+
+The historical task snapshot is 00013-v1-before-review3-stall.json. It retains
+all 16 completed tasks and Codex repair provenance. Abbreviated repair commit
+identifiers are expanded in this preserved copy; the original snapshot and
+committed live history remain unchanged.
+
+Review 03's R7 test-evidence dismissal was too strong. With default Git
+configuration the two existing metadata tests passed. With command-scoped
+safe.bareRepository=explicit both failed. The coordinator reproduced both
+outcomes without source changes. Preserve the safety configuration and fix
+the detection; do not weaken Git policy. The review carries the correction.
