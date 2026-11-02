@@ -23,6 +23,9 @@ ROOT = Path(__file__).resolve().parents[2]
 FORMATS = ["review-policy-v1", "review-evidence-v1", "review-fixtures-v1"]
 CHECKOUT = "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
 SETUP = "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97"
+# The plugins job's pins are bumped by Renovate (PRs #8 and #11); the autopilot job keeps its own.
+PLUGINS_SETUP = "actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0"
+PLUGINS_PYTHON = "3.15"
 INVENTORY_SHA = "f55c98bba2b4b3c94ce588b6c616258186dd0bb2164800b2d34271acc25dfb5d"
 EDGE_SHA = "b10e71c1b359f953f028cf9d84b7063e826c5df51e4791c3b7f89aa388ca8a93"
 OWNER_SHA = "d7ded009798a6d0437bda8384b0e8ac02bdd258e17bda0d098611160ab30fa52"
@@ -451,11 +454,12 @@ print("55 fixtures validated")
         self.assertEqual(plugins["runs-on"], "ubuntu-latest")
         self.assertEqual(plugins["env"], {"PYTHONDONTWRITEBYTECODE": "1"})
         steps = plugins["steps"]
-        self.assertEqual([s.get("uses") for s in steps[:2]], [CHECKOUT, SETUP])
+        self.assertEqual([s.get("uses") for s in steps[:2]], [CHECKOUT, PLUGINS_SETUP])
         self.assertEqual(steps[0]["with"], {"persist-credentials": False})
-        self.assertEqual(steps[1]["with"], {"python-version": "3.10"})
+        self.assertEqual(steps[1]["with"], {"python-version": PLUGINS_PYTHON})
         self.assertEqual([s["run"] for s in steps[2:]], [
             "python3 -m unittest discover -s scripts", "python3 scripts/validate.py",
+            "python3 scripts/generate_marketplace.py --check",
             *[f"python3 -m unittest discover -s tests/specflow/{area}"
               for area in ("release", "contract", "rules", "review")],
             "python3 tools/specflow/check_rules.py --area VAL,SKL,DLG,INT,REQ,DSN,TSK,IMP,VER,RVC,RVR,RVD,RVX,CNV",
