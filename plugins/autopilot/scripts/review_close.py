@@ -465,6 +465,33 @@ def _decision(row: dict, link: dict | None, cycle: int) -> dict[str, Any]:
     return proposal
 
 
+def _proposal_report(
+    rows: list[dict],
+    links: dict,
+    evidence: dict,
+    cycle: int,
+    batch_id: str,
+    default_tier: str,
+) -> dict:
+    # A tail sweep proposes no lens close-out.
+    tail_sweep = batch_id == "tail-sweep"
+    return {
+        "schema_version": 1,
+        "ok": True,
+        "controller_required": True,
+        "task_proposals": _task_proposals(rows, links, cycle, batch_id, default_tier),
+        "decision_proposals": [
+            _decision(r, links.get(n), cycle) for n, r in enumerate(rows)
+        ],
+        "rubric_verdicts": []
+        if tail_sweep
+        else copy.deepcopy(evidence["rubric_verdicts"]),
+        "reviewer_results": []
+        if tail_sweep
+        else copy.deepcopy(evidence["reviewer_results"]),
+    }
+
+
 def prepare_close(
     *,
     policy: dict,
@@ -512,19 +539,4 @@ def prepare_close(
     )
     if refusal is not None:
         return refusal
-    return {
-        "schema_version": 1,
-        "ok": True,
-        "controller_required": True,
-        "task_proposals": _task_proposals(rows, links, cycle, batch_id, default_tier),
-        "decision_proposals": [
-            _decision(r, links.get(n), cycle) for n, r in enumerate(rows)
-        ],
-        # A tail sweep proposes no lens close-out.
-        "rubric_verdicts": []
-        if tail_sweep
-        else copy.deepcopy(evidence["rubric_verdicts"]),
-        "reviewer_results": []
-        if tail_sweep
-        else copy.deepcopy(evidence["reviewer_results"]),
-    }
+    return _proposal_report(rows, links, evidence, cycle, batch_id, default_tier)

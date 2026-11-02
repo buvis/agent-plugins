@@ -498,6 +498,28 @@ def _write_cycle(
     }
 
 
+def _stage_inputs(
+    tasks: list[dict],
+    core: tuple[str, str | None, str, str | None],
+    extras: tuple[str | None, str | None, str | None, str | None],
+    input_texts: dict[str, str],
+) -> dict:
+    prd, design, context, diff = core
+    pack, settled, prior, gate = extras
+    return {
+        "tasks": tasks,
+        "prd": prd,
+        "design": design,
+        "context": context,
+        "diff": diff,
+        "pack": pack,
+        "settled": settled,
+        "prior": prior,
+        "gate": gate,
+        "texts": input_texts,
+    }
+
+
 def stage_review(
     *,
     project_root: Path,
@@ -534,18 +556,12 @@ def stage_review(
         project = top
     art = Path(artifact_root)
     art = art if art.is_absolute() else project / art
-    inputs = {
-        "tasks": tasks,
-        "prd": prd_text,
-        "design": design_text,
-        "context": context_text,
-        "diff": diff_text,
-        "pack": pack_text,
-        "settled": settled_text,
-        "prior": prior_findings_text,
-        "gate": test_gate_text,
-        "texts": input_texts,
-    }
+    inputs = _stage_inputs(
+        tasks,
+        (prd_text, design_text, context_text, diff_text),
+        (pack_text, settled_text, prior_findings_text, test_gate_text),
+        input_texts,
+    )
     outputs = [path for path, _ in _staged_files(art, cycle_id, inputs).values()]
     outputs += [art / f"{job}-prompt-{cycle_id}.md" for job in jobs]
     problem = _destination_problem(project, art, outputs)
