@@ -17,7 +17,7 @@ dispatch_rows:
 
 # Review: 00013-autopilot-session-helpers-v1
 
-Diff range: `843e6e7d51c56377adc1c01fab9ae7ea7755e1f4..498ab966e618db7a92a8e8a4c9592c379a9553dd`
+Incremental diff range: `6c1352c6416e7a21bbbb72980973a01541c7e926..498ab966e618db7a92a8e8a4c9592c379a9553dd`
 
 codex_rung_guard: not fired
 
@@ -29,7 +29,7 @@ This cycle was assembled across two host sessions. That is stated here so nothin
 
 - Alice and Blake ran first, dispatched from a Codex coordinator session into fresh native Claude sessions (`claude-sonnet-5-5`, high effort; Alice session `807ecf32-911e-4a79-840f-c723308d51f6`, Blake session `858c6af6-aef3-4289-9744-41cd4f9e258a`, both exit 0). Their complete raw outputs and the model evidence are preserved in `docs/dev/project-management/autopilot/reports/00013-cycle2-host-recovery.md`.
 - Bob and Carl could not run from that coordinator: `codex-run.sh` and `gemini-run.sh` both exited 3 on their recursion guard ("already inside a CLI agent"). No marker was cleared and no guard was bypassed. Their first dispatch rows were closed `error` (`437e79ba`, `64303074`) and the staged placeholder row `c9ec8601` was closed `superseded`.
-- Bob and Carl then ran from this session, a native Claude loop session where neither `CODEX_SESSION_ID` nor `AUTOPILOT_DISPATCH_DEPTH` is set, so the guard did not fire. Bob resumed his cycle-1 codex thread `01a19b8f-6516-7a22-92b6-f45b995d9744` with the 247928-byte inlined prompt (design excluded; diff scoped to `plugins/autopilot`, `tests/autopilot`, `tools/autopilot/update_helper_map.py`), exit 0. Carl ran on the native `gemini` backend, exit 0. New dispatch rows `4a23053d` and `82ec3e41`, both closed `ok`.
+- Bob and Carl then ran from this session, a native Claude loop session where neither `CODEX_SESSION_ID` nor `AUTOPILOT_DISPATCH_DEPTH` is set, so the guard did not fire. Bob resumed his cycle-1 codex thread `01a19b8f-6516-7a22-92b6-f45b995d9744` with the 247928-byte inlined prompt (design excluded; diff scoped to `plugins/autopilot`, `tests/autopilot`, `tools/autopilot/update_helper_map.py`), exit 0. Carl ran through the Gemini helper on the `copilot` backend with explicit model `gemini-3.8-flash`, exit 0. The raw launcher output starts `gemini-run: backend=copilot model=gemini-3.8-flash`; the earlier native-backend attribution was incorrect. New dispatch rows `4a23053d` and `82ec3e41`, both closed `ok`.
 - Prior-findings input (restored cycle-1 dispositions plus the duplicate-review reconciliation, `reviews/00013-duplicate-review-reconciliation.md`, committed as `49a27f9`) was supplied to the implementation-aware lenses only. Blake received the PRD-only prompt plus the raw test-gate result: no history, no design, no reconciliation, no diff and no file list.
 - Scratch cycle id `ap00013-c2-20261102`. Raw reviewer outputs are `docs/dev/tmp/{alice,blake,bob,carl}-output-ap00013-c2-20261102.txt`; the four prompts are the matching `-prompt-` files.
 - Consolidation folded Bob's `verification.py:139` row onto Alice's `verification.py:144` row (R1) after suffix stripping; both describe the same uncaught spawn failure (reconciliation D13). Bob's bulleted `[BOB]` lines were bullet-stripped for the consolidator. Carl's output file holds his gemini tool transcript before his verdict lines; only his verdicts and his no-issues line are reproduced here.
@@ -130,7 +130,7 @@ D5: pass
 
 ## Carl
 
-Available: native `gemini` backend, exit 0, dispatch row `82ec3e41`. Raw output saved at `docs/dev/tmp/carl-output-ap00013-c2-20261102.txt`. His first dispatch from the Codex coordinator session exited 3 on the same recursion guard without running a model (row `64303074`, closed `error`); this was never model unavailability, so Carl is not batch-latched unavailable.
+Available: `copilot` backend, explicit model `gemini-3.8-flash`, exit 0, dispatch row `82ec3e41`. Backend/model verified from the launcher output; Copilot session `58539e36-ab22-4fc5-9bde-13ba37da0bf6`. Raw output saved at `docs/dev/tmp/carl-output-ap00013-c2-20261102.txt`. His first dispatch from the Codex coordinator session exited 3 on the same recursion guard without running a model (row `64303074`, closed `error`); this was never model unavailability, so Carl is not batch-latched unavailable.
 
 Carl read the scoped diff and the changed scripts, ran `scripts/validate.py`, the validator unit tests, and the cycle-1 regression and touched test files himself, and checked the line counts of every changed script.
 
