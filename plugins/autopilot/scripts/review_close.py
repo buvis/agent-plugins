@@ -60,7 +60,14 @@ class CloseReadSnapshot(TypedDict):
 
 
 def _refusal(error: str, reason: str) -> dict[str, Any]:
-    return {"schema_version": 1, "ok": False, "error": error, "reason": reason}
+    return {
+        "schema_version": 1,
+        "ok": False,
+        "error": error,
+        "reason": reason,
+        "task_proposals": [],
+        "decision_proposals": [],
+    }
 
 
 def _controller_required() -> dict[str, Any]:
@@ -128,6 +135,10 @@ def _snapshot_valid(snap: Any) -> bool:
             and isinstance(t.get("carry_refs"), list)
             and all(isinstance(r, str) for r in t["carry_refs"])
             and type(t.get("carry_cycle")) is int
+            and all(
+                isinstance(t.get(k), str)
+                for k in ("id", "name", "status", "escalation_reason")
+            )
             for t in snap["tasks"]
         )
         and isinstance(snap.get("rework_task_ids"), list)
@@ -232,12 +243,13 @@ def _link(evidence: dict, rows: list[dict]) -> tuple[dict[int, dict], str | None
 
 def _backed(row: dict, reviewed: list[Row]) -> bool:
     """A ref row is backed by the table row holding that ref with an agreeing
-    severity and file; a ref-less row by an exact normalized key."""
+    severity, file and issue; a ref-less row by an exact normalized key."""
     severity, file, issue = _row_key(row)
     ref = _ref(row)
     if ref:
         return any(
-            r.ref == ref and (r.severity, r.file) == (severity, file) for r in reviewed
+            r.ref == ref and (r.severity, r.file, r.issue.lower()) == (severity, file, issue)
+            for r in reviewed
         )
     return bool(issue) and any(
         (r.severity, r.file, r.issue.lower()) == (severity, file, issue)

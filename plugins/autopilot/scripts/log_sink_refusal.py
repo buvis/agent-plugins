@@ -32,7 +32,9 @@ def refuse(log_path: Path, repo_root: Path) -> str | None:
         return identity
     # Containment comes before the symlink walk, so a path that never
     # touches the repository is reported as outside.
-    if not resolved.is_relative_to(toplevel):
+    if not resolved.is_relative_to(toplevel) or not resolved.is_relative_to(
+        repo_root.resolve()
+    ):
         return _OUTSIDE
     probe = _log_rel_and_tracked(repo_root, log_path)
     if probe is None:
@@ -115,7 +117,11 @@ def _identity_hit(resolved: Path, repo_root: Path, toplevel: Path) -> str | None
 def _worktree_gitdir_pointer(resolved: Path) -> Path | None:
     """The target of a linked worktree's `.git` FILE (`gitdir: <path>`), or
     None when `resolved` is not such a file. The file is itself the
-    candidate sink, so it is checked by what it points at."""
+    candidate sink, so it is checked by what it points at. Only a file named
+    `.git` is read: any other candidate is refused or accepted by location,
+    never by its content."""
+    if resolved.name != ".git":
+        return None
     try:
         if not stat.S_ISREG(os.lstat(resolved).st_mode):
             return None
@@ -142,12 +148,16 @@ def _symlinked_component(log_path: Path, repo_root: Path, toplevel: Path) -> boo
 
 def _in_nested_repo(resolved: Path, toplevel: Path) -> bool:
     """True iff `resolved` lives in a second repository nested inside
-    `toplevel`'s working tree. A missing parent cannot hold a nested repo.
-    Git's "must be run in a work tree" failure can only come from another
-    repo's git internals here (this repo's `.git` was ruled out above), so
-    it counts as nested."""
+    `toplevel`'s working tree, probed from the nearest existing ancestor
+    (a directory not created yet inherits its nearest existing ancestor's
+    repository). Git's "must be run in a work tree" failure can only come
+    from another repo's git internals here (this repo's `.git` was ruled out
+    above), so it counts as nested."""
+    nearest = resolved.parent
+    while not nearest.is_dir() and nearest.parent != nearest:
+        nearest = nearest.parent
     try:
-        probe = _git(resolved.parent, "rev-parse", "--show-toplevel")
+        probe = _git(nearest, "rev-parse", "--show-toplevel")
     except OSError:
         return False
     if probe.returncode != 0:

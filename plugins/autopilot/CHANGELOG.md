@@ -29,6 +29,7 @@
 
 ### Fixed
 
+- **autopilot**: `--verify` log-sink validation opens no file it refuses by location and refuses a path under a not-yet-created directory of a nested repository; review-close refuses a row whose issue differs from the review table and rejects malformed carry snapshot tasks.
 - **autopilot**: review staging given a subdirectory as `project_root` writes its artifacts under the repo root, not a stray `docs/dev/tmp/` tree in that subdirectory.
 - **autopilot**: malformed `--group-findings`, `--prepare-close` and `--stage-review` request values exit 2 as usage errors instead of crashing.
 - **autopilot**: review staging and `--export-policy` refuse live workflow state in any spelling case, and staging applies the tracked-file, live-state and symlink checks to artifact roots outside the project.
