@@ -190,5 +190,157 @@
     "issue": "Resolve reconciliation D30 with a temporary-repository index-refresh check: change only a tracked file's mtime, record index bytes/mtime, call `_dirty_check`, and compare the index afterward; repeat with GIT_OPTIONAL_LOCKS=0 to establish whether the claimed read-only probe writes metadata.",
     "file": "plugins/autopilot/scripts/dirty_tree.py:19",
     "reason": "single-voice; restates reconciliation D30, which the reconciliation records as an open coordinator decision"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "`_worktree_gitdir_pointer` now resolves a relative `gitdir:` pointer against the file's parent directory. It used to resolve it against the current directory. The change is correct, but no test covers a relative pointer, and the new `.GIT` alias test skips on case-sensitive filesystems. Add a relative-pointer test that runs on every filesystem.",
+    "file": "plugins/autopilot/scripts/log_sink_refusal.py:133",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "`stage_review` never binds `diff_text` to anything. `_input_problem` checks only the `prd` and `repo-tree` refs against the bound context. A `diff:` ref's content in `input_texts` is never compared with `diff_text`, and base_sha/head_sha are never verified against it. A stale or wrong diff can be staged to reviewers while the evidence stays valid. Only the PRD and tree are pinned",
+    "file": "plugins/autopilot/scripts/review_stage.py:128",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "Policy export now unconditionally accesses `os.O_NOFOLLOW`, which is unavailable on Windows. The resulting AttributeError escapes the export handler, regressing the legacy operation. Provide a supported safe-writing implementation or a controlled platform refusal before effects; test with that flag unavailable.",
+    "file": "plugins/autopilot/scripts/autopilot.py:272",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "`test_attempt_validation_does_not_allocate_from_the_supplied_attempt` pins an implementation shape (monkeypatching module-level `range`), not the intent; a `[0] * highest` regression would pass it. Bound peak memory with `tracemalloc` around `check_evidence` (attempt 10**12, peak under 1 MB) instead of the `range` patch.",
+    "file": "tests/autopilot/test_cap_recovery_helpers.py:158",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "`_write_policy` checks regular file and link count but not the executable bit, git internals or tracked state. The contract's existing-file rules also refuse executable files. It is partial parity, but the repair scope was the hard link.",
+    "file": "plugins/autopilot/scripts/autopilot.py:269",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "The README says `plan` grants tasks and design text. Design text reaches the context file only when `prd` is also granted, because the merged PRD file is what carries it (plugins/autopilot/scripts/review_stage.py:330). Reword the sentence.",
+    "file": "plugins/autopilot/README.md:286",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "Staged writes are hardened less than verification writes. `_destination_problem` checks for symlinks and then `_write` uses `O_NOFOLLOW` on the leaf only. An intermediate directory swapped to a symlink after the check is followed. `_write_all` can also leave partial artifacts after a mid-sequence `write-failed`. `verification.py` uses descriptor-pinned opens instead",
+    "file": "plugins/autopilot/scripts/review_stage.py:471",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "`custody.refresh_hold_prd` interpolates `entry['batch']`, `entry['op_id']` and `entry['commit_range']` into frontmatter and the notice without a newline check. Only `detail` is collapsed. A hostile or buggy controller caller could inject frontmatter lines. The function is not exposed through the facade, so exposure is low",
+    "file": "plugins/autopilot/scripts/custody.py:37",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "The facade exposes `--prepare-close`, `--verify` and `--controller-action`, beyond the four exports named in the Helpers module line. The spec's file list and tasks imply them, so this is not treated as scope creep. The spec text should list them",
+    "file": "plugins/autopilot/scripts/autopilot.py:28",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "The `custody.py` notice tells users to \"run autopilot custody resolve\". That command exists nowhere in this package",
+    "file": "plugins/autopilot/scripts/custody.py:76",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "Stale repair worktree and merged branch left behind: `/Users/bob/git/src/worktrees/agent-plugins/ap00013-repair` (at 0f86a75) and `repair/ap00013-cap-regression` still exist after the merge in 10a1c73 (AGENTS.md cleanup rule).",
+    "file": "N/A",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "Task-16 attempt record mixes one full SHA with two abbreviated ones (`\"cce5dad...\", \"a4d4ad0\", \"0f86a75\"`) in a durable record. Expand to full 40-hex SHAs via statectl.",
+    "file": "docs/dev/project-management/autopilot/state.json:976",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "CHANGELOG entry uses internal workflow jargon (\"cap recovery refuses hardlinked policy outputs...\") in a user-facing changelog. Reword to the user-visible effect.",
+    "file": "plugins/autopilot/CHANGELOG.md:32",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "KNOWN-1: No packaged fixture grants `implementation-audit:`, `plan:` or `test-results:` refs, so under every packaged expected context alice/bob/carl now get only the PRD path in their context file; the grants exist only in the modified test helper `context_for`.",
+    "file": "plugins/autopilot/scripts/review_stage.py",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "KNOWN-2: A tail sweep can now re-propose a row the decision gate already tasked (the snapshot carries only carry refs, no tasked-row set).",
+    "file": "plugins/autopilot/scripts/review_close.py",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "KNOWN-3: `test_verify_refuses_case_alias_of_an_argv_file` and `test_sink_refuses_case_alias_of_worktree_pointer` skip on case-sensitive filesystems (Linux CI), so the R7/R8 fixes are only exercised on case-insensitive hosts.",
+    "file": "tests/autopilot/test_cycle1_hardening_sinks.py",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "KNOWN-4: Hold stubs 00022, 00023, 00025-00029 and the batch `cap-overflow` records for R1, R2, R4-R8 remain open although the repair fixed them (only 00024/R3 is still live).",
+    "file": "N/A",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "KNOWN-6: The settled ledger JSON was reflowed from one-line records to multi-line (whole-file churn over 14 entries).",
+    "file": "docs/dev/project-management/reviews/00013-autopilot-session-helpers-v1-ledger.json",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe0",
+    "issue": "Git-pointer detection can again read a refused external candidate: hard-link `outside/data.json` to `outside/.git`, and `samefile` succeeds, permitting `read_text()` before containment refusal. Perform containment checks before pointer-content reads and identify the supplied repository's actual pointer. Add this alias regression.",
+    "file": "plugins/autopilot/scripts/log_sink_refusal.py:123",
+    "reason": "verified not a bypass: _identity_hit runs before the containment check (log_sink_refusal.py:30 vs :35) so the pointer read does happen early, but _identity_hit can only return a refusal reason or None, so it only ever ADDS refusals; the containment check still refuses the external path. No sink that should be refused becomes acceptable, and the candidate is the caller's own named log path with no disclosure channel. Ordering hygiene, not the boundary bypass the high severity asserts."
   }
 ]
