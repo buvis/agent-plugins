@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "prd": "00013",
-  "package_revision": "324bbda7f5c724f50b296ba8cc96e65e772a628c",
+  "package_revision": "527d880c77b2fbe93c58398d236f55305fc8f736",
   "tasks": [
     {"task": 1, "module": "helper characterization", "tests": "tools/autopilot/check-source.py", "passed": 1, "command": "python3 tools/autopilot/check-source.py --source-root ../claude-autopilot"},
     {"task": 2, "module": "findings, gate_lead, rework_groups", "tests": "tests/autopilot/test_finding_groups.py", "passed": 19, "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_finding_groups.py"},
