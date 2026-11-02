@@ -29,7 +29,7 @@ installed plan-tasks/SKILL.md section 4.7. No installed runtime was patched.
 - Failure: a required Opus test-authoring step ran at Sonnet due to incorrectly compiled metadata.
 - Root cause: planner omitted the floor flag; root trusted the stated plan instead of validating its persisted tiers.
 - Recovery action: preserve evidence, correct metadata through the supported writer, validate it before relaunch, and require observed dispatch provenance.
-- Result: partial; metadata correction is pending the checks below and no feature work is certified.
+- Result: partial; plan corrections passed direct checks below, but the correctly tiered dispatch and feature work remain unverified.
 - Token / time burn risk: blind relaunches repeat invalid work. Do not retry the same route without a discriminating metadata and dispatch check.
 - Follow-up needed: finish all four tasks and the fresh five-lens review, then AP 00018 and the backlog. This draft does not satisfy the Tess gate.
 - Preventive change to encode later: AP 00015's plan/work port should reject compiled tiers below the PRD floor before dispatch. This is a durable finding, not a patch to the frozen or installed runtime.
@@ -43,3 +43,36 @@ that its process finished; that does not certify the required tier. Do not
 rewrite that event or claim it was an Opus dispatch. No Ivan implementor
 attempt occurred, so the aborted coordinator run remains this linked report,
 not a fabricated worker attempt. No push occurred.
+
+## Recovery verification
+
+All four corrected classifier calls exited 0 with model opus and reason
+floor. After task-set-meta, direct state assertions confirmed all four tasks
+are pending, model opus, reason floor, Qwen disabled with exclusion tier,
+and tasks_completed is zero. The lower-tier draft is absent from the active
+test tree. The next dispatch's actual model still requires verification.
+
+## Additional compiled-plan evidence and corrections
+
+- The T1 command applied -k staging to three existing regression files.
+  A collect-only run selected 2 of 87 tests and deselected 85 (exit 0).
+  The corrected task command has no global filter; Tess's own authoring
+  command remains scoped to her new staging tests.
+- A controlled tracemalloc probe established an 8,000,008-byte prior peak,
+  then allocated a 1,600,000-byte list. The proposed historical-peak delta
+  stayed zero and falsely passed. T3 now requires a fresh bounded child-local
+  trace and an explicit sensitivity probe, leaving parent tracing untouched.
+- Reading update_helper_map.py confirmed that only the map is written.
+  T4 must author actual receipts before generating the map. git cat-file -e
+  for README at current receipt pin cce5dadcfe5c951e541ef8e395ffd930b1d56b0e
+  returned 0: the remote old-pin CI failure is historical, not a new fix.
+- The changelog phrase is under Unreleased, so R23 is corrected in place;
+  historical receipts are preserved separately as required.
+- The redundant T1 retry passed a command-scoped Git safety override,
+  contradicting the PRD. It is removed; one probe refuses unclassified
+  errors without changing any safety setting.
+
+The authored design and task bodies now agree with these observed facts.
+No new product scope or review-cap allowance was added. Direct assertions
+passed for all corrected task fields and instructions. The next isolated
+Tess/Devon/Ivan dispatches still must prove their actual Opus tier.

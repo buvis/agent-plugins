@@ -37,20 +37,7 @@ existing boundary — it does not move the boundary:
   implementation-shaped `range`-monkeypatch test with a behavioral
   `tracemalloc` bound. No production code changes; the existing
   `attempt_sequence_invalid` defect is the thing under test, unchanged.
-- **T4 (delivery evidence refresh)** rewords R16 (README overstates what
-  `plan` grants) and R23 (CHANGELOG uses internal jargon), and regenerates
-  the source map/receipts bound to the actual tested revision. It also must
-  account for a **new** master-Validate failure discovered at this
-  session's catchup (`tests/autopilot/test_helper_provenance_real.py`: `git
-  show <revision>:plugins/autopilot/README.md` fails with exit 128, "path
-  ... exists on disk, but not in" the pinned `tested_package_revision`) —
-  the prior receipt's pinned revision predates a README commit, so the
-  provenance check can no longer `git show` it. T4's regeneration (committing
-  README/CHANGELOG first, then generating receipts against that exact
-  commit, per the PRD's own ordering) is what fixes this, so no separate
-  task is needed — it is called out here so the task isn't closed without
-  confirming the new `tested_package_revision` resolves cleanly for every
-  `REFRESHED` path.
+- **T4 (delivery evidence refresh)** corrects README/Unreleased changelog wording, authors measured receipts preserving history, and regenerates only the source map. The older remote-CI missing-README pin is already fixed at the current receipt revision; v2 still needs fresh evidence for its changed bytes.
 
 R1/R5 (the AP00018 controller suite, 19 failing tests) and R14 (resolved by
 run) stay out of scope, per the PRD: T4 records their red state, never masks
@@ -73,7 +60,7 @@ No new files. All four tasks edit existing files in place:
 - T4: `plugins/autopilot/README.md`, `plugins/autopilot/CHANGELOG.md`,
   `tools/autopilot/source-map.json` (regenerated, not hand-edited),
   `docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json`
-  (regenerated), `docs/dev/project-management/autopilot/reports/00013-helper-recovery-v2.md` (new
+  (authored from measured results), `docs/dev/project-management/autopilot/reports/00013-helper-recovery-v2.md` (new
   report, per PRD Structural Decomposition).
 
 New test file `tests/autopilot/test_helper_recovery_v2.py` (T1 and T2
@@ -135,8 +122,7 @@ def _is_inside_git_dir(ancestor: Path) -> bool:
     "not a git repository" message is treated as benign (nothing here to
     protect); every other failure — the bare-repo `safe.bareRepository`
     restriction this PRD reproduced, an ownership/`safe.directory` error,
-    or anything else — fails closed, retried once with
-    `safe.bareRepository=explicit` before refusing. Detection failure on
+    or anything else fails closed without overriding Git configuration. Detection failure on
     an ACTUAL repository must not silently grant permission, and that
     includes failures this comment cannot enumerate in advance."""
     probe = _git(ancestor, "rev-parse", "--is-inside-git-dir")
@@ -144,10 +130,6 @@ def _is_inside_git_dir(ancestor: Path) -> bool:
         return probe.stdout.strip() == "true"
     if probe.stderr.strip().startswith("fatal: not a git repository"):
         return False
-    retry = _git(ancestor, "-c", "safe.bareRepository=explicit",
-                 "rev-parse", "--is-inside-git-dir")
-    if retry.returncode == 0:
-        return retry.stdout.strip() == "true"
     return True
 ```
 
@@ -489,127 +471,33 @@ for every existing test, by review-03's own verification.
 test to `test_helper_recovery_v2.py` that runs on every filesystem (not
 gated by the case-alias skip), per the PRD's T2 acceptance line.
 
-### T3 — `test_cap_recovery_helpers.py`
+### T3 — bounded behavioral allocation evidence
 
-Replace the `range`-monkeypatch body
-(`test_attempt_validation_does_not_allocate_from_the_supplied_attempt`,
-current line ~155-169) with a `tracemalloc`-measured behavioral bound. The
-PRD fixes the representative input at `attempt=200000` (not R13's literal
-`10**12` — large enough that a proportional `[0] * attempt` allocation is
-clearly over the 1,000,000-byte ceiling on a 64-bit host, small enough that
-the test cannot itself exhaust the host):
+Measure allocation inside a fresh bounded subprocess using the same Python interpreter, with a 30-second timeout. Import the existing checker/test fixtures and prepare policy, context and evidence before starting the measurement; set the supplied attempt to 200000. In that child only, stop any pre-enabled tracing and start a fresh tracemalloc measurement immediately before check_evidence. Read the absolute peak from that fresh measurement, assert it is below 1,000,000 bytes, and retain the not-ok and attempt_sequence_invalid assertions. Preserve the parent runner's tracing state; a child-local stop/start must not affect it. Do not subtract a historical peak: an earlier larger peak makes that delta zero even when the checker allocates proportionally.
 
-```python
-import tracemalloc
-
-def test_attempt_validation_does_not_allocate_from_the_supplied_attempt() -> None:
-    checker = library("review_evidence")
-    context, evidence = clean()
-    result(evidence, "alice")["attempt"] = 200000
-
-    # Measure a DELTA, not an absolute peak: a test runner or
-    # PYTHONTRACEMALLOC may already have tracing enabled, in which case an
-    # absolute peak would include allocations this test did not cause, and
-    # an unconditional stop() would disable tracing the runner owns.
-    already_tracing = tracemalloc.is_tracing()
-    if not already_tracing:
-        tracemalloc.start()
-    baseline = tracemalloc.get_traced_memory()[1]
-    try:
-        report = checker.check_evidence(checker.load_policy(), context, evidence)
-        peak = tracemalloc.get_traced_memory()[1]
-    finally:
-        if not already_tracing:
-            tracemalloc.stop()
-
-    grew_by = peak - baseline
-    assert grew_by < 1_000_000, f"peak allocation grew by {grew_by} bytes, not bounded"
-    assert not report["ok"]
-    assert "attempt_sequence_invalid" in report["defects"]
-```
-
-No production change: `check_evidence`'s existing bounded validation (the
-behavior review-03 already treats as correct) is what this test measures,
-not a thing it fixes. The PRD's own wording applies: "no production rewrite
-is authorized by this test-only task" — if `tracemalloc` shows the current
-implementation already stays under the ceiling, the task is done; if it
-does not, that is a stale premise to report, not a license to touch
-`review_evidence.py` under this task.
+Prove the measurement detects a deliberately injected [0] * 200000 allocation in a scratch-only copy/probe. It must fail the same ceiling, including when the parent starts with PYTHONTRACEMALLOC enabled and a prior peak above 8 MB. Keep the normal test isolated and deterministic; add no production resource-control mechanism. Only the existing test file may change. Do not modify review_evidence.py.
 
 ### T4 — delivery evidence refresh
 
-**R16 — README wording.** Current text (`README.md:287`, within the
-Review-staging paragraph at line ~285-292):
+Refresh docs, receipts and generated helper provenance. Depends on T1, T2, T3.
 
-> `implementation-audit` grants broad context, `plan` grants tasks and
-> design text, `prd` grants the raw PRD, and `test-results` grants the test
-> gate.
+Writable paths: plugins/autopilot/README.md, plugins/autopilot/CHANGELOG.md, tools/autopilot/source-map.json, docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json, docs/dev/project-management/autopilot/reports/00013-helper-recovery-v2.md.
 
-Replace the `plan` clause: design text reaches a job's context only when
-`prd` is *also* granted, because the merged PRD+design file is what carries
-it (`_staged_files`'s `merged` variable, `review_stage.py` line ~346-348,
-appends `## Design Doc` onto the PRD text itself before anything is staged
-under the `review-prd` kind — there is no separate `design` context kind).
-Corrected wording:
+Premise: verify T1-T3 are committed and inspect the current README grant paragraph and Unreleased CHANGELOG entry before editing. If those premises changed, skip/report the affected literal edit rather than forcing it. The remote CI failure at old pin 527d880c is historical: the current receipt pin cce5dadcfe5c951e541ef8e395ffd930b1d56b0e already contains README.md (git cat-file -e returned 0). Refresh evidence because v2 changes package bytes; do not claim to newly repair that already-fixed missing-file failure.
 
-> `implementation-audit` grants broad context, `plan` grants tasks (design
-> text reaches context only when `prd` is also granted, since the merged
-> PRD file is what carries it), `prd` grants the raw PRD, and `test-results`
-> grants the test gate.
+README: clarify that plan grants tasks; design text reaches context only when prd is also granted because the merged PRD file carries it. Preserve the other grant meanings and document the new controlled refusals.
 
-**R23 — CHANGELOG wording.** Current entry (`CHANGELOG.md:32`):
+CHANGELOG: the existing phrase "cap recovery refuses" is under Unreleased, not a published historical release. Replace it with "session helpers refuse" to address R23 while preserving its factual behavior list. Add the v2 user-visible fixes without workflow jargon. Keep prior historical receipts and review evidence intact.
 
-> **autopilot**: cap recovery refuses hardlinked policy outputs, case
-> aliases of verification inputs and worktree Git pointers, and external
-> Git metadata staging roots; failed process starts preserve outputs and
-> return a controlled report.
+Receipt/map sequence (the generator writes only the map, not the receipt):
+1. Commit the final README/CHANGELOG and all product changes; record that full 40-hex package revision.
+2. Run the named task-scoped verification against those exact package bytes and record actual commands, exits, counts, model/commit evidence and changed-file hashes. Do not manufacture a pass or copy old counts into a new receipt. Preserve the prior receipt as historical evidence in the existing representation. Author the new receipt fields and task records explicitly, with package_revision set to the tested commit.
+3. Run the existing generator: python3 tools/autopilot/update_helper_map.py --root . --map tools/autopilot/source-map.json --receipts docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json
+4. Run the same command with --check, then the named provenance tests. The map reads receipt data and hashes; it does not create task receipts or run verification. Commit receipt/map/report evidence without changing the tested package bytes.
+5. Confirm git cat-file -e <package_revision>:plugins/autopilot/README.md succeeds and all recorded hashes match. Explain the resolved v2 defects and remaining AP18 red tests in the new recovery report using actual evidence.
 
-This v2 entry adds a new line (the existing line describes v1/cap-recovery
-work and stays as historical record; v2's own user-visible effect is a
-separate bullet, not a rewrite of history) stating the actual v2 fixes in
-user-visible terms, e.g.:
+Do not rerun the full suite per task; the final integration gate below runs once after all tasks. If the full gate later adds evidence to the receipt, regenerate/check the map and commit that evidence while preserving the already-tested package bytes and its revision.
 
-> **autopilot**: session helpers now refuse staging into bare-repository
-> Git internals and FIFO policy exports without a reader instead of
-> silently accepting them or hanging, and a verification run that cannot
-> open its log sink is reported as a controlled failure instead of leaving
-> an unreaped process behind.
-
-**Source-map/receipt regeneration.** Per the PRD's Phase 2 (T4) exit
-criteria ordering: commit the README/CHANGELOG wording fixes first, record
-that exact 40-hex commit SHA, then run the generator in a second commit
-without touching the already-tested bytes:
-
-```sh
-python3 tools/autopilot/update_helper_map.py --root . --map tools/autopilot/source-map.json --receipts docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json
-python3 tools/autopilot/update_helper_map.py --root . --map tools/autopilot/source-map.json --receipts docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json --check
-```
-
-**The generator does not advance `package_revision` on its own.** It reads
-`package_revision` from the INPUT receipts JSON
-(`docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json`)
-and copies that value into the output's `tested_package_revision` verbatim
-(confirmed by reading `update_helper_map.py` lines ~419-423 and ~507-523);
-there is no `git rev-parse HEAD` call inside the generator itself. So
-"commit README/CHANGELOG first, then generate" only produces a receipt
-pinned to the right commit if the task ALSO updates the existing
-`package_revision` field in that input JSON, by hand, to the just-committed
-40-hex SHA, BEFORE running the generator. Sequence, explicitly:
-
-1. Commit the README/CHANGELOG wording fixes; record the resulting 40-hex SHA.
-2. Edit `docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json`'s
-   `package_revision` field to that exact SHA.
-3. Run the generator commands below; the output's `tested_package_revision`
-   now equals that SHA, because the generator copied it from this input.
-4. Confirm `git show {that SHA}:plugins/autopilot/README.md` resolves —
-   this is the actual exit-128 failure this session's catchup found, fixed
-   because step 1's commit is now the one both the receipt and the
-   provenance test refer to.
-
-Write `docs/dev/project-management/autopilot/reports/00013-helper-recovery-v2.md`: the four
-tasks' exact commands and outcomes, the resolved provenance check, and the
-unchanged ~19 AP00018 controller failures recorded as a deferred external
-obligation (never relabeled as part of this PRD's own result).
 
 ## Data flow
 
@@ -632,9 +520,7 @@ roots: `plugins/autopilot/scripts/`, `tests/autopilot/`.
 - No existing `O_NONBLOCK` or `hasattr(os, "O_NOFOLLOW")` platform guard
   exists anywhere in `plugins/autopilot/scripts/` (confirmed by grep) — the
   R3/R12 fix is new, not a pattern to copy.
-- No existing `safe.bareRepository=explicit` or multi-attempt git-probe
-  pattern exists (confirmed by grep) — the R7 fix's retry-then-refuse shape
-  is new.
+- R7 uses one probe with existing Git safety settings intact; it refuses unclassified errors and accepts only the anchored benign non-repository diagnostic.
 - `log_sink_refusal._open_log_sink`'s descriptor-pinned open
   (`_pinned_parent_fd`/`_descend`) already exists and is reused unchanged by
   T2's R2 fix — the fix only reorders *when* it is called, not its
@@ -864,3 +750,18 @@ dispatch 3 (codex): cardinal-sin 0, blocker 1, non-blocker 1, question 1
 
 No cardinal sin or blocker remains open after dispatch 3. Dispatch ceiling
 (3) reached.
+
+## Coordinator correction after compiled-plan audit
+
+The three required design dispatches remain historical evidence; this is an
+author correction, not a claimed fourth reviewer pass. The compiler omitted
+the PRD model floor and produced several incorrect instructions. See
+autopilot/reports/00013-v2-self-debug.md for exact observed evidence.
+
+- All task tiers are Opus/floor and Qwen-ineligible, matching the PRD.
+- T1 has no command-scoped Git safety override; the redundant retry is removed.
+- T1's regression command has no global -k filter, which deselected 85 of 87 existing tests.
+- T3 uses a fresh child-local trace; historical-peak subtraction falsely accepted a 1.6 MB allocation with zero reported growth.
+- T4 authors receipts and generates only the map, preserves historical receipt data, corrects Unreleased jargon, and does not claim to fix an already-resolved historical CI pin.
+
+Product implementation, scoped tests and the fresh complete review remain required.
