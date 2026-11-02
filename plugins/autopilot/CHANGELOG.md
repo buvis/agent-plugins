@@ -29,6 +29,7 @@
 
 ### Fixed
 
+- **autopilot**: review staging refuses a destination whose Git check cannot answer, refuses a reviewer whose grant omits the PRD instead of inlining an empty one, and fills the shared context file with granted input kinds only.
 - **autopilot**: cap recovery refuses hardlinked policy outputs, case aliases of verification inputs and worktree Git pointers, and external Git metadata staging roots; failed process starts preserve outputs and return a controlled report.
 - **autopilot**: staged context obeys every input-kind grant, tail sweeps accept selected finding subsets while preserving attribution checks, and attempt validation uses memory bounded by the submitted history.
 - **autopilot**: `--verify` log-sink validation opens no file it refuses by location and refuses a path under a not-yet-created directory of a nested repository; review-close refuses a row whose issue differs from the review table and rejects malformed carry snapshot tasks.

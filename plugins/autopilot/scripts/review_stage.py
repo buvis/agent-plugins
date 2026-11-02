@@ -36,6 +36,8 @@ REQUIRED_PERSONA_KEYS = ("name", "description", "tools")
 BLIND_KINDS = frozenset({"prd", "card", "repo-tree", "rubric", "test-results"})
 # Carried by the prompt itself (PRD body, staged diff file, packaged rubric).
 NOT_INLINED_KINDS = frozenset({"prd", "diff", "rubric"})
+# These two jobs inline the PRD text into their own prompt body.
+_PRD_INLINE_JOBS = frozenset({"blake", "eve"})
 EVE_DOUBT_SECTIONS = (
     "Two lenses",
     "Categorize every residual finding",
@@ -212,6 +214,19 @@ def _manifest(context: dict[str, Any], job: str) -> list[str]:
     return refs
 
 
+def _missing_prd_grant(manifest: dict[str, list[str]]) -> str | None:
+    """The first (by name, for a deterministic refusal message) roster job
+    in _PRD_INLINE_JOBS whose manifest omits a `prd:` ref, or None. Those
+    two jobs inline PRD text into their own prompt body (never only the
+    shared context file), so an omitted grant must refuse rather than
+    substitute an empty PRD."""
+    for job in sorted(_PRD_INLINE_JOBS & manifest.keys()):
+        kinds = {ref.split(":", 1)[0] for ref in manifest[job]}
+        if "prd" not in kinds:
+            return job
+    return None
+
+
 def _supplied(refs: list[str], texts: dict[str, str]) -> str | None:
     rows = [
         f"### {ref}\n\n{texts[ref].rstrip()}"
@@ -362,7 +377,7 @@ def _staged_files(art: Path, cycle_id: str, inputs: dict[str, Any]) -> dict:
     paths = {kind: path for kind, (path, _) in staged.items()}
     findings = findings_precedent(inputs["pack"])
     variants = inputs.get("variants", {})
-    shared = CONTEXT_KINDS
+    shared = frozenset().union(*variants.values()) if variants else CONTEXT_KINDS
     body = _context_file(inputs["context"], paths, findings, inputs, shared)
     staged["review-context"] = (paths["review-context"], body)
     for job, variant in variants.items():
@@ -382,6 +397,22 @@ def _existing_ancestor(path: Path) -> Path:
     while not path.exists():
         path = path.parent
     return path
+
+
+def _is_inside_git_dir(ancestor: Path) -> bool:
+    """True when `ancestor` is inside git internals. Only git's own fixed
+    "not a git repository" message is treated as benign (nothing here to
+    protect); every other failure - the bare-repo `safe.bareRepository`
+    restriction, an ownership/`safe.directory` error, or anything else -
+    fails closed without overriding Git configuration. Detection failure on
+    an ACTUAL repository must not silently grant permission, and that
+    includes failures this comment cannot enumerate in advance."""
+    probe = _git(ancestor, "rev-parse", "--is-inside-git-dir")
+    if probe.returncode == 0:
+        return probe.stdout.strip() == "true"
+    if probe.stderr.strip().startswith("fatal: not a git repository"):
+        return False
+    return True
 
 
 def _repo_problem(project: Path, art_real: Path, outputs: list[Path]) -> str | None:
@@ -461,8 +492,7 @@ def _destination_problem(project: Path, art: Path, outputs: list[Path]) -> str |
     if not art.is_relative_to(project) and Path(os.path.abspath(art)) != art_real:
         return "artifact_root is reached through a symlink"
     ancestor = _existing_ancestor(art_real)
-    git_probe = _git(ancestor, "rev-parse", "--is-inside-git-dir")
-    if git_probe.returncode == 0 and git_probe.stdout.strip() == "true":
+    if _is_inside_git_dir(ancestor):
         return "artifact_root is inside git internals"
     top = _toplevel(ancestor)
     return _tracked_problem(top, art_real, outputs) if top else None
@@ -583,6 +613,10 @@ def stage_review(
     if not isinstance(tasks, list) or not all(isinstance(t, dict) for t in tasks):
         return _refusal("invalid-input", "tasks must be a list of objects")
     jobs = [row["job_id"] for row in expected_context["resolved_roster"]]
+    ungranted = _missing_prd_grant({job: _manifest(expected_context, job) for job in jobs})
+    if ungranted:
+        return {"schema_version": 1, "ok": False, "error": "invalid-input",
+                "reason": f"job {ungranted!r} has no prd: grant"}
     bodies = {job: _persona_body(job) for job in jobs}
     unavailable = sorted(job for job, body in bodies.items() if body is None)
     if unavailable:

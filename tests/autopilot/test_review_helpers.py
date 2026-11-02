@@ -521,8 +521,26 @@ def test_level_one_findings_precedent_runs_through_subheadings_to_the_next_top_h
 
 def test_staged_task_and_context_files_carry_task_rows_and_precedent_text(stage, root):
     pack = "# Pack\n## Findings precedent\nPRECEDENT-MARKER-9d9d guard\n## Other\nx\n"
+    # The shared context carries only granted kinds, so grant the pack ref explicitly.
+    context = context_for(PRD)
+    allowed = context["allowed_inputs"]
+    pack_ref = "context-pack:pk1"
+    allowed["input_refs"] = sorted({*allowed["input_refs"], pack_ref})
+    for job, refs in allowed["per_job"].items():
+        if job not in {"blake", "eve"}:
+            allowed["per_job"][job] = sorted({*refs, pack_ref})
+    manifest = {key: allowed[key] for key in ("input_refs", "per_job")}
+    allowed["manifest_sha256"] = contract.digest(manifest)
+    context["source_bindings"]["allowed_input_manifest_sha256"] = allowed[
+        "manifest_sha256"
+    ]
     report = call(
-        stage, root, cycle_id="t5", tasks=copy.deepcopy(FOLDED), pack_text=pack
+        stage,
+        root,
+        cycle_id="t5",
+        tasks=copy.deepcopy(FOLDED),
+        pack_text=pack,
+        expected_context=context,
     )
     art = root / "docs" / "dev" / "tmp" / "rev"
     assert report["ok"] is True
