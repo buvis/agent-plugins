@@ -619,3 +619,5 @@
 {"id":"6e9a56ea","ended_at":1793654841,"elapsed_s":1597,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1793655353,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}
 {"kind":"handoff","site":"build","edge":"resume","at":1793655799,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793655832,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
+{"kind":"handoff","site":"build","edge":"leave","at":1793657491,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}

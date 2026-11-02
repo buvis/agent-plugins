@@ -78,8 +78,13 @@ No new files. All four tasks edit existing files in place:
 
 New test file `tests/autopilot/test_helper_recovery_v2.py` (T1 and T2
 regressions, per PRD Repository Structure) — one file, staging cases first
-(T1), sink cases appended by T2, so T1's `-k staging` filter keeps working
-once T2 lands.
+(T1), sink cases appended by T2. Naming convention so the Test Strategy's
+`-k staging` filter stays exact: every T1 (`review_stage.py`) test function
+name contains `staging`; no T2 (`verification.py`/`autopilot.py`/
+`log_sink_refusal.py`) test function name does, even where its subject is
+also an artifact root or a file path (e.g. name a FIFO-export test
+`test_write_policy_refuses_fifo_without_reader`, not
+`...staging_fifo...`).
 
 ## Interfaces & contracts
 
@@ -99,30 +104,69 @@ Reproduced failure mode: on a bare-repo-backed root with
 `safe.bareRepository=explicit` set, `git rev-parse --is-inside-git-dir` exits
 128 (`fatal: cannot use bare repository ... (safe.bareRepository is
 'explicit')`); the `returncode == 0` guard then reads that failure as "not
-inside git internals" and accepts the destination. Replace with a helper
-that retries the probe with `safe.bareRepository=explicit` passed as a
-command-scoped `-c` override (never written to any config), and refuses
-when the probe is unanswerable either way — detection failure must not
-silently grant permission:
+inside git internals" and accepts the destination. The fix must NOT simply
+refuse on every nonzero exit: `ancestor` is reached only when `art_real` is
+NOT relative to `project` (the earlier `_repo_problem` branch owns that
+case), so a perfectly ordinary artifact root that sits outside any git
+repository at all also makes this probe exit 128 — with stderr `fatal: not
+a git repository (or any of the parent directories): .git`, not a
+`safe.bareRepository` complaint. That case has nothing to protect and must
+still be accepted, exactly as today. Distinguish the two by stderr content,
+and only fail closed on the ambiguous bare-repo case specifically — a probe
+that cannot answer about an ACTUAL repository must not silently grant
+permission, but a probe correctly reporting "there is no repository here"
+is not an ambiguous failure:
+
+A substring check on `safe.bareRepository` is the wrong shape for this: it
+POSITIVELY identifies the bare-repo case but only NEGATIVELY identifies
+"nothing to protect" (by the substring's absence), so an unrelated git
+failure this doc has not enumerated — e.g. a `safe.directory`
+ownership-validation error on a bare repo permitted by
+`safe.bareRepository=all` — falls through the negative check and is wrongly
+accepted. Invert the logic: positively identify the one genuinely benign
+answer (`fatal: not a git repository`, git's own fixed message for "no
+repository here at all"), and fail closed on every OTHER unclassified
+failure, not only the specific bare-repo message this PRD happened to
+reproduce:
 
 ```python
 def _is_inside_git_dir(ancestor: Path) -> bool:
-    """True when `ancestor` is inside git internals. A probe that cannot
-    answer (ordinary or bare-repo `safe.bareRepository=explicit`) refuses
-    rather than granting — git detection failure must not open the gate."""
-    for extra_args in ((), ("-c", "safe.bareRepository=explicit")):
-        probe = _git(ancestor, *extra_args, "rev-parse", "--is-inside-git-dir")
-        if probe.returncode == 0:
-            return probe.stdout.strip() == "true"
+    """True when `ancestor` is inside git internals. Only git's own fixed
+    "not a git repository" message is treated as benign (nothing here to
+    protect); every other failure — the bare-repo `safe.bareRepository`
+    restriction this PRD reproduced, an ownership/`safe.directory` error,
+    or anything else — fails closed, retried once with
+    `safe.bareRepository=explicit` before refusing. Detection failure on
+    an ACTUAL repository must not silently grant permission, and that
+    includes failures this comment cannot enumerate in advance."""
+    probe = _git(ancestor, "rev-parse", "--is-inside-git-dir")
+    if probe.returncode == 0:
+        return probe.stdout.strip() == "true"
+    if probe.stderr.strip().startswith("fatal: not a git repository"):
+        return False
+    retry = _git(ancestor, "-c", "safe.bareRepository=explicit",
+                 "rev-parse", "--is-inside-git-dir")
+    if retry.returncode == 0:
+        return retry.stdout.strip() == "true"
     return True
 ```
 
+`startswith`, not a bare `in` substring test: git's fixed prefix for this
+specific diagnostic always leads the message (`fatal: not a git repository
+(or any of the parent directories): .git`, no path interpolated before it),
+whereas the bare-repo diagnostic's fixed prefix is the different string
+`fatal: cannot use bare repository`. An `in` check would wrongly accept a
+bare-repo failure whose quoted, attacker-or-operator-controlled path
+happens to literally contain the substring `fatal: not a git repository`
+(e.g. a repo path named `.../fatal: not a git repository.git`) — anchoring
+to the start of the message is immune to that, since git never puts
+anything before its own fixed prefix for this diagnostic.
+
 `_destination_problem` calls it: `if _is_inside_git_dir(ancestor): return
-"artifact_root is inside git internals"`. `_git`'s signature already accepts
-arbitrary positional args forwarded to `git`, so no change to `_git` itself
-is needed (verify this at task start by reading `_git`'s current signature
-in `dirty_tree.py`; if it does not forward arbitrary args, extend it there
-instead of duplicating the call shape in `review_stage.py`).
+"artifact_root is inside git internals"`. `_git` (imported from
+`dirty_tree.py`) already forwards arbitrary positional args and returns a
+`subprocess.CompletedProcess` with `.stderr` captured as text (confirmed by
+reading its definition), so no change to `_git` itself is needed.
 
 **R8 — a roster job whose prompt inlines the PRD must refuse, not blank, a
 missing `prd:` grant.** Current code (`_scoped`, line ~290-291):
@@ -144,11 +188,12 @@ any artifact is written:
 _PRD_INLINE_JOBS = frozenset({"blake", "eve"})
 
 def _missing_prd_grant(manifest: dict[str, list[str]]) -> str | None:
-    """The first roster job in _PRD_INLINE_JOBS whose manifest omits a
-    `prd:` ref, or None. Those two jobs inline PRD text into their own
-    prompt body (never only the shared context file), so an omitted grant
-    must refuse rather than substitute an empty PRD."""
-    for job in _PRD_INLINE_JOBS & manifest.keys():
+    """The first (by name, for a deterministic refusal message) roster job
+    in _PRD_INLINE_JOBS whose manifest omits a `prd:` ref, or None. Those
+    two jobs inline PRD text into their own prompt body (never only the
+    shared context file), so an omitted grant must refuse rather than
+    substitute an empty PRD."""
+    for job in sorted(_PRD_INLINE_JOBS & manifest.keys()):
         kinds = {ref.split(":", 1)[0] for ref in manifest[job]}
         if "prd" not in kinds:
             return job
@@ -213,43 +258,77 @@ rejected inside `_open_log_sink`'s `_pinned_parent_fd`/`_descend` walk
 (`os.mkdir`/`os.open(..., O_DIRECTORY | O_NOFOLLOW)` raising
 `NotADirectoryError`) — which today runs AFTER `Popen` has already started
 the child, so the exception propagates out of the `with` block uncaught,
-leaving a running, unreaped child in the process group. Fix: reorder so the
-sink is opened and proven BEFORE the child spawns, and a sink-open failure
-is reported the same controlled way as `spawn-failed`, with the child never
-started:
+leaving a running, unreaped child in the process group. `_open_log_sink`
+(`log_sink_refusal.py` line ~202-223) is a **plain function that returns an
+already-opened file object** from `os.fdopen(...)` — not a
+`@contextmanager` generator — so the walk and the `os.open` that can raise
+`NotADirectoryError` both execute synchronously inside the call itself,
+before `with` ever runs; wrapping the call in `try`/`except OSError` catches
+it. (Confirmed by reading the function body, not assumed from its name.)
+
+Fix: reorder so the sink is opened and proven BEFORE the child spawns, a
+sink-open failure is reported the same controlled way as `spawn-failed`
+with the child never started, and a write failure that surfaces DURING
+drain (a later, not an open-time, sink error — e.g. the sink's backing
+disk fills) is also converted to a controlled result rather than left to
+the existing `except BaseException: _kill(proc); raise` re-raise, which
+would otherwise still propagate a traceback out of `_execute` for exactly
+the write-failure case T2's own test strategy requires to be controlled.
+`_open_log_sink` returns `os.fdopen(sink_fd, "wb", buffering=0)` —
+**unbuffered** (confirmed by reading `log_sink_refusal.py` line ~215-223)
+— so an ordinary flush-at-close failure is not the exposure here; the
+descriptor's own `close()` syscall can still fail (e.g. a delayed-allocation
+or quota error surfacing only at close on some filesystems), and that
+failure must not be left to a bare `with sink_cm as sink:` — a `with`
+block's `__exit__` runs during unwinding of ANY `return` inside it,
+including the `spawn-failed` and `sink-write-failed` returns below, so a
+close error at that point would silently replace the already-decided
+return value with an uncaught exception. Close the sink explicitly,
+outside the inner control flow, and only let a close failure override the
+result when the run otherwise looked clean — a write failure already
+decided above takes priority over whatever close reports:
 
 ```python
-def _execute(argv: list[str], root: Path, log: Path, deadline: float) -> dict:
-    digest = hashlib.sha256()
+def _run_against_sink(argv: list[str], root: Path, sink, digest, deadline: float) -> dict:
+    """Spawns and drains `argv` against an already-open `sink`. Always
+    returns a result dict (never raises OSError); re-raises any other
+    exception after killing the child."""
     try:
-        sink_cm = _open_log_sink(log, root)
+        proc = subprocess.Popen(
+            argv, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            start_new_session=True,
+        )
     except OSError as error:
-        return {"error": "sink-failed", "reason": str(error)}
-    with sink_cm as sink:
-        try:
-            proc = subprocess.Popen(
-                argv, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                start_new_session=True,
-            )
-        except OSError as error:
-            return {"error": "spawn-failed", "reason": str(error)}
-        try:
-            tail, drained, capped = _drain(proc, sink, digest, deadline)
-            exited = False
-            if drained:
-                try:
-                    proc.wait(timeout=max(0.0, deadline - time.monotonic()))
-                    exited = True
-                except subprocess.TimeoutExpired:
-                    pass
-            if not exited:
-                _kill(proc)
-        except BaseException:
+        return {"error": "spawn-failed", "reason": str(error)}
+    try:
+        tail, drained, capped = _drain(proc, sink, digest, deadline)
+        exited = False
+        if drained:
+            try:
+                proc.wait(timeout=max(0.0, deadline - time.monotonic()))
+                exited = True
+            except subprocess.TimeoutExpired:
+                pass
+        if not exited:
             _kill(proc)
-            raise
-        finally:
-            proc.stdout.close()
-            proc.stderr.close()
+    except OSError as error:
+        # A write failure during drain (not at sink-open time): kill the
+        # child and report a controlled result instead of letting the
+        # exception propagate as a traceback.
+        _kill(proc)
+        return {"error": "sink-write-failed", "reason": str(error)}
+    except BaseException:
+        _kill(proc)
+        raise
+    finally:
+        # Best-effort pipe cleanup: a close failure here must not override
+        # whatever `tail`/`error` result the block above already decided
+        # (the same priority rule as the log sink's own close, below).
+        for pipe in (proc.stdout, proc.stderr):
+            try:
+                pipe.close()
+            except OSError:
+                pass
     return {
         "exit_code": proc.returncode if exited else None,
         "tail": tail,
@@ -257,14 +336,52 @@ def _execute(argv: list[str], root: Path, log: Path, deadline: float) -> dict:
         "capped": capped,
         "sha256": digest.hexdigest(),
     }
+
+
+def _execute(argv: list[str], root: Path, log: Path, deadline: float) -> dict:
+    digest = hashlib.sha256()
+    try:
+        sink = _open_log_sink(log, root)
+    except OSError as error:
+        return {"error": "sink-failed", "reason": str(error)}
+    close_error: OSError | None = None
+    try:
+        result = _run_against_sink(argv, root, sink, digest, deadline)
+    finally:
+        try:
+            sink.close()
+        except OSError as error:
+            close_error = error
+    if close_error is not None and "error" not in result:
+        # The run itself looked clean but the sink could not be closed
+        # cleanly: the log cannot be trusted, so this takes priority over
+        # a result that otherwise looked like success. A write failure
+        # already decided above (an "error" key already in `result`) is
+        # not overridden by a close failure — the earlier, more specific
+        # cause wins.
+        return {"error": "sink-close-failed", "reason": str(close_error)}
+    return result
 ```
 
-`run_verification`'s caller already branches on `"error" in run` the same
-way for `spawn-failed`; `sink-failed` needs no new caller-side branch — it
-flows through the existing `if "error" in run: return {"schema_version": 1,
-"ok": False, **run}` line unchanged. Note the new `error` key is
-`sink-failed`, distinct from `spawn-failed`, so a failure mode is
-distinguishable in the artifact/log for whoever reads it later.
+`except OSError` is listed before `except BaseException` so it matches
+first; the `except BaseException` clause still exists for every other
+error class (e.g. a deliberate cancellation) and keeps re-raising those
+unchanged — on that path `_execute`'s `finally` still attempts `sink.close()`
+but the function never reaches its own return, so a close failure there is
+swallowed by design (the caller is already getting an exception, not a
+result dict). `run_verification`'s caller already branches on `"error" in
+run` the same way for `spawn-failed`; `sink-failed`, `sink-write-failed` and
+`sink-close-failed` need no new caller-side branch — all three flow through
+the existing `if "error" in run: return {"schema_version": 1, "ok": False,
+**run}` line unchanged. The four distinct `error` keys (`spawn-failed`,
+`sink-failed`, `sink-write-failed`, `sink-close-failed`) keep each failure
+mode distinguishable for whoever reads the result later.
+
+One accepted side effect of the reorder: on a `spawn-failed` return, the
+log file now exists (created/truncated by `_open_log_sink`, empty) where
+the old ordering left nothing on disk, because the sink opens before
+`Popen` is attempted. This is a minor, intentional tradeoff of the
+fail-closed ordering, not a defect — recorded under Risks & edge cases.
 
 **R3/R12 — `_write_policy`'s open must not block on a FIFO, and must not
 assume `os.O_NOFOLLOW` exists.** Current code (`autopilot.py`, line
@@ -288,9 +405,14 @@ and raises `AttributeError` on Windows, which escapes `_export_policy`'s
 `except (OSError, ValueError)` (neither matches `AttributeError`) as an
 unhandled crash. Fix: guard the POSIX-only flag explicitly, and open
 nonblocking so a FIFO without a reader refuses immediately instead of
-hanging — the nonblocking flag is cleared before the write, since
-`O_NONBLOCK` has no effect on a regular file's `write()` but is irrelevant
-noise to carry past the type check:
+hanging. Clear the nonblocking flag only AFTER the descriptor is owned by
+the `with os.fdopen(...)` block, not between `os.open` and `fdopen` — doing
+it before `fdopen` risks leaking the raw `fd` if `set_blocking` itself
+raises, since nothing would be holding it open for cleanup yet. `O_NONBLOCK`
+is a no-op for a regular file's I/O (confirmed: `open(2)`'s man page states
+it has no effect outside FIFOs and certain device files), so restoring
+blocking mode on the accepted regular-file case changes nothing observable
+— it is defensive consistency, not a correctness fix for that path:
 
 ```python
 def _write_policy(out: Path, output: bytes) -> None:
@@ -307,8 +429,10 @@ def _write_policy(out: Path, output: bytes) -> None:
         if error.errno == errno.ENXIO:
             raise ValueError(f"{out} has no reader (FIFO)") from error
         raise
-    os.set_blocking(fd, True)
     with os.fdopen(fd, "wb") as sink:
+        # `fd` is now owned by `sink`: any exception from here on, including
+        # from set_blocking itself, still closes it via this `with` block.
+        os.set_blocking(sink.fileno(), True)
         info = os.fstat(sink.fileno())
         if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
             raise ValueError(f"{out} must be a regular file with one hard link")
@@ -318,10 +442,7 @@ def _write_policy(out: Path, output: bytes) -> None:
 
 `errno` needs importing in `autopilot.py` if not already present (check at
 task start). `ValueError` is already in `_export_policy`'s caught set, so no
-caller-side change. `os.set_blocking(fd, True)` restores ordinary blocking
-writes for the `sink.write(output)` call — `O_NONBLOCK` only needed to exist
-for the `open()` itself to refuse on a FIFO with no reader; carrying it into
-the write would risk a spurious partial write on a large payload.
+caller-side change.
 
 **R6 — containment must be checked before any pointer-content read, even
 though review-03 confirmed this specific instance was never an exploitable
@@ -386,14 +507,23 @@ def test_attempt_validation_does_not_allocate_from_the_supplied_attempt() -> Non
     context, evidence = clean()
     result(evidence, "alice")["attempt"] = 200000
 
-    tracemalloc.start()
+    # Measure a DELTA, not an absolute peak: a test runner or
+    # PYTHONTRACEMALLOC may already have tracing enabled, in which case an
+    # absolute peak would include allocations this test did not cause, and
+    # an unconditional stop() would disable tracing the runner owns.
+    already_tracing = tracemalloc.is_tracing()
+    if not already_tracing:
+        tracemalloc.start()
+    baseline = tracemalloc.get_traced_memory()[1]
     try:
         report = checker.check_evidence(checker.load_policy(), context, evidence)
         peak = tracemalloc.get_traced_memory()[1]
     finally:
-        tracemalloc.stop()
+        if not already_tracing:
+            tracemalloc.stop()
 
-    assert peak < 1_000_000, f"peak traced allocation {peak} bytes is not bounded"
+    grew_by = peak - baseline
+    assert grew_by < 1_000_000, f"peak allocation grew by {grew_by} bytes, not bounded"
     assert not report["ok"]
     assert "attempt_sequence_invalid" in report["defects"]
 ```
@@ -455,20 +585,26 @@ python3 tools/autopilot/update_helper_map.py --root . --map tools/autopilot/sour
 python3 tools/autopilot/update_helper_map.py --root . --map tools/autopilot/source-map.json --receipts docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json --check
 ```
 
-Before trusting the regenerated receipt, confirm it resolves the
-`test_helper_provenance_real.py` failure this session's catchup found (git
-show of `plugins/autopilot/README.md` against the OLD pinned
-`tested_package_revision` fails with exit 128 because that revision
-predates the current README). The generator derives `tested_package_revision`
-from the receipt's own `package_revision` field (there is no CLI flag for
-it, per the PRD) — as long as the README/CHANGELOG commit lands before
-generation, the new receipt pins the commit that actually contains the
-current README, and the provenance test's `git show
-{tested_package_revision}:plugins/autopilot/README.md` resolves. If it
-still does not resolve after that ordering, report the actual `git show`
-error rather than treating generation as having silently fixed it — this is
-exactly the class of claim review-03's R14 flagged under a different
-symptom (an unrun/unconfirmed check cited as passing).
+**The generator does not advance `package_revision` on its own.** It reads
+`package_revision` from the INPUT receipts JSON
+(`docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json`)
+and copies that value into the output's `tested_package_revision` verbatim
+(confirmed by reading `update_helper_map.py` lines ~419-423 and ~507-523);
+there is no `git rev-parse HEAD` call inside the generator itself. So
+"commit README/CHANGELOG first, then generate" only produces a receipt
+pinned to the right commit if the task ALSO updates the existing
+`package_revision` field in that input JSON, by hand, to the just-committed
+40-hex SHA, BEFORE running the generator. Sequence, explicitly:
+
+1. Commit the README/CHANGELOG wording fixes; record the resulting 40-hex SHA.
+2. Edit `docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json`'s
+   `package_revision` field to that exact SHA.
+3. Run the generator commands below; the output's `tested_package_revision`
+   now equals that SHA, because the generator copied it from this input.
+4. Confirm `git show {that SHA}:plugins/autopilot/README.md` resolves —
+   this is the actual exit-128 failure this session's catchup found, fixed
+   because step 1's commit is now the one both the receipt and the
+   provenance test refer to.
 
 Write `docs/dev/project-management/autopilot/reports/00013-helper-recovery-v2.md`: the four
 tasks' exact commands and outcomes, the resolved provenance check, and the
@@ -507,8 +643,10 @@ roots: `plugins/autopilot/scripts/`, `tests/autopilot/`.
   restricted kind set; T1's R9 fix reuses it exactly as designed — only the
   `shared` variable that feeds it was wrong.
 - `verification._execute`'s existing `except BaseException: _kill(proc);
-  raise` / `finally: proc.stdout.close(); proc.stderr.close()` cleanup is
-  reused unchanged inside the new sink-then-spawn ordering.
+  raise` cleanup is reused unchanged inside the new sink-then-spawn
+  ordering; its pipe-close `finally` is reused with one addition (each
+  close now individually guarded against `OSError`, per dispatch 3's
+  finding below).
 
 ## Alternatives considered
 
@@ -539,6 +677,21 @@ roots: `plugins/autopilot/scripts/`, `tests/autopilot/`.
 
 ## Risks & edge cases
 
+- **R2's fail-closed sink-then-spawn ordering creates an empty log file on
+  a `spawn-failed` return**, where the old ordering left nothing on disk
+  (the sink now opens before `Popen` is attempted). Accepted: the file is
+  empty and harmless, and the alternative (spawning before validating the
+  sink) is the defect being fixed.
+- **R7's fix must not refuse every destination outside a git repository,
+  nor accept every destination it cannot classify.** `ancestor` reaching
+  this probe already means the destination is outside the caller's own
+  project tree; a destination that is *also* outside any git repository at
+  all is ordinary and must still be accepted. The fix positively identifies
+  only that one benign case (`fatal: not a git repository` in stderr) and
+  fails closed on everything else, including failure modes this doc never
+  reproduced (an ownership/`safe.directory` error, for example) — a
+  negative check ("accept unless it mentions `safe.bareRepository`") would
+  have silently accepted exactly that unenumerated case.
 - **R6's reorder could be read as "nothing to verify."** It changes no
   test's expected outcome by review-03's own confirmation. The acceptance
   check for T2 is therefore that `refuse`'s existing test suite stays green
@@ -605,3 +758,109 @@ every AP00013 helper node must be green, including the new
 `test_helper_recovery_v2.py` and the regenerated provenance check.
 
 ## Review log
+
+Dispatch 1 used a fresh native Claude subagent (`general-purpose`), isolated
+from this design's authoring context — it received the design doc only, no
+PRD, no prior review file.
+
+dispatch 1 (claude): cardinal-sin 0, blocker 3, non-blocker 2, question 2
+
+- Resolved blocker: R7's `_is_inside_git_dir` fix as first drafted refused
+  every probe failure, including the ordinary case of a destination
+  outside any git repository at all (nonzero exit with "not a git
+  repository", not a `safe.bareRepository` complaint). Now distinguishes by
+  stderr content: only the ambiguous bare-repo case fails closed.
+- Resolved blocker: confirmed `_open_log_sink` is a plain function (not a
+  `@contextmanager` generator) by reading its body, so the try/except
+  around the call does catch the open-time failure as intended; no change
+  needed there, but added an explicit sink-write-failure branch (new
+  `except OSError` clause before `except BaseException`) because the
+  existing re-raise would otherwise still let a write failure DURING drain
+  escape as a traceback, contradicting the Test strategy's own
+  "controlled failure, not a traceback" requirement for that case.
+- Resolved blocker: `except BaseException: _kill(proc); raise` and the
+  write-failure test-strategy line were inconsistent as first drafted;
+  resolved by the same `except OSError` branch above.
+- Non-blocker addressed: the reorder's side effect (an empty log file left
+  behind on `spawn-failed`, where none existed before) is now named in
+  Risks & edge cases as an accepted tradeoff.
+- Non-blocker addressed: `_missing_prd_grant`'s job iteration now sorts the
+  intersection so the refused job name in a dual-omission case is
+  deterministic.
+- Question addressed: an explicit test-naming convention (T1 names contain
+  `staging`, T2 names never do) is now stated under Module placement so
+  the `-k staging` filter partition is not left to implementor guesswork.
+- Question noted, not changed: T4's commit-ordering dependency stays a
+  documented manual check (the task's own exit criteria command output),
+  not a scripted gate — in scope for this PRD's four named tasks, adding
+  a new automated ordering check would be scope the PRD does not ask for.
+
+Dispatch 2 ran as a direct background `codex` CLI call (mandatory
+cross-model dispatch), read-only sandbox, isolated from this design's
+authoring context — it received the design doc only.
+
+dispatch 2 (codex): cardinal-sin 0, blocker 2, non-blocker 2, question 1
+
+- Resolved blocker: `_is_inside_git_dir`'s "not `safe.bareRepository`"
+  check as drafted was a negative test that silently accepted every OTHER
+  unclassified git failure (e.g. a `safe.directory` ownership error),
+  not only the genuinely benign "no repository here" case. Inverted to a
+  positive check on git's fixed `fatal: not a git repository` message;
+  everything else now fails closed, retried once, same as the
+  `safe.bareRepository` case.
+- Resolved blocker: `with sink_cm as sink:` let a close-time `OSError`
+  (from the sink's `__exit__`) override an already-decided
+  `spawn-failed`/`sink-write-failed` return, since `__exit__` runs during
+  unwinding of any `return` inside the `with` block. Restructured into a
+  `_run_against_sink` helper that returns a plain result dict, with the
+  sink closed explicitly afterward in `_execute`'s `finally`; a close
+  failure only overrides the result when the run otherwise looked clean,
+  never when a more specific failure was already decided.
+- Non-blocker addressed: `os.set_blocking(fd, True)` moved to after
+  `fd` is owned by the `with os.fdopen(...)` block, so a `set_blocking`
+  exception no longer leaks the raw descriptor; the inaccurate
+  "partial write" rationale for restoring blocking mode is replaced with
+  the correct reason (consistency; `O_NONBLOCK` is a no-op on a regular
+  file per `open(2)`).
+- Non-blocker addressed: T3's `tracemalloc.start()`/`stop()` now measures
+  a delta against a baseline and only starts/stops tracing when it was not
+  already running, so a test runner's own `PYTHONTRACEMALLOC` tracing is
+  neither corrupted by an inflated peak nor disabled as a side effect.
+- Question addressed: confirmed by reading `update_helper_map.py` that the
+  generator copies `package_revision` from the input receipts JSON
+  verbatim into `tested_package_revision` — it does not compute it from
+  `HEAD`. T4's sequence now states explicitly that the task must edit the
+  receipts JSON's `package_revision` field to the just-committed SHA
+  before running the generator, not only commit docs first.
+
+Dispatch 3 ran as a conditional codex verification pass (dispatch 2 found
+blockers, so a third dispatch is mandatory), focused on the two
+blocker-fix sections and their immediate neighbors per instruction.
+
+dispatch 3 (codex): cardinal-sin 0, blocker 1, non-blocker 1, question 1
+
+- Resolved blocker: `_is_inside_git_dir`'s "fatal: not a git repository" `in`
+  substring check could be fooled by a bare-repo failure whose own quoted,
+  path-controlled diagnostic happens to literally contain that substring
+  (e.g. a repository path named to embed it), wrongly accepting that case
+  as benign. Changed to `probe.stderr.strip().startswith(...)`: git's fixed
+  prefix for this diagnostic always leads the message with nothing
+  interpolated before it, while the bare-repo diagnostic's fixed prefix is
+  the distinct string `fatal: cannot use bare repository` — anchoring to
+  the start is immune to the embedding case `in` was vulnerable to.
+- Non-blocker addressed: `_run_against_sink`'s pipe-close `finally`
+  (`proc.stdout.close()`/`proc.stderr.close()`) was unguarded, so a close
+  failure on either pipe could override an already-decided
+  `sink-write-failed` result or a propagating cancellation — the same class
+  of priority bug the log-sink close fix (dispatch 2) already solved one
+  level up, just not yet applied here. Each close is now individually
+  wrapped in `except OSError: pass`, best-effort, consistent with that
+  same priority rule.
+- Question noted, not changed: dispatch 3's prompt excerpted only the R7
+  and R2/R3 sections (per its own verification-scope instruction) and did
+  not re-show T3's `tracemalloc` fix, so the reviewer could not see it was
+  already addressed by dispatch 2 — not a new gap, just an excerpt
+  boundary. No doc change needed.
+
+No cardinal sin or blocker remains open after dispatch 3. Dispatch ceiling
+(3) reached.

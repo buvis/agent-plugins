@@ -43,7 +43,7 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 ### Batch 202610250001
 - [x] 00012-autopilot-package-contract-v1.md (2 cycles; 47/47 tasks)
-- [ ] 00013-autopilot-session-helpers-v1.md (wip: PRD now lists explicit paths; replanning on reviewed design)
+- [ ] 00013-autopilot-session-helpers-v2.md (wip: v1 held as exhausted cap-regression history; v2 corrective T1-T4, design doc not yet written)
 - [ ] 00014-autopilot-host-execution-v1.md
 - [ ] 00015-autopilot-workflow-parity-v1.md
 - [ ] 00016-autopilot-controller-integration-v1.md
@@ -162,3 +162,9 @@ AP00013 back in wip after AP00018 hold. Two autocodex sessions made no progress 
 ## 2026-11-01 AP00013 mid-build catchup (tasks 1-4 done)
 
 AP00013 resumes at task 5 (review_stage.py) of 11; tasks 1-4 committed (characterization, finding groups, evidence checker, dirty-tree/log-sink). work_start_sha 843e6e7. AP00018 stays on hold. GitHub: 0 issues; open PRs #9 (specflow-00008 host integration) and #8 (dependabot setup-python 7.1.0); latest Validate runs green, no master failures, no releases. Related context: engram queries skipped this refresh (cache expired mid-build; topic unchanged: Autopilot session-local helpers), so no new hits are claimed. Review harvest and task restore not re-run.
+
+## 2026-11-02 AP00013 v2 full catchup
+
+AP00013 v1 is now held (cap_regression) with review-03 settled; v2 selected explicitly to correct only T1-T4 (staging/sink/evidence/delivery), no design doc yet. GitHub: 1 open issue (#12, Renovate dashboard), 2 open renovate PRs (#13 setup-python 7.1.0, #14 python 3.15 — both routine dependency bumps, not blocking). **Master Validate is currently RED** (runs 41516085734, 41511458941, both 2026-11-02): `tests/autopilot/test_helper_provenance_real.py` fails because `plugins/autopilot/README.md` is missing from the tested package revision tree (git show 128), and `tests/autopilot/test_controller_capacity.py` / `test_controller_owner.py` / `test_controller_owner_recovery.py` (the AP00018 controller suite) show 19-20 failures — consistent with the session-brief's "known 19 AP00018 controller tests" deferred-failure note. 20 failed, 898 passed, 1 skipped on the latest run. Treat this as the pre-existing red gate the PRD already flags (Success Metrics: "the known AP18 controller failures remain separate... never mask/relabel") — v2's T4 exit criteria explicitly require recording red controller nodes rather than fixing them. The provenance/README failure is new since the last green run (2026-11-01) and needs checking at T4 (source-map/receipt refresh) since it concerns `plugins/autopilot/README.md`, one of T4's own writable paths.
+
+Related context: repo hits are the PRD itself (0.0328), the hold-30 cap stall stub (0.0161), `test_cap_custody_helpers.py` (0.0159), the v1 PRD (0.0156), `test_local_paths.py` (0.0154); portfolio adds historical claude-autopilot park-cap-regressions review and cellar transcripts, nothing new actionable. Topic: "Autopilot session-local helpers v2 cap regression recovery". Portfolio stamp: memory stale=5/dead=0, code stale=34/dead=1232, prd stale=0/dead=105 (exit 1, same as always — stale/dead rows exist, not a new problem). Review harvest upserted the repo's frontmatted review files; everything under `docs/dev/tmp/` and the pre-00002 review files remain `parse_failed` (no frontmatter), as before — no regression there.
