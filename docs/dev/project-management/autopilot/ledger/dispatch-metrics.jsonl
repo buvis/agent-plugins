@@ -643,3 +643,4 @@
 {"id":"033afe1a","ended_at":1793662257,"elapsed_s":79,"outcome":"ok","detail":"stage_review 53 -> 47 lines"}
 {"id":"c9c0c99c","kind":"pat","task":"1","queued_at":1793662347,"prompt_bytes":36728}
 {"id":"c9c0c99c","ended_at":1793662381,"elapsed_s":34,"outcome":"ok","detail":"5 LOW findings, no CRITICAL/HIGH/MEDIUM"}
+{"kind":"handoff","site":"build","edge":"leave","at":1793662508,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
