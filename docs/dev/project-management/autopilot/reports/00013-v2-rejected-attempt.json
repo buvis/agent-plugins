@@ -1,0 +1,19 @@
+{
+  "attempt": 1,
+  "model": "sonnet",
+  "actual_models": [
+    "claude-sonnet-5"
+  ],
+  "outcome": "aborted",
+  "review_cycle": null,
+  "cause": "workflow_violation",
+  "implementor": "orchestrator",
+  "preflight_outcome": null,
+  "qwen_excluded_reason": null,
+  "pipeline": "full",
+  "pipeline_completed": false,
+  "red_check": "skipped:workflow_violation",
+  "verification": "skipped:workflow_violation",
+  "host_detail": "Full pipeline required but not executed: zero Tess, Devon, Ivan, deslop or Pat dispatches. Orchestrator edited production first. Interrupted, patch preserved, source restored; no implementation accepted.",
+  "session_id": "89d9609f-3f15-45b8-be74-f0929fd583c8"
+}
