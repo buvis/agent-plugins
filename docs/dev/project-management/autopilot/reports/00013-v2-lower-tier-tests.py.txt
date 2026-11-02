@@ -1,0 +1,269 @@
+"""Helper recovery v2: staging refusals on unanswerable git probes, PRD grants, scoped context."""
+
+from __future__ import annotations
+
+import re
+from pathlib import Path
+from typing import Any
+
+import pytest
+from test_cycle1_boundaries_context import reached
+from test_local_boundary import git, library, tree
+from test_review_helpers import CONTEXT, DESIGN, GATE, PRD, SETTLED, call, context_for, text
+
+PACK_REF, HISTORY_REF = "context-pack:pk1", "history:hs1"
+AUDIT_REF, RESULTS_REF, PLAN_REF = "implementation-audit:review", "test-results:review", "plan:review"
+PRECEDENT = "PRECEDENT-MARKER-77c1"
+PACK_WITH_PRECEDENT = f"# Pack\nPACK-MARKER-a1b2\n\n## Findings precedent\n{PRECEDENT}\n\n## Other\nrest\n"
+EXPLICIT = "[safe]\n\tbareRepository = explicit\n"
+CONTEXT_KINDS = {"implementation-audit", "plan", "prd", "context-pack", "history", "test-results"}
+# unit name -> (refs granting it, markers its section carries in the shared context artifact)
+UNITS = {
+    "audit": ([AUDIT_REF], (CONTEXT,)),
+    "gate": ([RESULTS_REF], (GATE,)),
+    "pack": ([PACK_REF], (PRECEDENT,)),
+    "history": ([HISTORY_REF], (SETTLED,)),
+    "plan": ([PLAN_REF], ("## Tasks",)),
+}
+
+
+@pytest.fixture
+def project(tmp_path: Path) -> Path:
+    root = tmp_path.resolve() / "project"
+    (root / "docs" / "dev" / "tmp").mkdir(parents=True)
+    git(root, "init", "-q", "-b", "master")
+    return root
+
+
+@pytest.fixture
+def refusing_git(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Global git config that refuses bare-repository access; returns that config file."""
+    home = tmp_path.resolve() / "home"
+    home.mkdir()
+    config = home / "gitconfig"
+    config.write_text(EXPLICIT, "utf-8")
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(home / "xdg"))
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+    return config
+
+
+def staged_files(base: Path) -> list[str]:
+    return sorted(str(p.relative_to(base)) for p in base.rglob("*")
+                  if p.is_file() and (p.name.startswith("review-") or "-prompt-" in p.name
+                                      or "-review-context-" in p.name))
+
+
+def config_texts(*directories: Path) -> dict[Path, str]:
+    return {d: (d / "config").read_text("utf-8") for d in directories}
+
+
+# --- 1. an unanswerable git probe refuses, a plain non-repository does not ----------------------
+
+
+@pytest.mark.parametrize("kind", ["bare", "separate"])
+def test_staging_refuses_git_metadata_when_the_probe_cannot_answer(
+    project: Path, tmp_path: Path, refusing_git: Path, kind: str,
+) -> None:
+    base = tmp_path.resolve()
+    outside, metadata = base / f"outside {kind}", base / f"metadata {kind}"
+    outside.mkdir()
+    if kind == "bare":
+        git(outside, "init", "-q", "--bare", str(metadata))
+    else:
+        git(outside, "init", "-q", "--separate-git-dir", str(metadata))
+    assert metadata.is_dir()
+    configs, before, listed = config_texts(metadata, project / ".git"), tree(base), staged_files(base)
+    for destination in (metadata / "reviews", metadata / "refs" / "reviews"):
+        report = call(library("review_stage"), project, artifact_root=destination)
+        assert report["ok"] is False and report["schema_version"] == 1, report
+        assert report["error"] == "unsafe-output", report
+        assert not destination.exists()
+    assert tree(base) == before and staged_files(base) == listed == []
+    assert config_texts(metadata, project / ".git") == configs
+    assert refusing_git.read_text("utf-8") == EXPLICIT
+    assert list((base / "home").iterdir()) == [refusing_git]
+
+
+def test_staging_does_not_persist_git_safety_settings_when_it_refuses(
+    project: Path, tmp_path: Path, refusing_git: Path,
+) -> None:
+    base = tmp_path.resolve()
+    metadata = base / "bare-metadata"
+    git(base, "init", "-q", "--bare", str(metadata))
+    configs = config_texts(metadata, project / ".git")
+    report = call(library("review_stage"), project, artifact_root=metadata / "reviews")
+    assert report["error"] == "unsafe-output", report
+    assert config_texts(metadata, project / ".git") == configs
+    assert not any("safe" in body.lower() or "bareRepository" in body for body in
+                   (project / ".git" / "config").read_text("utf-8").splitlines())
+    assert refusing_git.read_text("utf-8") == EXPLICIT
+    assert not (base / "home" / ".gitconfig").exists() and not (base / "home" / "xdg").exists()
+
+
+@pytest.mark.parametrize("name", ["plain one", "plain two"])
+def test_staging_still_writes_outside_any_repository_when_bare_access_is_refused(
+    project: Path, tmp_path: Path, refusing_git: Path, name: str,
+) -> None:
+    art = tmp_path.resolve() / name / "rev"
+    report = call(library("review_stage"), project, cycle_id="k1", artifact_root=art)
+    assert report["ok"] is True, report
+    assert {Path(a["path"]).parent for a in report["artifacts"]} == {art}
+    assert (art / "review-tasks-k1.md").is_file() and (art / "review-context-k1.md").is_file()
+    assert refusing_git.read_text("utf-8") == EXPLICIT
+
+
+def test_staging_still_writes_inside_a_normal_repository_when_bare_access_is_refused(
+    project: Path, refusing_git: Path,
+) -> None:
+    report = call(library("review_stage"), project, cycle_id="n1")
+    assert report["ok"] is True, report
+    assert (project / "docs" / "dev" / "tmp" / "rev" / "review-tasks-n1.md").is_file()
+
+
+# --- 2. a roster job that inlines the PRD needs a prd grant -------------------------------------
+
+
+def without_prd(case: str, jobs: tuple[str, ...], order: tuple[str, ...] = ()) -> dict[str, Any]:
+    """Expected context where each named job lost its prd: refs (digests recomputed)."""
+    context = context_for(PRD, case)
+    allowed = context["allowed_inputs"]
+    per_job = {job: [r for r in allowed["per_job"][job] if r.split(":", 1)[0] != "prd"]
+               if job in jobs else allowed["per_job"][job] for job in allowed["per_job"]}
+    per_job = {job: per_job[job] for job in (*order, *(j for j in per_job if j not in order))}
+    digest = library("review_evidence").digest(
+        {"input_refs": allowed["input_refs"], "per_job": per_job})
+    allowed.update(per_job=per_job, manifest_sha256=digest)
+    context["source_bindings"]["allowed_input_manifest_sha256"] = digest
+    return context
+
+
+@pytest.mark.parametrize(("case", "job", "other"), [("full-clean", "blake", "eve"),
+                                                    ("fast-track-clean", "eve", "blake")])
+def test_staging_refuses_a_prd_inlining_job_without_a_prd_grant_before_writing(
+    project: Path, tmp_path: Path, case: str, job: str, other: str,
+) -> None:
+    context = without_prd(case, (job,))
+    assert not any(r.startswith("prd:") for r in context["allowed_inputs"]["per_job"][job])
+    before = tree(tmp_path.resolve())
+    report = call(library("review_stage"), project, expected_context=context)
+    assert report["ok"] is False and report["schema_version"] == 1, report
+    assert report["error"] == "invalid-input", report
+    assert re.search(rf"\b{job}\b", report["reason"]), report
+    assert not re.search(rf"\b{other}\b", report["reason"]), report
+    assert tree(tmp_path.resolve()) == before and staged_files(tmp_path.resolve()) == []
+    assert not (project / "docs" / "dev" / "tmp" / "rev").exists()
+
+
+@pytest.mark.parametrize("order", [("eve", "blake"), ("blake", "eve")], ids=["eve-first", "blake-first"])
+def test_staging_names_the_alphabetically_first_job_when_blake_and_eve_both_lack_the_grant(
+    project: Path, tmp_path: Path, order: tuple[str, ...],
+) -> None:
+    context = without_prd("fast-track-clean", ("blake", "eve"), order)
+    assert list(context["allowed_inputs"]["per_job"])[:2] == list(order)
+    before = tree(tmp_path.resolve())
+    reasons = []
+    for _ in range(2):
+        report = call(library("review_stage"), project, expected_context=context)
+        assert report["ok"] is False and report["error"] == "invalid-input", report
+        reasons.append(report["reason"])
+    assert reasons[0] == reasons[1]
+    assert re.search(r"\bblake\b", reasons[0]) and not re.search(r"\beve\b", reasons[0])
+    assert tree(tmp_path.resolve()) == before and staged_files(tmp_path.resolve()) == []
+
+
+@pytest.mark.parametrize("job", ["alice", "bob"])
+def test_staging_accepts_a_non_inlining_job_without_a_prd_grant_and_hides_the_prd(
+    project: Path, job: str,
+) -> None:
+    context = without_prd("full-clean", (job,))
+    per_job = context["allowed_inputs"]["per_job"]
+    assert not any(r.startswith("prd:") for r in per_job[job])
+    assert any(r.startswith("prd:") for r in per_job["blake"])
+    report = call(library("review_stage"), project, expected_context=context)
+    assert report["ok"] is True, report
+    body, _ = reached(report["prompts"][job])
+    assert PRD not in body and PRD.splitlines()[2] not in body
+    other = "bob" if job == "alice" else "alice"
+    assert PRD in reached(report["prompts"][other])[0]
+    assert PRD in text(report["prompts"]["blake"])
+
+
+# --- 3. the shared context artifact carries the union of what was granted -----------------------
+
+
+def granted(per_job_units: dict[str, tuple[str, ...]]) -> dict[str, Any]:
+    """Alice and bob keep the diff, rubric and prd base but get only the named context units."""
+    context = context_for(PRD)
+    allowed = context["allowed_inputs"]
+    base = sorted(r for r in allowed["per_job"]["alice"]
+                  if r.split(":", 1)[0] not in CONTEXT_KINDS - {"prd"})
+    refs = sorted({*allowed["input_refs"], PACK_REF, HISTORY_REF})
+    per_job = {"blake": allowed["per_job"]["blake"]}
+    for job, units in per_job_units.items():
+        per_job[job] = sorted({*base, *(r for u in units for r in UNITS[u][0])})
+    digest = library("review_evidence").digest({"input_refs": refs, "per_job": per_job})
+    allowed.update(input_refs=refs, per_job=per_job, manifest_sha256=digest)
+    context["source_bindings"]["allowed_input_manifest_sha256"] = digest
+    return context
+
+
+def stage_granted(project: Path, per_job_units: dict[str, tuple[str, ...]]) -> Path:
+    report = call(library("review_stage"), project, expected_context=granted(per_job_units),
+                  cycle_id="u1", pack_text=PACK_WITH_PRECEDENT)
+    assert report["ok"] is True, report
+    return Path(report["artifacts"][0]["path"]).parent
+
+
+def assert_sections(body: str, present: tuple[str, ...], absent: tuple[str, ...]) -> None:
+    for unit in present:
+        assert all(m in body for m in UNITS[unit][1]), unit
+    for unit in absent:
+        assert not any(m in body for m in UNITS[unit][1]), unit
+
+
+SAME = [("audit",), ("gate",), ("pack",), ("history",), ("plan",), ("audit", "gate"),
+        ("pack", "history")]
+EVERY = ("audit", "gate", "pack", "history")  # plan is deliberately never granted
+
+
+@pytest.mark.parametrize("units", SAME, ids=["+".join(u) for u in SAME])
+def test_staging_shared_context_holds_only_kinds_some_job_was_granted(
+    project: Path, units: tuple[str, ...],
+) -> None:
+    art = stage_granted(project, {"alice": units, "bob": units})
+    shared = text(art / "review-context-u1.md")
+    assert_sections(shared, units, tuple(u for u in UNITS if u not in units))
+    assert not list(art.glob("alice-review-context-*")) and not list(art.glob("bob-review-context-*"))
+
+
+@pytest.mark.parametrize(("full", "thin"), [("alice", "bob"), ("bob", "alice")])
+def test_staging_emits_a_per_job_context_only_for_the_job_that_differs_from_the_union(
+    project: Path, full: str, thin: str,
+) -> None:
+    art = stage_granted(project, {full: EVERY, thin: ("audit",)})
+    assert_sections(text(art / "review-context-u1.md"), EVERY, ("plan",))
+    assert not (art / f"{full}-review-context-u1.md").exists()
+    assert_sections(text(art / f"{thin}-review-context-u1.md"), ("audit",),
+                    ("gate", "pack", "history", "plan"))
+
+
+def test_staging_emits_a_per_job_context_for_each_job_when_both_differ_from_the_union(
+    project: Path,
+) -> None:
+    art = stage_granted(project, {"alice": ("audit", "gate"), "bob": ("audit", "pack")})
+    assert_sections(text(art / "review-context-u1.md"), ("audit", "gate", "pack"),
+                    ("history", "plan"))
+    assert_sections(text(art / "alice-review-context-u1.md"), ("audit", "gate"), ("pack",))
+    assert_sections(text(art / "bob-review-context-u1.md"), ("audit", "pack"), ("gate",))
+
+
+def test_staging_union_leaves_out_a_kind_no_job_was_granted(project: Path) -> None:
+    art = stage_granted(project, {"alice": ("audit",), "bob": ("history",)})
+    assert_sections(text(art / "review-context-u1.md"), ("audit", "history"),
+                    ("gate", "pack", "plan"))
+    assert_sections(text(art / "alice-review-context-u1.md"), ("audit",), ("gate", "history"))
+    assert_sections(text(art / "bob-review-context-u1.md"), ("history",), ("gate", "audit"))
+    contexts = "".join(text(p) for p in art.glob("*review-context-*"))
+    assert GATE not in contexts and DESIGN not in contexts and PRECEDENT not in contexts
