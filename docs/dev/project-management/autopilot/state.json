@@ -213,7 +213,7 @@
     "checked_at": "2026-10-25T22:40:48Z"
   },
   "tasks_total": 4,
-  "tasks_completed": 0,
+  "tasks_completed": 1,
   "replan_count": 0,
   "phases_completed": [],
   "cycle": 1,
@@ -257,6 +257,14 @@
       "cycle": 1,
       "action": "correct-compiled-plan-before-retry",
       "reason": "Direct classifier reruns with --default-model opus returned opus/floor for all four tasks. Corrected metadata and Qwen exclusions through task-set-meta; retained the wrong-tier Tess draft/telemetry in reports/00013-v2-self-debug.md. Corrected a pytest filter that deselected 85/87 regressions, a reproduced allocation-test false pass, receipt generator claims, and a redundant forbidden Git safety override. No product implementation or worker completion accepted; require actual Opus role metadata before resuming. No cap or dependency changes."
+    },
+    {
+      "cycle": 1,
+      "issue": "T1 R9 (shared context artifact = union of granted kinds) makes pre-existing tests/autopilot/test_review_helpers.py:531 test_staged_task_and_context_files_carry_task_rows_and_precedent_text fail, against T1 acceptance that the three named existing suites keep passing unchanged. That test asserts the pack precedent reaches review-context-t5.md under the default full-clean grants, where context_for (line 82) grants no context-pack ref to any job.",
+      "severity": "high",
+      "consensus": "orchestrator-verified",
+      "action": "auto-fix",
+      "reason": "R9 stands; the pre-existing test is corrected minimally instead. Verified directly from the fixture and context_for that no job is granted context-pack in that case, so the assertion could only pass while the shared artifact carried an ungranted kind - the exact defect R9 fixes. The implementor probed the alternative (adding context-pack to the full-clean fixture defaults): it broke 4 cycle-1 boundary tests that require the defaults to carry no pack ref, and he reverted it. The test gets a local grant (the technique the new tests use) so its intent - the staged context file carries the precedent text - keeps binding, now conditioned on the grant. Evidence: narrow run 1 failed / 104 passed, failing only at that line."
     }
   ],
   "tasks": [
@@ -275,10 +283,40 @@
       "qwen_eligible": false,
       "qwen_excluded_reason": "tier",
       "id": "1",
-      "status": "in_progress",
+      "status": "completed",
       "usage_at_start": 111405,
       "calls_at_start": 5,
-      "started_at": 1793657604
+      "started_at": 1793657604,
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "escalation_reason": null,
+          "escalated_from": null,
+          "qwen_excluded_reason": null,
+          "verification": null,
+          "red_check": null,
+          "self_deslop": "noop",
+          "style_gate": "fixed:062badf833c679cdfb3d2554eed826b2a68e44ba",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "all 12 pre-strengthening cases passed against a gutted review_stage.py: destination safety reduced to a path-substring rule, hardcoded blake/eve names and a literal prd:00019 ref, blind filter deleted, per-job override never read, and four of six artifacts never written",
+          "devon_weak_points": 8,
+          "devon_in_contract": [
+            "4. in-contract (third-job half only; the ref-kind half was strengthened): the requirements name blake and eve as the only two PRD-inlining jobs, no fixture roster contains a third, so a {blake, eve} membership test IS the contract; the other side is pinned by test_staging_accepts_a_context_reading_job_without_a_prd_grant_and_keeps_the_prd_out"
+          ],
+          "review": null
+        }
+      ],
+      "usage_at_done": 324882,
+      "calls_at_done": 248,
+      "done_at": 1793662410
     },
     {
       "name": "T2: Repair containment-before-read, pre-spawn sink validation, controlled sink failure and policy-output platform/nonblocking behavior",

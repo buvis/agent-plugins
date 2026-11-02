@@ -331,6 +331,12 @@
       "reason": "rework cap reached with this finding unresolved",
       "prd": "00013-autopilot-session-helpers-v1.md",
       "op_id": "8843ead3f828-dd8"
+    },
+    {
+      "type": "pre-existing-test-corrected",
+      "task": "1",
+      "detail": "R9 (union-scoped shared context artifact) contradicted tests/autopilot/test_review_helpers.py:531, which asserted the pack findings precedent in the shared context file under default grants that include no context-pack ref. R9 kept; that one existing assertion re-granted locally so it binds the real contract. The reviewers should confirm the correction preserves the test intent and did not weaken it.",
+      "prd": "00013-autopilot-session-helpers-v2.md"
     }
   ]
 }
