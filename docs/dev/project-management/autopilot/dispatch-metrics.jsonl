@@ -573,3 +573,29 @@
 {"id":"86208e5a","ended_at":1793612425,"elapsed_s":1269,"outcome":"ok","detail":null}
 {"id":"8e27dd8b","kind":"pat","task":"14","queued_at":1793612660,"prompt_bytes":7256}
 {"id":"5a977fa2","kind":"pat","task":"15","queued_at":1793612662,"prompt_bytes":5776}
+{"id":"e6154f41","kind":"tess","task":"12","queued_at":1793613016,"prompt_bytes":32509}
+{"id":"3b146962","kind":"ivan","task":"12","queued_at":1793613388,"prompt_bytes":26730}
+{"id":"20d108ee","kind":"deslop","task":"12","queued_at":1793613874,"prompt_bytes":4892}
+{"id":"20d108ee","ended_at":1793613906,"elapsed_s":32,"outcome":"ok","detail":null}
+{"id":"911b44c2","kind":"ivan","task":"12","queued_at":1793613956,"prompt_bytes":8420}
+{"id":"25b9c1a7","kind":"pat","task":"12","queued_at":1793614122,"prompt_bytes":45052}
+{"id":"85f31db7","kind":"tess","task":"12","queued_at":1793614228,"prompt_bytes":38088}
+{"id":"4421e44d","kind":"ivan","task":"12","queued_at":1793614357,"prompt_bytes":13566}
+{"id":"b1b93dae","kind":"pat","task":"12","queued_at":1793614719,"prompt_bytes":55269}
+{"id":"54aa71a8","kind":"tess","task":"13","queued_at":1793614877,"prompt_bytes":26915}
+{"id":"8f1a9a2a","kind":"ivan","task":"13","queued_at":1793615053,"prompt_bytes":17358}
+{"id":"0abebd58","kind":"pat","task":"13","queued_at":1793615280,"prompt_bytes":24169}
+{"id":"cc9e2f55","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"8e27dd8b","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"5a977fa2","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"e6154f41","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"3b146962","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"911b44c2","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"25b9c1a7","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"85f31db7","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"4421e44d","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"b1b93dae","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"54aa71a8","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"8f1a9a2a","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"0abebd58","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"kind":"handoff","site":"review","edge":"leave","at":1793616025,"phase":"review","prd":"00013-autopilot-session-helpers-v1.md"}
