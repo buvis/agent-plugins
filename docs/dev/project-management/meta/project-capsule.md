@@ -177,7 +177,7 @@ GitHub unchanged from the 22:00 entry: 1 open issue (#12 Renovate dashboard), 2 
 
 Related context: engram queries were NOT re-run this refresh (identical topic, hits recorded three hours earlier in the entry above: PRD 0.0328, hold-30 cap stall stub 0.0161, `test_cap_custody_helpers.py` 0.0159). No new hits and no fresh staleness stamp are claimed for this session. Review harvest and native task restore were not re-run either (historically `no_tasks_dir`); the authoritative autopilot task list is intact at 0/4.
 
-## 2026-11-02T22:50Z AP00013 v2 task-1 build catchup
+## 2026-11-02T22:45Z AP00013 v2 task-1 build catchup
 
 Full catchup again (cache 20m old, HEAD moved past `381b1bd` with a non-loop committer, so the delta condition failed). Exactly one content commit is new since the entry above: `24a08a7`, which added `autopilot/reports/00013-v2-self-debug.md` plus the preserved lower-tier Tess draft `00013-v2-lower-tier-tests.py.txt` and wrote that entry itself; `372ef47` is a state commit. So no project fact changed in this refresh.
 
