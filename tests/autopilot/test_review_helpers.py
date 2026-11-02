@@ -78,6 +78,15 @@ def root(tmp_path: Path) -> Path:
 def context_for(prd_text: str, case: str = "full-clean") -> dict[str, Any]:
     context = copy.deepcopy(CASES[case]["expected_context"])
     context["source_bindings"]["prd_sha256"] = sha(prd_text)
+    allowed = context["allowed_inputs"]
+    extras = ["implementation-audit:review", "plan:review", "test-results:review"]
+    allowed["input_refs"] = sorted({*allowed["input_refs"], *extras})
+    for job, refs in allowed["per_job"].items():
+        if job not in {"blake", "eve"}:
+            allowed["per_job"][job] = sorted({*refs, *extras})
+    manifest = {key: allowed[key] for key in ("input_refs", "per_job")}
+    allowed["manifest_sha256"] = contract.digest(manifest)
+    context["source_bindings"]["allowed_input_manifest_sha256"] = allowed["manifest_sha256"]
     return context
 
 
@@ -585,7 +594,7 @@ def test_blake_isolation_holds_for_a_second_roster_and_cycle(stage, root):
 
 def test_nonblind_manifests_stay_within_allowed_refs_and_keep_the_diff(stage, root):
     report = call(stage, root)
-    allowed = CASES["full-clean"]["expected_context"]["allowed_inputs"]["per_job"]
+    allowed = context_for(PRD)["allowed_inputs"]["per_job"]
     assert set(report["input_manifest"]) == {"alice", "blake", "bob"}
     for job, refs in report["input_manifest"].items():
         assert isinstance(refs, list)

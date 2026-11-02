@@ -283,7 +283,7 @@ def job_history_defects(
         r["attempt"] != highest and r["outcome"] in COMPLETED for r in history
     ):
         defects.add("duplicate_job_result")
-    if sorted(set(attempts)) != list(range(1, int(highest) + 1)):
+    if any(attempt != expected for expected, attempt in enumerate(sorted(set(attempts)), 1)):
         defects.add("attempt_sequence_invalid")
     if any(
         count > retry_limit + 1

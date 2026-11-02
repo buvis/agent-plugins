@@ -282,6 +282,15 @@ their own, read or write `docs/dev/project-management/autopilot/`, move PRDs,
 dispatch reviewers or start supervisors. Every artifact path is explicit, and
 relative paths resolve against the explicit project root.
 
+Review staging applies each reviewer's input manifest to the prompt and every
+context file it references. `implementation-audit` grants broad context, `plan`
+grants tasks and design text, `prd` grants the raw PRD, and `test-results` grants
+the test gate. Pack and history inputs require their own grants. A tail sweep
+may select a subset of validated findings without closing reviewer results.
+Verification spawn failures return `ok: false` and `error: spawn-failed` while
+preserving existing outputs. Output guards compare filesystem identity so case
+aliases and hard links cannot overwrite command inputs or live state.
+
 `tools/autopilot/source-map.json` records each helper function and regression in
 `helper_dispositions`. Controller-owned functions stay controller-only, and no
 existing regression owner is reassigned.

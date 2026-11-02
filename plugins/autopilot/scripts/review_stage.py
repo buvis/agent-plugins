@@ -49,6 +49,8 @@ NO_PACK = "(no pack available this cycle)"
 NO_SECTION = "(the pack has no Findings precedent section)"
 NO_DIFF = "(no diff file this cycle)"
 NO_MECH = "(no mechanical test checks this cycle)"
+CONTEXT_KINDS = frozenset({"implementation-audit", "plan", "prd", "context-pack",
+                           "history", "test-results"})
 SETTLED_HEADING = "## Settled decisions — do not re-raise"
 SETTLED_INTRO = (
     "> These calls were already made in an earlier cycle of this same review, with\n"
@@ -285,6 +287,8 @@ def _scoped(job: str, run: dict[str, Any]) -> dict[str, Any]:
     kinds = {ref.split(":", 1)[0] for ref in run["manifest"][job]}
     scoped = dict(run)
     scoped["context"] = run["job_context"].get(job, run["context"])
+    if "prd" not in kinds:
+        scoped["prd"] = ""
     if "diff" not in kinds:
         scoped.update(diff=NO_DIFF, changed=[])
     if "context-pack" not in kinds:
@@ -302,14 +306,13 @@ def _render(job: str, body: str, run: dict[str, Any]) -> str:
     return "\n\n".join(blocks) + "\n"
 
 
-def _variants(context: dict[str, Any], jobs: list[str]) -> dict[str, tuple[bool, bool]]:
-    """{job: (has context-pack, has history)} for jobs whose prompt names the context file."""
-    kinds = {
-        job: {ref.split(":", 1)[0] for ref in _manifest(context, job)}
+def _variants(context: dict[str, Any], jobs: list[str]) -> dict[str, frozenset[str]]:
+    """Input kinds each context-reading job may reach through staged files."""
+    return {
+        job: frozenset(ref.split(":", 1)[0] for ref in _manifest(context, job)) & CONTEXT_KINDS
         for job in jobs
         if job not in ("blake", "eve")
     }
-    return {job: ("context-pack" in k, "history" in k) for job, k in kinds.items()}
 
 
 def _context_file(
@@ -317,22 +320,23 @@ def _context_file(
     paths: dict[str, Path],
     findings: str,
     inputs: dict,
-    variant: tuple[bool, bool] = (True, True),
+    variant: frozenset[str] = CONTEXT_KINDS,
 ) -> str:
     pack = paths.get("review-pack")
-    blocks = [
-        context_text.rstrip(),
-        f"## Review files\n\nTasks: {paths['review-tasks']}\n"
-        f"PRD with design doc: {paths['review-prd']}",
-    ]
-    if variant[0]:
+    blocks = [context_text.rstrip()] if "implementation-audit" in variant else []
+    if "plan" in variant:
+        blocks.append(f"## Tasks\n\nTasks: {paths['review-tasks']}")
+    if "prd" in variant:
+        key = "review-prd" if "plan" in variant else "review-prd-raw"
+        blocks.append(f"## PRD\n\nPRD file: {paths[key]}")
+    if "context-pack" in variant:
         blocks.append(
             f"## Context Pack\n\nPack file: {pack or NO_PACK}\n\n"
             f"### Findings precedent\n\n{findings}"
         )
-    if inputs["settled"] and variant[1]:
+    if inputs["settled"] and "history" in variant:
         blocks.append(_history(inputs["settled"], None)[0])
-    if inputs["gate"]:
+    if inputs["gate"] and "test-results" in variant:
         blocks.append(f"## Test gate\n\n{inputs['gate'].strip()}")
     return "\n\n".join(blocks) + "\n"
 
@@ -358,7 +362,7 @@ def _staged_files(art: Path, cycle_id: str, inputs: dict[str, Any]) -> dict:
     paths = {kind: path for kind, (path, _) in staged.items()}
     findings = findings_precedent(inputs["pack"])
     variants = inputs.get("variants", {})
-    shared = (True, True)
+    shared = CONTEXT_KINDS
     body = _context_file(inputs["context"], paths, findings, inputs, shared)
     staged["review-context"] = (paths["review-context"], body)
     for job, variant in variants.items():
@@ -456,7 +460,11 @@ def _destination_problem(project: Path, art: Path, outputs: list[Path]) -> str |
         return _repo_problem(project, art_real, outputs)
     if not art.is_relative_to(project) and Path(os.path.abspath(art)) != art_real:
         return "artifact_root is reached through a symlink"
-    top = _toplevel(_existing_ancestor(art_real))
+    ancestor = _existing_ancestor(art_real)
+    git_probe = _git(ancestor, "rev-parse", "--is-inside-git-dir")
+    if git_probe.returncode == 0 and git_probe.stdout.strip() == "true":
+        return "artifact_root is inside git internals"
+    top = _toplevel(ancestor)
     return _tracked_problem(top, art_real, outputs) if top else None
 
 
