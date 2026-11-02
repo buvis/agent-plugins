@@ -117,12 +117,12 @@ def _identity_hit(resolved: Path, repo_root: Path, toplevel: Path) -> str | None
 def _worktree_gitdir_pointer(resolved: Path) -> Path | None:
     """The target of a linked worktree's `.git` FILE (`gitdir: <path>`), or
     None when `resolved` is not such a file. The file is itself the
-    candidate sink, so it is checked by what it points at. Only a file named
-    `.git` is read: any other candidate is refused or accepted by location,
+    candidate sink, so it is checked by what it points at. Only the actual
+    `.git` file is read: any other candidate is refused or accepted by location,
     never by its content."""
-    if resolved.name != ".git":
-        return None
     try:
+        if not resolved.samefile(resolved.parent / ".git"):
+            return None
         if not stat.S_ISREG(os.lstat(resolved).st_mode):
             return None
         text = resolved.read_text()
@@ -130,7 +130,7 @@ def _worktree_gitdir_pointer(resolved: Path) -> Path | None:
         return None
     if not text.startswith("gitdir:"):
         return None
-    return Path(text.split(":", 1)[1].strip())
+    return resolved.parent / text.split(":", 1)[1].strip()
 
 
 def _symlinked_component(log_path: Path, repo_root: Path, toplevel: Path) -> bool:

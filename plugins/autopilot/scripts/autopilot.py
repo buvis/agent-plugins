@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import re
+import stat
 import sys
 
 
@@ -259,11 +260,22 @@ def _export_policy(out: Path | None) -> int:
         if out is None:
             sys.stdout.buffer.write(output)
         else:
-            out.write_bytes(output)
+            _write_policy(out, output)
     except (OSError, ValueError) as error:
         print(f"autopilot: {error}", file=sys.stderr)
         return 1
     return 0
+
+
+def _write_policy(out: Path, output: bytes) -> None:
+    """Inspect the opened inode before truncating; aliases cannot redirect a write."""
+    fd = os.open(out, os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW, 0o666)
+    with os.fdopen(fd, "wb") as sink:
+        info = os.fstat(sink.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+            raise ValueError(f"{out} must be a regular file with one hard link")
+        os.ftruncate(sink.fileno(), 0)
+        sink.write(output)
 
 
 if __name__ == "__main__":

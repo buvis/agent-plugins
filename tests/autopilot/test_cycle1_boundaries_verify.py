@@ -146,16 +146,14 @@ def test_a_symlink_target_modified_before_the_run_is_never_reusable_evidence(
 ) -> None:
     notes, _, head = link_world(world)
     notes.write_text("notes v2 edited after the commit\n", encoding="utf-8")
-    argv = py(f"print({GREEN!r})")
+    marker = world.base / "spawned"
+    argv = py(f"open({str(marker)!r}, 'w').write('spawned')", f"print({GREEN!r})")
     report = verify_call(world, argv)
-    if report["ok"]:
-        assert report["artifact"]["reusable"] is False and report["artifact"]["dirty_paths"]
-        prior = report["artifact"]
-    else:
-        assert report["error"] == "dirty-tree" and not (world.target / ARTIFACT).exists()
-        prior = None
+    assert report == {"schema_version": 1, "ok": False, "error": "dirty-tree"}
+    assert not marker.exists()
+    assert not (world.target / ARTIFACT).exists() and not (world.target / LOG).exists()
     verdict, _ = library("verification").reuse_verdict(
-        prior=prior, argv=argv, project_root=world.target, head_sha=head)
+        prior=None, argv=argv, project_root=world.target, head_sha=head)
     assert verdict == "stale"
 
 

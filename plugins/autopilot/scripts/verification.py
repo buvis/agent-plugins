@@ -75,10 +75,20 @@ def _unsafe_paths(root: Path, artifact: Path, log: Path, argv: list[str]) -> boo
             return True
         if not path.resolve().is_relative_to(root.resolve()):
             return True
-    outputs = {artifact.resolve(), log.resolve()}
-    if len(outputs) < 2:
+    outputs = (artifact.resolve(), log.resolve())
+    if _same_path(*outputs):
         return True
-    return any((root / token).resolve() in outputs for token in argv)
+    return any(_same_path(root / token, output) for token in argv for output in outputs)
+
+
+def _same_path(left: Path, right: Path) -> bool:
+    """Compare existing files by identity, retaining lexical checks for absent paths."""
+    if left.resolve() == right.resolve():
+        return True
+    try:
+        return left.samefile(right)
+    except OSError:
+        return False
 
 
 def _head_moved(root: Path, head_sha: str) -> bool:
@@ -136,20 +146,21 @@ def _kill(proc) -> None:
     proc.wait()
 
 
-def _execute(argv: list[str], root: Path, sink, deadline: float) -> dict:
+def _execute(argv: list[str], root: Path, log: Path, deadline: float) -> dict:
     """Spawns `argv` without a shell in its own session, drains and reaps
     it against `deadline`, killing the group on expiry, log overflow or
     any error. The deadline bounds drain and child exit together."""
     digest = hashlib.sha256()
-    proc = subprocess.Popen(
-        argv,
-        cwd=root,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        start_new_session=True,
-    )
     try:
-        tail, drained, capped = _drain(proc, sink, digest, deadline)
+        proc = subprocess.Popen(
+            argv, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            start_new_session=True,
+        )
+    except OSError as error:
+        return {"error": "spawn-failed", "reason": str(error)}
+    try:
+        with _open_log_sink(log, root) as sink:
+            tail, drained, capped = _drain(proc, sink, digest, deadline)
         exited = False
         if drained:
             try:
@@ -250,8 +261,9 @@ def run_verification(
     if _head_moved(root, head_sha):
         return {"schema_version": 1, "ok": False, "error": "head-moved"}
     log_rel = log.resolve().relative_to(root.resolve()).as_posix()
-    with _open_log_sink(log, root) as sink:
-        run = _execute(argv, root, sink, time.monotonic() + timeout)
+    run = _execute(argv, root, log, time.monotonic() + timeout)
+    if "error" in run:
+        return {"schema_version": 1, "ok": False, **run}
     art = _artifact(argv, root, head_sha, log_rel, excluded, run)
     with _open_log_sink(artifact, root) as sink:
         _write_all(sink, json.dumps(art, indent=2).encode() + b"\n")

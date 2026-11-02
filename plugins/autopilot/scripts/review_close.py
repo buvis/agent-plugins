@@ -219,9 +219,9 @@ def _row_links(
     return {"findings": linked, "found_by": derived}, None
 
 
-def _link(evidence: dict, rows: list[dict]) -> tuple[dict[int, dict], str | None]:
+def _link(evidence: dict, rows: list[dict], *, coverage: bool) -> tuple[dict[int, dict], str | None]:
     """Links of every consolidated row by index, or the first attribution
-    problem. Every evidence finding must be linked by exactly one row."""
+    problem. Full close requires every finding; a tail sweep permits a subset."""
     findings = {f["finding_id"]: f for f in evidence["findings"]}
     jobs = {r["result_id"]: r["job_ref"] for r in evidence["reviewer_results"]}
     links: dict[int, dict] = {}
@@ -235,7 +235,7 @@ def _link(evidence: dict, rows: list[dict]) -> tuple[dict[int, dict], str | None
         seen.update(row["finding_ids"])
         links[n] = link
     multiply = sorted(i for i, count in seen.items() if count > 1)
-    missing = sorted(set(findings) - set(seen))
+    missing = sorted(set(findings) - set(seen)) if coverage else []
     if multiply or missing:
         return {}, f"findings linked more than once {multiply}, never linked {missing}"
     return links, None
@@ -541,11 +541,11 @@ def prepare_close(
     )
     if refusal is not None:
         return refusal
-    links, problem = _link(evidence, rows)
+    tail_sweep = batch_id == "tail-sweep"
+    links, problem = _link(evidence, rows, coverage=not tail_sweep)
     if problem is not None:
         return _refusal("attribution_mismatch", problem)
     jobs = {r["job_ref"] for r in evidence["reviewer_results"]}
-    tail_sweep = batch_id == "tail-sweep"
     refusal = _cross_check(review_text, rows, not tail_sweep) or _gate_refusal(
         read_snapshot, review_ref, rows, cycle, batch_id, jobs
     )
