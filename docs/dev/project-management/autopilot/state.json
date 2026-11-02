@@ -199,7 +199,7 @@
     "engram": "ok",
     "checked_at": "2026-10-25T22:40:48Z"
   },
-  "tasks_total": 11,
+  "tasks_total": 15,
   "tasks_completed": 11,
   "replan_count": 0,
   "phases_completed": [],
@@ -207,7 +207,8 @@
   "applied_review_batches": [
     "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-01.md::decision-gate",
     "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-02.md::decision-gate",
-    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-02.md::tail-sweep"
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-02.md::tail-sweep",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00013-autopilot-session-helpers-v1-review-01.md::decision-gate"
   ],
   "codex_probe": {
     "batch_id": "202610250001",
@@ -267,7 +268,9 @@
           "style_gate": "clean",
           "split_hygiene": "skipped:no-tests"
         }
-      ]
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
     },
     {
       "name": "Extract finding parsing, lead stripping and deterministic grouping",
@@ -307,7 +310,9 @@
           "devon_weak_points": 8,
           "devon_in_contract": []
         }
-      ]
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
     },
     {
       "name": "Implement advisory AP00012 evidence consistency checking",
@@ -346,7 +351,9 @@
           "devon_weak_points": 6,
           "devon_in_contract": []
         }
-      ]
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
     },
     {
       "name": "Port read-only dirty-tree and safe artifact path primitives",
@@ -387,7 +394,9 @@
             "2. absolute-target symlink can never match toplevel-relative store paths under the pinned rule, so skip-absolute is indistinguishable"
           ]
         }
-      ]
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
     },
     {
       "name": "Prepare isolated review artifacts and complete reviewer prompts",
@@ -430,7 +439,9 @@
             "8. DIFF_REF stays in manifests when diff_text is None, and artifact kind values are not pinned"
           ]
         }
-      ]
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
     },
     {
       "name": "Prepare authenticated classified review-close proposals",
@@ -469,7 +480,9 @@
           "devon_weak_points": 8,
           "devon_in_contract": []
         }
-      ]
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
     },
     {
       "name": "Extract regression classification and pure custody proposals",
@@ -510,7 +523,9 @@
             "6. capture_range does not require the base to be an ancestor of HEAD: the pinned source only checks 40-hex, directory and commit resolution"
           ]
         }
-      ]
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
     },
     {
       "name": "Expose stateless optional catchup probes",
@@ -548,7 +563,9 @@
           "devon_weak_points": 5,
           "devon_in_contract": []
         }
-      ]
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
     },
     {
       "name": "Execute bounded verification and assess explicit artifact reuse",
@@ -587,7 +604,9 @@
           "devon_weak_points": 8,
           "devon_in_contract": []
         }
-      ]
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
     },
     {
       "name": "Wire versioned local facade operations and controller refusals",
@@ -626,7 +645,9 @@
           "devon_weak_points": 8,
           "devon_in_contract": []
         }
-      ]
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
     },
     {
       "name": "Record helper provenance and document delivered capability limits",
@@ -668,7 +689,40 @@
             "2. a regression row selected by both a helper-only and a mixed module cannot be built from the fixed selectors (no shared test file), so the mixed-row rule is covered only through tampered rows"
           ]
         }
-      ]
+      ],
+      "usage_at_done": 254075,
+      "calls_at_done": 1
+    },
+    {
+      "name": "[D1] plugins/autopilot/scripts/",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe1 plugins/autopilot/scripts/autopilot.py:125: Malformed request values escape the documented exit-2 usage boundary. group() assumes every finding is a dict, so --group-findings with findings [\"x\"] or [null] raises AttributeError and exits 1 with a traceback (rework_groups.py:106). prepare_close and staging do not validate the types of cycle, batch_id, default_tier, review_ref or the task shapes: a string cycle formats into task names as \"[D1]\" and never matches snapshot cycle ints, and a non-string batch_id silently takes the decision-gate path. The facade _call maps only TypeError and ValueError to exit 2. Validate these fields explicitly and raise ValueError. (found by: ALICE, BLAKE, BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_stage.py:397: stage_review's live-state refusal is case-sensitive, so on case-insensitive filesystems (macOS, the owner's platform) an artifact_root spelled with different case, e.g. DOCS/dev/project-management/AUTOPILOT/x, is not refused. I checked: Path('.../DOCS/dev/project-management/AUTOPILOT').resolve() exists on this machine and is_relative_to(<project>/docs/dev/project-management/autopilot) is False. The artifacts (review-tasks-*, review-prd-*, prompts) would be written inside live workflow state, against \"refuse live state\". The facade only casefolds the request-file path (plugins/autopilot/scripts/autopilot.py:345), not the artifact_root carried in the JSON. log_sink_refusal does catch aliases by inode (samefile). Fix: compare by inode identity or casefold, as the verification path does. No test covers it. (found by: ALICE)\n- \ud83d\udfe0 plugins/autopilot/scripts/autopilot.py:47: `--export-policy --out PATH` writes without any live-state check. `_INPUTS` (the live-state guard list) omits `out`, so `--out <root>/docs/dev/project-management/autopilot/state.json` overwrote the file with exit 0. I reproduced this in a scratch tree. This breaks the PRD rule that no helper writes the executing repo's live autopilot state directory. `--artifact` and `--log` are protected by `refuse()` in log_sink_refusal.py, which blocks the whole store prefix, and `stage_review` has its own guard. `--out` has neither, and `out.write_bytes` also follows symlinks. (found by: BLAKE)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_stage.py:251: Per-job manifests do not constrain rendered inputs: nonblind prompts receive context, diff, pack and history unconditionally, even when those refs are absent from their allowed inputs. Build each prompt and its referenced artifacts from that job\u2019s validated manifest. (found by: BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_stage.py:376: Artifact roots outside the project bypass repository and ancestor-symlink checks. An external root can therefore overwrite tracked files in another repository or write inside another live autopilot directory. Apply destination protections to external roots too. (found by: BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/verification.py:70: Verification does not reject output/input overlap. An untracked script under scratch can also be the log destination; opening the log deletes the script before execution. Validate identifiable argv input paths against both destinations before opening either output. (found by: BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/dirty_tree.py:209: Verification can mark changed product content reusable when a tracked product symlink targets a modified management-store file. `_dirty_check` ignores the target modification; the symlink-target check runs only during later reuse assessment. Include that check before and after execution. (found by: BOB)\n",
+      "model": "sonnet",
+      "id": "12",
+      "status": "pending"
+    },
+    {
+      "name": "[D1] plugins/autopilot/scripts/",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe1 plugins/autopilot/scripts/review_close.py:467: prepare_close is 55 lines and stage_review is 52 lines (def through end), over the 50-line limit. The multi-line contract signatures account for most of the overage. The body of prepare_close can drop the inline tail-sweep ternaries into a helper (for example, build the output dict in _proposal_report), and stage_review (plugins/autopilot/scripts/review_stage.py:467) can move the inputs dict assembly into a helper. (found by: ALICE, BOB, CARL)\n- \ud83d\udfe0 plugins/autopilot/scripts/log_sink_refusal.py:115: Sink validation reads arbitrary existing candidate files through `_worktree_gitdir_pointer` before checking containment. With a subdirectory project root, an output naming the parent repository\u2019s live state file reads that state before refusal. Inspect only the identified Git pointer after containment checks. (found by: BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/log_sink_refusal.py:143: Nested-repository detection fails open when the output\u2019s immediate parent does not exist: `_git` raises OSError and `_in_nested_repo` returns false. Outputs beneath a new directory inside a nested repository are then created. Probe the nearest existing ancestor. (found by: BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_close.py:232: Review-close authenticates the review bytes but permits a referenced table row\u2019s issue to differ from its linked findings. `_backed` compares only ref, severity and file. Compare the linked finding key with the actual selected table row\u2019s complete normalized key. (found by: BOB)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_close.py:120: Carry snapshots can omit task status and still prove an unfinished task because `None != \"completed\"`. Validate all required CarryTaskSnapshot fields and their types before matching carry eligibility. (found by: BOB)\n",
+      "model": "sonnet",
+      "id": "13",
+      "status": "pending"
+    },
+    {
+      "name": "[D1] tests/autopilot/test_package.py",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe0 tests/autopilot/test_package.py:454: Suite is red beyond the 19 documented AP 00018 controller failures. tests/autopilot/test_package.py::TargetPackageTest::test_ci_autopilot_wired_with_python312_and_complete_pinned_plugins_job fails (steps[:2] mismatch). The test pins SETUP at actions/setup-python@5fda3b95..., but .github/workflows/validate.yml:23 uses 6d4fd22b... (v7.1.0, bumped by c8e9b69 and merged in 6c1352c). Pushing master publishes a second red cause that reviews/00013-preexisting-suite-failures.md does not list. The full-suite run shows 20 failures: 19 controller tests plus this one. Update the pin or the workflow so they agree. (found by: ALICE, CARL)\n",
+      "model": "sonnet",
+      "id": "14",
+      "status": "in_progress",
+      "usage_at_start": 264244,
+      "calls_at_start": 4,
+      "started_at": 1793612525
+    },
+    {
+      "name": "[D1] tests/autopilot/test_facade.py",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe1 tests/autopilot/test_facade.py:99: test_facade's capability test was relaxed to check only ids[:3] plus the canonical format, so it passes against the pre-change code and no longer fails if one of the seven new operation IDs is dropped (they are pinned only in test_package.py and test_local_boundary.py). Pin the full ID list in test_facade too. (found by: ALICE, CARL)\n",
+      "model": "sonnet",
+      "id": "15",
+      "status": "in_progress"
     }
   ],
   "work_start_sha": "843e6e7d51c56377adc1c01fab9ae7ea7755e1f4",
@@ -680,7 +734,207 @@
       "reason": "Packaged _row_from_table is equivalent to pinned findings_section._row_from_table (e960ef1) and the task contract says 'Preserve pinned findings_section._reviewed_keys'. Diverging is outside parity; left for the PRD-level review. LOW dead _cap branch kept for the same parity reason.",
       "cycle": 1,
       "severity": "medium"
+    },
+    {
+      "cycle": 1,
+      "issue": "prepare_close is 55 lines and stage_review is 52 lines (def through end), over the 50-line limit. The multi-line contract signatures account for most of the overage. The body of prepare_close can drop the inline tail-sweep ternaries into a helper (for example, build the output dict in _proposal_report), and stage_review (plugins/autopilot/scripts/review_stage.py:467) can move the inputs dict assembly into a helper.",
+      "severity": "medium",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Suite is red beyond the 19 documented AP 00018 controller failures. tests/autopilot/test_package.py::TargetPackageTest::test_ci_autopilot_wired_with_python312_and_complete_pinned_plugins_job fails (steps[:2] mismatch). The test pins SETUP at actions/setup-python@5fda3b95..., but .github/workflows/validate.yml:23 uses 6d4fd22b... (v7.1.0, bumped by c8e9b69 and merged in 6c1352c). Pushing master publishes a second red cause that reviews/00013-preexisting-suite-failures.md does not list. The full-suite run shows 20 failures: 19 controller tests plus this one. Update the pin or the workflow so they agree.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "test_facade's capability test was relaxed to check only ids[:3] plus the canonical format, so it passes against the pre-change code and no longer fails if one of the seven new operation IDs is dropped (they are pinned only in test_package.py and test_local_boundary.py). Pin the full ID list in test_facade too.",
+      "severity": "medium",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Malformed request values escape the documented exit-2 usage boundary. group() assumes every finding is a dict, so --group-findings with findings [\"x\"] or [null] raises AttributeError and exits 1 with a traceback (rework_groups.py:106). prepare_close and staging do not validate the types of cycle, batch_id, default_tier, review_ref or the task shapes: a string cycle formats into task names as \"[D1]\" and never matches snapshot cycle ints, and a non-string batch_id silently takes the decision-gate path. The facade _call maps only TypeError and ValueError to exit 2. Validate these fields explicitly and raise ValueError.",
+      "severity": "medium",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "stage_review's live-state refusal is case-sensitive, so on case-insensitive filesystems (macOS, the owner's platform) an artifact_root spelled with different case, e.g. DOCS/dev/project-management/AUTOPILOT/x, is not refused. I checked: Path('.../DOCS/dev/project-management/AUTOPILOT').resolve() exists on this machine and is_relative_to(<project>/docs/dev/project-management/autopilot) is False. The artifacts (review-tasks-*, review-prd-*, prompts) would be written inside live workflow state, against \"refuse live state\". The facade only casefolds the request-file path (plugins/autopilot/scripts/autopilot.py:345), not the artifact_root carried in the JSON. log_sink_refusal does catch aliases by inode (samefile). Fix: compare by inode identity or casefold, as the verification path does. No test covers it.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "`--export-policy --out PATH` writes without any live-state check. `_INPUTS` (the live-state guard list) omits `out`, so `--out <root>/docs/dev/project-management/autopilot/state.json` overwrote the file with exit 0. I reproduced this in a scratch tree. This breaks the PRD rule that no helper writes the executing repo's live autopilot state directory. `--artifact` and `--log` are protected by `refuse()` in log_sink_refusal.py, which blocks the whole store prefix, and `stage_review` has its own guard. `--out` has neither, and `out.write_bytes` also follows symlinks.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Per-job manifests do not constrain rendered inputs: nonblind prompts receive context, diff, pack and history unconditionally, even when those refs are absent from their allowed inputs. Build each prompt and its referenced artifacts from that job\u2019s validated manifest.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Artifact roots outside the project bypass repository and ancestor-symlink checks. An external root can therefore overwrite tracked files in another repository or write inside another live autopilot directory. Apply destination protections to external roots too.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Sink validation reads arbitrary existing candidate files through `_worktree_gitdir_pointer` before checking containment. With a subdirectory project root, an output naming the parent repository\u2019s live state file reads that state before refusal. Inspect only the identified Git pointer after containment checks.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Nested-repository detection fails open when the output\u2019s immediate parent does not exist: `_git` raises OSError and `_in_nested_repo` returns false. Outputs beneath a new directory inside a nested repository are then created. Probe the nearest existing ancestor.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Verification does not reject output/input overlap. An untracked script under scratch can also be the log destination; opening the log deletes the script before execution. Validate identifiable argv input paths against both destinations before opening either output.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Verification can mark changed product content reusable when a tracked product symlink targets a modified management-store file. `_dirty_check` ignores the target modification; the symlink-target check runs only during later reuse assessment. Include that check before and after execution.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Review-close authenticates the review bytes but permits a referenced table row\u2019s issue to differ from its linked findings. `_backed` compares only ref, severity and file. Compare the linked finding key with the actual selected table row\u2019s complete normalized key.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Carry snapshots can omit task status and still prove an unfinished task because `None != \"completed\"`. Validate all required CarryTaskSnapshot fields and their types before matching carry eligibility.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "issue": "Single-voice Medium/Low rows R15,R16,R17,R19,R20,R23-R28 (cycle 1)",
+      "severity": "medium",
+      "cycle": 1,
+      "action": "discarded, recorded in 00013-autopilot-session-helpers-v1-ledger.json",
+      "reason": "single-voice Medium/Low rule; not a claim each is false"
+    },
+    {
+      "issue": "R2: test_package CI wiring test pins stale setup-python SHA after foreign merge 6c1352c",
+      "severity": "high",
+      "cycle": 1,
+      "action": "fix in rework: align the test pin with validate.yml and list it in 00013-preexisting-suite-failures.md",
+      "reason": "verified second red cause (20 failures, not 19); blocks the push gate; workflow is the source of truth for the bumped pin"
+    },
+    {
+      "issue": "Cycle 1 decision gate: 12 consolidated rows classified auto-fix (R1, R2 two-voice 50-line/duplicate-map Mediums; R3-R12 high-severity boundary, authentication, overlap, symlink, carry-snapshot and CI-pin defects)",
+      "severity": "high",
+      "cycle": 1,
+      "action": "fix in cycle-1 rework",
+      "reason": "every one of these fixes is additive validation or a mechanical pin sync: no new dependency, no data-model change, no public-API signature change, so none triggers a research protocol or a blocking escalation"
+    },
+    {
+      "issue": "Cycle 1 decision gate: 27 consolidated rows discarded (R13-R34 single-voice Medium or Low, R35-R39 fail-first replay rows)",
+      "severity": "medium",
+      "cycle": 1,
+      "action": "discard, ledgered in docs/dev/project-management/reviews/00013-autopilot-session-helpers-v1-ledger.json",
+      "reason": "Phase 5 discards a single-voice Medium or Low rather than creating a task; the five replay rows are characterization and refusal suites whose tests pass against the pre-change code by design. Four of the discarded rows restate defects already fixed under R1, R2, R4 and R12."
+    },
+    {
+      "issue": "Cycle 1: Bob's first codex dispatch failed because the inlined prompt was 1,627,530 characters against codex's 1,048,576-character cap",
+      "severity": "low",
+      "cycle": 1,
+      "action": "logged and continued; the one-retry budget rebuilt the inlined prompt at 887,608 characters by omitting the generated source-map.json body and the docs/dev/project-management churn from the inlined diff, naming both omissions to the reviewer",
+      "reason": "a transient reviewer error is graceful degradation, not a pause; the retry produced a complete doubt review with all five D-rule verdicts, so the lens did not drop"
+    },
+    {
+      "issue": "Cycle 1: the two full-suite runs at HEAD 6c1352c disagree on the pass count (review-stage logged 20 failed, 800 passed; autopilot verify logged PASS 793 FAIL 20 SKIP 0)",
+      "severity": "low",
+      "cycle": 1,
+      "action": "recorded in the review file rather than smoothed over; the Tests line carries the autopilot verify result, which is the run that wrote last-verification.json",
+      "reason": "the failure set is identical in both runs and the 7-test difference is unexplained, so it is surfaced as an open observation instead of being presented as a single clean count"
     }
   ],
-  "contract_card": "step: build complete, PRD 00013 tasks 1-11 done (work_start_sha 843e6e7), handed off to review | invariants: review runs in a FRESH session with all lenses (Alice consensus, Blake blind, Bob doubt) every cycle; PRD 00018 stays on hold; the 19 failing tests in tests/autopilot/test_controller_{capacity,owner,owner_recovery}.py are AP00018 task-7 red tests (commit b4655fe, no implementation) and are NOT AP00013 regressions; test_package roster test now passes after the foreign commit 4cb0ff7 registered the AP00018 controller files in the source map | host notes: native autopilot:worker-opus with model sonnet for Pat (nested claude -p fails OAuth); a formatter hook reflows touched files, check `git diff` is AST-equal before `git checkout --`; never `git show ... --output`; assumptions ledger docs/dev/project-management/meta/assumptions.md lists every unpinned decision and Pat LOW | next: /autopilot:review-work-completion in the fresh session (state.next_phase = review); review diff range work_start_sha..HEAD"
+  "contract_card": "step: build complete, PRD 00013 tasks 1-11 done (work_start_sha 843e6e7), handed off to review | invariants: review runs in a FRESH session with all lenses (Alice consensus, Blake blind, Bob doubt) every cycle; PRD 00018 stays on hold; the 19 failing tests in tests/autopilot/test_controller_{capacity,owner,owner_recovery}.py are AP00018 task-7 red tests (commit b4655fe, no implementation) and are NOT AP00013 regressions; test_package roster test now passes after the foreign commit 4cb0ff7 registered the AP00018 controller files in the source map | host notes: native autopilot:worker-opus with model sonnet for Pat (nested claude -p fails OAuth); a formatter hook reflows touched files, check `git diff` is AST-equal before `git checkout --`; never `git show ... --output`; assumptions ledger docs/dev/project-management/meta/assumptions.md lists every unpinned decision and Pat LOW | next: /autopilot:review-work-completion in the fresh session (state.next_phase = review); review diff range work_start_sha..HEAD",
+  "review_lenses": {
+    "consensus": "done",
+    "blind": "done",
+    "doubt": "done",
+    "ui": "done"
+  },
+  "rework_task_ids": [
+    "12",
+    "13",
+    "14",
+    "15"
+  ],
+  "deferred_decisions": [
+    {
+      "cycle": 1,
+      "issue": "Shared Git probes have no timeout, contrary to the required 30-second bound. Verification can hang during preflight or post-run checks regardless of its command timeout. Add the timeout and map timeout failures to refusal or stale evidence.",
+      "severity": "\ud83d\udfe1",
+      "file": "plugins/autopilot/scripts/dirty_tree.py:19",
+      "action": "deferred",
+      "reason": "deferred by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Generated helper delivery evidence has `status: passed` but retains `tested_package_revision: null`: the receipt artifact dictionary never supplies the revision. Populate it from the validated receipt and assert the binding in provenance tests.",
+      "severity": "\ud83d\udfe1",
+      "file": "tools/autopilot/update_helper_map.py:478",
+      "action": "deferred",
+      "reason": "deferred by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Function provenance claims extractions that were not delivered: custody journal readers are marked extracted despite being deliberately absent, and custody capture_range points to custody.py although implemented in cap_check.py. Record actual replacements, exclusions and target modules per function.",
+      "severity": "\ud83d\udfe1",
+      "file": "tools/autopilot/update_helper_map.py:286",
+      "action": "deferred",
+      "reason": "deferred by review-close"
+    }
+  ],
+  "doubts_rubric_verdicts": [
+    {
+      "rule_id": "D1",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D2",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D3",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D4",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D5",
+      "verdict": "pass"
+    }
+  ]
 }
