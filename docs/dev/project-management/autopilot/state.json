@@ -201,7 +201,7 @@
   "catchup_mode": "run",
   "doubt_reviewer": "fable",
   "consensus_engine": "legacy",
-  "session_model": "sonnet",
+  "session_model": "opus",
   "rework_cap": 2,
   "lane": "full",
   "lane_reason": "override",
@@ -231,7 +231,7 @@
     "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
     "checked_at": "2026-10-28T03:07:08.511437+00:00"
   },
-  "contract_card": "step: AP00013 v2 \u2014 build gate, planning done (4 tasks T1-T4 created, check-plan exit 0), handing off before Phase 3 (Work) on usage headroom (112551 < 150000 estimate). Design doc approved (3 dispatches, 0 open blockers): docs/dev/project-management/designs/00013-autopilot-session-helpers-v2-design.md.\ninvariants: Own only 00013-autopilot-session-helpers-v2.md. Do not select 00014+ or resume v1. Tasks are sequential T1->T2->T3->T4 (blocked_by chain). Every fresh session's design/planning/TDD/Pat gates are mandatory. Full completion review (Alice/Blake/Bob/Carl/Eve) runs only in a fresh session after build handoff, never from the work session.\nnext: Resume build at Phase 3 (Work) \u2014 tasks exist, skip planning. Invoke /autopilot:work with the Skill tool. work_start_sha and repo_root not yet captured (do so before dispatching work, per Phase 3 invariants). After all 4 tasks complete, hand off again for the review gate.\n\ncloseout constraints: Do not select AP 00018 or any backlog PRD after v2; return to the closeout coordinator. AP 00018 requires the full explicit resume plan and retrospective Pat reviews already prepared under docs/dev/tmp/ap00018-replan3/pat/. No push until all 19 AP 00018 controller tests and required checks pass. Last full-suite result is 917 passed, 19 failed; that is not a green gate. Normal pushes only. Wave 202611022006 is planned-only; all seven backlog PRDs overlap closeout paths.\n\nexecution constraints: Use the installed runtime, never the frozen source repo or the incomplete portable runtime. Preserve the 75000-token estimator ruling, 45000-byte rendered-prompt target and 50000-byte hard cap with one trim. Preserve model-family diversity and actual backend/model evidence; quota exhaustion blocks only that route, so try another authorized route with the required explicit model before waiting. Never bypass a permission denial or retry an exhausted route before reset. Keep duplicate 6d material and review/design history away from Blake. Commit untracked review artifacts immediately. After each commit verify any formatter Python diff is AST-equivalent/layout-only before git checkout -- on those files. Worktrees stay under ~/git/src/worktrees/agent-plugins. Standing authorization covers reversible decisions and fixes; no routine approval questions. At the v2 cap use existing bounded policy, never an automatic v3 or reset.",
+  "contract_card": "step: Recover AP 00013 v2 task 1 in a FRESH OPUS orchestration session. The previous Sonnet coordinator directly edited production before Tess/Devon/red-check/Ivan and was interrupted. Its 4438-byte patch is preserved in reports/00013-v2-invalid-work-attempt.patch; source is restored to the committed baseline. Task 1 is pending, no valid worker attempt exists, no task has completed. Read reports/00013-v2-workflow-recovery.md for the logging limitation and recovery boundary. Never expose the abandoned patch, implementation, design, or reviewer findings to Tess.\n\nMANDATORY NEXT STEP: Invoke /autopilot:run-autopilot and /autopilot:work, then explicitly Read the installed work/SKILL.md sections 2.7 through 3 and references/test-author-prompt.md before dispatch. Task 1 is first-pass backend Opus work, NOT micro-lane, NOT solo, NOT test-only and NOT already-test-authored. The coordinator MUST NOT write production or author its own tests. Dispatch isolated Tess from requirements only; quality/style gate and commit tests; dispatch Devon at Opus and strengthen through Tess if needed; run and record the actual red check; dispatch Ivan at Opus with tests and allowed architecture inputs; run scoped tests, commit, deslop/style/split hygiene and isolated Pat. Measure/render and log every dispatch. Follow the same mandatory procedure for task 2. Apply only the skill's explicit test-only/docs-only rules for tasks 3/4. No fabricated skipped or passed stamps. If the workflow cannot run, stop and record the concrete blocker; do not implement directly.\n\ncloseout constraints: Do not select AP 00018 or any backlog PRD after v2; return to the closeout coordinator. AP 00018 requires the full explicit resume plan and retrospective Pat reviews already prepared under docs/dev/tmp/ap00018-replan3/pat/. No push until all 19 AP 00018 controller tests and required checks pass. Last full-suite result is 917 passed, 19 failed; that is not a green gate. Normal pushes only. Wave 202611022006 is planned-only; all seven backlog PRDs overlap closeout paths.\n\nexecution constraints: Use the installed runtime, never the frozen source repo or the incomplete portable runtime. Preserve the 75000-token estimator ruling, 45000-byte rendered-prompt target and 50000-byte hard cap with one trim. Preserve model-family diversity and actual backend/model evidence; quota exhaustion blocks only that route, so try another authorized route with the required explicit model before waiting. Never bypass a permission denial or retry an exhausted route before reset. Keep duplicate 6d material and review/design history away from Blake. Commit untracked review artifacts immediately. After each commit verify any formatter Python diff is AST-equivalent/layout-only before git checkout -- on those files. Worktrees stay under ~/git/src/worktrees/agent-plugins. Standing authorization covers reversible decisions and fixes; no routine approval questions. At the v2 cap use existing bounded policy, never an automatic v3 or reset.\n\nnext: Existing design and four tasks are valid; do not replan, reset counters or rerun design. work_start_sha is already 316557ecbe06895b7f90e33a133bc5d699f841ff and repo_root is captured; preserve both. The last session ended, so no peer owns this PRD. After tasks complete use the required handoff to a fresh five-lens completion review. The coordinator controls the loop boundary, so stop after the leave row/record-store. Keep full review history away from Blake.",
   "prd_budget_since": "2026-11-02T21:43:19Z",
   "design_mode": "run",
   "design_doc": "docs/dev/project-management/designs/00013-autopilot-session-helpers-v2-design.md",
@@ -243,6 +243,13 @@
       "consensus": "3/3 dispatches converged",
       "action": "design-approved",
       "reason": "3 reviewer dispatches (claude, codex, codex-verify) found and fixed 6 blockers total (R7 scope-too-broad, R7 open/accept-too-broad, R7 substring-embedding, R2 missing write-failure branch, R2 close-error priority, R2 pipe-close priority); 0 cardinal sins or blockers open at close"
+    },
+    {
+      "issue": "AP00013 v2 task 1 coordinator violated the mandatory isolated test-first pipeline",
+      "severity": "high",
+      "cycle": 1,
+      "action": "retry-fresh-opus-session",
+      "reason": "Interrupted native session 89d9609f-3f15-45b8-be74-f0929fd583c8 with exit 130; preserved its patch and rejected attempt payload in reports/00013-v2-workflow-recovery.md; restored source and task pending. No worker attempt or test result exists. Installed attempt writer cannot represent this invalid orchestrator run without false micro-lane stamps, so preserve it externally and link this decision. Raise orchestration only to Opus; retain task tiers, cap, scopes and every mandatory gate. Design dispatches completed with author corrections, not three clean reviewer verdicts."
     }
   ],
   "tasks": [
@@ -261,7 +268,10 @@
       "qwen_eligible": false,
       "qwen_excluded_reason": "files",
       "id": "1",
-      "status": "pending"
+      "status": "pending",
+      "usage_at_start": 111405,
+      "calls_at_start": 5,
+      "started_at": 1793657604
     },
     {
       "name": "T2: Repair containment-before-read, pre-spawn sink validation, controlled sink failure and policy-output platform/nonblocking behavior",
@@ -326,5 +336,24 @@
       "id": "4",
       "status": "pending"
     }
-  ]
+  ],
+  "loop_entry": {
+    "entered_by": "loop",
+    "prd": "00013-autopilot-session-helpers-v2.md",
+    "result": {
+      "stop": null,
+      "detail": "",
+      "prd": "00013-autopilot-session-helpers-v2.md",
+      "source": "wip",
+      "parked": null,
+      "custody_pending": 0,
+      "lane_effective": "full",
+      "catchup": "full",
+      "design": "reuse",
+      "resume_target": "/work continues at first non-completed task 1",
+      "batch": "open"
+    }
+  },
+  "work_start_sha": "316557ecbe06895b7f90e33a133bc5d699f841ff",
+  "repo_root": "/Users/bob/git/src/github.com/buvis/agent-plugins"
 }

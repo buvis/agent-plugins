@@ -1,5 +1,6 @@
 ---
 default_model: opus
+session_model: opus
 model_tier_rationale: Safety predicates, pre-spawn ordering and behavioral equivalence require judgment rather than transcription.
 lane: full
 rework_cap: 2
