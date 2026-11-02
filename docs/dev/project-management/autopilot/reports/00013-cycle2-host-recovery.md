@@ -79,3 +79,10 @@ B16: fail
 B17: pass
 B18: pass
 B19: pass
+
+
+## Corrected verification result
+
+The corrected subprocess adapter completed: PASS 900 FAIL 19 SKIP 0 EXIT 1, recorded by autopilot verify for code revision 49a27f9ddfb8401f5864960d4ce12e8e55939f8a, no dirty paths, timeout, or head movement. The current docs/dev/tmp/gate-49a27f9.log holds this corrected run and replaced the earlier adapter-failure log; the earlier error was `assert not [PosixPath(.../docs/dev/tmp/pytest_gate.py)]` at test_cap_custody_helpers.py:555. There is no additional product failure. This is still a red suite, never a pass.
+
+For the installed runner use gate command `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python docs/dev/tmp/pytest_gate.py tests/autopilot -q` so the runner sees actual count syntax. The adapter calls the original `python -m pytest` in a separate process and preserves its exit status.

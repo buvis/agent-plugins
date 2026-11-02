@@ -599,3 +599,10 @@
 {"id":"8f1a9a2a","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
 {"id":"0abebd58","ended_at":1793616025,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
 {"kind":"handoff","site":"review","edge":"leave","at":1793616025,"phase":"review","prd":"00013-autopilot-session-helpers-v1.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1793650040,"phase":"review","prd":"00013-autopilot-session-helpers-v1.md"}
+{"id":"c9ec8601","kind":"bob","task":"review-ap00013-c2-20261102","queued_at":1793650357,"prompt_bytes":45525}
+{"id":"64303074","kind":"carl","task":"review-ap00013-c2-20261102","queued_at":1793650357,"prompt_bytes":39174}
+{"id":"c9ec8601","ended_at":1793650435,"elapsed_s":78,"outcome":"error","detail":"staged placeholder superseded before dispatch; inlined prompt measured in replacement row"}
+{"id":"437e79ba","kind":"bob","task":"review-ap00013-c2-20261102","queued_at":1793650436,"prompt_bytes":247928}
+{"id":"437e79ba","ended_at":1793650515,"elapsed_s":79,"outcome":"error","detail":"exit 3: refusing nested dispatch (already inside a CLI agent); no model ran"}
+{"id":"64303074","ended_at":1793650515,"elapsed_s":158,"outcome":"error","detail":"exit 3: refusing nested dispatch (already inside a CLI agent); no model ran"}
