@@ -20,6 +20,10 @@ PACKAGE = ROOT / "plugins" / "autopilot"
 EXPORTER = ROOT / "tools" / "autopilot" / "export-policy.py"
 POLICY = Path("contracts") / "review-policy-v1.json"
 CAPABILITIES = b'["review-policy-v1","review-evidence-v1","review-fixtures-v1"]\n'
+HELPER_OPERATIONS = [
+    "stage-review-v1", "group-findings-v1", "check-evidence-v1", "prepare-close-v1",
+    "catchup-probe-v1", "verification-artifact-v1", "controller-required-v1",
+]
 
 
 def canonical(value: object) -> bytes:
@@ -99,7 +103,7 @@ class LocalFacadeTest(unittest.TestCase):
                     result = self.run_cli(script, "--list-capabilities", home=home)
                     ids = json.loads(result.stdout)
                     self.assert_success(result, json.dumps(ids, separators=(",", ":")).encode() + b"\n")
-                    self.assertEqual(ids[:3], json.loads(CAPABILITIES))
+                    self.assertEqual(ids, [*json.loads(CAPABILITIES), *HELPER_OPERATIONS])
             self.assertEqual(list(home.iterdir()), [])
         after = {p.relative_to(self.package): (p.stat().st_size, p.stat().st_mtime_ns)
                  for p in self.package.rglob("*") if p.is_file()}
