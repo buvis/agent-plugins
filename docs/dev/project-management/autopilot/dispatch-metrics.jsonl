@@ -612,3 +612,9 @@
 {"id":"82ec3e41","ended_at":1793651653,"elapsed_s":639,"outcome":"ok","detail":"gemini UI/design lens, no issues found, R1-R13 all pass"}
 {"kind":"handoff","site":"build","edge":"leave","at":1793652054,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}
 {"kind":"handoff","site":"build","edge":"resume","at":1793652881,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1793652980,"phase":"review","prd":"00013-autopilot-session-helpers-v1.md"}
+{"id":"506ddf25","kind":"bob","task":"review-ap00013-c3-20261102","queued_at":1793653244,"prompt_bytes":40485}
+{"id":"6e9a56ea","kind":"carl","task":"review-ap00013-c3-20261102","queued_at":1793653244,"prompt_bytes":33723}
+{"id":"506ddf25","ended_at":1793654838,"elapsed_s":1594,"outcome":"ok","detail":null}
+{"id":"6e9a56ea","ended_at":1793654841,"elapsed_s":1597,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1793655353,"phase":"build","prd":"00013-autopilot-session-helpers-v1.md"}

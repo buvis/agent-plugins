@@ -213,6 +213,124 @@
       "reason": "rework cap reached with this finding unresolved",
       "prd": "00013-autopilot-session-helpers-v1.md",
       "op_id": "1327c6fd3b62-dd10"
+    },
+    {
+      "type": "stall",
+      "site": "cap_regression",
+      "detail": "cycle 3 cap-out with repair regressions: R7 cce5dad, R8 cce5dad, R9 cce5dad (all review_stage.py fail-open holes introduced by the branch repair; see reviews/00013-autopilot-session-helpers-v1-review-03.md)",
+      "op_id": "8843ead3f828",
+      "prd": "00013-autopilot-session-helpers-v1.md"
+    },
+    {
+      "cycle": 1,
+      "issue": "Shared Git probes have no timeout, contrary to the required 30-second bound. Verification can hang during preflight or post-run checks regardless of its command timeout. Add the timeout and map timeout failures to refusal or stale evidence.",
+      "severity": "\ud83d\udfe1",
+      "file": "plugins/autopilot/scripts/dirty_tree.py:19",
+      "action": "deferred",
+      "reason": "deferred by review-close",
+      "type": "deferred_decision",
+      "prd": "00013-autopilot-session-helpers-v1.md",
+      "op_id": "8843ead3f828-dd0"
+    },
+    {
+      "cycle": 1,
+      "issue": "Generated helper delivery evidence has `status: passed` but retains `tested_package_revision: null`: the receipt artifact dictionary never supplies the revision. Populate it from the validated receipt and assert the binding in provenance tests.",
+      "severity": "\ud83d\udfe1",
+      "file": "tools/autopilot/update_helper_map.py:478",
+      "action": "deferred",
+      "reason": "deferred by review-close",
+      "type": "deferred_decision",
+      "prd": "00013-autopilot-session-helpers-v1.md",
+      "op_id": "8843ead3f828-dd1"
+    },
+    {
+      "cycle": 1,
+      "issue": "Function provenance claims extractions that were not delivered: custody journal readers are marked extracted despite being deliberately absent, and custody capture_range points to custody.py although implemented in cap_check.py. Record actual replacements, exclusions and target modules per function.",
+      "severity": "\ud83d\udfe1",
+      "file": "tools/autopilot/update_helper_map.py:286",
+      "action": "deferred",
+      "reason": "deferred by review-close",
+      "type": "deferred_decision",
+      "prd": "00013-autopilot-session-helpers-v1.md",
+      "op_id": "8843ead3f828-dd2"
+    },
+    {
+      "type": "cap-overflow",
+      "cycle": 3,
+      "ref": "R7",
+      "issue": "External Git metadata directories are not detected when safe.bareRepository is explicit, permitting staging inside Git internals. Reproduced: `git -c safe.bareRepository=explicit -C <bare> rev-parse --is-inside-git-dir` exits 128 on git 2.56.0, and review_stage.py:465 requires returncode 0 to refuse, so the git-internals guard fails open; _toplevel then also fails and the destination is accepted.",
+      "severity": "high",
+      "file": "plugins/autopilot/scripts/review_stage.py:464",
+      "consensus": "1/5",
+      "action": "deferred",
+      "reason": "rework cap reached with this finding unresolved",
+      "prd": "00013-autopilot-session-helpers-v1.md",
+      "op_id": "8843ead3f828-dd3"
+    },
+    {
+      "type": "cap-overflow",
+      "cycle": 3,
+      "ref": "R8",
+      "issue": "The new `_scoped` line blanks the PRD when a job's manifest lacks a `prd:` ref (review_stage.py:290-291 substitutes \"\"), so a blind reviewer with an empty PRD is reported as a successful staging. Refuse `invalid-input` when a roster job whose prompt inlines the PRD has no `prd:` ref.",
+      "severity": "high",
+      "file": "plugins/autopilot/scripts/review_stage.py:290",
+      "consensus": "1/5",
+      "action": "deferred",
+      "reason": "rework cap reached with this finding unresolved",
+      "prd": "00013-autopilot-session-helpers-v1.md",
+      "op_id": "8843ead3f828-dd4"
+    },
+    {
+      "type": "cap-overflow",
+      "cycle": 3,
+      "ref": "R9",
+      "issue": "The shared `review-context-ID.md` is still written with every kind (`shared = CONTEXT_KINDS` at review_stage.py:365) even when no job is granted the full set, so the artifact root holds a context file carrying broad context, tasks, merged PRD+design, pack, history and gate that no manifest granted. Build it from the union of granted variants.",
+      "severity": "high",
+      "file": "plugins/autopilot/scripts/review_stage.py:365",
+      "consensus": "1/5",
+      "action": "deferred",
+      "reason": "rework cap reached with this finding unresolved",
+      "prd": "00013-autopilot-session-helpers-v1.md",
+      "op_id": "8843ead3f828-dd5"
+    },
+    {
+      "type": "cap-overflow",
+      "cycle": 3,
+      "ref": "R2",
+      "issue": "The log sink now opens after `Popen`, so a sink failure happens after the child has started instead of before it. A log path under a regular file was accepted by refuse(), the child was spawned, and NotADirectoryError escaped uncaught. The PRD requires validating both artifacts before spawning.",
+      "severity": "medium",
+      "file": "plugins/autopilot/scripts/verification.py:162",
+      "consensus": "2/5",
+      "action": "deferred",
+      "reason": "rework cap reached with this finding unresolved",
+      "prd": "00013-autopilot-session-helpers-v1.md",
+      "op_id": "8843ead3f828-dd6"
+    },
+    {
+      "type": "cap-overflow",
+      "cycle": 3,
+      "ref": "R3",
+      "issue": "`_write_policy` opens destinations with blocking `O_WRONLY` before checking their type. A FIFO without a reader hangs indefinitely instead of reaching the nonregular-file refusal. It also writes into an existing executable file, which the contract refuses.",
+      "severity": "medium",
+      "file": "plugins/autopilot/scripts/autopilot.py:272",
+      "consensus": "2/5",
+      "action": "deferred",
+      "reason": "rework cap reached with this finding unresolved",
+      "prd": "00013-autopilot-session-helpers-v1.md",
+      "op_id": "8843ead3f828-dd7"
+    },
+    {
+      "type": "cap-overflow",
+      "cycle": 3,
+      "ref": "R4",
+      "issue": "The cap-regression recovery report drops the space before every number: \"map0f86a75\", \"passed494\", \"Original15\", \"task16\", \"cap2\", \"review03\", \"provenance tests passed44\".",
+      "severity": "low",
+      "file": "docs/dev/project-management/autopilot/reports/00013-cap-regression-recovery.md:47",
+      "consensus": "2/5",
+      "action": "deferred",
+      "reason": "rework cap reached with this finding unresolved",
+      "prd": "00013-autopilot-session-helpers-v1.md",
+      "op_id": "8843ead3f828-dd8"
     }
   ]
 }
