@@ -625,3 +625,5 @@
 {"kind":"handoff","site":"build","edge":"resume","at":1793658001,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
 {"id":"cd542dc7","kind":"tess","task":"1","queued_at":1793658355,"prompt_bytes":30461}
 {"id":"cd542dc7","ended_at":1793658617,"elapsed_s":262,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"build","edge":"resume","at":1793659327,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793659380,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}

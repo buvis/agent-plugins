@@ -23,8 +23,8 @@
       "aegis@buvis-plugins": "0.4.1",
       "warden@buvis-plugins": "0.14.1"
     },
-    "catchup_completed_at": "2026-11-02T22:30:00+00:00",
-    "catchup_head_sha": "381b1bd511147350e0b3eadd9a99f4cd7155c11b",
+    "catchup_completed_at": "2026-11-02T22:52:00+00:00",
+    "catchup_head_sha": "372ef477e0df8bae0636ed08dd380c17a3c206ac",
     "parks_consecutive": 0,
     "skips": [
       {
@@ -275,7 +275,7 @@
       "qwen_eligible": false,
       "qwen_excluded_reason": "tier",
       "id": "1",
-      "status": "pending",
+      "status": "in_progress",
       "usage_at_start": 111405,
       "calls_at_start": 5,
       "started_at": 1793657604
