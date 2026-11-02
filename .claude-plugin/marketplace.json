@@ -1,0 +1,16 @@
+{
+  "name": "buvis-agent-plugins",
+  "description": "Portable agent plugins published by buvis.",
+  "owner": {
+    "name": "buvis",
+    "url": "https://github.com/buvis"
+  },
+  "plugins": [
+    {
+      "name": "specflow",
+      "source": "./plugins/specflow",
+      "description": "Portable requirements, design, tasks, and implementation workflow using Kiro-compatible artifacts.",
+      "version": "0.1.0"
+    }
+  ]
+}

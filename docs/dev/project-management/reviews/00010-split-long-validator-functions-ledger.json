@@ -1,0 +1,56 @@
+[
+ {
+  "cycle": 1,
+  "ref": "F3",
+  "disposition": "accepted",
+  "severity": "⚪",
+  "issue": "_validate_manifest_identity also runs the top-level field allowlist and $schema checks, so its name understates its job",
+  "file": "scripts/validate.py",
+  "reason": "the approved design's helper table names _validate_manifest_identity and assigns it exactly that sequence (unknown fields, schema, name, length/regex, directory name); a rename needs a design edit and reapproval for no behavior gain; walkthrough 2026-11-01"
+ },
+ {
+  "cycle": 1,
+  "ref": "F7",
+  "disposition": "refuted",
+  "severity": "⚪",
+  "issue": "REQ-005.4 asks for CI checks to pass but only the local Python 3.10 gate is evidenced",
+  "file": "docs/dev/project-management/specs/00010-split-long-validator-functions/tasks.md",
+  "reason": "PR 7 head 801f0d0 has the Validate job green (run 41196515864, check plugins pass); the completion box stays unchecked by design until this review records its result; walkthrough 2026-11-01"
+ },
+ {
+  "cycle": 1,
+  "ref": "F9",
+  "disposition": "accepted",
+  "severity": "⚪",
+  "issue": "the committed qa-log records absolute /Users/bob paths",
+  "file": "docs/dev/project-management/intake/processed/00010-split-long-validator-functions/qa-log.md",
+  "reason": "existing practice: master already carries such paths in dozens of docs/dev/project-management files (autocodex metrics and sessions, audit results); a home path is not a credential, and rewriting intake history is outside this spec; walkthrough 2026-11-01"
+ },
+ {
+  "cycle": 1,
+  "ref": "F10",
+  "disposition": "accepted",
+  "severity": "⚪",
+  "issue": "the structure test checks only the two wrappers and functions new against the baseline, not an expanded baseline helper",
+  "file": "scripts/test_validate_structure.py",
+  "reason": "the approved design limits the AST check to the two validators plus top-level functions added relative to the baseline name set and forbids a global 50-line rule; an AST comparison against 6c16d03 shows only validate_manifest and validate_mcp changed, so no baseline helper was expanded; walkthrough 2026-11-01"
+ },
+ {
+  "cycle": 1,
+  "ref": "F11",
+  "disposition": "accepted",
+  "severity": "🟡",
+  "issue": "35 characterization tests pass against the pre-change code",
+  "file": "scripts/test_validate_characterization.py",
+  "reason": "required by REQ-005.2: characterization tests must pass on the original validators before and after the split; walkthrough 2026-11-01"
+ },
+ {
+  "cycle": 1,
+  "ref": "F12",
+  "disposition": "refuted",
+  "severity": "🟡",
+  "issue": "the pytest fail-first replay lists test_refactored_and_new_functions_fit_fifty_physical_lines as passing at base",
+  "file": "scripts/test_validate_structure.py",
+  "reason": "a subTest artifact: under unittest on Python 3.10.22 in a worktree at 6c16d03 both structure tests fail (nine helpers missing; validate_manifest 96 and validate_mcp 130 lines); walkthrough 2026-11-01"
+ }
+]

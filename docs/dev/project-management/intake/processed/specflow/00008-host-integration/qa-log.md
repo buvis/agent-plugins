@@ -215,3 +215,133 @@ each landing exactly once.
 - Scope: the whole artifact. Re-approved rather than left standing, since an approval now binds the exact upstream text (review 00004-05 F4).
 - Upstream markers accepted by name: none.
 - This is a receipt: no `.specflow.json` exists for this spec.
+
+## Recovery (2026-10-25)
+
+- Question: "Approve all three documents and this baseline for state recovery?" Answer: "yes".
+- Reading: confirm the existing requirements, design, and tasks receipts as approvals of their current text, with the displayed code baseline. Retain the feature type, requirements-first order, and standard profile from the intake decisions. The install-route uncertainties remain deferred to the host tests named in the approved plan.
+- Recorded in `docs/dev/project-management/specs/00008-host-integration/.specflow.json`, with values copied from `validate_spec.py hash --json` at commit `b1e05c75d6f0dad01db35258baf565ecaf5a77ad` and UTC timestamp `2026-10-25T22:09:26Z`.
+- Requirements: confirms the receipt of 2026-10-04; unchanged blob `181560fb257b913bce418aaed6a5a580264ac91e`; canonical SHA-256 `74b92ee7388e37c40d58c0ed9ea6ae17202b92e0118e393b9b1d513cbb060985`.
+- Design: confirms the re-approval of 2026-10-12; unchanged blob `7fb52d0001f3a3b154665ec900732614a231bb5c`; canonical SHA-256 `268685ba9c743229ad978481e23fd865698ef8ba81ba8d2c1163e019b51058c6`. The `code-baseline` covers all 12 distinct paths in Module placement: six existing files hashed and six not yet written recorded as missing, before any task starts.
+- Tasks: confirms the re-approval of 2026-10-12; unchanged blob `59664a60f1246cb04261e5daf73c163e044125c6`; canonical SHA-256 `9b034e391fccb02fc2b859a61d8beb6bde15222c602b7a53341339845685e758`.
+- All three artifact validations passed. The sole validation warning names the documented Kiro installation path `~/.kiro/powers/installed/<name>/`; it is a host path, not a repository link. Upstream markers accepted by name: none.
+- `reconcile --dry-run`, `reconcile`, and `status --json` report phase `implementation`, all approvals valid, all gates open, next task T-040, and no stale files, hold, blockers, warnings, or specs-folder problems. Dependencies 00002 and 00006 are complete. Implementation-phase validation passed with the same host-path warning.
+
+## Claude Code test deferred (2026-10-30)
+
+- The developer reported Claude unavailable for the rest of the week and
+  instructed: "defer it for Sunday". T-043 is deferred to 2026-11-01,
+  Europe/Prague. No Claude model session has run for it.
+- T-040 and T-042 are complete. The approved order stays T-043, T-046,
+  T-045; the dependent tasks remain pending. No requirement, design,
+  hashed task text, or approval changes. Kiro cannot supply Claude Code
+  host-loading evidence in place of T-043.
+- Resume with the retained throwaway workspace and prepared
+  `docs/dev/tmp/specflow/hosts/claude-start.bash` from a regular Terminal,
+  then complete the Codex stale-state hand-back. The existing launcher
+  cannot start a nested Seatbelt sandbox from this agent session.
+
+## Claude Code test run and Codex hand-back (2026-11-01)
+
+- T-043 ran on 2026-11-01 as deferred. Claude Code 2.1.312
+  (`claude-fable-5-1`) was launched from inside a Claude Code agent session
+  with the same setup token the `run-agent` launcher exports, through
+  `docs/dev/tmp/specflow/hosts/claude-start-insession.bash`: no nested
+  Seatbelt, no Keychain login. The three pinned hashes matched; the
+  requirements edit staled requirements, design, and tasks; every gate closed.
+- Codex 0.166.0 then resumed the same workspace through
+  `codex-handback.bash`. Codex's own sandbox cannot apply inside the session's
+  Seatbelt (probe: exit 71, `sandbox_apply: Operation not permitted`), so the
+  `use-codex` wrapper ran with `-y`; the session's Seatbelt still applied, the
+  prompt forbade every write, and the raw hashes of all seven workspace files
+  were identical before and after. Codex reported the same stale design and
+  tasks and printed its completion marker.
+- Record: `tests/specflow/compatibility/claude-code.md`. No requirement,
+  design, hashed task text, or approval of this spec changed. T-043 is
+  checked; the next task is T-046.
+
+## Marketplace entry and install check (2026-11-01)
+
+- T-046 built `scripts/generate_marketplace.py` to the approved contract and
+  generated `.claude-plugin/marketplace.json`; the six named tests pass under
+  Python 3.10 and 3.14, and the CI step `--check` guards the file. The three
+  root documents each gained the one line the design asks for.
+- `claude plugin validate --strict .` passed with one advisory: the plugin
+  README has no marketplace install line. That line belongs to the README
+  host section of T-045.
+- The install check ran in the developer's own Claude Code profile, as the
+  plan says: marketplace `buvis-agent-plugins` added from the local checkout
+  (a folder source, no ref), `specflow` installed through it and listed as
+  `specflow:spec-workflow` by a headless session, then both removed again.
+  The record holds each command and result. The code-baseline files the
+  design names (`validate.yml`, `AGENTS.md`, `CONTRIBUTING.md`, `README.md`,
+  the generator, its tests, the catalog) now draw code-drift warnings until
+  the T-045 re-approval refreshes the baseline. Next task: T-045.
+
+## Host install trials and README host section (2026-11-01)
+
+- T-045 premise checked: the design still said "to be verified" on the Kiro
+  line (repository subdirectory URL) and the Codex line (the
+  `.claude-plugin/marketplace.json` entry and a Git marketplace install).
+- Codex trials, each in a fresh empty `CODEX_HOME`, with the temporary
+  `.agents/plugins/marketplace.json` removed from the checkout: the local
+  checkout installs through `.claude-plugin/marketplace.json` alone, and
+  `codex plugin marketplace add buvis/agent-plugins --ref feature/specflow-00008`
+  installs from GitHub; both caches match `plugins/specflow/` byte for byte.
+  The Git route takes a ref. Recorded in `codex.md`.
+- Claude Code: no open line; the routes and their evidence (T-043, T-046,
+  the public route left to T-065 of 00001) are tabled in `claude-code.md`.
+- The host section of `plugins/specflow/README.md` is written for the three
+  hosts, with the Python 3 prerequisite, the `.kiro/specs` link rule and the
+  T-027 result, the untested Kiro CLI and Kiro Crew, that sessions do not
+  transfer, and the marketplace of T-046. `claude plugin validate --strict`
+  no longer advises a missing install line.
+- Open: the Kiro IDE import from the repository URL and from its subdirectory
+  URL is a manual run by the developer; the batched design edit of the two
+  install lines, and the design and task re-approval, follow its result.
+  The branch is pushed and PR #9 is open so CI runs on each push.
+
+## Kiro import trial and design edits for T-045 (2026-11-01)
+
+- Question: "What happened when you imported from GitHub in the Powers
+  panel?" Answer: "Subdirectory URL installed".
+- Reading: Kiro IDE installs the Power from
+  `https://github.com/buvis/agent-plugins/tree/master/plugins/specflow`
+  through Add Custom Power, Import power from GitHub. The installed copy
+  matches master's package, and `~/.kiro/powers/installed.json` records only
+  the name. The ref is the branch in the URL.
+- The developer then said "edit the design", so the batched edit of T-045
+  was applied to `design.md`: the Kiro install line now states the GitHub
+  subdirectory route, the Codex install line states that Codex reads
+  `.claude-plugin/marketplace.json` from a checkout and from GitHub with
+  `--ref`, and the Context sentence that announced the open lines reads in
+  the past tense. No other line changed. The edit stales the design and
+  tasks approvals by the normal rule; the re-approval question follows with
+  the fresh hashes and a fresh code baseline.
+
+## Design and tasks re-approval (2026-11-01)
+
+- Question: "Re-approval of spec 00008 at commit 5f5aad5 ... Do you approve
+  both artifacts as they now read?" Answer: "Approve both (Recommended)".
+- Design: `docs/dev/project-management/specs/00008-host-integration/design.md`,
+  git blob `3a8bfb9adbb5e8722e35f72bc2f2be7dcf747117`, canonical SHA-256
+  `bd1187018c13104da716216ecfb0239ad0db47a6ca902532e6f95fb6c077a400`,
+  approved at `2026-11-01T19:29:40Z` against commit
+  `5f5aad52428b82c69231e0dac0076eb96c12c1a5`; upstream requirements
+  `74b92ee7388e37c40d58c0ed9ea6ae17202b92e0118e393b9b1d513cbb060985`.
+  Scope: the whole artifact as it now reads, after the T-045 batched edit.
+- Code baseline: captured over the 12 distinct paths of Module placement,
+  all present at that commit.
+- Tasks: `tasks.md`, git blob `b12419a1061cdafdfbda13294482f0f258f21ad9`,
+  canonical SHA-256 unchanged at
+  `9b034e391fccb02fc2b859a61d8beb6bde15222c602b7a53341339845685e758`,
+  approved at `2026-11-01T19:29:41Z` against the same commit; upstream
+  requirements as above and design `bd118701...`. Re-approved rather than
+  left standing, since the approval binds the exact upstream text.
+- Upstream markers accepted by name: none. Validation before the approval:
+  only the two expected `stale-approvals` errors, the progress-field
+  warnings on the Outcome lines of a stale plan, and the documented
+  `~/.kiro/powers/installed/<name>/` host path.
+- Written to `.specflow.json` from the helper's values, then `reconcile` and
+  `status`; T-045 checked with its Outcome line. The four completion
+  criteria stay unchecked for the completion review.
