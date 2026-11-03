@@ -351,3 +351,141 @@ def test_a_result_artifact_close_failure_is_a_controlled_error_without_a_reusabl
             assert handle.returncode == 0, handle.returncode
     finally:
         reap(children)
+
+
+# --- the cleanup of the gate's own new artifact leaf stays inside what it validated ------------
+
+OUTSIDE_SENTINEL = b"BESIDE-THE-REPO-SENTINEL-5c07\n"
+SWAP_SENTINEL = b"SWAPPED-IN-SENTINEL-4b19\n"
+REPLACEMENT_SENTINEL = b"SWAPPED-IN-SENTINEL-4b20\n"  # near miss: differs in one byte
+PLAN = (
+    "import os, pathlib, sys, time\n"
+    "plan = pathlib.Path(sys.argv[1]).read_text(encoding='utf-8').splitlines()\n"
+)
+MARK = "marker.write_text(os.getcwd(), encoding='utf-8')\n"
+CHATTER = (
+    "for _ in range(60):\n"
+    "    print('PASS 2 FAIL 0 SKIP 1 EXIT 0', flush=True)\n"
+    "    time.sleep(0.1)\n"
+)
+CHATTY_CHILD = PLAN + "marker, = (pathlib.Path(p) for p in plan)\n" + MARK + CHATTER
+SWAP_PARENT_CHILD = PLAN + (
+    "artifact, external, marker = (pathlib.Path(p) for p in plan)\n"
+    "artifact.parent.rename(artifact.parent.with_name(artifact.parent.name + '-held'))\n"
+    "os.symlink(external, artifact.parent, target_is_directory=True)\n"
+) + MARK + CHATTER
+LEAF_DIRECTORY_CHILD = PLAN + (
+    "artifact, marker = (pathlib.Path(p) for p in plan)\n"
+    "artifact.unlink()\n"
+    "artifact.mkdir()\n"
+) + MARK + CHATTER
+REPLACE_LEAF_CHILD = PLAN + (
+    "artifact, source, marker = (pathlib.Path(p) for p in plan)\n"
+    "artifact.unlink()\n"
+    "artifact.write_bytes(source.read_bytes())\n"
+) + MARK + CHATTER
+
+
+def break_run_log_sink(monkeypatch: pytest.MonkeyPatch, log: Path) -> list[Path]:
+    """The run log's own write fails mid-run, so no record ever reaches the artifact writer."""
+    return break_artifact_sink(monkeypatch, log, fail_write_after=1)
+
+
+def mutation_plan(tmp_path: Path, name: str, *paths: Path) -> Path:
+    """The paths a child must mutate, handed over out of band so argv never names them."""
+    return seed(tmp_path / f"{name}-plan.txt", "\n".join(map(str, paths)).encode("utf-8"))
+
+
+def test_a_failed_sink_write_removes_the_new_result_artifact_and_spares_a_file_beside_the_repo(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The control: nothing is swapped, so cleanup removes its leaf and touches nothing else."""
+    artifact = world.target / "docs" / "dev" / "tmp" / "cleanup-control" / "result.json"
+    artifact.parent.mkdir(parents=True)
+    outside = seed(tmp_path / "beside-the-repo" / artifact.name, OUTSIDE_SENTINEL)
+    log = world.target / "logs" / "cleanup-control.log"
+    marker = tmp_path / "cleanup-control-marker.txt"
+    plan = mutation_plan(tmp_path, "cleanup-control", marker)
+    argv = child_argv(tmp_path, "cleanup-control-child", CHATTY_CHILD, plan)
+    break_run_log_sink(monkeypatch, log)
+    children = spy_on_spawn(monkeypatch, argv)
+    try:
+        report = run_gate(world, argv, log=log, artifact=artifact, timeout=60)
+        failure_shape(report, "sink-write-failed")
+        assert not artifact.exists(), "cleanup kept the result artifact this run had created"
+        assert outside.is_file(), "cleanup deleted a file beside the repository"
+        assert outside.read_bytes() == OUTSIDE_SENTINEL, "cleanup rewrote a file beside the repo"
+        assert Path(marker.read_text("utf-8")).resolve() == world.target.resolve()
+    finally:
+        reap(children)
+
+
+def test_cleanup_does_not_reach_through_an_artifact_parent_replaced_during_the_run(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A parent swapped for a symlink mid-run must not expose whatever lies behind the name."""
+    artifact = world.target / "docs" / "dev" / "tmp" / "cleanup-parent" / "result.json"
+    artifact.parent.mkdir(parents=True)
+    external = tmp_path / "swapped-in"
+    sentinel = seed(external / artifact.name, SWAP_SENTINEL)
+    log = world.target / "logs" / "cleanup-parent.log"
+    marker = tmp_path / "cleanup-parent-marker.txt"
+    plan = mutation_plan(tmp_path, "cleanup-parent", artifact, external, marker)
+    argv = child_argv(tmp_path, "cleanup-parent-child", SWAP_PARENT_CHILD, plan)
+    break_run_log_sink(monkeypatch, log)
+    children = spy_on_spawn(monkeypatch, argv)
+    try:
+        report = run_gate(world, argv, log=log, artifact=artifact, timeout=60)
+        assert Path(marker.read_text("utf-8")).resolve() == world.target.resolve()
+        assert sentinel.is_file(), "cleanup followed the swapped-in parent and deleted its file"
+        assert sentinel.read_bytes() == SWAP_SENTINEL, "cleanup rewrote the swapped-in file"
+        failure_shape(report, "sink-write-failed")
+    finally:
+        reap(children)
+
+
+def test_a_leaf_replaced_by_a_directory_keeps_the_sink_write_failure_as_the_reported_error(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A cleanup error never escapes the gate and never replaces the run's own failure."""
+    artifact = world.target / "docs" / "dev" / "tmp" / "cleanup-leaf-dir" / "result.json"
+    artifact.parent.mkdir(parents=True)
+    log = world.target / "logs" / "cleanup-leaf-dir.log"
+    marker = tmp_path / "cleanup-leaf-dir-marker.txt"
+    plan = mutation_plan(tmp_path, "cleanup-leaf-dir", artifact, marker)
+    argv = child_argv(tmp_path, "cleanup-leaf-dir-child", LEAF_DIRECTORY_CHILD, plan)
+    break_run_log_sink(monkeypatch, log)
+    children = spy_on_spawn(monkeypatch, argv)
+    try:
+        try:
+            report = run_gate(world, argv, log=log, artifact=artifact, timeout=60)
+        except OSError as error:
+            pytest.fail(f"a cleanup error escaped run_verification: {error!r}")
+        assert Path(marker.read_text("utf-8")).resolve() == world.target.resolve()
+        assert artifact.is_dir(), "the child never replaced the leaf with a directory"
+        failure_shape(report, "sink-write-failed")
+    finally:
+        reap(children)
+
+
+def test_cleanup_spares_a_replacement_file_that_took_the_artifacts_name_during_the_run(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only the leaf the gate created may go, identified by inode and not by its name."""
+    artifact = world.target / "docs" / "dev" / "tmp" / "cleanup-same-parent" / "result.json"
+    artifact.parent.mkdir(parents=True)
+    source = seed(tmp_path / "replacement-bytes" / artifact.name, REPLACEMENT_SENTINEL)
+    log = world.target / "logs" / "cleanup-same-parent.log"
+    marker = tmp_path / "cleanup-same-parent-marker.txt"
+    plan = mutation_plan(tmp_path, "cleanup-same-parent", artifact, source, marker)
+    argv = child_argv(tmp_path, "cleanup-same-parent-child", REPLACE_LEAF_CHILD, plan)
+    break_run_log_sink(monkeypatch, log)
+    children = spy_on_spawn(monkeypatch, argv)
+    try:
+        report = run_gate(world, argv, log=log, artifact=artifact, timeout=60)
+        assert Path(marker.read_text("utf-8")).resolve() == world.target.resolve()
+        assert artifact.is_file(), "cleanup deleted the replacement file that took the name"
+        assert artifact.read_bytes() == REPLACEMENT_SENTINEL, "cleanup rewrote the replacement"
+        failure_shape(report, "sink-write-failed")
+    finally:
+        reap(children)
