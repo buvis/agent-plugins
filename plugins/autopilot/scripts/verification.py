@@ -146,11 +146,12 @@ def _kill(proc) -> None:
     proc.wait()
 
 
-def _execute(argv: list[str], root: Path, log: Path, deadline: float) -> dict:
-    """Spawns `argv` without a shell in its own session, drains and reaps
-    it against `deadline`, killing the group on expiry, log overflow or
-    any error. The deadline bounds drain and child exit together."""
-    digest = hashlib.sha256()
+def _run_against_sink(argv: list[str], root: Path, sink, digest, deadline: float) -> dict:
+    """Spawns `argv` without a shell in its own session and drains it into
+    the already-open `sink`, killing the group on expiry, log overflow or
+    any error. The deadline bounds drain and child exit together. Always
+    returns a result dict (never raises OSError); re-raises anything else
+    after killing the child."""
     try:
         proc = subprocess.Popen(
             argv, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -159,8 +160,8 @@ def _execute(argv: list[str], root: Path, log: Path, deadline: float) -> dict:
     except OSError as error:
         return {"error": "spawn-failed", "reason": str(error)}
     try:
-        with _open_log_sink(log, root) as sink:
-            tail, drained, capped = _drain(proc, sink, digest, deadline)
+        sink.truncate(0)  # Only after a successful spawn; prior bytes survive a failed one.
+        tail, drained, capped = _drain(proc, sink, digest, deadline)
         exited = False
         if drained:
             try:
@@ -170,12 +171,23 @@ def _execute(argv: list[str], root: Path, log: Path, deadline: float) -> dict:
                 pass
         if not exited:
             _kill(proc)
+    except OSError as error:
+        # A write failure during the drain, with a child already running:
+        # kill it and report a controlled result instead of letting the
+        # exception escape as a traceback.
+        _kill(proc)
+        return {"error": "sink-write-failed", "reason": str(error)}
     except BaseException:
         _kill(proc)
         raise
     finally:
-        proc.stdout.close()
-        proc.stderr.close()
+        # Best-effort pipe cleanup: a close failure here must not override
+        # the result the block above already decided.
+        for pipe in (proc.stdout, proc.stderr):
+            try:
+                pipe.close()
+            except OSError:
+                pass
     return {
         "exit_code": proc.returncode if exited else None,
         "tail": tail,
@@ -183,6 +195,31 @@ def _execute(argv: list[str], root: Path, log: Path, deadline: float) -> dict:
         "capped": capped,
         "sha256": digest.hexdigest(),
     }
+
+
+def _execute(argv: list[str], root: Path, log: Path, deadline: float) -> dict:
+    """Proves the log sink openable BEFORE spawning the child, so a sink
+    failure never arrives as the spawn's and never escapes into an already
+    running process. Each failing sink operation gets its own error."""
+    digest = hashlib.sha256()
+    try:
+        sink = _open_log_sink(log, root)
+    except OSError as error:
+        return {"error": "sink-failed", "reason": str(error)}
+    close_error: OSError | None = None
+    try:
+        result = _run_against_sink(argv, root, sink, digest, deadline)
+    finally:
+        try:
+            sink.close()
+        except OSError as error:
+            close_error = error
+    if close_error is not None and "error" not in result:
+        # The run itself looked clean but the sink could not be closed, so
+        # the log cannot be trusted. An earlier, more specific cause (a
+        # write or spawn failure) is never overridden by this one.
+        return {"error": "sink-close-failed", "reason": str(close_error)}
+    return result
 
 
 def _parse_summary(tail: bytes) -> dict | None:
@@ -266,6 +303,7 @@ def run_verification(
         return {"schema_version": 1, "ok": False, **run}
     art = _artifact(argv, root, head_sha, log_rel, excluded, run)
     with _open_log_sink(artifact, root) as sink:
+        sink.truncate(0)  # The opener preserves prior bytes; this record replaces them.
         _write_all(sink, json.dumps(art, indent=2).encode() + b"\n")
     return {"schema_version": 1, "ok": True, "artifact": art, "controller_required": True}
 

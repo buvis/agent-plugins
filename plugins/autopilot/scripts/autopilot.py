@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import hashlib
 import importlib
 import json
@@ -268,9 +269,23 @@ def _export_policy(out: Path | None) -> int:
 
 
 def _write_policy(out: Path, output: bytes) -> None:
-    """Inspect the opened inode before truncating; aliases cannot redirect a write."""
-    fd = os.open(out, os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW, 0o666)
+    """Inspect the opened inode before truncating; aliases cannot redirect a
+    write. Opens nonblocking so a FIFO with no reader refuses instead of
+    hanging; refuses up front on a platform without O_NOFOLLOW rather than
+    crashing on the attribute lookup."""
+    if not hasattr(os, "O_NOFOLLOW"):
+        raise ValueError(f"{out}: platform has no O_NOFOLLOW support")
+    flags = os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_NONBLOCK
+    try:
+        fd = os.open(out, flags, 0o666)
+    except OSError as error:
+        if error.errno == errno.ENXIO:
+            raise ValueError(f"{out} has no reader (FIFO)") from error
+        raise
     with os.fdopen(fd, "wb") as sink:
+        # `fd` is owned by `sink` from here on: any exception below, including
+        # one from set_blocking itself, still closes it via this `with` block.
+        os.set_blocking(sink.fileno(), True)
         info = os.fstat(sink.fileno())
         if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
             raise ValueError(f"{out} must be a regular file with one hard link")

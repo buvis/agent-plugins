@@ -27,15 +27,16 @@ def refuse(log_path: Path, repo_root: Path) -> str | None:
         resolved = log_path.resolve()
     except RuntimeError:
         return "is a symlink"  # Python 3.12 raises on a symlink loop
-    identity = _identity_hit(resolved, repo_root, toplevel)
-    if identity is not None:
-        return identity
-    # Containment comes before the symlink walk, so a path that never
-    # touches the repository is reported as outside.
+    # Containment runs before any pointer-content read: a path that never
+    # touches the repository is refused before `_identity_hit` can open it,
+    # even though `_identity_hit` can only ever add a refusal, never clear one.
     if not resolved.is_relative_to(toplevel) or not resolved.is_relative_to(
         repo_root.resolve()
     ):
         return _OUTSIDE
+    identity = _identity_hit(resolved, repo_root, toplevel)
+    if identity is not None:
+        return identity
     probe = _log_rel_and_tracked(repo_root, log_path)
     if probe is None:
         return _OUTSIDE  # a failing tracked-probe fails closed
@@ -200,24 +201,32 @@ def _descend(parent_fd: int, name: str) -> int:
 
 
 def _open_log_sink(log_path: Path, root: Path):
-    """Opens `log_path` for a fresh unbuffered binary write without following
-    a symlink at any level below `root`. The leaf is unlinked and recreated
-    with `O_EXCL | O_NOFOLLOW` relative to a pinned parent descriptor, so a
-    later symlink swap of the pathname cannot redirect the open."""
+    """Opens `log_path` for an unbuffered binary write without following a
+    symlink at any level below `root`, and WITHOUT changing a byte of it: an
+    existing sink keeps its prior content until the caller truncates it, once
+    the run it belongs to is committed. The leaf is opened with
+    `O_NOFOLLOW | O_NONBLOCK` relative to a pinned parent descriptor, so a
+    symlink swap of the pathname cannot redirect the open and a raced FIFO
+    cannot block it. The opened inode is then proven to be a lone-linked
+    regular file, which `O_EXCL` on a freshly created leaf used to grant."""
     parent_fd = _pinned_parent_fd(log_path.parent, root)
     try:
-        try:
-            os.unlink(log_path.name, dir_fd=parent_fd)
-        except FileNotFoundError:
-            pass
         # 0o666 like builtin `open`; os.open's 0o777 default would leave the
         # sink executable and make the next run refuse its own log.
         sink_fd = os.open(
             log_path.name,
-            os.O_CREAT | os.O_WRONLY | os.O_EXCL | os.O_NOFOLLOW,
+            os.O_CREAT | os.O_WRONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
             0o666,
             dir_fd=parent_fd,
         )
     finally:
         os.close(parent_fd)
+    try:
+        os.set_blocking(sink_fd, True)
+        info = os.fstat(sink_fd)
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+            raise OSError(f"{log_path} must be a regular file with one hard link")
+    except BaseException:
+        os.close(sink_fd)
+        raise
     return os.fdopen(sink_fd, "wb", buffering=0)
