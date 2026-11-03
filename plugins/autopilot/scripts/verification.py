@@ -181,8 +181,13 @@ def _run_against_sink(argv: list[str], root: Path, sink, digest, deadline: float
         _kill(proc)
         raise
     finally:
-        proc.stdout.close()
-        proc.stderr.close()
+        # Best-effort pipe cleanup: a close failure here must not override
+        # the result the block above already decided.
+        for pipe in (proc.stdout, proc.stderr):
+            try:
+                pipe.close()
+            except OSError:
+                pass
     return {
         "exit_code": proc.returncode if exited else None,
         "tail": tail,
