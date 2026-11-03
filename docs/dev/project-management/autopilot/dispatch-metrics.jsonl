@@ -684,3 +684,4 @@
 {"id":"a5027feb","ended_at":1793671312,"elapsed_s":412,"outcome":"ok","detail":null}
 {"id":"34402b1a","kind":"ivan","task":"2","queued_at":1793671491,"prompt_bytes":23553}
 {"id":"34402b1a","ended_at":1793671639,"elapsed_s":148,"outcome":"killed","detail":"Coordinator stopped for proven cleanup path-swap deletion and error masking; style patch preserved in reports/00013-v2-task2-interrupted-style.patch; no completed style verification or Pat follow-up."}
+{"kind":"handoff","site":"build","edge":"resume","at":1793671812,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}

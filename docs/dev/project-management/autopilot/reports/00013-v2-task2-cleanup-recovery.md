@@ -4,6 +4,12 @@
 task base or review-session reset. This report supersedes the immediate work
 section of the earlier task-2 recovery report, not its history or Pat scope.
 
+Restart `52c7feb2-4b94-4ca7-ab12-8f86d3fcbddf` was stopped during catchup,
+exit 130, before any role dispatch or product edit. Root had updated the card
+file and task body but omitted `statectl set-contract-card`, leaving the
+generated brief's stored card stale. The stored card and regenerated brief
+are now synchronized and checked. This was a coordinator recovery error.
+
 Native work session `412cd6fc-4bb1-4588-a935-c81d6b443050` stopped with exit
 130 before Pat's follow-up. Tess `f0f4c208` corrected the denied-process-list
 observation and added artifact-preflight regressions in `2e3dba5`: the actual
