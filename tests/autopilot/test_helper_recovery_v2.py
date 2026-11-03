@@ -2,12 +2,21 @@
 
 from __future__ import annotations
 
+import errno
+import json
+import os
 import re
+import select
+import signal
+import subprocess
+import sys
+import threading
+import time
 from pathlib import Path
 from typing import Any
 
 import pytest
-from test_local_boundary import git, library
+from test_local_boundary import World, git, library, make_world
 from test_review_helpers import CONTEXT, DIFF_REF, GATE, PRD, PRD_REF, SETTLED, TREE_REF
 from test_review_helpers import assert_invalid_input, assert_refused, call, context_for
 from test_review_helpers import snapshot, text, texts_for
@@ -354,3 +363,437 @@ def test_staging_keeps_every_context_kind_when_no_roster_job_reads_the_shared_co
         assert marker in shared, marker
     assert PRECEDENT not in shared and GATE not in shared, shared
     assert core_names("u3") | {"review-pack-u3.md"} <= staged_files(destination)
+
+
+# --- 4. containment is decided before any candidate content is read ----------------------------
+
+OUTSIDE = "resolves outside the repository"
+GITDIR = "resolves inside the git directory"
+OPENED: list[tuple[str, str, int]] = []
+WATCHING: list[bool] = []
+
+
+def _watch_open(event: str, args: tuple) -> None:
+    if WATCHING and event == "open" and isinstance(args[0], (str, bytes)):
+        mode = args[1] if isinstance(args[1], str) else "r"
+        flags = args[2] if isinstance(args[2], int) else 0
+        OPENED.append((os.path.realpath(os.fsdecode(args[0])), mode, flags))
+
+
+sys.addaudithook(_watch_open)
+
+
+@pytest.fixture
+def opened():
+    """Opens count from the moment a test calls `opened.clear()`, so setup never counts."""
+    WATCHING.append(True)
+    OPENED.clear()
+    yield OPENED
+    WATCHING.clear()
+
+
+@pytest.fixture
+def isolated_git(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "xdg"))
+
+
+def opens_of(recorded: list[tuple[str, str, int]], path: Path) -> list[tuple[str, int]]:
+    """Every recorded open of `path` (mode, flags)."""
+    target = os.path.realpath(path)
+    return [(mode, flags) for seen, mode, flags in recorded if seen == target]
+
+
+def commit_repo(root: Path, files: dict[str, str]) -> Path:
+    root.mkdir(parents=True, exist_ok=True)
+    git(root, "init", "-q", "-b", "master")
+    for relative, body in files.items():
+        (root / relative).parent.mkdir(parents=True, exist_ok=True)
+        (root / relative).write_text(body, encoding="utf-8")
+    git(root, "add", "-A")
+    git(root, "commit", "-q", "-m", "base")
+    return root
+
+
+@pytest.mark.parametrize("name", ["state.json", ".git"],
+                         ids=["plain-name", "git-pointer-name"])
+def test_sink_calls_an_external_hard_linked_git_pointer_outside_without_reading_it(
+    tmp_path: Path, isolated_git: None, opened: list[tuple[str, str, int]], name: str,
+) -> None:
+    """A pointer-shaped candidate sharing an inode with an external .git stays unread."""
+    base = tmp_path.resolve()
+    project = commit_repo(base / "repo", {"src/app.py": "a\n"})
+    external = commit_repo(base / "repo-elsewhere", {"src/other.py": "o\n"})
+    stranger = base / "repo-sibling"
+    stranger.mkdir()
+    pointer = f"gitdir: {project / '.git'}\n"
+    twin = external / ".git" / "pointer-source"
+    twin.write_text(pointer, encoding="utf-8")
+    candidate = stranger / name
+    os.link(twin, candidate)
+    assert candidate.stat().st_nlink == 2
+    inside = project / "logs" / "run.log"
+    inside.parent.mkdir(parents=True)
+    inside.write_text(pointer, encoding="utf-8")
+    inside.chmod(0o644)
+    sink = library("log_sink_refusal")
+    opened.clear()
+    assert sink.refuse(candidate, project) == OUTSIDE
+    assert sink.refuse(stranger / "logs" / "fresh.log", project) == OUTSIDE
+    assert sink.refuse(inside, project) is None
+    assert opens_of(opened, candidate) == []
+    assert opens_of(opened, twin) == []
+    assert candidate.read_text("utf-8") == pointer
+
+
+def test_sink_calls_a_relative_worktree_gitdir_pointer_a_git_directory_path(
+    tmp_path: Path, isolated_git: None,
+) -> None:
+    """A relative `gitdir:` pointer resolves exactly like the absolute one git wrote."""
+    base = tmp_path.resolve()
+    project = commit_repo(base / "repo", {"src/app.py": "a\n"})
+    worktree = base / "wt"
+    git(project, "worktree", "add", "-q", "-b", "wt", str(worktree))
+    link = worktree / ".git"
+    absolute = link.read_text("utf-8")
+    target = project / ".git" / "worktrees" / "wt"
+    relative = "gitdir: " + os.path.relpath(target, worktree) + "\n"
+    assert relative != absolute and not relative.split(" ", 1)[1].startswith("/")
+    sink = library("log_sink_refusal")
+    assert sink.refuse(link, worktree) == GITDIR
+    link.write_text(relative, encoding="utf-8")
+    assert sink.refuse(link, worktree) == GITDIR
+    assert link.read_text("utf-8") == relative
+    decoy = worktree / "gitdir.log"
+    decoy.write_text(relative, encoding="utf-8")
+    decoy.chmod(0o644)
+    assert sink.refuse(decoy, worktree) is None
+    assert sink.refuse(worktree / "logs" / "new.log", worktree) is None
+    assert sink.refuse(base / "outside.log", worktree) == OUTSIDE
+
+
+# --- 5. the log sink is proven openable before the child is spawned ----------------------------
+
+ARTIFACT = Path("docs/dev/tmp/verify-t2.json")
+MARKER_CHILD = (
+    "import os, pathlib, sys\n"
+    "pathlib.Path(sys.argv[1]).write_text(os.getcwd(), encoding='utf-8')\n"
+    "print('PASS 2 FAIL 0 SKIP 1 EXIT 0')\n"
+)
+SLOW_CHILD = (
+    "import os, pathlib, sys, time\n"
+    "started, late, pidfile = (pathlib.Path(p) for p in sys.argv[1:4])\n"
+    "pidfile.write_text(str(os.getpid()), encoding='utf-8')\n"
+    "started.write_text('started', encoding='utf-8')\n"
+    "for _ in range(15): print('chatter', flush=True); time.sleep(0.1)\n"
+    "late.write_text('late', encoding='utf-8')\n"
+    "print('PASS 1 FAIL 0 SKIP 0 EXIT 0')\n"
+)
+
+
+class FailingSink:
+    """The real sink handle, with a chosen write or the close raising OSError."""
+
+    def __init__(self, handle: Any, fail_write_after: int | None, fail_close: bool) -> None:
+        self._handle = handle
+        self._fail_write_after = fail_write_after
+        self._fail_close = fail_close
+        self._writes = 0
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._handle, name)
+
+    def __enter__(self) -> Any:
+        return self
+
+    def __exit__(self, *exc: object) -> bool:
+        self.close()
+        return False
+
+    def write(self, data: Any) -> Any:
+        self._writes += 1
+        if self._fail_write_after is not None and self._writes > self._fail_write_after:
+            raise OSError(errno.EIO, "the test broke this sink write")
+        return self._handle.write(data)
+
+    def close(self) -> None:
+        self._handle.close()
+        if self._fail_close:
+            raise OSError(errno.EIO, "the test broke this sink close")
+
+
+def break_sink(monkeypatch: pytest.MonkeyPatch, *, fail_write_after: int | None = None,
+               fail_close: bool = False) -> list[Path]:
+    """Wraps the packaged sink opener; the returned list records the opened sinks."""
+    verification, sink = library("verification"), library("log_sink_refusal")
+    real = sink._open_log_sink
+    calls: list[Path] = []
+
+    def opener(log_path: Any, repo_root: Any, *args: Any, **kwargs: Any) -> FailingSink:
+        calls.append(Path(log_path))
+        handle = real(log_path, repo_root, *args, **kwargs)
+        return FailingSink(handle, fail_write_after, fail_close)
+
+    assert hasattr(verification, "_open_log_sink"), "no sink-opener seam in the gate module"
+    for module in (verification, sink):
+        monkeypatch.setattr(module, "_open_log_sink", opener)
+    return calls
+
+
+def run_gate(world: World, argv: list[str], *, log: Path | None = None,
+             artifact: Path | None = None, timeout: float = 60) -> dict:
+    return library("verification").run_verification(
+        argv=argv, project_root=world.target,
+        head_sha=git(world.target, "rev-parse", "HEAD"),
+        artifact_path=artifact or world.target / ARTIFACT,
+        log_path=log or world.target / "logs" / "run.log", timeout=timeout,
+    )
+
+
+def child_argv(tmp_path: Path, name: str, body: str, *args: Path) -> list[str]:
+    script = tmp_path / f"{name}.py"
+    script.write_text(body, encoding="utf-8")
+    return [sys.executable, "-I", str(script), *(str(a) for a in args)]
+
+
+def still_running(pid: int) -> bool:
+    """True while `ps` reports the pid as a live, non-zombie process."""
+    probe = subprocess.run(["ps", "-o", "stat=", "-p", str(pid)], check=False,
+                           capture_output=True, text=True, timeout=30)
+    state = probe.stdout.strip()
+    return bool(state) and not state.startswith("Z")
+
+
+def kill_child(pid: int) -> None:
+    if still_running(pid):
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except (OSError, ProcessLookupError):
+            pass
+
+
+def failure_shape(report: dict, slug: str) -> None:
+    assert (report["schema_version"], report["ok"], report["error"]) == (1, False, slug), report
+    assert isinstance(report["reason"], str) and report["reason"].strip(), report
+
+
+@pytest.fixture
+def world(tmp_path: Path) -> World:
+    return make_world(tmp_path)
+
+
+def aliased_leaf(target: Path) -> Path:
+    """An aliased leaf stays an unsafe output path, not a sink that failed to open."""
+    (target / "logs").mkdir(parents=True, exist_ok=True)
+    os.symlink(target / "src" / "app.py", target / "logs" / "alias.log")
+    return target / "logs" / "alias.log"
+
+
+@pytest.mark.parametrize("tail", [("app.py", "run.log"), ("app.py", "deep", "run.log")],
+                         ids=["parent-is-a-file", "grandparent-is-a-file"])
+def test_verification_refuses_an_unopenable_log_sink_before_it_spawns_the_child(
+    world: World, tmp_path: Path, isolated_git: None, tail: tuple[str, ...],
+) -> None:
+    case = "-".join(tail)
+    marker = tmp_path / f"marker-{case}.txt"
+    argv = child_argv(tmp_path, f"child-{case}", MARKER_CHILD, marker)
+    report = run_gate(world, argv, log=world.target.joinpath("src", *tail))
+    failure_shape(report, "sink-failed")
+    assert not marker.exists(), "the child ran before the sink was proven openable"
+    assert not (world.target / ARTIFACT).exists()
+    assert (world.target / "src" / "app.py").read_text("utf-8") == "print('app')\n"
+    accepted = run_gate(world, argv, log=world.target / "logs" / f"run-{case}.log")
+    assert accepted["ok"] is True, accepted
+    assert Path(marker.read_text("utf-8")).resolve() == world.target.resolve()
+    assert (world.target / "logs" / f"run-{case}.log").is_file()
+    assert (world.target / ARTIFACT).is_file()
+
+
+def test_verification_refuses_an_aliased_log_leaf_before_the_spawn_under_the_legacy_slug(
+    world: World, tmp_path: Path, isolated_git: None,
+) -> None:
+    """An alias is still an unsafe output path; only an open failure becomes sink-failed."""
+    marker = tmp_path / "marker-alias.txt"
+    argv = child_argv(tmp_path, "child-alias", MARKER_CHILD, marker)
+    report = run_gate(world, argv, log=aliased_leaf(world.target))
+    assert (report["schema_version"], report["ok"]) == (1, False), report
+    assert report["error"] == "unsafe-artifact-path", report
+    assert not marker.exists(), "the child ran before the log path was judged"
+    assert not (world.target / ARTIFACT).exists()
+    assert (world.target / "src" / "app.py").read_text("utf-8") == "print('app')\n"
+
+
+def test_verification_reports_a_mid_run_sink_write_failure_and_kills_the_child(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    started, late, pidfile = (tmp_path / name for name in ("started", "late", "pid"))
+    argv = child_argv(tmp_path, "slow", SLOW_CHILD, started, late, pidfile)
+    calls = break_sink(monkeypatch, fail_write_after=1)
+    report = run_gate(world, argv)
+    pid = None
+    try:
+        assert calls, "the patched sink opener never ran"
+        failure_shape(report, "sink-write-failed")
+        assert started.read_text("utf-8") == "started"
+        pid = int(pidfile.read_text("utf-8"))
+        assert not still_running(pid), "the spawned child outlived the failed run"
+        deadline = time.monotonic() + 3
+        while time.monotonic() < deadline:
+            assert not late.exists(), "the child kept working after the call returned"
+            time.sleep(0.05)
+    finally:
+        if pid:
+            kill_child(pid)
+
+
+@pytest.mark.parametrize(("fail_write", "slug"),
+                         [(False, "sink-close-failed"), (True, "sink-write-failed")],
+                         ids=["close-only", "write-then-close"])
+def test_verification_keeps_the_write_failure_when_the_sink_close_also_fails(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+    fail_write: bool, slug: str,
+) -> None:
+    marker = tmp_path / f"marker-{slug}.txt"
+    argv = child_argv(tmp_path, f"child-{slug}", MARKER_CHILD, marker)
+    calls = break_sink(monkeypatch, fail_write_after=0 if fail_write else None, fail_close=True)
+    report = run_gate(world, argv)
+    assert calls, "the patched sink opener never ran"
+    failure_shape(report, slug)
+    if not fail_write:
+        assert Path(marker.read_text("utf-8")).resolve() == world.target.resolve()
+
+
+@pytest.mark.parametrize("kind", ["absent-program", "unexecutable-program"])
+def test_verification_preserves_its_outputs_on_a_spawn_failure_but_leaves_an_empty_log(
+    world: World, tmp_path: Path, isolated_git: None, kind: str,
+) -> None:
+    program = tmp_path / kind
+    if kind == "unexecutable-program":
+        program.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+        program.chmod(0o644)
+    log = world.target / "logs" / f"{kind}.log"
+    report = run_gate(world, [str(program), "--version"], log=log)
+    failure_shape(report, "spawn-failed")
+    assert not (world.target / ARTIFACT).exists()
+    assert log.is_file() and log.read_bytes() == b""
+    with pytest.raises(ValueError):
+        run_gate(world, [], log=world.target / "logs" / f"{kind}-empty.log")
+    marker = tmp_path / f"{kind}-marker.txt"
+    accepted = run_gate(world, child_argv(tmp_path, kind, MARKER_CHILD, marker), log=log)
+    assert accepted["ok"] is True, accepted
+    assert b"PASS 2 FAIL 0 SKIP 1 EXIT 0" in log.read_bytes()
+    assert (world.target / ARTIFACT).is_file()
+
+
+# --- 6. the exported policy never blocks on a fifo and never assumes O_NOFOLLOW ----------------
+
+FIFO_CAUSE = re.compile(r"fifo|pipe|reader|regular file", re.IGNORECASE)
+
+
+def export(world: World, *args: Any, timeout: float = 30) -> subprocess.CompletedProcess:
+    """The policy export as a bounded CLI probe: a hang fails instead of stalling the suite."""
+    return subprocess.run(
+        [sys.executable, "-I", str(world.facade), "--export-policy", *(str(a) for a in args)],
+        check=False, cwd=world.cwd, env=world.env, capture_output=True, timeout=timeout,
+    )
+
+
+def refusal_line(proc: subprocess.CompletedProcess) -> str:
+    stderr = proc.stderr.decode("utf-8")
+    lines = [line for line in stderr.splitlines() if line.strip()]
+    assert "Traceback" not in stderr, stderr
+    assert len(lines) == 1 and lines[0].startswith("autopilot: "), stderr
+    return lines[0]
+
+
+def drain_fifo(fifo: Path, stop: threading.Event, chunks: list[bytes]) -> None:
+    """Keeps a reader on `fifo` without ever blocking, so the thread always joins."""
+    reader = os.open(fifo, os.O_RDONLY | os.O_NONBLOCK)
+    try:
+        deadline = time.monotonic() + 60
+        while not stop.is_set() and time.monotonic() < deadline:
+            if select.select([reader], [], [], 0.05)[0]:
+                chunks.append(os.read(reader, 65536))
+    finally:
+        os.close(reader)
+
+
+def test_export_policy_refuses_a_fifo_output_without_a_reader_instead_of_blocking(
+    world: World,
+) -> None:
+    fifo = world.base / "policy.fifo"
+    os.mkfifo(fifo)
+    try:
+        refused = export(world, "--out", fifo)
+    finally:
+        fifo.unlink()
+    assert refused.returncode == 1, (refused.returncode, refused.stderr)
+    assert refused.stdout == b""
+    assert FIFO_CAUSE.search(refusal_line(refused)), refused.stderr
+    named_alike = world.base / "plain.fifo"
+    accepted = export(world, "--out", named_alike)
+    assert accepted.returncode == 0, accepted.stderr
+    assert json.loads(named_alike.read_bytes())["schema_version"] == 1
+
+
+def test_export_policy_refuses_a_drained_fifo_output_rather_than_writing_into_a_pipe(
+    world: World,
+) -> None:
+    fifo = world.base / "drained.fifo"
+    os.mkfifo(fifo)
+    stop, chunks = threading.Event(), []
+    reader = threading.Thread(target=drain_fifo, args=(fifo, stop, chunks), daemon=True)
+    reader.start()
+    try:
+        refused = export(world, "--out", fifo)
+    finally:
+        stop.set()
+        reader.join(timeout=10)
+        fifo.unlink()
+    assert not reader.is_alive(), "the fifo reader thread leaked"
+    assert refused.returncode == 1, (refused.returncode, refused.stderr)
+    assert refused.stdout == b""
+    assert FIFO_CAUSE.search(refusal_line(refused)), refused.stderr
+    assert b"schema_version" not in b"".join(chunks), chunks
+
+
+def test_export_policy_refuses_up_front_when_o_nofollow_support_is_missing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capfd: pytest.CaptureFixture[str],
+) -> None:
+    facade = library("autopilot")
+    monkeypatch.delattr(getattr(facade, "os", os), "O_NOFOLLOW", raising=False)
+    assert not hasattr(os, "O_NOFOLLOW")
+    out = tmp_path / "policy.json"
+    capfd.readouterr()
+    code = facade.main(["--export-policy", "--out", str(out)])
+    captured = capfd.readouterr()
+    lines = [line for line in captured.err.splitlines() if line.strip()]
+    assert code == 1, (code, captured.err)
+    assert not out.exists()
+    assert captured.out == ""
+    assert len(lines) == 1 and lines[0].startswith("autopilot: "), captured.err
+    assert "O_NOFOLLOW" in lines[0].upper(), lines[0]
+
+
+def test_export_policy_writes_a_plain_file_and_refuses_a_hard_linked_one(world: World) -> None:
+    printed = export(world)
+    assert printed.returncode == 0, printed.stderr
+    fresh, stale = world.base / "policy one.json", world.base / "policy two.json"
+    stale.write_text("stale\n", encoding="utf-8")
+    for out in (fresh, stale):
+        accepted = export(world, "--out", out)
+        assert accepted.returncode == 0, accepted.stderr
+        assert accepted.stdout == b""
+        assert out.read_bytes().strip() == printed.stdout.strip()
+        assert json.loads(out.read_bytes())["schema_version"] == 1
+    linked, twin = world.base / "linked.json", world.base / "twin.json"
+    linked.write_text("keep\n", encoding="utf-8")
+    os.link(linked, twin)
+    try:
+        refused = export(world, "--out", linked)
+    finally:
+        twin.unlink()
+    assert refused.returncode == 1, (refused.returncode, refused.stderr)
+    assert refusal_line(refused)
+    assert linked.read_text("utf-8") == "keep\n"
