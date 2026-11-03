@@ -675,3 +675,4 @@
 {"id":"d8909a07","ended_at":1793669582,"elapsed_s":773,"outcome":"error","detail":"Render only, 52408 bytes over cap; never dispatched. Repeated trimming recorded as process deviation."}
 {"id":"f6ab398f","ended_at":1793669582,"elapsed_s":744,"outcome":"ok","detail":"Actual partial Pat review: 1 MEDIUM, 2 LOW, parser exit0. Original task2 test diff omitted; full gate incomplete pending context supplement and same-session follow-up."}
 {"id":"7194e7a0","ended_at":1793669582,"elapsed_s":628,"outcome":"killed","detail":"Interrupted sole MEDIUM-fix continuation during regression run. Partial artifact-error code preserved/committed 60eb370; pre-spawn artifact validation and full review scope remain open."}
+{"kind":"handoff","site":"build","edge":"leave","at":1793669861,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
