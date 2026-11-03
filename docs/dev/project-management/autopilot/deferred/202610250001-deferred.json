@@ -345,6 +345,30 @@
       "assumption": "Put the correction's new cases in a sibling module tests/autopilot/test_helper_recovery_v2_sinks.py, importing the existing suite's helpers, and leave every committed test in test_helper_recovery_v2.py untouched. Task 2's narrow verification and the review diff therefore cover both files; the Verify line's other four suites are unchanged.",
       "at": "2026-11-03T01:25:00+00:00",
       "prd": "00013-autopilot-session-helpers-v2.md"
+    },
+    {
+      "type": "review-low-carried",
+      "task": "2",
+      "finding": "verification.py ~296 _open_result_sink decides leaf ownership from artifact.exists() before the open, then pins identity from an lstat after the open via a second descent, so the pinned inode is not provably the inode this run opened; a leaf created or swapped in between would be recorded as owned and later unlinked. Remedy: take identity from os.fstat(sink.fileno()) and require the pinned lstat to match; have the opener report creation via O_EXCL instead of an exists() pre-check. No test covers this window.",
+      "source": "pat cycle 2 LOW",
+      "why_deferred": "bounded correction mandate forbids expansion; installed review ladder proceeds on LOW-only",
+      "prd": "00013-autopilot-session-helpers-v2.md"
+    },
+    {
+      "type": "review-low-carried",
+      "task": "2",
+      "finding": "verification.py ~330 _close_result_sink uses drop = art is None, so cleanup runs only when no record reached the writer; when _write_artifact itself fails, a leaf this run created is left behind empty or partial and an existing artifact has already been truncated, contradicting the no-artifact-on-failure goal. Predates the cleanup fix and interacts with the committed existing-artifact-keeps-prior-bytes contract.",
+      "source": "pat cycle 2 LOW",
+      "why_deferred": "pre-existing shape; not a safe unilateral flip inside a bounded correction",
+      "prd": "00013-autopilot-session-helpers-v2.md"
+    },
+    {
+      "type": "observation",
+      "task": "2",
+      "finding": "The unsafe-artifact-path refusal in run_verification returns no reason key, unlike every other refusal the gate emits, so failure_shape and any caller reading report[reason] raises KeyError on it.",
+      "source": "tess, while building the cleanup regressions",
+      "why_deferred": "pre-existing; no live caller breaks today; outside the bounded correction",
+      "prd": "00013-autopilot-session-helpers-v2.md"
     }
   ]
 }

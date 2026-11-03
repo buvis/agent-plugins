@@ -685,3 +685,14 @@
 {"id":"34402b1a","kind":"ivan","task":"2","queued_at":1793671491,"prompt_bytes":23553}
 {"id":"34402b1a","ended_at":1793671639,"elapsed_s":148,"outcome":"killed","detail":"Coordinator stopped for proven cleanup path-swap deletion and error masking; style patch preserved in reports/00013-v2-task2-interrupted-style.patch; no completed style verification or Pat follow-up."}
 {"kind":"handoff","site":"build","edge":"resume","at":1793671812,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793671914,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793672147,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
+{"id":"02ef4975","kind":"tess","task":"2","queued_at":1793672297,"prompt_bytes":34944}
+{"id":"02ef4975","ended_at":1793672992,"elapsed_s":695,"outcome":"ok","detail":null}
+{"id":"15695a64","kind":"ivan","task":"2","queued_at":1793673129,"prompt_bytes":36982}
+{"id":"15695a64","ended_at":1793673551,"elapsed_s":422,"outcome":"ok","detail":null}
+{"id":"563049c8","kind":"pat","task":"2","queued_at":1793673861,"prompt_bytes":21086}
+{"id":"125944e3","kind":"pat","task":"2","queued_at":1793673890,"prompt_bytes":33632}
+{"id":"563049c8","ended_at":1793673978,"elapsed_s":117,"outcome":"ok","detail":null}
+{"id":"125944e3","ended_at":1793673981,"elapsed_s":91,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"build","edge":"leave","at":1793674185,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}

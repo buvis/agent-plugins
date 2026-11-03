@@ -23,8 +23,8 @@
       "aegis@buvis-plugins": "0.4.1",
       "warden@buvis-plugins": "0.14.1"
     },
-    "catchup_completed_at": "2026-11-03T01:40:00+00:00",
-    "catchup_head_sha": "f8e810ae5e549678ae90422afa9fd8b245c555b7",
+    "catchup_completed_at": "2026-11-03T02:15:28+00:00",
+    "catchup_head_sha": "6c9b230081bf96ab20824bb28a08eeaa3d8a9866",
     "parks_consecutive": 0,
     "skips": [
       {
@@ -213,7 +213,7 @@
     "checked_at": "2026-10-25T22:40:48Z"
   },
   "tasks_total": 4,
-  "tasks_completed": 1,
+  "tasks_completed": 2,
   "replan_count": 0,
   "phases_completed": [],
   "cycle": 1,
@@ -231,7 +231,7 @@
     "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
     "checked_at": "2026-10-28T03:07:08.511437+00:00"
   },
-  "contract_card": "step: AP00013 v2 BUILD, task 1 complete, tasks 2-4 incomplete. No live peer owns the PRD. Native session 412cd6fc-4bb1-4588-a935-c81d6b443050 was stopped with exit 130 before Pat, after a bounded audit proved cleanup containment and error-preservation regressions. Read reports/00013-v2-task2-cleanup-recovery.md FIRST, including its committed probe/output/evidence. This card supersedes earlier immediate-work instructions.\n\nIMMEDIATE WORK: continue task 2's bounded correction. The process-list test correction and artifact preflight are already committed at 2e3dba5 and 71fb60d; the complete six-file Verify passed 151 tests twice. Do not redo those steps. The new preflight cleanup follows a replaced parent pathname and deletes an outside sentinel, and its unlink error masks the original controlled failure. Isolated Opus Tess must add actual-child regressions for parent-symlink swap, leaf-directory replacement, same-parent replacement-file preservation and a no-swap control in the existing sibling recovery test file. Preserve every existing test and assertion; keep both files under 800 lines. This is bounded regression coverage, not a repeated initial Tess/Devon/strengthening cycle. Test quality/style, commit, actual red check.\n\nThen isolated Opus Ivan continues the same bounded fix in verification.py and existing sink helpers as needed, within task files. Preserve validated parent and owned created-leaf identity through cleanup. Never unlink via a re-resolved pathname, delete a replacement leaf, or let cleanup OSError override the primary controlled failure. Preserve both pre-spawn validations, exact previous bytes on failed spawn, no-follow/hard-link protections, real child cleanup and pipe-close guards. No unrelated policy expansion or new output-management subsystem. Finish the interrupted style extraction (patch preserved in reports/00013-v2-task2-interrupted-style.patch; do not apply it blindly). No repeat self-deslop. Run the COMPLETE six-file task Verify, no -k, then final style/split hygiene. The earlier 151-pass runs do not cover these new regressions.\n\nPAT FOLLOW-UP MUST COMPLETE SCOPE: resume tool-less native Sonnet/high session 29c0b516-5d37-4c52-939e-289e4bf0523c using -R for cycle 2. Original task base 9dc395e26152b088cc6b4d22db46fd61c3bb58be; last-reviewed SHA c5ab4eaf5e40d0cf46e74c435d363bfbe5f33efc. First review omitted the original task-2 test diff. Provide saved previously-omitted-tests.diff (19857 bytes, task2d scratch) FIRST, then the complete last-reviewed-to-current-HEAD delta over all 3 production modules, CHANGELOG and BOTH test files. Render pat-rerun-prompt.md with the combined DELTA_DIFF, original MEDIUM verbatim and truthful UNCHANGED_NOTE. Earlier Pat did NOT review the whole original range. Include fresh exact verification; no file exclusions to fit the cap. This completes the omitted scope through the existing mandatory follow-up, not another review cycle. Follow the installed MEDIUM retry handling afterward. Recovery report has exact instructions; task2d/pat-session.json preserves IDs.\n\nRole preflight: all four state tasks must remain model opus, tier_reason floor, qwen_eligible false, qwen_excluded_reason tier. Every Tess/Devon/Ivan Agent uses autopilot:worker-opus and model opus (high effort); record actual backend/model. Pat remains fixed Sonnet/high and tool-less. Coordinator authors no product code or tests. Full lane, never micro/solo. Tasks 3/4 retain only the skill's explicit test-only/docs-only conditional rules. Preserve work_start_sha 316557ecbe06895b7f90e33a133bc5d699f841ff and original task-2 base. No replanning, design reruns, task/cycle/cap reset or automatic v3. Three historical design reviews ran; corrections are not extra clean verdicts.\n\nEvidence discipline: exact full-scope Devon run was 20 passed/1 permission failure, not 21 passed; its supplementary probe is separate. Repeated oversized Pat renders and the prior scope reduction are recorded as deviations. Actual prompt budget remains 45000-byte target/50000-byte cap with one trim; never omit review scope. Preserve the 75000-token estimator ruling. Check formatter churn after each commit for AST-equivalent/layout-only changes before git checkout -- on those files. Commit untracked review artifacts immediately.\n\nCloseout: after tasks 2-4 and the actual full gate, hand off to a FRESH completion-review session with Alice, Blake, Bob, Carl and Eve. Keep duplicate 6d material and review/design history away from Blake. Do not select AP00018 or backlog work automatically. AP00018 resumes only through all explicit steps of plans/00018-replan-3.md with exact completed history and prepared retrospective Pats. Task4 and AP18 receipts must include the sibling recovery test file. No push until all 19 controller tests and required checks pass; normal pushes only. Wave 202611022006 is planned-only, all seven backlog PRDs overlap closeout paths. Worktrees stay under ~/git/src/worktrees/agent-plugins. Use installed runtime, never frozen source or incomplete portable runtime. Preserve model-family diversity, try an authorized alternate route on quota exhaustion, never bypass permission denial. Standing authorization covers routine reversible fixes. Root controls the next session boundary.",
+  "contract_card": "step: AP00013 v2 BUILD, tasks 1 and 2 COMPLETE, tasks 3 and 4 pending. Task 2 is CLOSED and must not be reopened: the bounded cleanup correction landed (tests 0239445, fix 30e5c5e), the complete six-file Verify passed 155 tests twice (worker and an independent coordinator replay, both exit 0), style gate and split hygiene are clean over the whole task range, and Pat's omitted review scope is COMPLETE at cycle 2 with the sole MEDIUM resolved (attempt stamped medium-retry:fixed). Do not re-run Tess, Devon, Ivan, de-slop or Pat for task 2, and do not reset its cycle or counters. Evidence: reports/00013-v2-task2-cleanup-recovery.md and reports/00013-v2-task2-pat-scope-completion.md.\n\nIMMEDIATE WORK: task 3, then task 4, through the normal work loop. Both are state model opus, tier_reason floor, qwen_eligible false, qwen_excluded_reason tier. Every Tess/Devon/Ivan Agent uses autopilot:worker-opus with model opus and the full rendered persona; record the actual backend/model. Pat stays fixed Sonnet/high and tool-less. The coordinator authors no product code and no tests. Full lane, never micro or solo. Tasks 3/4 keep only the skill's own explicit test-only/docs-only conditional rules. Preserve work_start_sha 316557ecbe06895b7f90e33a133bc5d699f841ff. No replanning, no design rerun, no task/cycle/cap reset, no automatic v3.\n\nCARRIED INTO THE COMPLETION REVIEW, deliberately not fixed under task 2's bounded mandate (all three recorded in the batch deferred JSON): (1) verification.py ~296 _open_result_sink takes ownership from artifact.exists() BEFORE the open and identity from an lstat AFTER it via a second descent, so the pinned inode is not provably the one this run opened - remedy is os.fstat(sink.fileno()) identity plus a matching pinned lstat, and O_EXCL creation reporting instead of the exists() pre-check; no test covers that window. (2) verification.py ~330 drop = art is None leaves a created leaf empty or partial when _write_artifact itself fails, and an existing artifact already truncated. (3) the unsafe-artifact-path refusal returns no reason key, so failure_shape and any caller reading report[reason] raises KeyError.\n\nEvidence discipline: report only counts actually observed. The real numbers for task 2 are 3 failed/50 passed at the red check and 155 passed at the gate; the earlier 145-passed and 151-passed runs are superseded history, not current evidence. Check formatter churn after every commit before any git checkout -- on touched files. Commit untracked review artifacts immediately. Pat's two mandated inputs were supplied as two sequential messages in one resumed conversation because the combined render measures 50528 bytes of diff against a 50000-byte cap; that deviation is documented with its measurement and must not be re-litigated as a scope reduction.\n\nCloseout: after tasks 3 and 4 and the actual full gate, hand off to a FRESH completion-review session with Alice, Blake, Bob, Carl and Eve. Keep duplicate 6d material and all v1 review/design history away from Blake's blind lens. Do not select AP00018 or any backlog PRD automatically. AP00018 resumes only through every explicit step of plans/00018-replan-3.md. Task 4 and AP18 receipts must include tests/autopilot/test_helper_recovery_v2_sinks.py. Master Validate is independently RED (known AP00018 controller suite plus the helper-provenance README pin, both pre-existing and separately tracked) - no push until all 19 controller tests and required checks pass, normal pushes only. Wave 202611022006 is planned-only. Worktrees stay under ~/git/src/worktrees/agent-plugins. Use the installed runtime, never frozen source. Preserve model-family diversity; on quota exhaustion try an authorized alternate route rather than waiting, and never bypass a permission denial.\n\nnext: build gate, Phase 3 work at task 3 (first non-completed). Precondition: design doc and tasks already exist, so Phase 1.5 and Phase 2 skip by artifact; catchup re-evaluates its own cache.",
   "prd_budget_since": "2026-11-02T21:43:19Z",
   "design_mode": "run",
   "design_doc": "docs/dev/project-management/designs/00013-autopilot-session-helpers-v2-design.md",
@@ -367,10 +367,30 @@
         1
       ],
       "id": "2",
-      "status": "pending",
+      "status": "completed",
       "usage_at_start": 117894,
       "calls_at_start": 8,
-      "started_at": 1793662640
+      "started_at": 1793662640,
+      "attempts": [
+        {
+          "outcome": "completed",
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "model": "opus",
+          "pipeline": "full",
+          "cause": null,
+          "review_cycle": null,
+          "devon": "exploit_fixed",
+          "devon_weak_points": 8,
+          "self_deslop": "committed:c5ab4ea",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "review": "medium-retry:fixed"
+        }
+      ],
+      "usage_at_done": 277140,
+      "calls_at_done": 125,
+      "done_at": 1793674037
     },
     {
       "name": "T3: Replace implementation-shaped allocation evidence with a behavioral bound",
