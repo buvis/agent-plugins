@@ -284,12 +284,26 @@ relative paths resolve against the explicit project root.
 
 Review staging applies each reviewer's input manifest to the prompt and every
 context file it references. `implementation-audit` grants broad context, `plan`
-grants tasks and design text, `prd` grants the raw PRD, and `test-results` grants
-the test gate. Pack and history inputs require their own grants. A tail sweep
-may select a subset of validated findings without closing reviewer results.
-Verification spawn failures return `ok: false` and `error: spawn-failed` while
-preserving existing outputs. Output guards compare filesystem identity so case
-aliases and hard links cannot overwrite command inputs or live state.
+grants the tasks, `prd` grants the raw PRD, and `test-results` grants the test
+gate. Design text reaches a reviewer's context only when `plan` and `prd` are
+both granted, because the merged PRD file is the one that carries the design
+text; `prd` on its own points at the raw PRD. Pack and history inputs require
+their own grants. A tail sweep may select a subset of validated findings without
+closing reviewer results. Verification spawn failures return `ok: false` and
+`error: spawn-failed` while preserving existing outputs. Output guards compare
+filesystem identity so case aliases and hard links cannot overwrite command
+inputs or live state.
+
+Two helpers refuse more up front. `--verify` proves both its log sink and its
+result-artifact sink openable before it spawns the child, and reports a sink
+open, write or close failure as its own controlled error with the child killed.
+It cleans up only the result-artifact leaf its own pre-spawn validation created,
+identified through the parent descriptor it pinned before the spawn and matched
+by inode, so a file that took the artifact's name during the run, a leaf
+replaced by a directory, or a parent swapped for a symlink is left untouched and
+never replaces the run's own reported failure. Review staging refuses a
+destination whose Git check cannot answer, and refuses a reviewer whose grant
+omits the PRD instead of inlining an empty one.
 
 `tools/autopilot/source-map.json` records each helper function and regression in
 `helper_dispositions`. Controller-owned functions stay controller-only, and no
