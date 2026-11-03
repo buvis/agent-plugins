@@ -1,6 +1,6 @@
 # Project Capsule: buvis agent-plugins
 
-Generated: 2026-11-02
+Generated: 2026-11-03
 
 ## Current AP 00012 handoff
 
@@ -43,7 +43,7 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 ### Batch 202610250001
 - [x] 00012-autopilot-package-contract-v1.md (2 cycles; 47/47 tasks)
-- [ ] 00013-autopilot-session-helpers-v2.md (wip: v1 held as exhausted cap-regression history; v2 corrective T1-T4; reviewed design doc committed 18ca409; 1/4 tasks done - task 1 accepted (Pat: 5 LOW), tasks 2-4 pending; task 2 test draft committed eccf5c6, contract correction 533a88a)
+- [ ] 00013-autopilot-session-helpers-v2.md (wip: v1 held as exhausted cap-regression history; v2 corrective T1-T4; reviewed design doc committed 18ca409; 1/4 tasks done - task 1 accepted (Pat: 5 LOW), tasks 2-4 pending; task 2 test draft committed eccf5c6, contract correction 533a88a, accepted Tess correction committed 1c6212f, awaiting one complete Opus Devon pass)
 - [ ] 00014-autopilot-host-execution-v1.md
 - [ ] 00015-autopilot-workflow-parity-v1.md
 - [ ] 00016-autopilot-controller-integration-v1.md
@@ -54,6 +54,16 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 - [ ] 00021-autopilot-controller-records-v1.md
 
 Observations (2026-11-03T00:15Z full catchup): resuming AP00013 v2 at task 2 (first non-completed) with design and capsule reused by artifact; catchup ran full because commits past `catchup_head_sha` include non-loop committers. AP00012 completion and host provenance gates pass. Original review receipts and companion Tail sweep audit remain intact. Final Tail sweep suite: 104 passed; validator: 3 packages/15 skills. Next: fresh build session selects AP00013. The pytest count parser limitation remains documented; no new verification receipt is claimed.
+
+## 2026-11-03T00:45Z AP00013 v2 task-2 Devon-gate build catchup
+
+Full catchup again (cache 29m old, but two commits past `catchup_head_sha` carry committer `Agent ran by Tomáš Bouška`, so the delta condition failed). Only two content commits are new since the 00:15Z entry: `1c6212f` (the committed sink/artifact-byte test file `tests/autopilot/test_helper_recovery_v2_sinks.py`) and `f0b2e04` (the task-2 scope-recovery report plus the preserved incomplete-Devon patch); `03d4e47` and `c00f784` are state/metrics commits. No project fact changed.
+
+Standing position for task 2: the accepted Tess correction is committed and gated; the immediate gate is ONE complete fresh Opus Devon pass using the prepared prompt at `docs/dev/tmp/ap00013-v2/task2c/devon-complete-prompt.md`. No valid Devon verdict exists yet (rows `ef85cc76` and `af622d15` were interrupted). Selection must span BOTH `test_helper_recovery_v2.py` and `test_helper_recovery_v2_sinks.py` (21 cases). Neither `00013-v2-invalid-work-attempt.patch`, the lower-tier Tess draft, nor `00013-v2-task2-incomplete-devon.patch` may reach a worker.
+
+GitHub unchanged: 1 open issue (#12 Renovate dashboard), 3 routine renovate PRs (#13 setup-python v7.1.0, #14 python 3.15, #15 pytest v9), no releases, remote branch `docs/ap00015-verification-counts` still present. **Master Validate stays RED** (latest run 41516085734: 20 failed, 898 passed, 1 skipped) - the known AP00018 controller suite plus the `test_helper_provenance_real.py` README pin. Both pre-existing and separately tracked; the provenance node belongs to task 4.
+
+Related context: repo query re-run this session on topic `autopilot session helpers v2 host-neutral session helpers` - top five hits are all v1 review history (`reviews/00013-autopilot-session-helpers-v1-review-0{2,1,3}.md` at 0.0164/0.0161/0.0159, `docs/dev/tmp/00013-review-01-by-agent-plugins-6d.md` at 0.0156), which must stay away from Blake's blind lens. Repo index refreshed clean. Portfolio query not re-run (identical topic); fresh portfolio stamp: memory stale=5/dead=0, transcripts stale=6/dead=1513, prd dead=105, code stale=34/dead=1232, 6098 code rows skipped (exit 1, unchanged shape). Review harvest re-run: 23 frontmatted review files upserted, 25 pre-00002/scratch files still `parse_failed` (missing frontmatter). Native task restore: `no_tasks_dir`; the authoritative autopilot task list is intact at 1/4.
 
 ## Related context
 
@@ -67,7 +77,7 @@ Observations (2026-11-03T00:15Z full catchup): resuming AP00013 v2 at task 2 (fi
 
 ## GitHub State
 
-- Refreshed 2026-11-03T00:15Z. 1 open issue (#12 Renovate dashboard). 3 open Renovate PRs: #13 setup-python v7.1.0, #14 python 3.15, #15 pytest v9. No releases. Remote branches: master, three renovate branches, `docs/ap00015-verification-counts`.
+- Refreshed 2026-11-03T00:45Z. 1 open issue (#12 Renovate dashboard). 3 open Renovate PRs: #13 setup-python v7.1.0, #14 python 3.15, #15 pytest v9. No releases. Remote branches: master, three renovate branches, `docs/ap00015-verification-counts`.
 - `Validate` is red on master (runs 41516085734, 41511458941): 20 failures - 19 `tests/autopilot/test_controller_*` (AP00018 kernel, known/expected) plus `test_helper_provenance_real.py` README pin, which was already fixed locally after that run.
 
 ## Project Health
