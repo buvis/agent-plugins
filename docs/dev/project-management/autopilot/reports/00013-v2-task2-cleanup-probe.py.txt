@@ -1,0 +1,34 @@
+import errno,json,subprocess,sys,tempfile
+from pathlib import Path
+sys.dont_write_bytecode=True
+source=Path.cwd(); revision=subprocess.check_output(['git','rev-parse','71fb60d'],text=True).strip()
+with tempfile.TemporaryDirectory(prefix='ap13-cleanup-probe-') as temporary:
+ base=Path(temporary).resolve(); repo=base/'repo'
+ subprocess.run(['git','clone','--shared','--quiet','--no-checkout',str(source),str(repo)],check=True,capture_output=True)
+ subprocess.run(['git','checkout','--quiet','--detach',revision],cwd=repo,check=True,capture_output=True)
+ sys.path.insert(0,str(repo/'plugins/autopilot/scripts'))
+ import verification
+ real_open=verification._open_log_sink
+ for mode in ['control','parent-swap','directory-swap']:
+  artifact=repo/'docs/dev/tmp'/mode/'result.json'; log=repo/'docs/dev/tmp'/f'{mode}.log'
+  outside=base/f'outside-{mode}'; outside.mkdir(); sentinel=outside/'result.json'; sentinel.write_text('TEMP SENTINEL\n')
+  child=base/f'{mode}.py'
+  child.write_text(f"import pathlib,time\nmode={mode!r}\na=pathlib.Path({str(artifact)!r})\nexternal={str(outside)!r}\nif mode=='parent-swap':\n a.parent.rename(a.parent.with_name(a.parent.name+'-held'))\n a.parent.symlink_to(external,target_is_directory=True)\nelif mode=='directory-swap':\n a.unlink()\n a.mkdir()\nprint('trigger write failure',flush=True)\ntime.sleep(30)\n")
+  writes=[]
+  class BrokenWrite:
+   def __init__(self,handle): self.handle=handle
+   def __getattr__(self,name): return getattr(self.handle,name)
+   def write(self,data):
+    writes.append(len(data)); raise OSError(errno.EIO,'probe injected sink write failure')
+  def opener(path,root):
+   handle=real_open(path,root)
+   return BrokenWrite(handle) if path==log else handle
+  verification._open_log_sink=opener
+  result={'mode':mode,'revision':revision,'sentinel_before':sentinel.read_text()}
+  try:
+   result['report']=verification.run_verification(argv=[sys.executable,'-I',str(child)],project_root=repo,head_sha=revision,artifact_path=artifact,log_path=log,timeout=5)
+  except Exception as error:
+   result['exception']={'type':type(error).__name__,'errno':getattr(error,'errno',None),'message':str(error)}
+  result.update(sink_write_calls=len(writes),sentinel_exists_after=sentinel.exists(),artifact_is_directory=artifact.is_dir(),artifact_parent_is_symlink=artifact.parent.is_symlink())
+  if mode=='parent-swap': result['pinned_leaf_still_exists']=(artifact.parent.with_name(artifact.parent.name+'-held')/artifact.name).exists()
+  print(json.dumps(result),flush=True)

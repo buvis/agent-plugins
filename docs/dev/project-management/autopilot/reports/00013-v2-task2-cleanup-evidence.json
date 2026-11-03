@@ -1,0 +1,20 @@
+{
+  "audit_kind": "bounded isolated cleanup probe; not completion review or full-suite execution",
+  "source_revision": "71fb60d12096c570d8ec19689e63c22338c0bedc",
+  "cwd": "/Users/bob/git/src/github.com/buvis/agent-plugins",
+  "executed_argv": ["python3", "-"],
+  "stdin": "probe.py contains the exact successful heredoc body",
+  "heredoc_delimiter": "PY",
+  "exit_code": 0,
+  "stdout": "stdout.txt transcribes the three raw result lines from the successful tool execution",
+  "original_temporary_directory": "/private/var/folders/m6/1mnc9pdn28d5vdxy4hxyr1m40000gn/T/ap13-cleanup-probe-3orwbfwt",
+  "temporary_directory_status": "automatically removed by TemporaryDirectory after successful exit",
+  "fault_scope": "verification._open_log_sink delegates to the real opener. Only the returned log handle is wrapped: write(data) raises OSError(errno.EIO); all other attributes, truncate and close delegate to the real handle. The artifact handle is returned unchanged. _execute, _kill, subprocess execution and artifact cleanup are unmodified committed production code.",
+  "scheduling": "A real owned child swaps only temporary fixture paths, flushes a stdout line that triggers the injected sink write failure, then sleeps. Production _kill terminates and reaps it.",
+  "control": "sink-write-failed report; external sentinel survives; newly created artifact removed",
+  "parent_swap": "sink-write-failed report; external temporary sentinel deleted; original pinned artifact remains in renamed parent",
+  "directory_swap": "artifact leaf replaced by a directory; cleanup raises real PermissionError errno1 instead of returning sink-write-failed",
+  "initial_setup_attempt": "An earlier probe passed artifact pathname as an argv token. Existing overlap validation refused all three cases before spawn. It supplied no evidence about cleanup and is not counted as a reproduced defect.",
+  "limits": "No broader-suite claim. The prior six-file 151-passed result remains historical and is not contradicted by an unrun suite. No tracked edits, source mutation, commits, ps invocation, state changes or completion review were performed.",
+  "correction_direction": "Keep cleanup anchored to the original validated parent descriptor and creation identity, never re-resolve the pathname after execution. Remove only an owned created leaf; skip deletion when ownership changed or cannot be established. Cleanup OSError must not replace the primary controlled run error. A parent-fd design must also address leaf replacement, not just parent symlinks."
+}
