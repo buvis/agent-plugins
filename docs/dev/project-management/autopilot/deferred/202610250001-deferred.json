@@ -369,6 +369,18 @@
       "source": "tess, while building the cleanup regressions",
       "why_deferred": "pre-existing; no live caller breaks today; outside the bounded correction",
       "prd": "00013-autopilot-session-helpers-v2.md"
+    },
+    {
+      "type": "contract-conflict",
+      "detail": "Four tests encode two incompatible verify-path log-sink contracts and the work phase could not make the suite green without choosing between them. Task 2 pinned leave-an-empty-log and preserve-the-bytes (tests/autopilot/test_helper_recovery_v2_sinks.py::test_verification_preserves_its_outputs_on_a_spawn_failure_but_leaves_an_empty_log[absent-program|unexecutable-program] assert the log exists and is empty after a failed spawn; _open_log_sink also stopped truncating an existing sink and stopped replacing a symlinked leaf). Four older tests encode the opposite: test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[missing-False|not-executable-False] assert the tree is unchanged (no residual log), and test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file / test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf assert truncation on reopen and replacement of a symlinked leaf. Measured this session: all six nodes pass at the previous receipt pin cce5dad and four fail at HEAD, so these are AP00013 v2 task-2 regressions, not pre-existing defects. One candidate fix (reuse _open_result_sink/_close_result_sink for the log leaf in verification._execute) made the two spawn-failure nodes green and immediately broke the two task-2 sink nodes; it was reverted rather than shipped, because no implementation satisfies both without branching on a pathname. The completion review owns the decision: which contract is correct, and which tests are superseded.",
+      "owner": "completion-review",
+      "nodes": [
+        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]",
+        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[not-executable-False]",
+        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file",
+        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf"
+      ],
+      "prd": "00013-autopilot-session-helpers-v2.md"
     }
   ]
 }

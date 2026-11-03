@@ -122,9 +122,38 @@ The AP00018 controller suites remain red and are owned by AP00018, not by
 AP00013 v2. The affected files are `tests/autopilot/test_controller_capacity.py`,
 `tests/autopilot/test_controller_owner.py` and
 `tests/autopilot/test_controller_owner_recovery.py`. The dispatch brief records
-roughly 19 failing nodes there. This session did not run those files, so this
-report states no measured count for them. They are recorded as remaining red,
-not fixed, not masked and not relabelled.
+roughly 19 failing nodes there. The sub-task that wrote this section did not run
+those files. The orchestrator's final integration gate, below, did: exactly 19
+AP00018 controller nodes failed. They are recorded as remaining red, not fixed,
+not masked and not relabelled.
+
+## Final integration gate (run once, by the orchestrator)
+
+Run on the evidence commit `9e89a5913f26e7d062347362a3cad773ccd09396`, whose
+product bytes under `plugins/`, `tests/` and `tools/` are identical to the tested
+package revision `3c7e2183a194c86d10390a3f2eda5524516ba50a`.
+
+| command | exit | result |
+|---|---|---|
+| `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` | 1 | 23 failed, 967 passed in 254.02s |
+| `python3 -m unittest discover -s scripts` | 0 | 59 tests, OK |
+| `python3 scripts/validate.py` | 0 | 3 packages, 15 skills |
+| `python3 scripts/generate_marketplace.py --check` | 0 | `marketplace.json` is up to date |
+
+The 23 failures are exactly the 19 AP00018 controller nodes plus the four v2
+task-2 contract-conflict nodes named above. Every other AP00013 helper node is
+green, including `test_helper_recovery_v2.py`,
+`test_helper_recovery_v2_sinks.py`, and — after the receipt and map were
+refreshed — `test_helper_provenance.py`, `test_provenance.py` and
+`test_helper_provenance_real.py` (31 passed).
+
+One repair attempt for the two spawn-failure nodes was written during this round
+and **reverted before this gate**: reusing `_open_result_sink` /
+`_close_result_sink` for the log leaf in `verification._execute` made those two
+nodes green and immediately broke the two task-2 nodes
+`test_verification_preserves_its_outputs_on_a_spawn_failure_but_leaves_an_empty_log[absent-program|unexecutable-program]`,
+which assert the opposite contract. No product byte changed, and the contract
+choice is recorded as a deferred item for the completion review.
 
 ## Pin confirmation and the historical CI failure
 

@@ -158,5 +158,71 @@
         "reason": "No Claude Code, Codex or Kiro host execution of the packaged helpers was run for AP00013. Delivery is local test evidence only; no host profile is certified and nothing is published or installed."
       }
     }
+  },
+  "final_gate": {
+    "revision": "9e89a5913f26e7d062347362a3cad773ccd09396",
+    "package_revision_tested": "3c7e2183a194c86d10390a3f2eda5524516ba50a",
+    "note": "Run once after task 4, on the evidence commit 9e89a59, whose product bytes under plugins/, tests/ and tools/ are identical to the tested package revision 3c7e218 (9e89a59 adds only receipt, source-map and report evidence). A candidate fix for the two spawn-failure nodes was written during this round and reverted before this gate, so no product byte changed.",
+    "commands": [
+      {
+        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q",
+        "exit_code": 1,
+        "passed": 967,
+        "failed": 23,
+        "skipped": 0,
+        "duration_seconds": 254.02,
+        "log": "docs/dev/tmp/gate-9e89a59.log"
+      },
+      {
+        "command": "python3 -m unittest discover -s scripts",
+        "exit_code": 0,
+        "tests": 59,
+        "result": "OK"
+      },
+      {
+        "command": "python3 scripts/validate.py",
+        "exit_code": 0,
+        "packages": 3,
+        "skills": 15
+      },
+      {
+        "command": "python3 scripts/generate_marketplace.py --check",
+        "exit_code": 0,
+        "result": "marketplace.json is up to date"
+      }
+    ],
+    "failing_nodes": {
+      "ap00018_controller": [
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_both_emergency_operations_use_either_reserve_but_never_override_hard_capacity",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_hard_capacity_seals_new_mutations_but_preserves_snapshot_and_exact_replay",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_last_normal_slot_then_release_reserve_preserve_every_prior_receipt",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_no_owner_cannot_consume_byte_reserve_and_emergency_cannot_exceed_state_ceiling",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_no_owner_cannot_use_either_reserved_count_slot",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_normal_byte_admission_is_independent_of_receipt_count",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_only_active_owner_clearing_can_use_reserved_bytes_below_hard_ceiling",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_private_archive_hash_restore_and_distinct_workflow_roundtrip",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_changed_historical_envelopes_conflict_without_reapplying_effects",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_checks_exact_identity_scope_epoch_job_and_role_before_mutation",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_closed_payloads_reject_empty_oversized_and_multielement_reconciliation",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_historical_and_reopened_operator_retrieve_only_exact_receipts_after_all_rotations",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_rejects_near_miss_credentials_and_does_not_fall_back_to_cwd_binding",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_rotates_operator_and_issues_fresh_owners_for_both_modes_and_sessions",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_two_independent_subprocess_acquires_have_exactly_one_winner",
+        "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_corrupt_real_intents_preserve_all_bytes_for_matching_and_unrelated_requests",
+        "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_crashes_at_every_owner_publication_boundary_preserve_replay_or_evidence",
+        "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_directory_fsync_failure_never_acknowledges_or_changes_final_credentials",
+        "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_missing_or_corrupt_staged_credentials_cannot_finish_an_intent"
+      ],
+      "ap00018_controller_count": 19,
+      "ap00018_controller_ownership": "AP00018 controller kernel, separately tracked and on hold. Observed red in this run, recorded and not fixed, masked or relabelled by AP00013.",
+      "ap00013_contract_conflict": [
+        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]",
+        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[not-executable-False]",
+        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file",
+        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf"
+      ],
+      "ap00013_contract_conflict_ownership": "AP00013 v2 task 2. These four encode the verify-path log-sink contract that task 2 replaced: no residual log after a failed spawn, truncation of an existing sink on reopen, and replacement of a symlinked leaf. Task 2's own tests pin the opposite contract: tests/autopilot/test_helper_recovery_v2_sinks.py::test_verification_preserves_its_outputs_on_a_spawn_failure_but_leaves_an_empty_log[absent-program|unexecutable-program] assert the log exists and is empty after a failed spawn. Measured: all six nodes pass at cce5dad and four fail here, so these are regressions, not older defects. A candidate repair that reused _open_result_sink/_close_result_sink for the log leaf made the two spawn-failure nodes green and broke the two task-2 sink nodes; it was reverted rather than shipped. No implementation satisfies both contracts without branching on a pathname, so the choice of contract and the retirement of the superseded tests belong to the completion review, which carries this as a recorded deferred item."
+    },
+    "real_host": "unavailable: no Claude Code, Codex or Kiro host execution of the packaged helpers was run; nothing is published or installed and no host profile is certified."
   }
 }
