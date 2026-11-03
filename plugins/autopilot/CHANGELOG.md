@@ -29,7 +29,7 @@
 
 ### Fixed
 
-- **autopilot**: `--verify` proves its log sink openable before it spawns the child, keeps an existing log and result artifact byte-identical when the spawn fails, and reports a sink open, write or close failure as its own controlled error with the child killed; `--export-policy --out` refuses a reader-less FIFO instead of hanging and refuses up front where `O_NOFOLLOW` is missing; the log sink judges containment before it reads a Git pointer.
+- **autopilot**: `--verify` proves both its log sink and its result-artifact sink openable before it spawns the child, keeps an existing log and result artifact byte-identical when the spawn fails, and reports a sink open, write or close failure as its own controlled error with the child killed; `--export-policy --out` refuses a reader-less FIFO instead of hanging and refuses up front where `O_NOFOLLOW` is missing; the log sink judges containment before it reads a Git pointer.
 - **autopilot**: review staging refuses a destination whose Git check cannot answer, refuses a reviewer whose grant omits the PRD instead of inlining an empty one, and fills the shared context file with granted input kinds only.
 - **autopilot**: cap recovery refuses hardlinked policy outputs, case aliases of verification inputs and worktree Git pointers, and external Git metadata staging roots; failed process starts preserve outputs and return a controlled report.
 - **autopilot**: staged context obeys every input-kind grant, tail sweeps accept selected finding subsets while preserving attribution checks, and attempt validation uses memory bounded by the submitted history.

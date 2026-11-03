@@ -270,15 +270,11 @@ def _artifact(argv, root, head_sha, log_rel, excluded, run) -> dict:
     }
 
 
-def _write_artifact(art: dict, artifact: Path, root: Path) -> dict | None:
-    """Writes `art` under the same contract as the log sink: each failing
-    sink operation becomes its own controlled error instead of a traceback,
-    and an already decided write failure is not overridden by a later close
-    failure. None on success."""
-    try:
-        sink = _open_log_sink(artifact, root)
-    except OSError as error:
-        return {"error": "sink-failed", "reason": str(error)}
+def _write_artifact(art: dict, sink) -> dict | None:
+    """Writes `art` into the already-open sink proven usable before the
+    spawn, and closes it. Each failing sink operation becomes its own
+    controlled error instead of a traceback, and an already decided write
+    failure is not overridden by a later close failure. None on success."""
     failure: dict | None = None
     try:
         sink.truncate(0)  # The opener preserves prior bytes; this record replaces them.
@@ -304,8 +300,9 @@ def run_verification(
     timeout: float = GATE_TIMEOUT_S,
 ) -> dict:
     """Runs `argv` once in `project_root` and writes its artifact. Invalid
-    argv/timeout raise ValueError; an unsafe output path, a dirty tree or a
-    moved HEAD is refused before spawning, with nothing written."""
+    argv/timeout raise ValueError; an unsafe output path, a dirty tree, a
+    moved HEAD or either sink failing to open is refused before spawning,
+    with nothing written."""
     if not _posix_supported():
         return {"schema_version": 1, "ok": False, "error": "unsupported-platform"}
     _validate_inputs(argv, timeout)
@@ -322,11 +319,32 @@ def run_verification(
     if _head_moved(root, head_sha):
         return {"schema_version": 1, "ok": False, "error": "head-moved"}
     log_rel = log.resolve().relative_to(root.resolve()).as_posix()
-    run = _execute(argv, root, log, time.monotonic() + timeout)
-    if "error" in run:
-        return {"schema_version": 1, "ok": False, **run}
-    art = _artifact(argv, root, head_sha, log_rel, excluded, run)
-    failure = _write_artifact(art, artifact, root)
+    existed = artifact.exists()
+    try:
+        # The artifact sink is proven openable before anything is spawned,
+        # and this validated descriptor carries the record later: the
+        # artifact is never re-opened by pathname after it was judged.
+        artifact_sink = _open_log_sink(artifact, root)
+    except OSError as error:
+        return {"schema_version": 1, "ok": False, "error": "sink-failed", "reason": str(error)}
+    art: dict | None = None
+    try:
+        run = _execute(argv, root, log, time.monotonic() + timeout)
+        if "error" in run:
+            return {"schema_version": 1, "ok": False, **run}
+        art = _artifact(argv, root, head_sha, log_rel, excluded, run)
+        failure = _write_artifact(art, artifact_sink)
+    finally:
+        if art is None:
+            # No record reached the writer that would have closed the sink,
+            # so close it here and drop a leaf this validation created: a
+            # run that writes nothing leaves no result artifact behind.
+            try:
+                artifact_sink.close()
+            except OSError:
+                pass
+            if not existed:
+                artifact.unlink(missing_ok=True)
     if failure is not None:
         return {"schema_version": 1, "ok": False, **failure}
     return {"schema_version": 1, "ok": True, "artifact": art, "controller_required": True}
