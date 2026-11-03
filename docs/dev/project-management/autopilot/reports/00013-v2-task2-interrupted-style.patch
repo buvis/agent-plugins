@@ -1,0 +1,97 @@
+diff --git a/plugins/autopilot/scripts/verification.py b/plugins/autopilot/scripts/verification.py
+index 35f397a..25474e6 100644
+--- a/plugins/autopilot/scripts/verification.py
++++ b/plugins/autopilot/scripts/verification.py
+@@ -290,40 +290,22 @@ def _write_artifact(art: dict, sink) -> dict | None:
+     return failure
+ 
+ 
+-def run_verification(
+-    *,
++def _run_and_record(
+     argv: list[str],
+-    project_root: Path,
++    root: Path,
++    artifact: Path,
++    log: Path,
++    log_rel: str,
+     head_sha: str,
+-    artifact_path: Path,
+-    log_path: Path,
+-    timeout: float = GATE_TIMEOUT_S,
++    excluded: list[str],
++    timeout: float,
+ ) -> dict:
+-    """Runs `argv` once in `project_root` and writes its artifact. Invalid
+-    argv/timeout raise ValueError; an unsafe output path, a dirty tree, a
+-    moved HEAD or either sink failing to open is refused before spawning,
+-    with nothing written."""
+-    if not _posix_supported():
+-        return {"schema_version": 1, "ok": False, "error": "unsupported-platform"}
+-    _validate_inputs(argv, timeout)
+-    root = project_root
+-    artifact = artifact_path if artifact_path.is_absolute() else root / artifact_path
+-    log = log_path if log_path.is_absolute() else root / log_path
+-    if _unsafe_paths(root, artifact, log, argv):
+-        return {"schema_version": 1, "ok": False, "error": "unsafe-artifact-path"}
+-    excluded = _untracked_log_exclusion(root, log) + _untracked_log_exclusion(
+-        root, artifact
+-    )
+-    if _dirty_check(root, excluded)[0]:
+-        return {"schema_version": 1, "ok": False, "error": "dirty-tree"}
+-    if _head_moved(root, head_sha):
+-        return {"schema_version": 1, "ok": False, "error": "head-moved"}
+-    log_rel = log.resolve().relative_to(root.resolve()).as_posix()
++    """Runs the gate against a result-artifact sink proven openable before
++    anything is spawned, and records the artifact through that same
++    validated descriptor: the artifact is never re-opened by pathname after
++    it was judged. The handle is closed on every exit path."""
+     existed = artifact.exists()
+     try:
+-        # The artifact sink is proven openable before anything is spawned,
+-        # and this validated descriptor carries the record later: the
+-        # artifact is never re-opened by pathname after it was judged.
+         artifact_sink = _open_log_sink(artifact, root)
+     except OSError as error:
+         return {"schema_version": 1, "ok": False, "error": "sink-failed", "reason": str(error)}
+@@ -350,6 +332,40 @@ def run_verification(
+     return {"schema_version": 1, "ok": True, "artifact": art, "controller_required": True}
+ 
+ 
++def run_verification(
++    *,
++    argv: list[str],
++    project_root: Path,
++    head_sha: str,
++    artifact_path: Path,
++    log_path: Path,
++    timeout: float = GATE_TIMEOUT_S,
++) -> dict:
++    """Runs `argv` once in `project_root` and writes its artifact. Invalid
++    argv/timeout raise ValueError; an unsafe output path, a dirty tree, a
++    moved HEAD or either sink failing to open is refused before spawning,
++    with nothing written."""
++    if not _posix_supported():
++        return {"schema_version": 1, "ok": False, "error": "unsupported-platform"}
++    _validate_inputs(argv, timeout)
++    root = project_root
++    artifact = artifact_path if artifact_path.is_absolute() else root / artifact_path
++    log = log_path if log_path.is_absolute() else root / log_path
++    if _unsafe_paths(root, artifact, log, argv):
++        return {"schema_version": 1, "ok": False, "error": "unsafe-artifact-path"}
++    excluded = _untracked_log_exclusion(root, log) + _untracked_log_exclusion(
++        root, artifact
++    )
++    if _dirty_check(root, excluded)[0]:
++        return {"schema_version": 1, "ok": False, "error": "dirty-tree"}
++    if _head_moved(root, head_sha):
++        return {"schema_version": 1, "ok": False, "error": "head-moved"}
++    log_rel = log.resolve().relative_to(root.resolve()).as_posix()
++    return _run_and_record(
++        argv, root, artifact, log, log_rel, head_sha, excluded, timeout
++    )
++
++
+ def _reusable_shape(prior: object, argv: list[str]) -> bool:
+     """Strict artifact shape and types of a green, clean run of exactly
+     `argv` (no normalization within arguments)."""
