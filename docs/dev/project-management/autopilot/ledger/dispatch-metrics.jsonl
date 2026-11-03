@@ -696,3 +696,8 @@
 {"id":"563049c8","ended_at":1793673978,"elapsed_s":117,"outcome":"ok","detail":null}
 {"id":"125944e3","ended_at":1793673981,"elapsed_s":91,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"build","edge":"leave","at":1793674185,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793739103,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
+{"id":"0c0dc6bd","kind":"ivan","task":"3","queued_at":1793739330,"prompt_bytes":10304}
+{"id":"61b8ece7","kind":"ivan","task":"3","queued_at":1793739363,"prompt_bytes":10836}
+{"id":"0c0dc6bd","ended_at":1793739369,"elapsed_s":39,"outcome":"error","detail":"prompt superseded before dispatch (read-scope fix)"}
+{"id":"61b8ece7","ended_at":1793739694,"elapsed_s":331,"outcome":"ok","detail":null}

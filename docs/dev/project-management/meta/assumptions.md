@@ -68,3 +68,16 @@ Orchestrator:
 
 - Pat's two mandated review inputs were supplied as two sequential messages in the same resumed conversation rather than one combined render: measured, the combination is 50528 bytes of diff alone against a 50000-byte cap, and excluding a file is forbidden by the same instruction. Rationale and measurements in `autopilot/reports/00013-v2-task2-pat-scope-completion.md`.
 - The attempt record's `self_deslop` is stamped `committed:c5ab4ea` because de-slop did run and commit there; its unsupported pipe-close removal was reverted at `43789d8` and the pass was not repeated, per the recovery report.
+
+## 3: Replace implementation-shaped allocation evidence with a behavioral bound
+
+Implementor (Ivan), test-only rewrite:
+
+- The measuring child locates fixtures via `Path(__file__).resolve().parent` (the tests directory) and `SCRIPTS` imported from `test_review_evidence_helpers`, because the task named no path constant to reuse.
+- The child runs without `-I`/`-E` on purpose, so an inherited `PYTHONTRACEMALLOC` really does pre-enable tracing and exercise the stop/start requirement.
+- `report.get("defects", [])` is used in the child because `defects` exists only on a not-ok report.
+- The sensitivity test's ceiling comparison is `>= 1_000_000`, the exact complement of the normal test's strict `<`.
+
+Orchestrator:
+
+- The two failing `test_spawn_failure_is_controlled_and_preserves_outputs[*-False]` nodes in the same file are pre-existing at HEAD `bc1627a` (proven by a stash control run, 2 failed / 2 passed on the pristine file), so task 3's gate is judged on its own two tests. The residue they report (an empty `docs/dev/tmp/run.log` left behind when the spawn fails) is a production defect in the verify path, recorded for the step-7 regression loop and the completion review, not fixed by this test-only task.
