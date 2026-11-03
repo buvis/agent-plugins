@@ -493,7 +493,7 @@ SLOW_CHILD = (
 
 
 class FailingSink:
-    """The real sink handle, with a chosen write or the close raising OSError."""
+    """The real sink handle; a chosen write or the close raises one indistinguishable OSError."""
 
     def __init__(self, handle: Any, fail_write_after: int | None, fail_close: bool) -> None:
         self._handle = handle
@@ -514,13 +514,13 @@ class FailingSink:
     def write(self, data: Any) -> Any:
         self._writes += 1
         if self._fail_write_after is not None and self._writes > self._fail_write_after:
-            raise OSError(errno.EIO, "the test broke this sink write")
+            raise OSError(errno.ENOSPC, "No space left on device")
         return self._handle.write(data)
 
     def close(self) -> None:
         self._handle.close()
         if self._fail_close:
-            raise OSError(errno.EIO, "the test broke this sink close")
+            raise OSError(errno.ENOSPC, "No space left on device")
 
 
 def break_sink(monkeypatch: pytest.MonkeyPatch, *, fail_write_after: int | None = None,
@@ -606,8 +606,8 @@ def test_verification_refuses_an_unopenable_log_sink_before_it_spawns_the_child(
     accepted = run_gate(world, argv, log=world.target / "logs" / f"run-{case}.log")
     assert accepted["ok"] is True, accepted
     assert Path(marker.read_text("utf-8")).resolve() == world.target.resolve()
-    assert (world.target / "logs" / f"run-{case}.log").is_file()
-    assert (world.target / ARTIFACT).is_file()
+    assert (world.target / "logs" / f"run-{case}.log").read_bytes().count(b"EXIT 0") == 1
+    assert json.loads((world.target / ARTIFACT).read_bytes())["argv"] == argv, accepted
 
 
 def test_verification_refuses_an_aliased_log_leaf_before_the_spawn_under_the_legacy_slug(
@@ -780,7 +780,7 @@ def test_export_policy_writes_a_plain_file_and_refuses_a_hard_linked_one(world: 
     printed = export(world)
     assert printed.returncode == 0, printed.stderr
     fresh, stale = world.base / "policy one.json", world.base / "policy two.json"
-    stale.write_text("stale\n", encoding="utf-8")
+    stale.write_bytes(b"stale bytes that outlast the policy body\n" * 4096)
     for out in (fresh, stale):
         accepted = export(world, "--out", out)
         assert accepted.returncode == 0, accepted.stderr
