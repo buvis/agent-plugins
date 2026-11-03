@@ -40,3 +40,31 @@ Implementor (Ivan), style-limit fix:
 
 - The style checker counts a function's length from its `def` line through its last body line (the reported 53 matched lines 591-643 of the pre-change file), so the 47-line result clears the limit.
 - The choice of which cohesive block to extract was the implementor's: root resolution is the only self-contained, pure, refusal-free block in `stage_review`.
+
+## 2: Repair containment-before-read, pre-spawn sink validation, controlled sink failure and policy-output platform/nonblocking behavior
+
+Only the bounded cleanup-containment round is recorded here; the earlier Tess,
+Devon, Ivan and de-slop rounds of this task recorded theirs in the reports under
+`autopilot/reports/00013-v2-task2-*`.
+
+Test author (Tess), bounded regression round:
+
+- The cleanup path is reached only via a run-log sink write failure, proven empirically: arming a result-artifact write failure reports `sink-write-failed` but the created leaf survives, because a record did reach the writer. The brief's "result-artifact sink" wording is therefore treated as naming the failure slug, not the handle that must raise.
+- Children print a chatty summary line in a loop and sleep, so the second log write (the one that raises) lands after the mutation; the gate kills them and `reap` covers every exit path.
+- Each case's artifact lives in its own fresh subdirectory under `docs/dev/tmp/` with the parent pre-created by the test, so the parent can be renamed; the leaf never exists before the run.
+- "Outside the repository" for the control sentinel means a sibling of the project root inside the pytest temp tree.
+- The verification argv may not name the artifact path (doing so is refused pre-spawn as `unsafe-artifact-path` and the child never runs), so fixture paths reach the child out of band through a plan file.
+- Devon's full weak-point matrix was not re-applied beyond the four cases: the bounded scope governs, with distinct sentinel bytes, a one-byte near miss, an accept/reject pair, an escaping-error case and a cwd plumbing assertion.
+
+Implementor (Ivan), bounded cleanup fix:
+
+- The per-function limit is 50 lines and the gate to trust is the installed `autopilot/0.10.0` copy, since the repository contains no `check_style_limits.py`.
+- `_open_log_sink` must keep returning a bare file object, because the spec's own `break_artifact_sink` wraps its return value; cleanup data is handed back by a separate helper rather than by widening that return.
+- An artifact leaf that already existed before the run is owned by nobody, so cleanup removes nothing (preserves the committed prior-bytes behaviour).
+- When the pin cannot be taken at all, cleanup removes nothing rather than falling back to a pathname unlink.
+- Inode numbers are not recycled within a single run, so `(st_dev, st_ino)` is a sound ownership test on the hosts in scope.
+
+Orchestrator:
+
+- Pat's two mandated review inputs were supplied as two sequential messages in the same resumed conversation rather than one combined render: measured, the combination is 50528 bytes of diff alone against a 50000-byte cap, and excluding a file is forbidden by the same instruction. Rationale and measurements in `autopilot/reports/00013-v2-task2-pat-scope-completion.md`.
+- The attempt record's `self_deslop` is stamped `committed:c5ab4ea` because de-slop did run and commit there; its unsupported pipe-close removal was reverted at `43789d8` and the pass was not repeated, per the recovery report.

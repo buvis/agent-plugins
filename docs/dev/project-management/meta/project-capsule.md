@@ -43,7 +43,7 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 ### Batch 202610250001
 - [x] 00012-autopilot-package-contract-v1.md (2 cycles; 47/47 tasks)
-- [ ] 00013-autopilot-session-helpers-v2.md (wip: v1 held as exhausted cap-regression history; v2 corrective T1-T4; reviewed design doc committed 18ca409; 1/4 tasks done - task 1 accepted (Pat: 5 LOW), tasks 2-4 pending; task 2 past Devon/Tess/Ivan/partial-Pat, now at the bounded verification correction + sole MEDIUM fix + Pat scope completion per `reports/00013-v2-task2-review-scope-recovery.md`)
+- [ ] 00013-autopilot-session-helpers-v2.md (wip: v1 held as exhausted cap-regression history; v2 corrective T1-T4; reviewed design doc committed 18ca409; 1/4 tasks done - task 1 accepted (Pat: 5 LOW), tasks 2-4 pending; task 2 past Devon/Tess/Ivan/partial-Pat and past the process-list test correction + artifact preflight (2e3dba5, 71fb60d), now at the bounded cleanup-containment correction + Pat scope completion per `reports/00013-v2-task2-cleanup-recovery.md`)
 - [ ] 00014-autopilot-host-execution-v1.md
 - [ ] 00015-autopilot-workflow-parity-v1.md
 - [ ] 00016-autopilot-controller-integration-v1.md
@@ -75,6 +75,16 @@ GitHub unchanged: 1 open issue (#12 Renovate dashboard), 3 routine renovate PRs 
 
 Related context: repo index refreshed clean; repo query on the unchanged topic `autopilot session helpers v2 host-neutral session helpers` returned the same five v1 review-history hits (`reviews/00013-autopilot-session-helpers-v1-review-0{2,1,3}.md` at 0.0164/0.0161/0.0159, `docs/dev/tmp/00013-review-01-by-agent-plugins-6d.md` at 0.0156, review-01:24 at 0.0154) - keep all of it away from Blake's blind lens. Portfolio query not re-run (identical topic); fresh portfolio stamp (exit 1, unchanged shape): memory stale=5/dead=0, transcripts stale=6/dead=1578, prd dead=105, code stale=34/dead=1232, 6109 code rows skipped. Review harvest not re-run this refresh (last run 00:45Z upserted 23 frontmatted files; 25 pre-00002/scratch files stay `parse_failed`). Native task restore: `no_tasks_dir`; the authoritative autopilot task list is intact at 1/4.
 
+## 2026-11-03T02:2xZ AP00013 v2 task-2 cleanup-containment build catchup
+
+Full catchup again (cache 42m old, inside the 4h window, but four commits past `catchup_head_sha` `f8e810a` carry committer `Agent ran by Tomáš Bouška`, so the delta condition failed). New content commits since the 01:40Z entry: `2e3dba5` (observe owned children by handle, pin artifact pre-spawn validation), `71fb60d` (prove the result-artifact sink openable before the spawn), `7c031f7` (preserved interrupted style correction), `42a9172` (the cleanup-containment recovery report); `eb6494a` and `6c9b230` are state commits. No project fact changed.
+
+Standing position for task 2 (authoritative: `autopilot/reports/00013-v2-task2-cleanup-recovery.md`): the process-list test correction and the artifact preflight are committed and the complete six-file Verify passed 151 tests twice; neither is redone. The open defect is the new preflight cleanup, which follows a re-resolved parent pathname (deleting an outside sentinel) and lets its unlink `OSError` mask the original controlled failure. Remaining work: bounded regression coverage from an isolated Opus Tess (parent-symlink swap, leaf-directory replacement, same-parent replacement-file preservation, no-swap control) in the existing sibling recovery test file, then an isolated Opus Ivan fix in `verification.py`/the sink helpers, then the mandatory Pat follow-up that completes its omitted scope by resuming session `29c0b516-5d37-4c52-939e-289e4bf0523c` with `-R`. No Devon rerun, no repeated de-slop, no replan, no v3.
+
+GitHub unchanged: 1 open issue (#12 Renovate dashboard), 3 routine renovate PRs (#13 setup-python v7.1.0, #14 python 3.15, #15 pytest v9), no releases, remote branch `docs/ap00015-verification-counts` still present. **Master Validate stays RED** (latest run 41516085734: 20 failed, 898 passed, 1 skipped) - the known AP00018 controller suite plus the `test_helper_provenance_real.py` README pin. Both pre-existing and separately tracked; the provenance node belongs to task 4. No push until all 19 controller tests and required checks pass.
+
+Related context: repo index refreshed clean; repo query on topic `autopilot session helpers v2` returned the PRD itself (0.0307), its Risks section (0.0161) and the three v1 review-history files (`reviews/00013-autopilot-session-helpers-v1-review-0{1,2}.md` 0.0164/0.0161, `docs/dev/tmp/00013-review-01-by-agent-plugins-6d.md` 0.0159) - keep all v1 review history away from Blake's blind lens. Portfolio query returned the same four plus one cellar transcript; portfolio stamp (exit 1, unchanged shape): memory stale=5/dead=0, transcripts stale=6/dead=1618, prd dead=105, code stale=34/dead=1232, 6101 code rows skipped. Review harvest re-run: 23 frontmatted review files upserted, 25 pre-00002/scratch files still `parse_failed`. Native task restore: `no_tasks_dir`; the authoritative autopilot task list is intact at 1/4.
+
 ## Related context
 
 - `meta/decisions.md:291` — 0.016, discovery-additions doubt review (drift baseline, spec-dependency contract, both built in 00004).
@@ -87,7 +97,7 @@ Related context: repo index refreshed clean; repo query on the unchanged topic `
 
 ## GitHub State
 
-- Refreshed 2026-11-03T00:45Z. 1 open issue (#12 Renovate dashboard). 3 open Renovate PRs: #13 setup-python v7.1.0, #14 python 3.15, #15 pytest v9. No releases. Remote branches: master, three renovate branches, `docs/ap00015-verification-counts`.
+- Refreshed 2026-11-03T02:2xZ. 1 open issue (#12 Renovate dashboard). 3 open Renovate PRs: #13 setup-python v7.1.0, #14 python 3.15, #15 pytest v9. No releases. Remote branches: master, three renovate branches, `docs/ap00015-verification-counts`.
 - `Validate` is red on master (runs 41516085734, 41511458941): 20 failures - 19 `tests/autopilot/test_controller_*` (AP00018 kernel, known/expected) plus `test_helper_provenance_real.py` README pin, which was already fixed locally after that run.
 
 ## Project Health
