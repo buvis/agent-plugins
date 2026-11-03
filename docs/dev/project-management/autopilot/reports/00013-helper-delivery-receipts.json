@@ -1,17 +1,25 @@
 {
   "schema_version": 1,
   "prd": "00013",
-  "package_revision": "cce5dadcfe5c951e541ef8e395ffd930b1d56b0e",
+  "package_revision": "3c7e2183a194c86d10390a3f2eda5524516ba50a",
   "tasks": [
     {
-      "task": "cap-recovery",
-      "module": "helper boundaries and attribution",
-      "tests": "tests/autopilot/test_cap_recovery_helpers.py, tests/autopilot/test_cycle1_boundaries_verify.py, tests/autopilot/test_cycle1_boundaries_stage.py, tests/autopilot/test_cycle1_boundaries_context.py, tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py, tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py, tests/autopilot/test_cycle1_hardening_sinks.py, tests/autopilot/test_verification.py, tests/autopilot/test_review_evidence_helpers.py, tests/autopilot/test_verification_reuse.py, tests/autopilot/test_local_paths.py, tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py",
-      "passed": 494,
-      "failed": 0,
+      "task": "v2-corrective-T1-T4",
+      "module": "AP00013 v2 helper recovery (cap recovery, sink and artifact containment, attempt validation bounds, plan grant and refusal records)",
+      "tests": "tests/autopilot/test_cap_recovery_helpers.py, tests/autopilot/test_cycle1_boundaries_verify.py, tests/autopilot/test_cycle1_boundaries_stage.py, tests/autopilot/test_cycle1_boundaries_context.py, tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py, tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py, tests/autopilot/test_cycle1_hardening_sinks.py, tests/autopilot/test_verification.py, tests/autopilot/test_review_evidence_helpers.py, tests/autopilot/test_verification_reuse.py, tests/autopilot/test_local_paths.py, tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py, tests/autopilot/test_helper_recovery_v2.py, tests/autopilot/test_helper_recovery_v2_sinks.py",
+      "passed": 544,
+      "failed": 4,
       "skipped": 0,
-      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cycle1_boundaries_stage.py tests/autopilot/test_cycle1_boundaries_context.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_verification.py tests/autopilot/test_review_evidence_helpers.py tests/autopilot/test_verification_reuse.py tests/autopilot/test_local_paths.py tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py -q",
-      "duration_seconds": 142.09
+      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cycle1_boundaries_stage.py tests/autopilot/test_cycle1_boundaries_context.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_verification.py tests/autopilot/test_review_evidence_helpers.py tests/autopilot/test_verification_reuse.py tests/autopilot/test_local_paths.py tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py tests/autopilot/test_helper_recovery_v2.py tests/autopilot/test_helper_recovery_v2_sinks.py -q",
+      "exit_code": 1,
+      "duration_seconds": 188.29,
+      "failing_nodes": [
+        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]",
+        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[not-executable-False]",
+        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file",
+        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf"
+      ],
+      "failing_nodes_ownership": "All four failures live in the verify-path log-sink pre-open behaviour of plugins/autopilot/scripts/log_sink_refusal.py and are owned by AP00013 v2 task 2, not by task 3 or task 4 and not by the AP00018 controller suite. Measured in this session: at the previous receipt pin cce5dadcfe5c951e541ef8e395ffd930b1d56b0e all four nodes PASS (2 passed for SafeSinkOpenerTest, 4 passed for the spawn-failure parametrisation), while at task-2 commit 4a93821 all four already FAIL with the same assertions. The test bytes of tests/autopilot/test_local_paths.py are unchanged since 77bb783, which predates cce5dad, so the test side did not move. The two spawn-failure nodes report one extra entry, an empty docs/dev/tmp/run.log left behind when the spawn fails; the two SafeSinkOpenerTest nodes fail because the sink is no longer truncated on reopen (b'newvious contents\\n' != b'new') and because an existing symlinked leaf now raises OSError errno 62 instead of being replaced. This corrects the earlier reading that the spawn residue was pre-existing: the orchestrator's control run used the parent of the task-3 edit, which already contained task 2. None of the four is fixed by this receipt; the product bytes at 3c7e2183a194c86d10390a3f2eda5524516ba50a are unchanged."
     }
   ],
   "validation": {
@@ -21,11 +29,11 @@
     "skills": 15
   },
   "implementation": {
-    "backend": "Codex subagent",
-    "model": "not exposed",
-    "branch": "repair/ap00013-cap-regression"
+    "backend": "Claude Code subagent (autopilot:worker-opus)",
+    "model": "opus",
+    "branch": "master"
   },
-  "scope": "Bounded branch repair of cycle-2 R1, R2, R4-R8, R13 and R15. No controller tests or workflow state changed. This receipt does not claim the full suite is green or completion review passed.",
+  "scope": "Evidence for the AP00013 v2 corrective tasks T1-T4 measured against packaged revision 3c7e2183a194c86d10390a3f2eda5524516ba50a, which carries the final plugins/autopilot README.md and CHANGELOG.md. It does not claim the full tests/autopilot suite is green (four nodes in this run and the separately owned AP00018 controller suite remain red), does not claim the completion review passed, and does not claim any real-host certification.",
   "real_host": {
     "status": "unavailable",
     "reason": "No Claude Code, Codex or Kiro host execution of the packaged helpers was run for AP00013. Delivery is local test evidence only; no host profile is certified and nothing is published or installed."
@@ -33,89 +41,122 @@
   "historical_receipt": {
     "schema_version": 1,
     "prd": "00013",
-    "package_revision": "527d880c77b2fbe93c58398d236f55305fc8f736",
+    "package_revision": "cce5dadcfe5c951e541ef8e395ffd930b1d56b0e",
     "tasks": [
       {
-        "task": 1,
-        "module": "helper characterization",
-        "tests": "tools/autopilot/check-source.py",
-        "passed": 1,
-        "command": "python3 tools/autopilot/check-source.py --source-root ../claude-autopilot"
-      },
-      {
-        "task": 2,
-        "module": "findings, gate_lead, rework_groups",
-        "tests": "tests/autopilot/test_finding_groups.py",
-        "passed": 19,
-        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_finding_groups.py"
-      },
-      {
-        "task": 3,
-        "module": "review_evidence, evidence_shapes",
-        "tests": "tests/autopilot/test_review_evidence_helpers.py",
-        "passed": 27,
-        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_review_evidence_helpers.py"
-      },
-      {
-        "task": 4,
-        "module": "dirty_tree, log_sink_refusal",
-        "tests": "tests/autopilot/test_local_paths.py",
-        "passed": 27,
-        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_local_paths.py"
-      },
-      {
-        "task": 5,
-        "module": "review_stage",
-        "tests": "tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py",
-        "passed": 79,
-        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py"
-      },
-      {
-        "task": 6,
-        "module": "review_close",
-        "tests": "tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py",
-        "passed": 94,
-        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py"
-      },
-      {
-        "task": 7,
-        "module": "cap_check, custody",
-        "tests": "tests/autopilot/test_cap_custody_helpers.py, tests/autopilot/test_cap_custody_helpers_custody.py",
-        "passed": 89,
-        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_cap_custody_helpers.py tests/autopilot/test_cap_custody_helpers_custody.py"
-      },
-      {
-        "task": 8,
-        "module": "catchup",
-        "tests": "tests/autopilot/test_catchup.py",
-        "passed": 57,
-        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_catchup.py"
-      },
-      {
-        "task": 9,
-        "module": "verification",
-        "tests": "tests/autopilot/test_verification.py, tests/autopilot/test_verification_reuse.py",
-        "passed": 116,
-        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_verification.py tests/autopilot/test_verification_reuse.py"
-      },
-      {
-        "task": 10,
-        "module": "autopilot facade",
-        "tests": "tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py",
-        "passed": 63,
-        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py"
-      },
-      {
-        "task": 11,
-        "module": "update_helper_map, README, CHANGELOG",
-        "tests": "tests/autopilot/test_helper_provenance.py, tests/autopilot/test_helper_provenance_cli.py, tests/autopilot/test_helper_provenance_real.py",
-        "passed": 44,
-        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_helper_provenance.py tests/autopilot/test_helper_provenance_cli.py tests/autopilot/test_helper_provenance_real.py"
+        "task": "cap-recovery",
+        "module": "helper boundaries and attribution",
+        "tests": "tests/autopilot/test_cap_recovery_helpers.py, tests/autopilot/test_cycle1_boundaries_verify.py, tests/autopilot/test_cycle1_boundaries_stage.py, tests/autopilot/test_cycle1_boundaries_context.py, tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py, tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py, tests/autopilot/test_cycle1_hardening_sinks.py, tests/autopilot/test_verification.py, tests/autopilot/test_review_evidence_helpers.py, tests/autopilot/test_verification_reuse.py, tests/autopilot/test_local_paths.py, tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py",
+        "passed": 494,
+        "failed": 0,
+        "skipped": 0,
+        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cycle1_boundaries_stage.py tests/autopilot/test_cycle1_boundaries_context.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_verification.py tests/autopilot/test_review_evidence_helpers.py tests/autopilot/test_verification_reuse.py tests/autopilot/test_local_paths.py tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py -q",
+        "duration_seconds": 142.09
       }
     ],
+    "validation": {
+      "command": "python3 scripts/validate.py",
+      "exit_code": 0,
+      "packages": 3,
+      "skills": 15
+    },
+    "implementation": {
+      "backend": "Codex subagent",
+      "model": "not exposed",
+      "branch": "repair/ap00013-cap-regression"
+    },
+    "scope": "Bounded branch repair of cycle-2 R1, R2, R4-R8, R13 and R15. No controller tests or workflow state changed. This receipt does not claim the full suite is green or completion review passed.",
     "real_host": {
       "status": "unavailable",
       "reason": "No Claude Code, Codex or Kiro host execution of the packaged helpers was run for AP00013. Delivery is local test evidence only; no host profile is certified and nothing is published or installed."
+    },
+    "historical_receipt": {
+      "schema_version": 1,
+      "prd": "00013",
+      "package_revision": "527d880c77b2fbe93c58398d236f55305fc8f736",
+      "tasks": [
+        {
+          "task": 1,
+          "module": "helper characterization",
+          "tests": "tools/autopilot/check-source.py",
+          "passed": 1,
+          "command": "python3 tools/autopilot/check-source.py --source-root ../claude-autopilot"
+        },
+        {
+          "task": 2,
+          "module": "findings, gate_lead, rework_groups",
+          "tests": "tests/autopilot/test_finding_groups.py",
+          "passed": 19,
+          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_finding_groups.py"
+        },
+        {
+          "task": 3,
+          "module": "review_evidence, evidence_shapes",
+          "tests": "tests/autopilot/test_review_evidence_helpers.py",
+          "passed": 27,
+          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_review_evidence_helpers.py"
+        },
+        {
+          "task": 4,
+          "module": "dirty_tree, log_sink_refusal",
+          "tests": "tests/autopilot/test_local_paths.py",
+          "passed": 27,
+          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_local_paths.py"
+        },
+        {
+          "task": 5,
+          "module": "review_stage",
+          "tests": "tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py",
+          "passed": 79,
+          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py"
+        },
+        {
+          "task": 6,
+          "module": "review_close",
+          "tests": "tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py",
+          "passed": 94,
+          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py"
+        },
+        {
+          "task": 7,
+          "module": "cap_check, custody",
+          "tests": "tests/autopilot/test_cap_custody_helpers.py, tests/autopilot/test_cap_custody_helpers_custody.py",
+          "passed": 89,
+          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_cap_custody_helpers.py tests/autopilot/test_cap_custody_helpers_custody.py"
+        },
+        {
+          "task": 8,
+          "module": "catchup",
+          "tests": "tests/autopilot/test_catchup.py",
+          "passed": 57,
+          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_catchup.py"
+        },
+        {
+          "task": 9,
+          "module": "verification",
+          "tests": "tests/autopilot/test_verification.py, tests/autopilot/test_verification_reuse.py",
+          "passed": 116,
+          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_verification.py tests/autopilot/test_verification_reuse.py"
+        },
+        {
+          "task": 10,
+          "module": "autopilot facade",
+          "tests": "tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py",
+          "passed": 63,
+          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py"
+        },
+        {
+          "task": 11,
+          "module": "update_helper_map, README, CHANGELOG",
+          "tests": "tests/autopilot/test_helper_provenance.py, tests/autopilot/test_helper_provenance_cli.py, tests/autopilot/test_helper_provenance_real.py",
+          "passed": 44,
+          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_helper_provenance.py tests/autopilot/test_helper_provenance_cli.py tests/autopilot/test_helper_provenance_real.py"
+        }
+      ],
+      "real_host": {
+        "status": "unavailable",
+        "reason": "No Claude Code, Codex or Kiro host execution of the packaged helpers was run for AP00013. Delivery is local test evidence only; no host profile is certified and nothing is published or installed."
+      }
     }
   }
 }
