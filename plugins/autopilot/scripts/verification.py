@@ -270,6 +270,30 @@ def _artifact(argv, root, head_sha, log_rel, excluded, run) -> dict:
     }
 
 
+def _write_artifact(art: dict, artifact: Path, root: Path) -> dict | None:
+    """Writes `art` under the same contract as the log sink: each failing
+    sink operation becomes its own controlled error instead of a traceback,
+    and an already decided write failure is not overridden by a later close
+    failure. None on success."""
+    try:
+        sink = _open_log_sink(artifact, root)
+    except OSError as error:
+        return {"error": "sink-failed", "reason": str(error)}
+    failure: dict | None = None
+    try:
+        sink.truncate(0)  # The opener preserves prior bytes; this record replaces them.
+        _write_all(sink, json.dumps(art, indent=2).encode() + b"\n")
+    except OSError as error:
+        failure = {"error": "sink-write-failed", "reason": str(error)}
+    finally:
+        try:
+            sink.close()
+        except OSError as error:
+            if failure is None:
+                failure = {"error": "sink-close-failed", "reason": str(error)}
+    return failure
+
+
 def run_verification(
     *,
     argv: list[str],
@@ -302,9 +326,9 @@ def run_verification(
     if "error" in run:
         return {"schema_version": 1, "ok": False, **run}
     art = _artifact(argv, root, head_sha, log_rel, excluded, run)
-    with _open_log_sink(artifact, root) as sink:
-        sink.truncate(0)  # The opener preserves prior bytes; this record replaces them.
-        _write_all(sink, json.dumps(art, indent=2).encode() + b"\n")
+    failure = _write_artifact(art, artifact, root)
+    if failure is not None:
+        return {"schema_version": 1, "ok": False, **failure}
     return {"schema_version": 1, "ok": True, "artifact": art, "controller_required": True}
 
 
