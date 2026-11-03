@@ -6,10 +6,11 @@ import hashlib
 import json
 import os
 from pathlib import Path
+from typing import Any
 
 import pytest
-from test_helper_recovery_v2 import ARTIFACT, GITDIR, MARKER_CHILD, child_argv, commit_repo
-from test_helper_recovery_v2 import failure_shape, run_gate
+from test_helper_recovery_v2 import ARTIFACT, GITDIR, MARKER_CHILD, FailingSink, child_argv
+from test_helper_recovery_v2 import commit_repo, failure_shape, reap, run_gate, spy_on_spawn
 from test_local_boundary import World, git, library, make_world
 
 PRIOR_MARKER = b"PRIOR-LOG-MARKER-7f31"
@@ -91,6 +92,28 @@ def test_a_failed_spawn_writes_no_result_artifact_when_none_existed(
     assert not artifact.exists(), "the failed spawn invented a result artifact"
     assert not (world.target / ARTIFACT).exists(), "the gate ignored the given artifact path"
     assert log.read_bytes() == PRIOR_LOG
+
+
+@pytest.mark.parametrize("kind", ["absent-program", "unexecutable-program"])
+def test_verification_preserves_its_outputs_on_a_spawn_failure_but_leaves_an_empty_log(
+    world: World, tmp_path: Path, isolated_git: None, kind: str,
+) -> None:
+    program = tmp_path / kind
+    if kind == "unexecutable-program":
+        program.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+        program.chmod(0o644)
+    log = world.target / "logs" / f"{kind}.log"
+    report = run_gate(world, [str(program), "--version"], log=log)
+    failure_shape(report, "spawn-failed")
+    assert not (world.target / ARTIFACT).exists()
+    assert log.is_file() and log.read_bytes() == b""
+    with pytest.raises(ValueError):
+        run_gate(world, [], log=world.target / "logs" / f"{kind}-empty.log")
+    marker = tmp_path / f"{kind}-marker.txt"
+    accepted = run_gate(world, child_argv(tmp_path, kind, MARKER_CHILD, marker), log=log)
+    assert accepted["ok"] is True, accepted
+    assert b"PASS 2 FAIL 0 SKIP 1 EXIT 0" in log.read_bytes()
+    assert (world.target / ARTIFACT).is_file()
 
 
 def test_an_unopenable_sink_is_reported_instead_of_an_unspawnable_command(
@@ -220,3 +243,111 @@ def test_the_policy_still_prints_to_stdout_when_o_nofollow_support_is_missing(
     captured = capfd.readouterr()
     assert (code, captured.err) == (0, ""), captured
     assert json.loads(captured.out)["schema_version"] == 1, captured.out
+
+
+# --- the result artifact is the second sink, proven usable before the spawn --------------------
+
+
+def break_artifact_sink(monkeypatch: pytest.MonkeyPatch, artifact: Path, *,
+                        fail_write_after: int | None = None,
+                        fail_close: bool = False) -> list[Path]:
+    """Breaks the result-artifact sink only; the returned list records every opened sink."""
+    verification, sink = library("verification"), library("log_sink_refusal")
+    real = sink._open_log_sink
+    calls: list[Path] = []
+
+    def opener(log_path: Any, repo_root: Any, *args: Any, **kwargs: Any) -> Any:
+        calls.append(Path(log_path))
+        handle = real(log_path, repo_root, *args, **kwargs)
+        if Path(log_path).resolve() != artifact.resolve():
+            return handle
+        return FailingSink(handle, fail_write_after, fail_close)
+
+    for module in (verification, sink):
+        monkeypatch.setattr(module, "_open_log_sink", opener)
+    return calls
+
+
+@pytest.mark.parametrize("tail", [("app.py", "verify.json"), ("app.py", "deep", "verify.json")],
+                         ids=["parent-is-a-file", "grandparent-is-a-file"])
+def test_an_unreachable_result_artifact_parent_is_refused_before_the_child_is_spawned(
+    world: World, tmp_path: Path, isolated_git: None, tail: tuple[str, ...],
+) -> None:
+    """The descent to the artifact is proven traversable before anything is spawned."""
+    case = "-".join(tail)
+    marker = tmp_path / f"artifact-marker-{case}.txt"
+    argv = child_argv(tmp_path, f"artifact-child-{case}", MARKER_CHILD, marker)
+    log = world.target / "logs" / f"artifact-{case}.log"
+    report = run_gate(world, argv, log=log, artifact=world.target.joinpath("src", *tail),
+                      timeout=60)
+    failure_shape(report, "sink-failed")
+    assert not marker.exists(), "the child ran before the artifact sink was proven openable"
+    assert (world.target / "src" / "app.py").read_bytes() == APP_BODY
+    sound = world.target / "docs" / "dev" / "tmp" / f"verify-{case}.json"
+    accepted = run_gate(world, argv, log=log, artifact=sound, timeout=60)
+    assert accepted["ok"] is True, accepted
+    assert Path(marker.read_text("utf-8")).resolve() == world.target.resolve()
+    assert json.loads(sound.read_bytes())["argv"] == argv, accepted
+
+
+@pytest.mark.skipif(os.geteuid() == 0, reason="root opens a file whose mode forbids writing")
+def test_an_unopenable_existing_artifact_is_refused_before_the_spawn_and_keeps_its_bytes(
+    world: World, tmp_path: Path, isolated_git: None,
+) -> None:
+    """The artifact's openability proof comes before the spawn, exactly as the log's does."""
+    log = seed(world.target / "logs" / "sealed-artifact.log", PRIOR_LOG)
+    artifact = seed(world.target / ARTIFACT, PRIOR_ARTIFACT)
+    artifact.chmod(0o000)
+    marker = tmp_path / "sealed-artifact-marker.txt"
+    argv = child_argv(tmp_path, "sealed-artifact-child", MARKER_CHILD, marker)
+    try:
+        report = run_gate(world, argv, log=log, artifact=artifact, timeout=60)
+    finally:
+        artifact.chmod(0o644)
+    failure_shape(report, "sink-failed")
+    assert not marker.exists(), "the child ran before the artifact sink was proven openable"
+    assert artifact.read_bytes() == PRIOR_ARTIFACT, "the refused run rewrote the artifact"
+    assert log.read_bytes() == PRIOR_LOG, "the refused run rewrote an existing log"
+
+
+def test_a_result_artifact_write_failure_is_a_controlled_error_with_the_child_reaped(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A write that fails after the run is a reported error, not a traceback or a success."""
+    artifact = world.target / "docs" / "dev" / "tmp" / "verify-late-write.json"
+    log = world.target / "logs" / "late-write.log"
+    marker = tmp_path / "late-write-marker.txt"
+    argv = child_argv(tmp_path, "late-write-child", MARKER_CHILD, marker)
+    calls = break_artifact_sink(monkeypatch, artifact, fail_write_after=0)
+    children = spy_on_spawn(monkeypatch, argv)
+    try:
+        report = run_gate(world, argv, log=log, artifact=artifact, timeout=60)
+        assert artifact.resolve() in [path.resolve() for path in calls], calls
+        failure_shape(report, "sink-write-failed")
+        assert "artifact" not in report, "a failed artifact write returned a reusable record"
+        assert len(children) == 1, children
+        assert children[0].returncode == 0, children[0].returncode
+        assert CHILD_OUTPUT in log.read_bytes(), "the log lost the run it recorded"
+    finally:
+        reap(children)
+
+
+def test_a_result_artifact_close_failure_is_a_controlled_error_without_a_reusable_success(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A close that fails leaves no trusted record, so the run cannot be reported green."""
+    artifact = world.target / "docs" / "dev" / "tmp" / "verify-late-close.json"
+    log = world.target / "logs" / "late-close.log"
+    marker = tmp_path / "late-close-marker.txt"
+    argv = child_argv(tmp_path, "late-close-child", MARKER_CHILD, marker)
+    calls = break_artifact_sink(monkeypatch, artifact, fail_close=True)
+    children = spy_on_spawn(monkeypatch, argv)
+    try:
+        report = run_gate(world, argv, log=log, artifact=artifact, timeout=60)
+        assert artifact.resolve() in [path.resolve() for path in calls], calls
+        failure_shape(report, "sink-close-failed")
+        assert "artifact" not in report, "a failed artifact close returned a reusable record"
+        for handle in children:
+            assert handle.returncode == 0, handle.returncode
+    finally:
+        reap(children)

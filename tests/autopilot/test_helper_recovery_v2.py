@@ -557,20 +557,35 @@ def child_argv(tmp_path: Path, name: str, body: str, *args: Path) -> list[str]:
     return [sys.executable, "-I", str(script), *(str(a) for a in args)]
 
 
-def still_running(pid: int) -> bool:
-    """True while `ps` reports the pid as a live, non-zombie process."""
-    probe = subprocess.run(["ps", "-o", "stat=", "-p", str(pid)], check=False,
-                           capture_output=True, text=True, timeout=30)
-    state = probe.stdout.strip()
-    return bool(state) and not state.startswith("Z")
+def spy_on_spawn(monkeypatch: pytest.MonkeyPatch, argv: list[str]) -> list[Any]:
+    """Retains the real handle of every child the gate spawns for exactly `argv`."""
+    real = subprocess.Popen
+    handles: list[Any] = []
+
+    def spy(args: Any, *rest: Any, **kwargs: Any) -> Any:
+        handle = real(args, *rest, **kwargs)
+        if isinstance(args, list) and args == argv:
+            handles.append(handle)
+        return handle
+
+    monkeypatch.setattr(subprocess, "Popen", spy)
+    return handles
 
 
-def kill_child(pid: int) -> None:
-    if still_running(pid):
+def reap(handles: list[Any]) -> None:
+    """Ends and closes every retained child the test still owns, on any exit path."""
+    for handle in handles:
         try:
-            os.kill(pid, signal.SIGKILL)
+            handle.kill()
+            handle.wait(timeout=30)
         except (OSError, ProcessLookupError):
             pass
+        for pipe in (handle.stdout, handle.stderr, handle.stdin):
+            try:
+                if pipe is not None:
+                    pipe.close()
+            except (OSError, ProcessLookupError):
+                pass
 
 
 def failure_shape(report: dict, slug: str) -> None:
@@ -630,21 +645,23 @@ def test_verification_reports_a_mid_run_sink_write_failure_and_kills_the_child(
     started, late, pidfile = (tmp_path / name for name in ("started", "late", "pid"))
     argv = child_argv(tmp_path, "slow", SLOW_CHILD, started, late, pidfile)
     calls = break_sink(monkeypatch, fail_write_after=1)
-    report = run_gate(world, argv)
-    pid = None
+    children = spy_on_spawn(monkeypatch, argv)
     try:
+        report = run_gate(world, argv)
         assert calls, "the patched sink opener never ran"
         failure_shape(report, "sink-write-failed")
         assert started.read_text("utf-8") == "started"
-        pid = int(pidfile.read_text("utf-8"))
-        assert not still_running(pid), "the spawned child outlived the failed run"
+        assert len(children) == 1, children
+        child = children[0]
+        assert child.pid == int(pidfile.read_text("utf-8")), child.pid
+        assert child.returncode == -signal.SIGKILL, child.returncode
+        assert child.wait(timeout=30) == -signal.SIGKILL
         deadline = time.monotonic() + 3
         while time.monotonic() < deadline:
             assert not late.exists(), "the child kept working after the call returned"
             time.sleep(0.05)
     finally:
-        if pid:
-            kill_child(pid)
+        reap(children)
 
 
 @pytest.mark.parametrize(("fail_write", "slug"),
@@ -662,28 +679,6 @@ def test_verification_keeps_the_write_failure_when_the_sink_close_also_fails(
     failure_shape(report, slug)
     if not fail_write:
         assert Path(marker.read_text("utf-8")).resolve() == world.target.resolve()
-
-
-@pytest.mark.parametrize("kind", ["absent-program", "unexecutable-program"])
-def test_verification_preserves_its_outputs_on_a_spawn_failure_but_leaves_an_empty_log(
-    world: World, tmp_path: Path, isolated_git: None, kind: str,
-) -> None:
-    program = tmp_path / kind
-    if kind == "unexecutable-program":
-        program.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
-        program.chmod(0o644)
-    log = world.target / "logs" / f"{kind}.log"
-    report = run_gate(world, [str(program), "--version"], log=log)
-    failure_shape(report, "spawn-failed")
-    assert not (world.target / ARTIFACT).exists()
-    assert log.is_file() and log.read_bytes() == b""
-    with pytest.raises(ValueError):
-        run_gate(world, [], log=world.target / "logs" / f"{kind}-empty.log")
-    marker = tmp_path / f"{kind}-marker.txt"
-    accepted = run_gate(world, child_argv(tmp_path, kind, MARKER_CHILD, marker), log=log)
-    assert accepted["ok"] is True, accepted
-    assert b"PASS 2 FAIL 0 SKIP 1 EXIT 0" in log.read_bytes()
-    assert (world.target / ARTIFACT).is_file()
 
 
 # --- 6. the exported policy never blocks on a fifo and never assumes O_NOFOLLOW ----------------
