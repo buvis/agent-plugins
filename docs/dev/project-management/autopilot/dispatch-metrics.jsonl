@@ -650,3 +650,6 @@
 {"id":"ef85cc76","kind":"devon","task":"2","queued_at":1793664430,"prompt_bytes":5328}
 {"id":"ef85cc76","ended_at":1793664788,"elapsed_s":358,"outcome":"killed","detail":"Coordinator stopped session before product edits or verdict to correct failed-spawn byte-preservation contract; gate remains incomplete."}
 {"kind":"handoff","site":"build","edge":"leave","at":1793664842,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793664842,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
+{"id":"d3696b0a","kind":"tess","task":"2","queued_at":1793665146,"prompt_bytes":23266}
+{"id":"d3696b0a","ended_at":1793665412,"elapsed_s":266,"outcome":"ok","detail":null}

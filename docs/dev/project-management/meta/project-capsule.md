@@ -43,7 +43,7 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 ### Batch 202610250001
 - [x] 00012-autopilot-package-contract-v1.md (2 cycles; 47/47 tasks)
-- [ ] 00013-autopilot-session-helpers-v2.md (wip: v1 held as exhausted cap-regression history; v2 corrective T1-T4; reviewed design doc committed 18ca409; 0/4 tasks, task 1 pending after an invalid Sonnet-coordinator attempt was rejected and reverted)
+- [ ] 00013-autopilot-session-helpers-v2.md (wip: v1 held as exhausted cap-regression history; v2 corrective T1-T4; reviewed design doc committed 18ca409; 1/4 tasks done - task 1 accepted (Pat: 5 LOW), tasks 2-4 pending; task 2 test draft committed eccf5c6, contract correction 533a88a)
 - [ ] 00014-autopilot-host-execution-v1.md
 - [ ] 00015-autopilot-workflow-parity-v1.md
 - [ ] 00016-autopilot-controller-integration-v1.md
@@ -53,7 +53,7 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 - [ ] 00020-autopilot-controller-review-v1.md
 - [ ] 00021-autopilot-controller-records-v1.md
 
-Observations: AP00012 completion and host provenance gates pass. Original review receipts and companion Tail sweep audit remain intact. Final Tail sweep suite: 104 passed; validator: 3 packages/15 skills. Next: fresh build session selects AP00013. The pytest count parser limitation remains documented; no new verification receipt is claimed.
+Observations (2026-11-03T00:15Z full catchup): resuming AP00013 v2 at task 2 (first non-completed) with design and capsule reused by artifact; catchup ran full because commits past `catchup_head_sha` include non-loop committers. AP00012 completion and host provenance gates pass. Original review receipts and companion Tail sweep audit remain intact. Final Tail sweep suite: 104 passed; validator: 3 packages/15 skills. Next: fresh build session selects AP00013. The pytest count parser limitation remains documented; no new verification receipt is claimed.
 
 ## Related context
 
@@ -62,15 +62,17 @@ Observations: AP00012 completion and host provenance gates pass. Original review
 - `discovery/00001-specflow-bugfix-workflow.md:252` — 0.016, bugfix shape decisions T-027 compares captures against.
 - `discovery/00001-specflow-aidlc-workflows.md:136` — 0.015, A1 state/approvals/invalidation notes.
 - Portfolio: only cellar transcript hits, not relevant.
+- 2026-11-03 topic `autopilot session helpers v2 host-neutral session helpers` (repo scope): top hits are the three `reviews/00013-autopilot-session-helpers-v1-review-0{1,2,3}.md` files and `docs/dev/tmp/00013-review-01-by-agent-plugins-6d.md` (~0.016). That is v1 cap-regression review history: keep it away from Blake's blind lens. Portfolio scope not re-queried this run (no new portfolio topic); stamp below is the prior run's.
 - Topic: `specflow 00004 artifact state contract`. Portfolio stamp: memory stale=23 dead=1, code stale=105 dead=805, prd dead=5259 (exit 1). Harvest: 12 of 14 review files lack frontmatter (`parse_failed`).
 
 ## GitHub State
 
-- 0 open issues, no releases. PR #4 (00005) merged 2026-10-16; the 00006 PR follows.
+- Refreshed 2026-11-03T00:15Z. 1 open issue (#12 Renovate dashboard). 3 open Renovate PRs: #13 setup-python v7.1.0, #14 python 3.15, #15 pytest v9. No releases. Remote branches: master, three renovate branches, `docs/ap00015-verification-counts`.
+- `Validate` is red on master (runs 41516085734, 41511458941): 20 failures - 19 `tests/autopilot/test_controller_*` (AP00018 kernel, known/expected) plus `test_helper_provenance_real.py` README pin, which was already fixed locally after that run.
 
 ## Project Health
 
-- CI green, PRs flowing one per spec. Review files predating 00002 have no frontmatter, so engram cannot harvest them.
+- CI red on master for the known AP00018 controller tests; no push until those and required checks pass (closeout constraint). Renovate PRs are stacked and also red on the same failures. Review files predating 00002 have no frontmatter, so engram cannot harvest them.
 
 ## Project Memories
 

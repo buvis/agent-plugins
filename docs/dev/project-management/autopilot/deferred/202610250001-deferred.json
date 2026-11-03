@@ -337,6 +337,14 @@
       "task": "1",
       "detail": "R9 (union-scoped shared context artifact) contradicted tests/autopilot/test_review_helpers.py:531, which asserted the pack findings precedent in the shared context file under default grants that include no context-pack ref. R9 kept; that one existing assertion re-granted locally so it binds the real contract. The reviewers should confirm the correction preserves the test intent and did not weaken it.",
       "prd": "00013-autopilot-session-helpers-v2.md"
+    },
+    {
+      "type": "assumed-ambiguity",
+      "task": "2",
+      "question": "Task 2's Location names tests/autopilot/test_helper_recovery_v2.py for the new sink-preservation cases, but that file is already 799 lines against the project's 800-line hard limit, so the correction's added cases cannot land there without breaching the style gate.",
+      "assumption": "Put the correction's new cases in a sibling module tests/autopilot/test_helper_recovery_v2_sinks.py, importing the existing suite's helpers, and leave every committed test in test_helper_recovery_v2.py untouched. Task 2's narrow verification and the review diff therefore cover both files; the Verify line's other four suites are unchanged.",
+      "at": "2026-11-03T01:25:00+00:00",
+      "prd": "00013-autopilot-session-helpers-v2.md"
     }
   ]
 }
