@@ -283,6 +283,7 @@ def _run_against_sink(argv: list[str], root: Path, sink, digest, deadline: float
     except OSError as error:
         return {"error": "spawn-failed", "reason": str(error)}
     try:
+        sink.truncate(0)  # Only after successful spawn; preserve prior bytes on failure.
         tail, drained, capped = _drain(proc, sink, digest, deadline)
         exited = False
         if drained:
@@ -359,11 +360,7 @@ the existing `if "error" in run: return {"schema_version": 1, "ok": False,
 `sink-failed`, `sink-write-failed`, `sink-close-failed`) keep each failure
 mode distinguishable for whoever reads the result later.
 
-One accepted side effect of the reorder: on a `spawn-failed` return, the
-log file now exists (created/truncated by `_open_log_sink`, empty) where
-the old ordering left nothing on disk, because the sink opens before
-`Popen` is attempted. This is a minor, intentional tradeoff of the
-fail-closed ordering, not a defect — recorded under Risks & edge cases.
+A previously absent log may be created empty before a failed spawn. An EXISTING log must retain its exact prior bytes on spawn failure; existing result artifacts also remain unchanged. Open a descriptor-pinned sink without unlinking or truncating the existing file, validate it before spawn, and clear that same validated sink only after Popen succeeds. Keep no-follow parent/leaf defenses, regular-file validation and hard-link isolation/refusal before any byte change; opening must not block on a raced FIFO. Reject unsafe aliases before spawn. An OSError while clearing the sink after successful spawn uses the controlled sink-write-failed cleanup path. Reuse the existing parent traversal; do not introduce backup/restore races or a new output-management subsystem.
 
 **R3/R12 — `_write_policy`'s open must not block on a FIFO, and must not
 assume `os.O_NOFOLLOW` exists.** Current code (`autopilot.py`, line
@@ -521,10 +518,7 @@ roots: `plugins/autopilot/scripts/`, `tests/autopilot/`.
   exists anywhere in `plugins/autopilot/scripts/` (confirmed by grep) — the
   R3/R12 fix is new, not a pattern to copy.
 - R7 uses one probe with existing Git safety settings intact; it refuses unclassified errors and accepts only the anchored benign non-repository diagnostic.
-- `log_sink_refusal._open_log_sink`'s descriptor-pinned open
-  (`_pinned_parent_fd`/`_descend`) already exists and is reused unchanged by
-  T2's R2 fix — the fix only reorders *when* it is called, not its
-  implementation.
+- Reuse `_pinned_parent_fd`/`_descend`, but make `_open_log_sink` acquisition non-destructive until spawn succeeds. Its old unlink/recreate implementation violates the PRD when moved before Popen unchanged.
 - `review_stage._context_file`'s `variant` parameter already supports a
   restricted kind set; T1's R9 fix reuses it exactly as designed — only the
   `shared` variable that feeds it was wrong.
@@ -566,8 +560,7 @@ roots: `plugins/autopilot/scripts/`, `tests/autopilot/`.
 - **R2's fail-closed sink-then-spawn ordering creates an empty log file on
   a `spawn-failed` return**, where the old ordering left nothing on disk
   (the sink now opens before `Popen` is attempted). Accepted: the file is
-  empty and harmless, and the alternative (spawning before validating the
-  sink) is the defect being fixed.
+  empty only when absent beforehand. Existing log and artifact bytes must survive a failed spawn exactly; validate without changing bytes and clear only after successful spawn.
 - **R7's fix must not refuse every destination outside a git repository,
   nor accept every destination it cannot classify.** `ancestor` reaching
   this probe already means the destination is outside the caller's own
@@ -765,3 +758,9 @@ autopilot/reports/00013-v2-self-debug.md for exact observed evidence.
 - T4 authors receipts and generates only the map, preserves historical receipt data, corrects Unreleased jargon, and does not claim to fix an already-resolved historical CI pin.
 
 Product implementation, scoped tests and the fresh complete review remain required.
+
+## Coordinator contract correction — 2026-11-03 task 2
+
+Coordinator correction, 2026-11-03: PRD F2 and New sink cases outrank the earlier compiled design's destructive spawn-failure side effect. Preserve accepted task 1 and committed task 2 draft eccf5c6. Resume task 2 with fresh isolated Opus Tess from requirements only: add nonempty pre-existing log and artifact cases for missing and non-executable programs, assert exact bytes unchanged on spawn-failed, and retain a successful-run control proving old log bytes are replaced rather than appended. A previously absent log may remain empty. Update fault-injection wrappers only as necessary to retain real descriptor behavior. Legacy early unsafe-artifact-path refusal remains valid for aliases rejected before sink acquisition; sink-failed describes acquisition errors. Preserve existing safety assertions. Devon ef85cc76 was interrupted by the coordinator before any product mutation or verdict. After correction quality/style gates and test commit, run one complete fresh isolated Opus Devon pass, its one permitted strengthening pass if needed, actual red verification, Opus Ivan and all later gates including Pat. Do not reuse stale tess-2/ivan-2 scratch contracts. No completed task, cap or review counter is reset.
+
+This is a PRD-conformance correction, not another clean design-review verdict. The three earlier reviews remain historical. Full implementation verification and fresh completion review remain mandatory. Evidence: ../autopilot/reports/00013-v2-task2-contract-correction.md.
