@@ -707,3 +707,4 @@
 {"id":"4951dc1f","ended_at":1793740715,"elapsed_s":603,"outcome":"ok","detail":null}
 {"id":"81e97bab","kind":"ivan","task":"4","queued_at":1793740884,"prompt_bytes":11548}
 {"id":"81e97bab","ended_at":1793741187,"elapsed_s":303,"outcome":"ok","detail":"fix green on target nodes but breaks two task-2 sink nodes; contract conflict"}
+{"kind":"handoff","site":"build","edge":"leave","at":1793741681,"phase":"review","prd":"00013-autopilot-session-helpers-v2.md"}
