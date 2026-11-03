@@ -655,3 +655,4 @@
 {"id":"d3696b0a","ended_at":1793665412,"elapsed_s":266,"outcome":"ok","detail":null}
 {"id":"af622d15","kind":"devon","task":"2","queued_at":1793665486,"prompt_bytes":5089}
 {"id":"af622d15","ended_at":1793665729,"elapsed_s":243,"outcome":"killed","detail":"Incomplete scope: only six new preservation cases; original fifteen task-2 cases and policy module omitted. Partial mutation patch preserved; source restored. No complete gate verdict."}
+{"kind":"handoff","site":"build","edge":"leave","at":1793665852,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
