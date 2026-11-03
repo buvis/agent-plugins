@@ -81,3 +81,23 @@ Implementor (Ivan), test-only rewrite:
 Orchestrator:
 
 - The two failing `test_spawn_failure_is_controlled_and_preserves_outputs[*-False]` nodes in the same file are not task 3's: they already failed at HEAD `bc1627a` with task 3's file stashed (control run: 2 failed, 2 passed), so task 3's gate is judged on its own two tests. CORRECTED during task 4: "pre-existing" was the wrong attribution. A worktree control at the previous receipt pin `cce5dad` passes all six of these nodes (`6 passed, 38 deselected`), while HEAD fails four of them, so the two spawn-failure nodes plus two `test_local_paths.py::SafeSinkOpenerTest` nodes are regressions from task 2's pre-spawn log-sink change, not an older defect. They are repaired in task 4's step-7 regression round.
+
+## 4: Refresh docs, receipts and generated helper provenance
+
+Implementor (Ivan), docs round:
+
+- The contract's "add the v2 user-visible fixes as new bullets" and its "do not duplicate a fact already stated" collide for both named fixes; resolved by the no-duplication clause, so the result-artifact cleanup got no new bullet and the attempt-validation bullet states only the new proof mechanism.
+- The three controlled refusals were placed in their own README paragraph after the grant paragraph (the contract allowed either), and new prose wraps at the README's existing ~80 columns.
+
+Implementor (Ivan), evidence round:
+
+- "One record for this delivery" means a single task entry covering T1-T4, named `v2-corrective-T1-T4`.
+- The new receipt field names (`failing_nodes`, `failing_nodes_ownership`, `exit_code`) are the implementor's choice; the generator validates only `passed`, `tests`, `command`, `real_host` and `package_revision`.
+- Ownership of the red nodes was established with a throwaway detached worktree under `~/git/src/worktrees/agent-plugins/`, removed afterwards, rather than by touching the primary tree.
+- T1-T4 commit attribution comes from `git log` subject tags, not from the PRD.
+
+Orchestrator:
+
+- Task 4 ran as two bounded dispatches (docs, then evidence) so the receipt could bind to a committed package revision, exactly as the task's own receipt sequence requires. The tested revision is `3c7e218`; the gate ran on the evidence commit `9e89a59`, whose product bytes are identical.
+- The step-7 regression round for the four task-2 nodes was attempted and REVERTED, not shipped: the repair made the two spawn-failure nodes green and broke two task-2 nodes that assert the opposite contract. The contract choice is a deferred item for the completion review rather than an orchestrator decision, so the work phase ends with a red suite and the exact nodes recorded.
+- Task 4's attempt stamps `self_deslop: "skipped:trivial"` and `review: null` because the state schema rejects the accurate values (`skipped:no-code`, `skipped:docs-only`). The real reason for both is that task 4's committed diff contains no `.py` file at all: it is docs and JSON evidence, which is the per-task review's own documentation-only skip.
