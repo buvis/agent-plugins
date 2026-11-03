@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import copy
+import json
 import os
+import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 from test_cycle1_boundaries_context import reached
@@ -13,7 +16,7 @@ from test_cycle1_boundaries_verify import ARTIFACT, LOG, verify_call, write_scri
 from test_local_boundary import World, git, library, make_world, one_json, run_cli, tree
 from test_review_close_helpers import assert_ok, row, run, scenario
 from test_review_close_helpers_gates import snapshot
-from test_review_evidence_helpers import clean, result
+from test_review_evidence_helpers import SCRIPTS
 from test_review_helpers import CASES, CONTEXT, DESIGN, GATE, PRD, call, context_for, sha
 
 
@@ -152,18 +155,50 @@ def test_staged_context_filters_each_input_kind_independently(
         assert marker in full
 
 
-def test_attempt_validation_does_not_allocate_from_the_supplied_attempt(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    checker = library("review_evidence")
-    context, evidence = clean()
-    result(evidence, "alice")["attempt"] = 10**12
+# Measures check_evidence for one 200000 attempt. Imports, policy, context and
+# evidence are prepared before the window; a pre-enabled trace is stopped so the
+# fresh measurement reports its own absolute peak, never a delta off a larger
+# peak. The child keeps that stop/start out of this runner's tracing state.
+CHILD = r"""
+import json, sys, tracemalloc
+scripts, tests, mode = sys.argv[1], sys.argv[2], sys.argv[3]
+sys.path.insert(0, scripts)
+sys.path.insert(0, tests)
+import review_evidence
+from test_review_evidence_helpers import clean, result
+ATTEMPT = 200000
+policy = review_evidence.load_policy()
+context, evidence = clean()
+result(evidence, "alice")["attempt"] = ATTEMPT
+if tracemalloc.is_tracing():
+    tracemalloc.stop()
+tracemalloc.start()
+probe = [0] * ATTEMPT if mode == "inject" else None
+report = review_evidence.check_evidence(policy, context, evidence)
+peak = tracemalloc.get_traced_memory()[1]
+tracemalloc.stop()
+print(json.dumps({"peak": peak, "ok": report["ok"], "defects": report.get("defects", [])}))
+"""
+CEILING = 1_000_000
 
-    def bounded_range(*args: int) -> range:
-        assert max(args) <= 100, "attempt controls an unbounded allocation"
-        return range(*args)
 
-    monkeypatch.setattr(checker, "range", bounded_range, raising=False)
-    report = checker.check_evidence(checker.load_policy(), context, evidence)
-    assert not report["ok"]
-    assert "attempt_sequence_invalid" in report["defects"]
+def measure(mode: str) -> dict[str, Any]:
+    proc = subprocess.run(
+        [sys.executable, "-c", CHILD, str(SCRIPTS), str(Path(__file__).resolve().parent), mode],
+        capture_output=True, text=True, timeout=30,
+    )
+    assert proc.returncode == 0, proc.stderr
+    return json.loads(proc.stdout)
+
+
+def test_attempt_validation_does_not_allocate_from_the_supplied_attempt() -> None:
+    measured = measure("plain")
+    assert measured["peak"] < CEILING, measured["peak"]
+    assert not measured["ok"]
+    assert "attempt_sequence_invalid" in measured["defects"]
+
+
+def test_the_attempt_allocation_measurement_catches_a_proportional_allocation() -> None:
+    measured = measure("inject")
+    assert measured["peak"] >= CEILING, measured["peak"]
+    assert "attempt_sequence_invalid" in measured["defects"]
