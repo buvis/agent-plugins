@@ -230,3 +230,18 @@ def _open_log_sink(log_path: Path, root: Path):
         os.close(sink_fd)
         raise
     return os.fdopen(sink_fd, "wb", buffering=0)
+
+
+def _pin_sink_leaf(log_path: Path, root: Path) -> tuple[int, str, tuple[int, int]]:
+    """The validated parent descriptor of an already-open sink, with the
+    leaf's name and the identity of the inode that answers to it now, so a
+    caller can later act on that exact leaf instead of on whatever holds the
+    pathname by then. The descent repeats `_open_log_sink`'s own no-follow
+    walk below `root`. Raises OSError with nothing left open."""
+    parent_fd = _pinned_parent_fd(log_path.parent, root)
+    try:
+        info = os.lstat(log_path.name, dir_fd=parent_fd)
+    except OSError:
+        os.close(parent_fd)
+        raise
+    return parent_fd, log_path.name, (info.st_dev, info.st_ino)

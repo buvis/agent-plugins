@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 
 from dirty_tree import _ancestor_and_clean, _dirty_check, _git, _untracked_log_exclusion
-from log_sink_refusal import _open_log_sink, refuse
+from log_sink_refusal import _open_log_sink, _pin_sink_leaf, refuse
 
 GATE_TIMEOUT_S = 1800
 GATE_OUTPUT_CAP = 2_000_000  # final stdout bytes kept for the summary parse
@@ -290,6 +290,90 @@ def _write_artifact(art: dict, sink) -> dict | None:
     return failure
 
 
+_Pin = tuple[int, str, tuple[int, int]]
+
+
+def _open_result_sink(artifact: Path, root: Path) -> tuple[object, _Pin | None]:
+    """The result-artifact sink, with what a later cleanup needs to drop a
+    leaf this validation created: the parent descriptor pinned here, before
+    the spawn, and the identity of the leaf opened through it. The pin is
+    None for a leaf that already existed, which cleanup never removes, and
+    None when that ownership cannot be established at all - removing
+    nothing is always the safe outcome."""
+    existed = artifact.exists()
+    sink = _open_log_sink(artifact, root)
+    if existed:
+        return sink, None
+    try:
+        return sink, _pin_sink_leaf(artifact, root)
+    except OSError:
+        return sink, None
+
+
+def _unlink_pinned(pin: _Pin) -> None:
+    """Removes the pinned leaf only while it is still the very inode that
+    was opened, through the parent descriptor validated before the spawn.
+    A replacement file, a directory left in its place, or a parent swapped
+    for a symlink during the run therefore all survive, and any failure is
+    swallowed rather than allowed past the result already decided."""
+    parent_fd, name, identity = pin
+    try:
+        info = os.lstat(name, dir_fd=parent_fd)
+        if (info.st_dev, info.st_ino) == identity:
+            os.unlink(name, dir_fd=parent_fd)
+    except OSError:
+        pass
+
+
+def _close_result_sink(sink, pin: _Pin | None, drop: bool) -> None:
+    """Releases everything the pre-spawn artifact validation opened. `drop`
+    says no record reached the writer that would have closed the sink, so it
+    is closed here and the leaf this run created is removed: a run that
+    writes nothing leaves no result artifact behind. The pinned descriptor
+    is closed on every path."""
+    if drop:
+        try:
+            sink.close()
+        except OSError:
+            pass
+        if pin is not None:
+            _unlink_pinned(pin)
+    if pin is not None:
+        os.close(pin[0])
+
+
+def _run_and_record(
+    argv: list[str],
+    root: Path,
+    artifact: Path,
+    log: Path,
+    log_rel: str,
+    head_sha: str,
+    excluded: list[str],
+    timeout: float,
+) -> dict:
+    """Runs the gate against a result-artifact sink proven openable before
+    anything is spawned, and carries the record through that same validated
+    descriptor: the artifact is never re-opened, nor re-resolved by
+    pathname, after it was judged."""
+    try:
+        artifact_sink, pin = _open_result_sink(artifact, root)
+    except OSError as error:
+        return {"schema_version": 1, "ok": False, "error": "sink-failed", "reason": str(error)}
+    art: dict | None = None
+    try:
+        run = _execute(argv, root, log, time.monotonic() + timeout)
+        if "error" in run:
+            return {"schema_version": 1, "ok": False, **run}
+        art = _artifact(argv, root, head_sha, log_rel, excluded, run)
+        failure = _write_artifact(art, artifact_sink)
+    finally:
+        _close_result_sink(artifact_sink, pin, art is None)
+    if failure is not None:
+        return {"schema_version": 1, "ok": False, **failure}
+    return {"schema_version": 1, "ok": True, "artifact": art, "controller_required": True}
+
+
 def run_verification(
     *,
     argv: list[str],
@@ -319,35 +403,9 @@ def run_verification(
     if _head_moved(root, head_sha):
         return {"schema_version": 1, "ok": False, "error": "head-moved"}
     log_rel = log.resolve().relative_to(root.resolve()).as_posix()
-    existed = artifact.exists()
-    try:
-        # The artifact sink is proven openable before anything is spawned,
-        # and this validated descriptor carries the record later: the
-        # artifact is never re-opened by pathname after it was judged.
-        artifact_sink = _open_log_sink(artifact, root)
-    except OSError as error:
-        return {"schema_version": 1, "ok": False, "error": "sink-failed", "reason": str(error)}
-    art: dict | None = None
-    try:
-        run = _execute(argv, root, log, time.monotonic() + timeout)
-        if "error" in run:
-            return {"schema_version": 1, "ok": False, **run}
-        art = _artifact(argv, root, head_sha, log_rel, excluded, run)
-        failure = _write_artifact(art, artifact_sink)
-    finally:
-        if art is None:
-            # No record reached the writer that would have closed the sink,
-            # so close it here and drop a leaf this validation created: a
-            # run that writes nothing leaves no result artifact behind.
-            try:
-                artifact_sink.close()
-            except OSError:
-                pass
-            if not existed:
-                artifact.unlink(missing_ok=True)
-    if failure is not None:
-        return {"schema_version": 1, "ok": False, **failure}
-    return {"schema_version": 1, "ok": True, "artifact": art, "controller_required": True}
+    return _run_and_record(
+        argv, root, artifact, log, log_rel, head_sha, excluded, timeout
+    )
 
 
 def _reusable_shape(prior: object, argv: list[str]) -> bool:
