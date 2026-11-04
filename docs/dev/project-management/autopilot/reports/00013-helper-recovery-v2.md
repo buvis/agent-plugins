@@ -117,11 +117,9 @@ failed). Cycle-1 rework task 5 resolved the contract conflict on the product
 side. The v2 sink test that used to assert an empty leftover log is now
 `tests/autopilot/test_helper_recovery_v2_sinks.py::test_verification_preserves_its_outputs_on_a_spawn_failure_and_an_absent_log_stays_absent`.
 An absent log stays absent after a failed spawn, so the two contracts no longer
-disagree. This is resolved by measurement. The failures below were real and stay
+disagree. The failures below were real and stay
 recorded as history, exactly as measured in the T1-T4 delivery (revision
 `3c7e2183a194c86d10390a3f2eda5524516ba50a`, 4 failed, 544 passed, 188.29s).
-
-Historical record follows.
 
 The dispatch brief expected two failures and described them as pre-existing.
 The measured result is four failures, and the control runs show that all four
