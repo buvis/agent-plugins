@@ -716,3 +716,4 @@
 {"id":"e8df2aec","ended_at":1793778456,"elapsed_s":1648,"outcome":"ok","detail":null}
 {"id":"faf579b6","ended_at":1793778456,"elapsed_s":1648,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1793778506,"phase":"review","prd":"00013-autopilot-session-helpers-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1793779648,"phase":"review","prd":"00013-autopilot-session-helpers-v2.md"}
