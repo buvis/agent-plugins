@@ -94,6 +94,114 @@ so the walk no longer breaks and the symlink is seen.
   descendant log-close/write coverage) are fixed by the correction's new tests,
   per the cycle-1 adjudication's R1/R9 instruction.
 
+## Addendum: the first fix was incomplete at depth 2, measured
+
+The fix the coordinator specified (take the escape only when `current` is
+outside both spellings of the root) left two of the four target tests failing.
+The implementor reported this, diagnosed it, and added
+`current.parent.resolve() not in stops`, after which all 40 tests passed.
+
+That patch closes depth 1 only. Probed against the patched code with a
+committed symlink one level deeper (`<root>/dir/nest-link/...`, `dir` a real
+directory, `nest-link` pointing at the repository root), four of nine spelling
+combinations still ACCEPT it:
+
+    OK    root=real     path=real     depth2-link  refuse='is a symlink'
+    WRONG root=real     path=alias    depth2-link  refuse=None
+    OK    root=real     path=resolved depth2-link  refuse='is a symlink'
+    WRONG root=alias    path=real     depth2-link  refuse=None
+    OK    root=alias    path=alias    depth2-link  refuse='is a symlink'
+    OK    root=alias    path=resolved depth2-link  refuse='is a symlink'
+    WRONG root=resolved path=real     depth2-link  refuse=None
+    WRONG root=resolved path=alias    depth2-link  refuse=None
+    OK    root=resolved path=resolved depth2-link  refuse='is a symlink'
+
+Depth is not part of criterion 8, so this is the same defect, not a new one.
+Both the coordinator's first specification and the implementor's patch reasoned
+about the component's own spelling; the discriminator is whether the component
+sits below the repository at all.
+
+A candidate formulation was then validated BEFORE being specified, against 63
+rows - three spellings of the root crossed with three of the output path,
+crossed with seven path shapes (below-root symlinks at depths 1, 2 and 3, a
+symlink to a subdirectory, a symlink leaving the repository, and plain paths at
+two depths):
+
+    while current not in stops and current.parent != current:
+        try:
+            inside = current.parent.resolve().is_relative_to(repo_root.resolve())
+        except OSError:
+            inside = False
+        if not inside:
+            break
+        if os.path.islink(current):
+            return True
+        current = current.parent
+
+A component is below the repository exactly when its own parent RESOLVES inside
+it; the walk stops at the first component whose parent resolves outside, which
+is the root or a root alias. `WRONG rows: 0 of 63`. The `toplevel` variant of
+the same rule is also 0 of 63; `repo_root.resolve()` was chosen because
+`refuse` has already constrained the sink to sit under `repo_root`, so it stays
+correct when `project_root` is a subdirectory of the git toplevel, where
+`toplevel` would reach above it.
+
+Both earlier specifications were the coordinator's errors. Each was reported by
+the worker that hit it rather than worked around, which is what made them
+visible.
+
+## Why the probe shows more WRONG rows than the test suite can
+
+The depth-coverage test fails 4 of its 16 cases, all of them
+`resolved-root-alias-outputs`, while the probe table above marks four rows
+WRONG at depth 2, including `alias-root-real-outputs` and
+`resolved-root-real-outputs`. The test author raised the difference and did not
+guess at it. It is not a contradiction.
+
+The probe has THREE spellings available because `tempfile.mkdtemp()` returns an
+aliased path: `real` (`/var/folders/...`), `resolved` (`/private/var/...`) and
+`alias` (an explicit symlink). pytest's `tmp_path` is already resolved, so a
+test can only build TWO: `resolved` and an explicit `alias`. Restricting the
+probe's depth-2 rows to the two spellings a test can express leaves exactly
+`root=resolved path=alias` WRONG and the other three combinations OK - which is
+precisely the 4 failed / 12 passed the suite reports.
+
+**WITHDRAWN, 2026-11-04:** this section previously claimed that the `path=real`
+rows are "a third spelling the pytest world cannot construct, so no test can
+cover them". That is false, and the per-task reviewer said so. A test can build
+a third spelling with a second symlink - `tmp_path/ancestor-link -> tmp_path`,
+giving `ancestor-link/<repo>`, the macOS `/tmp` shape of a symlinked ANCESTOR
+rather than a symlink to the project itself. The claim is retracted and the
+coverage gap it asserted does not exist. See
+`reviews/00013-v2-task5-pat-delta.md`.
+
+## Addendum 2: the validated fix itself regressed a shape the probe never built
+
+The formulation above (0 wrong of 63) was applied and committed, and the
+per-task reviewer's one permitted delta re-run then found a regression IN it: a
+path that leaves the repository through a committed symlink and returns through
+a second symlink outside it is no longer refused, because the walk stops at the
+first component whose parent resolves outside. Measured over four spellings of
+the root crossed with four of the output path:
+
+    pre-task-5 original  leave-and-return accepted in  0 of 16 spellings
+    first fix round      leave-and-return accepted in  0 of 16 spellings
+    installed now        leave-and-return accepted in 16 of 16 spellings
+    pat candidate        leave-and-return accepted in  0 of 16 spellings
+
+So it is a regression this cycle's rework introduced, it bites under every
+spelling rather than only mixed ones, and the reviewer's suggested condition -
+break only when the component whose parent resolves outside is itself a
+spelling of the root - is clean. Re-probed over 96 rows (four root spellings x
+four path spellings x six path shapes, now including the leave-and-return
+chain): installed 16 wrong, candidate 0 wrong, control 16 wrong.
+
+The lesson is about the validation, not the rule: a 63-row table proves only
+the shapes its author thought of. The coordinator chose the shapes and never
+considered a path that leaves the repository and comes back; the reviewer, who
+did not choose them, found it. A probe is evidence for a hypothesis, not a
+substitute for an independent lens.
+
 ## Count discrepancy, recorded
 
 `reviews/00013-v2-task5-pat-complete.md` states "one MEDIUM and eight LOW
