@@ -29,3 +29,15 @@ when required; committed tests and actual red check; separate Ivan; narrow
 verification; commit and required deslop/style; isolated Pat. Follow the
 installed bounded retries and task-specific test-only/prose routes. Never
 combine author and implementor or silently omit a selected finding.
+
+## Alias coverage update before the first valid worker dispatch
+
+The Opus/high restart (loop 34245) was stopped at task claim, before any
+worker dispatch or edit, exit 130. A concurrent read-only audit established
+that the queued R17 alias command covers symlink sink paths and case aliases,
+but never a symlinked project_root paired with resolved-spelling sinks.
+The task-5 body now explicitly includes this PRD acceptance case in Tess
+and bounded implementation scope. This was coordinator input completion,
+not another failed worker attempt or review cycle. Task status alone returns
+to pending; the original aborted attempt and all counters are preserved.
+No test has run for R17. A green queued command alone cannot close it.
