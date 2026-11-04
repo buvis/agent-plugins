@@ -1,0 +1,9 @@
+[
+  {
+    "cycle": 1,
+    "finding": "PRD T2 requires pre-spawn sink validation \"including ... unresolved/resolved root aliases\", but neither new test file drives `run_verification` with a symlinked `project_root` (macOS `/tmp` -> `/private/tmp` style) against a resolved-spelling `log_path`/`artifact_path`. Check: run `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_verification.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cap_recovery_helpers.py -k \"alias or symlink\" -q -rA` and confirm at least one passing node spawns nothing and refuses/accepts consistently under a symlinked root; if none does, add one to tests/autopilot/test_helper_recovery_v2_sinks.py using `child_argv` + a marker",
+    "file": "tests/autopilot/test_helper_recovery_v2.py:608",
+    "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_verification.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cap_recovery_helpers.py -k \"alias or symlink\" -q -rA",
+    "source": "eve"
+  }
+]
