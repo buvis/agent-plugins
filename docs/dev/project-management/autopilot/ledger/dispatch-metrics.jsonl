@@ -756,3 +756,23 @@
 {"id":"ce709bb6","kind":"pat","task":"6","queued_at":1793786720,"prompt_bytes":28980}
 {"id":"ce709bb6","ended_at":1793786761,"elapsed_s":41,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1793786954,"phase":"review","prd":"00013-autopilot-session-helpers-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1793787047,"phase":"review","prd":"00013-autopilot-session-helpers-v2.md"}
+{"id":"aa6358ea","kind":"ivan","task":"7","queued_at":1793787300,"prompt_bytes":10639}
+{"id":"aa6358ea","ended_at":1793787367,"elapsed_s":67,"outcome":"ok","detail":null}
+{"id":"4f46d58d","kind":"pat","task":"7","queued_at":1793787525,"prompt_bytes":17266}
+{"id":"4f46d58d","ended_at":1793787558,"elapsed_s":33,"outcome":"ok","detail":null}
+{"id":"2eb67067","kind":"ivan","task":"8","queued_at":1793787857,"prompt_bytes":10229}
+{"id":"2eb67067","ended_at":1793788099,"elapsed_s":242,"outcome":"ok","detail":null}
+{"id":"4710d531","kind":"ivan","task":"8","queued_at":1793788314,"prompt_bytes":22548}
+{"id":"4710d531","ended_at":1793788409,"elapsed_s":95,"outcome":"ok","detail":null}
+{"id":"c1689e7e","kind":"deslop","task":"8","queued_at":1793788556,"prompt_bytes":11062}
+{"id":"c1689e7e","ended_at":1793788612,"elapsed_s":56,"outcome":"ok","detail":null}
+{"id":"9e9941bc","kind":"pat","task":"8","queued_at":1793788708,"prompt_bytes":51707}
+{"id":"88a7543a","kind":"pat","task":"8","queued_at":1793788723,"prompt_bytes":45914}
+{"id":"9e9941bc","ended_at":1793788730,"elapsed_s":22,"outcome":"error","detail":null}
+{"id":"05c54e47","kind":"ivan","task":"8","queued_at":1793788857,"prompt_bytes":9076}
+{"id":"05c54e47","ended_at":1793788902,"elapsed_s":45,"outcome":"ok","detail":null}
+{"id":"a1013eac","kind":"pat","task":"8","queued_at":1793788974,"prompt_bytes":19456}
+{"id":"a1013eac","ended_at":1793789003,"elapsed_s":29,"outcome":"ok","detail":null}
+{"id":"88a7543a","ended_at":1793789538,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"kind":"handoff","site":"review","edge":"leave","at":1793789538,"phase":"review","prd":"00013-autopilot-session-helpers-v2.md"}
