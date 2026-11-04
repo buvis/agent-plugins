@@ -14,6 +14,17 @@ LOW | docs/dev/project-management/autopilot/reports/00013-helper-delivery-receip
 
 ---
 
+Delta re-run (same reviewer conversation resumed, delta
+`904c6cee25e834d35f4d0127afb1a2344a0b4f6e..1300ec2`):
+
+CLOSURE | resolved | "MEDIUM | 00013-helper-delivery-receipts.json:81 (also 00013-helper-recovery-v2.md:3): the scope and the report name 0ed4c17 as the tested revision, but the 21-file run happened before that commit existed, and nothing disclosed the gap" | The receipt `scope` now says the run "was taken at the tree of commit 016b6b3a2ec9d3282cf58c523ecfae69163d1d21, with this task's README and CHANGELOG edit still uncommitted". It also says the pinned revision "differs from that commit only in plugins/autopilot/README.md and plugins/autopilot/CHANGELOG.md, and no test file or product script differs". The report header carries the same disclosure. The coordinator's recorded `git diff --name-only 016b6b3..0ed4c17` check supports the identity claim. That check lists only those two files and is empty for `tests/`, `plugins/autopilot/scripts/` and `tools/`.
+
+The rest of the delta is clean. The 14 source-map hunks change only the receipt's `artifact_sha256`, and the new hash is the same in every hunk. The coordinator's `--check`, the unchanged ownership hash and the 56 passing provenance tests back this. `docs/dev/project-management/reviews/00013-v2-task8-pat.md` is a verbatim record plus a disposition note. It changes no delivered file.
+
+NO FINDINGS
+
+---
+
 Coordinator disposition (not part of Pat's reply):
 
 - The MEDIUM is CONFIRMED and fixed through one Ivan retry dispatch. Verification
