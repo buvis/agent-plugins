@@ -101,3 +101,23 @@ Orchestrator:
 - Task 4 ran as two bounded dispatches (docs, then evidence) so the receipt could bind to a committed package revision, exactly as the task's own receipt sequence requires. The tested revision is `3c7e218`; the gate ran on the evidence commit `9e89a59`, whose product bytes are identical.
 - The step-7 regression round for the four task-2 nodes was attempted and REVERTED, not shipped: the repair made the two spawn-failure nodes green and broke two task-2 nodes that assert the opposite contract. The contract choice is a deferred item for the completion review rather than an orchestrator decision, so the work phase ends with a red suite and the exact nodes recorded.
 - Task 4's attempt stamps `self_deslop: "skipped:trivial"` and `review: null` because the state schema rejects the accurate values (`skipped:no-code`, `skipped:docs-only`). The real reason for both is that task 4's committed diff contains no `.py` file at all: it is docs and JSON evidence, which is the per-task review's own documentation-only skip.
+
+## 6: [D1] plugins/autopilot/scripts/review_stage.py (cycle 1 rework)
+
+Test author (Tess):
+
+- The brief said to skip the locale test when Git's stderr "still begins with `fatal:`", but German Git also prints `fatal: kein Git-Repository`, so that rule would skip wrongly. The probe instead skips only when stderr begins with `fatal:` AND contains `not a git repository`, or when the exit code is 0. It runs `git rev-parse --git-dir` with `GIT_CEILING_DIRECTORIES` set.
+- "Normal content" for the other staged artifacts was read as: `review-prd-raw-` contains "Tokens stay literal", `review-diff-` contains `DIFF-MARKER-55d0`, `review-pack-` contains the supplied precedent. `review-tasks-` and `review-prd-` are only asserted to exist, because their content is unspecified.
+- In the single-job missing-PRD cases the message is asserted to name the offending job and mention the PRD, but not to omit the other job: the brief required that only for the both-missing case.
+- The `project` and `bare_guard` fixtures are imported from `test_helper_recovery_v2`, following what `test_helper_rework_sinks.py` already does.
+
+Implementor (Ivan):
+
+- `dirty_tree.py` was not read, because it is outside the task's allowlist. `_git` was assumed to return a `CompletedProcess` in text mode with a timeout; the new call passes `timeout=60`, which is a guess at that value.
+- `_staged_files` was assumed to be called only from `stage_review`, which always sets `variants`, so dropping the `CONTEXT_KINDS` fallback changes nothing else.
+
+Orchestrator:
+
+- Ivan's `timeout=60` guess is wrong in one direction worth recording: `dirty_tree._git` passes NO timeout, and the module's three other `_git` calls still have none. So the new probe is the only call in `review_stage.py` that can raise `subprocess.TimeoutExpired`, and that exception would escape `stage_review`, whose contract is to return a report dict. Pat saw the `timeout=60` line and raised the duplication as LOW, not the exception path. It is left as Ivan wrote it: LOW findings are noted and not fixed at this step, and cycle 2's lenses adjudicate it on the full diff.
+- The `_staged_files` assumption was verified rather than taken on trust: both call sites (`review_stage.py:558` inside `_write_cycle` and `:650`) are reached only after `:649` sets `inputs["variants"]`, and no other module calls it.
+- `codex_eligible(task 6)` is false - the planner recorded neither `qwen_eligible` nor a `files` exclusion for this task - so the codex rung could not intercept and Claude at the task's own tier was the only route. The codex batch health probe was therefore never run for this task.
