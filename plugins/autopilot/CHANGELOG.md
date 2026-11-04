@@ -35,6 +35,7 @@
 - **autopilot**: `--verify` and the log-sink check treat an aliased project root and a resolved one alike, and no longer read a nested repository's Git pointer.
 - **autopilot**: `--verify` refuses an output path that passes through a symlink below the project root, whichever way the root and the output paths are spelled.
 - **autopilot**: review staging refuses a destination whose Git check cannot answer, refuses a reviewer whose grant omits the PRD instead of inlining an empty one, and fills the shared context file with granted input kinds only.
+- **autopilot**: review staging accepts a clean destination outside any repository under a non-English Git locale, writes no context content when no reviewer reads the shared context, and reports a missing PRD grant in the standard refusal shape.
 - **autopilot**: attempt validation holds its memory bound against a measured resource ceiling rather than a patched built-in, so the bound applies to a real run and not only to a substituted allocator.
 - **autopilot**: session helpers refuse hardlinked policy outputs, case aliases of verification inputs and worktree Git pointers, and external Git metadata staging roots; failed process starts preserve outputs and return a controlled report.
 - **autopilot**: staged context obeys every input-kind grant, tail sweeps accept selected finding subsets while preserving attribution checks, and attempt validation uses memory bounded by the submitted history.

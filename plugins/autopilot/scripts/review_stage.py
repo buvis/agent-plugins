@@ -13,6 +13,7 @@ import hashlib
 import os
 import re
 import stat
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -377,7 +378,7 @@ def _staged_files(art: Path, cycle_id: str, inputs: dict[str, Any]) -> dict:
     paths = {kind: path for kind, (path, _) in staged.items()}
     findings = findings_precedent(inputs["pack"])
     variants = inputs.get("variants", {})
-    shared = frozenset().union(*variants.values()) if variants else CONTEXT_KINDS
+    shared = frozenset().union(*variants.values())
     body = _context_file(inputs["context"], paths, findings, inputs, shared)
     staged["review-context"] = (paths["review-context"], body)
     for job, variant in variants.items():
@@ -407,7 +408,14 @@ def _is_inside_git_dir(ancestor: Path) -> bool:
     fails closed without overriding Git configuration. Detection failure on
     an ACTUAL repository must not silently grant permission, and that
     includes failures this comment cannot enumerate in advance."""
-    probe = _git(ancestor, "rev-parse", "--is-inside-git-dir")
+    probe = subprocess.run(
+        ["git", "rev-parse", "--is-inside-git-dir"],
+        cwd=ancestor,
+        capture_output=True,
+        text=True,
+        timeout=60,
+        env={**os.environ, "LC_ALL": "C", "LANGUAGE": "C"},
+    )
     if probe.returncode == 0:
         return probe.stdout.strip() == "true"
     if probe.stderr.strip().startswith("fatal: not a git repository"):
@@ -626,8 +634,7 @@ def stage_review(
     jobs = [row["job_id"] for row in expected_context["resolved_roster"]]
     ungranted = _missing_prd_grant({job: _manifest(expected_context, job) for job in jobs})
     if ungranted:
-        return {"schema_version": 1, "ok": False, "error": "invalid-input",
-                "reason": f"job {ungranted!r} has no prd: grant"}
+        return _refusal("invalid-input", f"job {ungranted!r} has no prd: grant")
     bodies = {job: _persona_body(job) for job in jobs}
     unavailable = sorted(job for job, body in bodies.items() if body is None)
     if unavailable:
