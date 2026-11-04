@@ -209,3 +209,21 @@ D5: pass
 
 Verdict: 33 findings
 Tests: 967 passed, 23 failed, 0 skipped (gate run this cycle, exit 1, treated as failed; counts read verbatim from docs/dev/tmp/gate-00013v2-c1.log:609 because the verify reader returned "counts unavailable" for this `-q` summary — last-verification.json was not written)
+
+## Post-session provenance and coordinator disposition
+
+Native coordinator session `b332b34b-5d72-49de-891e-194d5f101d83` exited 0.
+Actual served reviewers: Alice and Blake used native Claude Sonnet 5.5/high;
+Eve used native Claude Fable 5.1/xhigh; Bob used Codex `gpt-6-astra`/high
+(thread `01a1a56f-75f2-7a72-b860-dbedecf63943`); Carl used Copilot with
+explicit `gemini-3.8-flash`. No auto model or silent downgrade was used.
+Bob's 600418-byte actual inline input remains distinguished from the smaller
+staged telemetry row. Eve's one format retry preserved her complete findings.
+Blake independently read the delivery receipt named by the PRD as an output
+to assess; no coordinator ruling, prior review, Pat or 6d input was supplied.
+
+Root adjudication is recorded in
+`../autopilot/reports/00013-v2-cycle1-adjudication.md`. It supersedes the
+incorrect older-test rebinding and unsupported single-voice dismissals in
+the initial handoff, without rewriting the reviewers' findings or verdict.
+The original handoff/ledger/task snapshot is committed separately.
