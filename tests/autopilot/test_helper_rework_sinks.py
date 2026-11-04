@@ -372,6 +372,14 @@ def alias_of(world: World, tmp_path: Path) -> Path:
     return alias
 
 
+def spellings_of(world: World, tmp_path: Path) -> dict[str, Path]:
+    """Three strings naming the project directory: resolved, a link to it, a linked ancestor."""
+    ancestor = tmp_path / "ancestor-link"
+    ancestor.symlink_to(tmp_path, target_is_directory=True)
+    return {"resolved": world.target.resolve(), "alias": alias_of(world, tmp_path),
+            "ancestor": ancestor / world.target.name}
+
+
 @pytest.mark.parametrize(("case", "token"), [("unresolved-root", "ROOT-TOKEN-0f21"),
                                              ("unresolved-outputs", "ROOT-TOKEN-0f22")])
 def test_a_run_is_accepted_when_the_root_and_the_output_paths_are_spelled_differently(
@@ -408,10 +416,9 @@ def test_a_tracked_log_is_refused_under_every_spelling_of_the_project_root(
 
 # --- R-C1. a symlink below the project root is refused under every spelling of the root ---------
 
-SPELLINGS = [("resolved", "resolved"), ("resolved", "alias"),
-             ("alias", "resolved"), ("alias", "alias")]
-SPELLING_IDS = ["resolved-root-resolved-outputs", "resolved-root-alias-outputs",
-                "alias-root-resolved-outputs", "alias-root-alias-outputs"]
+NAMES = ("resolved", "alias", "ancestor")
+SPELLINGS = [(root, out) for root in NAMES for out in NAMES]
+SPELLING_IDS = [f"{root}-root-{out}-outputs" for root, out in SPELLINGS]
 
 
 def commit_link(world: World, name: str, pointee: Path) -> Path:
@@ -435,9 +442,9 @@ def test_a_symlink_below_the_project_root_is_refused_under_every_spelling_of_the
     Root and output spelled the same: already refused before the fix. Root and output
     spelled differently: accepted before the fix, must be refused (these must fail first).
     """
-    real = world.target.resolve()
-    spellings = {"resolved": real, "alias": alias_of(world, tmp_path)}
-    assert str(spellings["alias"]) != str(real)
+    spellings = spellings_of(world, tmp_path)
+    real = spellings["resolved"]
+    assert len({str(path) for path in spellings.values()}) == 3
     link = commit_link(world, "loop-link", real)
     root, spelled = spellings[root_spelling], spellings[out_spelling]
     case = f"{through}-{root_spelling}-{out_spelling}"
@@ -467,8 +474,8 @@ def test_a_symlink_deeper_below_the_project_root_is_refused_under_every_spelling
     root_spelling: str, out_spelling: str, depth: tuple[str, ...],
 ) -> None:
     """Depth is not part of the rule: a symlink below the root is unsafe however deep."""
-    real = world.target.resolve()
-    spellings = {"resolved": real, "alias": alias_of(world, tmp_path)}
+    spellings = spellings_of(world, tmp_path)
+    real = spellings["resolved"]
     (real.joinpath(*depth)).mkdir(parents=True)
     link_rel = Path(*depth, "nest-link")
     link = commit_link(world, str(link_rel), real)
@@ -626,3 +633,40 @@ def test_acquiring_the_output_sinks_leaves_the_open_descriptor_count_unchanged(
         failure_shape(report, "sink-failed")
         assert not marker.exists()
     assert after <= before, f"run_verification leaked {after - before} descriptor(s)"
+
+
+# --- R-D1. a path that leaves the project and returns through a symlink is refused --------------
+
+
+@pytest.mark.parametrize("through", ["log", "artifact"])
+@pytest.mark.parametrize(("root_spelling", "out_spelling"), SPELLINGS, ids=SPELLING_IDS)
+def test_an_output_path_that_leaves_the_project_and_returns_through_a_symlink_is_refused(
+    world: World, tmp_path: Path, isolated_git: None, through: str,
+    root_spelling: str, out_spelling: str,
+) -> None:
+    """out-link (committed) leaves the project; back (uncommitted, outside) returns into logs."""
+    spellings = spellings_of(world, tmp_path)
+    real = spellings["resolved"]
+    (real / "logs").mkdir(exist_ok=True)
+    outside = tmp_path / f"{through}-{root_spelling}-{out_spelling}-away"
+    outside.mkdir()
+    link = commit_link(world, "out-link", outside)
+    back = outside / "back"
+    back.symlink_to(real / "logs", target_is_directory=True)
+    root, spelled = spellings[root_spelling], spellings[out_spelling]
+    case = f"{through}-{root_spelling}-{out_spelling}"
+    marker = tmp_path / f"{case}-marker.txt"
+    argv = token_child(tmp_path, f"{case}-child", "BACK-TOKEN-5e04", marker)
+    via = spelled / "out-link" / "back"
+    log = via / "returned.log" if through == "log" else spelled / "logs" / f"{case}-plain.log"
+    artifact = via / "returned.json" if through == "artifact" else spelled / ARTIFACT
+    report = gate_at(world, argv, root, log, artifact)
+    assert (report["schema_version"], report["ok"]) == (1, False), report
+    assert report["error"] == "unsafe-artifact-path", report
+    assert not marker.exists(), "the child ran against an output path through two symlinks"
+    assert os.readlink(link) == str(outside)
+    assert os.readlink(back) == str(real / "logs")
+    assert not (real / "logs" / "returned.log").exists(), "the refused run wrote a log"
+    assert not (real / "logs" / "returned.json").exists(), "the refused run wrote an artifact"
+    assert not (real / "logs" / f"{case}-plain.log").exists()
+    assert not (real / ARTIFACT).exists()
