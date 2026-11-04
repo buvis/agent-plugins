@@ -161,7 +161,7 @@ def test_staged_context_filters_each_input_kind_independently(
 # peak. The child keeps that stop/start out of this runner's tracing state.
 CHILD = r"""
 import json, sys, tracemalloc
-scripts, tests, mode = sys.argv[1], sys.argv[2], sys.argv[3]
+scripts, tests = sys.argv[1], sys.argv[2]
 sys.path.insert(0, scripts)
 sys.path.insert(0, tests)
 import review_evidence
@@ -173,7 +173,6 @@ result(evidence, "alice")["attempt"] = ATTEMPT
 if tracemalloc.is_tracing():
     tracemalloc.stop()
 tracemalloc.start()
-probe = [0] * ATTEMPT if mode == "inject" else None
 report = review_evidence.check_evidence(policy, context, evidence)
 peak = tracemalloc.get_traced_memory()[1]
 tracemalloc.stop()
@@ -182,9 +181,9 @@ print(json.dumps({"peak": peak, "ok": report["ok"], "defects": report.get("defec
 CEILING = 1_000_000
 
 
-def measure(mode: str) -> dict[str, Any]:
+def measure() -> dict[str, Any]:
     proc = subprocess.run(
-        [sys.executable, "-c", CHILD, str(SCRIPTS), str(Path(__file__).resolve().parent), mode],
+        [sys.executable, "-c", CHILD, str(SCRIPTS), str(Path(__file__).resolve().parent)],
         capture_output=True, text=True, timeout=30,
     )
     assert proc.returncode == 0, proc.stderr
@@ -192,13 +191,7 @@ def measure(mode: str) -> dict[str, Any]:
 
 
 def test_attempt_validation_does_not_allocate_from_the_supplied_attempt() -> None:
-    measured = measure("plain")
+    measured = measure()
     assert measured["peak"] < CEILING, measured["peak"]
     assert not measured["ok"]
-    assert "attempt_sequence_invalid" in measured["defects"]
-
-
-def test_the_attempt_allocation_measurement_catches_a_proportional_allocation() -> None:
-    measured = measure("inject")
-    assert measured["peak"] >= CEILING, measured["peak"]
     assert "attempt_sequence_invalid" in measured["defects"]

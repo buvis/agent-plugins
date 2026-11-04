@@ -506,13 +506,6 @@ class FailingSink:
     def __getattr__(self, name: str) -> Any:
         return getattr(self._handle, name)
 
-    def __enter__(self) -> Any:
-        return self
-
-    def __exit__(self, *exc: object) -> bool:
-        self.close()
-        return False
-
     def write(self, data: Any) -> Any:
         self._writes += 1
         if self._fail_write_after is not None and self._writes > self._fail_write_after:
@@ -704,9 +697,11 @@ def refusal_line(proc: subprocess.CompletedProcess) -> str:
     return lines[0]
 
 
-def drain_fifo(fifo: Path, stop: threading.Event, chunks: list[bytes]) -> None:
+def drain_fifo(fifo: Path, stop: threading.Event, chunks: list[bytes],
+               opened: threading.Event) -> None:
     """Keeps a reader on `fifo` without ever blocking, so the thread always joins."""
     reader = os.open(fifo, os.O_RDONLY | os.O_NONBLOCK)
+    opened.set()
     try:
         deadline = time.monotonic() + 60
         while not stop.is_set() and time.monotonic() < deadline:
@@ -739,10 +734,11 @@ def test_export_policy_refuses_a_drained_fifo_output_rather_than_writing_into_a_
 ) -> None:
     fifo = world.base / "drained.fifo"
     os.mkfifo(fifo)
-    stop, chunks = threading.Event(), []
-    reader = threading.Thread(target=drain_fifo, args=(fifo, stop, chunks), daemon=True)
+    stop, opened, chunks = threading.Event(), threading.Event(), []
+    reader = threading.Thread(target=drain_fifo, args=(fifo, stop, chunks, opened), daemon=True)
     reader.start()
     try:
+        assert opened.wait(timeout=10), "the fifo reader never opened the fifo"
         refused = export(world, "--out", fifo)
     finally:
         stop.set()
@@ -752,7 +748,7 @@ def test_export_policy_refuses_a_drained_fifo_output_rather_than_writing_into_a_
     assert refused.returncode == 1, (refused.returncode, refused.stderr)
     assert refused.stdout == b""
     assert FIFO_CAUSE.search(refusal_line(refused)), refused.stderr
-    assert b"schema_version" not in b"".join(chunks), chunks
+    assert b"".join(chunks) == b"", chunks
 
 
 def test_export_policy_refuses_up_front_when_o_nofollow_support_is_missing(
