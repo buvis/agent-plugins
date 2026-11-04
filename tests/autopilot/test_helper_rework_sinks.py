@@ -404,3 +404,192 @@ def test_a_tracked_log_is_refused_under_every_spelling_of_the_project_root(
     assert (resolved / "src" / "app.py").read_bytes() == APP_BODY
     accepted = gate_at(world, argv, root, spelled / "logs" / f"{case}.log", spelled / ARTIFACT)
     assert accepted["ok"] is True, accepted
+
+
+# --- R-C1. a symlink below the project root is refused under every spelling of the root ---------
+
+SPELLINGS = [("resolved", "resolved"), ("resolved", "alias"),
+             ("alias", "resolved"), ("alias", "alias")]
+SPELLING_IDS = ["resolved-root-resolved-outputs", "resolved-root-alias-outputs",
+                "alias-root-resolved-outputs", "alias-root-alias-outputs"]
+
+
+def commit_link(world: World, name: str, pointee: Path) -> Path:
+    """A directory symlink inside the project, committed so the tree stays clean."""
+    link = world.target / name
+    link.symlink_to(pointee, target_is_directory=True)
+    git(world.target, "add", name)
+    git(world.target, "-c", "user.name=Tess", "-c", "user.email=tess@example.invalid",
+        "commit", "-q", "--message", f"add {name}")
+    return link
+
+
+@pytest.mark.parametrize("through", ["log", "artifact"])
+@pytest.mark.parametrize(("root_spelling", "out_spelling"), SPELLINGS, ids=SPELLING_IDS)
+def test_a_symlink_below_the_project_root_is_refused_under_every_spelling_of_the_root(
+    world: World, tmp_path: Path, isolated_git: None, through: str,
+    root_spelling: str, out_spelling: str,
+) -> None:
+    """Two genuinely different spellings of the project directory, crossed.
+
+    Root and output spelled the same: already refused before the fix. Root and output
+    spelled differently: accepted before the fix, must be refused (these must fail first).
+    """
+    real = world.target.resolve()
+    spellings = {"resolved": real, "alias": alias_of(world, tmp_path)}
+    assert str(spellings["alias"]) != str(real)
+    link = commit_link(world, "loop-link", real)
+    root, spelled = spellings[root_spelling], spellings[out_spelling]
+    case = f"{through}-{root_spelling}-{out_spelling}"
+    marker = tmp_path / f"{case}-marker.txt"
+    argv = token_child(tmp_path, f"{case}-child", "LINK-TOKEN-5e01", marker)
+    log = (spelled / "loop-link" if through == "log" else spelled) / "logs" / "linked.log"
+    artifact = (spelled / "loop-link" if through == "artifact" else spelled) / ARTIFACT
+    report = gate_at(world, argv, root, log, artifact)
+    assert (report["schema_version"], report["ok"]) == (1, False), report
+    assert report["error"] == "unsafe-artifact-path", report
+    assert not marker.exists(), "the child ran against an output path through a symlink"
+    assert os.readlink(link) == str(real)
+    assert not (real / "logs" / "linked.log").exists(), "the refused run wrote a log"
+    assert not (real / ARTIFACT).exists(), "the refused run wrote an artifact"
+    plain_log = spelled / "logs" / f"{case}-plain.log"
+    accepted = gate_at(world, argv, root, plain_log, spelled / ARTIFACT)
+    assert accepted["ok"] is True, accepted
+    assert marker.read_text("utf-8") == str(real)
+    assert b"LINK-TOKEN-5e01" in (real / "logs" / f"{case}-plain.log").read_bytes()
+
+
+@pytest.mark.parametrize("through", ["log", "artifact"])
+def test_a_symlink_pointing_outside_the_project_stays_refused(
+    world: World, tmp_path: Path, isolated_git: None, through: str,
+) -> None:
+    outside = tmp_path / f"{through}-outside-dir"
+    outside.mkdir()
+    commit_link(world, "out-link", outside)
+    marker = tmp_path / f"{through}-outside-marker.txt"
+    argv = token_child(tmp_path, f"{through}-outside-child", "OUT-TOKEN-5e02", marker)
+    root = world.target.resolve()
+    log = (root / "out-link" if through == "log" else root) / "logs" / "out.log"
+    artifact = (root / "out-link" if through == "artifact" else root) / ARTIFACT
+    report = gate_at(world, argv, root, log, artifact)
+    assert (report["schema_version"], report["ok"]) == (1, False), report
+    assert report["error"] == "unsafe-artifact-path", report
+    assert not marker.exists(), "the child ran against an output path leaving the project"
+    assert list(outside.rglob("*")) == [], "the refused run wrote outside the project"
+
+
+# --- R-C2. an artifact leaf this run created does not survive a failed record write or close ----
+
+
+@pytest.mark.parametrize(("slug", "fail_write", "fail_close"),
+                         [("sink-close-failed", None, True), ("sink-write-failed", 0, False)])
+def test_a_created_artifact_leaf_does_not_survive_a_failed_record_write_or_close(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+    slug: str, fail_write: int | None, fail_close: bool,
+) -> None:
+    artifact = world.target / "docs" / "dev" / "tmp" / f"created-{slug}.json"
+    assert not artifact.exists()
+    log = world.target / "logs" / f"created-{slug}.log"
+    marker = tmp_path / f"created-{slug}-marker.txt"
+    argv = child_argv(tmp_path, f"created-{slug}-child", MARKER_CHILD, marker)
+    children = spy_on_spawn(monkeypatch, argv)
+    break_artifact_sink(monkeypatch, artifact, fail_write_after=fail_write, fail_close=fail_close)
+    try:
+        report = run_gate(world, argv, log=log, artifact=artifact)
+    finally:
+        reap(children)
+    failure_shape(report, slug)
+    assert not artifact.exists(), "a leaf this run created outlived its failed record"
+    assert verdict(world, stored_record(artifact), argv) == ("stale", {})
+
+
+# --- R-C3. every late sink failure ends a descendant the child left running ---------------------
+
+
+@pytest.mark.parametrize(("target", "slug", "fail_write", "fail_close"),
+                         [("log", "sink-close-failed", None, True),
+                          ("artifact", "sink-write-failed", 0, False)],
+                         ids=["log-close", "record-write"])
+def test_a_late_log_close_or_record_write_failure_ends_the_descendant_the_child_left_running(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+    target: str, slug: str, fail_write: int | None, fail_close: bool,
+) -> None:
+    late, pidfile = tmp_path / f"{target}-late.txt", tmp_path / f"{target}-descendant.pid"
+    argv = child_argv(tmp_path, f"{target}-late-child", DESCENDANT_CHILD, late, pidfile,
+                      f"LATE-{target}")
+    log = world.target / "logs" / f"late-{target}.log"
+    broken = log if target == "log" else world.target / ARTIFACT
+    break_artifact_sink(monkeypatch, broken, fail_write_after=fail_write, fail_close=fail_close)
+    children = spy_on_spawn(monkeypatch, argv)
+    try:
+        report = run_gate(world, argv, log=log)
+        failure_shape(report, slug)
+        assert pidfile.is_file(), "the child never started its descendant"
+        deadline = time.monotonic() + 3
+        while time.monotonic() < deadline:
+            assert not late.exists(), "the descendant outlived the late sink failure"
+            time.sleep(0.05)
+    finally:
+        kill_descendant(pidfile, late)
+        reap(children)
+
+
+# --- R-C4. a log leaf swapped between its creation and its reopen is refused --------------------
+
+
+def test_an_absent_log_replaced_before_its_sink_opens_is_refused_and_left_alone(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    log = world.target / "logs" / "absent-then-swapped.log"
+    assert not log.exists()
+    marker = tmp_path / "absent-swapped-marker.txt"
+    argv = child_argv(tmp_path, "absent-swapped-child", MARKER_CHILD, marker)
+    swapped = swap_log_before_open(monkeypatch, log, swap_in_other_file)
+    children = spy_on_spawn(monkeypatch, argv)
+    try:
+        report = run_gate(world, argv, log=log)
+    finally:
+        reap(children)
+    assert swapped == [log], "the window before the sink opened was never reached"
+    failure_shape(report, "sink-failed")
+    assert not marker.exists(), "the child ran against a replaced log"
+    assert log.read_bytes() == SWAP_PLAIN, "the refused run rewrote the replacement"
+    assert not (world.target / ARTIFACT).exists()
+
+
+# --- R-C5. acquiring the output sinks leaks no file descriptor ----------------------------------
+
+
+def open_descriptors() -> int:
+    try:
+        return len(os.listdir("/dev/fd"))
+    except OSError:
+        pytest.skip("/dev/fd is not readable on this host")
+
+
+@pytest.mark.parametrize("case", ["accepted", "replaced-leaf"])
+def test_acquiring_the_output_sinks_leaves_the_open_descriptor_count_unchanged(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch, case: str,
+) -> None:
+    open_descriptors()
+    log = seed(world.target / "logs" / f"fd-{case}.log", FRESH_LOG)
+    log.chmod(0o644)
+    marker = tmp_path / f"fd-{case}-marker.txt"
+    argv = child_argv(tmp_path, f"fd-{case}-child", MARKER_CHILD, marker)
+    if case == "replaced-leaf":
+        swapped = swap_log_before_open(monkeypatch, log, swap_in_other_file)
+    children = spy_on_spawn(monkeypatch, argv)
+    try:
+        before = open_descriptors()
+        report = run_gate(world, argv, log=log)
+        after = open_descriptors()
+    finally:
+        reap(children)
+    if case == "accepted":
+        assert report["ok"] is True, report
+        assert marker.is_file()
+    else:
+        assert swapped == [log], "the replacement window was never reached"
+        failure_shape(report, "sink-failed")
+        assert not marker.exists()
+    assert after <= before, f"run_verification leaked {after - before} descriptor(s)"
