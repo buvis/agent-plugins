@@ -94,7 +94,8 @@ def _identity_hit(resolved: Path, repo_root: Path, toplevel: Path) -> str | None
     if resolved.is_relative_to((repo_root / STORE_PREFIX).resolve()):
         return "resolves inside the store"
     targets = _identity_targets(repo_root)
-    pointer = _worktree_gitdir_pointer(resolved)
+    # Only the supplied repository's own pointer is read, never a nested one's.
+    pointer = _worktree_gitdir_pointer(resolved) if resolved.parent == toplevel else None
     if pointer is not None:
         for target, reason in targets:
             try:
@@ -137,10 +138,14 @@ def _worktree_gitdir_pointer(resolved: Path) -> Path | None:
 def _symlinked_component(log_path: Path, repo_root: Path, toplevel: Path) -> bool:
     """True iff any component of the UNRESOLVED `log_path` BELOW the
     repository is a symlink (the final component included). The walk stops
-    at the unresolved `repo_root` and at the resolved `toplevel`: a symlink
-    in the repository's own ancestry (macOS `/tmp`) is not the sink's."""
+    at the repository root under either spelling and at the resolved
+    `toplevel`: a symlink in the repository's own ancestry (macOS `/tmp`, a
+    root alias) is not the sink's, while one below the root always is."""
+    stops = (repo_root, repo_root.resolve(), toplevel)
     current = log_path
-    while current not in (repo_root, toplevel) and current.parent != current:
+    while current not in stops and current.parent != current:
+        if not current.is_relative_to(repo_root) and current.resolve() in stops:
+            break
         if os.path.islink(current):
             return True
         current = current.parent
@@ -173,10 +178,13 @@ def _pinned_parent_fd(parent: Path, root: Path) -> int:
     reached through a symlinked ancestor is normal)."""
     try:
         names = parent.relative_to(root).parts
-    except ValueError as exc:
-        # Raised as OSError, before `root` is opened, so no fd leaks.
-        raise OSError(f"{parent} is not under {root}") from exc
-    parent_fd = os.open(root, os.O_DIRECTORY)
+    except ValueError:
+        try:
+            names = parent.resolve().relative_to(root.resolve()).parts
+        except ValueError as exc:
+            # Raised as OSError, before `root` is opened, so no fd leaks.
+            raise OSError(f"{parent} is not under {root}") from exc
+    parent_fd = os.open(root.resolve(), os.O_DIRECTORY)
     for name in names:
         try:
             parent_fd = _descend(parent_fd, name)
@@ -200,48 +208,47 @@ def _descend(parent_fd: int, name: str) -> int:
     return next_fd
 
 
-def _open_log_sink(log_path: Path, root: Path):
+def _open_log_sink(log_path: Path, root: Path, *, preserve: bool = False):
     """Opens `log_path` for an unbuffered binary write without following a
-    symlink at any level below `root`, and WITHOUT changing a byte of it: an
-    existing sink keeps its prior content until the caller truncates it, once
-    the run it belongs to is committed. The leaf is opened with
-    `O_NOFOLLOW | O_NONBLOCK` relative to a pinned parent descriptor, so a
-    symlink swap of the pathname cannot redirect the open and a raced FIFO
-    cannot block it. The opened inode is then proven to be a lone-linked
-    regular file, which `O_EXCL` on a freshly created leaf used to grant."""
+    symlink at any level below `root`. By default the leaf is REPLACED: an
+    existing file (a symlink included, whose target is never touched) is
+    unlinked and a fresh regular file is created exclusively, mode 0o666.
+    With `preserve=True` an EXISTING leaf is opened without creating it and
+    without changing a byte, and the OPENED inode must be a regular file
+    with one hard link and no execute bit, or the open raises OSError. The
+    leaf is opened relative to a pinned parent descriptor, so a symlink swap
+    of the pathname cannot redirect the open and a raced FIFO cannot block
+    it."""
     parent_fd = _pinned_parent_fd(log_path.parent, root)
     try:
-        # 0o666 like builtin `open`; os.open's 0o777 default would leave the
-        # sink executable and make the next run refuse its own log.
-        sink_fd = os.open(
-            log_path.name,
-            os.O_CREAT | os.O_WRONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
-            0o666,
-            dir_fd=parent_fd,
-        )
+        if preserve:
+            sink_fd = os.open(
+                log_path.name,
+                os.O_WRONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                dir_fd=parent_fd,
+            )
+        else:
+            try:
+                os.unlink(log_path.name, dir_fd=parent_fd)
+            except FileNotFoundError:
+                pass
+            # 0o666 like builtin `open`; os.open's 0o777 default would leave
+            # the sink executable.
+            sink_fd = os.open(
+                log_path.name,
+                os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW,
+                0o666,
+                dir_fd=parent_fd,
+            )
     finally:
         os.close(parent_fd)
-    try:
-        os.set_blocking(sink_fd, True)
-        info = os.fstat(sink_fd)
-        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
-            raise OSError(f"{log_path} must be a regular file with one hard link")
-    except BaseException:
-        os.close(sink_fd)
-        raise
+    if preserve:
+        try:
+            os.set_blocking(sink_fd, True)
+            info = os.fstat(sink_fd)
+            if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_mode & 0o111:
+                raise OSError(f"{log_path} must be a plain regular file with one hard link")
+        except BaseException:
+            os.close(sink_fd)
+            raise
     return os.fdopen(sink_fd, "wb", buffering=0)
-
-
-def _pin_sink_leaf(log_path: Path, root: Path) -> tuple[int, str, tuple[int, int]]:
-    """The validated parent descriptor of an already-open sink, with the
-    leaf's name and the identity of the inode that answers to it now, so a
-    caller can later act on that exact leaf instead of on whatever holds the
-    pathname by then. The descent repeats `_open_log_sink`'s own no-follow
-    walk below `root`. Raises OSError with nothing left open."""
-    parent_fd = _pinned_parent_fd(log_path.parent, root)
-    try:
-        info = os.lstat(log_path.name, dir_fd=parent_fd)
-    except OSError:
-        os.close(parent_fd)
-        raise
-    return parent_fd, log_path.name, (info.st_dev, info.st_ino)

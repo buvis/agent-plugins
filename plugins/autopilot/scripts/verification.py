@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 
 from dirty_tree import _ancestor_and_clean, _dirty_check, _git, _untracked_log_exclusion
-from log_sink_refusal import _open_log_sink, _pin_sink_leaf, refuse
+from log_sink_refusal import _open_log_sink, _pinned_parent_fd, refuse
 
 GATE_TIMEOUT_S = 1800
 GATE_OUTPUT_CAP = 2_000_000  # final stdout bytes kept for the summary parse
@@ -137,12 +137,17 @@ def _drain(proc, sink, digest, deadline: float) -> tuple[bytes, bool, bool]:
     return bytes(tail), not open_pipes, False
 
 
-def _kill(proc) -> None:
-    """Kills and reaps `proc`'s process group; a gone group is not an error."""
+def _kill_group(pgid: int) -> None:
+    """Kills process group `pgid`; a gone group is not an error."""
     try:
-        os.killpg(proc.pid, signal.SIGKILL)
+        os.killpg(pgid, signal.SIGKILL)
     except (ProcessLookupError, PermissionError):
         pass
+
+
+def _kill(proc) -> None:
+    """Kills and reaps `proc`'s process group; a gone group is not an error."""
+    _kill_group(proc.pid)
     proc.wait()
 
 
@@ -194,30 +199,39 @@ def _run_against_sink(argv: list[str], root: Path, sink, digest, deadline: float
         "timed_out": not exited and not capped,
         "capped": capped,
         "sha256": digest.hexdigest(),
+        "pgid": proc.pid,  # never reported: lets a late sink failure end leftovers
     }
 
 
 def _execute(argv: list[str], root: Path, log: Path, deadline: float) -> dict:
     """Proves the log sink openable BEFORE spawning the child, so a sink
     failure never arrives as the spawn's and never escapes into an already
-    running process. Each failing sink operation gets its own error."""
+    running process. Each failing sink operation gets its own error. A
+    failed spawn removes a log this run created; any other outcome keeps the
+    log as evidence."""
     digest = hashlib.sha256()
     try:
-        sink = _open_log_sink(log, root)
+        sink, pin = _acquire_sink(log, root)
     except OSError as error:
         return {"error": "sink-failed", "reason": str(error)}
     close_error: OSError | None = None
     try:
-        result = _run_against_sink(argv, root, sink, digest, deadline)
-    finally:
         try:
-            sink.close()
-        except OSError as error:
-            close_error = error
+            result = _run_against_sink(argv, root, sink, digest, deadline)
+        finally:
+            try:
+                sink.close()
+            except OSError as error:
+                close_error = error
+        if result.get("error") == "spawn-failed" and pin[3]:
+            _unlink_pinned(pin)
+    finally:
+        _close_pin(pin)
     if close_error is not None and "error" not in result:
         # The run itself looked clean but the sink could not be closed, so
         # the log cannot be trusted. An earlier, more specific cause (a
         # write or spawn failure) is never overridden by this one.
+        _kill_group(result["pgid"])
         return {"error": "sink-close-failed", "reason": str(close_error)}
     return result
 
@@ -290,24 +304,42 @@ def _write_artifact(art: dict, sink) -> dict | None:
     return failure
 
 
-_Pin = tuple[int, str, tuple[int, int]]
+_Pin = tuple[int, str, tuple[int, int], bool]  # parent fd, leaf, (dev, ino), created
 
 
-def _open_result_sink(artifact: Path, root: Path) -> tuple[object, _Pin | None]:
-    """The result-artifact sink, with what a later cleanup needs to drop a
-    leaf this validation created: the parent descriptor pinned here, before
-    the spawn, and the identity of the leaf opened through it. The pin is
-    None for a leaf that already existed, which cleanup never removes, and
-    None when that ownership cannot be established at all - removing
-    nothing is always the safe outcome."""
-    existed = artifact.exists()
-    sink = _open_log_sink(artifact, root)
-    if existed:
-        return sink, None
+def _acquire_sink(path: Path, root: Path) -> tuple[object, _Pin]:
+    """The sink for `path`, proven openable before anything is spawned,
+    with what a later cleanup needs: the parent descriptor pinned here, the
+    identity of the inode actually opened, and whether this run created the
+    leaf. Ownership comes from the exclusive create itself, never from an
+    earlier existence check; identity comes from the opened descriptor,
+    never from a later lookup by name. Raises OSError with nothing left
+    open and nothing left behind."""
+    parent_fd = _pinned_parent_fd(path.parent, root)
+    created, identity = False, None
     try:
-        return sink, _pin_sink_leaf(artifact, root)
-    except OSError:
-        return sink, None
+        flags = os.O_WRONLY | os.O_NOFOLLOW | os.O_NONBLOCK
+        try:
+            fd = os.open(path.name, flags | os.O_CREAT | os.O_EXCL, 0o666, dir_fd=parent_fd)
+            created = True
+        except FileExistsError:
+            fd = os.open(path.name, flags, dir_fd=parent_fd)
+        try:
+            info = os.fstat(fd)
+        finally:
+            os.close(fd)
+        identity = (info.st_dev, info.st_ino)
+        sink = _open_log_sink(path, root, preserve=True)
+        opened = os.fstat(sink.fileno())
+        if (opened.st_dev, opened.st_ino) != identity:
+            sink.close()
+            raise OSError(f"{path} was replaced while it was being opened")
+    except BaseException:
+        if created and identity is not None:
+            _unlink_pinned((parent_fd, path.name, identity, created))
+        os.close(parent_fd)
+        raise
+    return sink, (parent_fd, path.name, identity, created)
 
 
 def _unlink_pinned(pin: _Pin) -> None:
@@ -316,7 +348,7 @@ def _unlink_pinned(pin: _Pin) -> None:
     A replacement file, a directory left in its place, or a parent swapped
     for a symlink during the run therefore all survive, and any failure is
     swallowed rather than allowed past the result already decided."""
-    parent_fd, name, identity = pin
+    parent_fd, name, identity, _ = pin
     try:
         info = os.lstat(name, dir_fd=parent_fd)
         if (info.st_dev, info.st_ino) == identity:
@@ -325,21 +357,52 @@ def _unlink_pinned(pin: _Pin) -> None:
         pass
 
 
-def _close_result_sink(sink, pin: _Pin | None, drop: bool) -> None:
+def _empty_pinned(pin: _Pin) -> None:
+    """Truncates the pinned leaf to zero bytes only while it is still the
+    very inode that was opened. Any failure is swallowed."""
+    parent_fd, name, identity, _ = pin
+    try:
+        info = os.lstat(name, dir_fd=parent_fd)
+        if (info.st_dev, info.st_ino) == identity:
+            fd = os.open(name, os.O_WRONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent_fd)
+            try:
+                opened = os.fstat(fd)
+                if (opened.st_dev, opened.st_ino) == identity:
+                    os.ftruncate(fd, 0)
+            finally:
+                os.close(fd)
+    except OSError:
+        pass
+
+
+def _close_pin(pin: _Pin) -> None:
+    """Closes the pinned parent descriptor; a failure must not override the
+    result already decided."""
+    try:
+        os.close(pin[0])
+    except OSError:
+        pass
+
+
+def _close_result_sink(sink, pin: _Pin, drop: bool, untrusted: bool) -> None:
     """Releases everything the pre-spawn artifact validation opened. `drop`
     says no record reached the writer that would have closed the sink, so it
-    is closed here and the leaf this run created is removed: a run that
-    writes nothing leaves no result artifact behind. The pinned descriptor
-    is closed on every path."""
+    is closed here and a leaf this run created is removed, while a leaf that
+    already existed stays exactly as it was. `untrusted` says a record was
+    written but its write or close failed: it must not stay reusable, so a
+    leaf this run created is removed and an existing one is emptied. The
+    pinned descriptor is closed on every path."""
     if drop:
         try:
             sink.close()
         except OSError:
             pass
-        if pin is not None:
+    if drop or untrusted:
+        if pin[3]:
             _unlink_pinned(pin)
-    if pin is not None:
-        os.close(pin[0])
+        elif untrusted:
+            _empty_pinned(pin)
+    _close_pin(pin)
 
 
 def _run_and_record(
@@ -357,18 +420,21 @@ def _run_and_record(
     descriptor: the artifact is never re-opened, nor re-resolved by
     pathname, after it was judged."""
     try:
-        artifact_sink, pin = _open_result_sink(artifact, root)
+        artifact_sink, pin = _acquire_sink(artifact, root)
     except OSError as error:
         return {"schema_version": 1, "ok": False, "error": "sink-failed", "reason": str(error)}
     art: dict | None = None
+    failure: dict | None = None
     try:
         run = _execute(argv, root, log, time.monotonic() + timeout)
         if "error" in run:
             return {"schema_version": 1, "ok": False, **run}
         art = _artifact(argv, root, head_sha, log_rel, excluded, run)
         failure = _write_artifact(art, artifact_sink)
+        if failure is not None:
+            _kill_group(run["pgid"])
     finally:
-        _close_result_sink(artifact_sink, pin, art is None)
+        _close_result_sink(artifact_sink, pin, art is None, failure is not None)
     if failure is not None:
         return {"schema_version": 1, "ok": False, **failure}
     return {"schema_version": 1, "ok": True, "artifact": art, "controller_required": True}
