@@ -95,7 +95,7 @@ def test_a_failed_spawn_writes_no_result_artifact_when_none_existed(
 
 
 @pytest.mark.parametrize("kind", ["absent-program", "unexecutable-program"])
-def test_verification_preserves_its_outputs_on_a_spawn_failure_but_leaves_an_empty_log(
+def test_verification_preserves_its_outputs_on_a_spawn_failure_and_an_absent_log_stays_absent(
     world: World, tmp_path: Path, isolated_git: None, kind: str,
 ) -> None:
     program = tmp_path / kind
@@ -106,7 +106,7 @@ def test_verification_preserves_its_outputs_on_a_spawn_failure_but_leaves_an_emp
     report = run_gate(world, [str(program), "--version"], log=log)
     failure_shape(report, "spawn-failed")
     assert not (world.target / ARTIFACT).exists()
-    assert log.is_file() and log.read_bytes() == b""
+    assert not log.exists(), "the failed spawn invented a log that did not exist before"
     with pytest.raises(ValueError):
         run_gate(world, [], log=world.target / "logs" / f"{kind}-empty.log")
     marker = tmp_path / f"{kind}-marker.txt"
