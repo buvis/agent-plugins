@@ -226,7 +226,8 @@ def test_staging_refuses_a_prd_inlining_job_whose_grant_lists_no_prd_ref(
     report = call(stage_module(), project, cycle_id="pg1", expected_context=context,
                   input_texts=texts_renamed(context, prd_ref))
     assert_invalid_input(report)
-    reason = report["reason"]
+    assert "reason" not in report, report
+    reason = report["detail"]
     assert job in reason and "prd" in reason.lower(), reason
     assert not destination.exists() and staged_files(destination) == set()
     assert snapshot(tmp_path) == before
@@ -254,7 +255,8 @@ def test_staging_names_the_alphabetically_first_job_when_blake_and_eve_both_lack
     before = snapshot(tmp_path)
     report = call(stage_module(), project, cycle_id="pg2", expected_context=context)
     assert_invalid_input(report)
-    reason = report["reason"]
+    assert "reason" not in report, report
+    reason = report["detail"]
     assert "blake" in reason and "prd" in reason.lower(), reason
     assert not re.search(r"\beve\b", reason), reason
     assert staged_files(project / "docs" / "dev" / "tmp" / "rev") == set()
@@ -346,7 +348,7 @@ def test_staging_writes_a_per_job_context_artifact_only_for_a_job_outside_the_un
     assert core_names("u2") <= staged_files(destination)
 
 
-def test_staging_keeps_every_context_kind_when_no_roster_job_reads_the_shared_context(
+def test_staging_grants_no_context_content_when_no_roster_job_reads_the_shared_context(
     project: Path,
 ) -> None:
     context = context_for(PRD, "fast-track-delta-clean")
@@ -360,7 +362,7 @@ def test_staging_keeps_every_context_kind_when_no_roster_job_reads_the_shared_co
     shared = text(destination / "review-context-u3.md")
     for marker in (CONTEXT, SETTLED, PRECEDENT_ALT, GATE_ALT, "review-tasks-u3.md",
                    "review-prd-u3.md", "review-pack-u3.md"):
-        assert marker in shared, marker
+        assert marker not in shared, marker
     assert PRECEDENT not in shared and GATE not in shared, shared
     assert core_names("u3") | {"review-pack-u3.md"} <= staged_files(destination)
 
