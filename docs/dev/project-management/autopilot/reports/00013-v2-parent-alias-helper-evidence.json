@@ -1,0 +1,128 @@
+{
+  "scope": "Helper-only plain directories; no Git repositories, no verification run, no child process. Full tracked-file overwrite hypothesis remains unverified.",
+  "source_commit": "eb770e31348df5c4b669e3f8ba391ca25526d901",
+  "source_sha256": {
+    "log_sink_refusal.py": "031325bc7771798be3cc621abc82d52d95afc076cc127b334c39e1d5de34d0ab",
+    "dirty_tree.py": "f444b35637e012c2469a33ac31be352fdae576e0543cc9110976e1aa592b345f"
+  },
+  "command": "python3 docs/dev/tmp/ap13-parent-alias-audit-eb770e3/helper_only_probe.py",
+  "python": "3.15.2 (main, Oct 25 2026, 16:57:51) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "cases": [
+    {
+      "case": "same_ordinary",
+      "mixed_spelling": false,
+      "below_root_symlink": false,
+      "root": "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/ap13-parent-alias-audit-eb770e3/helper_only_fixtures/same_ordinary/root",
+      "sink": "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/ap13-parent-alias-audit-eb770e3/helper_only_fixtures/same_ordinary/root/ordinary/sentinel.txt",
+      "target_parent_identity": [
+        16777234,
+        367113228
+      ],
+      "ordinary_parent_identity": [
+        16777234,
+        367113227
+      ],
+      "sentinel_before": "INTERNAL_SENTINEL\n",
+      "pin_result": {
+        "opened_parent_identity": [
+          16777234,
+          367113227
+        ]
+      },
+      "sink_result": {
+        "opened_inode_is_internal_sentinel": false,
+        "written_bytes": 13
+      },
+      "sentinel_after": "INTERNAL_SENTINEL\n",
+      "sentinel_unchanged": true,
+      "candidate_after": "HELPER_WRITE\n"
+    },
+    {
+      "case": "mixed_ordinary",
+      "mixed_spelling": true,
+      "below_root_symlink": false,
+      "root": "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/ap13-parent-alias-audit-eb770e3/helper_only_fixtures/mixed_ordinary/root-alias",
+      "sink": "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/ap13-parent-alias-audit-eb770e3/helper_only_fixtures/mixed_ordinary/root/ordinary/sentinel.txt",
+      "target_parent_identity": [
+        16777234,
+        367113236
+      ],
+      "ordinary_parent_identity": [
+        16777234,
+        367113235
+      ],
+      "sentinel_before": "INTERNAL_SENTINEL\n",
+      "pin_result": {
+        "opened_parent_identity": [
+          16777234,
+          367113235
+        ]
+      },
+      "sink_result": {
+        "opened_inode_is_internal_sentinel": false,
+        "written_bytes": 13
+      },
+      "sentinel_after": "INTERNAL_SENTINEL\n",
+      "sentinel_unchanged": true,
+      "candidate_after": "HELPER_WRITE\n"
+    },
+    {
+      "case": "same_symlink",
+      "mixed_spelling": false,
+      "below_root_symlink": true,
+      "root": "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/ap13-parent-alias-audit-eb770e3/helper_only_fixtures/same_symlink/root",
+      "sink": "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/ap13-parent-alias-audit-eb770e3/helper_only_fixtures/same_symlink/root/redirected/sentinel.txt",
+      "target_parent_identity": [
+        16777234,
+        367113244
+      ],
+      "ordinary_parent_identity": [
+        16777234,
+        367113243
+      ],
+      "sentinel_before": "INTERNAL_SENTINEL\n",
+      "pin_result": {
+        "error": "NotADirectoryError",
+        "errno": 20,
+        "reason": "[Errno 20] Not a directory: 'redirected'"
+      },
+      "sink_result": {
+        "error": "NotADirectoryError",
+        "errno": 20,
+        "reason": "[Errno 20] Not a directory: 'redirected'"
+      },
+      "sentinel_after": "INTERNAL_SENTINEL\n",
+      "sentinel_unchanged": true,
+      "candidate_after": "INTERNAL_SENTINEL\n"
+    },
+    {
+      "case": "mixed_symlink",
+      "mixed_spelling": true,
+      "below_root_symlink": true,
+      "root": "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/ap13-parent-alias-audit-eb770e3/helper_only_fixtures/mixed_symlink/root-alias",
+      "sink": "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/tmp/ap13-parent-alias-audit-eb770e3/helper_only_fixtures/mixed_symlink/root/redirected/sentinel.txt",
+      "target_parent_identity": [
+        16777234,
+        367113252
+      ],
+      "ordinary_parent_identity": [
+        16777234,
+        367113251
+      ],
+      "sentinel_before": "INTERNAL_SENTINEL\n",
+      "pin_result": {
+        "opened_parent_identity": [
+          16777234,
+          367113252
+        ]
+      },
+      "sink_result": {
+        "opened_inode_is_internal_sentinel": true,
+        "written_bytes": 13
+      },
+      "sentinel_after": "HELPER_WRITE\n",
+      "sentinel_unchanged": false,
+      "candidate_after": "HELPER_WRITE\n"
+    }
+  ]
+}

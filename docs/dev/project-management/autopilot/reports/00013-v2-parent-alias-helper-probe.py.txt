@@ -1,0 +1,81 @@
+"""Pinned helper only: plain directories, no Git calls or child processes."""
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import sys
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+SCRATCH = Path(__file__).resolve().parent
+SOURCE = SCRATCH / "helper_only_source"
+sys.path.insert(0, str(SOURCE))
+import log_sink_refusal
+
+
+def identity(info: os.stat_result) -> list[int]:
+    return [info.st_dev, info.st_ino]
+
+
+def case(name: str, mixed: bool, below_root_symlink: bool) -> dict:
+    base = SCRATCH / "helper_only_fixtures" / name
+    root = base / "root"
+    ordinary = root / "ordinary"
+    target = root / "internal-target"
+    ordinary.mkdir(parents=True)
+    target.mkdir()
+    alias = base / "root-alias"
+    alias.symlink_to(root, target_is_directory=True)
+    (ordinary / "sentinel.txt").write_bytes(b"ORIGINAL_OUTPUT\n")
+    sentinel = target / "sentinel.txt"
+    sentinel.write_bytes(b"INTERNAL_SENTINEL\n")
+    redirected = root / "redirected"
+    redirected.symlink_to(target, target_is_directory=True)
+    parent = redirected if below_root_symlink else ordinary
+    supplied_root = alias if mixed else root
+    path = parent / "sentinel.txt"
+    row = {
+        "case": name, "mixed_spelling": mixed, "below_root_symlink": below_root_symlink,
+        "root": str(supplied_root), "sink": str(path),
+        "target_parent_identity": identity(target.stat()),
+        "ordinary_parent_identity": identity(ordinary.stat()),
+        "sentinel_before": sentinel.read_text(),
+    }
+    try:
+        fd = log_sink_refusal._pinned_parent_fd(parent, supplied_root)
+    except OSError as exc:
+        row["pin_result"] = {"error": type(exc).__name__, "errno": exc.errno, "reason": str(exc)}
+    else:
+        try:
+            row["pin_result"] = {"opened_parent_identity": identity(os.fstat(fd))}
+        finally:
+            os.close(fd)
+    try:
+        sink = log_sink_refusal._open_log_sink(path, supplied_root, preserve=True)
+    except OSError as exc:
+        row["sink_result"] = {"error": type(exc).__name__, "errno": exc.errno, "reason": str(exc)}
+    else:
+        with sink:
+            row["sink_result"] = {"opened_inode_is_internal_sentinel": identity(os.fstat(sink.fileno())) == identity(sentinel.stat())}
+            sink.truncate(0)
+            row["sink_result"]["written_bytes"] = sink.write(b"HELPER_WRITE\n")
+    row["sentinel_after"] = sentinel.read_text()
+    row["sentinel_unchanged"] = row["sentinel_before"] == row["sentinel_after"]
+    row["candidate_after"] = path.read_text()
+    return row
+
+
+report = {
+    "scope": "Helper-only plain directories; no Git repositories, no verification run, no child process. Full tracked-file overwrite hypothesis remains unverified.",
+    "source_commit": "eb770e31348df5c4b669e3f8ba391ca25526d901",
+    "source_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in SOURCE.glob("*.py")},
+    "command": "python3 docs/dev/tmp/ap13-parent-alias-audit-eb770e3/helper_only_probe.py",
+    "python": sys.version,
+    "cases": [],
+}
+for args in [("same_ordinary", False, False), ("mixed_ordinary", True, False), ("same_symlink", False, True), ("mixed_symlink", True, True)]:
+    row = case(*args)
+    report["cases"].append(row)
+    print(json.dumps(row))
+(SCRATCH / "helper_only_evidence.json").write_text(json.dumps(report, indent=2) + "\n")
