@@ -1,8 +1,8 @@
 # AP00013 v2 helper recovery report
 
 Tested package revision: `3c7e2183a194c86d10390a3f2eda5524516ba50a` (branch
-`master`). Backend: Claude Code subagent (`autopilot:worker-opus`), model
-`opus`. Every number below was measured in this session; nothing is copied from
+`master`). Backend: Claude Code subagent (`autopilot:worker-opus`), actual model
+`claude-opus-5`, transcript effort `high`. Every number below was measured in this session; nothing is copied from
 an earlier receipt.
 
 Working tree at the start: `git status --porcelain` listed only three autopilot
@@ -23,7 +23,9 @@ product bytes.
 | T4 | The plan grant is corrected and the v2 refusals are recorded in the package docs. | `3c7e218` (`plugins/autopilot/README.md`, `plugins/autopilot/CHANGELOG.md`). |
 
 T2 is also the source of the four red nodes recorded below. Its pre-spawn sink
-proof changed the observable filesystem contract of the verify path.
+proof changed the observable filesystem contract of the verify path. Cleanup's
+creation/identity window remains open, as recorded in
+`00013-v2-task2-followup-ruling.md`; the table does not certify that boundary.
 
 ## Measured verification
 
@@ -130,8 +132,9 @@ not masked and not relabelled.
 ## Final integration gate (run once, by the orchestrator)
 
 Run on the evidence commit `9e89a5913f26e7d062347362a3cad773ccd09396`, whose
-product bytes under `plugins/`, `tests/` and `tools/` are identical to the tested
-package revision `3c7e2183a194c86d10390a3f2eda5524516ba50a`.
+bytes under `plugins/` and `tests/` are identical to the tested package revision
+`3c7e2183a194c86d10390a3f2eda5524516ba50a`. Under `tools/`, the generated
+`tools/autopilot/source-map.json` differs as described above.
 
 | command | exit | result |
 |---|---|---|
