@@ -5,6 +5,13 @@ Tested package revision: `0ed4c17ff964b04104b3961a83a0c8e5563b0f3a` (branch
 `3c7e2183a194c86d10390a3f2eda5524516ba50a`; that record stays in the receipt
 history.
 
+The 21-file helper regression run was taken at the tree of commit
+`016b6b3a2ec9d3282cf58c523ecfae69163d1d21`, with the README and CHANGELOG
+edit of task 8 still uncommitted. The tested revision differs from that commit
+only in `plugins/autopilot/README.md` and `plugins/autopilot/CHANGELOG.md`. No
+test file and no product script differs, so the measurement applies to the
+product bytes of the tested revision.
+
 Served backend, model and effort (not the `opus` and `sonnet` aliases):
 
 - Build phase, v2 corrective tasks T1-T4: Claude Code subagent
