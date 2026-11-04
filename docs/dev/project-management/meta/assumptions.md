@@ -135,3 +135,33 @@ Orchestrator:
 - R1/R8 was closed by verification, not by new test code: the two named nodes `test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]` and `[not-executable-False]` were never edited by this task, and all four nodes of that test pass at this HEAD (`4 passed`). The task's own ruling forbade duplicating task 5's production repair, so this is recorded as behavior preservation. The acceptance-scope count fell from 71 to 70 for exactly one reason: the deleted framework-selftest.
 - R24's proportional-allocation demonstration was moved to scratch-only evidence at `docs/dev/tmp/ap13-allocation-probe.py` (untracked, run once by the coordinator, not by Ivan). Measured under the same uv test environment on Python 3.12.16: parent tracing already enabled with a prior peak of 12000040 bytes, child plain peak 95314 bytes, child inject peak 1695370 bytes, ceiling 1000000, both runs reporting the `attempt_sequence_invalid` defect. Those numbers are task 8's recorded measurement; the probe file itself is scratch and is not committed.
 - `codex_eligible(task 7)` is false for the same reason as task 6, so Claude at the task's own tier was the only route and the codex batch health probe never ran.
+
+## 8: [D1] prose (cycle 1 rework, docs and evidence only)
+
+Implementor (Ivan), package-docs round:
+
+- The failed-spawn log sentence was placed right after the cleanup sentences in the same README paragraph. The earlier "preserving existing outputs" sentence was left as written, because it is general and says nothing about the log's absence.
+- The CHANGELOG rewrite was worded as "`--verify` removes only the result artifact that its own failed run created; ..." on one semicolon-joined line.
+
+Implementor (Ivan), evidence round:
+
+- A new top-level `previous_package_revision` key was added to the receipt to keep the old pin as history. The brief was silent on where the old pin should live; the provenance tests accept the extra key.
+- `implementation` was given a nested `build_lane` / `rework_lane` shape with `branch` as a sibling key. The brief prescribed no schema.
+- The report header sentence now reads "measured by the coordinator or in the session that is named beside it; nothing is copied from an earlier receipt unless it is marked as history", so the every-number-measured claim stays true for facts the coordinator measured.
+
+Implementor (Ivan), MEDIUM-fix round:
+
+- The report paragraph says "the README and CHANGELOG edit of task 8" and uses "tested revision" for the pinned revision, matching the file's own wording.
+- The receipt's `scope` string was edited by exact-string replacement after reading it with `rg`, without reading the whole JSON file first.
+
+Orchestrator:
+
+- Three Ivan dispatches ran for this one task, in the T4 pattern: package docs first (so the pinned revision carries the final README and CHANGELOG), then the receipt and report, then the single MEDIUM fix. The source map was refreshed by the coordinator with the EXISTING generator, never by hand and never by an implementor: `tools/autopilot/update_helper_map.py` reads the receipt bytes, so the map must be regenerated after every receipt edit, and `--check` exited 0 both times.
+- Ownership was controlled rather than assumed. The hash of `helper_dispositions.regressions`, `helper_dispositions.functions`, `authored_file_owners`, `regression_cases`, `owner_bindings` and `behaviors` is `160afa1fa5e09e9ada17488648e697600fb666dd146a01defc005e20ca726e05` before the first regeneration and after both, with row counts 601/167/44/4950 unchanged. Every changed map line is an `artifact_sha256`, `tested_package_revision` or `destination_blob_sha256` value.
+- The served model ids were probed, not inferred from the `sonnet`/`opus` aliases: `claude-sonnet-5-5` for the task 7 and task 8 implementors and for Pat's lane, `claude-opus-5` for the coordinator. Task 6's implementor transcript belongs to an earlier session and was NOT probed, so the receipt records it as not captured rather than guessing it matched this session.
+- The allocation evidence is a scratch probe the coordinator wrote and ran, not implementor output: `docs/dev/tmp/ap13-allocation-probe.py`, untracked. It is the R24 replacement for the deleted committed selftest, and only its path, command and output are recorded. Pat raised as LOW that this makes the run unreproducible from the repository alone; that is accurate and is left for cycle 2.
+- The step-5.6 self-deslop pass was NOT skipped on this docs diff. Neither documented skip rule applied (the diff is not test-only, and it is 162 net lines over 3 files), so the pass ran, with the provenance test set named as its guard so any removal in the receipt or the generated map would fail and be restored. It removed two restating sentences from the report and nothing else (`904c6ce`).
+- The first Pat render measured 51707 bytes, over the 50000 hard cap. The one permitted trim narrowed the diff context from `-U3` to `-U1`, which drops no changed file, no changed line, no finding and no lens: 45914 bytes. No file, test module, finding or lens was dropped to fit.
+- Pat's MEDIUM was verified before it was fixed, not taken on trust: `git diff --name-only 016b6b3..0ed4c17` lists only the two package docs, and the same diff restricted to `tests/`, `plugins/autopilot/scripts/` and `tools/` is empty, so the 21-file measurement does apply to the pinned revision's product bytes once that is disclosed. The disclosure is now in both files and the delta re-run closed the finding with `NO FINDINGS`.
+- Pat's three LOW findings are recorded in `reviews/00013-v2-task8-pat.md` and deliberately NOT fixed: the ambiguous unchanged CHANGELOG bullet 34 wording, the report's "replaces the committed framework-selftest" phrasing plus the probe's missing digest, and the `effort` field mixing served with configured values. LOW is noted and proceeds; cycle 2's lenses adjudicate them on the full diff.
+- The attempt stamps `reflow: "tools/autopilot/source-map.json:21"`. That is the generated map's hash churn tripping the tripwire, not an unrequested formatter sweep, and the field is kept rather than suppressed so the next reader sees why.
