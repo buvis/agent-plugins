@@ -1,7 +1,8 @@
 {
   "schema_version": 1,
   "prd": "00013",
-  "package_revision": "3c7e2183a194c86d10390a3f2eda5524516ba50a",
+  "package_revision": "0ed4c17ff964b04104b3961a83a0c8e5563b0f3a",
+  "previous_package_revision": "3c7e2183a194c86d10390a3f2eda5524516ba50a",
   "tasks": [
     {
       "task": "v2-corrective-T1-T4",
@@ -20,6 +21,24 @@
         "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf"
       ],
       "failing_nodes_ownership": "All four failures live in the verify-path log-sink pre-open behaviour of plugins/autopilot/scripts/log_sink_refusal.py and are owned by AP00013 v2 task 2, not by task 3 or task 4 and not by the AP00018 controller suite. Measured in this session: at the previous receipt pin cce5dadcfe5c951e541ef8e395ffd930b1d56b0e all four nodes PASS (2 passed for SafeSinkOpenerTest, 4 passed for the spawn-failure parametrisation), while at task-2 commit 4a93821 all four already FAIL with the same assertions. The test bytes of tests/autopilot/test_local_paths.py are unchanged since 77bb783, which predates cce5dad, so the test side did not move. The two spawn-failure nodes report one extra entry, an empty docs/dev/tmp/run.log left behind when the spawn fails; the two SafeSinkOpenerTest nodes fail because the sink is no longer truncated on reopen (b'newvious contents\\n' != b'new') and because an existing symlinked leaf now raises OSError errno 62 instead of being replaced. This corrects the earlier reading that the spawn residue was pre-existing: the orchestrator's control run used the parent of the task-3 edit, which already contained task 2. None of the four is fixed by this receipt; the product bytes at 3c7e2183a194c86d10390a3f2eda5524516ba50a are unchanged."
+    },
+    {
+      "task": "v2-cycle1-rework-T5-T8",
+      "module": "AP00013 cycle-1 rework (verification sink ownership and below-root symlink and root-spelling refusals, staging git-probe locale pin and refusal shape, test reconciliation, package docs)",
+      "tests": "tests/autopilot/test_cap_recovery_helpers.py, tests/autopilot/test_cycle1_boundaries_verify.py, tests/autopilot/test_cycle1_boundaries_stage.py, tests/autopilot/test_cycle1_boundaries_context.py, tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py, tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py, tests/autopilot/test_cycle1_hardening_sinks.py, tests/autopilot/test_verification.py, tests/autopilot/test_review_evidence_helpers.py, tests/autopilot/test_verification_reuse.py, tests/autopilot/test_local_paths.py, tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py, tests/autopilot/test_helper_recovery_v2.py, tests/autopilot/test_helper_recovery_v2_sinks.py, tests/autopilot/test_helper_rework_sinks.py, tests/autopilot/test_helper_rework_stage.py",
+      "passed": 668,
+      "failed": 0,
+      "skipped": 0,
+      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cycle1_boundaries_stage.py tests/autopilot/test_cycle1_boundaries_context.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_verification.py tests/autopilot/test_review_evidence_helpers.py tests/autopilot/test_verification_reuse.py tests/autopilot/test_local_paths.py tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py tests/autopilot/test_helper_recovery_v2.py tests/autopilot/test_helper_recovery_v2_sinks.py tests/autopilot/test_helper_rework_sinks.py tests/autopilot/test_helper_rework_stage.py -q",
+      "exit_code": 0,
+      "duration_seconds": 219.29,
+      "resolved_nodes": [
+        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]",
+        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[not-executable-False]",
+        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file",
+        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf"
+      ],
+      "resolved_nodes_note": "These four nodes were red in the previous receipt (task v2-corrective-T1-T4, revision 3c7e2183a194c86d10390a3f2eda5524516ba50a) and are green in this run, which reported zero failures. Cycle-1 rework task 5 resolved the contract conflict on the product side: the v2 sink test that used to assert an empty leftover log is now tests/autopilot/test_helper_recovery_v2_sinks.py::test_verification_preserves_its_outputs_on_a_spawn_failure_and_an_absent_log_stays_absent, so an absent log stays absent after a failed spawn and the two contracts no longer disagree. The earlier failures were real and stay recorded as failures in the v2-corrective-T1-T4 entry."
     }
   ],
   "validation": {
@@ -29,11 +48,37 @@
     "skills": 15
   },
   "implementation": {
-    "backend": "Claude Code subagent (autopilot:worker-opus)",
-    "model": "opus",
-    "branch": "master"
+    "branch": "master",
+    "build_lane": {
+      "tasks": "v2 corrective tasks T1-T4",
+      "backend": "Claude Code subagent (autopilot:worker-opus)",
+      "model": "claude-opus-5",
+      "effort": "high"
+    },
+    "rework_lane": {
+      "implementor_tasks_7_8": {
+        "backend": "Claude Code subagent (autopilot:worker-sonnet)",
+        "model": "claude-sonnet-5-5",
+        "effort": "medium (agent frontmatter)"
+      },
+      "implementor_task_6": {
+        "backend": "Claude Code subagent (autopilot:worker-sonnet)",
+        "model": "not captured: the transcript belongs to an earlier session and the served model id was not probed",
+        "effort": "not captured"
+      },
+      "reviewer_pat_tasks_6_to_8": {
+        "backend": "native claude CLI through use-sonnet/scripts/sonnet-run.sh (claude --print --model sonnet, no tools)",
+        "model": "claude-sonnet-5-5",
+        "effort": "not captured: no --effort flag was passed"
+      },
+      "coordinator": {
+        "backend": "Claude Code session",
+        "model": "claude-opus-5",
+        "effort": "high (recorded in the loop session brief)"
+      }
+    }
   },
-  "scope": "Evidence for the AP00013 v2 corrective tasks T1-T4 measured against packaged revision 3c7e2183a194c86d10390a3f2eda5524516ba50a, which carries the final plugins/autopilot README.md and CHANGELOG.md. It does not claim the full tests/autopilot suite is green (four nodes in this run and the separately owned AP00018 controller suite remain red), does not claim the completion review passed, and does not claim any real-host certification.",
+  "scope": "Evidence for the AP00013 cycle-1 rework (tasks 5 to 8) measured against packaged revision 0ed4c17ff964b04104b3961a83a0c8e5563b0f3a, which carries the final plugins/autopilot README.md and CHANGELOG.md of this rework. The 21-file helper regression set is green (668 passed, 0 failed), and the four AP00013 nodes that were red in the previous receipt are green. The AP00018 controller suite is still separately owned and red. The unresolved parent-alias helper finding recorded in 00013-v2-parent-alias-helper-audit.md is open and the cycle-2 review gate adjudicates it. No completion review has passed and there is no real-host certification. This file's bytes are frozen before the source map is regenerated, because the map stores this file's hash, so the cycle-1 full-gate result is recorded in docs/dev/project-management/autopilot/reports/00013-helper-recovery-v2.md rather than here. The final_gate object below records the earlier T1-T4 delivery gate.",
   "real_host": {
     "status": "unavailable",
     "reason": "No Claude Code, Codex or Kiro host execution of the packaged helpers was run for AP00013. Delivery is local test evidence only; no host profile is certified and nothing is published or installed."
@@ -162,7 +207,7 @@
   "final_gate": {
     "revision": "9e89a5913f26e7d062347362a3cad773ccd09396",
     "package_revision_tested": "3c7e2183a194c86d10390a3f2eda5524516ba50a",
-    "note": "Run once after task 4, on the evidence commit 9e89a59, whose product bytes under plugins/, tests/ and tools/ are identical to the tested package revision 3c7e218 (9e89a59 adds only receipt, source-map and report evidence). A candidate fix for the two spawn-failure nodes was written during this round and reverted before this gate, so no product byte changed.",
+    "note": "Records the T1-T4 delivery gate, not the cycle-1 rework. Run once after task 4, on the evidence commit 9e89a59, whose product bytes under plugins/, tests/ and tools/ are identical to the tested package revision 3c7e218 (9e89a59 adds only receipt, source-map and report evidence). A candidate fix for the two spawn-failure nodes was written during this round and reverted before this gate, so no product byte changed.",
     "commands": [
       {
         "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q",
