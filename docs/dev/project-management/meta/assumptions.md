@@ -121,3 +121,17 @@ Orchestrator:
 - Ivan's `timeout=60` guess is wrong in one direction worth recording: `dirty_tree._git` passes NO timeout, and the module's three other `_git` calls still have none. So the new probe is the only call in `review_stage.py` that can raise `subprocess.TimeoutExpired`, and that exception would escape `stage_review`, whose contract is to return a report dict. Pat saw the `timeout=60` line and raised the duplication as LOW, not the exception path. It is left as Ivan wrote it: LOW findings are noted and not fixed at this step, and cycle 2's lenses adjudicate it on the full diff.
 - The `_staged_files` assumption was verified rather than taken on trust: both call sites (`review_stage.py:558` inside `_write_cycle` and `:650`) are reached only after `:649` sets `inputs["variants"]`, and no other module calls it.
 - `codex_eligible(task 6)` is false - the planner recorded neither `qwen_eligible` nor a `files` exclusion for this task - so the codex rung could not intercept and Claude at the task's own tier was the only route. The codex batch health probe was therefore never run for this task.
+
+## 7: [D1] tests/autopilot/test_cap_recovery_helpers.py (cycle 1 rework, test-only)
+
+Implementor (Ivan):
+
+- The 10-second timeout on `opened.wait` and its placement inside the existing `try`, so the `finally` still stops and joins the reader when the wait fails, are the implementor's choices. The brief asked only for a bounded wait.
+- `opened` was added as the last, required parameter of `drain_fifo`. The drained-FIFO test is its only caller.
+
+Orchestrator:
+
+- No test author (Tess), no adversarial round (Devon) and no red check ran: the task is test-only, so step 2.7 is skipped by the installed pipeline and `red_check` records `n/a:test-only-task`. Pat still ran, because rework mode keeps the per-task reviewer on a test-only diff. The attempt stamps `self_deslop: "skipped:test-only"`, which `work_routing.test_only_diff` decided mechanically rather than by judgement.
+- R1/R8 was closed by verification, not by new test code: the two named nodes `test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]` and `[not-executable-False]` were never edited by this task, and all four nodes of that test pass at this HEAD (`4 passed`). The task's own ruling forbade duplicating task 5's production repair, so this is recorded as behavior preservation. The acceptance-scope count fell from 71 to 70 for exactly one reason: the deleted framework-selftest.
+- R24's proportional-allocation demonstration was moved to scratch-only evidence at `docs/dev/tmp/ap13-allocation-probe.py` (untracked, run once by the coordinator, not by Ivan). Measured under the same uv test environment on Python 3.12.16: parent tracing already enabled with a prior peak of 12000040 bytes, child plain peak 95314 bytes, child inject peak 1695370 bytes, ceiling 1000000, both runs reporting the `attempt_sequence_invalid` defect. Those numbers are task 8's recorded measurement; the probe file itself is scratch and is not committed.
+- `codex_eligible(task 7)` is false for the same reason as task 6, so Claude at the task's own tier was the only route and the codex batch health probe never ran.
