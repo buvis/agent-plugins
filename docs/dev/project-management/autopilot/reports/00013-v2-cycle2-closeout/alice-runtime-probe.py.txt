@@ -1,0 +1,23 @@
+import os, sys, pathlib, subprocess
+sys.path.insert(0, "/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts")
+import verification as v
+base = pathlib.Path(sys.argv[1]).resolve()
+repo = base / "repo"
+def g(*a): return subprocess.run(["git", "-c", "user.name=a", "-c", "user.email=a@b.c", *a], cwd=repo, capture_output=True, text=True, check=True).stdout.strip()
+(repo / "logs").mkdir()
+(repo / "README.md").write_text("x\n")
+elsewhere = base / "elsewhere"
+elsewhere.mkdir()
+(repo / "out").symlink_to(elsewhere, target_is_directory=True)
+(elsewhere / "back").symlink_to(repo, target_is_directory=True)
+g("add", "-A")
+g("commit", "-q", "-m", "i")
+head = g("rev-parse", "HEAD")
+alias = base / "alias"
+alias.symlink_to(repo, target_is_directory=True)
+argv = [sys.executable, "-I", "-c", "print(\"PASS 1 FAIL 0 SKIP 0 EXIT 0\")"]
+log = repo / "out" / "back" / "logs" / "x.log"
+for root in (repo, alias):
+    r = v.run_verification(argv=argv, project_root=root, head_sha=head, artifact_path=repo / "logs" / "r.json", log_path=log, timeout=30)
+    print(root.name, {k: r[k] for k in r if k in ("ok", "error", "reason")})
+    print("log exists", (repo / "logs" / "x.log").exists())

@@ -1,0 +1,20 @@
+[
+  {
+    "command": "python3 -I /tmp/alice-probe-scripts/probe.py /tmp/alice-probe-fixture-1/run1",
+    "timestamp": "2026-11-04T11:06:21.176Z",
+    "result": "symlinked_component: False\nmixed: False\nopened 367786021\nexists True",
+    "is_error": false
+  },
+  {
+    "command": "python3 -I /tmp/alice-probe-scripts/probe2.py /tmp/alice-probe-fixture-2",
+    "timestamp": "2026-11-04T11:06:55.242Z",
+    "result": "repo {'ok': False, 'error': 'sink-failed', 'reason': \"[Errno 20] Not a directory: 'out'\"}\nlog exists False\nalias {'ok': True}\nlog exists True",
+    "is_error": false
+  },
+  {
+    "command": "python3 -I /tmp/alice-probe-scripts/probe3.py /tmp/alice-probe-fixture-3",
+    "timestamp": "2026-11-04T11:07:07.605Z",
+    "result": "repo {'ok': False, 'error': 'unsafe-artifact-path'}\nlog exists False\nalias {'ok': False, 'error': 'unsafe-artifact-path'}\nlog exists False\nREADME: 'x\\n'",
+    "is_error": false
+  }
+]

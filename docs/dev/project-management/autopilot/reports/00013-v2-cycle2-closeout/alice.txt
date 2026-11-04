@@ -1,0 +1,83 @@
+## Alice - cycle 2 incremental review, PRD 00013-autopilot-session-helpers-v2
+
+Range: `2998ffbd..69ebc4b8`. I did not rerun the full suite. I ran `tests/autopilot/test_helper_rework_stage.py` narrowly: 17 passed and none skipped, so the German-locale tests really exercise a translating Git on this host. I also ran three scratch probes under `/tmp/alice-probe-*` with `python3 -I` and fresh fixtures (scripts in `/tmp/alice-probe-scripts`, fixtures in `/tmp/alice-probe-fixture-1` to `-3`). I did not delete the fixtures because the rm hook asked for a destructive-command preamble.
+
+### Cycle-1 findings: resolved or not in code
+
+- **R1 (ownership window): resolved.**
+  - `_acquire_sink` takes ownership from `O_CREAT|O_EXCL` (verification.py:318-347) and identity from `fstat` of the opened fd.
+  - It compares that identity with the `preserve=True` reopen and unlinks only a created leaf, through the pinned parent.
+  - `_close_pin` guards `os.close`.
+  - A failed spawn removes only a log or leaf this run created.
+  - A write or close failure removes a created artifact, or empties an existing one (`_close_result_sink`).
+  - The new tests are test_helper_rework_sinks.py:211-282, :524-543 and :580-635.
+  - The README/CHANGELOG overclaim about inode matching is gone.
+- **R2 (v1 opener tests): resolved.** `_open_log_sink` defaults to unlink plus `O_EXCL`, and `preserve=True` is opt-in. The legacy `test_local_paths.py` tests are untouched and no longer fail in the gate.
+- **R3 (locale): resolved for `_is_inside_git_dir`.** It now sets `LC_ALL=C` and `LANGUAGE=C`, and the German-locale tests pass. See the new TimeoutExpired finding below.
+- **R4 (empty union): resolved.** `shared = frozenset().union(*variants.values())` (review_stage.py:381). The old pinning test was renamed and its assertion inverted. The new test checks six markers and passes.
+- **R5 (refusal shape): resolved.** The refusal now goes through `_refusal` (review_stage.py:637), and tests assert exactly the four standard keys.
+- **R6 (docs): resolved.** The test-only bullet is dropped. The new bullets overclaim; see the alias finding.
+- **R7 (nested pointer): resolved.** `_worktree_gitdir_pointer` is called only when `resolved.parent == toplevel` (log_sink_refusal.py:98), with a test.
+- **R8 (spawn residue): resolved.** An absent log stays absent, and the v1 nodes are green.
+- **R9 (descendants): resolved for the paths tested.** `_kill_group` runs on log-close and record-write/close failure. Tests use a real surviving descendant, with a control. See the PID-reuse note below.
+- **R11, R12, R14, R18, R19, R25-R29:** settled or discarded in your ledger, not re-raised.
+- **R13, R21, R22 (receipt/report): resolved.** The report records the measured 95,314-byte peak (report:247-256). The receipt has served model ids and records the four former helper failures as historical. There is no product drift between pin `0ed4c17` and HEAD (`git diff --stat` over plugins, tests and scripts is empty).
+- **R15 (FIFO test): resolved.** Reader-ready synchronisation was added, and the test asserts joined bytes equal `b""`.
+- **R16 (redundant descent): partly resolved.** `_pin_sink_leaf` is gone. `_acquire_sink` still descends the parent once itself and again inside `_open_log_sink(preserve=True)`. The identity compare catches a swap between the two, so this is not a correctness issue.
+- **R17 (alias test): resolved in part.** A 3x3 spelling matrix now drives `run_verification` with a spawn marker. It has a gap; see the alias finding below.
+- **R20 (exec bit on opened inode): resolved** (log_sink_refusal.py:259, with a test).
+- **R23 (dead `FailingSink.__enter__/__exit__`):** removed.
+- **R24 (framework self-test):** removed.
+- **R30-R33 (replay rows):** discarded in your ledger. The new 50-test replay row in `test_helper_rework_sinks.py` is mostly controls and same-spelling preservation, which is expected. I raise no tautology.
+
+### Open item 1: parent-alias helper finding (adjudicated)
+
+The audit's claim is correct at this HEAD, and it has a runtime consequence beyond the helper-only probe.
+
+- `_pinned_parent_fd` falls back to `parent.resolve().relative_to(root.resolve())` when the path is not spelled under `root` (log_sink_refusal.py:191-195). That removes below-root symlink components before the `O_NOFOLLOW` descent.
+- The preflight is meant to catch this, but the `_symlinked_component` stop rule `if not parent_inside and is_root: break` (log_sink_refusal.py:157) misses it. The rule breaks on any component that resolves to the root while its parent resolves outside it. A path that leaves the repo through a committed symlink and returns through a symlink to the repo root is therefore never walked. The docstring claims it handles "one that leaves the repository and returns".
+- I reproduced this in scratch. Setup: repo containing a committed `out -> /elsewhere`, and `/elsewhere/back -> repo`. Log path: `repo/out/back/logs/x.log`.
+  - `_symlinked_component` returns False in both the same-spelling and the aliased-root cases.
+  - `run_verification` with the repo spelled directly returns `sink-failed`. The open's `O_NOFOLLOW` catches it, but with the wrong error slug and not `unsafe-artifact-path`.
+  - `run_verification` with the root spelled through a symlink alias returns **`ok: True`**, and the log is written through both symlinks to `repo/logs/x.log`.
+  - A tracked target (`repo/out/back/README.md`) is still refused with `unsafe-artifact-path`, and the file is untouched. I saw no outside-root or tracked-file overwrite.
+- The existing R-D1 test (test_helper_rework_sinks.py:643) only returns to `real/logs`, never to the root, so it misses this.
+- Scope of the runtime consequence: a symlinked component is accepted when the root and the output are spelled differently. The write lands at a location `refuse` already judged on the resolved path. The broader "tracked-file overwrite / `run_verification` bypass" hypothesis stays UNVERIFIED and is not supported by my probes. No defect-closure or clean-delivery claim is warranted.
+
+### Open item 2: `subprocess.run(timeout=60)` in the staging probe (verified and classified)
+
+- It is verified. This is the only call in review_stage.py that can raise `subprocess.TimeoutExpired`.
+- `stage_review` has no handler for it. The CLI's `_call` (autopilot.py:127-131) catches only `TypeError` and `ValueError`. A Git hang therefore ends in a traceback after 60 seconds, not a refusal report. Other `_git` calls (dirty_tree.py:19) have no timeout.
+- It fails closed by crashing, with no silent grant, so it is not a safety hole. It is an inconsistency with the function's own "every other failure fails closed" contract.
+- Classification: a Medium contract inconsistency, not an established failure. No test covers it.
+
+### Findings
+
+[ALICE] 🟠 Parent-alias defect confirmed at HEAD: `_pinned_parent_fd` resolves below-root symlinks in the mixed-spelling fallback, and `_symlinked_component`'s root-alias stop rule skips a path that leaves the repo and returns through a symlink to the root. Reproduced: with an aliased root, `run_verification` returns ok and writes the log through two symlinks, while the same-spelling run refuses with the wrong slug (`sink-failed`). Tracked targets are still refused and I saw no outside-root write. The CHANGELOG bullets "treat an aliased project root and a resolved one alike" and "refuses an output path that passes through a symlink ... whichever way ... spelled" overclaim until fixed. Fix: make the stop rule apply only to the leading root spelling, not to any later component, and drop `resolve()` from the fallback in favour of descending the unresolved names; add a test where the return symlink points at the root itself | File: plugins/autopilot/scripts/log_sink_refusal.py:157 | Task: 5
+
+[ALICE] 🟡 The new `subprocess.run(..., timeout=60)` in `_is_inside_git_dir` can raise `TimeoutExpired`, which escapes `stage_review` and the CLI as a traceback, unlike the sibling `_git` calls. It also duplicates `_git` just to add an env. Fix: catch `subprocess.TimeoutExpired` and return True to fail closed, matching the docstring, or extend `_git` with optional `env` and `timeout` arguments and drop the duplicate call; add a test with a stubbed timeout | File: plugins/autopilot/scripts/review_stage.py:411 | Task: 6
+
+[ALICE] ⚪ `_kill_group(result["pgid"])` runs after the leader was reaped (`proc.wait`). If no descendant is left, the pid can be recycled and `killpg` could signal an unrelated process group. The window is tiny, and the same exposure applies to the artifact-failure kill at verification.py:440. Kill while the leader is still unreaped, or skip the call when `os.killpg(pgid, 0)` shows no live group owned by this run | File: plugins/autopilot/scripts/verification.py:234 | Task: 5
+
+[ALICE] ⚪ `_run_against_sink` is now exactly 50 lines (154-203) after the `pgid` addition, at the limit. Moving the result dict into a small helper would restore headroom | File: plugins/autopilot/scripts/verification.py:154 | Task: 5
+
+[ALICE] ⚪ The CHANGELOG now has two overlapping `--verify` bullets: the unchanged one at line 32 and the new one that restates keeping existing outputs and killing the child. Merge them. This is a minor redundancy | File: plugins/autopilot/CHANGELOG.md:33 | Task: 8
+
+### Rubric verdicts
+
+R1: fail
+R2: pass
+R3: pass
+R4: pass
+R6: pass
+R7: pass
+R8: pass
+R9: fail
+R10: pass
+R11: pass
+R12: pass
+R13: pass
+
+R1 fails because the new 60-second timeout path and the leave-and-return-to-root symlink case have no test. R9 fails because of the open alias defect, which breaks the PRD's "reject unsafe aliases before spawn" for the mixed-spelling case.
+
+Paths touched: `/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/log_sink_refusal.py`, `/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/verification.py`, `/Users/bob/git/src/github.com/buvis/agent-plugins/plugins/autopilot/scripts/review_stage.py`, `/Users/bob/git/src/github.com/buvis/agent-plugins/tests/autopilot/test_helper_rework_sinks.py`. Probe scripts are in `/tmp/alice-probe-scripts`.

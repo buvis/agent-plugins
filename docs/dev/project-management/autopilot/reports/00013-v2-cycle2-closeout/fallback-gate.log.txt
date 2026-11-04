@@ -1,0 +1,465 @@
+........................................................................ [  6%]
+........................................................................ [ 12%]
+........................................................................ [ 19%]
+...........................FFFFFFFF.......................FFFFFFFFFFF... [ 25%]
+........................................................................ [ 32%]
+........................................................................ [ 38%]
+........................................................................ [ 45%]
+........................................................................ [ 51%]
+........................................................................ [ 58%]
+........................................................................ [ 64%]
+........................................................................ [ 71%]
+........................................................................ [ 77%]
+........................................................................ [ 84%]
+........................................................................ [ 90%]
+........................................................................ [ 97%]
+..............................                                           [100%]
+=================================== FAILURES ===================================
+_ CapacityTest.test_both_emergency_operations_use_either_reserve_but_never_override_hard_capacity _
+
+self = <test_controller_capacity.CapacityTest testMethod=test_both_emergency_operations_use_either_reserve_but_never_override_hard_capacity>
+
+    def test_both_emergency_operations_use_either_reserve_but_never_override_hard_capacity(self) -> None:
+        original = self.root
+        for count in (4094, 4095, 4096):
+            for name in ("owner.release", "owner.recover"):
+                with self.subTest(count=count, operation=name):
+                    self.root = original / str(count) / name
+                    self.root.mkdir(parents=True)
+                    _, _, operator = self.bootstrap()
+>                   _, _, owner, operator = self.acquire(operator)
+                                            ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/autopilot/test_controller_capacity.py:94: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:169: in acquire
+    response = self.response(self.apply(request, operator),
+tests/autopilot/controller_cli_support.py:114: in response
+    self.assertEqual(completed.returncode, 0 if error is None else 1,
+E   AssertionError: 1 != 0 :
+_ CapacityTest.test_hard_capacity_seals_new_mutations_but_preserves_snapshot_and_exact_replay _
+
+self = <test_controller_capacity.CapacityTest testMethod=test_hard_capacity_seals_new_mutations_but_preserves_snapshot_and_exact_replay>
+
+    def test_hard_capacity_seals_new_mutations_but_preserves_snapshot_and_exact_replay(self) -> None:
+>       self.assert_sealed_replay(*self.saturated_recovery())
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/autopilot/test_controller_capacity.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/test_controller_capacity.py:40: in saturated_recovery
+    acquired, response, _, operator = self.acquire(operator)
+                                      ^^^^^^^^^^^^^^^^^^^^^^
+tests/autopilot/controller_owner_support.py:169: in acquire
+    response = self.response(self.apply(request, operator),
+tests/autopilot/controller_cli_support.py:114: in response
+    self.assertEqual(completed.returncode, 0 if error is None else 1,
+E   AssertionError: 1 != 0 :
+_ CapacityTest.test_last_normal_slot_then_release_reserve_preserve_every_prior_receipt _
+
+self = <test_controller_capacity.CapacityTest testMethod=test_last_normal_slot_then_release_reserve_preserve_every_prior_receipt>
+
+    def test_last_normal_slot_then_release_reserve_preserve_every_prior_receipt(self) -> None:
+        _, _, operator = self.bootstrap()
+        self.seed(seed_receipts(self.state(), self.root, 4093))
+        prior = self.state()["receipts"]
+>       _, _, owner, operator = self.acquire(operator)
+                                ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/autopilot/test_controller_capacity.py:22: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:169: in acquire
+    response = self.response(self.apply(request, operator),
+tests/autopilot/controller_cli_support.py:114: in response
+    self.assertEqual(completed.returncode, 0 if error is None else 1,
+E   AssertionError: 1 != 0 :
+_ CapacityTest.test_no_owner_cannot_consume_byte_reserve_and_emergency_cannot_exceed_state_ceiling _
+
+self = <test_controller_capacity.CapacityTest testMethod=test_no_owner_cannot_consume_byte_reserve_and_emergency_cannot_exceed_state_ceiling>
+
+    def test_no_owner_cannot_consume_byte_reserve_and_emergency_cannot_exceed_state_ceiling(self) -> None:
+        original = self.root
+        for owned in (False, True):
+            with self.subTest(owned=owned):
+                self.root = original / str(owned)
+                self.root.mkdir()
+                _, _, operator = self.bootstrap()
+                if owned:
+                    _, _, owner, operator = self.acquire(operator)
+                target = STATE_BYTES - 1 if owned else NORMAL_BYTES + 1000
+                self.seed(seed_bytes(self.state(), self.root, target))
+                self.assertLess(len(self.state()["receipts"]), 4094)
+                recover = self.request(operator, "owner.recover", "oversize-recover", {
+                    "reason": "Boundary reconciliation", "reconciled_job_ids": []})
+>               self.reject_unchanged(recover, operator, "recovery_required")
+
+tests/autopilot/test_controller_capacity.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:196: in reject_unchanged
+    self.response(completed, error, revision=self.state()["revision"])
+tests/autopilot/controller_cli_support.py:120: in response
+    self.assertEqual(response["error_code"], error)
+E   AssertionError: 'missing_capability' != 'recovery_required'
+E   - missing_capability
+E   + recovery_required
+_______ CapacityTest.test_no_owner_cannot_use_either_reserved_count_slot _______
+
+self = <test_controller_capacity.CapacityTest testMethod=test_no_owner_cannot_use_either_reserved_count_slot>
+
+    def test_no_owner_cannot_use_either_reserved_count_slot(self) -> None:
+        original = self.root
+        for count in (4094, 4095):
+            with self.subTest(count=count):
+                self.root = original / str(count)
+                self.root.mkdir()
+                _, _, operator = self.bootstrap()
+                self.seed(seed_receipts(self.state(), self.root, count))
+                before = self.state()
+                request = self.request(operator, "owner.recover", "reserve-empty", {
+                    "reason": "No active owner", "reconciled_job_ids": []})
+>               self.reject_unchanged(request, operator, "recovery_required")
+
+tests/autopilot/test_controller_capacity.py:78: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:196: in reject_unchanged
+    self.response(completed, error, revision=self.state()["revision"])
+tests/autopilot/controller_cli_support.py:120: in response
+    self.assertEqual(response["error_code"], error)
+E   AssertionError: 'missing_capability' != 'recovery_required'
+E   - missing_capability
+E   + recovery_required
+___ CapacityTest.test_normal_byte_admission_is_independent_of_receipt_count ____
+
+self = <test_controller_capacity.CapacityTest testMethod=test_normal_byte_admission_is_independent_of_receipt_count>
+
+    def test_normal_byte_admission_is_independent_of_receipt_count(self) -> None:
+        original = self.root
+        for offset, succeeds in ((-40000, True), (-1, False)):
+            with self.subTest(offset=offset):
+                self.root = original / str(offset)
+                self.root.mkdir()
+                _, _, operator = self.bootstrap()
+                self.seed(seed_bytes(self.state(), self.root, NORMAL_BYTES + offset))
+                self.assertLess(len(self.state()["receipts"]), 4094)
+                request = self.request(operator, "owner.acquire", "byte-acquire", {
+                    "mode": "supervised", "native_session_id": "byte-session-extra"})
+                if succeeds:
+>                   response = self.response(self.apply(request, operator), revision=1)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/autopilot/test_controller_capacity.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_cli_support.py:114: in response
+    self.assertEqual(completed.returncode, 0 if error is None else 1,
+E   AssertionError: 1 != 0 :
+_ CapacityTest.test_only_active_owner_clearing_can_use_reserved_bytes_below_hard_ceiling _
+
+self = <test_controller_capacity.CapacityTest testMethod=test_only_active_owner_clearing_can_use_reserved_bytes_below_hard_ceiling>
+
+    def test_only_active_owner_clearing_can_use_reserved_bytes_below_hard_ceiling(self) -> None:
+        original = self.root
+        for name in ("owner.release", "owner.recover"):
+            with self.subTest(operation=name):
+                self.root = original / name
+                self.root.mkdir()
+                _, _, operator = self.bootstrap()
+>               _, _, owner, operator = self.acquire(operator)
+                                        ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/autopilot/test_controller_capacity.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:169: in acquire
+    response = self.response(self.apply(request, operator),
+tests/autopilot/controller_cli_support.py:114: in response
+    self.assertEqual(completed.returncode, 0 if error is None else 1,
+E   AssertionError: 1 != 0 :
+_ CapacityTest.test_private_archive_hash_restore_and_distinct_workflow_roundtrip _
+
+self = <test_controller_capacity.CapacityTest testMethod=test_private_archive_hash_restore_and_distinct_workflow_roundtrip>
+
+    def test_private_archive_hash_restore_and_distinct_workflow_roundtrip(self) -> None:
+>       acquired, response, historical, operator = self.saturated_recovery()
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/autopilot/test_controller_capacity.py:163: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/test_controller_capacity.py:40: in saturated_recovery
+    acquired, response, _, operator = self.acquire(operator)
+                                      ^^^^^^^^^^^^^^^^^^^^^^
+tests/autopilot/controller_owner_support.py:169: in acquire
+    response = self.response(self.apply(request, operator),
+tests/autopilot/controller_cli_support.py:114: in response
+    self.assertEqual(completed.returncode, 0 if error is None else 1,
+E   AssertionError: 1 != 0 :
+_ OwnerTest.test_changed_historical_envelopes_conflict_without_reapplying_effects _
+
+self = <test_controller_owner.OwnerTest testMethod=test_changed_historical_envelopes_conflict_without_reapplying_effects>
+
+    def test_changed_historical_envelopes_conflict_without_reapplying_effects(self) -> None:
+        _, _, operator = self.bootstrap()
+        historical = self.retain(operator, "old-operator.json")
+>       request, _, owner, operator = self.acquire(operator)
+                                      ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/autopilot/test_controller_owner.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:169: in acquire
+    response = self.response(self.apply(request, operator),
+tests/autopilot/controller_cli_support.py:114: in response
+    self.assertEqual(completed.returncode, 0 if error is None else 1,
+E   AssertionError: 1 != 0 :
+_ OwnerTest.test_checks_exact_identity_scope_epoch_job_and_role_before_mutation _
+
+self = <test_controller_owner.OwnerTest testMethod=test_checks_exact_identity_scope_epoch_job_and_role_before_mutation>
+
+    def test_checks_exact_identity_scope_epoch_job_and_role_before_mutation(self) -> None:
+        _, opened, operator = self.bootstrap()
+>       _, _, owner, operator = self.acquire(operator)
+                                ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/autopilot/test_controller_owner.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:169: in acquire
+    response = self.response(self.apply(request, operator),
+tests/autopilot/controller_cli_support.py:114: in response
+    self.assertEqual(completed.returncode, 0 if error is None else 1,
+E   AssertionError: 1 != 0 :
+_ OwnerTest.test_closed_payloads_reject_empty_oversized_and_multielement_reconciliation _
+
+self = <test_controller_owner.OwnerTest testMethod=test_closed_payloads_reject_empty_oversized_and_multielement_reconciliation>
+
+    def test_closed_payloads_reject_empty_oversized_and_multielement_reconciliation(self) -> None:
+        _, _, operator = self.bootstrap()
+        for payload in ({}, {"mode": "manual", "native_session_id": ""},
+                        {"mode": "manual-extra", "native_session_id": "session-alpha"},
+                        {"mode": "supervised-extra", "native_session_id": "session-beta"},
+                        {"mode": "manual", "native_session_id": "é" * 129},
+                        {"mode": "manual", "native_session_id": "s", "extra": 1}):
+            request = self.request(operator, "owner.acquire", "bad-acquire", payload)
+            self.reject_unchanged(request, operator, "invalid_request")
+>       _, _, owner, operator = self.acquire(operator, session="é" * 128)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/autopilot/test_controller_owner.py:152: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:169: in acquire
+    response = self.response(self.apply(request, operator),
+tests/autopilot/controller_cli_support.py:114: in response
+    self.assertEqual(completed.returncode, 0 if error is None else 1,
+E   AssertionError: 1 != 0 :
+_ OwnerTest.test_historical_and_reopened_operator_retrieve_only_exact_receipts_after_all_rotations _
+
+self = <test_controller_owner.OwnerTest testMethod=test_historical_and_reopened_operator_retrieve_only_exact_receipts_after_all_rotations>
+
+    def test_historical_and_reopened_operator_retrieve_only_exact_receipts_after_all_rotations(self) -> None:
+        fresh, opened, operator = self.bootstrap()
+        old_operator = self.retain(operator, "operator-epoch-zero.json")
+>       acquired, acquire_response, owner, operator = self.acquire(operator)
+                                                      ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/autopilot/test_controller_owner.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:169: in acquire
+    response = self.response(self.apply(request, operator),
+tests/autopilot/controller_cli_support.py:114: in response
+    self.assertEqual(completed.returncode, 0 if error is None else 1,
+E   AssertionError: 1 != 0 :
+_ OwnerTest.test_rejects_near_miss_credentials_and_does_not_fall_back_to_cwd_binding _
+
+self = <test_controller_owner.OwnerTest testMethod=test_rejects_near_miss_credentials_and_does_not_fall_back_to_cwd_binding>
+
+    def test_rejects_near_miss_credentials_and_does_not_fall_back_to_cwd_binding(self) -> None:
+        _, _, operator = self.bootstrap()
+>       _, _, owner, operator = self.acquire(operator)
+                                ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/autopilot/test_controller_owner.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:169: in acquire
+    response = self.response(self.apply(request, operator),
+tests/autopilot/controller_cli_support.py:114: in response
+    self.assertEqual(completed.returncode, 0 if error is None else 1,
+E   AssertionError: 1 != 0 :
+_ OwnerTest.test_rotates_operator_and_issues_fresh_owners_for_both_modes_and_sessions _
+
+self = <test_controller_owner.OwnerTest testMethod=test_rotates_operator_and_issues_fresh_owners_for_both_modes_and_sessions>
+
+    def test_rotates_operator_and_issues_fresh_owners_for_both_modes_and_sessions(self) -> None:
+        _, opened, operator = self.bootstrap()
+        identity = opened["result"]["actor_id"]
+        original_operator = operator
+        owner_ids = set()
+        for index, (mode, session) in enumerate((("manual", "session-alpha"),
+                                               ("supervised", "session-alpha-extra"))):
+            old = credential(operator)
+>           _, acquired, owner, operator = self.acquire(
+                operator, mode, session, f"acquire-{index}")
+
+tests/autopilot/test_controller_owner.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:169: in acquire
+    response = self.response(self.apply(request, operator),
+tests/autopilot/controller_cli_support.py:114: in response
+    self.assertEqual(completed.returncode, 0 if error is None else 1,
+E   AssertionError: 1 != 0 :
+__ OwnerTest.test_two_independent_subprocess_acquires_have_exactly_one_winner __
+
+self = <test_controller_owner.OwnerTest testMethod=test_two_independent_subprocess_acquires_have_exactly_one_winner>
+
+    def test_two_independent_subprocess_acquires_have_exactly_one_winner(self) -> None:
+        _, _, operator = self.bootstrap()
+        gate = self.base / "start-gate"
+        script = ("import pathlib,runpy,sys,time; gate=pathlib.Path(sys.argv.pop(1)); "
+                  "deadline=time.monotonic()+25\n"
+                  "while not gate.exists():\n"
+                  " if time.monotonic()>deadline: raise TimeoutError('gate')\n"
+                  " time.sleep(0.005)\n"
+                  "main=sys.argv.pop(1); sys.argv[0]=main; "
+                  "sys.path.insert(0,str(pathlib.Path(main).parent)); "
+                  "runpy.run_path(main,run_name='__main__')")
+        processes, requests = [], []
+        for index, mode in enumerate(("manual", "supervised")):
+            actor = self.retain(operator, f"client-{index}.json")
+            request = self.request(actor, "owner.acquire", f"racing-{index}", {
+                "mode": mode, "native_session_id": f"independent-session-{index}"})
+            requests.append(request)
+            arguments = [sys.executable, "-c", script, str(gate), str(MAIN), "--json",
+                         "apply", "--project-root", str(self.root), "--request",
+                         str(self.write_request(request)), "--actor-file", str(actor)]
+            process = subprocess.Popen(arguments, cwd=self.base, stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+            self.addCleanup(lambda p=process: p.kill() if p.poll() is None else None)
+            processes.append(process)
+        gate.touch()
+        results = [subprocess.CompletedProcess(p.args, p.wait(timeout=30), *p.communicate(timeout=30))
+                   for p in processes]
+>       self.assertEqual(sorted(p.returncode for p in results), [0, 1])
+E       AssertionError: Lists differ: [1, 1] != [0, 1]
+E       
+E       First differing element 0:
+E       1
+E       0
+E       
+E       - [1, 1]
+E       ?  ^
+E       
+E       + [0, 1]
+E       ?  ^
+
+tests/autopilot/test_controller_owner.py:200: AssertionError
+_ OwnerRecoveryTest.test_corrupt_real_intents_preserve_all_bytes_for_matching_and_unrelated_requests _
+
+self = <test_controller_owner_recovery.OwnerRecoveryTest testMethod=test_corrupt_real_intents_preserve_all_bytes_for_matching_and_unrelated_requests>
+
+    def test_corrupt_real_intents_preserve_all_bytes_for_matching_and_unrelated_requests(self) -> None:
+        original = self.root
+        for name in ("owner.acquire", "owner.release", "owner.recover"):
+            with self.subTest(operation=name):
+                self.root = original / name
+                self.root.mkdir(parents=True)
+                request, actor, _ = self.prepared(name)
+                historical = self.retain(actor, f"corrupt-intent-{name}.json")
+>               self.crash(request, actor, "intent_dir_fsynced")
+
+tests/autopilot/test_controller_owner_recovery.py:116: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:280: in crash
+    self.assertEqual(completed.returncode, 87,
+E   AssertionError: 1 != 87 : OS crash boundary was not reached: intent_dir_fsynced
+_ OwnerRecoveryTest.test_crashes_at_every_owner_publication_boundary_preserve_replay_or_evidence _
+
+self = <test_controller_owner_recovery.OwnerRecoveryTest testMethod=test_crashes_at_every_owner_publication_boundary_preserve_replay_or_evidence>
+
+    def test_crashes_at_every_owner_publication_boundary_preserve_replay_or_evidence(self) -> None:
+        project_base = self.root
+        for name in ("owner.acquire", "owner.release", "owner.recover"):
+            boundaries = BOUNDARIES + (("owner_credential_published",)
+                                      if name == "owner.acquire" else ())
+            for boundary in boundaries:
+                with self.subTest(operation=name, boundary=boundary):
+                    self.root = project_base / name / boundary
+                    self.root.mkdir(parents=True)
+                    request, actor, operator = self.prepared(name, boundary)
+                    historical = self.retain(actor, f"historical-{name}-{boundary}.json")
+                    old_state = self.state()
+                    finals = {path: path.read_bytes() for path in (
+                        private_path(self.root) / "actors").iterdir() if path.is_file()}
+>                   self.crash(request, actor, boundary)
+
+tests/autopilot/test_controller_owner_recovery.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:280: in crash
+    self.assertEqual(completed.returncode, 87,
+E   AssertionError: 1 != 87 : OS crash boundary was not reached: stage_fsynced
+_ OwnerRecoveryTest.test_directory_fsync_failure_never_acknowledges_or_changes_final_credentials _
+
+self = <test_controller_owner_recovery.OwnerRecoveryTest testMethod=test_directory_fsync_failure_never_acknowledges_or_changes_final_credentials>
+
+    def test_directory_fsync_failure_never_acknowledges_or_changes_final_credentials(self) -> None:
+        original = self.root
+        script = ("import errno,os,runpy,stat,sys; original=os.fsync\n"
+                  "def fsync(fd):\n"
+                  " if stat.S_ISDIR(os.fstat(fd).st_mode): raise OSError(errno.EINVAL,'fsync')\n"
+                  " return original(fd)\n"
+                  "os.fsync=fsync; main=sys.argv.pop(1); sys.argv[0]=main; "
+                  "sys.path.insert(0,os.path.dirname(main)); runpy.run_path(main,run_name='__main__')")
+        for name in ("owner.acquire", "owner.release", "owner.recover"):
+            with self.subTest(operation=name):
+                self.root = original / name
+                self.root.mkdir()
+                request, actor, _ = self.prepared(name)
+                state = self.state()
+                finals = {path: path.read_bytes() for path in (
+                    private_path(self.root) / "actors").iterdir() if path.is_file()}
+                completed = self.apply(request, actor, prefix=[sys.executable, "-c", script, str(MAIN)])
+>               self.response(completed, "recovery_required", revision=state["revision"])
+
+tests/autopilot/test_controller_owner_recovery.py:173: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_cli_support.py:120: in response
+    self.assertEqual(response["error_code"], error)
+E   AssertionError: 'missing_capability' != 'recovery_required'
+E   - missing_capability
+E   + recovery_required
+_ OwnerRecoveryTest.test_missing_or_corrupt_staged_credentials_cannot_finish_an_intent _
+
+self = <test_controller_owner_recovery.OwnerRecoveryTest testMethod=test_missing_or_corrupt_staged_credentials_cannot_finish_an_intent>
+
+    def test_missing_or_corrupt_staged_credentials_cannot_finish_an_intent(self) -> None:
+        original = self.root
+        for damage in ("missing", "corrupt"):
+            with self.subTest(damage=damage):
+                self.root = original / damage
+                self.root.mkdir()
+                request, actor, _ = self.prepared("owner.acquire", damage)
+                initial_paths = set((private_path(self.root) / "actors").iterdir())
+                historical = self.retain(actor, f"historical-stage-{damage}.json")
+                old_secret = credential(actor)["secret"]
+>               self.crash(request, actor, "intent_dir_fsynced")
+
+tests/autopilot/test_controller_owner_recovery.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/autopilot/controller_owner_support.py:280: in crash
+    self.assertEqual(completed.returncode, 87,
+E   AssertionError: 1 != 87 : OS crash boundary was not reached: intent_dir_fsynced
+=========================== short test summary info ============================
+FAILED tests/autopilot/test_controller_capacity.py::CapacityTest::test_both_emergency_operations_use_either_reserve_but_never_override_hard_capacity
+FAILED tests/autopilot/test_controller_capacity.py::CapacityTest::test_hard_capacity_seals_new_mutations_but_preserves_snapshot_and_exact_replay
+FAILED tests/autopilot/test_controller_capacity.py::CapacityTest::test_last_normal_slot_then_release_reserve_preserve_every_prior_receipt
+FAILED tests/autopilot/test_controller_capacity.py::CapacityTest::test_no_owner_cannot_consume_byte_reserve_and_emergency_cannot_exceed_state_ceiling
+FAILED tests/autopilot/test_controller_capacity.py::CapacityTest::test_no_owner_cannot_use_either_reserved_count_slot
+FAILED tests/autopilot/test_controller_capacity.py::CapacityTest::test_normal_byte_admission_is_independent_of_receipt_count
+FAILED tests/autopilot/test_controller_capacity.py::CapacityTest::test_only_active_owner_clearing_can_use_reserved_bytes_below_hard_ceiling
+FAILED tests/autopilot/test_controller_capacity.py::CapacityTest::test_private_archive_hash_restore_and_distinct_workflow_roundtrip
+FAILED tests/autopilot/test_controller_owner.py::OwnerTest::test_changed_historical_envelopes_conflict_without_reapplying_effects
+FAILED tests/autopilot/test_controller_owner.py::OwnerTest::test_checks_exact_identity_scope_epoch_job_and_role_before_mutation
+FAILED tests/autopilot/test_controller_owner.py::OwnerTest::test_closed_payloads_reject_empty_oversized_and_multielement_reconciliation
+FAILED tests/autopilot/test_controller_owner.py::OwnerTest::test_historical_and_reopened_operator_retrieve_only_exact_receipts_after_all_rotations
+FAILED tests/autopilot/test_controller_owner.py::OwnerTest::test_rejects_near_miss_credentials_and_does_not_fall_back_to_cwd_binding
+FAILED tests/autopilot/test_controller_owner.py::OwnerTest::test_rotates_operator_and_issues_fresh_owners_for_both_modes_and_sessions
+FAILED tests/autopilot/test_controller_owner.py::OwnerTest::test_two_independent_subprocess_acquires_have_exactly_one_winner
+FAILED tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_corrupt_real_intents_preserve_all_bytes_for_matching_and_unrelated_requests
+FAILED tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_crashes_at_every_owner_publication_boundary_preserve_replay_or_evidence
+FAILED tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_directory_fsync_failure_never_acknowledges_or_changes_final_credentials
+FAILED tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_missing_or_corrupt_staged_credentials_cannot_finish_an_intent
+19 failed, 1091 passed in 269.86s (0:04:29)

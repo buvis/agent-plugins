@@ -228,3 +228,7 @@ D5: pass
 
 Verdict: 30 findings
 Tests: 1091 passed, 19 failed, 0 skipped (gate run this cycle inside review-stage, exit 1, treated as failed; counts read verbatim from docs/dev/tmp/gate-00013v2-c2.log:465 because the verify reader returned "counts unavailable" for this `-q` summary — last-verification.json was not written, and the suite was not re-run a second time to manufacture a parseable line; all 19 failures are the AP00018 controller nodes, a recorded external deferral)
+
+## Coordinator verification supplement (2026-11-04)
+
+The required fallback invocation omitted by the review session has now run at `a20b31aa5eec2ff0eca8cf9a9cab9c41540a94d1`, after that session exited. It returned exit 1: **19 failed, 1091 passed in 269.86s**. Product, test, tooling and CI bytes are identical to review HEAD (`git diff --stat 69ebc4b..a20b31a -- plugins tests tools scripts .github` is empty). The wrapper still reported `recorded: false` and null counts; no verification record was fabricated. This completes the omitted command, not the PRD, and changes neither the findings nor the cap-regression hold. Exact command, both raw gate logs, all five raw reviewer outputs, native served-model evidence, and Alice's probe scripts/results are committed in `autopilot/reports/00013-v2-cycle2-closeout/`.

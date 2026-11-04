@@ -1,0 +1,36 @@
+FIX:
+
+- [BOB] 🟠 `_pinned_parent_fd` still resolves the entire parent for mixed root spellings, removing below-root symlinks before `O_NOFOLLOW` traversal. The supplied helper audit confirms this; static preflight cannot protect a parent replaced afterward. Normalize only the trusted root prefix, preserve the unresolved suffix, and add a parent-swap acquisition regression. Full-runtime overwrite remains unverified. | File: plugins/autopilot/scripts/log_sink_refusal.py:194 | Task: 5
+- [BOB] 🟠 R1’s failed-artifact obligation remains incomplete: `_empty_pinned` invalidates by pathname after closing the written descriptor. If the child renames the artifact and installs a replacement, close failure leaves complete reusable JSON at the renamed location because the identity check skips cleanup. Retain a descriptor through finalization and invalidate the written inode on failure; test rename plus close failure while preserving the replacement. | File: plugins/autopilot/scripts/verification.py:365 | Task: 5
+- [BOB] 🟡 `_acquire_sink` closes `parent_fd` without guarding cleanup errors. A close OSError replaces the acquisition failure; during cancellation it can replace the cancellation with a controlled `sink-failed` result. Use guarded cleanup preserving the original exception, and explicitly close the returned sink if its post-open validation fails. | File: plugins/autopilot/scripts/verification.py:337 | Task: 5
+- [BOB] 🟡 The new Git timeout raises uncaught `subprocess.TimeoutExpired`, violating staging’s controlled-refusal contract. Catch timeout at this probe and fail closed through the existing refusal path; add a timeout-injection test asserting no artifacts are written. | File: plugins/autopilot/scripts/review_stage.py:411 | Task: 6
+- [BOB] 🟡 R15 is only partly resolved: reader readiness is synchronized, but `stop.set()` can end `drain_fifo` before buffered bytes are consumed. Joining then checking empty chunks can miss bytes actually written. Drain remaining bytes nonblockingly after the stop signal, before closing the reader and asserting zero output. | File: tests/autopilot/test_helper_recovery_v2.py:700 | Task: 7
+- [BOB] 🟡 The new nested-pointer test asserts refusal classification but never observes content reads. An implementation that reads the nested `.git` and then returns OUTSIDE still passes. Reuse the existing open-audit fixture to assert no nested-pointer content opens, retaining the genuine worktree-pointer control. | File: tests/autopilot/test_helper_rework_sinks.py:344 | Task: 5
+- [BOB] ⚪ The refreshed receipt omits task 5’s available served-model provenance. Its recovery report records native `claude-sonnet-5-5/medium` workers and `claude-sonnet-5-5/high` Pat, but `rework_lane` covers only tasks 6–8. Add task 5’s evidenced provenance without inferring unrecorded continuation metadata. | File: docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json:57 | Task: 8
+
+VERIFY:
+
+- (none)
+
+KNOWN:
+
+- (none)
+
+R1: fail
+R2: fail
+R3: pass
+R4: fail
+R6: pass
+R7: fail
+R8: pass
+R9: fail
+R10: fail
+R11: pass
+R12: pass
+R13: pass
+
+D1: pass
+D2: pass
+D3: pass
+D4: pass
+D5: pass

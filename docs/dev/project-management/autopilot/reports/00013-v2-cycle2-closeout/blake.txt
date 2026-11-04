@@ -1,0 +1,57 @@
+BLAKE review, cycle 2, HEAD 69ebc4b. I read only the prompt file and the implementation.
+
+Checks I ran:
+- `tests/autopilot/test_helper_recovery_v2.py` and `tests/autopilot/test_cap_recovery_helpers.py`: 48 passed.
+- `update_helper_map.py --check` exits clean.
+- `git diff 0ed4c17 HEAD -- plugins tests` is empty. 0ed4c17 is the source map's helper `tested_package_revision`, so the receipt revision matches the current package bytes.
+
+Limits of this review:
+- I did not open `docs/dev/project-management/autopilot/reports/`, as instructed. I could not inspect the receipt JSON or `00013-helper-recovery-v2.md` content directly. I only confirmed the generator `--check` passes and the revision matches.
+- I did not re-run the full suite. The 19 AP18 controller failures are the known, spec-deferred external obligation, so the original full-suite-green obligation remains unmet. None of them touch the helper paths.
+
+Everything below is Medium or lower. I found no Critical or High issues.
+
+[BLAKE] 🟡 Three extra test files exist beyond the PRD's "complete implementation write paths" list, which says tests may use temporary fixtures only: tests/autopilot/test_helper_rework_sinks.py (672 lines), tests/autopilot/test_helper_rework_stage.py (202 lines) and tests/autopilot/test_helper_recovery_v2_sinks.py (491 lines). The listed test files are test_helper_recovery_v2.py and test_cap_recovery_helpers.py. The extra files are added scope. | File: tests/autopilot/test_helper_rework_sinks.py | Task: general
+[BLAKE] 🟡 `_is_inside_git_dir` calls `subprocess.run` with no handling for `FileNotFoundError` (git missing) or `TimeoutExpired` (60 s). A detection failure then ends as an uncontrolled traceback, because the facade's `_call` catches only TypeError and ValueError. It fails closed because nothing is written, but the PRD asks for a controlled invalid-input or unsafe-output refusal. | File: plugins/autopilot/scripts/review_stage.py:411 | Task: 1
+[BLAKE] ⚪ Every non-"not a git repository" git failure is treated as "inside git internals". A legitimate external artifact directory inside a foreign-owned work tree (dubious ownership) is therefore refused. This is fail-closed and arguably intended, but it narrows "preserve legitimate external artifact directories". | File: plugins/autopilot/scripts/review_stage.py:423 | Task: 1
+[BLAKE] ⚪ `_descend` runs `mkdir` while `_acquire_sink` acquires the artifact sink, before the log sink is proven openable. If the log sink then refuses, newly created parent directories remain on disk. The created leaf is unlinked, but the directories are not. This is a minor gap against "no unauthorized file changes". | File: plugins/autopilot/scripts/log_sink_refusal.py:213 | Task: 2
+[BLAKE] ⚪ After the artifact write fails, `_kill_group(run["pgid"])` signals a process group by the id of a child that was already reaped. If the group has no members, the id could in theory be reused. The risk is tiny, but the call is unguarded. | File: plugins/autopilot/scripts/verification.py:440 | Task: 2
+[BLAKE] ⚪ `_drain` shares one `except OSError` clause for sink writes and pipe reads. An `os.read` error is reported as `sink-write-failed`, which is a misleading label, though the child is still killed and reaped. | File: plugins/autopilot/scripts/verification.py:121 | Task: 2
+[BLAKE] ⚪ The attempt-200000 test measures peak allocation with tracemalloc in a child process and asserts `attempt_sequence_invalid`. The test itself does not show it fails on a `[0] * attempt` regression, so "demonstrably sensitive" rests on reasoning only. 200000 × 8 bytes is about 1.6 MB, over the 1,000,000-byte ceiling. | File: tests/autopilot/test_cap_recovery_helpers.py:193 | Task: 3
+[BLAKE] ⚪ I could not confirm the receipt contents, the recovery report and the exact-command records. `source-map.json` pins the helper `tested_package_revision` at 0ed4c17, with no package diff since. | File: tools/autopilot/source-map.json:165 | Task: 4
+[BLAKE] 🟡 The 19 known AP18 controller failures leave the full gate red. This is the PRD's explicit deferral, but it must stay in the completion disposition and block any push. | File: N/A | Task: general
+
+What I verified is present and correct:
+- **T1 (staging):**
+  - `_missing_prd_grant` refuses Blake or Eve without a `prd:` ref (review_stage.py:218, 636).
+  - The shared context file is built from the union of granted variants, and an empty union yields no content (review_stage.py:381).
+  - Per-job context files are written only for a job outside the union.
+  - Git metadata detection runs `git rev-parse --is-inside-git-dir` with `LC_ALL=C` and no `safe.bareRepository` override. It fails closed on any failure other than git's "not a git repository" message (review_stage.py:403).
+- **T2 (sinks):**
+  - Containment is checked before any pointer read in `refuse()` (log_sink_refusal.py:33).
+  - Only the supplied repository's own `.git` pointer is read, and relative gitdir targets resolve against the pointer's parent (log_sink_refusal.py:98, 135).
+  - Both sinks are acquired and proven before `Popen` (verification.py:428, 214).
+  - A failed spawn preserves existing bytes, because truncation happens only after a successful spawn (verification.py:168).
+  - Later sink errors return controlled failures and kill and reap the process group.
+  - The policy output opens non-blocking and checks the opened inode before `ftruncate`. FIFOs are refused with or without a reader, and a missing `O_NOFOLLOW` is refused before any effect (autopilot.py:271).
+- **T4 (docs):** README.md:288 documents that plan and prd are both required for design text. CHANGELOG entries describe user-visible effects.
+
+B1: pass
+B2: pass
+B3: pass
+B4: pass
+B5: fail
+B6: pass
+B7: pass
+B8: pass
+B9: pass
+B10: pass
+B11: pass
+B12: pass
+B13: pass
+B14: pass
+B15: pass
+B16: pass
+B17: pass
+B18: pass
+B19: pass
