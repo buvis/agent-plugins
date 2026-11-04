@@ -1,0 +1,231 @@
+{
+  "head": "b0d64b1",
+  "review_session": "b332b34b-5d72-49de-891e-194d5f101d83",
+  "cycle": 1,
+  "rework_cap": 2,
+  "tasks": [
+    {
+      "name": "[D1] plugins/autopilot/scripts/",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe0 plugins/autopilot/scripts/verification.py:296: The ownership-window defect from reports/00013-v2-task2-followup-ruling.md is unresolved. _open_result_sink decides \"this run created the leaf\" with a separate `artifact.exists()` before the open (verification.py:296). It then takes the cleanup identity from a later `os.lstat` by name in _pin_sink_leaf (log_sink_refusal.py:235), not from `os.fstat` on the opened descriptor. A file created between the exists() check and the open, or swapped between the open and the lstat, is treated as owned and `_unlink_pinned` deletes it. A fix would take creation from the open itself (try O_CREAT\\|O_EXCL first, then fall back to a plain open) and the identity from fstat of the sink fd. No test covers this window. The README line \"identified ... matched by inode\" and the matching CHANGELOG bullet overstate what is guaranteed. MERGED ROW \u2014 see \"Note on row R1\": also carries the artifact write/close failure leaving a reusable record (verification.py:363), the spawn-failed empty-log residue (verification.py:200), the unguarded `os.close(pin[0])` (verification.py:342) and the un-restorable truncated pre-existing artifact (verification.py:280, out of scope). (found by: ALICE, BOB, CARL, BLAKE, EVE)\n- \ud83d\udfe0 plugins/autopilot/scripts/log_sink_refusal.py:203: Two more v1 tests fail because _open_log_sink changed contract: tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file and ::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf. The first expects the opener to truncate, but it now keeps prior bytes. The second expects a symlinked leaf to be replaced, but it now raises ELOOP at log_sink_refusal.py:216. The recovery report (00013-helper-recovery-v2.md:83-116) records both as v2 task-2 regressions and leaves them red, so the full gate shows 23 failures against the 19 known AP18 ones. The opener's callers are not wrong. These two tests need to be re-bound to the new contract (the PRD already moved truncation to the spawn, and refuse() already rejects symlinked leaves), or the red nodes remain a blocker. (found by: ALICE, BLAKE, BOB, CARL)\n- \u26aa plugins/autopilot/scripts/log_sink_refusal.py:125: `_worktree_gitdir_pointer` reads any in-repo file that is the same inode as a sibling `.git` file, for example a nested repo's pointer. The PRD says only the supplied repository's actual worktree pointer may be read. The external hard-link case is correctly refused before any read. Eve's fix: guard the call with `pointer = _worktree_gitdir_pointer(resolved) if resolved.parent == toplevel else None`. (found by: BLAKE, EVE)\n- \ud83d\udfe0 plugins/autopilot/scripts/verification.py:217: Late sink failures do not terminate surviving process-group descendants. A child can start a background process with redirected pipes, exit successfully, and leave that descendant running when log or artifact close fails. Retain the process-group identity through sink finalization and terminate the group on failure; test a real surviving descendant. (found by: BOB)\n",
+      "model": "sonnet",
+      "id": "5",
+      "status": "pending"
+    },
+    {
+      "name": "[D1] plugins/autopilot/scripts/review_stage.py",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_stage.py:402: _is_inside_git_dir fails closed unless stderr starts with the English \"fatal: not a git repository\". _git does not pin LC_ALL, so under a non-English locale a legitimate non-repo external destination is refused. This is a safe failure but a false refusal. Pin LC_ALL=C for that probe or document the limit. Eve verified it on this host: git 2.56.0 under `LC_ALL=de_DE.UTF-8 LANGUAGE=de` prints `Schwerwiegend: Kein Git-Repository ...`. (found by: ALICE, BLAKE, EVE)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_stage.py:380: The shared context artifact is not limited to the granted union when no context-reading job is in the roster. `shared` falls back to full `CONTEXT_KINDS` when `variants` is empty (roster of only Blake/Eve, such as fast-track). The PRD says \"an empty union grants no content\". The test `test_staging_keeps_every_context_kind_when_no_roster_job_reads_the_shared_context` pins the opposite. It asserts that `review-context-u3.md` contains the implementation-audit context, the settled history, the pack precedent and the test gate, none of which Eve is granted. The CHANGELOG line \"fills the shared context file with granted input kinds only\" overclaims for this case. That pinning test also passes against the pre-change code (fail-first replay), so it pins nothing this change introduced. (found by: BLAKE, BOB, EVE, mech-check)\n- \ud83d\udfe1 plugins/autopilot/scripts/review_stage.py:630: The new missing-PRD refusal returns `\"reason\"` while every other staging refusal goes through _refusal and uses `\"detail\"` (review_stage.py:123 vs :630). A caller that reads `detail` gets nothing for this error. It is also a hand-built dict where a helper exists. Use _refusal, or align the key. The tests currently bind to `reason`, and one helper at test_helper_recovery_v2.py:62 accepts either key. (found by: ALICE, BLAKE, EVE)\n",
+      "model": "sonnet",
+      "id": "6",
+      "status": "pending"
+    },
+    {
+      "name": "[D1] tests/autopilot/test_cap_recovery_helpers.py",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe0 tests/autopilot/test_cap_recovery_helpers.py:64: Two v1 tests in test_cap_recovery_helpers.py fail at the reviewed HEAD. They are test_spawn_failure_is_controlled_and_preserves_outputs[missing-False] and [not-executable-False]. I re-ran them: `assert tree(world.target) == before` fails on an extra empty docs/dev/tmp/run.log, because the new _open_log_sink creates the log before the spawn and nothing removes it when the spawn fails. The v2 sibling test (test_helper_recovery_v2_sinks.py:98) asserts the opposite, an empty leftover log, and the coordinator correction allows it. The old test was never reconciled. PRD T2 says existing tests must stay green and the AP18 deferral covers only the 19 controller tests, so this is an uncovered helper regression. Either update the stale test to the \"absent log may stay empty\" contract, or drop the log the run created, as is already done for the artifact leaf. NOT single-voice \u2014 Blake, Bob and Eve raised the same regression under verification.py:200, which the consolidator merged into R1 (see \"Note on row R1\"). (found by: ALICE)\n",
+      "model": "sonnet",
+      "id": "7",
+      "status": "pending"
+    },
+    {
+      "name": "[D1] prose",
+      "description": "### Findings (verbatim)\n- \u26aa plugins/autopilot/CHANGELOG.md:35: The CHANGELOG bullet \"attempt validation holds its memory bound against a measured resource ceiling\" describes a test-only change under Fixed. It is not a user-visible fix and contradicts the changelog rule that excludes test changes. Drop it. Bullet 33 and README:297 likewise restate implementation mechanics (pinned descriptors, inode matching) rather than the user-visible effect, and the README does not document the empty-log residue after a failed spawn. (found by: ALICE, BLAKE, EVE)\n",
+      "model": "sonnet",
+      "id": "8",
+      "status": "pending"
+    }
+  ],
+  "ledger": [
+    {
+      "cycle": 1,
+      "disposition": "settled-deferral",
+      "severity": "high",
+      "issue": "The 19 AP00018 controller failures remain full-gate and push blockers. They are outside AP00013's corrective write paths and explicitly deferred; the supplied 23-failure result also includes the four helper regressions above.",
+      "file": "N/A",
+      "reason": "already a recorded scoped external deferral for this batch (202610250001-deferred.json carries the AP00018 controller-failure deferral, and the PRD's own scoped external deferral names it); AP00013 has no write path into tests/autopilot/test_controller_*.py"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "medium",
+      "issue": "The T3 contract requires the allocation measurement to hold when the parent runs with tracing already on (PYTHONTRACEMALLOC) and a prior peak above 8 MB. The child's `if tracemalloc.is_tracing(): tracemalloc.stop()` branch is never exercised, because measure() does not pass that env var to the child. Add an env variant to the measurement.",
+      "file": "tests/autopilot/test_cap_recovery_helpers.py:158",
+      "reason": "single-voice"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "medium",
+      "issue": "Files outside the PRD's \"complete implementation write paths\" were created or changed: `tests/autopilot/test_helper_recovery_v2_sinks.py` (491 new lines, with sink contract tests that the receipt says oppose the older tests) and `tests/autopilot/test_review_helpers.py` (edited to grant the pack ref). The PRD names only `test_helper_recovery_v2.py` and `test_cap_recovery_helpers.py` for tests.",
+      "file": "tests/autopilot/test_helper_recovery_v2_sinks.py",
+      "reason": "single-voice"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "medium",
+      "issue": "The Phase 2 exit criterion is not met. The full gate is red, and the receipt records 4 non-AP18 failures as \"deferred to completion review\". The PRD forbids a helper pass that relies on that deferral. The receipt text is otherwise honest and the historical receipt is preserved, but it records that the check is not green. `--check` on the source-map generator and the provenance tests do pass.",
+      "file": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json:162",
+      "reason": "single-voice; also matches a settled cap-overflow deferral of the same text from the v1 cap-out, and the underlying four red nodes are already the fix scope of R1/R2/R8 this cycle"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "medium",
+      "issue": "A missing `O_NOFOLLOW` is refused only for `--export-policy --out`. `_open_log_sink`, `_pinned_parent_fd` and `review_stage._write` reference `os.O_NOFOLLOW` directly, and `_posix_supported` does not check for it. On a host without it, `--verify` and staging would raise `AttributeError` (a traceback) instead of a controlled refusal. The PRD's sentence on this sits in the policy-output behavior, so it is partly met.",
+      "file": "plugins/autopilot/scripts/verification.py:48",
+      "reason": "single-voice"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "medium",
+      "issue": "The FIFO-with-reader test starts a thread without confirming its reader opened. The exporter can therefore hit the already-covered no-reader refusal and still pass. Signal readiness after opening the descriptor, wait with a timeout before exporting, and assert that no bytes reached the FIFO.",
+      "file": "tests/autopilot/test_helper_recovery_v2.py:735",
+      "reason": "single-voice"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "medium",
+      "issue": "Redundant directory traversal in _pin_sink_leaf repeats parent descent immediately performed by _open_log_sink",
+      "file": "plugins/autopilot/scripts/log_sink_refusal.py:235",
+      "reason": "single-voice; the traversal it names is removed anyway by R1's fix, which keeps the parent fd from the opener instead of re-descending"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "_run_against_sink wraps the drain in `except OSError` and labels every OSError \"sink-write-failed\". That includes an `os.read` failure on the child's pipes in _drain (verification.py:121), which is not a sink error. The ruling flagged this slug for judgement. Either narrow the catch to the sink writes or name the cause neutrally.",
+      "file": "plugins/autopilot/scripts/verification.py:174",
+      "reason": "single-voice; the coordinator ruling needs contract/caller evidence for this slug and the PRD excludes a new output-management subsystem, which Eve's own KNOWN bucket reaches independently"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "Unsafe artifact path refusal omits reason field present in all other gate errors",
+      "file": "plugins/autopilot/scripts/verification.py:395",
+      "reason": "single-voice"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "`_open_log_sink`'s post-open validation checks `S_ISREG` and `st_nlink == 1` but not the executable bit that `refuse` checks by `lstat`; the old unlink+`O_EXCL` opener guaranteed a fresh 0o666 file, the reopen-in-place opener does not, so a leaf swapped for an executable between `refuse` and open is written. Fix: add `or info.st_mode & 0o111` to the refusal condition (one line, mirrors `refuse`)",
+      "file": "plugins/autopilot/scripts/log_sink_refusal.py:226",
+      "reason": "single-voice"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "The recovery report never states the actual measured peak although the PRD Resource case and T3 say \"report actual measurement\". Fix: record the number with the exact command (this review measured 95,314 bytes for attempt 200000 on this host, ceiling 1,000,000; the injected `[0] * 200000` probe lands above the ceiling)",
+      "file": "docs/dev/project-management/autopilot/reports/00013-helper-recovery-v2.md:22",
+      "reason": "single-voice"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "Receipt provenance records the alias, not the served model: `implementation.model: \"opus\"` while the recovery report says `claude-opus-5`; PRD: \"Preserve actual model-family provenance\". Fix: record the served model id and effort as the report does, then regenerate the map (`--check` must still pass since only the receipt hash changes)",
+      "file": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json:33",
+      "reason": "single-voice"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "Dead code in the new test seam: `FailingSink.__enter__`/`__exit__` are never used (production no longer opens the sink with `with`; `_execute` and `_write_artifact` call `close()`). Fix: delete both methods",
+      "file": "tests/autopilot/test_helper_recovery_v2.py:507",
+      "reason": "single-voice"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "`test_the_attempt_allocation_measurement_catches_a_proportional_allocation` is a framework-verification test: it allocates `[0] * 200000` in the harness and asserts tracemalloc saw it, exercises no production code and cannot fail when `check_evidence` changes; the task card asked for a \"scratch-only copy/probe\", not a committed test.",
+      "file": "tests/autopilot/test_cap_recovery_helpers.py:199",
+      "reason": "single-voice (mech-check corroborates the replay fact, not the scope judgement); the task card itself sanctioned a probe, so keeping it is a recorded choice rather than a defect"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "The caller's full-suite rerun reports 23 failed; the recorded gate log for 9e89a59 holds exactly the 19 AP18 + 4 helper nodes named in the receipt. Check: from the caller's own run output (do not rerun), extract the 23 `FAILED` node ids and diff them against `final_gate.failing_nodes.ap00018_controller` (19) and `ap00013_contract_conflict` (4)",
+      "file": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json:162",
+      "reason": "single-voice, and already answered inside this review: this cycle's own gate log docs/dev/tmp/gate-00013v2-c1.log:586-608 enumerates exactly those 23 nodes, so no unrecorded helper regression exists; not queued as a check because it is not a single project verification command"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "`_run_against_sink`'s `except OSError` labels a pipe-read failure (`os.read`/selectors) as `sink-write-failed`. Known/out of scope: cosmetic slug only, both paths kill the child and return a controlled result, and a distinct label needs a sink-error wrapper type the PRD's \"no new output-management subsystem\" rule excludes",
+      "file": "plugins/autopilot/scripts/verification.py:174",
+      "reason": "single-voice, and the reviewer filed it as out of scope itself; duplicate of the same slug raised by Alice"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "`tools/autopilot/source-map.json` stamps `evidence.status: \"passed\"` on the `verification.py` and `log_sink_refusal.py` rows while the receipt they cite records `failed: 4`; the generator validates only `passed > 0`. Known/out of scope: the generator is read-only under this PRD",
+      "file": "tools/autopilot/source-map.json:7711",
+      "reason": "single-voice, and the reviewer filed it as out of scope itself: the generator is read-only under this PRD and redefining its \"passed\" semantics needs its own task"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "A pre-existing result artifact that this run truncated and then failed to write/close cannot be restored to its prior bytes. Known/out of scope: the ruling and PRD forbid \"restoration of arbitrary earlier bytes without a contract requirement\" and a backup/restore layer; only the created-leaf case is in scope",
+      "file": "plugins/autopilot/scripts/verification.py:280",
+      "reason": "single-voice, and the coordinator ruling explicitly excludes a restore layer; the created-leaf half is in R1's fix scope"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "`_in_nested_repo` also parses a localized git message (`\"work tree\" in probe.stderr`) and misclassifies under non-English locales. Known/out of scope: pre-existing, outside this diff's hunks",
+      "file": "plugins/autopilot/scripts/log_sink_refusal.py:165",
+      "reason": "single-voice, and pre-existing outside this diff's hunks; the C-locale pattern R3's fix establishes can be applied here in a follow-up"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "low",
+      "issue": "`_destination_problem` raises `NotADirectoryError` (traceback) when the nearest existing ancestor of `artifact_root` is a file, because `_git(cwd=<file>)` fails in the parent before git runs. Known/out of scope: pre-existing on the base commit and unchanged by this diff; not a silent grant",
+      "file": "plugins/autopilot/scripts/review_stage.py:494",
+      "reason": "single-voice, pre-existing on the base commit and unchanged by this diff; it refuses by crashing rather than granting, so it is not a security hole this corrective PRD owns"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "medium",
+      "issue": "Fail-first replay: `test_attempt_validation_does_not_allocate_from_the_supplied_attempt` passes against the pre-change code at 316557ecbe06, so it pins no behavior this change introduced.",
+      "file": "tests/autopilot/test_cap_recovery_helpers.py",
+      "reason": "replay row: T3 replaced an implementation-shaped allocation assertion with a behavioral bound, and a bound that already held on the base code is exactly what a behaviour-preserving evidence change looks like; weighed against the PRD's T3 intent, not a defect"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "medium",
+      "issue": "Fail-first replay: 11 touched tests pass against the pre-change code at 316557ecbe06, so they pin no behavior this change introduced.",
+      "file": "tests/autopilot/test_helper_recovery_v2.py",
+      "reason": "replay row: most of these are guard-regression tests asserting refusals that genuinely predate this diff (the PRD's corrective scope is narrowing existing guards, not inventing them); the one row that does signal a real contradiction, test_staging_keeps_every_context_kind_when_no_roster_job_reads_the_shared_context, is carried as R4 and is being fixed"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "medium",
+      "issue": "Fail-first replay: 9 touched tests pass against the pre-change code at 316557ecbe06.",
+      "file": "tests/autopilot/test_helper_recovery_v2_sinks.py",
+      "reason": "replay row: the preservation assertions in this new file held on the base code too, which is the behaviour-preserving case; the sink-contract rows that do not hold on base are the ones R1/R2/R8 are repairing, so the block adds no new defect"
+    },
+    {
+      "cycle": 1,
+      "disposition": "discarded",
+      "severity": "medium",
+      "issue": "Fail-first replay: `test_staged_task_and_context_files_carry_task_rows_and_precedent_text` passes against the pre-change code at 316557ecbe06, so the pack-ref grant edit to this file pins no new behavior.",
+      "file": "tests/autopilot/test_review_helpers.py",
+      "reason": "replay row: the edit to this test was a grant correction recorded as pre-existing-test-corrected in the batch deferred JSON, not a new behaviour to pin"
+    }
+  ],
+  "contract_card": "step: AP00013 v2 REVIEW CYCLE 1 COMPLETE, decision gate applied. Rework queued but NOT yet run: tasks 5, 6, 7, 8 (all sonnet), rework_task_ids [\"5\",\"6\",\"7\",\"8\"]. Next action in the FRESH session: Phase 4's rotation-resume skip fires (this cycle's review file exists and rework_task_ids names unfinished tasks), so SKIP Phases 4 and 5 and resume at Phase 6 \"Dispatch rework\" \u2014 invoke /autopilot:work in rework mode and do NOT hand off again. Do NOT re-review: all five lenses already ran this cycle.\n\ninvariants: phase/next_phase stay \"review\", state.cycle stays 1, rework_cap 2, phases_completed stays []. No phase-done was run at this hand-off, by design. work_start_sha 316557ecbe06895b7f90e33a133bc5d699f841ff is preserved. No \ud83d\udd34 CRITICAL row exists this cycle, so NO rework design doc was created and none is needed; no opus floor applies and every D-task keeps sonnet. After /autopilot:work returns, the cycle advances with ONE `autopilot phase-done --outcome rework` call (clears rework_task_ids, increments cycle to 2, re-affirms review), then banner, then STOP.\n\nREVIEW ARTIFACTS: reviews/00013-autopilot-session-helpers-v2-review-1.md (gated, passes --require-codex-guard), reviews/00013-autopilot-session-helpers-v2-ledger.json (24 entries: 1 settled deferral + 23 discards), reviews/00013-autopilot-session-helpers-v2-checks-1.json (1 queued verification check, source eve, runs in work step 7). Raw reviewer outputs docs/dev/tmp/{alice,blake,bob,carl,eve}-output-00013v2-c1.txt. Cycle id 00013v2-c1. codex_thread_id 01a1a56f-75f2-7a72-b860-dbedecf63943 \u2014 cycle 2 passes it as --resume-thread. head_sha 2998ffbdfa57fac33042b78efa3fc9b32e066c1a \u2014 cycle 2 scopes its diff with --since that value.\n\nWHAT THE REWORK MUST FIX (9 fix rows, verbatim in each task's \"### Findings (verbatim)\" block): R1 (MERGED ROW \u2014 four distinct verification.py defects: the _open_result_sink ownership window, the artifact write/close failure leaving a reusable:true record, the spawn-failed empty-log residue, and the unguarded os.close(pin[0]); treat them as four fixes, not one), R2 + R8 (the four red helper nodes: two test_cap_recovery_helpers spawn-preservation nodes and two test_local_paths SafeSinkOpenerTest nodes), R3 (LC_ALL=C on the _is_inside_git_dir probe), R4 (drop the empty-variants CONTEXT_KINDS fallback and flip its pinning test), R5 (refusal key reason -> detail), R6 (CHANGELOG bullet 35 + bullet 33 + README:297), R7 (_worktree_gitdir_pointer containment guard), R9 (terminate surviving process-group descendants on late sink failure).\n\nCONTRACT RULING STANDS: the root coordinator ruled the four red helper nodes are in-scope regressions requiring repair, not a waived conflict. Preserve the older spawn-preservation tests' intent (tree unchanged / existing bytes byte-identical) and correct the new empty-log assumption. tests/autopilot/test_local_paths.py sits outside the PRD's declared write paths and both Eve and Alice judge its two nodes a re-bind to the new opener contract: that edit is sanctioned by this ruling, it is a 2-assertion change, not a contract choice.\n\nMEASURED EVIDENCE: gate this cycle at HEAD returned exit 1, 23 failed / 967 passed (19 AP00018 controller nodes + the 4 AP00013 helper nodes). The verify reader returned \"counts unavailable\" for that -q summary; the counts were read from docs/dev/tmp/gate-00013v2-c1.log:609 and last-verification.json was NOT written or fabricated. R10 (the 19 AP00018 failures) is recorded as a settled deferral, not a task.\n\nAFTER REWORK: hand off to a fresh session for cycle 2. Do not select AP00018 or any backlog PRD. No master push while the 19 controller tests are red; normal pushes only. Commit untracked review artifacts.\n"
+}
