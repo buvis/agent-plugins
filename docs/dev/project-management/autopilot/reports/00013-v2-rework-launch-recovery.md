@@ -41,3 +41,17 @@ and bounded implementation scope. This was coordinator input completion,
 not another failed worker attempt or review cycle. Task status alone returns
 to pending; the original aborted attempt and all counters are preserved.
 No test has run for R17. A green queued command alone cannot close it.
+
+## Tier clarification
+
+Installed work/SKILL.md step 2.9 explicitly gates Devon to task.model opus or
+fable; Sonnet skips Devon and proceeds to 2.95. Root incorrectly promised Devon
+for Sonnet and overstated that reason in the interrupted-launch recovery report.
+The first launch was still invalid: it combined Tess and Ivan, skipped isolated
+test authoring and quality/red-commit pipeline, omitted measured dispatch and
+watchdog, and dropped R7. Its interruption and aborted attempt remain factual.
+Do not retry a valid Sonnet task just to add Devon. Fresh all-five completion
+lenses and Pat remain required. Native d530118d-6b54-49b7-a956-543a2960d833
+correctly applied the tier gate after isolated Tess, quality/style, committed
+tests and measured red check, before dispatching separate Ivan.
+Root corrected the user-facing statement at 09:29 CET on 2026-11-04.

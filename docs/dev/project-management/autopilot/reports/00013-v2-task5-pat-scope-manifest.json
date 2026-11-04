@@ -1,0 +1,18 @@
+{
+  "task_base": "08bf27e8436d239a013ecf0883418455508cedae",
+  "product_head": "8d5c325a887af7e321ca9abab454dac650f45f97",
+  "session_id": "5f560368-70d2-459e-b9ec-257a789d8070",
+  "paths": [
+    "plugins/autopilot/CHANGELOG.md",
+    "plugins/autopilot/scripts/log_sink_refusal.py",
+    "plugins/autopilot/scripts/verification.py",
+    "tests/autopilot/test_helper_recovery_v2_sinks.py",
+    "tests/autopilot/test_helper_rework_sinks.py"
+  ],
+  "full_diff_bytes": 38620,
+  "prior_diff_bytes": 19964,
+  "added_diff_bytes": 18656,
+  "full_diff_sha256": "1c79de6455454df393b0fca0dd1d38a310cadbe597d6ebcf3e735f156a8bfe3e",
+  "prior_prompt_sha256": "deaea116803f3cff97ef3c98ff945377232ed17b6d69799b0c67e8acb796aab0",
+  "new_test_diff_sha256": "97524c37380a71c35fe7e3d7c9db6c03700399b4befeab91cdf47cd7c6d7be09"
+}
