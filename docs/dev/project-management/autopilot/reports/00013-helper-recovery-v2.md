@@ -294,6 +294,55 @@ helpers was run for AP00013. Delivery rests on local test evidence only. No host
 profile is certified, and nothing is published or installed. The receipt keeps
 `real_host.status: "unavailable"` with that reason.
 
+## Final integration gate, cycle-1 rework (run once, by the orchestrator)
+
+Run on commit `852875a3f0a4593c964bf74d38155c042338fd0d`, after every code, test
+and evidence commit of the rework. `git diff --name-only` between the tested
+package revision `0ed4c17ff964b04104b3961a83a0c8e5563b0f3a` and that commit is
+empty for `plugins/` and `tests/`. It lists only the receipt, this report, the
+assumption ledger, the task 8 review record and the generated
+`tools/autopilot/source-map.json`.
+
+The suite was run through `autopilot verify --cycle 1`, which is the single
+full-suite invocation of this work phase.
+
+| command | exit | result |
+|---|---|---|
+| `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` | 1 | 19 failed, 1091 passed in 274.93s |
+| `python3 -m unittest discover -s scripts` | 0 | 59 tests, OK |
+| `python3 scripts/validate.py` | 0 | 3 packages, 15 skills |
+| `python3 scripts/generate_marketplace.py --check` | 0 | `marketplace.json` is up to date |
+
+The 19 failures are exactly the AP00018 controller nodes: 8 in
+`tests/autopilot/test_controller_capacity.py` (`CapacityTest`), 7 in
+`tests/autopilot/test_controller_owner.py` (`OwnerTest`) and 4 in
+`tests/autopilot/test_controller_owner_recovery.py` (`OwnerRecoveryTest`). They
+are the same set the previous receipt recorded, they remain owned by AP00018,
+and they are not fixed, masked or relabelled here. No AP00013 helper node
+failed. The four contract-conflict nodes recorded earlier in this report are
+green in this run.
+
+`autopilot verify` wrote NO record to
+`docs/dev/project-management/autopilot/last-verification.json` for this run. It
+returned `recorded: false` with `raw_line: null`, because it could not parse the
+runner's `19 failed, 1091 passed` summary line into counts. The tree was not
+dirty and the run did not time out. The full combined output is at
+`docs/dev/tmp/gate-852875a.log`, and the counts in the table above were read
+from that log. The next review cycle therefore runs the suite itself instead of
+reusing a record, which is the documented behaviour when no counts parse.
+
+Queued verification check from cycle 1 (one entry, recorded in
+`docs/dev/project-management/reviews/00013-autopilot-session-helpers-v2-checks-1.json`):
+
+```
+verify_check: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_verification.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cap_recovery_helpers.py -k "alias or symlink" -q -rA -> exit 0
+```
+
+It reported 11 passed, 89 deselected. Four of the passing nodes refuse before
+any spawn under a symlinked artifact or log parent. Whether that fully answers
+the reviewer's root-alias question is for cycle 2 to judge; this report records
+only that the queued command ran once and exited 0.
+
 ## What this report does not claim
 
 It does not claim the full `tests/autopilot` suite is green. The 21-file helper
