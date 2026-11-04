@@ -730,3 +730,9 @@
 {"id":"b3d92e15","kind":"pat","task":"5","queued_at":1793781863,"prompt_bytes":36460}
 {"id":"8427c63d","ended_at":1793782168,"elapsed_s":637,"outcome":"error","detail":"Incomplete review scope: new test module excluded; output preserved. Scope completed in same reviewer session via b3d92e15."}
 {"id":"b3d92e15","ended_at":1793782168,"elapsed_s":305,"outcome":"ok","detail":"Complete task scope restored across same isolated conversation; parser exit 0; one MEDIUM and eight LOW findings remain."}
+{"kind":"handoff","site":"review","edge":"resume","at":1793782471,"phase":"review","prd":"00013-autopilot-session-helpers-v2.md"}
+{"id":"8c8a8cf5","kind":"tess","task":"5","queued_at":1793782863,"prompt_bytes":37292}
+{"id":"8c8a8cf5","ended_at":1793783206,"elapsed_s":343,"outcome":"ok","detail":null}
+{"id":"3659d2fb","kind":"tess","task":"5","queued_at":1793783349,"prompt_bytes":16306}
+{"id":"3659d2fb","ended_at":1793783413,"elapsed_s":64,"outcome":"ok","detail":null}
+{"id":"a698446b","kind":"ivan","task":"5","queued_at":1793783546,"prompt_bytes":25891}
