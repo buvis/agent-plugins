@@ -137,14 +137,20 @@ def _worktree_gitdir_pointer(resolved: Path) -> Path | None:
 
 def _symlinked_component(log_path: Path, repo_root: Path, toplevel: Path) -> bool:
     """True iff any component of the UNRESOLVED `log_path` BELOW the
-    repository is a symlink (the final component included). The walk stops
-    at the repository root under either spelling and at the resolved
-    `toplevel`: a symlink in the repository's own ancestry (macOS `/tmp`, a
-    root alias) is not the sink's, while one below the root always is."""
+    repository is a symlink (the final component included). A component is
+    below the repository exactly when its own parent resolves inside it; the
+    walk stops at the first component whose parent resolves outside (the
+    root itself or a root alias). A symlink in the repository's own ancestry
+    (macOS `/tmp`, a root alias) is not the sink's, while one below the root
+    always is, at any depth."""
     stops = (repo_root, repo_root.resolve(), toplevel)
     current = log_path
     while current not in stops and current.parent != current:
-        if not current.is_relative_to(repo_root) and current.resolve() in stops:
+        try:
+            inside = current.parent.resolve().is_relative_to(repo_root.resolve())
+        except OSError:
+            inside = False
+        if not inside:
             break
         if os.path.islink(current):
             return True

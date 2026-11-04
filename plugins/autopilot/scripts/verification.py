@@ -316,7 +316,7 @@ def _acquire_sink(path: Path, root: Path) -> tuple[object, _Pin]:
     never from a later lookup by name. Raises OSError with nothing left
     open and nothing left behind."""
     parent_fd = _pinned_parent_fd(path.parent, root)
-    created, identity = False, None
+    created, identity, fd = False, None, None
     try:
         flags = os.O_WRONLY | os.O_NOFOLLOW | os.O_NONBLOCK
         try:
@@ -324,10 +324,7 @@ def _acquire_sink(path: Path, root: Path) -> tuple[object, _Pin]:
             created = True
         except FileExistsError:
             fd = os.open(path.name, flags, dir_fd=parent_fd)
-        try:
-            info = os.fstat(fd)
-        finally:
-            os.close(fd)
+        info = os.fstat(fd)
         identity = (info.st_dev, info.st_ino)
         sink = _open_log_sink(path, root, preserve=True)
         opened = os.fstat(sink.fileno())
@@ -339,6 +336,14 @@ def _acquire_sink(path: Path, root: Path) -> tuple[object, _Pin]:
             _unlink_pinned((parent_fd, path.name, identity, created))
         os.close(parent_fd)
         raise
+    finally:
+        # Held until the identity comparison is done, so the inode cannot be
+        # freed and its number reused underneath it.
+        if fd is not None:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
     return sink, (parent_fd, path.name, identity, created)
 
 
