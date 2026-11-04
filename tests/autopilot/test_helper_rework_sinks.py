@@ -459,6 +459,39 @@ def test_a_symlink_below_the_project_root_is_refused_under_every_spelling_of_the
     assert b"LINK-TOKEN-5e01" in (real / "logs" / f"{case}-plain.log").read_bytes()
 
 
+@pytest.mark.parametrize("depth", [("nest",), ("nest", "deeper")], ids=["one-dir", "two-dirs"])
+@pytest.mark.parametrize("through", ["log", "artifact"])
+@pytest.mark.parametrize(("root_spelling", "out_spelling"), SPELLINGS, ids=SPELLING_IDS)
+def test_a_symlink_deeper_below_the_project_root_is_refused_under_every_spelling(
+    world: World, tmp_path: Path, isolated_git: None, through: str,
+    root_spelling: str, out_spelling: str, depth: tuple[str, ...],
+) -> None:
+    """Depth is not part of the rule: a symlink below the root is unsafe however deep."""
+    real = world.target.resolve()
+    spellings = {"resolved": real, "alias": alias_of(world, tmp_path)}
+    (real.joinpath(*depth)).mkdir(parents=True)
+    link_rel = Path(*depth, "nest-link")
+    link = commit_link(world, str(link_rel), real)
+    root, spelled = spellings[root_spelling], spellings[out_spelling]
+    case = f"{through}-{len(depth)}-{root_spelling}-{out_spelling}"
+    marker = tmp_path / f"{case}-marker.txt"
+    argv = token_child(tmp_path, f"{case}-child", "LINK-TOKEN-5e03", marker)
+    log = (spelled / link_rel if through == "log" else spelled) / "logs" / "linked.log"
+    artifact = (spelled / link_rel if through == "artifact" else spelled) / ARTIFACT
+    report = gate_at(world, argv, root, log, artifact)
+    assert (report["schema_version"], report["ok"]) == (1, False), report
+    assert report["error"] == "unsafe-artifact-path", report
+    assert not marker.exists(), "the child ran against an output path through a symlink"
+    assert os.readlink(link) == str(real)
+    assert not (real / "logs" / "linked.log").exists(), "the refused run wrote a log"
+    assert not (real / ARTIFACT).exists(), "the refused run wrote an artifact"
+    plain_log = spelled / "logs" / f"{case}-plain.log"
+    accepted = gate_at(world, argv, root, plain_log, spelled / ARTIFACT)
+    assert accepted["ok"] is True, accepted
+    assert marker.read_text("utf-8") == str(real)
+    assert b"LINK-TOKEN-5e03" in (real / "logs" / f"{case}-plain.log").read_bytes()
+
+
 @pytest.mark.parametrize("through", ["log", "artifact"])
 def test_a_symlink_pointing_outside_the_project_stays_refused(
     world: World, tmp_path: Path, isolated_git: None, through: str,
