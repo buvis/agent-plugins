@@ -297,11 +297,12 @@ inputs or live state.
 Two helpers refuse more up front. `--verify` proves both its log sink and its
 result-artifact sink openable before it spawns the child, and reports a sink
 open, write or close failure as its own controlled error with the child killed.
-It cleans up only the result-artifact leaf its own pre-spawn validation created,
-identified through the parent descriptor it pinned before the spawn and matched
-by inode, so a file that took the artifact's name during the run, a leaf
-replaced by a directory, or a parent swapped for a symlink is left untouched and
-never replaces the run's own reported failure. Review staging refuses a
+After a failed run it removes only the result artifact that run created. A file
+that took the artifact's name during the run, a leaf that became a directory,
+or a parent that became a symlink is left untouched and never replaces the
+run's own reported failure. When the child cannot be spawned, a run log that
+did not exist before stays absent, and a run log that did exist keeps its
+bytes. Review staging refuses a
 destination whose Git check cannot answer, and refuses a reviewer whose grant
 omits the PRD instead of inlining an empty one.
 
