@@ -1,0 +1,9 @@
+CLOSURE | resolved | 🟠 test_cap_recovery_helpers.py:64: the v1 tests `test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]` and `[not-executable-False]` fail on an extra empty `docs/dev/tmp/run.log` | The diff does not touch these nodes. The recorded run shows all 4 nodes passing (`[missing-False]`, `[missing-True]`, `[not-executable-False]`, `[not-executable-True]`), so the regression is closed by task 5's production repair. This is behavior preservation, not a new fix.
+
+CLOSURE | resolved | 🟡 test_helper_recovery_v2.py:735: the FIFO-with-reader test never confirms the reader opened, so the exporter can hit the no-reader refusal and still pass | `drain_fifo` now calls `opened.set()` right after `os.open(...)`. The test runs `assert opened.wait(timeout=10), "the fifo reader never opened the fifo"` before `export(...)`, and ends with `assert b"".join(chunks) == b""`. The `finally` block that stops the reader runs before that assertion. The reader has opened by the time the exporter starts, so the refusal now comes from the drained-FIFO path.
+
+CLOSURE | resolved | ⚪ test_cap_recovery_helpers.py:199: the committed framework-selftest `test_the_attempt_allocation_measurement_catches_a_proportional_allocation` and its `mode`/`probe` plumbing | The test is deleted. `CHILD` now reads `sys.argv[1]` and `[2]` only, and the `probe = [0] * ATTEMPT if mode == "inject"` line is gone. `measure()` takes no argument and `subprocess.run` carries no `env=`. The production test keeps `CEILING = 1_000_000` and `assert "attempt_sequence_invalid" in measured["defects"]`. The scratch probe records plain peak 95314 against inject peak 1695370, with parent tracing enabled and a prior peak of 12000040.
+
+CLOSURE | resolved | ⚪ test_helper_recovery_v2.py:507: `FailingSink.__enter__`/`__exit__` are unused dead code | Both methods are deleted in the diff. `__getattr__`, `write` and the other members are untouched.
+
+NO FINDINGS
