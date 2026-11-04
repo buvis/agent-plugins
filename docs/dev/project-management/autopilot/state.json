@@ -212,7 +212,7 @@
     "engram": "ok",
     "checked_at": "2026-10-25T22:40:48Z"
   },
-  "tasks_total": 4,
+  "tasks_total": 8,
   "tasks_completed": 4,
   "replan_count": 0,
   "phases_completed": [],
@@ -221,7 +221,8 @@
     "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-01.md::decision-gate",
     "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-02.md::decision-gate",
     "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-02.md::tail-sweep",
-    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00013-autopilot-session-helpers-v1-review-01.md::decision-gate"
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00013-autopilot-session-helpers-v1-review-01.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00013-autopilot-session-helpers-v2-review-1.md::decision-gate"
   ],
   "codex_probe": {
     "batch_id": "202610250001",
@@ -231,7 +232,7 @@
     "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
     "checked_at": "2026-10-28T03:07:08.511437+00:00"
   },
-  "contract_card": "step: AP00013 v2 BUILD COMPLETE, 4/4 task records complete. Next gate: REVIEW cycle 1 in a FRESH session. Run Alice, Blake, Bob, Carl and Eve (doubt_reviewer fable), every lens, with isolated contexts. No completion review has run for v2 yet. No live peer owns this PRD.\n\nREAD FIRST: reports/00013-v2-contract-resolution.md and reports/00013-v2-task2-followup-ruling.md. Root has resolved the routine contract choice under standing authorization: preserve failed-spawn behavior (absent outputs remain absent, existing bytes unchanged), correct the new empty-log test assumption through isolated Tess during normal rework, preserve legacy _open_log_sink behavior while keeping verification preflight non-destructive. The four red helper nodes are in-scope regressions requiring repair, not a waived conflict or a preference question. Preserve the older tests. Resolve actual creation/descriptor identity for owned cleanup and whether a reported artifact write/close failure leaves a reusable record. No unrelated refusal-policy expansion or output-management subsystem.\n\nMEASURED BUILD EVIDENCE: final tests/autopilot at 9e89a5913f26e7d062347362a3cad773ccd09396 returned 23 failed, 967 passed, exit 1 (19 AP00018 controller nodes plus four AP00013 task-2 regressions). The verify CLI returned recorded=false/null counts despite the readable pytest summary; never fabricate last-verification.json. Use the installed reader policy if another gate invocation is required. Other checks: unittest scripts 59 OK; validator 3 packages/15 skills; marketplace up to date. Helper 19-file run: 544 passed/4 failed at package revision 3c7e2183a194c86d10390a3f2eda5524516ba50a. Provenance checks are green, including real provenance (31 passed across provenance files); the old missing-README pin defect was already fixed before v2. Recovery report and receipt retain exact commands and historical chain.\n\nREVIEW EVIDENCE: reports/00013-helper-recovery-v2.md names all four failed helper nodes and controls proving they passed at cce5dad and regressed at 4a93821. Task-2 Pat scope is complete: reports/00013-v2-task2-pat-scope-completion.md. Omitted tests and complete delta were supplied in order as two messages to the SAME tool-less Sonnet/high conversation because combined diff bytes alone exceeded 50K; no scope was dropped. Its MEDIUM resolved; substantive ownership/failed-artifact findings remain open. The per-task LOW label is not a waiver. Cosmetic digest forwarding and argument-count suggestions need no unrelated refactor. Missing refusal reason and pipe-read error slug require contract/caller evidence, not a test helper alone.\n\nISOLATION AND COUNTERS: preserve work_start_sha 316557ecbe06895b7f90e33a133bc5d699f841ff, review the full work range, v2 cycle 1 and rework_cap 2. No task/cycle/cap reset or automatic v3. Do not repeat the initial task-2 pipeline solely because the session changed; new confirmed findings follow normal review/rework gates. Keep ALL v1 review/design history, the 6d duplicate-review material, Pat outputs and coordinator findings away from Blake; its inputs stay PRD-only. Give the contract ruling and measured failures to non-blind review evidence. Preserve every lens and actual backend/model. On quota exhaustion try an authorized alternate route of the required family/tier; no auto substitution or permission bypass.\n\nAFTER REVIEW: stop at the next phase handoff for the root coordinator. Do not select AP00018 or backlog work automatically. AP00018 must resume explicitly through every step of plans/00018-replan-3.md, with preserved tasks 1-6, prepared retrospective Pats and a fresh completion review. Both recovery test files must remain in receipts. Wave 202611022006 is planned-only; all seven backlog PRDs overlap closeout paths. No master push before all 19 controller tests and required checks pass; normal pushes only. Worktrees stay under ~/git/src/worktrees/agent-plugins. Use installed runtime, never frozen source. Commit untracked review artifacts immediately. Check formatter churn for layout-only changes before checkout of those files.",
+  "contract_card": "step: AP00013 v2 REVIEW CYCLE 1 COMPLETE, decision gate applied. Rework queued but NOT yet run: tasks 5, 6, 7, 8 (all sonnet), rework_task_ids [\"5\",\"6\",\"7\",\"8\"]. Next action in the FRESH session: Phase 4's rotation-resume skip fires (this cycle's review file exists and rework_task_ids names unfinished tasks), so SKIP Phases 4 and 5 and resume at Phase 6 \"Dispatch rework\" \u2014 invoke /autopilot:work in rework mode and do NOT hand off again. Do NOT re-review: all five lenses already ran this cycle.\n\ninvariants: phase/next_phase stay \"review\", state.cycle stays 1, rework_cap 2, phases_completed stays []. No phase-done was run at this hand-off, by design. work_start_sha 316557ecbe06895b7f90e33a133bc5d699f841ff is preserved. No \ud83d\udd34 CRITICAL row exists this cycle, so NO rework design doc was created and none is needed; no opus floor applies and every D-task keeps sonnet. After /autopilot:work returns, the cycle advances with ONE `autopilot phase-done --outcome rework` call (clears rework_task_ids, increments cycle to 2, re-affirms review), then banner, then STOP.\n\nREVIEW ARTIFACTS: reviews/00013-autopilot-session-helpers-v2-review-1.md (gated, passes --require-codex-guard), reviews/00013-autopilot-session-helpers-v2-ledger.json (24 entries: 1 settled deferral + 23 discards), reviews/00013-autopilot-session-helpers-v2-checks-1.json (1 queued verification check, source eve, runs in work step 7). Raw reviewer outputs docs/dev/tmp/{alice,blake,bob,carl,eve}-output-00013v2-c1.txt. Cycle id 00013v2-c1. codex_thread_id 01a1a56f-75f2-7a72-b860-dbedecf63943 \u2014 cycle 2 passes it as --resume-thread. head_sha 2998ffbdfa57fac33042b78efa3fc9b32e066c1a \u2014 cycle 2 scopes its diff with --since that value.\n\nWHAT THE REWORK MUST FIX (9 fix rows, verbatim in each task's \"### Findings (verbatim)\" block): R1 (MERGED ROW \u2014 four distinct verification.py defects: the _open_result_sink ownership window, the artifact write/close failure leaving a reusable:true record, the spawn-failed empty-log residue, and the unguarded os.close(pin[0]); treat them as four fixes, not one), R2 + R8 (the four red helper nodes: two test_cap_recovery_helpers spawn-preservation nodes and two test_local_paths SafeSinkOpenerTest nodes), R3 (LC_ALL=C on the _is_inside_git_dir probe), R4 (drop the empty-variants CONTEXT_KINDS fallback and flip its pinning test), R5 (refusal key reason -> detail), R6 (CHANGELOG bullet 35 + bullet 33 + README:297), R7 (_worktree_gitdir_pointer containment guard), R9 (terminate surviving process-group descendants on late sink failure).\n\nCONTRACT RULING STANDS: the root coordinator ruled the four red helper nodes are in-scope regressions requiring repair, not a waived conflict. Preserve the older spawn-preservation tests' intent (tree unchanged / existing bytes byte-identical) and correct the new empty-log assumption. tests/autopilot/test_local_paths.py sits outside the PRD's declared write paths and both Eve and Alice judge its two nodes a re-bind to the new opener contract: that edit is sanctioned by this ruling, it is a 2-assertion change, not a contract choice.\n\nMEASURED EVIDENCE: gate this cycle at HEAD returned exit 1, 23 failed / 967 passed (19 AP00018 controller nodes + the 4 AP00013 helper nodes). The verify reader returned \"counts unavailable\" for that -q summary; the counts were read from docs/dev/tmp/gate-00013v2-c1.log:609 and last-verification.json was NOT written or fabricated. R10 (the 19 AP00018 failures) is recorded as a settled deferral, not a task.\n\nAFTER REWORK: hand off to a fresh session for cycle 2. Do not select AP00018 or any backlog PRD. No master push while the 19 controller tests are red; normal pushes only. Commit untracked review artifacts.",
   "prd_budget_since": "2026-11-02T21:43:19Z",
   "design_mode": "run",
   "design_doc": "docs/dev/project-management/designs/00013-autopilot-session-helpers-v2-design.md",
@@ -293,6 +294,90 @@
       "cycle": 1,
       "action": "Preserve valid partial review; repair owned-child observation and required artifact preflight, restore pipe-close guard, complete omitted scope in same Pat cycle2 follow-up",
       "reason": "Full root Verify ran 145 passed/1 ps PermissionError. PRD F2 requires both sinks validated before spawn; direct readonly-artifact probe proves child starts first. Pat partial session has supported MEDIUM. Saved omitted 19857-byte test diff plus subsequent delta fits existing follow-up without exclusions. De-slop impossibility claim refuted against CPython source; guard restored by recoverable revert. No counters reset."
+    },
+    {
+      "issue": "R4: shared review context artifact still carries every context kind when no roster job reads it (review_stage.py:380), the same defect text as a settled v1 cap-overflow HIGH",
+      "severity": "high",
+      "cycle": 1,
+      "action": "Protocol B research then auto-fix (cycle 1)",
+      "reason": "Recurring: recurrence count 2 (raised and cap-out-deferred in the v1 cycle, then addressed by this v2 PRD). Root cause identified: the v2 fix narrowed the exposure to the empty-variants fallback instead of removing the fallback, so it was a partial fix, not a wrong one. Alternative available and different from the prior attempt: drop the fallback entirely (shared = frozenset().union(*variants.values())) and flip the pinning test test_staging_keeps_every_context_kind_when_no_roster_job_reads_the_shared_context, which currently asserts the PRD-forbidden behaviour and also passes against the pre-change code. Count 2 < 3, root cause identified, alternative available: all three Protocol B conditions hold, verdict proceed, treated as auto-fix."
+    },
+    {
+      "issue": "R17: PRD T2 requires pre-spawn sink validation including unresolved/resolved root aliases, but no new test file drives run_verification with a symlinked project_root against a resolved-spelling log/artifact path (tests/autopilot/test_helper_recovery_v2.py:608)",
+      "severity": "medium",
+      "cycle": 1,
+      "action": "routed to verification",
+      "reason": "Medium finding whose text names one exact runnable project verification command, so it is queued to docs/dev/project-management/reviews/00013-autopilot-session-helpers-v2-checks-1.json and runs inside the work phase's mandatory step-7 verification pass instead of becoming a task that would re-run the same suite. Command: uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_verification.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cap_recovery_helpers.py -k \"alias or symlink\" -q -rA"
+    },
+    {
+      "issue": "Cycle 1 consolidated tail: 22 Medium/Low rows discarded (R11-R16, R18-R33)",
+      "severity": "low",
+      "cycle": 1,
+      "action": "discarded, recorded in the settled-decisions ledger",
+      "reason": "Each is single-voice Medium or Low per the Classification rule (never a task), except the four mech-check fail-first replay rows R30-R33, which are dismissed with the documented replay reason: the touched tests pass against the pre-change code because this PRD's corrective scope narrows existing guards and replaces implementation-shaped evidence with behavioural bounds, so passing on base is the behaviour-preserving case rather than a defect. The one replay row that did signal a real contradiction is carried as R4 and is being fixed. All 22 are written to docs/dev/project-management/reviews/00013-autopilot-session-helpers-v2-ledger.json with their individual reasons so a re-raise next cycle is auto-dismissed and a wrong dismissal is visible."
+    },
+    {
+      "cycle": 1,
+      "issue": "The ownership-window defect from reports/00013-v2-task2-followup-ruling.md is unresolved. _open_result_sink decides \"this run created the leaf\" with a separate `artifact.exists()` before the open (verification.py:296). It then takes the cleanup identity from a later `os.lstat` by name in _pin_sink_leaf (log_sink_refusal.py:235), not from `os.fstat` on the opened descriptor. A file created between the exists() check and the open, or swapped between the open and the lstat, is treated as owned and `_unlink_pinned` deletes it. A fix would take creation from the open itself (try O_CREAT\\|O_EXCL first, then fall back to a plain open) and the identity from fstat of the sink fd. No test covers this window. The README line \"identified ... matched by inode\" and the matching CHANGELOG bullet overstate what is guaranteed. MERGED ROW \u2014 see \"Note on row R1\": also carries the artifact write/close failure leaving a reusable record (verification.py:363), the spawn-failed empty-log residue (verification.py:200), the unguarded `os.close(pin[0])` (verification.py:342) and the un-restorable truncated pre-existing artifact (verification.py:280, out of scope).",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Two more v1 tests fail because _open_log_sink changed contract: tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file and ::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf. The first expects the opener to truncate, but it now keeps prior bytes. The second expects a symlinked leaf to be replaced, but it now raises ELOOP at log_sink_refusal.py:216. The recovery report (00013-helper-recovery-v2.md:83-116) records both as v2 task-2 regressions and leaves them red, so the full gate shows 23 failures against the 19 known AP18 ones. The opener's callers are not wrong. These two tests need to be re-bound to the new contract (the PRD already moved truncation to the spawn, and refuse() already rejects symlinked leaves), or the red nodes remain a blocker.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "_is_inside_git_dir fails closed unless stderr starts with the English \"fatal: not a git repository\". _git does not pin LC_ALL, so under a non-English locale a legitimate non-repo external destination is refused. This is a safe failure but a false refusal. Pin LC_ALL=C for that probe or document the limit. Eve verified it on this host: git 2.56.0 under `LC_ALL=de_DE.UTF-8 LANGUAGE=de` prints `Schwerwiegend: Kein Git-Repository ...`.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "The shared context artifact is not limited to the granted union when no context-reading job is in the roster. `shared` falls back to full `CONTEXT_KINDS` when `variants` is empty (roster of only Blake/Eve, such as fast-track). The PRD says \"an empty union grants no content\". The test `test_staging_keeps_every_context_kind_when_no_roster_job_reads_the_shared_context` pins the opposite. It asserts that `review-context-u3.md` contains the implementation-audit context, the settled history, the pack precedent and the test gate, none of which Eve is granted. The CHANGELOG line \"fills the shared context file with granted input kinds only\" overclaims for this case. That pinning test also passes against the pre-change code (fail-first replay), so it pins nothing this change introduced.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "The new missing-PRD refusal returns `\"reason\"` while every other staging refusal goes through _refusal and uses `\"detail\"` (review_stage.py:123 vs :630). A caller that reads `detail` gets nothing for this error. It is also a hand-built dict where a helper exists. Use _refusal, or align the key. The tests currently bind to `reason`, and one helper at test_helper_recovery_v2.py:62 accepts either key.",
+      "severity": "medium",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "The CHANGELOG bullet \"attempt validation holds its memory bound against a measured resource ceiling\" describes a test-only change under Fixed. It is not a user-visible fix and contradicts the changelog rule that excludes test changes. Drop it. Bullet 33 and README:297 likewise restate implementation mechanics (pinned descriptors, inode matching) rather than the user-visible effect, and the README does not document the empty-log residue after a failed spawn.",
+      "severity": "low",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "`_worktree_gitdir_pointer` reads any in-repo file that is the same inode as a sibling `.git` file, for example a nested repo's pointer. The PRD says only the supplied repository's actual worktree pointer may be read. The external hard-link case is correctly refused before any read. Eve's fix: guard the call with `pointer = _worktree_gitdir_pointer(resolved) if resolved.parent == toplevel else None`.",
+      "severity": "low",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Two v1 tests in test_cap_recovery_helpers.py fail at the reviewed HEAD. They are test_spawn_failure_is_controlled_and_preserves_outputs[missing-False] and [not-executable-False]. I re-ran them: `assert tree(world.target) == before` fails on an extra empty docs/dev/tmp/run.log, because the new _open_log_sink creates the log before the spawn and nothing removes it when the spawn fails. The v2 sibling test (test_helper_recovery_v2_sinks.py:98) asserts the opposite, an empty leftover log, and the coordinator correction allows it. The old test was never reconciled. PRD T2 says existing tests must stay green and the AP18 deferral covers only the 19 controller tests, so this is an uncovered helper regression. Either update the stale test to the \"absent log may stay empty\" contract, or drop the log the run created, as is already done for the artifact leaf. NOT single-voice \u2014 Blake, Bob and Eve raised the same regression under verification.py:200, which the consolidator merged into R1 (see \"Note on row R1\").",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 1,
+      "issue": "Late sink failures do not terminate surviving process-group descendants. A child can start a background process with redirected pipes, exit successfully, and leave that descendant running when log or artifact close fails. Retain the process-group identity through sink finalization and terminate the group on failure; test a real surviving descendant.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
     }
   ],
   "tasks": [
@@ -482,6 +567,34 @@
       "usage_at_done": 301443,
       "calls_at_done": 193,
       "done_at": 1793741628
+    },
+    {
+      "name": "[D1] plugins/autopilot/scripts/",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe0 plugins/autopilot/scripts/verification.py:296: The ownership-window defect from reports/00013-v2-task2-followup-ruling.md is unresolved. _open_result_sink decides \"this run created the leaf\" with a separate `artifact.exists()` before the open (verification.py:296). It then takes the cleanup identity from a later `os.lstat` by name in _pin_sink_leaf (log_sink_refusal.py:235), not from `os.fstat` on the opened descriptor. A file created between the exists() check and the open, or swapped between the open and the lstat, is treated as owned and `_unlink_pinned` deletes it. A fix would take creation from the open itself (try O_CREAT\\|O_EXCL first, then fall back to a plain open) and the identity from fstat of the sink fd. No test covers this window. The README line \"identified ... matched by inode\" and the matching CHANGELOG bullet overstate what is guaranteed. MERGED ROW \u2014 see \"Note on row R1\": also carries the artifact write/close failure leaving a reusable record (verification.py:363), the spawn-failed empty-log residue (verification.py:200), the unguarded `os.close(pin[0])` (verification.py:342) and the un-restorable truncated pre-existing artifact (verification.py:280, out of scope). (found by: ALICE, BOB, CARL, BLAKE, EVE)\n- \ud83d\udfe0 plugins/autopilot/scripts/log_sink_refusal.py:203: Two more v1 tests fail because _open_log_sink changed contract: tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file and ::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf. The first expects the opener to truncate, but it now keeps prior bytes. The second expects a symlinked leaf to be replaced, but it now raises ELOOP at log_sink_refusal.py:216. The recovery report (00013-helper-recovery-v2.md:83-116) records both as v2 task-2 regressions and leaves them red, so the full gate shows 23 failures against the 19 known AP18 ones. The opener's callers are not wrong. These two tests need to be re-bound to the new contract (the PRD already moved truncation to the spawn, and refuse() already rejects symlinked leaves), or the red nodes remain a blocker. (found by: ALICE, BLAKE, BOB, CARL)\n- \u26aa plugins/autopilot/scripts/log_sink_refusal.py:125: `_worktree_gitdir_pointer` reads any in-repo file that is the same inode as a sibling `.git` file, for example a nested repo's pointer. The PRD says only the supplied repository's actual worktree pointer may be read. The external hard-link case is correctly refused before any read. Eve's fix: guard the call with `pointer = _worktree_gitdir_pointer(resolved) if resolved.parent == toplevel else None`. (found by: BLAKE, EVE)\n- \ud83d\udfe0 plugins/autopilot/scripts/verification.py:217: Late sink failures do not terminate surviving process-group descendants. A child can start a background process with redirected pipes, exit successfully, and leave that descendant running when log or artifact close fails. Retain the process-group identity through sink finalization and terminate the group on failure; test a real surviving descendant. (found by: BOB)\n",
+      "model": "sonnet",
+      "id": "5",
+      "status": "pending"
+    },
+    {
+      "name": "[D1] plugins/autopilot/scripts/review_stage.py",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_stage.py:402: _is_inside_git_dir fails closed unless stderr starts with the English \"fatal: not a git repository\". _git does not pin LC_ALL, so under a non-English locale a legitimate non-repo external destination is refused. This is a safe failure but a false refusal. Pin LC_ALL=C for that probe or document the limit. Eve verified it on this host: git 2.56.0 under `LC_ALL=de_DE.UTF-8 LANGUAGE=de` prints `Schwerwiegend: Kein Git-Repository ...`. (found by: ALICE, BLAKE, EVE)\n- \ud83d\udfe0 plugins/autopilot/scripts/review_stage.py:380: The shared context artifact is not limited to the granted union when no context-reading job is in the roster. `shared` falls back to full `CONTEXT_KINDS` when `variants` is empty (roster of only Blake/Eve, such as fast-track). The PRD says \"an empty union grants no content\". The test `test_staging_keeps_every_context_kind_when_no_roster_job_reads_the_shared_context` pins the opposite. It asserts that `review-context-u3.md` contains the implementation-audit context, the settled history, the pack precedent and the test gate, none of which Eve is granted. The CHANGELOG line \"fills the shared context file with granted input kinds only\" overclaims for this case. That pinning test also passes against the pre-change code (fail-first replay), so it pins nothing this change introduced. (found by: BLAKE, BOB, EVE, mech-check)\n- \ud83d\udfe1 plugins/autopilot/scripts/review_stage.py:630: The new missing-PRD refusal returns `\"reason\"` while every other staging refusal goes through _refusal and uses `\"detail\"` (review_stage.py:123 vs :630). A caller that reads `detail` gets nothing for this error. It is also a hand-built dict where a helper exists. Use _refusal, or align the key. The tests currently bind to `reason`, and one helper at test_helper_recovery_v2.py:62 accepts either key. (found by: ALICE, BLAKE, EVE)\n",
+      "model": "sonnet",
+      "id": "6",
+      "status": "pending"
+    },
+    {
+      "name": "[D1] tests/autopilot/test_cap_recovery_helpers.py",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe0 tests/autopilot/test_cap_recovery_helpers.py:64: Two v1 tests in test_cap_recovery_helpers.py fail at the reviewed HEAD. They are test_spawn_failure_is_controlled_and_preserves_outputs[missing-False] and [not-executable-False]. I re-ran them: `assert tree(world.target) == before` fails on an extra empty docs/dev/tmp/run.log, because the new _open_log_sink creates the log before the spawn and nothing removes it when the spawn fails. The v2 sibling test (test_helper_recovery_v2_sinks.py:98) asserts the opposite, an empty leftover log, and the coordinator correction allows it. The old test was never reconciled. PRD T2 says existing tests must stay green and the AP18 deferral covers only the 19 controller tests, so this is an uncovered helper regression. Either update the stale test to the \"absent log may stay empty\" contract, or drop the log the run created, as is already done for the artifact leaf. NOT single-voice \u2014 Blake, Bob and Eve raised the same regression under verification.py:200, which the consolidator merged into R1 (see \"Note on row R1\"). (found by: ALICE)\n",
+      "model": "sonnet",
+      "id": "7",
+      "status": "pending"
+    },
+    {
+      "name": "[D1] prose",
+      "description": "### Findings (verbatim)\n- \u26aa plugins/autopilot/CHANGELOG.md:35: The CHANGELOG bullet \"attempt validation holds its memory bound against a measured resource ceiling\" describes a test-only change under Fixed. It is not a user-visible fix and contradicts the changelog rule that excludes test changes. Drop it. Bullet 33 and README:297 likewise restate implementation mechanics (pinned descriptors, inode matching) rather than the user-visible effect, and the README does not document the empty-log residue after a failed spawn. (found by: ALICE, BLAKE, EVE)\n",
+      "model": "sonnet",
+      "id": "8",
+      "status": "pending"
     }
   ],
   "loop_entry": {
@@ -502,5 +615,70 @@
     }
   },
   "work_start_sha": "316557ecbe06895b7f90e33a133bc5d699f841ff",
-  "repo_root": "/Users/bob/git/src/github.com/buvis/agent-plugins"
+  "repo_root": "/Users/bob/git/src/github.com/buvis/agent-plugins",
+  "review_lenses": {
+    "consensus": "done",
+    "blind": "done",
+    "doubt": "done",
+    "fable": "done",
+    "ui": "done"
+  },
+  "doubts_rubric_verdicts": [
+    {
+      "rule_id": "D1",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D2",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D3",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D4",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D5",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D1",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D2",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D3",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D4",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D5",
+      "verdict": "pass"
+    }
+  ],
+  "rework_task_ids": [
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "deferred_decisions": [
+    {
+      "cycle": 1,
+      "issue": "The 19 AP00018 controller failures remain full-gate and push blockers. They are outside AP00013's corrective write paths and explicitly deferred; the supplied 23-failure result also includes the four helper regressions above.",
+      "severity": "\ud83d\udfe0",
+      "file": "N/A",
+      "action": "deferred",
+      "reason": "deferred by review-close"
+    }
+  ]
 }
