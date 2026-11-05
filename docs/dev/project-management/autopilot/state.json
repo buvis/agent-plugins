@@ -217,7 +217,7 @@
     "checked_at": "2026-10-25T22:40:48Z"
   },
   "tasks_total": 4,
-  "tasks_completed": 1,
+  "tasks_completed": 2,
   "replan_count": 0,
   "phases_completed": [],
   "cycle": 1,
@@ -248,6 +248,11 @@
       "reason": "Smallest diff that closes both HIGH rows at one shared primitive; 3 design dispatches, 1 blocker fixed; 9 non-blockers and 4 questions recorded in the design Review log",
       "cycle": 0,
       "severity": "low"
+    },
+    {
+      "type": "assumed-ambiguity",
+      "question": "T2 tests would push tests/autopilot/test_helper_recovery_v3.py past the 800-line file limit, and the PRD write-path list names no sibling test file. Where do they go?",
+      "assumption": "Move the failed_artifact tests into a new sibling tests/autopilot/test_helper_recovery_v3_artifact.py (test code only); sink_alias tests unchanged. The 800-line limit binds, and the v3 admission already treats extra test modules as test code (R5)."
     }
   ],
   "tasks": [
@@ -310,7 +315,26 @@
       "qwen_eligible": false,
       "qwen_excluded_reason": "tier",
       "id": "2",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "same-directory inode re-lookup instead of a kept descriptor, hardcoded injected error text, no NUL fallback for a leaf left in place, leaked descriptors, failed record returned under artifact",
+          "devon_weak_points": 5,
+          "devon_in_contract": []
+        }
+      ]
     },
     {
       "name": "T3: Fail closed on git probe timeout or spawn error",

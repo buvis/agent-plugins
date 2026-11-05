@@ -793,3 +793,17 @@
 {"id":"8ba3e2e6","ended_at":1793918154,"elapsed_s":188,"outcome":"ok","detail":null}
 {"id":"0effb98e","kind":"pat","task":"1","queued_at":1793918323,"prompt_bytes":43108}
 {"id":"0effb98e","ended_at":1793918398,"elapsed_s":75,"outcome":"ok","detail":"3 LOW; sonnet-run via setup-token after OAuth-revoked first attempt"}
+{"id":"4dd843a0","kind":"tess","task":"2","queued_at":1793918469,"prompt_bytes":47448}
+{"id":"4dd843a0","ended_at":1793919072,"elapsed_s":603,"outcome":"ok","detail":null}
+{"id":"253f150b","kind":"tess","task":"2","queued_at":1793919093,"prompt_bytes":9259}
+{"id":"253f150b","ended_at":1793919147,"elapsed_s":54,"outcome":"ok","detail":null}
+{"id":"0e5d910c","kind":"devon","task":"2","queued_at":1793919252,"prompt_bytes":36784}
+{"id":"0e5d910c","ended_at":1793919274,"elapsed_s":22,"outcome":"killed","detail":"never dispatched: prompt corrupted by shell backticks, rebuilt"}
+{"id":"03ed8b90","kind":"devon","task":"2","queued_at":1793919276,"prompt_bytes":36921}
+{"id":"03ed8b90","ended_at":1793919501,"elapsed_s":225,"outcome":"ok","detail":"5 exploits"}
+{"id":"dd769f93","kind":"tess","task":"2","queued_at":1793919539,"prompt_bytes":13662}
+{"id":"dd769f93","ended_at":1793919758,"elapsed_s":219,"outcome":"ok","detail":null}
+{"id":"00a4f4b6","kind":"ivan","task":"2","queued_at":1793919830,"prompt_bytes":17173}
+{"id":"00a4f4b6","ended_at":1793920083,"elapsed_s":253,"outcome":"ok","detail":null}
+{"id":"4cca6471","kind":"pat","task":"2","queued_at":1793920306,"prompt_bytes":27737}
+{"id":"4cca6471","ended_at":1793920371,"elapsed_s":65,"outcome":"ok","detail":"2 LOW"}

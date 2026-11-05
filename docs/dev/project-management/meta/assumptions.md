@@ -23,3 +23,23 @@ Ivan:
 - The `..` check sits after the tracked probe, directly before `_symlinked_component`, as the contract says; the no-os.open tests pass with that order.
 - With no anchor, `refuse` skips the `..` check and lets `_symlinked_component` fail closed with "is a symlink".
 - The OSError message for `..` in `_pinned_parent_fd` is the implementor's own wording.
+
+## 2: T2 Invalidate a failed artifact through a kept descriptor
+
+Orchestrator:
+- The T2 tests moved to a new sibling `tests/autopilot/test_helper_recovery_v3_artifact.py` to keep `test_helper_recovery_v3.py` under 800 lines (recorded in `state.autonomous_decisions`).
+
+Tess (initial):
+- `<ftruncate error>` / `<pwrite error>` in the reason are text that contains each OSError's message; the test checks order after the phrase, not an exact format.
+- "Stop at the first step that succeeds" means exactly one `ftruncate` call when it succeeds and no further `ftruncate`/`pwrite`.
+- "Complete JSON bytes forwarded" means the bytes written so far parse with `json.loads`.
+- The artifact sink is the handle `_open_log_sink` returns for the artifact path.
+
+Tess (strengthen after Devon):
+- A sibling directory under the git-ignored `docs/dev/tmp/moved/` counts as "another directory"; the hard-link variant was not added.
+- The `/dev/fd` listing is an acceptable descriptor count; children are reaped before the second snapshot.
+
+Ivan:
+- The fallback reason uses `str()` of each OSError.
+
+Pat (LOW, recorded for the completion review): the `os.dup` failure branch has no test; the plan's Verify line still names `test_helper_recovery_v3.py -k failed_artifact` instead of the new file.
