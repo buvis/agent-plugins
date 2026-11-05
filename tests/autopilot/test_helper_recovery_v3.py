@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -12,9 +13,13 @@ import pytest
 from test_helper_recovery_v2 import (
     ARTIFACT,
     commit_repo,
+    core_names,
     failure_shape,
+    project,
     reap,
     spy_on_spawn,
+    stage_module,
+    staged_files,
 )
 from test_helper_recovery_v2_sinks import CHILD_OUTPUT, seed
 from test_helper_rework_sinks import (
@@ -26,6 +31,9 @@ from test_helper_rework_sinks import (
     token_child,
 )
 from test_local_boundary import World, library, make_world
+from test_review_helpers import assert_refused, call, snapshot
+
+__all__ = ["project"]  # fixture re-exported for pytest
 
 PARENT = "has a parent-directory component"
 RETURN_LOG = b"RETURNED-LOG-SENTINEL-8a41\n"
@@ -629,3 +637,111 @@ def test_sink_alias_outputs_whose_root_spelling_has_a_parent_component_still_suc
     assert marker.read_text("utf-8") == str(real)
     assert b"SPELL-TOKEN-8a4a" in (real / "logs" / "dotdot-spelling.log").read_bytes()
     assert json.loads((real / artifact).read_bytes())["argv"] == argv
+
+
+# --- stage_review: a git-dir probe that times out or cannot start fails closed -----------------
+
+
+PROBE_FLAG = "--is-inside-git-dir"
+PROBE_ENV = ("PROBE_FAILURE_ENV_SENTINEL", "probe-env-8a4b")
+REFUSAL_SHAPE = {"schema_version", "ok", "error", "detail"}
+PROBE_FAILURES = [
+    lambda: subprocess.TimeoutExpired(["git", "rev-parse", PROBE_FLAG], 60),
+    lambda: FileNotFoundError(2, "No such file or directory", "git"),
+    lambda: PermissionError(13, "Permission denied", "git"),
+]
+PROBE_FAILURE_IDS = ["timeout", "git-not-found", "git-not-permitted"]
+PROBE_DESTINATIONS = [
+    ("pf1", ("outside", "rev"), True),
+    ("pf2", ("far", "notes.gitlike", "deep", "rev"), False),
+]
+PROBE_DESTINATION_IDS = ["existing-parent", "missing-ancestors-gitlike-name"]
+
+
+def stub_git_dir_probe(
+    monkeypatch: pytest.MonkeyPatch, failure: BaseException | None
+) -> list[dict[str, Any]]:
+    """Raises `failure` only for the git-dir probe; every other subprocess.run call runs for real."""
+    real = subprocess.run
+    probes: list[dict[str, Any]] = []
+
+    def run(*args: Any, **kwargs: Any) -> Any:
+        argv = args[0] if args else kwargs.get("args", ())
+        if PROBE_FLAG in [str(part) for part in argv]:
+            probes.append(dict(kwargs))
+            if failure is not None:
+                raise failure
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", run)
+    return probes
+
+
+def assert_probe_reached(
+    probes: list[dict[str, Any]], destination: Path, project: Path
+) -> None:
+    """The probe ran from an ancestor of the outside destination with its locale and timeout."""
+    assert probes, "the git-dir probe was never reached for an outside destination"
+    for kwargs in probes:
+        cwd = Path(kwargs["cwd"])
+        assert cwd in {destination, *destination.parents}, cwd
+        assert project not in {cwd, *cwd.parents}, cwd
+        assert kwargs["timeout"] == 60, kwargs
+        env = kwargs["env"]
+        assert (env["LC_ALL"], env["LANGUAGE"]) == ("C", "C"), env
+        assert env[PROBE_ENV[0]] == PROBE_ENV[1], "the probe dropped the process environment"
+
+
+@pytest.mark.parametrize(
+    ("cycle", "parts", "make_parent"), PROBE_DESTINATIONS, ids=PROBE_DESTINATION_IDS
+)
+@pytest.mark.parametrize("failure", PROBE_FAILURES, ids=PROBE_FAILURE_IDS)
+def test_probe_failure_refuses_an_outside_destination_with_the_controlled_refusal(
+    project: Path,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure: Any,
+    cycle: str,
+    parts: tuple[str, ...],
+    make_parent: bool,
+) -> None:
+    """Fail-first at v2 (d3cd7fa): the probe error escaped stage_review as a traceback."""
+    destination = tmp_path.resolve().joinpath(*parts)
+    if make_parent:
+        destination.parent.mkdir(parents=True)
+    monkeypatch.setenv(*PROBE_ENV)
+    before = snapshot(tmp_path)
+    probes = stub_git_dir_probe(monkeypatch, failure())
+    report = call(stage_module(), project, cycle_id=cycle, artifact_root=destination)
+    assert_refused(report)
+    assert report["error"] == "unsafe-output", report
+    assert set(report) == REFUSAL_SHAPE, report
+    assert isinstance(report["detail"], str) and report["detail"].strip(), report
+    assert not destination.exists() and staged_files(destination) == set()
+    assert staged_files(project / "docs" / "dev" / "tmp" / "rev") == set()
+    assert snapshot(tmp_path) == before
+    assert_probe_reached(probes, destination, project)
+
+
+@pytest.mark.parametrize(
+    ("cycle", "parts", "make_parent"), PROBE_DESTINATIONS, ids=PROBE_DESTINATION_IDS
+)
+def test_probe_failure_control_accepts_the_same_destination_when_the_probe_answers(
+    project: Path,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    cycle: str,
+    parts: tuple[str, ...],
+    make_parent: bool,
+) -> None:
+    """Control: outside any repository, git answers "not a git repository" and staging proceeds."""
+    destination = tmp_path.resolve().joinpath(*parts)
+    if make_parent:
+        destination.parent.mkdir(parents=True)
+    monkeypatch.setenv(*PROBE_ENV)
+    probes = stub_git_dir_probe(monkeypatch, None)
+    report = call(stage_module(), project, cycle_id=cycle, artifact_root=destination)
+    assert report["ok"] is True, report
+    assert {Path(a["path"]).parent for a in report["artifacts"]} == {destination}
+    assert core_names(cycle) | {f"review-pack-{cycle}.md"} <= staged_files(destination)
+    assert_probe_reached(probes, destination, project)
