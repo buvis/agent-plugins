@@ -297,12 +297,19 @@ inputs or live state.
 Two helpers refuse more up front. `--verify` proves both its log sink and its
 result-artifact sink openable before it spawns the child, and reports a sink
 open, write or close failure as its own controlled error with the child killed.
-After a failed run it removes only the result artifact that run created. A file
+It judges an output path by its components after the leading spelling of the
+project root: any symlink there, including one that leaves and returns or one to
+the root itself, or a `..` component below the root is refused with
+`unsafe-artifact-path`, whichever way the root is spelled. A symlinked ancestor
+of the root stays allowed. After a failed run it removes only the result
+artifact that run created. A file
 that took the artifact's name during the run, a leaf that became a directory,
 or a parent that became a symlink is left untouched and never replaces the
-run's own reported failure. When the child cannot be spawned, a run log that
-did not exist before stays absent, and a run log that did exist keeps its
-bytes. Review staging refuses a
+run's own reported failure. After a failed result-artifact write or close it
+empties (or makes unparseable) the written file through its descriptor, wherever
+the file was moved, and reports in its reason when even that fails. When the
+child cannot be spawned, a run log that did not exist before stays absent, and a
+run log that did exist keeps its bytes. Review staging refuses a
 destination whose Git check cannot answer, and refuses a reviewer whose grant
 omits the PRD instead of inlining an empty one.
 
