@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import errno
 import hashlib
 import json
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -14,13 +16,15 @@ from test_helper_recovery_v2 import (
     commit_repo,
     failure_shape,
     reap,
+    run_gate,
     spy_on_spawn,
 )
-from test_helper_recovery_v2_sinks import CHILD_OUTPUT, seed
+from test_helper_recovery_v2_sinks import ALT_ARTIFACT, CHILD_OUTPUT, PRIOR_ARTIFACT, seed
 from test_helper_rework_sinks import (
     commit_link,
     gate_at,
     leave_untouched,
+    patch_opener,
     spellings_of,
     swap_log_before_open,
     token_child,
@@ -629,3 +633,165 @@ def test_sink_alias_outputs_whose_root_spelling_has_a_parent_component_still_suc
     assert marker.read_text("utf-8") == str(real)
     assert b"SPELL-TOKEN-8a4a" in (real / "logs" / "dotdot-spelling.log").read_bytes()
     assert json.loads((real / artifact).read_bytes())["argv"] == argv
+
+
+# --- run_verification: a failed result artifact is invalidated through a kept descriptor --------
+
+INVALID = "artifact invalidation failed"
+REPLACE_ONE = b'{"schema_version": 1, "reusable": true, "marker": "REPLACEMENT-8b01"}\n'
+REPLACE_TWO = b'{"schema_version": 1, "reusable": true, "marker": "REPLACEMENT-8b02"}\n'
+MOVE_CHILD = (  # an empty plan moves nothing; else it names artifact, new name, replacement
+    "import os, pathlib, sys\n"
+    "plan = pathlib.Path(sys.argv[1]).read_text(encoding='utf-8').splitlines()\n"
+    "if plan:\n"
+    "    os.rename(plan[0], plan[1])\n"
+    "    pathlib.Path(plan[0]).write_bytes(pathlib.Path(plan[2]).read_bytes())\n"
+    "print('PASS 2 FAIL 0 SKIP 1 EXIT 0')\n"
+)
+
+
+class BrokenArtifactSink:
+    """The real artifact sink; close, or the write completing the JSON, raises after it ran."""
+
+    def __init__(self, handle: Any, mode: str, hits: list) -> None:
+        self._handle, self._mode, self._hits, self._sent = handle, mode, hits, b""
+        self._inode = os.fstat(handle.fileno()).st_ino
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._handle, name)
+
+    def _fail(self, kind: str) -> None:
+        if self._mode == kind:
+            self._hits.append((kind, self._inode, self._sent))
+            raise OSError(errno.EIO, f"injected artifact {kind} failure")
+
+    def write(self, data: Any) -> Any:
+        written = self._handle.write(data)
+        self._sent += bytes(data)
+        try:
+            json.loads(self._sent)
+        except ValueError:
+            return written
+        self._fail("write")
+        return written
+
+    def close(self) -> None:
+        self._handle.close()
+        self._fail("close")
+
+
+def refuse_after(monkeypatch: pytest.MonkeyPatch, hits: list,
+                 broken: tuple[str, ...]) -> list[tuple[str, int]]:
+    """Once a sink failure fired, records each call's inode and fails the `broken` ones."""
+    calls: list[tuple[str, int]] = []
+    for name in ("ftruncate", "pwrite"):
+        def fake(fd: int, *args: Any, _name: str = name, _real: Any = getattr(os, name)) -> Any:
+            if hits:
+                calls.append((_name, os.fstat(fd).st_ino))
+                if _name in broken:
+                    raise OSError(errno.EIO, f"{_name}-refused-c4a1")
+            return _real(fd, *args)
+
+        monkeypatch.setattr(library("verification").os, name, fake)
+    return calls
+
+
+@pytest.fixture
+def run_moved(world: World, tmp_path: Path, isolated_git: None,
+              monkeypatch: pytest.MonkeyPatch) -> Any:
+    """Runs MOVE_CHILD with only the artifact sink broken; its folder is ignored by git."""
+    (world.target / ".git" / "info").mkdir(exist_ok=True)
+    (world.target / ".git" / "info" / "exclude").write_text("/docs/dev/tmp/moved/\n", "utf-8")
+    real_open = library("log_sink_refusal")._open_log_sink
+
+    def run(case: str, prior: bytes | None, moved: bytes | None, mode: str | None,
+            broken: tuple[str, ...] = ()) -> tuple[dict, Path, Path, list[str], list, list]:
+        artifact = world.target / "docs" / "dev" / "tmp" / "moved" / case / "result.json"
+        artifact.parent.mkdir(parents=True)
+        if prior is not None:
+            seed(artifact, prior)
+        held, hits = artifact.with_name("held.json"), []
+        plan = [artifact, held, seed(tmp_path / f"{case}.src", moved)] if moved else []
+        seed(tmp_path / f"{case}.plan", "\n".join(map(str, plan)).encode("utf-8"))
+        seed(tmp_path / f"{case}.py", MOVE_CHILD.encode("utf-8"))
+        argv = [sys.executable, "-I", str(tmp_path / f"{case}.py"), str(tmp_path / f"{case}.plan")]
+
+        def opener(log_path: Any, repo_root: Any, *args: Any, **kwargs: Any) -> Any:
+            handle = real_open(log_path, repo_root, *args, **kwargs)
+            if mode and Path(log_path).resolve() == artifact.resolve():
+                return BrokenArtifactSink(handle, mode, hits)
+            return handle
+
+        patch_opener(monkeypatch, opener)
+        calls = refuse_after(monkeypatch, hits, broken)
+        children = spy_on_spawn(monkeypatch, argv)
+        try:
+            report = run_gate(world, argv, log=world.target / "logs" / f"{case}.log",
+                              artifact=artifact, timeout=60)
+        finally:
+            reap(children)
+        return report, artifact, held, argv, hits, calls
+
+    return run
+
+
+@pytest.mark.parametrize(("mode", "prior", "moved"), [
+    pytest.param("close", PRIOR_ARTIFACT, REPLACE_ONE, id="close-existing-renamed"),
+    pytest.param("write", ALT_ARTIFACT, REPLACE_TWO, id="write-existing-renamed"),
+    pytest.param("close", None, REPLACE_TWO, id="close-created-renamed"),
+    pytest.param("write", None, REPLACE_ONE, id="write-created-renamed"),
+    pytest.param(None, PRIOR_ARTIFACT, REPLACE_ONE, id="control-no-failure-existing"),
+    pytest.param(None, None, REPLACE_TWO, id="control-no-failure-created"),
+    pytest.param("close", None, None, id="control-close-created-kept"),
+    pytest.param("write", ALT_ARTIFACT, None, id="control-write-existing-kept"),
+])
+def test_failed_artifact_is_emptied_through_its_descriptor_wherever_its_name_points(
+    run_moved: Any, mode: str | None, prior: bytes | None, moved: bytes | None,
+) -> None:
+    """Controls pass at v2: the record would otherwise be reusable, and a leaf the child
+    leaves in place goes if this run created it and is emptied if it existed before."""
+    case = f"{mode}-{prior is None}-{moved is None}"
+    report, artifact, held, argv, hits, calls = run_moved(case, prior, moved, mode)
+    if mode is None:
+        assert report["ok"] is True and report["artifact"]["reusable"] is True, report
+        assert json.loads(held.read_bytes()) == report["artifact"]
+        assert artifact.read_bytes() == moved
+        return
+    failure_shape(report, f"sink-{mode}-failed")
+    assert "artifact" not in report and INVALID not in report["reason"], report
+    assert [hit[0] for hit in hits] == [mode], "the injected sink failure was never reached"
+    assert json.loads(hits[0][2])["argv"] == argv, "the record never reached the sink"
+    if moved is None:
+        assert os.listdir(artifact.parent) == (["result.json"] if prior else [])
+        if prior is not None:
+            assert artifact.read_bytes() == b"", "the existing leaf kept the record"
+        else:
+            assert not artifact.exists(), "the created leaf survived"
+        return
+    assert hits[0][1] == held.stat().st_ino, "the sink was not the inode the child renamed"
+    assert held.read_bytes() == b"", "the renamed inode still holds the failed record"
+    assert artifact.read_bytes() == moved, "the replacement under the original name changed"
+    assert calls == [("ftruncate", hits[0][1])], calls
+
+
+@pytest.mark.parametrize("broken", [("ftruncate",), ("ftruncate", "pwrite")],
+                         ids=["ftruncate-fails", "both-fail"])
+@pytest.mark.parametrize("mode", ["close", "write"])
+def test_failed_artifact_falls_back_to_a_nul_byte_then_reports_the_invalidation_failure(
+    run_moved: Any, mode: str, broken: tuple[str, ...],
+) -> None:
+    case = f"fallback-{mode}-{len(broken)}"
+    report, artifact, held, _, hits, calls = run_moved(
+        case, PRIOR_ARTIFACT, REPLACE_ONE, mode, broken)
+    failure_shape(report, f"sink-{mode}-failed")
+    assert [hit[0] for hit in hits] == [mode], "the injected sink failure was never reached"
+    assert artifact.read_bytes() == REPLACE_ONE, "the replacement under the original name changed"
+    _, found, tail = report["reason"].partition(INVALID)
+    if broken == ("ftruncate",):
+        assert held.read_bytes()[:1] == b"\0", "the renamed inode does not start with NUL"
+        assert not found, report
+    else:
+        ordered = -1 < tail.find("ftruncate-refused-c4a1") < tail.find("pwrite-refused-c4a1")
+        assert found and ordered, report
+    inode = held.stat().st_ino
+    assert calls == [("ftruncate", inode), ("pwrite", inode)], calls
