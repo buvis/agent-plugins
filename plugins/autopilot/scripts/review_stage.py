@@ -408,14 +408,17 @@ def _is_inside_git_dir(ancestor: Path) -> bool:
     fails closed without overriding Git configuration. Detection failure on
     an ACTUAL repository must not silently grant permission, and that
     includes failures this comment cannot enumerate in advance."""
-    probe = subprocess.run(
-        ["git", "rev-parse", "--is-inside-git-dir"],
-        cwd=ancestor,
-        capture_output=True,
-        text=True,
-        timeout=60,
-        env={**os.environ, "LC_ALL": "C", "LANGUAGE": "C"},
-    )
+    try:
+        probe = subprocess.run(
+            ["git", "rev-parse", "--is-inside-git-dir"],
+            cwd=ancestor,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            env={**os.environ, "LC_ALL": "C", "LANGUAGE": "C"},
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        return True  # cannot tell: fail closed
     if probe.returncode == 0:
         return probe.stdout.strip() == "true"
     if probe.stderr.strip().startswith("fatal: not a git repository"):

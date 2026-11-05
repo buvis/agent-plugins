@@ -47,3 +47,4 @@
 - **autopilot**: a staged reviewer prompt omits the diff, pack and history its manifest does not list.
 - **autopilot**: a staged reviewer prompt reaches pack findings and settled history only through a per-job context file that its manifest allows.
 - **autopilot**: `--verify` refuses a log or artifact path that is an argv input file, and a modified store file named by a tracked product symlink makes the artifact non-reusable.
+- **autopilot**: review staging refuses a destination with its standard controlled refusal, instead of a traceback, when the git-dir check times out or git cannot start.
