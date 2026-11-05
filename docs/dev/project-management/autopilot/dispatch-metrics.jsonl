@@ -817,3 +817,8 @@
 {"id":"911ea2cc","ended_at":1793920991,"elapsed_s":60,"outcome":"ok","detail":null}
 {"id":"35b74ea7","kind":"pat","task":"3","queued_at":1793921039,"prompt_bytes":18635}
 {"id":"35b74ea7","ended_at":1793921072,"elapsed_s":33,"outcome":"ok","detail":"3 LOW"}
+{"id":"3be1b5fb","kind":"ivan","task":"4","queued_at":1793921127,"prompt_bytes":9779}
+{"id":"3be1b5fb","ended_at":1793921204,"elapsed_s":77,"outcome":"ok","detail":null}
+{"id":"98eb5122","kind":"ivan","task":"4","queued_at":1793921257,"prompt_bytes":13394}
+{"id":"98eb5122","ended_at":1793921797,"elapsed_s":540,"outcome":"ok","detail":"3 provenance nodes pending commit"}
+{"kind":"handoff","site":"build","edge":"leave","at":1793922243,"phase":"review","prd":"00013-autopilot-session-helpers-v3.md"}
