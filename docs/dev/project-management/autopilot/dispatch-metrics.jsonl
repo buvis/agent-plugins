@@ -783,3 +783,13 @@
 {"id":"1aec4c56","ended_at":1793791236,"elapsed_s":1126,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1793791584,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
 {"kind":"handoff","site":"build","edge":"resume","at":1793915619,"phase":"build","prd":"00013-autopilot-session-helpers-v3.md"}
+{"id":"162c1d3a","kind":"tess","task":"1","queued_at":1793916685,"prompt_bytes":45284}
+{"id":"162c1d3a","ended_at":1793917256,"elapsed_s":571,"outcome":"ok","detail":null}
+{"id":"e80a45e8","kind":"devon","task":"1","queued_at":1793917298,"prompt_bytes":24378}
+{"id":"e80a45e8","ended_at":1793917630,"elapsed_s":332,"outcome":"ok","detail":"7 exploits"}
+{"id":"ee7ffa99","kind":"tess","task":"1","queued_at":1793917676,"prompt_bytes":15612}
+{"id":"ee7ffa99","ended_at":1793917919,"elapsed_s":243,"outcome":"ok","detail":null}
+{"id":"8ba3e2e6","kind":"ivan","task":"1","queued_at":1793917966,"prompt_bytes":30786}
+{"id":"8ba3e2e6","ended_at":1793918154,"elapsed_s":188,"outcome":"ok","detail":null}
+{"id":"0effb98e","kind":"pat","task":"1","queued_at":1793918323,"prompt_bytes":43108}
+{"id":"0effb98e","ended_at":1793918398,"elapsed_s":75,"outcome":"ok","detail":"3 LOW; sonnet-run via setup-token after OAuth-revoked first attempt"}

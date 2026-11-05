@@ -217,7 +217,7 @@
     "checked_at": "2026-10-25T22:40:48Z"
   },
   "tasks_total": 4,
-  "tasks_completed": 0,
+  "tasks_completed": 1,
   "replan_count": 0,
   "phases_completed": [],
   "cycle": 1,
@@ -269,7 +269,26 @@
       "qwen_eligible": false,
       "qwen_excluded_reason": "tier",
       "id": "1",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "depth-limited checks (.. and symlink walk only at index 0-1), unchecked symlinked leaf, in-root links accepted, O_NOFOLLOW only on the last name, .. refused inside the root spelling, anchor search capped at n+2",
+          "devon_weak_points": 7,
+          "devon_in_contract": []
+        }
+      ]
     },
     {
       "name": "T2: Invalidate a failed artifact through a kept descriptor",
