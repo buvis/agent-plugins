@@ -8,7 +8,7 @@ Status: assessed 2026-10-24; three-layer boundary revised at the user’s reques
 
 **Feasible. The package conversion can preserve Claude hooks and agents through a client-supported extension or compatibility layout. Equivalent execution on additional clients requires adapter work. The selected design bundles one workflow controller with Autopilot, keeps OVCAQ as optional supervision, and separates the TUI.**
 
-The assessment considered three outcomes. The revised plan selects Autopilot/controller plus headless OVCAQ plus separate Lantern; the format-only alternative below is historical feasibility evidence, not the selected delivery:
+The assessment considered three outcomes. The revised plan selects Autopilot/controller plus headless OVCAQ plus separate Tower; the format-only alternative below is historical feasibility evidence, not the selected delivery:
 
 | Outcome | Feasibility | What it delivers |
 | --- | --- | --- |
@@ -45,7 +45,7 @@ Reproduction of the selected relocation check: run `mise exec -- uv run --no-pro
 | --- | --- |
 | `agent-plugins/plugins/autopilot/` | Shared skills/review content, helpers, hooks and one bundled canonical workflow controller |
 | OVCAQ | Headless sessions/processes, role-to-driver placement, collaboration/waves/worktrees, execution journal and operations API |
-| Lantern (provisional) | Separate TUI consuming OVCAQ's public API |
+| Tower | Separate TUI consuming OVCAQ's public API |
 | Specflow | Requirements/design/task authoring and approval artifacts; any future execution handoff needs an explicit artifact contract |
 | Host adapters and enforcement plugins | Native delegation, tool-event interception, permission enforcement, and installation behavior |
 
@@ -59,7 +59,7 @@ MCP is optional. A thin MCP facade could expose structured state and review oper
 
 ### Stateful execution uses one Autopilot controller
 
-OVCAQ currently owns tested workflow services and bundled presentation. The revised [product boundary](../../../../../ovcaq/AGENTS.md) extracts those services into Autopilot's controller and presentation into Lantern. Its [driver contract](../../../../../ovcaq/docs/driver-protocol.md) still expects external skill content. The historical gaps below remain acceptance obligations, now assigned to their new owners.
+OVCAQ currently owns tested workflow services and bundled presentation. The revised [product boundary](../../../../../ovcaq/AGENTS.md) extracts those services into Autopilot's controller and presentation into Tower. Its [driver contract](../../../../../ovcaq/docs/driver-protocol.md) still expects external skill content. The historical gaps below remain acceptance obligations, now assigned to their new owners.
 
 The actual contracts differ:
 
@@ -125,7 +125,7 @@ The [surface inventory](00011-autopilot-agent-plugins-inventory.md) expands comm
 | R11 | Code-selected full, fast-track and solo lanes | redesign | Controller extraction must preserve source lane/escalation transitions; parity is a release blocker | no |
 | R12 | State writer, atomic transitions, task/attempt APIs, recovery and backups | redesign | All durable workflow writes go through Autopilot's one controller; helpers prepare artifacts/proposals | no |
 | R13 | Loop, fresh sessions, review-once, pause/resume, limits and notifications | redesign | Use OVCAQ supervision and provider adapters | no |
-| R14 | Tracon fleet/task/agent views, controls and stream rendering | redesign | Map presentation to Lantern and normalized observations/controls to OVCAQ operations API | no |
+| R14 | Tracon fleet/task/agent views, controls and stream rendering | redesign | Map presentation to Tower and normalized observations/controls to OVCAQ operations API | no |
 | R15 | Waves, worktrees, review slots, assembly, abort and landing | redesign | Preserve this capability only after its supervisor contract is established | no |
 | R16 | Critical custody, push refusal, stub minting and deferred follow-up | redesign | Requires both durable ownership and pre-action enforcement | no |
 | R17 | PRD-location hook | redesign | Retain Claude hook logic; adapt registration and editor/terminal events for additional hosts | no |
@@ -174,9 +174,9 @@ The scan covered the local GitHub portfolio plus the live shell integration and 
 3. AP00016 wires standalone stateful sessions; AP00017 certifies independent distribution without OVCAQ.
 4. OV00057 consumes controller contracts; OV00058 removes old workflow authority after installed equivalence and00062 robustness.
 5. OV00059–00061 add mixed-driver jobs, supervision recovery and waves; OV00064 operations API can run beside this work after00058.
-6. Lantern00001–00003 implement/test the separate client; OV00065 removes bundled UI after installed parity.
+6. Tower00001–00003 implement/test the separate client; OV00065 removes bundled UI after installed parity.
 
-The plugin owns stateful lifecycle but never automatic cross-session spawning. OVCAQ owns execution but never another workflow writer. Lantern owns presentation only. Held provisioning/cutover/release remain separate; full retirement requires all inventory evidence.
+The plugin owns stateful lifecycle but never automatic cross-session spawning. OVCAQ owns execution but never another workflow writer. Tower owns presentation only. Held provisioning/cutover/release remain separate; full retirement requires all inventory evidence.
 
 ## Retirement
 
@@ -202,4 +202,4 @@ The retirement PRD is [source PRD 00370, held](../../../../../claude-autopilot/d
 
 ## Unresolved questions
 
-No blocking architecture question. Lantern is a provisional name. Host support requires capability evidence/refusal. Specflow handoff remains a separate future contract.
+No blocking architecture question. Tower is the settled name since 2026-11-05. Host support requires capability evidence/refusal. Specflow handoff remains a separate future contract.

@@ -146,5 +146,5 @@ Plugin 00013/00014 completed. Preserve the 00012 reference tree and section mapp
 
 ## Risks
 
-- The distributable plugin includes its one controller; it must not contain OVCAQ's process scheduler or Lantern.
+- The distributable plugin includes its one controller; it must not contain OVCAQ's process scheduler or Tower.
 - Specflow handoff remains outside this PRD.

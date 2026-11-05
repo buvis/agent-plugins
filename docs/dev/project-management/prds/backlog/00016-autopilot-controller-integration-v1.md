@@ -17,7 +17,7 @@ Skills must use the bundled controller for stateful work even when OVCAQ is abse
 Users running Autopilot independently or through headless OVCAQ, and maintainers verifying the layer boundary.
 
 ### Success Metrics
-standalone_complete_without_ovcaq → complete durable workflow without OVCAQ/Lantern. Named edge/error scenarios must also pass; real-host support requires separate probe evidence.
+standalone_complete_without_ovcaq → complete durable workflow without OVCAQ/Tower. Named edge/error scenarios must also pass; real-host support requires separate probe evidence.
 
 ## Functional Decomposition
 
@@ -116,7 +116,7 @@ AP 00015, 00020 and 00021 completed. No OVCAQ artifact/probe prerequisite. This 
 ## Test Strategy
 
 ### Critical Scenarios
-- **Happy path**: standalone_complete_without_ovcaq → complete durable workflow without OVCAQ/Lantern.
+- **Happy path**: standalone_complete_without_ovcaq → complete durable workflow without OVCAQ/Tower.
 - **Edge case**: manual_fresh_review → builder context cannot satisfy a fresh reviewer binding.
 - **Error case**: transfer_after_jobs_exit → same state transfers ownership only after safe reconciliation.
 

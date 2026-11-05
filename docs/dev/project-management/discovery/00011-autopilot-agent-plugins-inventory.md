@@ -2,7 +2,7 @@
 
 Companion to [the feasibility assessment](00011-autopilot-agent-plugins-port.md). Source pin: `e960ef1cc43e72bf92593b2f16c7a37c71ea7e48` (2026-10-24).
 
-The [three-layer design](../designs/00011-autopilot-standalone-design.md) assigns workflow state/lifecycle/lanes/review acceptance/record commits to Autopilot's single controller, session/process/collaboration mechanics and operations API to OVCAQ, and presentation to Lantern (working name). Standalone uses that same controller without OVCAQ. Rows below preserve source observations and obligations; earlier OVCAQ owner labels are interpreted through this revised allocation. Client-specific hooks still require supported registration and execution evidence.
+The [three-layer design](../designs/00011-autopilot-standalone-design.md) assigns workflow state/lifecycle/lanes/review acceptance/record commits to Autopilot's single controller, session/process/collaboration mechanics and operations API to OVCAQ, and presentation to Tower. Standalone uses that same controller without OVCAQ. Rows below preserve source observations and obligations; earlier OVCAQ owner labels are interpreted through this revised allocation. Client-specific hooks still require supported registration and execution evidence.
 
 The documentation pass covered README, all eleven SKILL.md files, their immediate reference Markdown files, and the Tracon README before implementation inspection. Runtime `--help` supplied the public Autopilot CLI surface. Source-code findings are separately marked in the assessment.
 

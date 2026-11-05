@@ -12,7 +12,7 @@ claimed here.
 
 Follow the three-layer design in designs/00011-autopilot-standalone-design.md.
 Autopilot owns content, evidence policy and one later bundled controller;
-OVCAQ owns supervision; Lantern owns presentation. AP 00012 supplies the
+OVCAQ owns supervision; Tower owns presentation. AP 00012 supplies the
 contracts and source evidence consumed by both the content and controller
 workstreams. It does not implement either upper layer or the controller.
 

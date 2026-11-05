@@ -1,14 +1,14 @@
-# Autopilot, OVCAQ and Lantern: three ownership layers
+# Autopilot, OVCAQ and Tower: three ownership layers
 
-Status: target architecture requested 2026-10-25. Supersedes the earlier two-backend and OVCAQ-only-state designs. Implementation, publishing and personal cutover remain pending. Lantern is a provisional name, not a reserved package identity.
+Status: target architecture requested 2026-10-25. Supersedes the earlier two-backend and OVCAQ-only-state designs. Implementation, publishing and personal cutover remain pending. Tower is the taxonomy name for this layer; Lantern was its working name until 2026-11-05. No package identity is reserved.
 
 ## Decision
 
-Autopilot is an independently usable Agent Plugins package with one bundled workflow controller. OVCAQ supervises agent sessions above it. Lantern is a separate terminal client of OVCAQ. The plugin requires neither upper layer; OVCAQ does not require the TUI.
+Autopilot is an independently usable Agent Plugins package with one bundled workflow controller. OVCAQ supervises agent sessions above it. Tower is a separate terminal client of OVCAQ. The plugin requires neither upper layer; OVCAQ does not require the TUI.
 
 ```mermaid
 flowchart TB
-  L[Lantern: views and operator input] -->|operations API| O[OVCAQ: sessions, drivers, collaboration]
+  L[Tower: views and operator input] -->|operations API| O[OVCAQ: sessions, drivers, collaboration]
   O -->|launch isolated jobs| A[Claude / Codex / supported agent]
   A --> P[Autopilot: skills, personas, hooks, helpers]
   P -->|typed commands| C[Autopilot controller: workflow truth]
@@ -29,11 +29,11 @@ Workflow state and execution state are distinct authorities. They must not becom
 | Record-store commits and workflow recovery | Autopilot controller | OVCAQ requests commits at accepted boundaries |
 | Process identity, launch/cancel/retry, driver/model placement, isolation | OVCAQ | Plugin supplies role requirements and resource references |
 | Worktrees, wave scheduling, assembly/landing mechanics | OVCAQ | Controller owns semantic membership, acceptance and custody permission |
-| Normalized observations, liveness, fleet discovery, execution journal | OVCAQ | Lantern renders the published projection |
-| Views, keyboard controls, theme and preferences | Lantern | Calls OVCAQ; never accesses controller/registry files |
+| Normalized observations, liveness, fleet discovery, execution journal | OVCAQ | Tower renders the published projection |
+| Views, keyboard controls, theme and preferences | Tower | Calls OVCAQ; never accesses controller/registry files |
 | Native interception/session identity | Client adapters | Enforce controller decisions where supported |
 
-Dependencies: Lantern → OVCAQ → controller; agent/plugin → controller. OVCAQ understands an external workflow-provider protocol, not Autopilot implementation/persona names. No sibling-checkout imports. Autopilot imports neither upper layer; Lantern imports neither OVCAQ internals nor controller code.
+Dependencies: Tower → OVCAQ → controller; agent/plugin → controller. OVCAQ understands an external workflow-provider protocol, not Autopilot implementation/persona names. No sibling-checkout imports. Autopilot imports neither upper layer; Tower imports neither OVCAQ internals nor controller code.
 
 Controller entry point: `python3 <installed-plugin-root>/controller/main.py`. It ships inside plugins/autopilot/controller. Python 3.12 is its execution baseline because extraction reuses OVCAQ's Python 3.12 services; the repository validator retains its Python 3.10 CI job. No daemon, broker, database service or mandatory MCP server.
 
@@ -83,7 +83,7 @@ Claude-free certification (user decision, 2026-10-25): Codex builds and Gemini s
 
 Execution journal: run ID/epoch, process identity, launch intent, route, retries, normalized events and raw-output references. Cached workflow snapshots carry observed revisions, never become a second task/review machine. Persist intent, obtain claim, spawn, report outcomes idempotently. Test crashes around every boundary; reconcile exact identity/claim before reissue. Spawning is not exactly-once. Controller outage blocks scheduling/advancement; OVCAQ can still stop owned processes and reconcile later.
 
-## Contract C: OVCAQ and Lantern
+## Contract C: OVCAQ and Tower
 
 OV 00064 owns the operations schema/fixtures. Commands: `ovcaq --json operations contract`, `ovcaq --json operations list`, `ovcaq --json operations snapshot --run ID --epoch N`, `ovcaq operations events --run ID --epoch N --after SEQ` (JSONL), `ovcaq --json operations control --request FILE`.
 
@@ -91,9 +91,9 @@ Protocol-major 1 includes run_id, run_epoch, control_revision, observed_workflow
 
 Controls: pause, resume, stop, retry. Requests: request_id, run_id, run_epoch, expected_control_revision, observed_workflow_revision, payload. Responses distinguish accepted, applied, rejected and committed-but-observation-stale. OVCAQ revalidates identity/controller preconditions; stale selection cannot control replacement runs. Stop remains available during controller outage with pending reconciliation explicit. Exact run epoch/control revision remain mandatory for stop; stale or unavailable workflow revision cannot veto stopping owned processes. Pause stops new dispatch at a safe boundary; resume rechecks controller permission; retry requests a legal new job attempt, never rewinds workflow state. These scheduling controls live in the execution journal. Cancellation/escalation belongs to OVCAQ.
 
-Lantern owns Textual/Rich, rendering, keyboard interaction, preferences and its own XDG theme path. It invokes configured OVCAQ argv and uses only the API. Detach, close, crash, incompatible UI or terminal failure cannot stop a run. Preserve existing sanitization, literal markup, bounded tails, responsiveness and stale-selection feedback. No separate liveness algorithm.
+Tower owns Textual/Rich, rendering, keyboard interaction, preferences and its own XDG theme path. It invokes configured OVCAQ argv and uses only the API. Detach, close, crash, incompatible UI or terminal failure cannot stop a run. Preserve existing sanitization, literal markup, bounded tails, responsiveness and stale-selection feedback. No separate liveness algorithm.
 
-After extraction `ovcaq run` is headless in TTY/non-TTY, foreground by default; `--detach` explicitly backgrounds supervision and returns run identity. `lantern attach --run ID --epoch N` attaches separately. Remove implicit TUI launch, OVCAQ attach and --no-tui with generated help/docs and migration diagnostics, not permanent aliases. OVCAQ must run with Textual, Rich and Lantern absent.
+After extraction `ovcaq run` is headless in TTY/non-TTY, foreground by default; `--detach` explicitly backgrounds supervision and returns run identity. `tower attach --run ID --epoch N` attaches separately. Remove implicit TUI launch, OVCAQ attach and --no-tui with generated help/docs and migration diagnostics, not permanent aliases. OVCAQ must run with Textual, Rich and Tower absent.
 
 ## Delivery graph and parallel worktrees
 
@@ -105,8 +105,8 @@ After extraction `ovcaq run` is headless in TTY/non-TTY, foreground by default; 
 | OVCAQ client | OV 00057 after AP 00018 bundle; 00058 after 00057 + 00062 + AP 00021 artifact | Remove old authority after equivalence |
 | Collaboration | OV 00059 after 00058 + 00063; then 00060; then 00061 with AP 00017 artifact | Isolation, recovery, then waves |
 | Operations API | OV 00064 after 00058, parallel with 00059/00060 | Separate projection/API; shared CLI edits serialized |
-| TUI | Lantern 00001 → 00002 after OV 00064; 00003 after 00002 + OV 00060/00061 | Fixtures first, installed integration last |
-| Remove bundled UI | OV 00065 after 00060/00061/00064 + Lantern 00003 artifact | Headless and detached UI acceptance |
+| TUI | Tower 00001 → 00002 after OV 00064; 00003 after 00002 + OV 00060/00061 | Fixtures first, installed integration last |
+| Remove bundled UI | OV 00065 after 00060/00061/00064 + Tower 00003 artifact | Headless and detached UI acceptance |
 
 OV 00062/00063 remain unchanged robustness work. Avoid simultaneous cli.py/config.py/prerequisite-helper edits; use fixture adapters until producer merge. AP 00012 creates the prerequisite table above, including later controller dependencies. Every unit has a reviewable result. The 2026-10-25 AP 00012 contract amendment supersedes the prior foundation design approval; any work already started must reconcile the amendment before acceptance. Schema changes originate in the producer and regenerate consumer fixtures.
 
@@ -114,9 +114,9 @@ Read-only eligibility uses local done-bucket evidence and explicit cross-reposit
 
 ## Completion and cutover
 
-Preserve P01–P11/R01–R31 and expanded inventory rows. R11/R12/R16 workflow acceptance → controller; R13/R15 processes → OVCAQ; R14 → Lantern plus operations API; R28 splits state locks/processes; record commits → controller. No silent drops. Source/behavior/regression maps are checked against the independent expected inventory; an unavailable feature remains incomplete for any profile that promises it. Source retirement requires concrete passing evidence, not just assigned owners or preserved headings.
+Preserve P01–P11/R01–R31 and expanded inventory rows. R11/R12/R16 workflow acceptance → controller; R13/R15 processes → OVCAQ; R14 → Tower plus operations API; R28 splits state locks/processes; record commits → controller. No silent drops. Source/behavior/regression maps are checked against the independent expected inventory; an unavailable feature remains incomplete for any profile that promises it. Source retirement requires concrete passing evidence, not just assigned owners or preserved headings.
 
-AP 00017 proves installed standalone use with upper layers absent. OV 00060 proves mixed-driver execution through that controller. OV 00065 proves headless packaging. Lantern 00003 proves installed views/controls/detach. Real host probes remain distinct from fake-driver tests; missing auth/binaries means unavailable.
+AP 00017 proves installed standalone use with upper layers absent. OV 00060 proves mixed-driver execution through that controller. OV 00065 proves headless packaging. Tower 00003 proves installed views/controls/detach. Real host probes remain distinct from fake-driver tests; missing auth/binaries means unavailable.
 
 AP 00017 must pass real Codex + Gemini standalone certification through build, fresh review, rework, completion and records. The managed certificate additionally proves next-PRD continuation and final drain with OV 00059/00060. Run both with Claude executables/configuration/credentials, source checkout and author-home runtime resources inaccessible. Use isolated test state and only required Codex/Gemini authentication. Each receipt binds package/controller/driver versions and digests, resolved policy, actual provider/model/session and input/code identities. Unavailable is incomplete for the port/cutover, but does not block unrelated implementation or standalone delivery while OVCAQ is absent. No code-only, fake-host or Codex-build/Claude-review result substitutes for these certificates.
 
@@ -124,4 +124,4 @@ Held OV 00010 provisions external Autopilot/catalogs and pins controller compati
 
 ## Unresolved questions
 
-No blocking architecture question. Lantern remains provisional pending the optional naming preference; branding does not change contracts. Unsupported hosts have explicit refusal outcomes.
+No blocking architecture question. Tower is the settled name since 2026-11-05; branding does not change contracts. Unsupported hosts have explicit refusal outcomes.
