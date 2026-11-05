@@ -42,6 +42,9 @@ def refuse(log_path: Path, repo_root: Path) -> str | None:
         return _OUTSIDE  # a failing tracked-probe fails closed
     if probe[1]:
         return "is tracked"
+    anchor = _root_anchor(log_path, repo_root)
+    if anchor is not None and ".." in log_path.parts[anchor:]:
+        return "has a parent-directory component"
     if _symlinked_component(log_path, repo_root, toplevel):
         return "is a symlink"
     if _in_nested_repo(resolved, toplevel):
@@ -135,31 +138,36 @@ def _worktree_gitdir_pointer(resolved: Path) -> Path | None:
     return resolved.parent / text.split(":", 1)[1].strip()
 
 
+def _root_anchor(path: Path, root: Path) -> int | None:
+    """Number of leading parts of the UNRESOLVED absolute `path` that form
+    its root spelling: the SHORTEST prefix whose os.path.realpath equals
+    os.path.realpath(root). None when `path` is relative or no prefix
+    resolves to the root. realpath, not `resolve()`, which raises on a
+    symlink loop."""
+    if not path.is_absolute():
+        return None
+    real_root = os.path.realpath(root)
+    for k in range(1, len(path.parts) + 1):
+        if os.path.realpath(Path(*path.parts[:k])) == real_root:
+            return k
+    return None
+
+
 def _symlinked_component(log_path: Path, repo_root: Path, toplevel: Path) -> bool:
-    """True iff any component of the UNRESOLVED `log_path` BELOW the
-    repository is a symlink (the final component included). The walk stops
-    only at a component that is itself a spelling of the repository root and
-    whose parent lies outside it; every other component on the path is
-    checked for being a symlink, at any depth, including one that leaves the
-    repository and returns. A symlink in the repository's own ancestry
-    (macOS `/tmp`, a root alias) is not the sink's."""
-    stops = (repo_root, repo_root.resolve(), toplevel)
-    current = log_path
-    while current not in stops and current.parent != current:
-        try:
-            parent_inside = current.parent.resolve().is_relative_to(repo_root.resolve())
-        except OSError:
-            parent_inside = False
-        try:
-            is_root = current.resolve() == repo_root.resolve()
-        except OSError:
-            is_root = False
-        if not parent_inside and is_root:
-            break
-        if os.path.islink(current):
-            return True
-        current = current.parent
-    return False
+    """True iff any component of the UNRESOLVED `log_path` after its root
+    spelling (`_root_anchor`) is a symlink, the final component included and
+    with no other stop rule: a later component that resolves to the root is
+    checked like any other. A path with no root spelling reaches the
+    repository only through a symlink, so it fails closed. A symlink in the
+    root spelling itself (macOS `/tmp`, a root alias) is not the sink's.
+    `toplevel` is unused."""
+    anchor = _root_anchor(log_path, repo_root)
+    if anchor is None:
+        return True
+    parts = log_path.parts
+    return any(
+        os.path.islink(Path(*parts[:j])) for j in range(anchor + 1, len(parts) + 1)
+    )
 
 
 def _in_nested_repo(resolved: Path, toplevel: Path) -> bool:
@@ -183,18 +191,18 @@ def _in_nested_repo(resolved: Path, toplevel: Path) -> bool:
 
 def _pinned_parent_fd(parent: Path, root: Path) -> int:
     """A descriptor for `parent`, opened without following a symlink at any
-    level below `root`: every component beneath `root` is taken one at a
-    time with `O_DIRECTORY | O_NOFOLLOW`. `root` itself is trusted (a repo
-    reached through a symlinked ancestor is normal)."""
-    try:
-        names = parent.relative_to(root).parts
-    except ValueError:
-        try:
-            names = parent.resolve().relative_to(root.resolve()).parts
-        except ValueError as exc:
-            # Raised as OSError, before `root` is opened, so no fd leaks.
-            raise OSError(f"{parent} is not under {root}") from exc
-    parent_fd = os.open(root.resolve(), os.O_DIRECTORY)
+    level below `root`: every component after `parent`'s root spelling
+    (`_root_anchor`) is taken one at a time with `O_DIRECTORY | O_NOFOLLOW`.
+    The root spelling itself is trusted (a repo reached through a symlinked
+    ancestor is normal). Refusals raise OSError before anything is opened,
+    so no fd leaks."""
+    anchor = _root_anchor(parent, root)
+    if anchor is None:
+        raise OSError(f"{parent} is not under {root}")
+    names = parent.parts[anchor:]
+    if ".." in names:
+        raise OSError(f"{parent} has a parent-directory component below {root}")
+    parent_fd = os.open(os.path.realpath(root), os.O_DIRECTORY)
     for name in names:
         try:
             parent_fd = _descend(parent_fd, name)
