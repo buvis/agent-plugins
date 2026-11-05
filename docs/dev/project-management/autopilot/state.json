@@ -23,8 +23,8 @@
       "aegis@buvis-plugins": "0.4.1",
       "warden@buvis-plugins": "0.14.1"
     },
-    "catchup_completed_at": "2026-11-03T20:53:52+00:00",
-    "catchup_head_sha": "bc1627a5a059fd27f42f414ee2c74d84c5c7d7d9",
+    "catchup_completed_at": "2026-11-05T21:54:41+00:00",
+    "catchup_head_sha": "d3cd7fa8ebe1a97b7826e94f9833235e09f47435",
     "parks_consecutive": 0,
     "skips": [
       {
@@ -201,7 +201,7 @@
       "00037-triage-r1-s-failed-artifact-obligation-remains-v1.md"
     ]
   },
-  "prd": "00013-autopilot-session-helpers-v2.md",
+  "prd": "00013-autopilot-session-helpers-v3.md",
   "catchup_mode": "run",
   "doubt_reviewer": "fable",
   "consensus_engine": "legacy",
@@ -236,5 +236,18 @@
     "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
     "checked_at": "2026-10-28T03:07:08.511437+00:00"
   },
-  "contract_card": "step: AP00013 v3 ADMITTED (user authorization 2026-11-05). The user explicitly authorized exactly one bounded corrective AP00013 v3 recovery through the existing versioned recovery procedure. PRD prds/backlog/00013-autopilot-session-helpers-v3.md; admission and finding dispositions in autopilot/reports/00013-v3-admission.md. Feature number 00013, rework_cap 2, lane full, session_model opus, default_model opus, doubt_reviewer fable, design run. Scope: T1 R1 root-anchored symlink refusal (log_sink_refusal.py), T2 R3 descriptor-bound failed-artifact invalidation (verification.py), T3 R4/R6/R9/R12 git-probe timeout fail-closed (review_stage.py), T4 delivery docs/receipts (R15/R21/R20/R23). The coordinator selects v3 explicitly with /autopilot:run-autopilot 00013-autopilot-session-helpers-v3.md; the coordinator-boundary pause marker is consumed for this launch only.\n\ninvariants: Preserve v1 and v2 caps, attempts, reviews, stubs 00022-00037 and deferrals; v1 and v2 stay in hold, not reactivated, not superseded until v3 passes its fresh full review. No v4, no counter reset of any exhausted budget. Every review cycle runs Alice, Blake, Bob, Carl and Eve in a fresh session after the build handoff; Blake gets PRD-only inputs (no reviews, rulings, design, tmp duplicate-review files). Record served models from raw metadata; never auto or downgrade. Commit new review artifacts immediately. The 19 AP00018 controller nodes stay a recorded external deferral and block every master push. Never patch frozen buvis/claude-autopilot. Installed runtime 0.10.0 keeps the pytest -q summary parser defect: when review-stage cannot parse counts, run the prescribed autopilot verify fallback once and record raw counts from the log, never a fabricated record.\n\nSEQUENCING OVERRIDES ORDINARY BACKLOG SELECTION: AP00013 v3 completion -> explicit AP00018 resume via plans/00018-replan-3.md section 4 (all 15 steps; docs/dev/tmp/ap00018-replan3/README.md first; preserve completed tasks and attempts) -> retrospective Pat reviews for AP00018 tasks 3-6 -> AP00018 fresh completion review -> 19 controller tests and all required checks green -> normal master push (never force) -> monitor CI and fix forward until green -> plan the remaining backlog wave (00014, 00015, 00019, 00020, 00021, 00016, 00017) in worktrees under ~/git/src/worktrees/agent-plugins. Do not auto-select backlog 00014+ before this sequence completes. AP00017 also needs OVCAQ 00059/00060 capabilities (reports/closeout-prerequisites-2026-11-04.md); never certify unavailable capabilities.\n\nnext: build v3 (design, plan, work), then hand off to a fresh review session. At v3 cap, use the existing bounded deferral policy and report the blocker; do not create v4."
+  "contract_card": "step: AP00013 v3 ADMITTED (user authorization 2026-11-05). The user explicitly authorized exactly one bounded corrective AP00013 v3 recovery through the existing versioned recovery procedure. PRD prds/backlog/00013-autopilot-session-helpers-v3.md; admission and finding dispositions in autopilot/reports/00013-v3-admission.md. Feature number 00013, rework_cap 2, lane full, session_model opus, default_model opus, doubt_reviewer fable, design run. Scope: T1 R1 root-anchored symlink refusal (log_sink_refusal.py), T2 R3 descriptor-bound failed-artifact invalidation (verification.py), T3 R4/R6/R9/R12 git-probe timeout fail-closed (review_stage.py), T4 delivery docs/receipts (R15/R21/R20/R23). The coordinator selects v3 explicitly with /autopilot:run-autopilot 00013-autopilot-session-helpers-v3.md; the coordinator-boundary pause marker is consumed for this launch only.\n\ninvariants: Preserve v1 and v2 caps, attempts, reviews, stubs 00022-00037 and deferrals; v1 and v2 stay in hold, not reactivated, not superseded until v3 passes its fresh full review. No v4, no counter reset of any exhausted budget. Every review cycle runs Alice, Blake, Bob, Carl and Eve in a fresh session after the build handoff; Blake gets PRD-only inputs (no reviews, rulings, design, tmp duplicate-review files). Record served models from raw metadata; never auto or downgrade. Commit new review artifacts immediately. The 19 AP00018 controller nodes stay a recorded external deferral and block every master push. Never patch frozen buvis/claude-autopilot. Installed runtime 0.10.0 keeps the pytest -q summary parser defect: when review-stage cannot parse counts, run the prescribed autopilot verify fallback once and record raw counts from the log, never a fabricated record.\n\nSEQUENCING OVERRIDES ORDINARY BACKLOG SELECTION: AP00013 v3 completion -> explicit AP00018 resume via plans/00018-replan-3.md section 4 (all 15 steps; docs/dev/tmp/ap00018-replan3/README.md first; preserve completed tasks and attempts) -> retrospective Pat reviews for AP00018 tasks 3-6 -> AP00018 fresh completion review -> 19 controller tests and all required checks green -> normal master push (never force) -> monitor CI and fix forward until green -> plan the remaining backlog wave (00014, 00015, 00019, 00020, 00021, 00016, 00017) in worktrees under ~/git/src/worktrees/agent-plugins. Do not auto-select backlog 00014+ before this sequence completes. AP00017 also needs OVCAQ 00059/00060 capabilities (reports/closeout-prerequisites-2026-11-04.md); never certify unavailable capabilities.\n\nnext: build v3 (design, plan, work), then hand off to a fresh review session. At v3 cap, use the existing bounded deferral policy and report the blocker; do not create v4.",
+  "prd_budget_since": "2026-11-05T21:53:39Z",
+  "design_mode": "run",
+  "design_doc": "docs/dev/project-management/designs/00013-autopilot-session-helpers-v3-design.md",
+  "autonomous_decisions": [
+    {
+      "type": "design",
+      "issue": "v3 design approach for R1, R3 and the git-probe timeout",
+      "action": "Shared _root_anchor (shortest realpath prefix equal to root) for refuse and _pinned_parent_fd plus a .. refusal; dup-kept descriptor invalidation (ftruncate, NUL pwrite, reported residual) replacing name-based _empty_pinned; TimeoutExpired/OSError in _is_inside_git_dir fail closed.",
+      "reason": "Smallest diff that closes both HIGH rows at one shared primitive; 3 design dispatches, 1 blocker fixed; 9 non-blockers and 4 questions recorded in the design Review log",
+      "cycle": 0,
+      "severity": "low"
+    }
+  ]
 }

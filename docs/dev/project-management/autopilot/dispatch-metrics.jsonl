@@ -782,3 +782,4 @@
 {"id":"cc720045","ended_at":1793791233,"elapsed_s":1123,"outcome":"ok","detail":null}
 {"id":"1aec4c56","ended_at":1793791236,"elapsed_s":1126,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1793791584,"phase":"build","prd":"00013-autopilot-session-helpers-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1793915619,"phase":"build","prd":"00013-autopilot-session-helpers-v3.md"}

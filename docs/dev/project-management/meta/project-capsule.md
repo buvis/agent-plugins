@@ -1,6 +1,6 @@
 # Project Capsule: buvis agent-plugins
 
-Generated: 2026-11-03
+Generated: 2026-11-05
 
 ## Current AP 00012 handoff
 
@@ -43,7 +43,8 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 ### Batch 202610250001
 - [x] 00012-autopilot-package-contract-v1.md (2 cycles; 47/47 tasks)
-- [ ] 00013-autopilot-session-helpers-v2.md (wip: v1 held as exhausted cap-regression history; v2 corrective T1-T4; reviewed design doc committed 18ca409; 2/4 tasks done - tasks 1 and 2 complete, tasks 3-4 pending. Task 2 closed with the bounded cleanup correction (tests 0239445, fix 30e5c5e), a complete six-file Verify at 155 passed twice, and Pat's omitted scope completed at cycle 2 with the sole MEDIUM resolved; evidence `reports/00013-v2-task2-cleanup-recovery.md` and `reports/00013-v2-task2-pat-scope-completion.md`. The ownership-window defect in `verification.py` `_open_result_sink` plus two companion findings are deferred into the completion review per `reports/00013-v2-task2-followup-ruling.md`)
+- [ ] 00013-autopilot-session-helpers-v3.md (wip since 2026-11-05: the one user-authorized bounded recovery; T1 R1 root-anchored symlink refusal, T2 R3 descriptor-bound failed-artifact invalidation, T3 git-probe timeout fail-closed, T4 delivery evidence; rework_cap 2; no v4. Dispositions: `reports/00013-v3-admission.md`)
+- [ ] 00013 v1 and v2: hold (exhausted caps, cap_regression); not superseded until v3 passes its fresh full review. v2 cycle-2 review `reviews/00013-autopilot-session-helpers-v2-review-2.md`, stubs 00034-00037.
 - [ ] 00014-autopilot-host-execution-v1.md
 - [ ] 00015-autopilot-workflow-parity-v1.md
 - [ ] 00016-autopilot-controller-integration-v1.md
@@ -107,7 +108,7 @@ Related context: repo index refreshed clean; repo query on topic `autopilot sess
 
 ## GitHub State
 
-- Refreshed 2026-11-03T21:0xZ. 1 open issue (#12 Renovate dashboard). 3 open Renovate PRs: #13 setup-python v7.1.0, #14 python 3.15, #15 pytest v9. No releases. Remote branches: master, three renovate branches, `docs/ap00015-verification-counts`, `docs/codex-force-copilot-backend`.
+- Refreshed 2026-11-05 (unchanged since 2026-11-03; local master 141 commits ahead of origin, nothing pushed). 1 open issue (#12 Renovate dashboard). 3 open Renovate PRs: #13 setup-python v7.1.0, #14 python 3.15, #15 pytest v9. No releases. Remote branches: master, three renovate branches, `docs/ap00015-verification-counts`, `docs/codex-force-copilot-backend`.
 - `Validate` is red on master (runs 41516085734, 41511458941): 20 failures - 19 `tests/autopilot/test_controller_*` (AP00018 kernel, known/expected) plus `test_helper_provenance_real.py` README pin, which was already fixed locally after that run.
 
 ## Project Health
