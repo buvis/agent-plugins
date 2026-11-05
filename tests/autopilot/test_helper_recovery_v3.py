@@ -88,6 +88,14 @@ def build_tree(tmp_path: Path) -> dict[str, Path]:
     (base / "loopy").symlink_to(base / "loopy")
     (base / "root-x" / "logs").mkdir(parents=True)
     (base / "side").mkdir()
+    (base / "ext" / "deeper").mkdir()
+    (root / "a" / "b" / "c").mkdir(parents=True)
+    (root / "a" / "b" / "c" / "link").symlink_to(base / "ext", target_is_directory=True)
+    (root / "inner").symlink_to(root / "logs", target_is_directory=True)
+    (root / "logs" / "real.log").write_bytes(b"real\n")
+    (root / "logs" / "leaf.log").symlink_to(root / "logs" / "real.log")
+    (base / "far" / "d1" / "d2").mkdir(parents=True)
+    (base / "far" / "d1" / "d2" / "alias").symlink_to(root, target_is_directory=True)
     return {
         "base": base,
         "root": root,
@@ -95,6 +103,7 @@ def build_tree(tmp_path: Path) -> dict[str, Path]:
         "anc": base / "x" / "anc",
         "ext": base / "ext",
         "sibling": base / "root-x",
+        "far": base / "far" / "d1" / "d2" / "alias",
     }
 
 
@@ -105,6 +114,7 @@ ANCHOR_CASES = [
     "resolved",
     "alias-path",
     "ancestor-path",
+    "deep-alias-path",
     "alias-root",
     "root-itself",
     "shortest",
@@ -131,6 +141,7 @@ def test_sink_alias_root_anchor_counts_the_shortest_prefix_that_spells_the_root(
         "resolved": (root / "logs" / "a.log", root, n),
         "alias-path": (t["alias"] / "logs" / "a.log", root, n + 1),
         "ancestor-path": (t["anc"] / "root" / "logs" / "a.log", root, n + 2),
+        "deep-alias-path": (t["far"] / "logs" / "a.log", root, n + 3),
         "alias-root": (root / "logs" / "a.log", t["alias"], n),
         "root-itself": (root, root, n),
         "shortest": (root / "sub" / "out" / "back" / "logs" / "a.log", root, n),
@@ -158,7 +169,12 @@ SYMLINK_CASES = [
     ("link-to-root-itself", "root", "self", True),
     ("loop-below-root", "root", "loop", True),
     ("fail-closed-outside", "root", "outside", True),
+    ("link-three-levels-below-root", "root", "deep-link", True),
+    ("symlinked-leaf-inside-root", "root", "leaf", True),
+    ("link-between-dirs-inside-root", "root", "inner", True),
+    ("link-between-dirs-alias-root", "alias", "inner", True),
     ("plain-alias-root", "alias", "plain", False),
+    ("plain-deep-dirs", "root", "deep-plain", False),
     ("plain-ancestor-path", "root", "ancestor", False),
     ("the-root-itself", "root", "root", False),
 ]
@@ -184,7 +200,11 @@ def test_sink_alias_symlinked_component_sees_every_link_below_the_root_spelling(
         "self": root / "self" / "logs" / "a.log",
         "loop": root / "loop" / "x",
         "outside": t["ext"] / "a.log",
+        "deep-link": root / "a" / "b" / "c" / "link" / "x.log",
+        "leaf": root / "logs" / "leaf.log",
+        "inner": root / "inner" / "a.log",
         "plain": root / "logs" / "a.log",
+        "deep-plain": root / "a" / "b" / "c" / "x.log",
         "ancestor": t["anc"] / "root" / "logs" / "a.log",
         "root": root,
     }
@@ -203,10 +223,17 @@ def test_sink_alias_symlinked_component_sees_every_link_below_the_root_spelling(
     [
         ("parent-inside", ("sub", "..", "out.log"), PARENT),
         ("parent-at-root", ("..", "repo", "out.log"), PARENT),
+        ("parent-deep", ("sub", "a", "b", "..", "out.log"), PARENT),
         ("dotted-leaf", ("sub", "..log"), None),
         ("dotted-dir", ("sub..", "out.log"), None),
     ],
-    ids=["sub-dotdot-out", "dotdot-root-out", "near-miss-leaf", "near-miss-dir"],
+    ids=[
+        "sub-dotdot-out",
+        "dotdot-root-out",
+        "deep-dotdot-out",
+        "near-miss-leaf",
+        "near-miss-dir",
+    ],
 )
 def test_sink_alias_refuse_names_a_parent_directory_component_below_the_root(
     tmp_path: Path,
@@ -217,7 +244,7 @@ def test_sink_alias_refuse_names_a_parent_directory_component_below_the_root(
     expected: str | None,
 ) -> None:
     project = commit_repo(tmp_path.resolve() / "repo", {"src/app.py": "a\n"})
-    (project / "sub").mkdir()
+    (project / "sub" / "a" / "b").mkdir(parents=True)
     sink = library("log_sink_refusal")
     opened = spy_on_os_open(monkeypatch)
     assert sink.refuse(project.joinpath(*parts), project) == expected, case
@@ -243,8 +270,32 @@ def test_sink_alias_refuse_accepts_a_parent_component_inside_the_root_spelling(
     )
 
 
+def test_sink_alias_refuse_names_a_symlinked_leaf_inside_the_root(
+    tmp_path: Path,
+    isolated_git: None,
+) -> None:
+    """The leaf is checked too, even when its link stays inside the root."""
+    project = commit_repo(tmp_path.resolve() / "repo", {"src/app.py": "a\n"})
+    (project / "logs").mkdir()
+    real = seed(project / "logs" / "real.log", RACE_LOG)
+    (project / "logs" / "leaf.log").symlink_to(real)
+    sink = library("log_sink_refusal")
+    leaf = project / "logs" / "leaf.log"
+    assert sink._symlinked_component(leaf, project, project) is True
+    assert sink.refuse(leaf, project) == "is a symlink"
+    assert sink.refuse(project / "logs" / "real.log", project) is None
+
+
 @pytest.mark.parametrize(
-    "case", ["sub-dotdot", "dotdot-root", "near-miss-sibling", "outside", "relative"]
+    "case",
+    [
+        "sub-dotdot",
+        "dotdot-root",
+        "deep-dotdot",
+        "near-miss-sibling",
+        "outside",
+        "relative",
+    ],
 )
 def test_sink_alias_pinned_parent_fd_refuses_before_opening_any_descriptor(
     tmp_path: Path,
@@ -256,6 +307,7 @@ def test_sink_alias_pinned_parent_fd_refuses_before_opening_any_descriptor(
     parents = {
         "sub-dotdot": root / "sub" / "..",
         "dotdot-root": root / ".." / "root",
+        "deep-dotdot": root / "docs" / "tmp" / "..",
         "near-miss-sibling": t["sibling"] / "logs",
         "outside": t["ext"],
         "relative": Path("root/logs"),
@@ -274,6 +326,8 @@ def test_sink_alias_pinned_parent_fd_refuses_before_opening_any_descriptor(
         ("docs-alias-parent", "root", ("alias", "docs", "tmp"), ("docs", "tmp")),
         ("root-itself", "alias", ("root",), ()),
         ("ancestor-parent", "root", ("anc", "root", "logs"), ("logs",)),
+        ("deep-alias-parent", "root", ("far", "logs"), ("logs",)),
+        ("parent-in-spelling", "root", ("base", "side", "..", "root", "logs"), ("logs",)),
     ],
 )
 def test_sink_alias_pinned_parent_fd_opens_the_named_directory_under_any_root_spelling(
@@ -302,6 +356,7 @@ def test_sink_alias_pinned_parent_fd_opens_the_named_directory_under_any_root_sp
     [
         ("outward-link-alias-root", "alias", "swap"),
         ("link-to-root-itself", "root", "self"),
+        ("middle-link", "root", "swap/deeper"),
     ],
 )
 def test_sink_alias_pinned_parent_fd_refuses_a_symlink_below_the_root(
@@ -408,21 +463,26 @@ def test_sink_alias_a_path_returning_through_a_link_to_the_root_itself_is_refuse
 
 @pytest.mark.parametrize("through", ["log", "artifact"])
 @pytest.mark.parametrize(
-    "dotted",
-    [("logs", "..", "logs"), ("..", "target project", "logs")],
-    ids=["inner-dotdot", "dotdot-through-root"],
+    ("tag", "dotted"),
+    [
+        ("inner", ("logs", "..", "logs")),
+        ("through-root", ("..", "target project", "logs")),
+        ("deep", ("logs", "deep", "..")),
+    ],
+    ids=["inner-dotdot", "dotdot-through-root", "deep-dotdot"],
 )
 def test_sink_alias_an_output_path_with_a_parent_component_below_the_root_is_refused(
     world: World,
     tmp_path: Path,
     isolated_git: None,
     through: str,
+    tag: str,
     dotted: tuple[str, ...],
 ) -> None:
     real = world.target.resolve()
-    (real / "logs").mkdir(exist_ok=True)
+    (real / "logs" / "deep").mkdir(parents=True, exist_ok=True)
     assert real.name == "target project"
-    case = f"{through}-{dotted[0]}"
+    case = f"{through}-{tag}"
     marker = tmp_path / f"{case}-marker.txt"
     argv = token_child(tmp_path, f"{case}-child", "DOTDOT-TOKEN-8a45", marker)
     log = (
@@ -445,16 +505,18 @@ def test_sink_alias_an_output_path_with_a_parent_component_below_the_root_is_ref
 # --- run_verification: a parent swapped for a symlink after the judgment fails the sink ---------
 
 
-def swap_parent_for_a_link_to_itself(log: Path) -> None:
-    """Moves the log's parent aside and puts a symlink to the moved directory under its name.
+def swap_logs_for_a_link_to_itself(log: Path) -> None:
+    """Moves the log's `logs` ancestor aside and puts a symlink to it under its name.
 
     The leaf keeps its inode, so only refusing to follow the link keeps the log unwritten.
     """
-    held = log.parent.with_name(log.parent.name + "-held")
-    log.parent.rename(held)
-    log.parent.symlink_to(held.resolve(), target_is_directory=True)
+    logs = next(p for p in log.parents if p.name == "logs")
+    held = logs.with_name("logs-held")
+    logs.rename(held)
+    logs.symlink_to(held.resolve(), target_is_directory=True)
 
 
+@pytest.mark.parametrize("nest", [(), ("nest", "deep")], ids=["in-logs", "two-below-logs"])
 @pytest.mark.parametrize("swap", [True, False], ids=["swapped", "untouched"])
 @pytest.mark.parametrize(
     "spelling",
@@ -472,22 +534,25 @@ def test_sink_alias_a_log_parent_swapped_for_a_symlink_after_refuse_fails_the_si
     monkeypatch: pytest.MonkeyPatch,
     spelling: tuple[str, str],
     swap: bool,
+    nest: tuple[str, ...],
 ) -> None:
     """Row 4, fail-first: the descent below the root never follows a link, whatever spelling.
 
     The swapped-in link leads back to the same directory inside the root, so resolving the
-    parent would land under the root and write the existing log through the link.
+    parent would land under the root and write the existing log through the link. With
+    `nest`, the link is a middle component, not the log's own parent.
     """
     spellings = spellings_of(world, tmp_path)
     real = spellings["resolved"]
-    held = seed(real / "logs" / "raced.log", RACE_LOG)
+    (real / "logs").joinpath(*nest).mkdir(parents=True, exist_ok=True)
+    held = seed((real / "logs").joinpath(*nest, "raced.log"), RACE_LOG)
     before = digest(held)
-    case = f"{spelling[0]}-{spelling[1]}-{swap}"
+    case = f"{spelling[0]}-{spelling[1]}-{swap}-{len(nest)}"
     root, spelled = spellings[spelling[0]], spellings[spelling[1]]
-    log = spelled / "logs" / "raced.log"
+    log = (spelled / "logs").joinpath(*nest, "raced.log")
     marker = tmp_path / f"{case}-marker.txt"
     argv = token_child(tmp_path, f"{case}-child", "RACE-TOKEN-8a46", marker)
-    replace = swap_parent_for_a_link_to_itself if swap else leave_untouched
+    replace = swap_logs_for_a_link_to_itself if swap else leave_untouched
     swapped = swap_log_before_open(monkeypatch, log, replace)
     children = spy_on_spawn(monkeypatch, argv)
     try:
@@ -503,8 +568,8 @@ def test_sink_alias_a_log_parent_swapped_for_a_symlink_after_refuse_fails_the_si
     assert not marker.exists(), "the child ran against a sink reached through a symlink"
     moved = real / "logs-held"
     assert os.readlink(real / "logs") == str(moved)
-    assert sorted(os.listdir(moved)) == ["raced.log"]
-    assert digest(moved / "raced.log") == before, "the run wrote the log through the symlink"
+    assert sorted(os.listdir(moved.joinpath(*nest))) == ["raced.log"]
+    assert digest(moved.joinpath(*nest, "raced.log")) == before, "written through the link"
     assert not (real / ARTIFACT).exists()
 
 
@@ -543,3 +608,24 @@ def test_sink_alias_a_root_reached_through_a_symlinked_ancestor_still_succeeds(
     assert token.encode() in (real / "logs" / f"{case}.log").read_bytes()
     assert json.loads((real / artifact).read_bytes())["argv"] == argv
     assert not (real / ARTIFACT).exists(), "the gate ignored the given artifact path"
+
+
+def test_sink_alias_outputs_whose_root_spelling_has_a_parent_component_still_succeed(
+    world: World,
+    tmp_path: Path,
+    isolated_git: None,
+) -> None:
+    """Control: a `..` inside the root spelling is not below the root, so the run is accepted."""
+    real = world.target.resolve()
+    (real.parent / "spell-side").mkdir()
+    spelled = real.parent / "spell-side" / ".." / real.name
+    marker = tmp_path / "dotdot-spelling-marker.txt"
+    argv = token_child(tmp_path, "dotdot-spelling-child", "SPELL-TOKEN-8a4a", marker)
+    artifact = Path("docs", "dev", "tmp", "dotdot-spelling.json")
+    report = gate_at(
+        world, argv, real, spelled / "logs" / "dotdot-spelling.log", spelled / artifact
+    )
+    assert report["ok"] is True, report
+    assert marker.read_text("utf-8") == str(real)
+    assert b"SPELL-TOKEN-8a4a" in (real / "logs" / "dotdot-spelling.log").read_bytes()
+    assert json.loads((real / artifact).read_bytes())["argv"] == argv
