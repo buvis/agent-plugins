@@ -217,7 +217,7 @@
     "checked_at": "2026-10-25T22:40:48Z"
   },
   "tasks_total": 4,
-  "tasks_completed": 2,
+  "tasks_completed": 3,
   "replan_count": 0,
   "phases_completed": [],
   "cycle": 1,
@@ -355,7 +355,26 @@
       "qwen_eligible": false,
       "qwen_excluded_reason": "tier",
       "id": "3",
-      "status": "pending"
+      "status": "completed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": null,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "probe cwd pinned to the filesystem root, only three named OSErrors caught, returncode 0 'true' ignored, meaningless detail, blanket except BaseException in stage_review",
+          "devon_weak_points": 6,
+          "devon_in_contract": []
+        }
+      ]
     },
     {
       "name": "T4: Refresh docs, receipts and helper provenance",

@@ -43,3 +43,22 @@ Ivan:
 - The fallback reason uses `str()` of each OSError.
 
 Pat (LOW, recorded for the completion review): the `os.dup` failure branch has no test; the plan's Verify line still names `test_helper_recovery_v3.py -k failed_artifact` instead of the new file.
+
+## 3: T3 Fail closed on git probe timeout or spawn error
+
+Tess (initial):
+- `PermissionError` is a second `OSError` case inside the contract's `except (TimeoutExpired, OSError)`.
+- The refusal has exactly the keys `{schema_version, ok, error, detail}`.
+- The probe passes the ancestor as `cwd` and `env` is `{**os.environ, LC_ALL: C, LANGUAGE: C}`.
+- `review_stage` calls `subprocess.run` through the shared `subprocess` module object.
+- Header imports and `__all__ = ["project"]` count as not changing existing tests.
+
+Tess (strengthen after Devon):
+- The refusal detail is pinned to the existing "artifact_root is inside git internals" text (design Review log keeps that wording).
+- The answers-"true" control and the interrupt test use one destination only, to stay under 800 lines.
+- `KeyboardInterrupt` propagating is in contract (only `TimeoutExpired` and `OSError` are caught).
+
+Ivan:
+- The CHANGELOG bullet goes last in the existing Fixed list.
+
+Pat (LOW, recorded for the completion review): parallel id lists instead of `pytest.param(id=...)`; the `__all__ = ["project"]` re-export device (same shape as v2 review R27); the direct `_is_inside_git_dir` test overlaps the stage_review test.
