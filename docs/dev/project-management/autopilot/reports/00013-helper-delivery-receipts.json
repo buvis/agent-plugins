@@ -1,44 +1,122 @@
 {
   "schema_version": 1,
   "prd": "00013",
-  "package_revision": "0ed4c17ff964b04104b3961a83a0c8e5563b0f3a",
-  "previous_package_revision": "3c7e2183a194c86d10390a3f2eda5524516ba50a",
+  "package_revision": "6888765da6b57ba44e464f9ccfca3e19c1ab1be5",
+  "previous_package_revision": "0ed4c17ff964b04104b3961a83a0c8e5563b0f3a",
   "tasks": [
     {
-      "task": "v2-corrective-T1-T4",
-      "module": "AP00013 v2 helper recovery (cap recovery, sink and artifact containment, attempt validation bounds, plan grant and refusal records)",
-      "tests": "tests/autopilot/test_cap_recovery_helpers.py, tests/autopilot/test_cycle1_boundaries_verify.py, tests/autopilot/test_cycle1_boundaries_stage.py, tests/autopilot/test_cycle1_boundaries_context.py, tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py, tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py, tests/autopilot/test_cycle1_hardening_sinks.py, tests/autopilot/test_verification.py, tests/autopilot/test_review_evidence_helpers.py, tests/autopilot/test_verification_reuse.py, tests/autopilot/test_local_paths.py, tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py, tests/autopilot/test_helper_recovery_v2.py, tests/autopilot/test_helper_recovery_v2_sinks.py",
-      "passed": 544,
-      "failed": 4,
-      "skipped": 0,
-      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cycle1_boundaries_stage.py tests/autopilot/test_cycle1_boundaries_context.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_verification.py tests/autopilot/test_review_evidence_helpers.py tests/autopilot/test_verification_reuse.py tests/autopilot/test_local_paths.py tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py tests/autopilot/test_helper_recovery_v2.py tests/autopilot/test_helper_recovery_v2_sinks.py -q",
-      "exit_code": 1,
-      "duration_seconds": 188.29,
-      "failing_nodes": [
-        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]",
-        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[not-executable-False]",
-        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file",
-        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf"
-      ],
-      "failing_nodes_ownership": "All four failures live in the verify-path log-sink pre-open behaviour of plugins/autopilot/scripts/log_sink_refusal.py and are owned by AP00013 v2 task 2, not by task 3 or task 4 and not by the AP00018 controller suite. Measured in this session: at the previous receipt pin cce5dadcfe5c951e541ef8e395ffd930b1d56b0e all four nodes PASS (2 passed for SafeSinkOpenerTest, 4 passed for the spawn-failure parametrisation), while at task-2 commit 4a93821 all four already FAIL with the same assertions. The test bytes of tests/autopilot/test_local_paths.py are unchanged since 77bb783, which predates cce5dad, so the test side did not move. The two spawn-failure nodes report one extra entry, an empty docs/dev/tmp/run.log left behind when the spawn fails; the two SafeSinkOpenerTest nodes fail because the sink is no longer truncated on reopen (b'newvious contents\\n' != b'new') and because an existing symlinked leaf now raises OSError errno 62 instead of being replaced. This corrects the earlier reading that the spawn residue was pre-existing: the orchestrator's control run used the parent of the task-3 edit, which already contained task 2. None of the four is fixed by this receipt; the product bytes at 3c7e2183a194c86d10390a3f2eda5524516ba50a are unchanged."
-    },
-    {
-      "task": "v2-cycle1-rework-T5-T8",
-      "module": "AP00013 cycle-1 rework (verification sink ownership and below-root symlink and root-spelling refusals, staging git-probe locale pin and refusal shape, test reconciliation, package docs)",
-      "tests": "tests/autopilot/test_cap_recovery_helpers.py, tests/autopilot/test_cycle1_boundaries_verify.py, tests/autopilot/test_cycle1_boundaries_stage.py, tests/autopilot/test_cycle1_boundaries_context.py, tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py, tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py, tests/autopilot/test_cycle1_hardening_sinks.py, tests/autopilot/test_verification.py, tests/autopilot/test_review_evidence_helpers.py, tests/autopilot/test_verification_reuse.py, tests/autopilot/test_local_paths.py, tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py, tests/autopilot/test_helper_recovery_v2.py, tests/autopilot/test_helper_recovery_v2_sinks.py, tests/autopilot/test_helper_rework_sinks.py, tests/autopilot/test_helper_rework_stage.py",
-      "passed": 668,
+      "task": "v3-T1",
+      "module": "root-anchored sink symlink refusal (plugins/autopilot/scripts/log_sink_refusal.py); tests ebc644d and 0f4ba03, fix 27a16a3",
+      "tests": "tests/autopilot/test_helper_recovery_v3.py",
+      "passed": 90,
       "failed": 0,
       "skipped": 0,
-      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cycle1_boundaries_stage.py tests/autopilot/test_cycle1_boundaries_context.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_verification.py tests/autopilot/test_review_evidence_helpers.py tests/autopilot/test_verification_reuse.py tests/autopilot/test_local_paths.py tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py tests/autopilot/test_helper_recovery_v2.py tests/autopilot/test_helper_recovery_v2_sinks.py tests/autopilot/test_helper_rework_sinks.py tests/autopilot/test_helper_rework_stage.py -q",
+      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_helper_recovery_v3.py -k sink_alias ... -q",
       "exit_code": 0,
-      "duration_seconds": 219.29,
-      "resolved_nodes": [
-        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]",
-        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[not-executable-False]",
-        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file",
-        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf"
+      "duration_seconds": "not captured",
+      "failing_nodes": [],
+      "failing_nodes_ownership": "none: green run",
+      "command_note": "The orchestrator's record elides part of the command after -k sink_alias; the elided text is not captured.",
+      "red_at_v2": {
+        "failed": 48,
+        "passed": 42
+      },
+      "regression": {
+        "tests": "tests/autopilot/test_helper_rework_sinks.py, tests/autopilot/test_helper_recovery_v2_sinks.py, tests/autopilot/test_cycle1_hardening_sinks.py, tests/autopilot/test_local_paths.py",
+        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_helper_rework_sinks.py tests/autopilot/test_helper_recovery_v2_sinks.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_local_paths.py -q",
+        "passed": 164,
+        "failed": 0,
+        "exit_code": 0,
+        "duration_seconds": 83.52
+      }
+    },
+    {
+      "task": "v3-T2",
+      "module": "descriptor-bound failed-artifact invalidation (plugins/autopilot/scripts/verification.py); tests 47e5f72 and 8efeafe, fix a1aa604",
+      "tests": "tests/autopilot/test_helper_recovery_v3_artifact.py",
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_helper_recovery_v3_artifact.py -q",
+      "exit_code": 0,
+      "duration_seconds": 8.88,
+      "failing_nodes": [],
+      "failing_nodes_ownership": "none: green run",
+      "red_at_v2": {
+        "failed": 16,
+        "passed": 4
+      },
+      "regression": {
+        "tests": "tests/autopilot/test_verification.py, tests/autopilot/test_cycle1_boundaries_verify.py, tests/autopilot/test_facade.py, tests/autopilot/test_helper_recovery_v2.py, tests/autopilot/test_helper_rework_sinks.py",
+        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_verification.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_facade.py tests/autopilot/test_helper_recovery_v2.py tests/autopilot/test_helper_rework_sinks.py -q",
+        "passed": 226,
+        "failed": 0,
+        "exit_code": 0,
+        "duration_seconds": 152.49
+      }
+    },
+    {
+      "task": "v3-T3",
+      "module": "staging git-probe fail-closed on timeout or start failure (plugins/autopilot/scripts/review_stage.py); tests 34e5124 and 1769e8b, fix 92e9ccd",
+      "tests": "tests/autopilot/test_helper_recovery_v3.py",
+      "passed": 106,
+      "failed": 0,
+      "skipped": 0,
+      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_helper_recovery_v3.py -q",
+      "exit_code": 0,
+      "duration_seconds": 10.95,
+      "failing_nodes": [],
+      "failing_nodes_ownership": "none: green run",
+      "red_at_v2": {
+        "failed": 12,
+        "passed": 4
+      },
+      "regression": {
+        "tests": "tests/autopilot/test_helper_rework_stage.py, tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py, tests/autopilot/test_cycle1_boundaries_context.py",
+        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_helper_rework_stage.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_cycle1_boundaries_context.py -q",
+        "passed": 104,
+        "failed": 0,
+        "exit_code": 0,
+        "duration_seconds": 4.45
+      }
+    },
+    {
+      "task": "v3-T4",
+      "module": "package docs (plugins/autopilot/README.md, plugins/autopilot/CHANGELOG.md) in 6888765, then this evidence refresh",
+      "tests": "tests/autopilot (full suite; phase A recorded no task-scoped run, so this is the final_gate run at the T4 commit 6888765)",
+      "passed": 1212,
+      "failed": 24,
+      "skipped": 0,
+      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q",
+      "exit_code": 1,
+      "duration_seconds": 294.06,
+      "failing_nodes": [
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_both_emergency_operations_use_either_reserve_but_never_override_hard_capacity",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_hard_capacity_seals_new_mutations_but_preserves_snapshot_and_exact_replay",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_last_normal_slot_then_release_reserve_preserve_every_prior_receipt",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_no_owner_cannot_consume_byte_reserve_and_emergency_cannot_exceed_state_ceiling",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_no_owner_cannot_use_either_reserved_count_slot",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_normal_byte_admission_is_independent_of_receipt_count",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_only_active_owner_clearing_can_use_reserved_bytes_below_hard_ceiling",
+        "tests/autopilot/test_controller_capacity.py::CapacityTest::test_private_archive_hash_restore_and_distinct_workflow_roundtrip",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_changed_historical_envelopes_conflict_without_reapplying_effects",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_checks_exact_identity_scope_epoch_job_and_role_before_mutation",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_closed_payloads_reject_empty_oversized_and_multielement_reconciliation",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_historical_and_reopened_operator_retrieve_only_exact_receipts_after_all_rotations",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_rejects_near_miss_credentials_and_does_not_fall_back_to_cwd_binding",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_rotates_operator_and_issues_fresh_owners_for_both_modes_and_sessions",
+        "tests/autopilot/test_controller_owner.py::OwnerTest::test_two_independent_subprocess_acquires_have_exactly_one_winner",
+        "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_corrupt_real_intents_preserve_all_bytes_for_matching_and_unrelated_requests",
+        "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_crashes_at_every_owner_publication_boundary_preserve_replay_or_evidence",
+        "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_directory_fsync_failure_never_acknowledges_or_changes_final_credentials",
+        "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_missing_or_corrupt_staged_credentials_cannot_finish_an_intent",
+        "tests/autopilot/test_helper_provenance_real.py::test_new_helper_files_are_owned_and_digested_from_current_bytes",
+        "tests/autopilot/test_helper_provenance_real.py::test_source_audit_accepts_the_generated_map",
+        "tests/autopilot/test_helper_provenance_real.py::test_generator_check_accepts_the_committed_map",
+        "tests/autopilot/test_package.py::TargetPackageTest::test_content_roster_matches_frozen_inventory_and_actual_package_bytes",
+        "tests/autopilot/test_package.py::TargetPackageTest::test_readme_retains_every_source_heading_with_completed_adaptation_receipts"
       ],
-      "resolved_nodes_note": "These four nodes were red in the previous receipt (task v2-corrective-T1-T4, revision 3c7e2183a194c86d10390a3f2eda5524516ba50a) and are green in this run, which reported zero failures. Cycle-1 rework task 5 resolved the contract conflict on the product side: the v2 sink test that used to assert an empty leftover log is now tests/autopilot/test_helper_recovery_v2_sinks.py::test_verification_preserves_its_outputs_on_a_spawn_failure_and_an_absent_log_stays_absent, so an absent log stays absent after a failed spawn and the two contracts no longer disagree. The earlier failures were real and stay recorded as failures in the v2-corrective-T1-T4 entry."
+      "failing_nodes_ownership": "19 AP 00018 controller nodes: external deferral owned by AP 00018. 5 provenance and package nodes: AP00013 v3, stale source-map digests before this refresh regenerated the map; see final_gate."
     }
   ],
   "validation": {
@@ -49,54 +127,82 @@
   },
   "implementation": {
     "branch": "master",
-    "build_lane": {
-      "tasks": "v2 corrective tasks T1-T4",
-      "backend": "Claude Code subagent (autopilot:worker-opus)",
-      "model": "claude-opus-5",
-      "effort": "high"
+    "v3_dispatch": {
+      "tess_devon_ivan": {
+        "backend": "native Claude Code subagent (autopilot:worker-opus)",
+        "model_parameter": "opus",
+        "model": "not captured",
+        "effort_configured": "high (agent frontmatter)",
+        "effort_served": "not captured"
+      },
+      "reviewer_pat": {
+        "backend": "use-sonnet/scripts/sonnet-run.sh --effort high, with the session setup token after the keychain OAuth route failed with \"OAuth token revoked\"",
+        "model": "not captured",
+        "effort_configured": "high",
+        "effort_served": "not captured"
+      }
     },
-    "rework_lane": {
-      "implementor_tasks_7_8": {
-        "backend": "Claude Code subagent (autopilot:worker-sonnet)",
+    "v2_task5_evidence": {
+      "source": "v2 review R20 (task 5 provenance the v2 receipt left out)",
+      "implementor_workers": {
+        "backend": "native Claude Code subagent",
         "model": "claude-sonnet-5-5",
-        "effort": "medium (agent frontmatter)"
+        "effort_configured": "medium",
+        "effort_served": "not captured"
       },
-      "implementor_task_6": {
-        "backend": "Claude Code subagent (autopilot:worker-sonnet)",
-        "model": "not captured: the transcript belongs to an earlier session and the served model id was not probed",
-        "effort": "not captured"
-      },
-      "reviewer_pat_tasks_6_to_8": {
-        "backend": "native claude CLI through use-sonnet/scripts/sonnet-run.sh (claude --print --model sonnet, no tools)",
+      "reviewer_pat": {
         "model": "claude-sonnet-5-5",
-        "effort": "not captured: no --effort flag was passed"
-      },
-      "coordinator": {
-        "backend": "Claude Code session",
-        "model": "claude-opus-5",
-        "effort": "high (recorded in the loop session brief)"
+        "effort_configured": "high",
+        "effort_served": "not captured"
       }
     }
   },
-  "scope": "Evidence for the AP00013 cycle-1 rework (tasks 5 to 8) measured against packaged revision 0ed4c17ff964b04104b3961a83a0c8e5563b0f3a, which carries the final plugins/autopilot README.md and CHANGELOG.md of this rework. The 21-file helper regression run was taken at the tree of commit 016b6b3a2ec9d3282cf58c523ecfae69163d1d21, with this task's README and CHANGELOG edit still uncommitted. The pinned revision differs from that commit only in plugins/autopilot/README.md and plugins/autopilot/CHANGELOG.md, and no test file or product script differs, so the measurement applies to the pinned revision's product bytes. The 21-file helper regression set is green (668 passed, 0 failed), and the four AP00013 nodes that were red in the previous receipt are green. The AP00018 controller suite is still separately owned and red. The unresolved parent-alias helper finding recorded in 00013-v2-parent-alias-helper-audit.md is open and the cycle-2 review gate adjudicates it. No completion review has passed and there is no real-host certification. This file's bytes are frozen before the source map is regenerated, because the map stores this file's hash, so the cycle-1 full-gate result is recorded in docs/dev/project-management/autopilot/reports/00013-helper-recovery-v2.md rather than here. The final_gate object below records the earlier T1-T4 delivery gate.",
+  "scope": "Evidence for AP00013 v3 (R1 root-anchored sink refusal, R3 descriptor-bound failed-artifact invalidation, R4/R6/R9/R12 staging git-probe fail-closed, R15/R21 docs and R20/R23 receipt accuracy) at package revision 6888765da6b57ba44e464f9ccfca3e19c1ab1be5. Task numbers are the orchestrator's recorded runs; final_gate was run at that revision before the source map was regenerated, because the map stores this file's hash. The post-generator --check and provenance runs are recorded in docs/dev/project-management/autopilot/reports/00013-helper-recovery-v3.md. Deferrals are listed in docs/dev/project-management/autopilot/reports/00013-v3-admission.md. No completion review has passed and there is no real-host certification.",
   "real_host": {
     "status": "unavailable",
-    "reason": "No Claude Code, Codex or Kiro host execution of the packaged helpers was run for AP00013. Delivery is local test evidence only; no host profile is certified and nothing is published or installed."
+    "reason": "real host evidence: not run. No live install or publication was authorized; no Claude Code, Codex or Kiro host execution of the packaged helpers was run for AP00013 v3."
   },
   "historical_receipt": {
     "schema_version": 1,
     "prd": "00013",
-    "package_revision": "cce5dadcfe5c951e541ef8e395ffd930b1d56b0e",
+    "package_revision": "0ed4c17ff964b04104b3961a83a0c8e5563b0f3a",
+    "previous_package_revision": "3c7e2183a194c86d10390a3f2eda5524516ba50a",
     "tasks": [
       {
-        "task": "cap-recovery",
-        "module": "helper boundaries and attribution",
-        "tests": "tests/autopilot/test_cap_recovery_helpers.py, tests/autopilot/test_cycle1_boundaries_verify.py, tests/autopilot/test_cycle1_boundaries_stage.py, tests/autopilot/test_cycle1_boundaries_context.py, tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py, tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py, tests/autopilot/test_cycle1_hardening_sinks.py, tests/autopilot/test_verification.py, tests/autopilot/test_review_evidence_helpers.py, tests/autopilot/test_verification_reuse.py, tests/autopilot/test_local_paths.py, tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py",
-        "passed": 494,
+        "task": "v2-corrective-T1-T4",
+        "module": "AP00013 v2 helper recovery (cap recovery, sink and artifact containment, attempt validation bounds, plan grant and refusal records)",
+        "tests": "tests/autopilot/test_cap_recovery_helpers.py, tests/autopilot/test_cycle1_boundaries_verify.py, tests/autopilot/test_cycle1_boundaries_stage.py, tests/autopilot/test_cycle1_boundaries_context.py, tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py, tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py, tests/autopilot/test_cycle1_hardening_sinks.py, tests/autopilot/test_verification.py, tests/autopilot/test_review_evidence_helpers.py, tests/autopilot/test_verification_reuse.py, tests/autopilot/test_local_paths.py, tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py, tests/autopilot/test_helper_recovery_v2.py, tests/autopilot/test_helper_recovery_v2_sinks.py",
+        "passed": 544,
+        "failed": 4,
+        "skipped": 0,
+        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cycle1_boundaries_stage.py tests/autopilot/test_cycle1_boundaries_context.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_verification.py tests/autopilot/test_review_evidence_helpers.py tests/autopilot/test_verification_reuse.py tests/autopilot/test_local_paths.py tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py tests/autopilot/test_helper_recovery_v2.py tests/autopilot/test_helper_recovery_v2_sinks.py -q",
+        "exit_code": 1,
+        "duration_seconds": 188.29,
+        "failing_nodes": [
+          "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]",
+          "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[not-executable-False]",
+          "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file",
+          "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf"
+        ],
+        "failing_nodes_ownership": "All four failures live in the verify-path log-sink pre-open behaviour of plugins/autopilot/scripts/log_sink_refusal.py and are owned by AP00013 v2 task 2, not by task 3 or task 4 and not by the AP00018 controller suite. Measured in this session: at the previous receipt pin cce5dadcfe5c951e541ef8e395ffd930b1d56b0e all four nodes PASS (2 passed for SafeSinkOpenerTest, 4 passed for the spawn-failure parametrisation), while at task-2 commit 4a93821 all four already FAIL with the same assertions. The test bytes of tests/autopilot/test_local_paths.py are unchanged since 77bb783, which predates cce5dad, so the test side did not move. The two spawn-failure nodes report one extra entry, an empty docs/dev/tmp/run.log left behind when the spawn fails; the two SafeSinkOpenerTest nodes fail because the sink is no longer truncated on reopen (b'newvious contents\\n' != b'new') and because an existing symlinked leaf now raises OSError errno 62 instead of being replaced. This corrects the earlier reading that the spawn residue was pre-existing: the orchestrator's control run used the parent of the task-3 edit, which already contained task 2. None of the four is fixed by this receipt; the product bytes at 3c7e2183a194c86d10390a3f2eda5524516ba50a are unchanged."
+      },
+      {
+        "task": "v2-cycle1-rework-T5-T8",
+        "module": "AP00013 cycle-1 rework (verification sink ownership and below-root symlink and root-spelling refusals, staging git-probe locale pin and refusal shape, test reconciliation, package docs)",
+        "tests": "tests/autopilot/test_cap_recovery_helpers.py, tests/autopilot/test_cycle1_boundaries_verify.py, tests/autopilot/test_cycle1_boundaries_stage.py, tests/autopilot/test_cycle1_boundaries_context.py, tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py, tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py, tests/autopilot/test_cycle1_hardening_sinks.py, tests/autopilot/test_verification.py, tests/autopilot/test_review_evidence_helpers.py, tests/autopilot/test_verification_reuse.py, tests/autopilot/test_local_paths.py, tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py, tests/autopilot/test_helper_recovery_v2.py, tests/autopilot/test_helper_recovery_v2_sinks.py, tests/autopilot/test_helper_rework_sinks.py, tests/autopilot/test_helper_rework_stage.py",
+        "passed": 668,
         "failed": 0,
         "skipped": 0,
-        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cycle1_boundaries_stage.py tests/autopilot/test_cycle1_boundaries_context.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_verification.py tests/autopilot/test_review_evidence_helpers.py tests/autopilot/test_verification_reuse.py tests/autopilot/test_local_paths.py tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py -q",
-        "duration_seconds": 142.09
+        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cycle1_boundaries_stage.py tests/autopilot/test_cycle1_boundaries_context.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_verification.py tests/autopilot/test_review_evidence_helpers.py tests/autopilot/test_verification_reuse.py tests/autopilot/test_local_paths.py tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py tests/autopilot/test_helper_recovery_v2.py tests/autopilot/test_helper_recovery_v2_sinks.py tests/autopilot/test_helper_rework_sinks.py tests/autopilot/test_helper_rework_stage.py -q",
+        "exit_code": 0,
+        "duration_seconds": 219.29,
+        "resolved_nodes": [
+          "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]",
+          "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[not-executable-False]",
+          "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file",
+          "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf"
+        ],
+        "resolved_nodes_note": "These four nodes were red in the previous receipt (task v2-corrective-T1-T4, revision 3c7e2183a194c86d10390a3f2eda5524516ba50a) and are green in this run, which reported zero failures. Cycle-1 rework task 5 resolved the contract conflict on the product side: the v2 sink test that used to assert an empty leftover log is now tests/autopilot/test_helper_recovery_v2_sinks.py::test_verification_preserves_its_outputs_on_a_spawn_failure_and_an_absent_log_stays_absent, so an absent log stays absent after a failed spawn and the two contracts no longer disagree. The earlier failures were real and stay recorded as failures in the v2-corrective-T1-T4 entry."
       }
     ],
     "validation": {
@@ -106,11 +212,37 @@
       "skills": 15
     },
     "implementation": {
-      "backend": "Codex subagent",
-      "model": "not exposed",
-      "branch": "repair/ap00013-cap-regression"
+      "branch": "master",
+      "build_lane": {
+        "tasks": "v2 corrective tasks T1-T4",
+        "backend": "Claude Code subagent (autopilot:worker-opus)",
+        "model": "claude-opus-5",
+        "effort": "high"
+      },
+      "rework_lane": {
+        "implementor_tasks_7_8": {
+          "backend": "Claude Code subagent (autopilot:worker-sonnet)",
+          "model": "claude-sonnet-5-5",
+          "effort": "medium (agent frontmatter)"
+        },
+        "implementor_task_6": {
+          "backend": "Claude Code subagent (autopilot:worker-sonnet)",
+          "model": "not captured: the transcript belongs to an earlier session and the served model id was not probed",
+          "effort": "not captured"
+        },
+        "reviewer_pat_tasks_6_to_8": {
+          "backend": "native claude CLI through use-sonnet/scripts/sonnet-run.sh (claude --print --model sonnet, no tools)",
+          "model": "claude-sonnet-5-5",
+          "effort": "not captured: no --effort flag was passed"
+        },
+        "coordinator": {
+          "backend": "Claude Code session",
+          "model": "claude-opus-5",
+          "effort": "high (recorded in the loop session brief)"
+        }
+      }
     },
-    "scope": "Bounded branch repair of cycle-2 R1, R2, R4-R8, R13 and R15. No controller tests or workflow state changed. This receipt does not claim the full suite is green or completion review passed.",
+    "scope": "Evidence for the AP00013 cycle-1 rework (tasks 5 to 8) measured against packaged revision 0ed4c17ff964b04104b3961a83a0c8e5563b0f3a, which carries the final plugins/autopilot README.md and CHANGELOG.md of this rework. The 21-file helper regression run was taken at the tree of commit 016b6b3a2ec9d3282cf58c523ecfae69163d1d21, with this task's README and CHANGELOG edit still uncommitted. The pinned revision differs from that commit only in plugins/autopilot/README.md and plugins/autopilot/CHANGELOG.md, and no test file or product script differs, so the measurement applies to the pinned revision's product bytes. The 21-file helper regression set is green (668 passed, 0 failed), and the four AP00013 nodes that were red in the previous receipt are green. The AP00018 controller suite is still separately owned and red. The unresolved parent-alias helper finding recorded in 00013-v2-parent-alias-helper-audit.md is open and the cycle-2 review gate adjudicates it. No completion review has passed and there is no real-host certification. This file's bytes are frozen before the source map is regenerated, because the map stores this file's hash, so the cycle-1 full-gate result is recorded in docs/dev/project-management/autopilot/reports/00013-helper-recovery-v2.md rather than here. The final_gate object below records the earlier T1-T4 delivery gate.",
     "real_host": {
       "status": "unavailable",
       "reason": "No Claude Code, Codex or Kiro host execution of the packaged helpers was run for AP00013. Delivery is local test evidence only; no host profile is certified and nothing is published or installed."
@@ -118,105 +250,203 @@
     "historical_receipt": {
       "schema_version": 1,
       "prd": "00013",
-      "package_revision": "527d880c77b2fbe93c58398d236f55305fc8f736",
+      "package_revision": "cce5dadcfe5c951e541ef8e395ffd930b1d56b0e",
       "tasks": [
         {
-          "task": 1,
-          "module": "helper characterization",
-          "tests": "tools/autopilot/check-source.py",
-          "passed": 1,
-          "command": "python3 tools/autopilot/check-source.py --source-root ../claude-autopilot"
-        },
-        {
-          "task": 2,
-          "module": "findings, gate_lead, rework_groups",
-          "tests": "tests/autopilot/test_finding_groups.py",
-          "passed": 19,
-          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_finding_groups.py"
-        },
-        {
-          "task": 3,
-          "module": "review_evidence, evidence_shapes",
-          "tests": "tests/autopilot/test_review_evidence_helpers.py",
-          "passed": 27,
-          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_review_evidence_helpers.py"
-        },
-        {
-          "task": 4,
-          "module": "dirty_tree, log_sink_refusal",
-          "tests": "tests/autopilot/test_local_paths.py",
-          "passed": 27,
-          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_local_paths.py"
-        },
-        {
-          "task": 5,
-          "module": "review_stage",
-          "tests": "tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py",
-          "passed": 79,
-          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py"
-        },
-        {
-          "task": 6,
-          "module": "review_close",
-          "tests": "tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py",
-          "passed": 94,
-          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py"
-        },
-        {
-          "task": 7,
-          "module": "cap_check, custody",
-          "tests": "tests/autopilot/test_cap_custody_helpers.py, tests/autopilot/test_cap_custody_helpers_custody.py",
-          "passed": 89,
-          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_cap_custody_helpers.py tests/autopilot/test_cap_custody_helpers_custody.py"
-        },
-        {
-          "task": 8,
-          "module": "catchup",
-          "tests": "tests/autopilot/test_catchup.py",
-          "passed": 57,
-          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_catchup.py"
-        },
-        {
-          "task": 9,
-          "module": "verification",
-          "tests": "tests/autopilot/test_verification.py, tests/autopilot/test_verification_reuse.py",
-          "passed": 116,
-          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_verification.py tests/autopilot/test_verification_reuse.py"
-        },
-        {
-          "task": 10,
-          "module": "autopilot facade",
-          "tests": "tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py",
-          "passed": 63,
-          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py"
-        },
-        {
-          "task": 11,
-          "module": "update_helper_map, README, CHANGELOG",
-          "tests": "tests/autopilot/test_helper_provenance.py, tests/autopilot/test_helper_provenance_cli.py, tests/autopilot/test_helper_provenance_real.py",
-          "passed": 44,
-          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_helper_provenance.py tests/autopilot/test_helper_provenance_cli.py tests/autopilot/test_helper_provenance_real.py"
+          "task": "cap-recovery",
+          "module": "helper boundaries and attribution",
+          "tests": "tests/autopilot/test_cap_recovery_helpers.py, tests/autopilot/test_cycle1_boundaries_verify.py, tests/autopilot/test_cycle1_boundaries_stage.py, tests/autopilot/test_cycle1_boundaries_context.py, tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py, tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py, tests/autopilot/test_cycle1_hardening_sinks.py, tests/autopilot/test_verification.py, tests/autopilot/test_review_evidence_helpers.py, tests/autopilot/test_verification_reuse.py, tests/autopilot/test_local_paths.py, tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py",
+          "passed": 494,
+          "failed": 0,
+          "skipped": 0,
+          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_cap_recovery_helpers.py tests/autopilot/test_cycle1_boundaries_verify.py tests/autopilot/test_cycle1_boundaries_stage.py tests/autopilot/test_cycle1_boundaries_context.py tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py tests/autopilot/test_cycle1_hardening_sinks.py tests/autopilot/test_verification.py tests/autopilot/test_review_evidence_helpers.py tests/autopilot/test_verification_reuse.py tests/autopilot/test_local_paths.py tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py -q",
+          "duration_seconds": 142.09
         }
       ],
+      "validation": {
+        "command": "python3 scripts/validate.py",
+        "exit_code": 0,
+        "packages": 3,
+        "skills": 15
+      },
+      "implementation": {
+        "backend": "Codex subagent",
+        "model": "not exposed",
+        "branch": "repair/ap00013-cap-regression"
+      },
+      "scope": "Bounded branch repair of cycle-2 R1, R2, R4-R8, R13 and R15. No controller tests or workflow state changed. This receipt does not claim the full suite is green or completion review passed.",
       "real_host": {
         "status": "unavailable",
         "reason": "No Claude Code, Codex or Kiro host execution of the packaged helpers was run for AP00013. Delivery is local test evidence only; no host profile is certified and nothing is published or installed."
+      },
+      "historical_receipt": {
+        "schema_version": 1,
+        "prd": "00013",
+        "package_revision": "527d880c77b2fbe93c58398d236f55305fc8f736",
+        "tasks": [
+          {
+            "task": 1,
+            "module": "helper characterization",
+            "tests": "tools/autopilot/check-source.py",
+            "passed": 1,
+            "command": "python3 tools/autopilot/check-source.py --source-root ../claude-autopilot"
+          },
+          {
+            "task": 2,
+            "module": "findings, gate_lead, rework_groups",
+            "tests": "tests/autopilot/test_finding_groups.py",
+            "passed": 19,
+            "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_finding_groups.py"
+          },
+          {
+            "task": 3,
+            "module": "review_evidence, evidence_shapes",
+            "tests": "tests/autopilot/test_review_evidence_helpers.py",
+            "passed": 27,
+            "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_review_evidence_helpers.py"
+          },
+          {
+            "task": 4,
+            "module": "dirty_tree, log_sink_refusal",
+            "tests": "tests/autopilot/test_local_paths.py",
+            "passed": 27,
+            "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_local_paths.py"
+          },
+          {
+            "task": 5,
+            "module": "review_stage",
+            "tests": "tests/autopilot/test_review_helpers.py, tests/autopilot/test_review_helpers_contract.py",
+            "passed": 79,
+            "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_review_helpers.py tests/autopilot/test_review_helpers_contract.py"
+          },
+          {
+            "task": 6,
+            "module": "review_close",
+            "tests": "tests/autopilot/test_review_close_helpers.py, tests/autopilot/test_review_close_helpers_gates.py",
+            "passed": 94,
+            "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_review_close_helpers.py tests/autopilot/test_review_close_helpers_gates.py"
+          },
+          {
+            "task": 7,
+            "module": "cap_check, custody",
+            "tests": "tests/autopilot/test_cap_custody_helpers.py, tests/autopilot/test_cap_custody_helpers_custody.py",
+            "passed": 89,
+            "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_cap_custody_helpers.py tests/autopilot/test_cap_custody_helpers_custody.py"
+          },
+          {
+            "task": 8,
+            "module": "catchup",
+            "tests": "tests/autopilot/test_catchup.py",
+            "passed": 57,
+            "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_catchup.py"
+          },
+          {
+            "task": 9,
+            "module": "verification",
+            "tests": "tests/autopilot/test_verification.py, tests/autopilot/test_verification_reuse.py",
+            "passed": 116,
+            "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_verification.py tests/autopilot/test_verification_reuse.py"
+          },
+          {
+            "task": 10,
+            "module": "autopilot facade",
+            "tests": "tests/autopilot/test_local_boundary.py, tests/autopilot/test_local_boundary_verify.py, tests/autopilot/test_local_boundary_state.py, tests/autopilot/test_facade.py",
+            "passed": 63,
+            "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_local_boundary.py tests/autopilot/test_local_boundary_verify.py tests/autopilot/test_local_boundary_state.py tests/autopilot/test_facade.py"
+          },
+          {
+            "task": 11,
+            "module": "update_helper_map, README, CHANGELOG",
+            "tests": "tests/autopilot/test_helper_provenance.py, tests/autopilot/test_helper_provenance_cli.py, tests/autopilot/test_helper_provenance_real.py",
+            "passed": 44,
+            "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest -q --tb=line tests/autopilot/test_helper_provenance.py tests/autopilot/test_helper_provenance_cli.py tests/autopilot/test_helper_provenance_real.py"
+          }
+        ],
+        "real_host": {
+          "status": "unavailable",
+          "reason": "No Claude Code, Codex or Kiro host execution of the packaged helpers was run for AP00013. Delivery is local test evidence only; no host profile is certified and nothing is published or installed."
+        }
       }
+    },
+    "final_gate": {
+      "revision": "9e89a5913f26e7d062347362a3cad773ccd09396",
+      "package_revision_tested": "3c7e2183a194c86d10390a3f2eda5524516ba50a",
+      "note": "Records the T1-T4 delivery gate, not the cycle-1 rework. Run once after task 4, on the evidence commit 9e89a59, whose product bytes under plugins/, tests/ and tools/ are identical to the tested package revision 3c7e218 (9e89a59 adds only receipt, source-map and report evidence). A candidate fix for the two spawn-failure nodes was written during this round and reverted before this gate, so no product byte changed.",
+      "commands": [
+        {
+          "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q",
+          "exit_code": 1,
+          "passed": 967,
+          "failed": 23,
+          "skipped": 0,
+          "duration_seconds": 254.02,
+          "log": "docs/dev/tmp/gate-9e89a59.log"
+        },
+        {
+          "command": "python3 -m unittest discover -s scripts",
+          "exit_code": 0,
+          "tests": 59,
+          "result": "OK"
+        },
+        {
+          "command": "python3 scripts/validate.py",
+          "exit_code": 0,
+          "packages": 3,
+          "skills": 15
+        },
+        {
+          "command": "python3 scripts/generate_marketplace.py --check",
+          "exit_code": 0,
+          "result": "marketplace.json is up to date"
+        }
+      ],
+      "failing_nodes": {
+        "ap00018_controller": [
+          "tests/autopilot/test_controller_capacity.py::CapacityTest::test_both_emergency_operations_use_either_reserve_but_never_override_hard_capacity",
+          "tests/autopilot/test_controller_capacity.py::CapacityTest::test_hard_capacity_seals_new_mutations_but_preserves_snapshot_and_exact_replay",
+          "tests/autopilot/test_controller_capacity.py::CapacityTest::test_last_normal_slot_then_release_reserve_preserve_every_prior_receipt",
+          "tests/autopilot/test_controller_capacity.py::CapacityTest::test_no_owner_cannot_consume_byte_reserve_and_emergency_cannot_exceed_state_ceiling",
+          "tests/autopilot/test_controller_capacity.py::CapacityTest::test_no_owner_cannot_use_either_reserved_count_slot",
+          "tests/autopilot/test_controller_capacity.py::CapacityTest::test_normal_byte_admission_is_independent_of_receipt_count",
+          "tests/autopilot/test_controller_capacity.py::CapacityTest::test_only_active_owner_clearing_can_use_reserved_bytes_below_hard_ceiling",
+          "tests/autopilot/test_controller_capacity.py::CapacityTest::test_private_archive_hash_restore_and_distinct_workflow_roundtrip",
+          "tests/autopilot/test_controller_owner.py::OwnerTest::test_changed_historical_envelopes_conflict_without_reapplying_effects",
+          "tests/autopilot/test_controller_owner.py::OwnerTest::test_checks_exact_identity_scope_epoch_job_and_role_before_mutation",
+          "tests/autopilot/test_controller_owner.py::OwnerTest::test_closed_payloads_reject_empty_oversized_and_multielement_reconciliation",
+          "tests/autopilot/test_controller_owner.py::OwnerTest::test_historical_and_reopened_operator_retrieve_only_exact_receipts_after_all_rotations",
+          "tests/autopilot/test_controller_owner.py::OwnerTest::test_rejects_near_miss_credentials_and_does_not_fall_back_to_cwd_binding",
+          "tests/autopilot/test_controller_owner.py::OwnerTest::test_rotates_operator_and_issues_fresh_owners_for_both_modes_and_sessions",
+          "tests/autopilot/test_controller_owner.py::OwnerTest::test_two_independent_subprocess_acquires_have_exactly_one_winner",
+          "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_corrupt_real_intents_preserve_all_bytes_for_matching_and_unrelated_requests",
+          "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_crashes_at_every_owner_publication_boundary_preserve_replay_or_evidence",
+          "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_directory_fsync_failure_never_acknowledges_or_changes_final_credentials",
+          "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_missing_or_corrupt_staged_credentials_cannot_finish_an_intent"
+        ],
+        "ap00018_controller_count": 19,
+        "ap00018_controller_ownership": "AP00018 controller kernel, separately tracked and on hold. Observed red in this run, recorded and not fixed, masked or relabelled by AP00013.",
+        "ap00013_contract_conflict": [
+          "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]",
+          "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[not-executable-False]",
+          "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file",
+          "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf"
+        ],
+        "ap00013_contract_conflict_ownership": "AP00013 v2 task 2. These four encode the verify-path log-sink contract that task 2 replaced: no residual log after a failed spawn, truncation of an existing sink on reopen, and replacement of a symlinked leaf. Task 2's own tests pin the opposite contract: tests/autopilot/test_helper_recovery_v2_sinks.py::test_verification_preserves_its_outputs_on_a_spawn_failure_but_leaves_an_empty_log[absent-program|unexecutable-program] assert the log exists and is empty after a failed spawn. Measured: all six nodes pass at cce5dad and four fail here, so these are regressions, not older defects. A candidate repair that reused _open_result_sink/_close_result_sink for the log leaf made the two spawn-failure nodes green and broke the two task-2 sink nodes; it was reverted rather than shipped. No implementation satisfies both contracts without branching on a pathname, so the choice of contract and the retirement of the superseded tests belong to the completion review, which carries this as a recorded deferred item."
+      },
+      "real_host": "unavailable: no Claude Code, Codex or Kiro host execution of the packaged helpers was run; nothing is published or installed and no host profile is certified."
     }
   },
   "final_gate": {
-    "revision": "9e89a5913f26e7d062347362a3cad773ccd09396",
-    "package_revision_tested": "3c7e2183a194c86d10390a3f2eda5524516ba50a",
-    "note": "Records the T1-T4 delivery gate, not the cycle-1 rework. Run once after task 4, on the evidence commit 9e89a59, whose product bytes under plugins/, tests/ and tools/ are identical to the tested package revision 3c7e218 (9e89a59 adds only receipt, source-map and report evidence). A candidate fix for the two spawn-failure nodes was written during this round and reverted before this gate, so no product byte changed.",
+    "revision": "6888765da6b57ba44e464f9ccfca3e19c1ab1be5",
+    "package_revision_tested": "6888765da6b57ba44e464f9ccfca3e19c1ab1be5",
+    "note": "Run at HEAD 6888765 before the source map was regenerated. The working tree had only three autopilot store files dirty (dispatch-metrics.jsonl, ledger/dispatch-metrics.jsonl, state.json); no file under plugins/, tests/ or tools/ was dirty.",
     "commands": [
       {
         "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q",
         "exit_code": 1,
-        "passed": 967,
-        "failed": 23,
+        "passed": 1212,
+        "failed": 24,
         "skipped": 0,
-        "duration_seconds": 254.02,
-        "log": "docs/dev/tmp/gate-9e89a59.log"
+        "duration_seconds": 294.06
       },
       {
         "command": "python3 -m unittest discover -s scripts",
@@ -259,15 +489,16 @@
         "tests/autopilot/test_controller_owner_recovery.py::OwnerRecoveryTest::test_missing_or_corrupt_staged_credentials_cannot_finish_an_intent"
       ],
       "ap00018_controller_count": 19,
-      "ap00018_controller_ownership": "AP00018 controller kernel, separately tracked and on hold. Observed red in this run, recorded and not fixed, masked or relabelled by AP00013.",
-      "ap00013_contract_conflict": [
-        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[missing-False]",
-        "tests/autopilot/test_cap_recovery_helpers.py::test_spawn_failure_is_controlled_and_preserves_outputs[not-executable-False]",
-        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_creates_parents_and_a_fresh_unbuffered_binary_file",
-        "tests/autopilot/test_local_paths.py::SafeSinkOpenerTest::test_sink_opener_refuses_symlinked_parents_and_replaces_symlinked_leaf"
+      "ap00018_controller_ownership": "External deferral owned by AP 00018 (stub 00035, admission row R7). Observed red in this run, recorded and not fixed, masked or relabelled by AP00013.",
+      "ap00013_v3_stale_source_map": [
+        "tests/autopilot/test_helper_provenance_real.py::test_new_helper_files_are_owned_and_digested_from_current_bytes",
+        "tests/autopilot/test_helper_provenance_real.py::test_source_audit_accepts_the_generated_map",
+        "tests/autopilot/test_helper_provenance_real.py::test_generator_check_accepts_the_committed_map",
+        "tests/autopilot/test_package.py::TargetPackageTest::test_content_roster_matches_frozen_inventory_and_actual_package_bytes",
+        "tests/autopilot/test_package.py::TargetPackageTest::test_readme_retains_every_source_heading_with_completed_adaptation_receipts"
       ],
-      "ap00013_contract_conflict_ownership": "AP00013 v2 task 2. These four encode the verify-path log-sink contract that task 2 replaced: no residual log after a failed spawn, truncation of an existing sink on reopen, and replacement of a symlinked leaf. Task 2's own tests pin the opposite contract: tests/autopilot/test_helper_recovery_v2_sinks.py::test_verification_preserves_its_outputs_on_a_spawn_failure_but_leaves_an_empty_log[absent-program|unexecutable-program] assert the log exists and is empty after a failed spawn. Measured: all six nodes pass at cce5dad and four fail here, so these are regressions, not older defects. A candidate repair that reused _open_result_sink/_close_result_sink for the log leaf made the two spawn-failure nodes green and broke the two task-2 sink nodes; it was reverted rather than shipped. No implementation satisfies both contracts without branching on a pathname, so the choice of contract and the retirement of the superseded tests belong to the completion review, which carries this as a recorded deferred item."
+      "ap00013_v3_stale_source_map_ownership": "AP00013 v3 defect at this revision. All five fail on digests: the committed tools/autopilot/source-map.json still holds pre-v3 hashes (log_sink_refusal.py blob sha256 ba4a7638... expected, 60e7303f... actual; README artifact sha256 b55c4e4e... expected, 60ebfab1... actual; source audit 'Inventory basis digest mismatch: expanded'; generator --check 'is not the generated helper map'). The map is regenerated after this receipt is written; the post-generator result of these files is recorded in 00013-helper-recovery-v3.md, not here."
     },
-    "real_host": "unavailable: no Claude Code, Codex or Kiro host execution of the packaged helpers was run; nothing is published or installed and no host profile is certified."
+    "real_host": "real host evidence: not run. No live install or publication was authorized."
   }
 }

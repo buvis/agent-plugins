@@ -63,7 +63,7 @@
       "source_asset_id": "README.md",
       "destination_path": "plugins/autopilot/README.md",
       "source_blob_sha256": "de15bf433269ecd2b2a670ae694d8ab1176831e15c415a9117bc507fbae48b70",
-      "destination_blob_sha256": "b55c4e4e334e5e2f6b520b640f2a9f1316ba94f8ab78a9a76163b8c9cd25b91e",
+      "destination_blob_sha256": "60ebfab1f9c0b09f20275c14801797f8a37f03c9dd4aeb19d7e806a687d0ef6d",
       "adaptation_reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
       "disposition": "adapted",
       "planned_disposition": "adapted",
@@ -161,8 +161,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "plugins/autopilot/README.md",
-        "artifact_sha256": "b55c4e4e334e5e2f6b520b640f2a9f1316ba94f8ab78a9a76163b8c9cd25b91e",
-        "tested_package_revision": "0ed4c17ff964b04104b3961a83a0c8e5563b0f3a"
+        "artifact_sha256": "60ebfab1f9c0b09f20275c14801797f8a37f03c9dd4aeb19d7e806a687d0ef6d",
+        "tested_package_revision": "6888765da6b57ba44e464f9ccfca3e19c1ab1be5"
       }
     },
     {
@@ -7233,7 +7233,7 @@
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/CHANGELOG.md",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "fdd15d5db7913287ce3a394e6ea284dde9d0e3a455433151ed70e58acab847fa",
+      "destination_blob_sha256": "f2e5c9f57196e3e10e8246a1ca4c51c3e8284fd4e4f38f9a8f0f65d35b5ad97d",
       "adaptation_reason": "Newly authored AP00012 foundation file; no pinned source asset or source sections. Delivery-only evidence records packaged bytes, not runtime or profile certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7252,8 +7252,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "plugins/autopilot/CHANGELOG.md",
-        "artifact_sha256": "fdd15d5db7913287ce3a394e6ea284dde9d0e3a455433151ed70e58acab847fa",
-        "tested_package_revision": "0ed4c17ff964b04104b3961a83a0c8e5563b0f3a"
+        "artifact_sha256": "f2e5c9f57196e3e10e8246a1ca4c51c3e8284fd4e4f38f9a8f0f65d35b5ad97d",
+        "tested_package_revision": "6888765da6b57ba44e464f9ccfca3e19c1ab1be5"
       }
     },
     {
@@ -7360,7 +7360,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7387,7 +7387,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7414,7 +7414,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7441,7 +7441,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7468,7 +7468,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7495,7 +7495,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7522,7 +7522,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7530,7 +7530,7 @@
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/scripts/log_sink_refusal.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "60e7303f3114100293b14510fb08cac5f0b7811015fe8660c777c89ef34dbf2f",
+      "destination_blob_sha256": "ba4a76382474594a7e1b5ca1d55d5775533a8a15addff8c5ffdaa3049805c604",
       "adaptation_reason": "Newly authored AP00013 local helper; no pinned source asset or source sections. Delivery evidence records packaged bytes, not controller execution or host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7549,7 +7549,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7557,7 +7557,7 @@
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/scripts/review_stage.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "30ac740d15bfdd1d39f9108f7c184dac86a9118ddbfd4d89c595b59a6b4f5891",
+      "destination_blob_sha256": "9b805cc1eb552f80f25630c50882451f8547caf8fe088c179f2140df1f5ca6a0",
       "adaptation_reason": "Newly authored AP00013 local helper; no pinned source asset or source sections. Delivery evidence records packaged bytes, not controller execution or host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7576,7 +7576,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7603,7 +7603,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7630,7 +7630,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7657,7 +7657,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7684,7 +7684,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
@@ -7692,7 +7692,7 @@
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/scripts/verification.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "9c1bac354695ec6c64a02a92a7392d1be74be209b1f9488cd3e2412ae9501a54",
+      "destination_blob_sha256": "200bc8dfe295ec977cfcda420bc83cecc2048c9791de439acec965f4abbcb1c8",
       "adaptation_reason": "Newly authored AP00013 local helper; no pinned source asset or source sections. Delivery evidence records packaged bytes, not controller execution or host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7711,7 +7711,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "ce5ba0a69c2423a291c3c89e1214df3427e5491db3fe6e2893d8752373e3ef2a",
+        "artifact_sha256": "bd7c99981135de4c852992c36028be53a744a05bbe6c422243f04d8fe16a10ca",
         "tested_package_revision": null
       }
     },
