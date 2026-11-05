@@ -288,7 +288,18 @@ def _write_artifact(art: dict, sink) -> dict | None:
     """Writes `art` into the already-open sink proven usable before the
     spawn, and closes it. Each failing sink operation becomes its own
     controlled error instead of a traceback, and an already decided write
-    failure is not overridden by a later close failure. None on success."""
+    failure is not overridden by a later close failure. None on success.
+    On failure the written inode is emptied, or failing that given a NUL
+    first byte, through a descriptor kept from the start, wherever its name
+    points now; if both fail, the reason says so."""
+    try:
+        keep = os.dup(sink.fileno())
+    except OSError as error:
+        try:
+            sink.close()
+        except OSError:
+            pass
+        return {"error": "sink-write-failed", "reason": str(error)}
     failure: dict | None = None
     try:
         sink.truncate(0)  # The opener preserves prior bytes; this record replaces them.
@@ -301,6 +312,20 @@ def _write_artifact(art: dict, sink) -> dict | None:
         except OSError as error:
             if failure is None:
                 failure = {"error": "sink-close-failed", "reason": str(error)}
+    if failure is not None:
+        try:
+            os.ftruncate(keep, 0)
+        except OSError as truncate_error:
+            try:
+                os.pwrite(keep, b"\0", 0)
+            except OSError as pwrite_error:
+                failure["reason"] += (
+                    f"; artifact invalidation failed: {truncate_error}; {pwrite_error}"
+                )
+    try:
+        os.close(keep)
+    except OSError:
+        pass
     return failure
 
 
@@ -362,24 +387,6 @@ def _unlink_pinned(pin: _Pin) -> None:
         pass
 
 
-def _empty_pinned(pin: _Pin) -> None:
-    """Truncates the pinned leaf to zero bytes only while it is still the
-    very inode that was opened. Any failure is swallowed."""
-    parent_fd, name, identity, _ = pin
-    try:
-        info = os.lstat(name, dir_fd=parent_fd)
-        if (info.st_dev, info.st_ino) == identity:
-            fd = os.open(name, os.O_WRONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent_fd)
-            try:
-                opened = os.fstat(fd)
-                if (opened.st_dev, opened.st_ino) == identity:
-                    os.ftruncate(fd, 0)
-            finally:
-                os.close(fd)
-    except OSError:
-        pass
-
-
 def _close_pin(pin: _Pin) -> None:
     """Closes the pinned parent descriptor; a failure must not override the
     result already decided."""
@@ -394,19 +401,16 @@ def _close_result_sink(sink, pin: _Pin, drop: bool, untrusted: bool) -> None:
     says no record reached the writer that would have closed the sink, so it
     is closed here and a leaf this run created is removed, while a leaf that
     already existed stays exactly as it was. `untrusted` says a record was
-    written but its write or close failed: it must not stay reusable, so a
-    leaf this run created is removed and an existing one is emptied. The
-    pinned descriptor is closed on every path."""
+    written but its write or close failed: `_write_artifact` already emptied
+    it, and a leaf this run created is removed as well. The pinned
+    descriptor is closed on every path."""
     if drop:
         try:
             sink.close()
         except OSError:
             pass
-    if drop or untrusted:
-        if pin[3]:
-            _unlink_pinned(pin)
-        elif untrusted:
-            _empty_pinned(pin)
+    if (drop or untrusted) and pin[3]:
+        _unlink_pinned(pin)
     _close_pin(pin)
 
 
