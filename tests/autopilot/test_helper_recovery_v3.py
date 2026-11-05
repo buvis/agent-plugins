@@ -1,0 +1,545 @@
+"""Recovery v3: symlink refusal is anchored to the leading spelling of the project root."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+from typing import Any
+
+import pytest
+from test_helper_recovery_v2 import (
+    ARTIFACT,
+    commit_repo,
+    failure_shape,
+    reap,
+    spy_on_spawn,
+)
+from test_helper_recovery_v2_sinks import CHILD_OUTPUT, seed
+from test_helper_rework_sinks import (
+    commit_link,
+    gate_at,
+    leave_untouched,
+    spellings_of,
+    swap_log_before_open,
+    token_child,
+)
+from test_local_boundary import World, library, make_world
+
+PARENT = "has a parent-directory component"
+RETURN_LOG = b"RETURNED-LOG-SENTINEL-8a41\n"
+RETURN_ART = b"RETURNED-ARTIFACT-SENTINEL-8a42\n"  # differs from RETURN_LOG
+RACE_LOG = b"RACED-LOG-SENTINEL-8a43\n"
+SPELLS = [
+    ("resolved", "resolved"),
+    ("alias", "alias"),
+    ("alias", "resolved"),
+    ("resolved", "alias"),
+]
+SPELL_IDS = [f"{root}-root-{out}-outputs" for root, out in SPELLS]
+
+
+@pytest.fixture
+def world(tmp_path: Path) -> World:
+    return make_world(tmp_path)
+
+
+@pytest.fixture
+def isolated_git(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "xdg"))
+
+
+def digest(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def spy_on_os_open(monkeypatch: pytest.MonkeyPatch) -> list[str]:
+    """Records every os.open call, so a refusal can be proven to come before any open."""
+    real = os.open
+    calls: list[str] = []
+
+    def spy(path: Any, flags: int, *args: Any, **kwargs: Any) -> int:
+        calls.append(os.fsdecode(path))
+        return real(path, flags, *args, **kwargs)
+
+    monkeypatch.setattr(os, "open", spy)
+    return calls
+
+
+def build_tree(tmp_path: Path) -> dict[str, Path]:
+    """A plain directory root with every spelling and link shape the anchor must tell apart."""
+    base = tmp_path.resolve()
+    root = base / "root"
+    for sub in ("logs", "sub", "docs/tmp"):
+        (root / sub).mkdir(parents=True)
+    (base / "links").mkdir()
+    (base / "links" / "alias").symlink_to(root, target_is_directory=True)
+    (base / "x").mkdir()
+    (base / "x" / "anc").symlink_to(base, target_is_directory=True)
+    (base / "ext").mkdir()
+    (base / "ext" / "back").symlink_to(root, target_is_directory=True)
+    (root / "sub" / "out").symlink_to(base / "ext", target_is_directory=True)
+    (root / "self").symlink_to(root, target_is_directory=True)
+    (root / "swap").symlink_to(base / "ext", target_is_directory=True)
+    (root / "loop").symlink_to(root / "loop")
+    (base / "loopy").symlink_to(base / "loopy")
+    (base / "root-x" / "logs").mkdir(parents=True)
+    (base / "side").mkdir()
+    return {
+        "base": base,
+        "root": root,
+        "alias": base / "links" / "alias",
+        "anc": base / "x" / "anc",
+        "ext": base / "ext",
+        "sibling": base / "root-x",
+    }
+
+
+# --- _root_anchor counts the leading root spelling, shortest first ------------------------------
+
+
+ANCHOR_CASES = [
+    "resolved",
+    "alias-path",
+    "ancestor-path",
+    "alias-root",
+    "root-itself",
+    "shortest",
+    "return-link-spelling",
+    "parent-below-root",
+    "parent-in-spelling",
+    "loop-below",
+    "relative",
+    "empty",
+    "near-miss-sibling",
+    "loop-above",
+    "outside",
+]
+
+
+@pytest.mark.parametrize("case", ANCHOR_CASES)
+def test_sink_alias_root_anchor_counts_the_shortest_prefix_that_spells_the_root(
+    tmp_path: Path,
+    case: str,
+) -> None:
+    t = build_tree(tmp_path)
+    root, n = t["root"], len(t["root"].parts)
+    cases = {
+        "resolved": (root / "logs" / "a.log", root, n),
+        "alias-path": (t["alias"] / "logs" / "a.log", root, n + 1),
+        "ancestor-path": (t["anc"] / "root" / "logs" / "a.log", root, n + 2),
+        "alias-root": (root / "logs" / "a.log", t["alias"], n),
+        "root-itself": (root, root, n),
+        "shortest": (root / "sub" / "out" / "back" / "logs" / "a.log", root, n),
+        "return-link-spelling": (t["ext"] / "back" / "logs" / "a.log", root, n + 1),
+        "parent-below-root": (root / ".." / "root" / "out", root, n),
+        "parent-in-spelling": (t["base"] / "side" / ".." / "root" / "out", root, n + 2),
+        "loop-below": (root / "loop" / "x", root, n),
+        "relative": (Path("root/logs/a.log"), root, None),
+        "empty": (Path(""), root, None),
+        "near-miss-sibling": (t["sibling"] / "logs" / "a.log", root, None),
+        "loop-above": (t["base"] / "loopy" / "root" / "a.log", root, None),
+        "outside": (t["ext"] / "a.log", root, None),
+    }
+    path, given_root, expected = cases[case]
+    assert library("log_sink_refusal")._root_anchor(path, given_root) == expected
+
+
+# --- _symlinked_component checks every component after the anchor, with no other stop rule ------
+
+
+SYMLINK_CASES = [
+    ("return-to-root-below", "root", "shortest", True),
+    ("return-to-root-alias-root", "alias", "shortest", True),
+    ("return-to-root-alias-path", "root", "alias-shortest", True),
+    ("link-to-root-itself", "root", "self", True),
+    ("loop-below-root", "root", "loop", True),
+    ("fail-closed-outside", "root", "outside", True),
+    ("plain-alias-root", "alias", "plain", False),
+    ("plain-ancestor-path", "root", "ancestor", False),
+    ("the-root-itself", "root", "root", False),
+]
+
+
+@pytest.mark.parametrize(
+    ("case", "root_key", "path_key", "expected"),
+    SYMLINK_CASES,
+    ids=[case[0] for case in SYMLINK_CASES],
+)
+def test_sink_alias_symlinked_component_sees_every_link_below_the_root_spelling(
+    tmp_path: Path,
+    case: str,
+    root_key: str,
+    path_key: str,
+    expected: bool,
+) -> None:
+    t = build_tree(tmp_path)
+    root = t["root"]
+    paths = {
+        "shortest": root / "sub" / "out" / "back" / "logs" / "a.log",
+        "alias-shortest": t["alias"] / "sub" / "out" / "back" / "logs" / "a.log",
+        "self": root / "self" / "logs" / "a.log",
+        "loop": root / "loop" / "x",
+        "outside": t["ext"] / "a.log",
+        "plain": root / "logs" / "a.log",
+        "ancestor": t["anc"] / "root" / "logs" / "a.log",
+        "root": root,
+    }
+    sink = library("log_sink_refusal")
+    given_root = t[root_key]
+    assert (
+        sink._symlinked_component(paths[path_key], given_root, given_root) is expected
+    ), case
+
+
+# --- refuse and _pinned_parent_fd reject `..` below the root before opening anything -----------
+
+
+@pytest.mark.parametrize(
+    ("case", "parts", "expected"),
+    [
+        ("parent-inside", ("sub", "..", "out.log"), PARENT),
+        ("parent-at-root", ("..", "repo", "out.log"), PARENT),
+        ("dotted-leaf", ("sub", "..log"), None),
+        ("dotted-dir", ("sub..", "out.log"), None),
+    ],
+    ids=["sub-dotdot-out", "dotdot-root-out", "near-miss-leaf", "near-miss-dir"],
+)
+def test_sink_alias_refuse_names_a_parent_directory_component_below_the_root(
+    tmp_path: Path,
+    isolated_git: None,
+    monkeypatch: pytest.MonkeyPatch,
+    case: str,
+    parts: tuple[str, ...],
+    expected: str | None,
+) -> None:
+    project = commit_repo(tmp_path.resolve() / "repo", {"src/app.py": "a\n"})
+    (project / "sub").mkdir()
+    sink = library("log_sink_refusal")
+    opened = spy_on_os_open(monkeypatch)
+    assert sink.refuse(project.joinpath(*parts), project) == expected, case
+    if expected is not None:
+        assert opened == [], f"refuse opened {opened} before refusing a '..' path"
+
+
+def test_sink_alias_refuse_accepts_a_parent_component_inside_the_root_spelling(
+    tmp_path: Path,
+    isolated_git: None,
+) -> None:
+    """Only components after the root spelling count; a `..` that spells the root is fine."""
+    base = tmp_path.resolve()
+    project = commit_repo(base / "repo", {"src/app.py": "a\n"})
+    (base / "side").mkdir()
+    sink = library("log_sink_refusal")
+    assert (
+        sink.refuse(base / "side" / ".." / "repo" / "logs" / "a.log", project) is None
+    )
+    assert (
+        sink.refuse(base / "side" / ".." / "repo" / ".." / "repo" / "a.log", project)
+        == PARENT
+    )
+
+
+@pytest.mark.parametrize(
+    "case", ["sub-dotdot", "dotdot-root", "near-miss-sibling", "outside", "relative"]
+)
+def test_sink_alias_pinned_parent_fd_refuses_before_opening_any_descriptor(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    case: str,
+) -> None:
+    t = build_tree(tmp_path)
+    root = t["root"]
+    parents = {
+        "sub-dotdot": root / "sub" / "..",
+        "dotdot-root": root / ".." / "root",
+        "near-miss-sibling": t["sibling"] / "logs",
+        "outside": t["ext"],
+        "relative": Path("root/logs"),
+    }
+    sink = library("log_sink_refusal")
+    opened = spy_on_os_open(monkeypatch)
+    with pytest.raises(OSError):
+        os.close(sink._pinned_parent_fd(parents[case], root))
+    assert opened == [], f"{case}: opened {opened} before refusing"
+
+
+@pytest.mark.parametrize(
+    ("case", "root_key", "parent_parts", "real_parts"),
+    [
+        ("logs-alias-root", "alias", ("root", "logs"), ("logs",)),
+        ("docs-alias-parent", "root", ("alias", "docs", "tmp"), ("docs", "tmp")),
+        ("root-itself", "alias", ("root",), ()),
+        ("ancestor-parent", "root", ("anc", "root", "logs"), ("logs",)),
+    ],
+)
+def test_sink_alias_pinned_parent_fd_opens_the_named_directory_under_any_root_spelling(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    case: str,
+    root_key: str,
+    parent_parts: tuple[str, ...],
+    real_parts: tuple[str, ...],
+) -> None:
+    t = build_tree(tmp_path)
+    parent = t[parent_parts[0]].joinpath(*parent_parts[1:])
+    expected = os.stat(t["root"].joinpath(*real_parts))
+    opened = spy_on_os_open(monkeypatch)
+    fd = library("log_sink_refusal")._pinned_parent_fd(parent, t[root_key])
+    try:
+        got = os.fstat(fd)
+    finally:
+        os.close(fd)
+    assert (got.st_dev, got.st_ino) == (expected.st_dev, expected.st_ino), case
+    assert opened, "the descriptor did not come from os.open"
+
+
+@pytest.mark.parametrize(
+    ("case", "root_key", "link"),
+    [
+        ("outward-link-alias-root", "alias", "swap"),
+        ("link-to-root-itself", "root", "self"),
+    ],
+)
+def test_sink_alias_pinned_parent_fd_refuses_a_symlink_below_the_root(
+    tmp_path: Path,
+    case: str,
+    root_key: str,
+    link: str,
+) -> None:
+    t = build_tree(tmp_path)
+    with pytest.raises(OSError):
+        os.close(
+            library("log_sink_refusal")._pinned_parent_fd(t["root"] / link, t[root_key])
+        )
+
+
+# --- run_verification: leave-and-return paths are refused before the spawn ----------------------
+
+
+def leave_and_return(
+    world: World, tmp_path: Path, case: str, pointee: Path
+) -> tuple[Path, Path]:
+    """R/sub/out (committed) -> an outside directory whose `back` link returns to `pointee`."""
+    (world.target.resolve() / "sub").mkdir()
+    ext = tmp_path / f"{case}-ext"
+    ext.mkdir()
+    link = commit_link(world, "sub/out", ext)
+    back = ext / "back"
+    back.symlink_to(pointee, target_is_directory=True)
+    return link, back
+
+
+def assert_refused_before_spawn(
+    report: dict, marker: Path, sentinels: dict[Path, str]
+) -> None:
+    assert (report["schema_version"], report["ok"]) == (1, False), report
+    assert report["error"] == "unsafe-artifact-path", report
+    assert not marker.exists(), "the child ran against an output path through a symlink"
+    for path, before in sentinels.items():
+        assert digest(path) == before, f"the refused run rewrote {path}"
+
+
+def run_returning(
+    world: World,
+    tmp_path: Path,
+    spelling: tuple[str, str],
+    through: str,
+    returns_to: str | None,
+) -> tuple[dict, Path, dict[Path, str], Path]:
+    """`returns_to` names the below-root directory `back` points at; None means the root."""
+    spellings = spellings_of(world, tmp_path)
+    real = spellings["resolved"]
+    landing = real / returns_to if returns_to else real
+    case = f"{through}-{spelling[0]}-{spelling[1]}-{returns_to or 'root'}"
+    leave_and_return(world, tmp_path, case, landing)
+    below = Path() if returns_to else Path("logs")  # where the returned output lands
+    name, body = ("returned.log", RETURN_LOG) if through == "log" else ("returned.json", RETURN_ART)
+    held = seed(landing / below / name, body)
+    sentinels = {held: digest(held)}
+    root, spelled = spellings[spelling[0]], spellings[spelling[1]]
+    via = spelled / "sub" / "out" / "back" / below
+    log = via / name if through == "log" else spelled / "logs" / f"{case}-plain.log"
+    artifact = via / name if through == "artifact" else spelled / ARTIFACT
+    marker = tmp_path / f"{case}-marker.txt"
+    argv = token_child(tmp_path, f"{case}-child", "BACK-TOKEN-8a44", marker)
+    report = gate_at(world, argv, root, log, artifact)
+    return report, marker, sentinels, real / "logs" / f"{case}-plain.log"
+
+
+@pytest.mark.parametrize("through", ["log", "artifact"])
+@pytest.mark.parametrize("spelling", SPELLS, ids=SPELL_IDS)
+def test_sink_alias_a_path_returning_to_a_below_root_directory_is_refused(
+    world: World,
+    tmp_path: Path,
+    isolated_git: None,
+    through: str,
+    spelling: tuple[str, str],
+) -> None:
+    """Control (rows 1-2): already refused at v2 by test_helper_rework_sinks R-D1."""
+    report, marker, sentinels, plain = run_returning(
+        world, tmp_path, spelling, through, "sub2"
+    )
+    assert_refused_before_spawn(report, marker, sentinels)
+    assert not plain.exists(), "the refused run wrote the other output"
+    assert not (world.target.resolve() / ARTIFACT).exists()
+
+
+@pytest.mark.parametrize("through", ["log", "artifact"])
+@pytest.mark.parametrize("spelling", SPELLS, ids=SPELL_IDS)
+def test_sink_alias_a_path_returning_through_a_link_to_the_root_itself_is_refused(
+    world: World,
+    tmp_path: Path,
+    isolated_git: None,
+    through: str,
+    spelling: tuple[str, str],
+) -> None:
+    """Row 3, fail-first: `back` points at the root, so a component below it spells the root."""
+    report, marker, sentinels, plain = run_returning(
+        world, tmp_path, spelling, through, None
+    )
+    assert_refused_before_spawn(report, marker, sentinels)
+    assert not plain.exists(), "the refused run wrote the other output"
+    assert not (world.target.resolve() / ARTIFACT).exists()
+
+
+@pytest.mark.parametrize("through", ["log", "artifact"])
+@pytest.mark.parametrize(
+    "dotted",
+    [("logs", "..", "logs"), ("..", "target project", "logs")],
+    ids=["inner-dotdot", "dotdot-through-root"],
+)
+def test_sink_alias_an_output_path_with_a_parent_component_below_the_root_is_refused(
+    world: World,
+    tmp_path: Path,
+    isolated_git: None,
+    through: str,
+    dotted: tuple[str, ...],
+) -> None:
+    real = world.target.resolve()
+    (real / "logs").mkdir(exist_ok=True)
+    assert real.name == "target project"
+    case = f"{through}-{dotted[0]}"
+    marker = tmp_path / f"{case}-marker.txt"
+    argv = token_child(tmp_path, f"{case}-child", "DOTDOT-TOKEN-8a45", marker)
+    log = (
+        real.joinpath(*dotted, f"{case}.log")
+        if through == "log"
+        else real / "logs" / "p.log"
+    )
+    artifact = (
+        real.joinpath(*dotted, f"{case}.json")
+        if through == "artifact"
+        else real / ARTIFACT
+    )
+    report = gate_at(world, argv, real, log, artifact)
+    assert_refused_before_spawn(report, marker, {})
+    for name in (f"{case}.log", f"{case}.json", "p.log"):
+        assert not (real / "logs" / name).exists(), f"the refused run wrote {name}"
+    assert not (real / ARTIFACT).exists()
+
+
+# --- run_verification: a parent swapped for a symlink after the judgment fails the sink ---------
+
+
+def swap_parent_for_a_link_to_itself(log: Path) -> None:
+    """Moves the log's parent aside and puts a symlink to the moved directory under its name.
+
+    The leaf keeps its inode, so only refusing to follow the link keeps the log unwritten.
+    """
+    held = log.parent.with_name(log.parent.name + "-held")
+    log.parent.rename(held)
+    log.parent.symlink_to(held.resolve(), target_is_directory=True)
+
+
+@pytest.mark.parametrize("swap", [True, False], ids=["swapped", "untouched"])
+@pytest.mark.parametrize(
+    "spelling",
+    [("alias", "resolved"), ("resolved", "alias"), ("ancestor", "alias")],
+    ids=[
+        "alias-root-resolved-log",
+        "resolved-root-alias-log",
+        "ancestor-root-alias-log",
+    ],
+)
+def test_sink_alias_a_log_parent_swapped_for_a_symlink_after_refuse_fails_the_sink(
+    world: World,
+    tmp_path: Path,
+    isolated_git: None,
+    monkeypatch: pytest.MonkeyPatch,
+    spelling: tuple[str, str],
+    swap: bool,
+) -> None:
+    """Row 4, fail-first: the descent below the root never follows a link, whatever spelling.
+
+    The swapped-in link leads back to the same directory inside the root, so resolving the
+    parent would land under the root and write the existing log through the link.
+    """
+    spellings = spellings_of(world, tmp_path)
+    real = spellings["resolved"]
+    held = seed(real / "logs" / "raced.log", RACE_LOG)
+    before = digest(held)
+    case = f"{spelling[0]}-{spelling[1]}-{swap}"
+    root, spelled = spellings[spelling[0]], spellings[spelling[1]]
+    log = spelled / "logs" / "raced.log"
+    marker = tmp_path / f"{case}-marker.txt"
+    argv = token_child(tmp_path, f"{case}-child", "RACE-TOKEN-8a46", marker)
+    replace = swap_parent_for_a_link_to_itself if swap else leave_untouched
+    swapped = swap_log_before_open(monkeypatch, log, replace)
+    children = spy_on_spawn(monkeypatch, argv)
+    try:
+        report = gate_at(world, argv, root, log, spelled / ARTIFACT)
+    finally:
+        reap(children)
+    assert swapped == [log], "the window before the sink opened was never reached"
+    if not swap:
+        assert report["ok"] is True, report
+        assert CHILD_OUTPUT in held.read_bytes(), "the untouched log was never written"
+        return
+    failure_shape(report, "sink-failed")
+    assert not marker.exists(), "the child ran against a sink reached through a symlink"
+    moved = real / "logs-held"
+    assert os.readlink(real / "logs") == str(moved)
+    assert sorted(os.listdir(moved)) == ["raced.log"]
+    assert digest(moved / "raced.log") == before, "the run wrote the log through the symlink"
+    assert not (real / ARTIFACT).exists()
+
+
+# --- run_verification: a root reached through a symlinked ancestor still succeeds ---------------
+
+
+@pytest.mark.parametrize(
+    ("root_spelling", "out_spelling", "token"),
+    [
+        ("ancestor", "ancestor", "ANC-TOKEN-8a47"),
+        ("ancestor", "resolved", "ANC-TOKEN-8a48"),
+        ("resolved", "ancestor", "ANC-TOKEN-8a49"),
+    ],
+)
+def test_sink_alias_a_root_reached_through_a_symlinked_ancestor_still_succeeds(
+    world: World,
+    tmp_path: Path,
+    isolated_git: None,
+    root_spelling: str,
+    out_spelling: str,
+    token: str,
+) -> None:
+    """Row 5, control: no symlink below the root, so the run is accepted and both sinks written."""
+    spellings = spellings_of(world, tmp_path)
+    real = spellings["resolved"]
+    root, spelled = spellings[root_spelling], spellings[out_spelling]
+    case = f"{root_spelling}-{out_spelling}"
+    marker = tmp_path / f"{case}-marker.txt"
+    argv = token_child(tmp_path, f"{case}-child", token, marker)
+    artifact = Path("docs", "dev", "tmp", f"{case}.json")
+    report = gate_at(
+        world, argv, root, spelled / "logs" / f"{case}.log", spelled / artifact
+    )
+    assert report["ok"] is True, report
+    assert marker.read_text("utf-8") == str(real)
+    assert token.encode() in (real / "logs" / f"{case}.log").read_bytes()
+    assert json.loads((real / artifact).read_bytes())["argv"] == argv
+    assert not (real / ARTIFACT).exists(), "the gate ignored the given artifact path"
