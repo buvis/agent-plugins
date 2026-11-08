@@ -1,0 +1,10 @@
+[
+  {
+    "cycle": 1,
+    "source": "fable",
+    "finding": "Artifact-sink parent swap under mixed spelling may already be pinned elsewhere",
+    "file": "tests/autopilot/test_helper_recovery_v3.py",
+    "command": "rg -n \"swap_artifact|artifact.*parent.*symlink|SPELLINGS\" tests/autopilot/test_helper_rework_sinks.py tests/autopilot/test_helper_recovery_v2_sinks.py",
+    "expectation": "Confirm a case that swaps the artifact's docs/dev/tmp parent for a symlink after refuse with root and artifact spelled differently and asserts sink-failed; if absent, add a through=[\"log\",\"artifact\"] axis to test_sink_alias_a_log_parent_swapped_for_a_symlink_after_refuse_fails_the_sink."
+  }
+]

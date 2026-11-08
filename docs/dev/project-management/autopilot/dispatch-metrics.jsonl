@@ -822,3 +822,8 @@
 {"id":"98eb5122","kind":"ivan","task":"4","queued_at":1793921257,"prompt_bytes":13394}
 {"id":"98eb5122","ended_at":1793921797,"elapsed_s":540,"outcome":"ok","detail":"3 provenance nodes pending commit"}
 {"kind":"handoff","site":"build","edge":"leave","at":1793922243,"phase":"review","prd":"00013-autopilot-session-helpers-v3.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794142974,"phase":"review","prd":"00013-autopilot-session-helpers-v3.md"}
+{"id":"a2c087a4","kind":"bob","task":"review-ap00013-v3-c1","queued_at":1794143583,"prompt_bytes":13155}
+{"id":"12e3301e","kind":"carl","task":"review-ap00013-v3-c1","queued_at":1794143583,"prompt_bytes":6618}
+{"id":"a2c087a4","ended_at":1794145873,"elapsed_s":2290,"outcome":"ok","detail":null}
+{"id":"12e3301e","ended_at":1794145877,"elapsed_s":2294,"outcome":"ok","detail":null}
