@@ -229,7 +229,7 @@
     "checked_at": "2026-10-25T22:40:48Z"
   },
   "tasks_total": 10,
-  "tasks_completed": 0,
+  "tasks_completed": 1,
   "replan_count": 0,
   "phases_completed": [],
   "cycle": 1,
@@ -274,13 +274,34 @@
       ],
       "blocked_by": [],
       "id": "1",
-      "status": "pending",
+      "status": "completed",
       "estimated_tokens": 56350,
       "est_context_peak": 76350,
       "model": "opus",
       "tier_reason": "contract",
       "qwen_eligible": false,
-      "qwen_excluded_reason": "tier"
+      "qwen_excluded_reason": "tier",
+      "usage_at_start": 132054,
+      "calls_at_start": 11,
+      "started_at": 1794157711,
+      "attempts": [
+        {
+          "outcome": "completed",
+          "implementor": "claude",
+          "model": "opus",
+          "pipeline": "full",
+          "cause": null,
+          "review_cycle": null,
+          "self_deslop": "noop",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "review": "failed:runner_unavailable",
+          "preflight_outcome": null
+        }
+      ],
+      "usage_at_done": 306920,
+      "calls_at_done": 104,
+      "done_at": 1794160787
     },
     {
       "name": "Build scripts/claude.py host adapter",
@@ -466,5 +487,7 @@
       "status": "pending"
     }
   ],
-  "contract_card": "step: build / plan->work edge, handed off for headroom | invariants: 10 tasks created for 00014 (contracts/hosts.json+hosts.py, claude.py, codex.py, gemini.py+test_sessions.py, jobs.py, guards.py, doctor.py+autopilot.py wiring, probe-host.py, build-compatibility.py+test_compatibility.py, source-map.json+CHANGELOG.md); design doc at docs/dev/project-management/designs/00014-autopilot-host-execution-v1-design.md (3/3 review dispatches, result ok); plan-expansion gate passed (exit 0); work_start_sha not yet captured | next: fresh build session resumes at Phase 3 (work) - capture work_start_sha and repo_root first (unset for this PRD), then invoke /autopilot:work"
+  "contract_card": "step: build / work, task-boundary handoff after task 1 | invariants: 00014-autopilot-host-execution-v1 \u2014 10 tasks, lane full, cycle 1; task 1 (hosts.py + contracts/hosts.json) completed and committed (3d2e4cc5f39fc09b46a551e1e04220fad3257bf3), its per-task reviewer (Pat/sonnet-run.sh) failed twice on this host's revoked OAuth and was recorded `review: \"failed:runner_unavailable\"` \u2014 PRD-level review lenses must cover it; work_start_sha=635e37640b82c66f8ed7e5063605ce4481f81407, repo_root=/Users/bob/git/src/github.com/buvis/agent-plugins (plain repo, no bare/work-tree split) | next: fresh build session resumes /autopilot:work at task 2 (tasks 2-10 pending; task dependencies per plan)",
+  "work_start_sha": "635e37640b82c66f8ed7e5063605ce4481f81407",
+  "repo_root": "/Users/bob/git/src/github.com/buvis/agent-plugins"
 }
