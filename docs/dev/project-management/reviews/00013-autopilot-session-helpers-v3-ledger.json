@@ -1,0 +1,98 @@
+[
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "`_is_inside_git_dir` still lets a `UnicodeDecodeError` or `ValueError` from the strict `text=True` decode escape `stage_review` as a traceback. This is the same defect class T3 fixes, and the design deferred it explicitly \"for the completion review\". A probe failure also reports \"artifact_root is inside git internals\", which is a false location fact. Consider catching the decode error and naming the probe failure in the refusal text.",
+    "file": "plugins/autopilot/scripts/review_stage.py:420",
+    "reason": "single-voice (ALICE only); a single-voice medium is discarded rather than reworked. The decode-error path is also the same out-of-scope class as R5: the PRD's T3 behavior names the timeout and OSError guard only."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "Delivery evidence stops at three unresolved provenance failures, although the supplied reviewed-revision results show only the 19 external controller failures. Append the final revision, command, result and provenance resolution to the recovery report; preserve earlier failed runs as history.",
+    "file": "docs/dev/project-management/autopilot/reports/00013-helper-recovery-v3.md:98",
+    "reason": "single-voice (BOB only). Substance is not lost: R4 carries the same stale-evidence defect at two-reviewer consensus and was classified fix, so the recovery report is updated by this cycle's rework regardless."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Commit 44bb21e reverts \"Tower\" to \"Lantern\" in two discovery files, which are outside the PRD's write paths and contradict the current vocabulary in AGENTS.md. The commit message gives a recorded user decision and a digest-pin reason, so this is accepted. It is worth noting so the next reader does not \"fix\" it back.",
+    "file": "docs/dev/project-management/discovery/00011-autopilot-agent-plugins-port.md:11",
+    "reason": "settled by recorded user decision 2026-11-08: the two digest-pinned discovery files keep their original Lantern wording. Both reviewers who raised it (ALICE here, EVE as R18) already concluded it is accepted, not a defect. Reverting the wording would re-break the provenance digests."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`_root_anchor` takes the shortest prefix whose realpath equals the root's realpath as \"the root spelling\". A path that starts outside the repository and enters it through a symlink to the root (for example `/out/back/logs/x` where `/out/back` is a link to the root) is therefore accepted as an alias spelling. It writes only inside the root, and it matches the spec's rule that a symlinked ancestor or alias of the root is allowed. Recorded only because the \"leaves and returns\" wording could be read more strictly.",
+    "file": "plugins/autopilot/scripts/log_sink_refusal.py:141",
+    "reason": "single-voice (BLAKE only), and he states himself that it matches the spec's root-alias rule and writes only inside the root. Not a defect: the shortest-prefix anchor is the designed behavior."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Mechanical replay reports 46 T1/T3 cases passing against the base. These include intentionally retained behavior and success controls; making every control fail would contradict the design's explicit regression-control requirement.",
+    "file": "tests/autopilot/test_helper_recovery_v3.py:197",
+    "reason": "the replay states a computed fact whose defect status depends on the PRD, and here it is by design. Eve counted all 46 per test function and found each to be a labelled control or a pin of behavior the rewrite had to preserve; forcing them red would delete the design's own regression controls. Same fact as R19."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Mechanical replay reports four artifact cases passing against the base. The four explicitly named controls preserve success and unchanged-name cleanup behavior; they are outside the corrective fail-first obligation.",
+    "file": "tests/autopilot/test_helper_recovery_v3_artifact.py:168",
+    "reason": "same reasoning as R13: the four are the declared `control-*` parametrizations, named as controls in the file's own docstring. Same fact as R20."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The full suite retains 19 AP00018 controller failures. They remain an external deferral and block pushing; repairing controller behavior is outside this PRD's authorized scope.",
+    "file": "N/A",
+    "reason": "settled external deferral. The 19 AP00018 controller nodes predate this PRD's base commit (b786f5a carried them) and the sequencing plan resumes AP00018 explicitly after v3 completes. Not this PRD's defect and not fixable within its write paths."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Receipt v3-T1 `command` holds a literal `...` elision (`-k sink_alias ... -q`) and `duration_seconds: \"not captured\"`; T1 exit criteria require exact commands",
+    "file": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json:36",
+    "reason": "merged into R10, which carries the same defect from BOB at the same receipt and was classified fix with found_by [BOB, EVE]. Discarded here only to avoid creating the same task twice; the elision IS being fixed."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Commit 44bb21e edits two digest-pinned discovery docs outside every PRD write path and reintroduces \"Lantern (provisional)\" wording the taxonomy settled as Tower on 2026-11-05",
+    "file": "docs/dev/project-management/discovery/00011-autopilot-agent-plugins-port.md:205",
+    "reason": "same settled user decision as R11 (2026-11-08: frozen files keep their original Lantern wording). Eve bucketed it KNOWN herself, citing that decision."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "[MECH] 46 touched tests in the new file pass against the pre-change code",
+    "file": "tests/autopilot/test_helper_recovery_v3.py",
+    "reason": "mechanical replay row, same fact as R13. A behavior-preserving control passes against the pre-change code by design; all 46 were enumerated as controls or preserved-behavior pins. The receipt records the honest red split (48 failed, 42 passed) for the corrective cases."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "[MECH] 4 touched tests in the artifact file pass against the pre-change code",
+    "file": "tests/autopilot/test_helper_recovery_v3_artifact.py",
+    "reason": "mechanical replay row, same fact as R14. The four are the declared `control-*` parametrizations; red split 16 failed / 4 passed recorded."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The source map has no helper-disposition row for `_root_anchor` (nor `_acquire_sink`, `_write_artifact`), and `_pinned_parent_fd`'s row still sits under `verification:` though it lives in log_sink_refusal; the generator's `log_sink_refusal` roster at update_helper_map.py:196 is a hardcoded pinned-source list",
+    "file": "tools/autopilot/source-map.json:285899",
+    "reason": "single-voice (EVE only) and out of this PRD's write paths: the roster lives in tools/autopilot/update_helper_map.py, which is read-only under v3. Eve bucketed it KNOWN for the same reason, and noted that file-level digest and adaptation rows do cover log_sink_refusal.py."
+  }
+]
