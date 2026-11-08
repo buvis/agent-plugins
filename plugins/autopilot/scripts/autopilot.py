@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import errno
 import hashlib
 import importlib
@@ -24,18 +25,19 @@ _CAPABILITIES = [
     "review-policy-v1", "review-evidence-v1", "review-fixtures-v1",
     "stage-review-v1", "group-findings-v1", "check-evidence-v1",
     "prepare-close-v1", "catchup-probe-v1", "verification-artifact-v1",
-    "controller-required-v1",
+    "controller-required-v1", "hosts-v1", "guards-v1", "diagnose-v1",
 ]
 _MODES = (
     "list_capabilities", "export_policy", "stage_review", "group_findings",
     "check_evidence", "prepare_close", "catchup_probe", "verify",
-    "controller_action",
+    "controller_action", "probe_host", "run_guard", "diagnose",
 )
 _COMPANIONS = {
     "out": ("export_policy",),
     "expected_context": ("check_evidence",),
     "policy": ("check_evidence",),
-    "project_root": ("catchup_probe", "verify"),
+    "context": ("run_guard",),
+    "project_root": ("catchup_probe", "verify", "probe_host", "diagnose"),
     "head_sha": ("verify",),
     "artifact": ("verify",),
     "log": ("verify",),
@@ -45,9 +47,12 @@ _REQUIRED = {
     "check_evidence": ("expected_context",),
     "catchup_probe": ("project_root",),
     "verify": ("project_root", "head_sha", "artifact", "log"),
+    "probe_host": ("project_root",),
+    "run_guard": ("context",),
+    "diagnose": ("project_root",),
 }
 _INPUTS = ("stage_review", "group_findings", "check_evidence",
-           "expected_context", "policy", "prepare_close")
+           "expected_context", "policy", "prepare_close", "context")
 _LIVE_STATE = ("docs", "dev", "project-management", "autopilot")
 
 
@@ -66,8 +71,11 @@ def _parser() -> argparse.ArgumentParser:
     modes.add_argument("--catchup-probe", action="store_true")
     modes.add_argument("--verify", action="store_true")
     modes.add_argument("--controller-action")
+    modes.add_argument("--probe-host")
+    modes.add_argument("--run-guard")
+    modes.add_argument("--diagnose", action="store_true")
     for flag in ("--out", "--expected-context", "--policy", "--project-root",
-                 "--artifact", "--log"):
+                 "--artifact", "--log", "--context"):
         parser.add_argument(flag, type=Path)
     parser.add_argument("--head-sha")
     parser.add_argument("--timeout", type=float)
@@ -166,6 +174,21 @@ def _catchup_probe(args: argparse.Namespace) -> tuple[dict, int]:
     return _helper("catchup").probe(args.project_root), 0
 
 
+def _probe_host(args: argparse.Namespace) -> tuple[dict, int]:
+    return asdict(_call(_helper("hosts").probe_host,
+                        {"host_id": args.probe_host, "project_root": args.project_root})), 0
+
+
+def _run_guard(args: argparse.Namespace) -> tuple[dict, int]:
+    return asdict(_call(_helper("guards").run_guard,
+                        {"duty": args.run_guard, "context": _read_json(args.context),
+                         "seam": None})), 0
+
+
+def _diagnose(args: argparse.Namespace) -> tuple[dict, int]:
+    return asdict(_helper("doctor").diagnose(project_root=args.project_root)), 0
+
+
 def _verify(args: argparse.Namespace) -> tuple[dict, int]:
     kwargs = {
         "argv": args.argv, "project_root": args.project_root,
@@ -184,6 +207,7 @@ _OPERATIONS = {
     "stage_review": _stage_review, "group_findings": _group_findings,
     "check_evidence": _check_evidence, "prepare_close": _prepare_close,
     "catchup_probe": _catchup_probe, "verify": _verify,
+    "probe_host": _probe_host, "run_guard": _run_guard, "diagnose": _diagnose,
 }
 
 

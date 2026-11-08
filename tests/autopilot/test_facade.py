@@ -23,6 +23,7 @@ CAPABILITIES = b'["review-policy-v1","review-evidence-v1","review-fixtures-v1"]\
 HELPER_OPERATIONS = [
     "stage-review-v1", "group-findings-v1", "check-evidence-v1", "prepare-close-v1",
     "catchup-probe-v1", "verification-artifact-v1", "controller-required-v1",
+    "hosts-v1", "guards-v1", "diagnose-v1",
 ]
 
 
