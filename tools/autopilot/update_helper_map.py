@@ -488,6 +488,15 @@ def upsert(rows: list[dict], field: str, row: dict) -> None:
     rows.append(row)
 
 
+def refresh_ap00014_digests(assets: list[dict], root: Path) -> None:
+    ap00014 = set(AP00014_DIGESTED)
+    for row in assets:
+        if row["destination_path"] in ap00014:
+            row["destination_blob_sha256"] = hashlib.sha256(
+                (root / row["destination_path"]).read_bytes()
+            ).hexdigest()
+
+
 def apply(
     document: dict,
     receipts: dict | None,
@@ -535,12 +544,7 @@ def apply(
                 "artifact_sha256": sha,
                 "tested_package_revision": revision,
             }
-    ap00014 = set(AP00014_DIGESTED)
-    for row in result["assets"]:
-        if row["destination_path"] in ap00014:
-            row["destination_blob_sha256"] = hashlib.sha256(
-                (root / row["destination_path"]).read_bytes()
-            ).hexdigest()
+    refresh_ap00014_digests(result["assets"], root)
     return result
 
 
