@@ -5,6 +5,7 @@
     "finding": "Artifact-sink parent swap under mixed spelling may already be pinned elsewhere",
     "file": "tests/autopilot/test_helper_recovery_v3.py",
     "command": "rg -n \"swap_artifact|artifact.*parent.*symlink|SPELLINGS\" tests/autopilot/test_helper_rework_sinks.py tests/autopilot/test_helper_recovery_v2_sinks.py",
-    "expectation": "Confirm a case that swaps the artifact's docs/dev/tmp parent for a symlink after refuse with root and artifact spelled differently and asserts sink-failed; if absent, add a through=[\"log\",\"artifact\"] axis to test_sink_alias_a_log_parent_swapped_for_a_symlink_after_refuse_fails_the_sink."
+    "expectation": "Confirm a case that swaps the artifact's docs/dev/tmp parent for a symlink after refuse with root and artifact spelled differently and asserts sink-failed; if absent, add a through=[\"log\",\"artifact\"] axis to test_sink_alias_a_log_parent_swapped_for_a_symlink_after_refuse_fails_the_sink.",
+    "result": "No covering node existed under either file. Added test_sink_alias_an_artifact_parent_swapped_for_a_symlink_after_refuse_fails_the_sink to tests/autopilot/test_helper_recovery_v3_artifact.py (AP 00013 v3 task 10, cycle 2): swaps the ARTIFACT's docs/dev/tmp parent for a symlink after refuse, parametrized over the same alias/resolved/ancestor root-and-output spellings as the log-parent race, asserts sink-failed, the child never ran, and the sentinel artifact bytes survive unchanged under the held directory. `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_helper_recovery_v3_artifact.py -q` -> 31 passed."
   }
 ]

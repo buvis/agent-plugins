@@ -11,10 +11,11 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 import pytest
-from test_helper_recovery_v2 import MARKER_CHILD, child_argv, failure_shape, reap, run_gate
-from test_helper_recovery_v2 import spy_on_spawn
+from test_helper_recovery_v2 import ARTIFACT, MARKER_CHILD, child_argv, failure_shape, reap
+from test_helper_recovery_v2 import run_gate, spy_on_spawn
 from test_helper_recovery_v2_sinks import ALT_ARTIFACT, PRIOR_ARTIFACT, seed
-from test_helper_rework_sinks import patch_opener
+from test_helper_rework_sinks import gate_at, leave_untouched, patch_opener, spellings_of
+from test_helper_rework_sinks import swap_log_before_open, token_child
 from test_local_boundary import World, library, make_world
 
 
@@ -28,6 +29,75 @@ def isolated_git(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
     monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "xdg"))
+
+
+# --- run_verification: an artifact parent swapped for a symlink after refuse fails the sink -----
+
+RACE_ARTIFACT = b'{"schema_version": 1, "reusable": true, "marker": "RACE-SENTINEL-8a50"}\n'
+
+
+def swap_artifact_parent_for_a_link_to_itself(artifact: Path) -> None:
+    """Moves the artifact's `tmp` ancestor aside and puts a symlink to it under its name.
+
+    The leaf keeps its inode, so only refusing to follow the link keeps the artifact unwritten.
+    """
+    tmp = next(p for p in artifact.parents if p.name == "tmp")
+    held = tmp.with_name("tmp-held")
+    tmp.rename(held)
+    tmp.symlink_to(held.resolve(), target_is_directory=True)
+
+
+@pytest.mark.parametrize("swap", [True, False], ids=["swapped", "untouched"])
+@pytest.mark.parametrize(
+    "spelling",
+    [("alias", "resolved"), ("resolved", "alias"), ("ancestor", "alias")],
+    ids=[
+        "alias-root-resolved-artifact",
+        "resolved-root-alias-artifact",
+        "ancestor-root-alias-artifact",
+    ],
+)
+def test_sink_alias_an_artifact_parent_swapped_for_a_symlink_after_refuse_fails_the_sink(
+    world: World,
+    tmp_path: Path,
+    isolated_git: None,
+    monkeypatch: pytest.MonkeyPatch,
+    spelling: tuple[str, str],
+    swap: bool,
+) -> None:
+    """The artifact-sink analogue of the log-parent race (test_helper_recovery_v3.py's
+    test_sink_alias_a_log_parent_swapped_for_a_symlink_after_refuse_fails_the_sink): the
+    descent to the artifact's directory never follows a link, whatever spelling names the
+    root or the artifact path."""
+    spellings = spellings_of(world, tmp_path)
+    real = spellings["resolved"]
+    held_artifact = seed(real / ARTIFACT, RACE_ARTIFACT)
+    before = held_artifact.read_bytes()
+    case = f"artifact-{spelling[0]}-{spelling[1]}-{swap}"
+    root, spelled = spellings[spelling[0]], spellings[spelling[1]]
+    log = real / "logs" / f"{case}.log"
+    artifact = spelled / ARTIFACT
+    marker = tmp_path / f"{case}-marker.txt"
+    argv = token_child(tmp_path, f"{case}-child", "ARTIFACT-RACE-TOKEN-8a50", marker)
+    replace = swap_artifact_parent_for_a_link_to_itself if swap else leave_untouched
+    swapped = swap_log_before_open(monkeypatch, artifact, replace)
+    children = spy_on_spawn(monkeypatch, argv)
+    try:
+        report = gate_at(world, argv, root, log, artifact)
+    finally:
+        reap(children)
+    assert swapped == [artifact], "the window before the sink opened was never reached"
+    if not swap:
+        assert report["ok"] is True, report
+        assert json.loads(held_artifact.read_bytes())["argv"] == argv
+        return
+    failure_shape(report, "sink-failed")
+    assert not marker.exists(), "the child ran against a sink reached through a symlink"
+    tmp_dir = real / ARTIFACT.parent
+    moved = tmp_dir.with_name(tmp_dir.name + "-held")
+    assert os.readlink(tmp_dir) == str(moved)
+    assert ARTIFACT.name in os.listdir(moved)
+    assert (moved / ARTIFACT.name).read_bytes() == before, "written through the link"
 
 
 # --- run_verification: a failed result artifact is invalidated through a kept descriptor --------
