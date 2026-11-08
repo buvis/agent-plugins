@@ -33,7 +33,9 @@ The orchestrator recorded these task numbers. Tess ran in each task too, but
 the record gives no separate outcome for her. The receipt lists the exact
 commands. The T1 green command keeps an elision after `-k sink_alias`, because
 the record holds it that way. T4 has no task-scoped run, so its receipt entry
-holds the full-suite gate run at `6888765`.
+holds the full-suite gate run at `6888765`. That run is the **pre**-regeneration
+gate. For the run that reflects the delivered state, see
+"## Gate at the reviewed head (`feca0d1`, after map regeneration)" below.
 
 Dispatch provenance (v3): Tess, Devon and Ivan ran as native Claude Code
 subagents `autopilot:worker-opus`, model parameter `opus`, effort configured
@@ -112,6 +114,26 @@ list. No receipt or map value was changed to get a result. The other two
 stale-map nodes from the gate (`test_new_helper_files_are_owned_and_digested_from_current_bytes`
 and `test_generator_check_accepts_the_committed_map`) now pass.
 
+## Gate at the reviewed head (`feca0d1`, after map regeneration)
+
+Measured at commit `feca0d1a519c46fd2782d1cfd29f5ba4d14ac36e`, the `head_sha`
+the cycle-1 completion review recorded. Raw log:
+`docs/dev/tmp/gate-ap00013-v3-c1.log`, summary line at `:467`.
+
+| command | exit | result |
+|---|---|---|
+| `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` | 1 | 19 failed, 1217 passed in 452.99s (0:07:32) |
+
+The log holds exactly 19 `FAILED` lines: 8 in `test_controller_capacity.py`, 7
+in `test_controller_owner.py`, 4 in `test_controller_owner_recovery.py`. All 19
+failures are the AP 00018 controller deferral (admission row R7) and nothing
+else.
+
+No `test_helper_provenance_real.py`, `test_provenance.py` or `test_package.py`
+node is among them. This verifies the hedge in the section above: the 3
+post-regeneration provenance failures did resolve once the receipt and map were
+committed. They are no longer open.
+
 ## Deferrals
 
 These are unchanged, as recorded in `00013-v3-admission.md`: R7 (AP 00018
@@ -125,5 +147,6 @@ Real host evidence: not run. No live install or publication was authorized.
 ## What this report does not claim
 
 It does not claim the full suite is green, that the completion review passed,
-that any real host is certified, or that the 3 post-regeneration provenance
-failures are resolved.
+that any real host is certified, or that the 19 AP 00018 controller failures are
+resolved. The 3 post-regeneration provenance failures are resolved, as the
+reviewed-head gate above shows.
