@@ -240,6 +240,8 @@ def test_failed_artifact_falls_back_to_a_nul_byte_then_reports_the_invalidation_
 DUP_CALLS = ("dup", "dup2")
 RECORD_ONE = {"schema_version": 1, "reusable": True, "marker": "DUP-RECORD-7a01"}
 RECORD_TWO = {"schema_version": 1, "reusable": True, "marker": "DUP-RECORD-7a02"}
+PAD = b"PRIOR-ARTIFACT-9c04-" * 256  # a prior record longer than any record stored over it
+LONG_ARTIFACT = b'{"schema_version": 1, "ok": true, "marker": "' + PAD + b'"}\n'
 
 
 def break_dup(monkeypatch: pytest.MonkeyPatch, inodes: set[int]) -> tuple[list[str], str]:
@@ -285,13 +287,20 @@ def test_write_artifact_closes_the_sink_and_keeps_a_prior_record_when_the_dup_fa
 def test_write_artifact_stores_the_record_over_a_prior_one_when_the_dup_succeeds(
     world: World, isolated_git: None,
 ) -> None:
-    """The accept case of the same shape: only the duplication's outcome differs."""
-    artifact = seed(world.target / "docs" / "dev" / "tmp" / "dup-control.json", PRIOR_ARTIFACT)
+    """The accept case of the same shape: only the duplication's outcome differs.
+
+    The prior record is longer than the stored one, so a leaf that is written over
+    without being emptied first keeps a tail and is no longer one JSON value.
+    """
+    artifact = seed(world.target / "docs" / "dev" / "tmp" / "dup-control.json", LONG_ARTIFACT)
     before = open_fds()
     with open(artifact, "r+b") as sink:
         assert library("verification")._write_artifact(RECORD_ONE, sink) is None
         assert open_fds() == before, "the stored record left the sink open"
-    assert json.loads(artifact.read_bytes()) == RECORD_ONE
+    stored = artifact.read_bytes()
+    assert json.loads(stored) == RECORD_ONE, stored  # json.loads rejects a surviving tail
+    assert PAD not in stored, "the prior record's bytes outlived it"
+    assert len(stored) < len(LONG_ARTIFACT) and stored.endswith(b"\n"), stored
 
 
 @pytest.mark.parametrize(("prior", "name"), [(PRIOR_ARTIFACT, "prior"), (ALT_ARTIFACT, "alt")],
