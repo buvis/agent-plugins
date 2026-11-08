@@ -11,7 +11,8 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 import pytest
-from test_helper_recovery_v2 import failure_shape, reap, run_gate, spy_on_spawn
+from test_helper_recovery_v2 import MARKER_CHILD, child_argv, failure_shape, reap, run_gate
+from test_helper_recovery_v2 import spy_on_spawn
 from test_helper_recovery_v2_sinks import ALT_ARTIFACT, PRIOR_ARTIFACT, seed
 from test_helper_rework_sinks import patch_opener
 from test_local_boundary import World, library, make_world
@@ -232,3 +233,88 @@ def test_failed_artifact_falls_back_to_a_nul_byte_then_reports_the_invalidation_
         return
     first, second = (tail.find(run.refused[name]) for name in ("ftruncate", "pwrite"))
     assert found and -1 < first < second, report
+
+
+# --- _write_artifact: the invalidation descriptor cannot be duplicated -------------------------
+
+DUP_CALLS = ("dup", "dup2")
+RECORD_ONE = {"schema_version": 1, "reusable": True, "marker": "DUP-RECORD-7a01"}
+RECORD_TWO = {"schema_version": 1, "reusable": True, "marker": "DUP-RECORD-7a02"}
+
+
+def break_dup(monkeypatch: pytest.MonkeyPatch, inodes: set[int]) -> tuple[list[str], str]:
+    """Fails only the duplication of a descriptor on one of `inodes`, with a fresh token.
+
+    The token is random per run, so a reason can only name it by passing the real error on.
+    """
+    calls: list[str] = []
+    token = f"dup-refused-{secrets.token_hex(6)}"
+    for name in DUP_CALLS:
+        def fake(fd: int, *args: Any, _name: str = name, _real: Any = getattr(os, name)) -> Any:
+            if os.fstat(fd).st_ino in inodes:
+                calls.append(_name)
+                raise OSError(errno.EMFILE, token)
+            return _real(fd, *args)
+
+        monkeypatch.setattr(library("verification").os, name, fake)
+    return calls, token
+
+
+@pytest.mark.parametrize(("prior", "record"),
+                         [(PRIOR_ARTIFACT, RECORD_ONE), (ALT_ARTIFACT, RECORD_TWO)],
+                         ids=["prior-record", "alternate-record"])
+def test_write_artifact_closes_the_sink_and_keeps_a_prior_record_when_the_dup_fails(
+    world: World, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+    prior: bytes, record: dict,
+) -> None:
+    """The one failure path that must not empty the leaf: nothing went through it yet."""
+    artifact = seed(world.target / "docs" / "dev" / "tmp" / f"{record['marker']}.json", prior)
+    before = open_fds()
+    with open(artifact, "r+b") as sink:  # a writable sink that keeps the leaf's prior bytes
+        assert open_fds() != before, "the artifact sink never opened"
+        calls, token = break_dup(monkeypatch, {artifact.stat().st_ino})
+        result = library("verification")._write_artifact(record, sink)
+        assert calls, "the invalidation descriptor was never duplicated"
+        assert set(result) == {"error", "reason"}, result
+        assert result["error"] == "sink-write-failed", result
+        assert token in result["reason"], result
+        assert open_fds() == before, "the failed duplication left the sink open"
+    assert artifact.read_bytes() == prior, "the prior record was emptied or NUL-prefixed"
+
+
+def test_write_artifact_stores_the_record_over_a_prior_one_when_the_dup_succeeds(
+    world: World, isolated_git: None,
+) -> None:
+    """The accept case of the same shape: only the duplication's outcome differs."""
+    artifact = seed(world.target / "docs" / "dev" / "tmp" / "dup-control.json", PRIOR_ARTIFACT)
+    before = open_fds()
+    with open(artifact, "r+b") as sink:
+        assert library("verification")._write_artifact(RECORD_ONE, sink) is None
+        assert open_fds() == before, "the stored record left the sink open"
+    assert json.loads(artifact.read_bytes()) == RECORD_ONE
+
+
+@pytest.mark.parametrize(("prior", "name"), [(PRIOR_ARTIFACT, "prior"), (ALT_ARTIFACT, "alt")],
+                         ids=["prior-record", "alternate-record"])
+def test_run_verification_reports_a_failed_invalidation_dup_and_keeps_the_prior_record(
+    world: World, tmp_path: Path, isolated_git: None, monkeypatch: pytest.MonkeyPatch,
+    prior: bytes, name: str,
+) -> None:
+    artifact = seed(world.target / "docs" / "dev" / "tmp" / f"dup-gate-{name}.json", prior)
+    marker = tmp_path / f"dup-gate-{name}-marker.txt"
+    argv = child_argv(tmp_path, f"dup-gate-{name}-child", MARKER_CHILD, marker)
+    calls, token = break_dup(monkeypatch, {artifact.stat().st_ino})
+    children = spy_on_spawn(monkeypatch, argv)
+    before = open_fds()
+    try:
+        report = run_gate(world, argv, log=world.target / "logs" / f"dup-gate-{name}.log",
+                          artifact=artifact, timeout=60)
+    finally:
+        reap(children)
+    assert calls, "the invalidation descriptor was never duplicated"
+    failure_shape(report, "sink-write-failed")
+    assert token in report["reason"], report
+    assert "artifact" not in report, "a failed duplication returned a reusable record"
+    assert open_fds() == before, "the run left descriptors open"
+    assert artifact.read_bytes() == prior, "the run emptied or NUL-prefixed the prior record"
+    assert marker.read_text("utf-8") == str(world.target.resolve()), "the child never ran"
