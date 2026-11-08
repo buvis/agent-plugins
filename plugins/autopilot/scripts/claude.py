@@ -48,9 +48,7 @@ def probe(*, project_root: Path) -> ProbeResult:
 
 def session_identity() -> dict | None:
     """Native session id + process identity for the CURRENT session, or
-    None when this host exposes none (e.g. running outside that host).
-
-    CLAUDE_SESSION_ID is the Claude Code session-id environment variable; absent, this host exposes no native session identity."""
+    None when this host exposes none (e.g. running outside that host)."""
     session_id = os.environ.get("CLAUDE_SESSION_ID")
     if session_id is None:
         return None
