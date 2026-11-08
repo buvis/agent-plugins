@@ -1,6 +1,6 @@
 {
-  "phase": "review",
-  "next_phase": "review",
+  "phase": "done",
+  "next_phase": "done",
   "schema_version": 1,
   "batch": {
     "id": "202610250001",
@@ -217,9 +217,11 @@
     "checked_at": "2026-10-25T22:40:48Z"
   },
   "tasks_total": 11,
-  "tasks_completed": 8,
+  "tasks_completed": 11,
   "replan_count": 0,
-  "phases_completed": [],
+  "phases_completed": [
+    "review"
+  ],
   "cycle": 2,
   "applied_review_batches": [
     "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-01.md::decision-gate",
@@ -239,7 +241,7 @@
     "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
     "checked_at": "2026-10-28T03:07:08.511437+00:00"
   },
-  "contract_card": "step: AP00013 v3, cycle 2 CONVERGED. Review file `docs/dev/project-management/reviews/00013-autopilot-session-helpers-v3-review-2.md` is written and gates clean (`check_review_file.py --require-codex-guard`, and `autopilot gate --require-codex-guard --assert-constraint-met` exits 0). The decision gate ran (`review-close --batch-id decision-gate`, applied, 0 tasks) and the tail sweep created tasks 9, 10, 11 at sonnet (`review-close --batch-id tail-sweep`, applied). `rework_task_ids` = [\"9\",\"10\",\"11\"], all pending. `phase`/`next_phase` stay `review` and `cycle` stays 2 \u2014 NO phase-done was run here, by design (tail sweep step 3 loop-mode handoff, PRD 00208).\n\nNEXT SESSION: you land in Phase 4's rotation-resume skip because this cycle's review file exists and `rework_task_ids` names unfinished tasks whose names start with `[D2] Tail sweep`. That means: **resume at Tail sweep step 3** in `references/phase-review.md`, invoke `/autopilot:work` in rework mode on tasks 9, 10, 11, and then go to step 4 (Finalize) and the finalize hand-off \u2014 `autopilot phase-done --outcome converged`. Do NOT run Phase 6's exit (`--outcome rework`): that would reopen a converged cycle. Do NOT re-review, do NOT increment `cycle`, do NOT run another review cycle.\n\nWhat the three tasks must do:\n- task 9 (receipts, R1+R8): the receipt's `package_revision_note` and the recovery report both claim a recorded gate covers the rework's product bytes; the latest recorded gate is feca0d1, which precedes 81c89e1 (the task-5 `absolute()` fix). Append a \"Gate at the rework head (921efc5)\" section to `docs/dev/project-management/autopilot/reports/00013-helper-recovery-v3.md` with the four exact commands and results below, fix the report header pin (\"Tested package revision: 6888765\"), and point the receipt at it. Preserve historical runs. The report is deliberately unhashed, so no source-map regeneration follows.\n- task 10 (coverage, R4): cycle 1's queued check in `-checks-1.json` has NO recorded result. Run its `rg`, then add the artifact-sink variant of `test_sink_alias_a_log_parent_swapped_for_a_symlink_after_refuse_fails_the_sink` in `tests/autopilot/test_helper_recovery_v3_artifact.py` (it has room; `test_helper_recovery_v3.py` is at 799/800 lines), and record the check's outcome beside the check.\n- task 11 (prose, R3): `plugins/autopilot/CHANGELOG.md:33` lost its conjunction \u2014 \"..., stops the child's leftover processes when a sink fails late, removes only a leaf it created;\" needs \"and\" before \"removes\".\n\ninvariants: rework_cap 2 and the cycle CONVERGED, so the cap is irrelevant \u2014 never cap-pause or stall this cycle. aegis forbids Co-Authored-By trailers. Never patch frozen buvis/claude-autopilot. `[Unreleased]` CHANGELOG entries are required for feat/fix.\n\ngate at 921efc5, all four run BARE because `review-stage`'s `reuse_verdict` and `autopilot verify` both refuse on the dirty tree (untracked `.herdr/icon.svg`): `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` = 19 failed, 1255 passed in 489.25s; `python3 -m unittest discover -s scripts` = Ran 59 tests OK; `python3 scripts/validate.py` = 3 plugin packages, 15 skills; `python3 scripts/generate_marketplace.py --check` = up to date. The 19 are the AP 00018 controller deferral (8 capacity, 7 owner, 4 owner_recovery) \u2014 an external blocker, NOT a regression, never mask/delete/xfail/relabel. No `last-verification.json` was written this cycle, so read the gate line from the review file, not that record.\n\nhost gotchas, do not rediscover: `review-close` parses the WHOLE review file for finding rows \u2014 a second markdown table or a bare severity emoji in prose outside `## Consolidated Findings` refuses the batch as `findings_malformed` (hit twice here; both were rewritten as bullets/words). `consolidate_findings.py --ledger-dismiss BLAKE` did NOT dismiss Blake's R5 re-raise even though it matches a cycle-1 ledger entry at the identical `log_sink_refusal.py:141`; the gate dismissed it by judgment and recorded it in the ledger. Bob resumed codex thread 01a1bb4c cleanly. Carl exited 0 this cycle (no salvage needed). Bob's inlined prompt was 246953 bytes against a 30266-byte staged render, so his dispatch row's `prompt_bytes` understates it.\n\nFOREIGN DIRT, leave it alone: `.herdr/icon.svg` is untracked and unrelated. Do not commit it, do not delete it, never `git add -A`. Eve also left `docs/dev/tmp/eve-refuse-sibling-check.py` in the gitignored scratch tree.",
+  "contract_card": "step: AP00013 v3, tail sweep tasks 9/10/11 completed, suite re-verified (19 known AP00018 failures only), phase-done --outcome converged run. invariants: never re-review this cycle; aegis forbids Co-Authored-By trailers; frozen buvis/claude-autopilot untouched. next: Phase 9 finalize (done gate) in the next session, per references/phase-done.md.",
   "prd_budget_since": "2026-11-05T21:53:39Z",
   "design_mode": "run",
   "design_doc": "docs/dev/project-management/designs/00013-autopilot-session-helpers-v3-design.md",
@@ -803,21 +805,82 @@
       "description": "### Findings (verbatim)\n- \ud83d\udfe1 docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json:6: The receipt's `package_revision_note` says the per-task T1-T4 measurements were taken at 6888765, not at the re-pinned revision. This is disclosed honestly and the historical entries were preserved. But the receipt does not describe the product bytes at the pin. (found by: BLAKE, BOB)\n",
       "model": "sonnet",
       "id": "9",
-      "status": "pending"
+      "status": "completed",
+      "usage_at_start": 118752,
+      "calls_at_start": 8,
+      "started_at": 1794153808,
+      "attempts": [
+        {
+          "outcome": "completed",
+          "implementor": "orchestrator",
+          "model": "sonnet",
+          "pipeline": "lean",
+          "cause": null,
+          "review_cycle": 2,
+          "red_check": "n/a:micro-lane",
+          "micro_lane": "within-ceiling",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "review": "skipped:test-only"
+        }
+      ],
+      "usage_at_done": 133947,
+      "calls_at_done": 20,
+      "done_at": 1794153900
     },
     {
       "name": "[D2] Tail sweep: docs/dev/project-management/reviews/00013-autopilot-session-helpers-v3-checks-1.json",
       "description": "### Findings (verbatim)\n- \ud83d\udfe1 docs/dev/project-management/reviews/00013-autopilot-session-helpers-v3-checks-1.json:7: Prior R17 has a queued check but no recorded result establishing artifact-parent race coverage. Run `rg -n \"swap_artifact|artifact.*parent.*symlink|SPELLINGS\" tests/autopilot/test_helper_rework_sinks.py tests/autopilot/test_helper_recovery_v2_sinks.py`; inspect matching tests for mixed root/artifact spellings, a post-preflight parent swap, controlled refusal and unchanged sentinel bytes. Record the covering node or add the missing case. (found by: BOB, EVE, verify-check)\n",
       "model": "sonnet",
       "id": "10",
-      "status": "pending"
+      "status": "completed",
+      "usage_at_start": 134258,
+      "calls_at_start": 21,
+      "started_at": 1794153905,
+      "attempts": [
+        {
+          "outcome": "completed",
+          "implementor": "claude",
+          "model": "sonnet",
+          "pipeline": "lean",
+          "cause": null,
+          "review_cycle": 2,
+          "red_check": "n/a:test-only-task",
+          "style_gate": "clean",
+          "review": "skipped:test-only"
+        }
+      ],
+      "usage_at_done": 179992,
+      "calls_at_done": 44,
+      "done_at": 1794154115
     },
     {
       "name": "[D2] Tail sweep: prose",
       "description": "### Findings (verbatim)\n- \u26aa plugins/autopilot/CHANGELOG.md:33: The edit that removed \", and leaves no reusable artifact after a failed write or close\" left the first `--verify` bullet's list without its conjunction: \"...stops the child's leftover processes when a sink fails late, removes only a leaf it created; ...\". It needs \"and\" before \"removes\". (found by: ALICE, EVE)\n",
       "model": "sonnet",
       "id": "11",
-      "status": "pending"
+      "status": "completed",
+      "usage_at_start": 180320,
+      "calls_at_start": 45,
+      "started_at": 1794154119,
+      "attempts": [
+        {
+          "outcome": "completed",
+          "implementor": "orchestrator",
+          "model": "sonnet",
+          "pipeline": "lean",
+          "cause": null,
+          "review_cycle": 2,
+          "red_check": "n/a:micro-lane",
+          "micro_lane": "within-ceiling",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "review": "skipped:test-only"
+        }
+      ],
+      "usage_at_done": 182212,
+      "calls_at_done": 50,
+      "done_at": 1794154145
     }
   ],
   "work_start_sha": "b786f5aa98f0b2b796666a0a410e9ae138e152b1",
