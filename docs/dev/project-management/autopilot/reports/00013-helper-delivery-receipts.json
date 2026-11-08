@@ -16,7 +16,17 @@
       "duration_seconds": "not captured",
       "failing_nodes": [],
       "failing_nodes_ownership": "none: green run",
-      "command_note": "The orchestrator's record elides part of the command after -k sink_alias; the elided text is not captured.",
+      "command_note": "The historical `command` field above is the orchestrator's own record and it elides part of the invocation after -k sink_alias. The elided text was not captured and no raw log of that run survives, so it is not recoverable and is deliberately left unrewritten. `exact_command_rerun` below is a fresh, exact, non-elided invocation recorded in its place.",
+      "exact_command_rerun": {
+        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_helper_recovery_v3.py -k sink_alias -q",
+        "revision": "cabae3d6566c502a4f4bfba1fc6feac361d121e2",
+        "exit_code": 0,
+        "passed": 90,
+        "failed": 0,
+        "deselected": 16,
+        "duration_seconds": 14.58,
+        "note": "Measured in the cycle-1 rework session at HEAD cabae3d, which carries the T1 fix 27a16a3 and every later v3 commit. The command is complete as written: no elision, no placeholder. Its 90 passed matches the historical count above; that agreement is evidence, not a claim that the elided text is recovered, and the historical entry's numbers and duration are left exactly as first recorded."
+      },
       "red_at_v2": {
         "failed": 48,
         "passed": 42
@@ -116,7 +126,19 @@
         "tests/autopilot/test_package.py::TargetPackageTest::test_content_roster_matches_frozen_inventory_and_actual_package_bytes",
         "tests/autopilot/test_package.py::TargetPackageTest::test_readme_retains_every_source_heading_with_completed_adaptation_receipts"
       ],
-      "failing_nodes_ownership": "19 AP 00018 controller nodes: external deferral owned by AP 00018. 5 provenance and package nodes: AP00013 v3, stale source-map digests before this refresh regenerated the map; see final_gate."
+      "failing_nodes_ownership": "19 AP 00018 controller nodes: external deferral owned by AP 00018. 5 provenance and package nodes: AP00013 v3, stale source-map digests before this refresh regenerated the map; see final_gate.",
+      "gate_is_pre_regeneration": "This entry and the final_gate object below record only the PRE-regeneration run at 6888765, because this file's own bytes are hashed into tools/autopilot/source-map.json and must be frozen before the map is regenerated. The 5 provenance and package nodes above are stale-digest failures of that freeze, not open defects.",
+      "reviewed_head_gate": {
+        "revision": "feca0d1a519c46fd2782d1cfd29f5ba4d14ac36e",
+        "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q",
+        "exit_code": 1,
+        "passed": 1217,
+        "failed": 19,
+        "duration_seconds": 452.99,
+        "log": "docs/dev/tmp/gate-ap00013-v3-c1.log",
+        "recorded_in": "docs/dev/project-management/autopilot/reports/00013-helper-recovery-v3.md § Gate at the reviewed head (feca0d1, after map regeneration)",
+        "note": "The POST-regeneration gate at the head_sha the cycle-1 completion review recorded. All 19 failures are the AP 00018 controller deferral (8 test_controller_capacity, 7 test_controller_owner, 4 test_controller_owner_recovery); no provenance or package node is among them, so the 5 stale-digest failures recorded above are resolved. Pointer only: the measurement itself lives in the report named above, so this file's hashed bytes stay independent of it."
+      }
     }
   ],
   "validation": {
