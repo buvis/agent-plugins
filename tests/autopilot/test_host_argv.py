@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import dataclasses
 import importlib
+import json
+import os
+import subprocess
 import sys
+import tempfile
 import unittest
 import uuid
 from collections.abc import Callable
@@ -14,6 +18,11 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = ROOT / "plugins" / "autopilot" / "scripts"
+PROBE_HOST = ROOT / "tools" / "autopilot" / "probe-host.py"
+_AUTH_VARS = (
+    "CODEX_API_KEY", "GEMINI_API_KEY", "ANTHROPIC_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN",
+)
+_SENTINEL = "ap00014-secret-sentinel-4f1c8e"
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
@@ -357,6 +366,43 @@ class ProbeResultInvariantTest(unittest.TestCase):
 
     def test_rejects_a_certified_result(self) -> None:
         self.assert_rejects(_available_kwargs, certified=True)
+
+
+class ProbeHostEvidenceRecordTest(unittest.TestCase):
+    """The artifact probe-host.py writes must describe itself, say no host was
+    invoked, and carry no auth value."""
+
+    def test_probe_host_evidence_names_its_own_path_and_binary(self) -> None:
+        """The written record identifies its own artifact, labels the probe static,
+        and carries no auth value."""
+        with tempfile.TemporaryDirectory() as raw:
+            project_root = Path(raw).resolve()
+            env = {k: v for k, v in os.environ.items() if k not in _AUTH_VARS}
+            env.update(dict.fromkeys(_AUTH_VARS, _SENTINEL))
+            completed = subprocess.run(
+                [sys.executable, str(PROBE_HOST), "claude", "--project-root", str(project_root)],
+                cwd=str(project_root),
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            probes_dir = project_root / "docs" / "dev" / "tmp" / "autopilot" / "probes"
+            written = sorted(probes_dir.iterdir())
+            self.assertEqual(len(written), 1, written)
+            evidence_file = written[0]
+            text = evidence_file.read_text(encoding="utf-8")
+            record = json.loads(text)
+            self.assertEqual(
+                record["evidence_path"], evidence_file.relative_to(project_root).as_posix()
+            )
+            self.assertEqual(record["probe_kind"], "static")
+            self.assertIs(record["certified"], False)
+            binary_path = record["binary_path"]
+            if binary_path is not None:
+                self.assertTrue(Path(binary_path).exists(), binary_path)
+            self.assertNotIn(_SENTINEL, text)
 
 
 if __name__ == "__main__":
