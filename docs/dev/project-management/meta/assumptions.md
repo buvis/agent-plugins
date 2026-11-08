@@ -250,3 +250,29 @@ system boundary (external probe result), not speculative.
 Orchestrator: the `sonnet-run.sh` reviewer lane (step 5.7) failed again on
 this host (same known runner/auth quirk). `review: "failed:runner_unavailable"`
 recorded on the attempt; PRD-level review lenses cover it.
+
+## 10: Register AP00014 files in the helper source map and update CHANGELOG.md
+
+Ivan: for `assets[].acceptance_cases[].case_id` followed the observed AP00018
+precedent of stripping the `plugins/autopilot/` prefix (e.g.
+`asset-new-scripts/hosts.py`) rather than the task's illustrative
+`asset-new-<path>` template, since the task said to mirror AP00018's actual
+rows verbatim. For `authored_file_owners[].acceptance_cases[].case_id` used
+the full path, matching existing rows for both `plugins/autopilot/` and
+`tools/autopilot/` files. No "pending OV-xxxx" annotation was added to the
+CHANGELOG entry since none was discoverable from the compatibility JSON files.
+
+Orchestrator: registering the 13 new AP00014 rows in `assets[]` introduced a
+new regression in `tests/autopilot/test_helper_provenance_real.py::
+test_unrelated_arrays_and_original_owners_stay_byte_semantic` (confirmed by
+diffing the test run with/without the edit) - the new rows fell into that
+test's frozen "others" hash bucket. Fixed by adding an `AP00014_TARGETS`
+frozenset to the skip set, mirroring the `CONTROLLER_PREFIXES` precedent
+commit 4cb0ff7 set for AP00018; verified the recomputed hash matches the
+existing frozen constant exactly, so no other row changed. This widens the
+task's edited-files list beyond its stated Location (source-map.json,
+CHANGELOG.md) to include this one test file - the narrowest fix available,
+and the pattern AP00018's own registration commit already used. The
+`sonnet-run.sh` reviewer lane (step 5.7) failed again on this host (same
+known runner/auth quirk, two attempts). `review: "failed:runner_unavailable"`
+recorded on the attempt; PRD-level review lenses cover it.

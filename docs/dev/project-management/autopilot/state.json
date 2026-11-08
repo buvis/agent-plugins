@@ -1,6 +1,6 @@
 {
-  "phase": "build",
-  "next_phase": "build",
+  "phase": "review",
+  "next_phase": "review",
   "schema_version": 1,
   "batch": {
     "id": "202610250001",
@@ -229,7 +229,7 @@
     "checked_at": "2026-10-25T22:40:48Z"
   },
   "tasks_total": 10,
-  "tasks_completed": 9,
+  "tasks_completed": 10,
   "replan_count": 0,
   "phases_completed": [],
   "cycle": 1,
@@ -674,10 +674,33 @@
       "qwen_eligible": false,
       "qwen_excluded_reason": "files",
       "id": "10",
-      "status": "pending"
+      "status": "completed",
+      "usage_at_start": 110614,
+      "calls_at_start": 4,
+      "started_at": 1794165886,
+      "attempts": [
+        {
+          "outcome": "completed",
+          "model": "sonnet",
+          "pipeline": "lean",
+          "cause": null,
+          "review_cycle": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "qwen_excluded_reason": null,
+          "self_deslop": "noop",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "review": "failed:runner_unavailable",
+          "red_check": "n/a:config-only-task"
+        }
+      ],
+      "usage_at_done": 209370,
+      "calls_at_done": 101,
+      "done_at": 1794166752
     }
   ],
-  "contract_card": "step: build / work, task-boundary handoff after task 9 | invariants: 00014-autopilot-host-execution-v1 \u2014 10 tasks, lane full, cycle 1; tasks 1-9 completed and committed, HEAD=1769d15; per-task reviewer (Pat/sonnet-run.sh) failed on every task so far with `review: \"failed:runner_unavailable\"` (host's OAuth session cannot refresh) \u2014 PRD-level review lenses must cover this; work_start_sha=635e37640b82c66f8ed7e5063605ce4481f81407, repo_root=/Users/bob/git/src/github.com/buvis/agent-plugins (plain repo, no bare/work-tree split); qwen_preflight cached \"endpoint_unreachable\" and codex_probe cached \"unhealthy\" for batch 202610250001, so every remaining sonnet/opus task routes straight to Claude at tier, no qwen/codex rung | next: fresh build session resumes /autopilot:work at task 10 (only task 10 pending: \"Register AP00014 files in the helper source map and update CHANGELOG.md\", sonnet tier)",
+  "contract_card": "step: build -> review handoff, all 10 tasks of 00014-autopilot-host-execution-v1 completed | invariants: HEAD=fd897c5; work_start_sha=635e3764 (full PRD review range); per-task reviewer (Pat/sonnet-run.sh) failed on every task all PRD with `review: \"failed:runner_unavailable\"` (host OAuth cannot refresh) - PRD-level review lenses (alice/blake/bob/carl/eve) must cover this; task 10's diff also fixed a NEW test regression it introduced in tests/autopilot/test_helper_provenance_real.py (AP00014_TARGETS skip, mirroring AP00018's CONTROLLER_PREFIXES precedent) - call this out to reviewers as in-scope, deliberate; full suite at HEAD (tests/autopilot -q): 24 failed, 1352 passed - all 24 are pre-existing (19 AP00018 controller cases + 5 from this PRD's own earlier tasks 6-9: test_package.py x2, test_helper_provenance_real.py x2, test_local_boundary.py x1), none introduced by task 10, confirmed by diffing with/without its commit; `autopilot verify` did not write last-verification.json (parser found no matching summary-line pattern against the raw \"24 failed, 1352 passed\" line) - this is a sanctioned no-record outcome, not a gap to fix | next: fresh review session enters phase-review.md, cycle 1, lenses alice/blake/bob/carl/eve over work_start_sha..HEAD",
   "work_start_sha": "635e37640b82c66f8ed7e5063605ce4481f81407",
   "repo_root": "/Users/bob/git/src/github.com/buvis/agent-plugins",
   "qwen_preflight": {
@@ -685,5 +708,22 @@
     "verdict": "endpoint_unreachable",
     "detail": "no llama-server responding on any provider in /Users/bob/.pi/agent/models.json",
     "checked_at": "2026-11-08T18:03:38Z"
+  },
+  "loop_entry": {
+    "entered_by": "loop",
+    "prd": "00014-autopilot-host-execution-v1.md",
+    "result": {
+      "stop": null,
+      "detail": "",
+      "prd": "00014-autopilot-host-execution-v1.md",
+      "source": "wip",
+      "parked": null,
+      "custody_pending": 0,
+      "lane_effective": "full",
+      "catchup": "delta",
+      "design": "reuse",
+      "resume_target": "/work continues at first non-completed task 10",
+      "batch": "open"
+    }
   }
 }

@@ -949,3 +949,13 @@
 {"id":"6d0accef","ended_at":1794165374,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
 {"id":"5587f9ff","ended_at":1794165374,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
 {"kind":"handoff","site":"build","edge":"leave","at":1794165374,"phase":"build","prd":"00014-autopilot-host-execution-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794165864,"phase":"build","prd":"00014-autopilot-host-execution-v1.md"}
+{"id":"842f0b02","kind":"ivan","task":"10","queued_at":1794165961,"prompt_bytes":7417}
+{"id":"3cbb2cb5","kind":"ivan","task":"10","queued_at":1794166003,"prompt_bytes":11311}
+{"id":"3cbb2cb5","ended_at":1794166269,"elapsed_s":266,"outcome":"ok","detail":null}
+{"id":"ed318e33","kind":"deslop","task":"10","queued_at":1794166561,"prompt_bytes":8124}
+{"id":"ed318e33","ended_at":1794166629,"elapsed_s":68,"outcome":"ok","detail":null}
+{"id":"cb81b49d","kind":"pat","task":"10","queued_at":1794166727,"prompt_bytes":33358}
+{"id":"842f0b02","ended_at":1794167276,"elapsed_s":542,"outcome":"ok","detail":"closed-by: commit fd897c5ffb8b74ee06f4f43435957064d2a68f42"}
+{"id":"cb81b49d","ended_at":1794167276,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"kind":"handoff","site":"build","edge":"leave","at":1794167276,"phase":"review","prd":"00014-autopilot-host-execution-v1.md"}
