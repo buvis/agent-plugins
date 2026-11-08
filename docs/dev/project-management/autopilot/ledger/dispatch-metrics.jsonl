@@ -867,3 +867,5 @@
 {"kind":"handoff","site":"review","edge":"leave","at":1794155694,"phase":"done","prd":"00013-autopilot-session-helpers-v3.md"}
 {"kind":"handoff","site":"done","edge":"resume","at":1794155742,"phase":"done","prd":"00013-autopilot-session-helpers-v3.md"}
 {"kind":"handoff","site":"done","edge":"leave","at":1794155943,"phase":"build","prd":"00013-autopilot-session-helpers-v3.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794155953,"phase":"build","prd":"00014-autopilot-host-execution-v1.md"}
+{"kind":"handoff","site":"build","edge":"leave","at":1794157630,"phase":"build","prd":"00014-autopilot-host-execution-v1.md"}

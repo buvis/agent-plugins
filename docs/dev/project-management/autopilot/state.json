@@ -35,8 +35,8 @@
       "aegis@buvis-plugins": "0.4.1",
       "warden@buvis-plugins": "0.14.1"
     },
-    "catchup_completed_at": "2026-11-05T21:54:41+00:00",
-    "catchup_head_sha": "d3cd7fa8ebe1a97b7826e94f9833235e09f47435",
+    "catchup_completed_at": "2026-11-08T16:39:59Z",
+    "catchup_head_sha": "e79297f5d6849ae0ae3eaa875f17767261de685e",
     "parks_consecutive": 0,
     "skips": [
       {
@@ -213,11 +213,11 @@
       "00037-triage-r1-s-failed-artifact-obligation-remains-v1.md"
     ]
   },
-  "prd": "00013-autopilot-session-helpers-v3.md",
+  "prd": "00014-autopilot-host-execution-v1.md",
   "catchup_mode": "run",
-  "doubt_reviewer": "fable",
+  "doubt_reviewer": "codex",
   "consensus_engine": "legacy",
-  "session_model": "opus",
+  "session_model": "sonnet",
   "rework_cap": 2,
   "lane": "full",
   "lane_reason": "override",
@@ -228,7 +228,7 @@
     "engram": "ok",
     "checked_at": "2026-10-25T22:40:48Z"
   },
-  "tasks_total": 0,
+  "tasks_total": 10,
   "tasks_completed": 0,
   "replan_count": 0,
   "phases_completed": [],
@@ -250,5 +250,221 @@
     "detail": "hook_doctor: missing /Users/bob/.codex/codex-hook",
     "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
     "checked_at": "2026-10-28T03:07:08.511437+00:00"
-  }
+  },
+  "prd_budget_since": "2026-11-08T16:39:13Z",
+  "design_mode": "run",
+  "design_doc": "docs/dev/project-management/designs/00014-autopilot-host-execution-v1-design.md",
+  "autonomous_decisions": [
+    {
+      "cycle": 1,
+      "severity": "n/a",
+      "issue": "AP00014 design (plugin-side host adapters, job-request builder, nine-duty guard library, Claude-free profile)",
+      "action": "Chose three thin per-host adapter modules (claude/codex/gemini) plus a jobs.py job-request builder with a FakeSeam ControllerSeam stub; deferred real controller seam wiring and native interception/hook registration to AP00015/00016 per the PRD own scope and Delivery graph ordering",
+      "reason": "controller/main.py is still a two-function stub and the source design assigns the real seam to AP00016; this PRD ships a callable guard library and job-request shape that AP00015/00016 can wire without a signature change. 3/3 adversarial review dispatches (claude, codex x2), result ok - 2 rounds of blockers fixed (controller seam shape, in-session delegation definition, standalone intent fidelity, guard/interception scope, recursive-child check, capability-generation status model)."
+    }
+  ],
+  "tasks": [
+    {
+      "name": "Build contracts/hosts.json and scripts/hosts.py capability model",
+      "description": "Create plugins/autopilot/contracts/hosts.json (the declared/advertised capability surface per host) and plugins/autopilot/scripts/hosts.py (the capability-status data model and probe dispatch). hosts.py imports no sibling adapter module directly except via the dispatch table; it must not import controller/ code.\n\nLocation: plugins/autopilot/contracts/hosts.json (new file), plugins/autopilot/scripts/hosts.py (new file), tests/autopilot/test_host_argv.py (new file, Tess-owned).\n\nReuse: plugins/autopilot/scripts/review_stage.py's _write/_read helpers (atomic-ish write-then-read with explicit encoding) for any file this task writes under docs/dev/tmp/autopilot/probes/; plugins/autopilot/contracts/review-policy-v1.json's schema_version:1 + nested-object shape as the precedent for hosts.json's own shape.\n\nContract (verbatim from design doc docs/dev/project-management/designs/00014-autopilot-host-execution-v1-design.md, section `### hosts.py` and `### contracts/hosts.json`):\n\n```python\nCAPABILITY_NAMES = (\"identity\", \"delegation\", \"isolation\", \"interception\")\n\n@dataclass(frozen=True)\nclass CapabilityStatus:\n    name: str                 # one of CAPABILITY_NAMES\n    status: str               # \"available\" | \"unavailable\" | \"unimplemented\"\n    reason: str | None        # set when status != \"available\":\n                               # UNAVAILABLE_NO_BINARY / UNAVAILABLE_NO_AUTH\n                               # for \"unavailable\"; None for \"unimplemented\"\n                               # (the adapter has no check for this name at all)\n\n@dataclass(frozen=True)\nclass HostCapability:\n    host_id: str                              # \"claude\" | \"codex\" | \"gemini\"\n    statuses: dict[str, CapabilityStatus]      # keyed by CAPABILITY_NAMES\n\n@dataclass(frozen=True)\nclass ProbeResult:\n    host_id: str\n    available: bool              # True iff the host binary/auth itself is\n                                   # reachable at all; independent of any\n                                   # single capability's status\n    capability: HostCapability | None  # None when available is False\n    probed_at: str                     # ISO 8601\n    evidence_path: str | None          # path under docs/dev/tmp/autopilot/probes\n\nUNAVAILABLE_NO_BINARY = \"no_binary\"\nUNAVAILABLE_NO_AUTH = \"no_auth\"\n\ndef probe_host(host_id: str, *, project_root: Path) -> ProbeResult: ...\n```\n\n```json\n{\n  \"schema_version\": 1,\n  \"hosts\": {\n    \"claude\": {\"capabilities\": [\"identity\", \"delegation\", \"isolation\", \"interception\"]},\n    \"codex\":  {\"capabilities\": [\"identity\", \"delegation\", \"isolation\"]},\n    \"gemini\": {\"capabilities\": [\"identity\"]}\n  }\n}\n```\n\nDetails:\n- `probe_host` dispatches to `claude.probe()` / `codex.probe()` / `gemini.probe()` by `host_id` via a plain dict lookup (`{\"claude\": claude.probe, \"codex\": codex.probe, \"gemini\": gemini.probe}`), never dynamic import or plugin discovery. An unknown `host_id` raises `ValueError(\"unknown host_id: ...\")` \u2014 this is a programming-error path, not an `UNAVAILABLE_*` reason.\n- `probe_host` always returns a `CapabilityStatus` for every name in `CAPABILITY_NAMES` the adapter *could* check; an adapter with no check at all for one of them returns `\"unimplemented\"` for that entry rather than omitting the key.\n- `CapabilityStatus.status == \"unavailable\"` is an environment fact (no binary, no auth); `status == \"unimplemented\"` is a build-time/contract defect (the adapter has no code path for that capability name).\n- Write this task's own small unit tests in tests/autopilot/test_host_argv.py covering `probe_host` dispatch (known host_id, unknown host_id raises ValueError) using stub adapter modules (monkeypatched `probe` functions) since claude.py/codex.py/gemini.py do not exist yet (later tasks). Do not depend on the real adapter modules in this task's tests.\n- hosts.py must import only stdlib plus, at most, a declared-at-call-time dispatch table \u2014 no module-level import of claude.py/codex.py/gemini.py is required for this task (the three adapters land in later tasks); use a lazy/local import inside `probe_host`, or accept the dispatch table as a constructor-time argument from the caller, so this task's tests do not require the adapter files to exist. Document the chosen approach in a one-line comment in hosts.py.\n\nAcceptance criteria (PRD Phase 0, verbatim): hook_behavior_equivalence and effort_forwarding preserve source invariants while exposing the known effort mismatch as a corrected target case. (This task's contribution: the capability-status model this acceptance rests on is representable and testable; hook_behavior_equivalence and effort_forwarding are fully exercised once guards.py (task 6) and jobs.py (task 5) land \u2014 this task must not regress either by leaving CapabilityStatus/ProbeResult under-specified.)\n\nVerify: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_host_argv.py -q` passes; `python3 scripts/validate.py` still passes.",
+      "files": [
+        "plugins/autopilot/contracts/hosts.json",
+        "plugins/autopilot/scripts/hosts.py",
+        "tests/autopilot/test_host_argv.py"
+      ],
+      "blocked_by": [],
+      "id": "1",
+      "status": "pending",
+      "estimated_tokens": 56350,
+      "est_context_peak": 76350,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier"
+    },
+    {
+      "name": "Build scripts/claude.py host adapter",
+      "description": "Implement the Claude host adapter exporting the shared four-function surface. Claude is the only host with a true in-session delegation primitive.\n\nLocation: plugins/autopilot/scripts/claude.py (new file).\n\nReuse: plugins/autopilot/scripts/hosts.py's ProbeResult/CapabilityStatus/HostCapability/CAPABILITY_NAMES/UNAVAILABLE_NO_BINARY/UNAVAILABLE_NO_AUTH (task 1, already landed) as the return/status shapes this adapter's probe() must produce.\n\nPremise: plugins/autopilot/scripts/hosts.py exists and exports CAPABILITY_NAMES, CapabilityStatus, HostCapability, ProbeResult, UNAVAILABLE_NO_BINARY, UNAVAILABLE_NO_AUTH (task 1). Re-verify before acting; if absent, stop and report rather than redefining these types locally.\n\nContract (verbatim from design doc, section `### Per-host adapter module (claude.py, codex.py, gemini.py)` and `### hosts.py`):\n\n```python\ndef probe(*, project_root: Path) -> ProbeResult:\n    \"\"\"STATIC checks only - binary-on-PATH, auth-file/env-var present,\n    version string parses - never a live dispatch, never a real\n    codex exec/Agent-tool round-trip. Probing a capability and\n    EXECUTING it are different operations by design: probe() answers\n    \"would this work\", can_delegate()/build_job_argv() are what a\n    caller invokes to actually use a capability, and this PRD's own\n    rule that its Python code never executes delegation applies to\n    probe() too - a probe that actually ran a dispatch would violate\n    that rule on every doctor.py/build-compatibility.py invocation,\n    which is why it does not.\"\"\"\ndef session_identity() -> dict | None:\n    \"\"\"Native session id + process identity for the CURRENT session, or\n    None when this host exposes none (e.g. running outside that host).\"\"\"\ndef can_delegate() -> bool:\n    \"\"\"True iff this host supports a TRUE in-session subagent dispatch\n    primitive: no new OS process, no provider-CLI invocation anywhere in\n    the chain. Claude: True (the Agent tool), which the calling skill's\n    own prompt invokes directly - a tool call inside the running session,\n    not a subprocess.\"\"\"\ndef build_job_argv(intent: \"JobIntent\") -> list[str] | None:\n    \"\"\"The argv this host's native CLI would need to RUN a job matching\n    intent, for the standalone next-session instruction. Returns None\n    when intent.role has no native entry point on this host (the\n    caller reports that role as unsupported-on-host, it does not guess\n    a substitute).\"\"\"\n```\n\nEach exports the identical four-function surface so hosts.py and jobs.py never branch on which module they hold. No adapter module ever calls subprocess.run/Popen on another provider's CLI. probe() must return a ProbeResult whose capability.statuses covers every name in CAPABILITY_NAMES (identity, delegation, isolation, interception) with one CapabilityStatus each.\n\nDetails:\n- claude is the only host where HostCapability.statuses[\"interception\"] can read \"available\" (client-native hook registration \u2014 Claude supports PreToolUse/PostToolUse/Stop hooks); check for this honestly rather than hardcoding True without a real signal (e.g. presence of a hooks configuration surface, or treat as always-available for Claude and document why in a comment, since Claude's hook mechanism is a first-class host feature unlike the other two).\n- build_job_argv for claude: Claude has no CLI job-launch argv convention documented by this PRD; return None unless a concrete native entry point is specified \u2014 do not invent one.\n- Do not write a dedicated test file in this task; plugins/autopilot/tests/autopilot/test_sessions.py (task 4) covers claude.py together with codex.py and gemini.py once all three exist.\n\nAcceptance criteria (PRD Phase 1 task 1, verbatim): recursive_child_denied, no_nested_driver_cli and reviewer_isolation verify native host seams and request payloads in temporary roots. (This task's contribution: claude.py is one of the \"native host seams\" those scenarios exercise once jobs.py, task 5, lands; this task must not call subprocess anywhere.)\n\nVerify: `python3 -c \"import sys; sys.path.insert(0,'plugins/autopilot/scripts'); import claude; print(claude.probe(project_root=__import__('pathlib').Path('.')))\"` runs without error; `python3 scripts/validate.py` still passes.",
+      "files": [
+        "plugins/autopilot/scripts/claude.py"
+      ],
+      "blocked_by": [
+        1
+      ],
+      "estimated_tokens": 56200,
+      "est_context_peak": 76200,
+      "model": "sonnet",
+      "tier_reason": "default",
+      "qwen_eligible": true,
+      "id": "2",
+      "status": "pending"
+    },
+    {
+      "name": "Build scripts/codex.py host adapter",
+      "description": "Implement the Codex host adapter exporting the shared four-function surface. codex exec spawns a new OS process, so it is cross-session by this design's own definition, not in-session delegation.\n\nLocation: plugins/autopilot/scripts/codex.py (new file).\n\nReuse: plugins/autopilot/scripts/hosts.py's ProbeResult/CapabilityStatus/HostCapability/CAPABILITY_NAMES/UNAVAILABLE_NO_BINARY/UNAVAILABLE_NO_AUTH (task 1).\n\nPremise: plugins/autopilot/scripts/hosts.py exists and exports CAPABILITY_NAMES, CapabilityStatus, HostCapability, ProbeResult, UNAVAILABLE_NO_BINARY, UNAVAILABLE_NO_AUTH (task 1). Re-verify before acting; if absent, stop and report rather than redefining these types locally.\n\nContract (verbatim from design doc, section `### Per-host adapter module (claude.py, codex.py, gemini.py)`):\n\n```python\ndef probe(*, project_root: Path) -> ProbeResult:\n    \"\"\"STATIC checks only - binary-on-PATH, auth-file/env-var present,\n    version string parses - never a live dispatch, never a real\n    codex exec round-trip.\"\"\"\ndef session_identity() -> dict | None:\n    \"\"\"Native session id + process identity for the CURRENT session, or\n    None when this host exposes none (e.g. running outside that host).\"\"\"\ndef can_delegate() -> bool:\n    \"\"\"True iff this host supports a TRUE in-session subagent dispatch\n    primitive: no new OS process, no provider-CLI invocation anywhere in\n    the chain. Codex: False (codex exec spawns a new process, which is\n    cross-session by this design's own definition).\"\"\"\ndef build_job_argv(intent: \"JobIntent\") -> list[str] | None:\n    \"\"\"The argv this host's native CLI would need to RUN a job matching\n    intent, for the standalone next-session instruction. Returns None\n    when intent.role has no native entry point on this host.\"\"\"\n```\n\nNo adapter module ever calls subprocess.run/Popen on another provider's CLI. codex.py's own build_job_argv constructs the argv string only \u2014 it never invokes it.\n\nDetails:\n- codex.can_delegate() MUST return False \u2014 this is the design's resolved behavior (see design doc Review log dispatch-3 fix): codex exec is a process spawn, i.e. cross-session, never in-session.\n- probe() checks for the codex binary on PATH and, when found, a version string; auth presence per whatever Codex auth convention is locally discoverable (env var or config file existence check only \u2014 never attempt an authenticated call).\n- Do not write a dedicated test file in this task; tests/autopilot/test_sessions.py (task 4) covers codex.py together with claude.py and gemini.py once all three exist.\n\nAcceptance criteria (PRD Phase 1 task 1, verbatim): recursive_child_denied, no_nested_driver_cli and reviewer_isolation verify native host seams and request payloads in temporary roots. (This task's contribution: codex.py is one of the \"native host seams\" those scenarios exercise once jobs.py, task 5, lands; this task must not call subprocess anywhere.)\n\nVerify: `python3 -c \"import sys; sys.path.insert(0,'plugins/autopilot/scripts'); import codex; print(codex.probe(project_root=__import__('pathlib').Path('.')))\"` runs without error and `codex.can_delegate() is False`; `python3 scripts/validate.py` still passes.",
+      "files": [
+        "plugins/autopilot/scripts/codex.py"
+      ],
+      "blocked_by": [
+        1
+      ],
+      "estimated_tokens": 56200,
+      "est_context_peak": 76200,
+      "model": "sonnet",
+      "tier_reason": "default",
+      "qwen_eligible": true,
+      "id": "3",
+      "status": "pending"
+    },
+    {
+      "name": "Build scripts/gemini.py host adapter and cross-host test_sessions.py",
+      "description": "Implement the Gemini host adapter exporting the shared four-function surface (no in-session or native identity primitive today), then write the cross-host test file that drives claude.py, codex.py and gemini.py together.\n\nLocation: plugins/autopilot/scripts/gemini.py (new file), tests/autopilot/test_sessions.py (new file, Tess-owned).\n\nReuse: plugins/autopilot/scripts/hosts.py's ProbeResult/CapabilityStatus/HostCapability/CAPABILITY_NAMES/UNAVAILABLE_NO_BINARY/UNAVAILABLE_NO_AUTH (task 1).\n\nPremise: plugins/autopilot/scripts/hosts.py (task 1), plugins/autopilot/scripts/claude.py (task 2) and plugins/autopilot/scripts/codex.py (task 3) all exist and export the four-function adapter surface. Re-verify before acting.\n\nContract (verbatim from design doc, section `### Per-host adapter module (claude.py, codex.py, gemini.py)` and `### contracts/hosts.json`):\n\n```python\ndef probe(*, project_root: Path) -> ProbeResult: ...  # STATIC checks only\ndef session_identity() -> dict | None: ...\ndef can_delegate() -> bool:\n    \"\"\"Gemini: False (no primitive of either kind) until OV 00059 lands\n    a conforming driver - recorded honestly, never assumed.\"\"\"\ndef build_job_argv(intent: \"JobIntent\") -> list[str] | None: ...\n```\n\n```json\n{\"gemini\": {\"capabilities\": [\"identity\"]}}\n```\n\n(Gemini's declared capability set in contracts/hosts.json is \"identity\" only \u2014 gemini.py's probe() must return \"unimplemented\" or \"unavailable\" status, never \"available\", for delegation/isolation/interception, consistent with that declared set.)\n\nDetails:\n- gemini.can_delegate() MUST return False.\n- test_sessions.py covers two PRD-named scenarios verbatim: `shared_core_without_claude` (run the full hosts.py/jobs.py-reachable surface with claude.py import removed from the call graph \u2014 drive everything through codex/gemini only \u2014 and assert no code path requires claude) and `codex_gemini_role_capabilities` (each mandatory review-policy job_id from plugins/autopilot/contracts/review-policy-v1.json resolves to a codex or gemini host, never silently to claude, given contracts/hosts.json's declared capability sets).\n- Write tests against claude.py, codex.py and gemini.py as already-existing modules (tasks 1-3 landed); do not stub them.\n\nAcceptance criteria (PRD Phase 2 task 1, verbatim): relocated_host_probe, shared_core_without_claude, codex_gemini_role_capabilities and missing_guard_refused verify real invocation/resources/identity/interception for the selected roles and report denied mandatory capabilities; no availability result is converted into a success claim. (This task closes shared_core_without_claude and codex_gemini_role_capabilities; relocated_host_probe and missing_guard_refused are closed by later tasks 7-8.)\n\nVerify: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_sessions.py -q` passes; `python3 scripts/validate.py` still passes.",
+      "files": [
+        "plugins/autopilot/scripts/gemini.py",
+        "tests/autopilot/test_sessions.py"
+      ],
+      "blocked_by": [
+        1,
+        2,
+        3
+      ],
+      "estimated_tokens": 56712,
+      "est_context_peak": 76712,
+      "model": "sonnet",
+      "tier_reason": "default",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "files",
+      "id": "4",
+      "status": "pending"
+    },
+    {
+      "name": "Build scripts/jobs.py job-request builder and ControllerSeam protocol",
+      "description": "Define the job-intent data model, the ControllerSeam protocol, its FakeSeam test implementation, and the cross-session job-request builder with mandatory recursion denial.\n\nLocation: plugins/autopilot/scripts/jobs.py (new file), tests/autopilot/test_jobs.py (new file, Tess-owned).\n\nReuse: none of the existing AP00012/00013 helpers apply directly to this file's shape; it is a genuinely new data model (confirmed by the design doc's reuse sweep, which found no existing job_intent/session_identity/can_delegate abstraction in the repo).\n\nPremise: plugins/autopilot/scripts/claude.py, codex.py, gemini.py (tasks 2-4) all exist and export probe/session_identity/can_delegate/build_job_argv. Re-verify before acting.\n\nContract (verbatim from design doc, section `### jobs.py`):\n\n```python\n@dataclass(frozen=True)\nclass JobIntent:\n    job_id: str                 # matches review-policy job_id (\"alice\", \"bob\", \"carl\", ...);\n                                 # a job_id outside that file's current persona\n                                 # set is a new reviewer/role being added to\n                                 # policy, not a provider-named ad hoc value\n    role: str                   # neutral role name, never a provider/model name\n    inputs: dict                # artifact references + digests, not raw content\n    isolation: str               # \"fresh-context\" | \"fresh-session\"\n    tier: str                    # \"haiku\" | \"sonnet\" | \"opus\" | \"fable\"\n    effort: str                  # characterized only; CLI forwarding is OV 00059\n    policy_constraints: dict     # e.g. blindness, allowed-input identities\n\nclass ControllerSeam(Protocol):\n    def submit_job(self, intent: JobIntent) -> dict: ...   # -> {\"accepted\": bool, \"job_ref\": str | None}\n    def evaluate_guard(self, duty: \"GuardDuty\", context: dict) -> dict: ...\n        # -> {\"allowed\": bool, \"reason\": str | None} - the authoritative\n        # answer for a STATEFUL guard duty (custody, state integrity, live\n        # job, review completeness). guards.py never re-implements this\n        # logic locally; it only shapes context and relays the seam's\n        # verdict into a GuardOutcome.\n\nclass FakeSeam:\n    \"\"\"Records submitted intents (submit_job) and answers evaluate_guard\n    from caller-supplied fixture rules (a dict of {duty: (allowed, reason)}\n    passed to its constructor) - it never launches anything and never\n    implements real custody/state/review policy. The only seam\n    implementation this PRD ships.\"\"\"\n\ndef build_job_intent(*, job_id: str, role: str, inputs: dict,\n                      isolation: str, tier: str, effort: str,\n                      policy_constraints: dict) -> JobIntent: ...\n\ndef request_cross_session_job(intent: JobIntent, *, seam: ControllerSeam | None,\n                                host: ModuleType, ancestry: list[dict]) -> dict:\n    \"\"\"Calls recursive_child_denied(intent, host=host, ancestry=ancestry)\n       first and raises RecursionError if it returns True.\n       seam is None  -> standalone mode: returns\n         {\"mode\": \"standalone\",\n          \"instruction\": {\"argv\", \"intent\": asdict(intent)}}\n       where argv = host.build_job_argv(intent) (None if unsupported) and\n       intent is the COMPLETE validated JobIntent carried verbatim - a\n       host whose build_job_argv cannot express isolation or\n       policy_constraints as CLI flags MUST still return the full intent\n       dict with those fields intact; this function never silently drops\n       them to produce a cleaner-looking argv.\n       seam given -> controller-bound mode: returns\n         {\"mode\": \"controller\", **seam.submit_job(intent)}.\n    Never starts a process either way.\"\"\"\n\ndef recursive_child_denied(intent: JobIntent, *, host: ModuleType,\n                             ancestry: list[dict]) -> bool:\n    \"\"\"True when ancestry (the chain of {host_id, job_id} records this\n    process inherited from its own launch - read from an environment\n    variable or marker file the launching session set, never from ps\n    or a live process-tree walk) already contains an entry whose\n    host_id == host.HOST_ID AND job_id == intent.job_id. Called\n    unconditionally as request_cross_session_job's first step, never\n    an optional caller step.\"\"\"\n```\n\nDetails:\n- request_cross_session_job never shells out - it only builds the instruction dict or forwards to seam.submit_job.\n- Each adapter module referenced by `host: ModuleType` needs a `HOST_ID` module-level constant for recursive_child_denied's ancestry comparison; if claude.py/codex.py/gemini.py (tasks 2-4) do not already define `HOST_ID`, add it to each via a follow-up note in this task's own summary rather than silently assuming it exists - check first.\n- Never call subprocess/Popen/os.exec* anywhere in this file.\n\nAcceptance criteria (PRD Phase 1 task 1, verbatim): recursive_child_denied, no_nested_driver_cli and reviewer_isolation verify native host seams and request payloads in temporary roots. Also PRD Phase 0 (verbatim): hook_behavior_equivalence and effort_forwarding preserve source invariants while exposing the known effort mismatch as a corrected target case (this task's JobIntent.effort field is characterized-only, never CLI-forwarded - test that no code path in this file forwards `effort` to an argv or subprocess call).\n\nVerify: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_jobs.py -q` passes, including recursive_child_denied (ancestry match raises RecursionError before any argv/seam call) and no_nested_driver_cli (request_cross_session_job and every adapter's build_job_argv never call subprocess/os.exec* - patch to raise if called); `python3 scripts/validate.py` still passes.",
+      "files": [
+        "plugins/autopilot/scripts/jobs.py",
+        "tests/autopilot/test_jobs.py"
+      ],
+      "blocked_by": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "estimated_tokens": 57837,
+      "est_context_peak": 77837,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "id": "5",
+      "status": "pending"
+    },
+    {
+      "name": "Build scripts/guards.py nine-duty guard library",
+      "description": "Define the nine guard duties, GuardOutcome, run_guard dispatch, and the nine _guard_<duty> functions split between stateful (relay onto seam.evaluate_guard) and pure/artifact-only (local checks only).\n\nLocation: plugins/autopilot/scripts/guards.py (new file), tests/autopilot/test_guards.py (new file, Tess-owned).\n\nReuse: this file re-implements enforce_prd_location.py's PRD-location-keeper rule locally for DOCUMENT_LOCATION (that script lives in the installed consumer plugin, a separate distribution this repo does not import) - do not attempt to import it.\n\nPremise: plugins/autopilot/scripts/jobs.py exists and exports ControllerSeam (task 5). Re-verify before acting.\n\nContract (verbatim from design doc, section `### guards.py`):\n\n```python\nclass GuardDuty(StrEnum):\n    DOCUMENT_LOCATION = \"document_location\"\n    CUSTODY_PUSH = \"custody_push\"\n    DELEGATION = \"delegation\"\n    POST_HANDOFF = \"post_handoff\"\n    DEPARTURE = \"departure\"\n    CONTEXT_REINJECTION = \"context_reinjection\"\n    STATE_INTEGRITY = \"state_integrity\"\n    REVIEW_COMPLETENESS = \"review_completeness\"\n    LIVE_JOB = \"live_job\"\n\n@dataclass(frozen=True)\nclass GuardOutcome:\n    duty: GuardDuty\n    allowed: bool\n    reason: str | None       # set when allowed is False\n    stateful: bool           # True -> this call hit seam; False -> pure/artifact-only\n\ndef run_guard(duty: GuardDuty, context: dict, *,\n               seam: ControllerSeam | None) -> GuardOutcome: ...\n```\n\nrun_guard dispatches to nine _guard_<duty> functions. Each is classified stateful (calls seam.evaluate_guard(duty, context) and relays its {allowed, reason} verbatim into GuardOutcome - CUSTODY_PUSH, STATE_INTEGRITY, LIVE_JOB, REVIEW_COMPLETENESS) or pure/artifact-only (DOCUMENT_LOCATION, DELEGATION, POST_HANDOFF, DEPARTURE, CONTEXT_REINJECTION - these check local artifacts/markers only and decide allowed themselves). A pure guard's function signature has no seam parameter at all. A stateful duty called with seam=None returns GuardOutcome(allowed=False, reason=\"missing_controller_seam\", stateful=True) - refusal, never a silent pass.\n\nDetails:\n- missing_guard_refused (the PRD's name) is this module's single refusal outcome; a host-capability gap (e.g. a role resolving to a host with can_delegate()==False) is NOT this module's concern - that surfaces via jobs.py/hosts.py (build_job_argv returning None), never as a GuardOutcome. Do not route capability gaps through run_guard.\n- A stateful _guard_<duty> function must be a thin wrapper - build context, call seam.evaluate_guard, wrap the result - it must not implement its own custody/state/review policy.\n- Choose the nine duty names exactly as GuardDuty's enum values above; they map 1:1 to the PRD's nine source hook duties (document-location, custody-push, delegation, post-handoff, departure, context/reinjection, state-integrity, review-completeness, live-job) so a future rename-only mapping (AP00015) is possible.\n\nAcceptance criteria (PRD Phase 1 task 2, verbatim): custody_push_denied and missing_controller_seam_refused prohibit unsafe bound operations without adding a helper-owned writer. Also PRD Phase 0 (verbatim): hook_behavior_equivalence and effort_forwarding preserve source invariants while exposing the known effort mismatch as a corrected target case (this task's nine duty names preserve the source hooks' invariants by 1:1 naming).\n\nVerify: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_guards.py -q` passes, including custody_push_denied (a CUSTODY_PUSH call with a FakeSeam fixture rule {CUSTODY_PUSH: (False, \"pending_critical\")} returns allowed=False) and missing_controller_seam_refused (any stateful duty called with seam=None refuses without calling anything); one case per remaining duty exercising its pure/artifact-only path; `python3 scripts/validate.py` still passes.",
+      "files": [
+        "plugins/autopilot/scripts/guards.py",
+        "tests/autopilot/test_guards.py"
+      ],
+      "blocked_by": [
+        1,
+        5
+      ],
+      "estimated_tokens": 57837,
+      "est_context_peak": 77837,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "id": "6",
+      "status": "pending"
+    },
+    {
+      "name": "Build scripts/doctor.py and wire hosts/guards/diagnose modes into autopilot.py",
+      "description": "Define doctor.py's diagnose() aggregator and register three new modes into the existing autopilot.py CLI dispatcher.\n\nLocation: plugins/autopilot/scripts/doctor.py (new file), plugins/autopilot/scripts/autopilot.py (existing file, edited).\n\nReuse: plugins/autopilot/scripts/autopilot.py's existing `_CAPABILITIES`/`_MODES`/`_helper()` -> `importlib.import_module` registration pattern (the same shape `\"catchup_probe\"` dispatching via `_helper(\"catchup\")` already uses) - do not invent a second dispatch mechanism or give doctor.py/hosts.py/guards.py their own argparse entry points.\n\nPremise: plugins/autopilot/scripts/hosts.py (task 1) and plugins/autopilot/scripts/guards.py (task 6) exist and export probe_host and run_guard respectively. Re-verify before acting.\n\nContract (verbatim from design doc, section `### doctor.py` and the Module placement `autopilot.py` bullet):\n\n```python\n@dataclass(frozen=True)\nclass DoctorReport:\n    hosts: list[ProbeResult]\n    guards: list[GuardOutcome]       # one per duty, evaluated with a\n                                      # FakeSeam whose fixture always\n                                      # returns allowed=True - this proves\n                                      # only that the LIBRARY CALL succeeds\n                                      # end-to-end, never that a real\n                                      # controller is reachable\n    guards_simulated: bool           # always True until AP 00016 ships a\n                                      # real ControllerSeam\n    profile: str                     # \"claude-free\" | \"mixed\" - derived, not asserted\n    generated_at: str\n\ndef diagnose(*, project_root: Path) -> DoctorReport: ...\n```\n\nNew `_CAPABILITIES` entries `\"hosts-v1\"`, `\"guards-v1\"` and `\"diagnose-v1\"`; new `_MODES` entries `\"probe_host\"`, `\"run_guard\"` and `\"diagnose\"`, each dispatching via `_helper(\"hosts\")` / `_helper(\"guards\")` / `_helper(\"doctor\")`. `doctor.py` and the `tools/autopilot/*.py` scripts are NOT given their own argparse entry points. Invocation shape: `python3 scripts/autopilot.py --diagnose --project-root PATH`, printing `asdict(diagnose(...))` as JSON.\n\nDetails:\n- doctor.py has no CLI of its own - it is a pure library module, same as hosts.py/guards.py.\n- diagnose() calls hosts.probe_host for each of claude/codex/gemini, and guards.run_guard for each of the nine GuardDuty values with a FakeSeam constructed to always return allowed=True (the `guards_simulated` field documents this is simulation, never real controller reachability).\n- `profile` is derived (e.g. \"claude-free\" when every mandatory review-policy role resolves to codex/gemini, \"mixed\" otherwise) - never hardcoded.\n- No flag writes anything outside docs/dev/tmp/autopilot/.\n- Edit autopilot.py minimally: add to `_CAPABILITIES`, `_MODES`, the argparse mutually-exclusive group, and the dispatch branch - follow the exact pattern the existing `--catchup-probe` mode uses.\n\nAcceptance criteria (PRD Phase 2 task 1, verbatim): relocated_host_probe, shared_core_without_claude, codex_gemini_role_capabilities and missing_guard_refused verify real invocation/resources/identity/interception for the selected roles and report denied mandatory capabilities; no availability result is converted into a success claim. (This task's diagnose() aggregation is what missing_guard_refused and relocated_host_probe surface through at the CLI level.)\n\nVerify: `python3 scripts/autopilot.py --diagnose --project-root .` prints valid JSON with no exception; `python3 scripts/validate.py` still passes.",
+      "files": [
+        "plugins/autopilot/scripts/doctor.py",
+        "plugins/autopilot/scripts/autopilot.py"
+      ],
+      "blocked_by": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "estimated_tokens": 57600,
+      "est_context_peak": 77600,
+      "model": "opus",
+      "tier_reason": "contract",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "tier",
+      "id": "7",
+      "status": "pending"
+    },
+    {
+      "name": "Build tools/autopilot/probe-host.py maintainer CLI",
+      "description": "Build the maintainer-only CLI that runs a real probe against a named host and writes isolated evidence.\n\nLocation: tools/autopilot/probe-host.py (new file).\n\nReuse: plugins/autopilot/scripts/log_sink_refusal.py's `_pinned_parent_fd`/`_descend`/`_root_anchor` root-anchored, symlink-safe descent pattern - reuse it when creating docs/dev/tmp/autopilot/probes/ so a probe write cannot be redirected outside that root by a planted symlink; plugins/autopilot/scripts/review_stage.py's `_write`/`_read` atomic-ish write-then-read helpers for the evidence file itself.\n\nPremise: plugins/autopilot/scripts/hosts.py exports probe_host (task 1) and claude.py/codex.py/gemini.py (tasks 2-4) exist. Re-verify before acting.\n\nContract (verbatim from design doc, Module placement `tools/autopilot/` bullet and Data flow point 1):\n\n`probe-host.py` is a CLI wrapper around `hosts.probe_host`, writing real probe evidence under `docs/dev/tmp/autopilot/probes/<host>-<ts>.json` (never `~/.claude` or any live user config). Any evidence written is the static check's inputs/outputs (e.g. the binary path found, the version string read), never a dispatch transcript - nothing this script runs ever executes a real in-session or cross-session job.\n\nDetails:\n- Accept a host_id positional argument and a `--project-root PATH` flag (default: cwd); call `hosts.probe_host(host_id, project_root=...)`, write the resulting ProbeResult (JSON-serialized via dataclasses.asdict) to `docs/dev/tmp/autopilot/probes/<host_id>-<timestamp>.json` using the reused root-anchored descent pattern, and also print the JSON to stdout.\n- This is a maintainer-only tool outside the packaged plugin surface (same convention as tools/autopilot/requirements-test.txt's sibling scripts) - it does not go through autopilot.py's dispatcher.\n\nAcceptance criteria (PRD Phase 2 task 1, verbatim): relocated_host_probe, shared_core_without_claude, codex_gemini_role_capabilities and missing_guard_refused verify real invocation/resources/identity/interception for the selected roles and report denied mandatory capabilities; no availability result is converted into a success claim. (This task is relocated_host_probe's primary vehicle: prove the probe writes only under docs/dev/tmp/autopilot/, never ~/.claude or installed config.)\n\nVerify: `python3 tools/autopilot/probe-host.py claude --project-root .` writes a file under docs/dev/tmp/autopilot/probes/ and prints valid JSON, touching no path outside that directory (assert by pointing project_root at a temp dir and checking no path outside it is touched); `python3 scripts/validate.py` still passes.",
+      "files": [
+        "tools/autopilot/probe-host.py"
+      ],
+      "blocked_by": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "estimated_tokens": 56200,
+      "est_context_peak": 76200,
+      "model": "sonnet",
+      "tier_reason": "default",
+      "qwen_eligible": true,
+      "id": "8",
+      "status": "pending"
+    },
+    {
+      "name": "Build tools/autopilot/build-compatibility.py and generate compatibility bundles",
+      "description": "Build the maintainer CLI that cross-checks contracts/hosts.json against each adapter's fresh probe() result and writes the compatibility/<host>.json bundles, plus the static no-coordinator-runtime scan.\n\nLocation: tools/autopilot/build-compatibility.py (new file), tests/autopilot/test_compatibility.py (new file, Tess-owned). Generated output (not hand-authored, not part of this task's own writes beyond running the script in its test): plugins/autopilot/compatibility/claude.json, plugins/autopilot/compatibility/codex.json.\n\nReuse: plugins/autopilot/scripts/review_stage.py's `_precheck`/`_manifest` declared-vs-actual capability cross-check shape - the closest existing precedent for this script's \"claimed capability needs probe evidence\" check; `_write`/`_read` for the bundle writes.\n\nPremise: plugins/autopilot/contracts/hosts.json and plugins/autopilot/scripts/hosts.py export the CapabilityStatus/ProbeResult shapes (task 1), and claude.py/codex.py/gemini.py (tasks 2-4) exist. Re-verify before acting.\n\nContract (verbatim from design doc, section `### contracts/hosts.json`):\n\n`build-compatibility.py` reads contracts/hosts.json, then cross-checks it, per capability name, against the matching CapabilityStatus in the adapter's fresh probe() result:\n- `status == \"available\"` -> included in the written compatibility/<host>.json.\n- `status == \"unavailable\"` (no binary, no auth) -> excluded from the written bundle silently; this is the normal, expected shape of a bundle generated on a host that is not fully provisioned.\n- `status == \"unimplemented\"` (the adapter has no check for a capability name contracts/hosts.json declares) -> build-compatibility.py exits non-zero (build failure, not a warning).\n\nDetails:\n- For each host in contracts/hosts.json's `hosts` map, call that adapter's probe(), then for every capability name in that host's declared `capabilities` list, read the matching CapabilityStatus from the result and apply the three-way logic above.\n- Write `compatibility/<host>.json` only for hosts whose probe produced at least the \"available\" capabilities subset; never hand-edit these files anywhere else.\n- `test_compatibility.py` covers two PRD-named scenarios verbatim: the round-trip case (\"generated bundle matches the contract minus any capability the live probe reported unavailable\") and `no_coordinator_runtime_in_plugin` (static scan of scripts/*.py added by this PRD - hosts.py, claude.py, codex.py, gemini.py, jobs.py, guards.py, doctor.py, plus autopilot.py's new modes - for `while True`, a scheduler loop, or a bound TUI import; none of this PRD's modules may contain one).\n\nAcceptance criteria (PRD Phase 2 task 2, verbatim): no_coordinator_runtime_in_plugin rejects supervisor/queue implementations in the distributed package.\n\nVerify: `python3 tools/autopilot/build-compatibility.py --project-root .` writes plugins/autopilot/compatibility/claude.json and codex.json without error; `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_compatibility.py -q` passes; `python3 scripts/validate.py` still passes.",
+      "files": [
+        "tools/autopilot/build-compatibility.py",
+        "tests/autopilot/test_compatibility.py"
+      ],
+      "blocked_by": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "estimated_tokens": 57100,
+      "est_context_peak": 77100,
+      "model": "sonnet",
+      "tier_reason": "default",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "files",
+      "id": "9",
+      "status": "pending"
+    },
+    {
+      "name": "Register AP00014 files in the helper source map and update CHANGELOG.md",
+      "description": "Register every file this PRD added (scripts/hosts.py, claude.py, codex.py, gemini.py, jobs.py, guards.py, doctor.py, contracts/hosts.json, tools/autopilot/probe-host.py, tools/autopilot/build-compatibility.py, and the plugins/autopilot/compatibility/*.json files once generated) as asset/owner rows in tools/autopilot/source-map.json, following the exact pattern of commit 4cb0ff7 (\"register the 10 AP 00018 controller files in the source map\") - delivery_prd \"00014\", evidence status per that commit's convention, correct destination_path and digest (sha256) of the actual committed bytes. Then add one CHANGELOG.md entry.\n\nLocation: tools/autopilot/source-map.json (existing file, edited), plugins/autopilot/CHANGELOG.md (existing file, edited).\n\nReuse: the asset/owner row shape already present in tools/autopilot/source-map.json for AP00012/00013/00018 files - mirror it exactly (same keys, same digest algorithm), do not invent a new row shape.\n\nPremise: all of tasks 1-9 (every AP00014 script, test, and generated compatibility bundle) are committed. Re-verify before acting - run `git log --oneline -1` to confirm this PRD's prior task commits exist, and list the actual files under plugins/autopilot/scripts/ and plugins/autopilot/compatibility/ to confirm they exist before computing digests.\n\nContract: no new row shape - copy the existing source-map.json asset/owner row structure verbatim, substituting this PRD's file paths, PRD id \"00014\", and freshly computed sha256 digests of the actual current file bytes (never a placeholder or copied digest from another file).\n\nDetails:\n- Add log entry to plugins/autopilot/CHANGELOG.md under `## [Unreleased]` recording, per host, which capabilities AP00014 supports today and which remain unavailable - e.g. \"Codex: identity, delegation, isolation supported; Gemini: identity only, delegation unavailable pending OV 00059\" (the exact example from the design doc's Module placement section).\n- Do NOT touch any pre-existing AP00012/00013/00018 row in source-map.json; add only new rows for this PRD's files.\n- The pre-existing test failures on master (test_controller_capacity.py/test_controller_owner.py/test_controller_owner_recovery.py's 19 AP00018 controller cases, test_package.py::test_content_roster_matches_frozen_inventory_and_actual_package_bytes, and test_helper_provenance_real.py's two helper-digest cases) are pre-existing and out of this PRD's scope - do not mask, relabel, or attempt to fix them; this task's job is only to ensure AP00014's OWN new files are correctly registered so they do not ADD a new roster mismatch on top of the pre-existing ones.\n\nAcceptance criteria (PRD Phase 2 task 2, verbatim): no_coordinator_runtime_in_plugin rejects supervisor/queue implementations in the distributed package. (The static scan itself is task 9's test_compatibility.py; this task's contribution is making sure the new files it scans are honestly registered in the provenance roster so the scan has accurate file ownership context.)\n\nVerify: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_package.py tests/autopilot/test_helper_provenance_real.py -q` - confirm the failure count/names match the pre-existing known-red set recorded in the design doc's Test strategy outline section (not a larger set); `python3 scripts/validate.py` still passes.",
+      "files": [
+        "tools/autopilot/source-map.json",
+        "plugins/autopilot/CHANGELOG.md"
+      ],
+      "blocked_by": [
+        7,
+        8,
+        9
+      ],
+      "estimated_tokens": 58000,
+      "est_context_peak": 78000,
+      "model": "sonnet",
+      "tier_reason": "default",
+      "qwen_eligible": false,
+      "qwen_excluded_reason": "files",
+      "id": "10",
+      "status": "pending"
+    }
+  ],
+  "contract_card": "step: build / plan->work edge, handed off for headroom | invariants: 10 tasks created for 00014 (contracts/hosts.json+hosts.py, claude.py, codex.py, gemini.py+test_sessions.py, jobs.py, guards.py, doctor.py+autopilot.py wiring, probe-host.py, build-compatibility.py+test_compatibility.py, source-map.json+CHANGELOG.md); design doc at docs/dev/project-management/designs/00014-autopilot-host-execution-v1-design.md (3/3 review dispatches, result ok); plan-expansion gate passed (exit 0); work_start_sha not yet captured | next: fresh build session resumes at Phase 3 (work) - capture work_start_sha and repo_root first (unset for this PRD), then invoke /autopilot:work"
 }

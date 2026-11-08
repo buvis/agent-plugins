@@ -56,6 +56,12 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 Observations (2026-11-08T16:36Z done gate): AP00013 v3 closed at cycle 2 after a tail sweep of tasks 9-11 (R1 receipt re-pin, R3 CHANGELOG conjunction, R4 artifact-parent-swap coverage check); full suite re-verified at 19 known AP00018 controller failures only. 35 autonomous decisions and 1 deferred decision (dirty_tree.py sibling git-probe timeout, out of T3 scope) projected to `decisions.md`. Next: fresh build session selects the next PRD (00014) from wip/backlog.
 
+## 2026-11-08T16:39Z AP00014 build catchup
+
+AP00014 (autopilot host execution and enforcement) selected into wip, no design doc yet. GitHub: 1 open issue (#12 Renovate dashboard, routine), 3 open Renovate PRs (#13 setup-python v7.1.0, #14 python 3.15, #15 pytest v9 — all routine dependency bumps). **Master Validate stays RED** (latest run 42124079804, 2026-11-05: 22 failed, 1167 passed, 11 skipped) — the known AP00018 controller suite (`test_controller_capacity.py`, `test_controller_owner.py`, `test_controller_owner_recovery.py`) plus two newly-failing package-provenance tests (`test_package.py::test_content_roster_matches_frozen_inventory_and_actual_package_bytes` — a blob-hash mismatch on a packaged asset, `test_helper_provenance_real.py::test_new_helper_files_are_owned_and_digested_from_current_bytes` and `test_generator_check_accepts_the_committed_map` — `log_sink_refusal.py` digest drift and an unregenerated `tools/autopilot/source-map.json`). These three are new since the 2026-11-02/05 entries above and are NOT part of AP00014's scope (host execution/enforcement adapters) — flag for the next source-map/provenance-owning PRD rather than fix here. Local master is 141+ commits ahead of origin; nothing pushed.
+
+Related context: topic "autopilot host execution enforcement" not yet queried this session (engram query deferred; no new hits recorded). Task restore: not re-run.
+
 ## 2026-11-03T00:45Z AP00013 v2 task-2 Devon-gate build catchup
 
 Full catchup again (cache 29m old, but two commits past `catchup_head_sha` carry committer `Agent ran by Tomáš Bouška`, so the delta condition failed). Only two content commits are new since the 00:15Z entry: `1c6212f` (the committed sink/artifact-byte test file `tests/autopilot/test_helper_recovery_v2_sinks.py`) and `f0b2e04` (the task-2 scope-recovery report plus the preserved incomplete-Devon patch); `03d4e47` and `c00f784` are state/metrics commits. No project fact changed.
