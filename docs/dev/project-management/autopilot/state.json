@@ -217,10 +217,10 @@
     "checked_at": "2026-10-25T22:40:48Z"
   },
   "tasks_total": 8,
-  "tasks_completed": 6,
+  "tasks_completed": 8,
   "replan_count": 0,
   "phases_completed": [],
-  "cycle": 1,
+  "cycle": 2,
   "applied_review_batches": [
     "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-01.md::decision-gate",
     "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-02.md::decision-gate",
@@ -237,7 +237,7 @@
     "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
     "checked_at": "2026-10-28T03:07:08.511437+00:00"
   },
-  "contract_card": "step: AP00013 v3 REVIEW cycle 1, Phase 6 rework IN PROGRESS, handed off at a task boundary (context-cap headroom rule, marker phase review == state.phase review). Tasks 5 and 6 are DONE and committed; tasks 7 and 8 are still pending in state.rework_task_ids. Resume by re-entering /autopilot:work in rework mode on 7 and 8 only. Do NOT re-review, do NOT re-run the decision gate (already applied, exit 0), do NOT run phase-done yet.\n\ndone so far: task 5 = the R7 HIGH fix, `root = project_root.absolute()` in run_verification (commit 81c89e1, 58 tests pass, Pat 2 CLOSURE resolved + 1 recorded LOW deferral). task 6 = CHANGELOG bullet split + reviewed-head gate recorded in the recovery report (commit 7a55dcd). Tests committed at 7c8425c and strengthened at 8b9ee75 after Devon proved 7 of 7 exploits.\n\nremaining: task 7 = docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json, the T1 receipt command contains a literal `...` elision (two-reviewer finding, BOB + EVE); recover the exact invocation from its raw log or record a fresh exact one WITHOUT rewriting the historical measurement. Task 7 also owns the receipts-side half of task 6's finding (the T4 entry records only the pre-regeneration gate at 6888765) - task 6 deliberately did not touch the receipts JSON, to keep file ownership clean. task 8 = record in the PRD or report the deviation that the failed-artifact tests live in tests/autopilot/test_helper_recovery_v3_artifact.py, which is not in the PRD's write-path list, and that the PRD's T2 Verify line (`-k failed_artifact` on the old file) no longer selects those tests.\n\ninvariants: rework_cap 2, cycle still 1, no phase-done has run (PRD 00208 design). After tasks 7 and 8 complete, run step 7 (ONE full suite) then `autopilot phase-done --outcome rework`, write-brief, the leave row, record-store, the Cycle 1 / cycle 2 banners, STOP. Cycle 2 is the LAST cycle before the cap gate and is INCREMENTAL: --since feca0d1a519c46fd2782d1cfd29f5ba4d14ac36e, --resume-thread 01a1bb4c-039d-73e2-b812-7bf04cb26d94, --settled-ledger. aegis forbids Co-Authored-By trailers. Never patch frozen buvis/claude-autopilot.\n\nhost gotchas hit this session, do not rediscover: the documented Pat lane `sonnet-run.sh` FAILS here with \"OAuth session expired and could not be refreshed\", and the one retry then fails with \"Session ID ... is already in use\" because the first attempt consumed the -S id. Use the native `autopilot:pat` subagent on the same rendered prompt instead, and stamp `review: resume_failed` (the attempt grammar has no value for this substitution). Expected full-suite baseline is 19 failed / 1217 passed, where all 19 are the AP 00018 controller deferral (8 test_controller_capacity, 7 test_controller_owner, 4 test_controller_owner_recovery) - verified from docs/dev/tmp/gate-ap00013-v3-c1.log:467. Do NOT treat those 19 as a regression.\n\nFOREIGN DIRT, leave it alone: `.herdr/icon.svg` is untracked and was NOT created by this work (appeared 15:44 this session, unrelated to AP 00013). `autopilot dirty` reports it, so the task-boundary clean-tree check fails on it. It is untracked, so no handoff can lose it. Do not commit it, do not delete it, and do not let a `git add -A` sweep it into a task commit.",
+  "contract_card": "step: AP00013 v3, cycle 1 rework COMPLETE (all 8 tasks done, phase-done --outcome rework applied, cycle now 2). Next session enters Phase 4 of the review gate for cycle 2. No review file exists for cycle 2 yet, so no Phase 4 skip fires. Do NOT re-run cycle 1's review or decision gate.\n\ncycle 1 rework, what landed: task 5 = R7 HIGH fix in run_verification (81c89e1). task 6 = CHANGELOG bullet split + reviewed-head gate in the recovery report (7a55dcd). task 7 = receipts: a fresh exact non-elided T1 invocation beside the unrewritten historical one, a reviewed_head_gate pointer in the T4 entry, a re-pin of package_revision from 6888765 to 7a55dcd, and two source-map regenerations (08920c6, 5027944, 134346a, ff454c5, 7835825). task 8 = the test-file-split and map-timing deviations recorded in the report and the PRD (6d9de0f, 1539f6d, 4baf861).\n\ninvariants: rework_cap 2, so cycle 2 is the LAST cycle before the cap gate. Cycle 2 is INCREMENTAL: --since feca0d1a519c46fd2782d1cfd29f5ba4d14ac36e, --resume-thread 01a1bb4c-039d-73e2-b812-7bf04cb26d94, --settled-ledger. aegis forbids Co-Authored-By trailers. Never patch frozen buvis/claude-autopilot.\n\ngate at this head (4baf861 + the deslop and LOW-fix commits): tests/autopilot = 19 failed / 1255 passed, and all 19 are the AP 00018 controller deferral (8 capacity, 7 owner, 4 owner_recovery). unittest discover -s scripts = 59 OK. validate.py = 3 packages, 15 skills. generate_marketplace.py --check = up to date. The 3 provenance/package failures task 5 had introduced are RESOLVED by task 7's map regeneration. Do NOT read the 19 as a regression.\n\nhost gotchas, do not rediscover: the documented Pat lane sonnet-run.sh fails here with \"OAuth session expired and could not be refreshed\" and its retry dies on \"Session ID already in use\"; use the native autopilot:pat subagent and stamp `review: resume_failed` (the attempt grammar accepts only null or resume_failed, not \"passed\", \"clean\" or free text). `autopilot verify` REFUSES to run while `.herdr/icon.svg` is untracked, so the step-7 gate was run as four bare commands and no last-verification.json was written: the review's step 6 must read the gate line from the review file, not that record.\n\nFOREIGN DIRT, leave it alone: `.herdr/icon.svg` is untracked and unrelated to AP 00013. Do not commit it, do not delete it, do not let `git add -A` sweep it in.",
   "prd_budget_since": "2026-11-05T21:53:39Z",
   "design_mode": "run",
   "design_doc": "docs/dev/project-management/designs/00013-autopilot-session-helpers-v3-design.md",
@@ -563,14 +563,70 @@
       "description": "### Findings (verbatim)\n- \ud83d\udfe1 docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json:16: The T1 receipt command contains literal `...`, violating the required exact-command evidence. Recover the complete invocation from its raw log, or record a fresh exact invocation and result without rewriting the historical measurement. Merged with R16 (Eve's same finding at :36, naming the `-k sink_alias ... -q` elision and `duration_seconds: \"not captured\"`), so this is a two-reviewer finding, not single-voice. (found by: BOB, EVE)\n",
       "model": "opus",
       "id": "7",
-      "status": "pending"
+      "status": "completed",
+      "usage_at_start": 129840,
+      "calls_at_start": 11,
+      "started_at": 1794150254,
+      "attempts": [
+        {
+          "outcome": "completed",
+          "model": "opus",
+          "pipeline": "full",
+          "cause": null,
+          "review_cycle": 1,
+          "implementor": "orchestrator",
+          "preflight_outcome": null,
+          "qwen_excluded_reason": "files",
+          "red_check": "n/a:micro-lane",
+          "micro_lane": "applied",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "split_hygiene": "skipped:no-tests",
+          "review": "resume_failed",
+          "escalation_reason": "review_flag",
+          "escalated_from": "opus",
+          "verification": "tests/autopilot/test_helper_recovery_v3.py -k sink_alias: 90 passed; provenance+package subset: 52 passed after the source-map regeneration (3 were red beforehand from task 5's un-regenerated map)",
+          "note": "Rework task 5 (81c89e1) changed plugins/autopilot/scripts/verification.py without regenerating tools/autopilot/source-map.json, leaving 3 provenance/package tests red. Fixed here by re-pinning the receipt to 7a55dcd and regenerating the map; disclosed in the receipt's package_revision_note."
+        }
+      ],
+      "usage_at_done": 205956,
+      "calls_at_done": 66,
+      "done_at": 1794150800
     },
     {
       "name": "[D1] tests/autopilot/test_helper_recovery_v3_artifact.py",
       "description": "### Findings (verbatim)\n- \u26aa tests/autopilot/test_helper_recovery_v3_artifact.py:1: The failed-artifact tests moved to tests/autopilot/test_helper_recovery_v3_artifact.py. That path is not in the PRD's complete write-path list (the PRD names only test_helper_recovery_v3.py). The split is justified because test_helper_recovery_v3.py is at 799 of 800 lines. Record the deviation in the PRD or report. The PRD's Verify line for T2 (`-k failed_artifact` on the old file) no longer selects those tests. (found by: ALICE, BLAKE, EVE)\n",
       "model": "opus",
       "id": "8",
-      "status": "pending"
+      "status": "completed",
+      "usage_at_start": 206481,
+      "calls_at_start": 68,
+      "started_at": 1794150810,
+      "attempts": [
+        {
+          "outcome": "completed",
+          "model": "opus",
+          "pipeline": "full",
+          "cause": null,
+          "review_cycle": 1,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "qwen_excluded_reason": "files",
+          "red_check": "n/a:docs-only-task",
+          "micro_lane": "overrun",
+          "self_deslop": "committed:1539f6d72620f2a2a5cbef6aaca637f7eed4c1ed",
+          "style_gate": "clean",
+          "split_hygiene": "skipped:no-tests",
+          "review": "resume_failed",
+          "escalation_reason": "review_flag",
+          "escalated_from": "opus",
+          "verification": "rg presence checks on both files pass; tests/autopilot/test_helper_recovery_v3_artifact.py -q: 25 passed, exit 0",
+          "note": "Micro lane overran its 30-net-line ceiling (48 lines), so the edit was reverted and the task re-ran through the normal docs-only lane with an Ivan dispatch. Pat returned CLOSURE resolved plus 3 LOW; 2 were fixed in 4baf861 and the third (dropping the 'Two things' lead-in) was rejected as accurate as written. The finding's premise that the PRD body holds the -k failed_artifact selector is wrong: it lives in the execution plan, and the prose now says so."
+        }
+      ],
+      "usage_at_done": 243402,
+      "calls_at_done": 119,
+      "done_at": 1794151272
     }
   ],
   "work_start_sha": "b786f5aa98f0b2b796666a0a410e9ae138e152b1",
@@ -624,12 +680,7 @@
       "verdict": "pass"
     }
   ],
-  "rework_task_ids": [
-    "5",
-    "6",
-    "7",
-    "8"
-  ],
+  "rework_task_ids": [],
   "deferred_decisions": [
     {
       "cycle": 1,

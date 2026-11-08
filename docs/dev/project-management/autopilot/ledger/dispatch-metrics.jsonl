@@ -846,3 +846,13 @@
 {"id":"c01d3b4d","kind":"ivan","task":"6","queued_at":1794149921,"prompt_bytes":10556}
 {"id":"c01d3b4d","ended_at":1794150012,"elapsed_s":91,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1794150179,"phase":"review","prd":"00013-autopilot-session-helpers-v3.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794150232,"phase":"review","prd":"00013-autopilot-session-helpers-v3.md"}
+{"id":"70e438c1","kind":"pat","task":"7","queued_at":1794150635,"prompt_bytes":20554}
+{"id":"f2e5ca8b","kind":"ivan","task":"8","queued_at":1794150878,"prompt_bytes":13720}
+{"id":"f2e5ca8b","ended_at":1794150892,"elapsed_s":14,"outcome":"ok","detail":null}
+{"id":"70e438c1","ended_at":1794150897,"elapsed_s":262,"outcome":"ok","detail":null}
+{"id":"bf65703b","kind":"deslop","task":"8","queued_at":1794151073,"prompt_bytes":7337}
+{"id":"bf65703b","ended_at":1794151185,"elapsed_s":112,"outcome":"ok","detail":null}
+{"id":"08d6fe08","kind":"pat","task":"8","queued_at":1794151215,"prompt_bytes":10630}
+{"id":"08d6fe08","ended_at":1794151245,"elapsed_s":30,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1794151830,"phase":"review","prd":"00013-autopilot-session-helpers-v3.md"}
