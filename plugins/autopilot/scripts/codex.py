@@ -12,13 +12,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from hosts import (
-    UNAVAILABLE_NO_AUTH,
-    CapabilityStatus,
+    UNAVAILABLE_NO_BINARY,
     HostCapability,
     ProbeResult,
+    statuses_from,
+    unavailable,
 )
 
 HOST_ID = "codex"
+IMPLEMENTED_CAPABILITIES = frozenset({"isolation"})
 
 _AUTH_ENV_VAR = "CODEX_API_KEY"
 _AUTH_FILE = Path.home() / ".codex" / "auth.json"
@@ -30,34 +32,19 @@ def _has_auth() -> bool:
 
 def probe(*, project_root: Path) -> ProbeResult:
     probed_at = datetime.now(timezone.utc).isoformat()
-    binary = shutil.which("codex")
-    if binary is None:
-        return ProbeResult(
-            host_id="codex",
-            available=False,
-            capability=None,
-            probed_at=probed_at,
-            evidence_path=None,
-        )
-
+    if shutil.which("codex") is None:
+        return unavailable(HOST_ID, probed_at=probed_at, reason=UNAVAILABLE_NO_BINARY)
     has_auth = _has_auth()
-    status = "available" if has_auth else "unavailable"
-    reason = None if has_auth else UNAVAILABLE_NO_AUTH
-
-    statuses = {
-        name: CapabilityStatus(name=name, status=status, reason=reason)
-        for name in ("identity", "delegation", "isolation")
-    }
-    statuses["interception"] = CapabilityStatus(
-        name="interception", status="unimplemented", reason=None
-    )
-
     return ProbeResult(
-        host_id="codex",
+        host_id=HOST_ID,
         available=True,
-        capability=HostCapability(host_id="codex", statuses=statuses),
+        capability=HostCapability(
+            host_id=HOST_ID,
+            statuses=statuses_from(IMPLEMENTED_CAPABILITIES, authenticated=has_auth),
+        ),
         probed_at=probed_at,
         evidence_path=None,
+        authenticated=has_auth,
     )
 
 

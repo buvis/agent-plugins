@@ -13,60 +13,44 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from hosts import (
-    CAPABILITY_NAMES,
-    UNAVAILABLE_NO_AUTH,
-    CapabilityStatus,
+    UNAVAILABLE_NO_BINARY,
     HostCapability,
     ProbeResult,
+    statuses_from,
+    unavailable,
 )
 
 HOST_ID = "claude"
+IMPLEMENTED_CAPABILITIES = frozenset({"identity", "delegation", "isolation", "interception"})
 
 
 def probe(*, project_root: Path) -> ProbeResult:
     """STATIC checks only: binary-on-PATH and auth presence. Never a live
     dispatch, never a real Agent-tool round-trip."""
     probed_at = datetime.now(timezone.utc).isoformat()
-    binary = shutil.which("claude")
-    if binary is None:
-        return ProbeResult(
-            host_id="claude",
-            available=False,
-            capability=None,
-            probed_at=probed_at,
-            evidence_path=None,
-        )
-
+    if shutil.which("claude") is None:
+        return unavailable(HOST_ID, probed_at=probed_at, reason=UNAVAILABLE_NO_BINARY)
     authenticated = bool(
         os.environ.get("CLAUDE_CODE_OAUTH_TOKEN") or os.environ.get("ANTHROPIC_API_KEY")
     )
-
-    statuses: dict[str, CapabilityStatus] = {}
-    for name in CAPABILITY_NAMES:
-        if name == "interception":
-            # Hardcoded "available" for Claude: client-native hook
-            # registration (PreToolUse/PostToolUse/Stop) is a first-class
-            # host feature, unlike codex/gemini, and is not gated by auth.
-            statuses[name] = CapabilityStatus(name=name, status="available", reason=None)
-        elif authenticated:
-            statuses[name] = CapabilityStatus(name=name, status="available", reason=None)
-        else:
-            statuses[name] = CapabilityStatus(
-                name=name, status="unavailable", reason=UNAVAILABLE_NO_AUTH
-            )
-
     return ProbeResult(
-        host_id="claude",
+        host_id=HOST_ID,
         available=True,
-        capability=HostCapability(host_id="claude", statuses=statuses),
+        capability=HostCapability(
+            host_id=HOST_ID,
+            statuses=statuses_from(IMPLEMENTED_CAPABILITIES, authenticated=authenticated),
+        ),
         probed_at=probed_at,
         evidence_path=None,
+        authenticated=authenticated,
     )
 
 
 def session_identity() -> dict | None:
     """Native session id + process identity for the CURRENT session, or
-    None when this host exposes none (e.g. running outside that host)."""
+    None when this host exposes none (e.g. running outside that host).
+
+    CLAUDE_SESSION_ID is the Claude Code session-id environment variable; absent, this host exposes no native session identity."""
     session_id = os.environ.get("CLAUDE_SESSION_ID")
     if session_id is None:
         return None

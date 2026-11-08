@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "hosts": {
-    "claude": {"capabilities": ["identity", "delegation", "isolation", "interception"]},
-    "codex":  {"capabilities": ["identity", "delegation", "isolation"]},
-    "gemini": {"capabilities": ["identity"]}
+    "claude": {"capabilities": ["delegation", "identity", "interception", "isolation"]},
+    "codex": {"capabilities": ["isolation"]},
+    "gemini": {"capabilities": []}
   }
 }
