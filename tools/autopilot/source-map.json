@@ -162,7 +162,7 @@
         "status": "passed",
         "artifact_id": "plugins/autopilot/README.md",
         "artifact_sha256": "60ebfab1f9c0b09f20275c14801797f8a37f03c9dd4aeb19d7e806a687d0ef6d",
-        "tested_package_revision": "7a55dcdc2b25cb26e7b926f937e603765e93a509"
+        "tested_package_revision": "444d733a32c76623a388a0ee64098b4d1eb60757"
       }
     },
     {
@@ -7253,7 +7253,7 @@
         "status": "passed",
         "artifact_id": "plugins/autopilot/CHANGELOG.md",
         "artifact_sha256": "358363778bb44e6d7ef87e3be2518456f1605f967ba9db1d870b32426b89008f",
-        "tested_package_revision": "7a55dcdc2b25cb26e7b926f937e603765e93a509"
+        "tested_package_revision": "444d733a32c76623a388a0ee64098b4d1eb60757"
       }
     },
     {
@@ -7360,7 +7360,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7387,7 +7387,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7414,7 +7414,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7441,7 +7441,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7468,7 +7468,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7495,7 +7495,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7522,7 +7522,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7549,7 +7549,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7576,7 +7576,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7603,7 +7603,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7630,7 +7630,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7657,7 +7657,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7684,7 +7684,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
@@ -7711,7 +7711,7 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
-        "artifact_sha256": "5ae4c920d2ebdecc7982aa6d6cd41d9df5bc8637e42353e07f37e8d7d3656b36",
+        "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e",
         "tested_package_revision": null
       }
     },
