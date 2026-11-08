@@ -4,6 +4,7 @@
 
 ### Added
 
+- **autopilot**: add AP00014 per-host capability compatibility data: Codex: identity, delegation, isolation supported; Claude: interception supported, identity, delegation, isolation unavailable; Gemini: no capabilities supported, identity, delegation, isolation, interception unavailable.
 - Add stdlib-only, read-only dirty-tree checks and verify log-sink refusal with a descriptor-pinned sink opener, keeping the pinned semantics.
 - Add the advisory local AP00012 review evidence checker that validates policy invariants, closed wire shapes, and every semantic defect against an independent expected context, without certifying host execution.
 - Add stdlib-only session helpers that read consolidated review findings, strip finding-line leads, and group findings into rework tasks with the pinned semantics.

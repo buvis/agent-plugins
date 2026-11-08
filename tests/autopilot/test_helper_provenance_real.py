@@ -45,6 +45,21 @@ FROZEN = {
     "regression_cases": "e7331e78365b23d430469e0edbcd4be456b1fffe69ca16e2e27411c59dca3648",
 }
 CONTROLLER_PREFIXES = ("plugins/autopilot/controller/", "plugins/autopilot/contracts/controller/")
+AP00014_TARGETS = frozenset({
+    "plugins/autopilot/scripts/hosts.py",
+    "plugins/autopilot/scripts/claude.py",
+    "plugins/autopilot/scripts/codex.py",
+    "plugins/autopilot/scripts/gemini.py",
+    "plugins/autopilot/scripts/jobs.py",
+    "plugins/autopilot/scripts/guards.py",
+    "plugins/autopilot/scripts/doctor.py",
+    "plugins/autopilot/contracts/hosts.json",
+    "tools/autopilot/probe-host.py",
+    "tools/autopilot/build-compatibility.py",
+    "plugins/autopilot/compatibility/claude.json",
+    "plugins/autopilot/compatibility/gemini.json",
+    "plugins/autopilot/compatibility/codex.json",
+})
 OTHER_ASSETS_SHA = "381542752d61f87dfecdcc0c88519adbcb37993f24d8edd5157416b8ce72ee4f"
 OLD_OWNERS_SHA = "2fd9c26dc6177f1fb38c6ea26fce2a7df9852892fb02632b07eac3e6925e4d20"
 # Refreshed authored rows without destination_blob_sha256 and evidence.
@@ -223,7 +238,7 @@ def test_unrelated_arrays_and_original_owners_stay_byte_semantic(mapping: dict) 
     assert mapping["source_inventory_sha256"] == INVENTORY_SHA
     for key, expected in FROZEN.items():
         assert hashlib.sha256(canon(mapping[key]).encode()).hexdigest() == expected, key
-    skipped = set(REFRESHED) | HELPER_TARGETS
+    skipped = set(REFRESHED) | HELPER_TARGETS | AP00014_TARGETS
     others = [
         row
         for row in mapping["assets"]

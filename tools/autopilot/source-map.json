@@ -7984,6 +7984,357 @@
         "artifact_sha256": null,
         "tested_package_revision": null
       }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/scripts/hosts.py",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "50ea15a674777ce3e47a479ef7362708bcabde0d30040ec2945555fb91f74ed6",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-scripts/hosts.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/scripts/claude.py",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "2d66720a5d0f5827b7e372d8c29a29a0e098561b3c3e3dc5718d36235032a231",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-scripts/claude.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/scripts/codex.py",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "5dbdf8d07f7514b9c39c1cd03782da1072a4d5a52832ad72ea84b0b1f4e2d077",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-scripts/codex.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/scripts/gemini.py",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "ea14f8c140a92905a53352153643cfa87fd980b87fa3a019916c2aca6baa551e",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-scripts/gemini.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/scripts/jobs.py",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "3c3a74cd4886434b7093453bea8a685c962fe4cb81e786c1479109a781713008",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-scripts/jobs.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/scripts/guards.py",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "5f1dc92af3b0bafb8c0d6923ef8c7ab81763493b47c3e0e27c584d1a402b14df",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-scripts/guards.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/scripts/doctor.py",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "c9312d262e6a24fcd06aca8c7a4e3d96d332e8b3c689882e5325129b2cbf2849",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-scripts/doctor.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/contracts/hosts.json",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "8597c351020b2b4a30387a930dc38e5968ebf16d475446fa613f3f295a99d0b0",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-contracts/hosts.json",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "tools/autopilot/probe-host.py",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "d7fd20133ecd4efdabf09641007b81843fc4831e61cc3d01cf1af69a975ecc2d",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-tools/autopilot/probe-host.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "tools/autopilot/build-compatibility.py",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "3f9260284b8e8988d93f26bcb3f3524b3ee637a4fc78ce0e27bf433e845edfd1",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-tools/autopilot/build-compatibility.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/compatibility/claude.json",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "a453fc8968135c88bc41a40433b6b07d93be2b60d1901ffa7b41444b58b0f718",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-compatibility/claude.json",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/compatibility/gemini.json",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "44a4db9d38acd02c6be3f53c5cbcbd5077e261a73a4b150c66a7d33e8314e1a1",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-compatibility/gemini.json",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/compatibility/codex.json",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "4fe8e5a5eb6158416b25eb60d3c91797d8be9464aa00a230e23ee2ae0bd0e2b3",
+      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-compatibility/codex.json",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
+          "status": "planned"
+        }
+      ],
+      "evidence": {
+        "status": "planned",
+        "artifact_id": null,
+        "artifact_sha256": null,
+        "tested_package_revision": null
+      }
     }
   ],
   "behaviors": [
@@ -284072,6 +284423,175 @@
         {
           "case_id": "authored-plugins/autopilot/controller/main.py",
           "expected_outcome": "The packaged AP00018 controller file exists at the recorded digest; its delivery is owned by AP00018."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/scripts/hosts.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/scripts/hosts.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/scripts/claude.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/scripts/claude.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/scripts/codex.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/scripts/codex.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/scripts/gemini.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/scripts/gemini.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/scripts/jobs.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/scripts/jobs.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/scripts/guards.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/scripts/guards.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/scripts/doctor.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/scripts/doctor.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/contracts/hosts.json",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/contracts/hosts.json",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "tools/autopilot/probe-host.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tools/autopilot/probe-host.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "tools/autopilot/build-compatibility.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-tools/autopilot/build-compatibility.py",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/compatibility/claude.json",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/compatibility/claude.json",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/compatibility/gemini.json",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/compatibility/gemini.json",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/compatibility/codex.json",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00014",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/compatibility/codex.json",
+          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
         }
       ]
     }
