@@ -1,6 +1,6 @@
 {
-  "phase": "build",
-  "next_phase": "build",
+  "phase": "done",
+  "next_phase": "",
   "schema_version": 1,
   "batch": {
     "id": "202610250001",
@@ -192,6 +192,90 @@
         "exit_code": 2,
         "note": "",
         "at": "2026-10-29T23:17:12Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-08T23:24:52Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-08T23:24:52Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-08T23:24:52Z"
+      },
+      {
+        "prd": "00019-autopilot-controller-lifecycle-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00018-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-08T23:24:52Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-08T23:24:52Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-08T23:24:52Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-08T23:25:00Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-08T23:25:00Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-08T23:25:00Z"
+      },
+      {
+        "prd": "00019-autopilot-controller-lifecycle-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00018-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-08T23:25:00Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-08T23:25:00Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-08T23:25:00Z"
       }
     ],
     "minted_stubs": [
