@@ -276,7 +276,20 @@ REFRESHED = (
     "plugins/autopilot/README.md",
     "plugins/autopilot/CHANGELOG.md",
 )
-CONTROLLER_KEYS = {f"{m}:{f}" for m, row in TABLE.items() for f in row[4]}
+AP00014_DIGESTED = (
+    "plugins/autopilot/compatibility/claude.json",
+    "plugins/autopilot/compatibility/codex.json",
+    "plugins/autopilot/compatibility/gemini.json",
+    "plugins/autopilot/contracts/hosts.json",
+    "plugins/autopilot/scripts/claude.py",
+    "plugins/autopilot/scripts/codex.py",
+    "plugins/autopilot/scripts/doctor.py",
+    "plugins/autopilot/scripts/gemini.py",
+    "plugins/autopilot/scripts/guards.py",
+    "plugins/autopilot/scripts/hosts.py",
+    "plugins/autopilot/scripts/jobs.py",
+)
+CONTROLLER_KEYS ={f"{m}:{f}" for m, row in TABLE.items() for f in row[4]}
 
 
 def encode(value: object) -> bytes:
@@ -522,6 +535,12 @@ def apply(
                 "artifact_sha256": sha,
                 "tested_package_revision": revision,
             }
+    ap00014 = set(AP00014_DIGESTED)
+    for row in result["assets"]:
+        if row["destination_path"] in ap00014:
+            row["destination_blob_sha256"] = hashlib.sha256(
+                (root / row["destination_path"]).read_bytes()
+            ).hexdigest()
     return result
 
 

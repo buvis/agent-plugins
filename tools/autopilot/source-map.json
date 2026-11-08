@@ -8203,60 +8203,6 @@
     },
     {
       "source_asset_id": null,
-      "destination_path": "tools/autopilot/probe-host.py",
-      "source_blob_sha256": null,
-      "destination_blob_sha256": "d7fd20133ecd4efdabf09641007b81843fc4831e61cc3d01cf1af69a975ecc2d",
-      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
-      "disposition": "adapted",
-      "section_plan": [],
-      "entry_point_gate": {
-        "status": "not-applicable",
-        "operation": "none",
-        "entry_point": null
-      },
-      "acceptance_cases": [
-        {
-          "case_id": "asset-new-tools/autopilot/probe-host.py",
-          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
-          "status": "planned"
-        }
-      ],
-      "evidence": {
-        "status": "planned",
-        "artifact_id": null,
-        "artifact_sha256": null,
-        "tested_package_revision": null
-      }
-    },
-    {
-      "source_asset_id": null,
-      "destination_path": "tools/autopilot/build-compatibility.py",
-      "source_blob_sha256": null,
-      "destination_blob_sha256": "3f9260284b8e8988d93f26bcb3f3524b3ee637a4fc78ce0e27bf433e845edfd1",
-      "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
-      "disposition": "adapted",
-      "section_plan": [],
-      "entry_point_gate": {
-        "status": "not-applicable",
-        "operation": "none",
-        "entry_point": null
-      },
-      "acceptance_cases": [
-        {
-          "case_id": "asset-new-tools/autopilot/build-compatibility.py",
-          "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; AP00014 delivery evidence is planned.",
-          "status": "planned"
-        }
-      ],
-      "evidence": {
-        "status": "planned",
-        "artifact_id": null,
-        "artifact_sha256": null,
-        "tested_package_revision": null
-      }
-    },
-    {
-      "source_asset_id": null,
       "destination_path": "plugins/autopilot/compatibility/claude.json",
       "source_blob_sha256": null,
       "destination_blob_sha256": "a453fc8968135c88bc41a40433b6b07d93be2b60d1901ffa7b41444b58b0f718",

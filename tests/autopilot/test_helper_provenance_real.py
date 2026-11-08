@@ -54,11 +54,13 @@ AP00014_TARGETS = frozenset({
     "plugins/autopilot/scripts/guards.py",
     "plugins/autopilot/scripts/doctor.py",
     "plugins/autopilot/contracts/hosts.json",
-    "tools/autopilot/probe-host.py",
-    "tools/autopilot/build-compatibility.py",
     "plugins/autopilot/compatibility/claude.json",
     "plugins/autopilot/compatibility/gemini.json",
     "plugins/autopilot/compatibility/codex.json",
+})
+AP00014_OWNED = AP00014_TARGETS | frozenset({
+    "tools/autopilot/probe-host.py",
+    "tools/autopilot/build-compatibility.py",
 })
 OTHER_ASSETS_SHA = "381542752d61f87dfecdcc0c88519adbcb37993f24d8edd5157416b8ce72ee4f"
 OLD_OWNERS_SHA = "2fd9c26dc6177f1fb38c6ea26fce2a7df9852892fb02632b07eac3e6925e4d20"
@@ -329,18 +331,25 @@ def test_new_helper_files_are_owned_and_digested_from_current_bytes(
 
 
 def test_ap00014_rows_are_owned_and_digested_from_current_bytes(mapping: dict) -> None:
-    """Every AP00014 row is owned by 00014 and digests its current bytes."""
+    """Every AP00014 asset row digests its current bytes, and every AP00014
+    owner row is owned by 00014 - including the two maintainer tools, which
+    are owned but deliberately not packaged assets."""
     assets = single_assets(mapping, sorted(AP00014_TARGETS))
     owners = by_key(mapping["authored_file_owners"], "path")
     for path in sorted(AP00014_TARGETS):
         assert assets[path]["destination_blob_sha256"] == digest(
             (ROOT / path).read_bytes()
         ), path
+    asset_paths = {row["destination_path"] for row in mapping["assets"]}
+    for path in sorted(AP00014_OWNED):
         assert owners[path]["delivery_prd"] == "00014", path
         assert owners[path]["owner_repository"] == "buvis/agent-plugins", path
         assert owners[path]["source_asset_id"] is None, path
         assert owners[path]["source_blob_sha256"] is None, path
         assert owners[path]["acceptance_cases"], path
+    for path in sorted(AP00014_OWNED - AP00014_TARGETS):
+        assert path.startswith("tools/"), path
+        assert path not in asset_paths, path
 
 
 def pinned_source_root() -> Path | None:
