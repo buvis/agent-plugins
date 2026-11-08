@@ -9,6 +9,7 @@ carried in the intent but never forwarded into argv.
 
 from __future__ import annotations
 
+import copy
 import dataclasses
 import importlib
 import os
@@ -59,8 +60,9 @@ def _intent(fields: dict):
 
 def _fake_host(host_id: str, argv_prefix: list[str] | None = None, calls: list | None = None):
     """A host-adapter module double: HOST_ID plus build_job_argv returning a
-    concrete list built from the intent's job_id and role (never effort)."""
-    host = types.ModuleType(f"fake_host_{host_id}")
+    concrete list built from the intent's job_id and role (never effort).
+    The module name never contains host_id, so only HOST_ID identifies it."""
+    host = types.ModuleType("host_double")
     host.HOST_ID = host_id
 
     def build_job_argv(intent):
@@ -143,6 +145,17 @@ class RecursiveChildDeniedTest(unittest.TestCase):
             [{"host_id": "claude", "job_id": "alice"}],
             [{"host_id": "claude", "job_id": "alice"}, {"host_id": "codex", "job_id": "bob"}],
             [{"host_id": "codex", "job_id": "bob"}, {"host_id": "claude", "job_id": "alice"}],
+            [
+                {"host_id": "codex", "job_id": "bob"},
+                {"host_id": "claude", "job_id": "alice"},
+                {"host_id": "gemini", "job_id": "x"},
+            ],
+            [
+                {"host_id": "codex", "job_id": "bob"},
+                {"host_id": "gemini", "job_id": "x"},
+                {"host_id": "claude", "job_id": "alice"},
+                {"host_id": "codex", "job_id": "y"},
+            ],
         ):
             with self.subTest(ancestry=ancestry):
                 self.assertIs(
@@ -167,8 +180,11 @@ class RecursiveChildDeniedTest(unittest.TestCase):
 
     def test_compares_against_the_passed_host_module_host_id(self) -> None:
         ancestry = [{"host_id": "zeta", "job_id": "alice"}]
-        zeta = _fake_host("zeta")
+        zeta = types.ModuleType("x")
+        zeta.HOST_ID = "zeta"
         self.assertIs(jobs.recursive_child_denied(self.alice, host=zeta, ancestry=ancestry), True)
+        name_only = [{"host_id": "x", "job_id": "alice"}]
+        self.assertIs(jobs.recursive_child_denied(self.alice, host=zeta, ancestry=name_only), False)
         self.assertIs(jobs.recursive_child_denied(self.alice, host=claude, ancestry=ancestry), False)
         gemini_ancestry = [{"host_id": "gemini", "job_id": "alice"}]
         self.assertIs(
@@ -268,7 +284,13 @@ class NoNestedDriverCliTest(unittest.TestCase):
                     standalone = jobs.request_cross_session_job(
                         intent, seam=None, host=host, ancestry=[]
                     )
-                    self.assertEqual(standalone["mode"], "standalone")
+                    self.assertEqual(
+                        standalone,
+                        {
+                            "mode": "standalone",
+                            "instruction": {"argv": host.build_job_argv(intent), "intent": fields},
+                        },
+                    )
                     controller = jobs.request_cross_session_job(
                         intent, seam=jobs.FakeSeam(guard_rules={}), host=host, ancestry=[]
                     )
@@ -290,8 +312,8 @@ class EffortForwardingTest(unittest.TestCase):
         if argv is None:
             return
         for token in argv:
-            self.assertNotIn(effort, token)
-            self.assertNotIn("--effort", token)
+            self.assertNotIn(effort.lower(), token.lower())
+            self.assertNotIn("--effort", token.lower())
 
     def test_effort_never_reaches_argv_from_real_adapters(self) -> None:
         for fields in (INTENT_A, INTENT_B):
@@ -301,7 +323,10 @@ class EffortForwardingTest(unittest.TestCase):
                     result = jobs.request_cross_session_job(
                         intent, seam=None, host=host, ancestry=[]
                     )
-                    self._assert_effort_absent(result["instruction"]["argv"], intent.effort)
+                    argv = result["instruction"]["argv"]
+                    self.assertEqual(argv, host.build_job_argv(intent))
+                    self.assertEqual(result["instruction"]["intent"], fields)
+                    self._assert_effort_absent(argv, intent.effort)
 
     def test_argv_is_exactly_what_the_host_built_with_no_effort_appended(self) -> None:
         host = _fake_host("zeta", argv_prefix=["zeta", "run"])
@@ -345,6 +370,17 @@ class StandaloneModeTest(unittest.TestCase):
                 self.assertIs(calls[-1], intent)
         self.assertEqual(len(calls), 2)
 
+    def test_returned_intent_is_a_deep_copy_not_shared_with_the_intent(self) -> None:
+        intent = _intent(copy.deepcopy(INTENT_A))
+        result = jobs.request_cross_session_job(intent, seam=None, host=claude, ancestry=[])
+        returned = result["instruction"]["intent"]
+        self.assertIsNot(returned["inputs"], intent.inputs)
+        self.assertIsNot(returned["policy_constraints"], intent.policy_constraints)
+        returned["inputs"]["diff"]["sha256"] = "tampered"
+        returned["inputs"]["extra"] = {}
+        returned["policy_constraints"]["allowed_inputs"].append("prd")
+        self.assertEqual(dataclasses.asdict(intent), INTENT_A)
+
     def test_none_argv_still_returns_complete_intent(self) -> None:
         for fields in (INTENT_A, INTENT_B):
             intent = _intent(fields)
@@ -371,8 +407,8 @@ class StandaloneModeTest(unittest.TestCase):
 class ControllerModeTest(unittest.TestCase):
     def test_merges_seam_response_under_controller_mode(self) -> None:
         responses = (
-            {"accepted": True, "job_ref": "job-001"},
-            {"accepted": False, "job_ref": None},
+            {"accepted": True, "job_ref": "job-001", "queue": "q1"},
+            {"accepted": False, "job_ref": None, "reason": "duty_denied"},
         )
         for fields, response in zip((INTENT_A, INTENT_B), responses):
             intent = _intent(fields)
@@ -389,12 +425,21 @@ class ControllerModeTest(unittest.TestCase):
             intent = _intent(fields)
             with self.subTest(job_id=intent.job_id):
                 direct = jobs.FakeSeam(guard_rules={}).submit_job(intent)
-                self.assertIsInstance(direct["accepted"], bool)
-                self.assertTrue(direct["job_ref"] is None or isinstance(direct["job_ref"], str))
+                self.assertIs(direct["accepted"], True)
+                self.assertIsInstance(direct["job_ref"], str)
+                self.assertNotEqual(direct["job_ref"], "")
                 result = jobs.request_cross_session_job(
                     intent, seam=jobs.FakeSeam(guard_rules={}), host=gemini, ancestry=[]
                 )
                 self.assertEqual(result, {"mode": "controller", **direct})
+
+    def test_fake_seam_issues_a_distinct_job_ref_per_submission(self) -> None:
+        seam = jobs.FakeSeam(guard_rules={})
+        first = seam.submit_job(_intent(INTENT_A))
+        second = seam.submit_job(_intent(INTENT_B))
+        self.assertIs(first["accepted"], True)
+        self.assertIs(second["accepted"], True)
+        self.assertNotEqual(first["job_ref"], second["job_ref"])
 
     def test_fake_seam_records_every_submitted_intent_in_order(self) -> None:
         seam = jobs.FakeSeam(guard_rules={})
@@ -406,6 +451,16 @@ class ControllerModeTest(unittest.TestCase):
         self.assertEqual(len(seam.submitted_intents), 2)
         self.assertIs(seam.submitted_intents[0], alice)
         self.assertIs(seam.submitted_intents[1], blake)
+
+    def test_fake_seam_instances_keep_separate_intent_logs(self) -> None:
+        first = jobs.FakeSeam(guard_rules={})
+        alice = _intent(INTENT_A)
+        first.submit_job(alice)
+        second = jobs.FakeSeam(guard_rules={})
+        self.assertEqual(second.submitted_intents, [])
+        self.assertEqual(first.submitted_intents, [alice])
+        second.submit_job(_intent(INTENT_B))
+        self.assertEqual(first.submitted_intents, [alice])
 
 
 class FakeSeamGuardTest(unittest.TestCase):
