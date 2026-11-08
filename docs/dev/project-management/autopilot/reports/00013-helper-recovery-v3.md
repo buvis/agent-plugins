@@ -155,8 +155,8 @@ Two things in the delivery do not match the PRD text.
    ```
 
    The receipt's `v3-T2` entry records that command green: 20 passed, exit 0,
-   8.88s. The file has since grown through rework, so a run today reports more
-   cases than the receipt's 20. The receipt number stays as recorded.
+   8.88s. The file has since grown through rework, so a run on 2026-11-08
+   reports 25 passed, exit 0. The receipt's 20 stays as recorded.
 
 2. **The source map was regenerated one task late.** Rework task 5 (commit
    `81c89e1`) changed `plugins/autopilot/scripts/verification.py` without
