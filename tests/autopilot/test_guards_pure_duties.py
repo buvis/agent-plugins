@@ -159,6 +159,59 @@ class DocumentLocationTest(_DutyTestCase):
             with self.subTest(value=value):
                 self.assertFailsClosed({"document_path": value}, "document_path")
 
+    def test_denies_a_traversal_that_resolves_to_the_store_root(self) -> None:
+        traversal = f"{STORE}/prds/wip/../../x.md"
+        resolved = f"{STORE}/x.md"
+        self.assertDenied({"document_path": resolved})
+        self.assertDenied({"document_path": traversal})
+        self.assertDenied({"document_path": f"/repo/{STORE}/prds/wip/../../x.md"})
+
+    def test_denies_a_traversal_that_resolves_to_a_foreign_store_directory(self) -> None:
+        for path in (
+            f"{STORE}/prds/wip/../../scratch/x.md",
+            f"{STORE}/prds/wip/../../.trash/x.md",
+            f"{STORE}/designs/../prds/00014-x.md",
+        ):
+            with self.subTest(path=path):
+                self.assertDenied({"document_path": path})
+
+    def test_allows_a_traversal_that_resolves_to_an_allowed_location(self) -> None:
+        for path in (
+            f"{STORE}/designs/../prds/wip/00014-x.md",
+            f"{STORE}/prds/backlog/../wip/00014-x.md",
+            f"{STORE}/prds/wip/../../designs/x.md",
+        ):
+            with self.subTest(path=path):
+                self.assertAllowed({"document_path": path})
+
+    def test_denies_a_path_that_still_climbs_after_normalisation(self) -> None:
+        for path in (
+            "../../etc/x.md",
+            "../x.md",
+            f"../{STORE}/prds/wip/x.md",
+            f"../../{STORE}/prds/wip/x.md",
+        ):
+            with self.subTest(path=path):
+                self.assertDenied({"document_path": path})
+
+    def test_treats_dotdot_lookalike_segments_as_ordinary_names(self) -> None:
+        for path in (
+            f"{STORE}/prds/wip/..foo/x.md",
+            f"{STORE}/designs/foo..bar/x.md",
+            f"{STORE}/designs/..foo/x.md",
+            "src/..foo/x.md",
+        ):
+            with self.subTest(path=path):
+                self.assertAllowed({"document_path": path})
+        self.assertDenied({"document_path": f"{STORE}/..foo/x.md"})
+        self.assertDenied({"document_path": f"{STORE}/prds/..wip/x.md"})
+
+    def test_collapses_single_dot_segments(self) -> None:
+        self.assertAllowed({"document_path": f"{STORE}/./prds/wip/x.md"})
+        self.assertAllowed({"document_path": f"{STORE}/prds/./wip/./x.md"})
+        self.assertDenied({"document_path": f"{STORE}/./x.md"})
+        self.assertDenied({"document_path": f"{STORE}/prds/./x.md"})
+
 
 class DelegationTest(_DutyTestCase):
     duty = GuardDuty.DELEGATION
@@ -257,6 +310,40 @@ class PostHandoffTest(_DutyTestCase):
                 self.assertDenied(
                     {"requested_skill": "autopilot:work", "leave_recorded": True, **extra}
                 )
+
+    def test_denies_a_junk_session_value_as_proof_of_another_session(self) -> None:
+        for junk in (None, "", 5, "  "):
+            with self.subTest(session=junk):
+                self.assertDenied(
+                    {
+                        "requested_skill": "autopilot:work",
+                        "leave_recorded": True,
+                        "session": junk,
+                        "leave_session": "s1",
+                    }
+                )
+
+    def test_denies_a_junk_leave_session_value_as_proof_of_another_session(self) -> None:
+        for junk in (None, "", 5, "  "):
+            with self.subTest(leave_session=junk):
+                self.assertDenied(
+                    {
+                        "requested_skill": "autopilot:work",
+                        "leave_recorded": True,
+                        "session": "s1",
+                        "leave_session": junk,
+                    }
+                )
+
+    def test_allows_two_different_non_empty_session_strings(self) -> None:
+        self.assertAllowed(
+            {
+                "requested_skill": "git-ferry:catchup",
+                "leave_recorded": True,
+                "session": "s2",
+                "leave_session": "s1",
+            }
+        )
 
     def test_fails_closed_when_a_required_key_is_absent_or_mistyped(self) -> None:
         self.assertFailsClosed({}, "requested_skill")
