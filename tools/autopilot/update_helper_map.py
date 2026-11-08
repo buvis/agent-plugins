@@ -289,7 +289,7 @@ AP00014_DIGESTED = (
     "plugins/autopilot/scripts/hosts.py",
     "plugins/autopilot/scripts/jobs.py",
 )
-CONTROLLER_KEYS ={f"{m}:{f}" for m, row in TABLE.items() for f in row[4]}
+CONTROLLER_KEYS = {f"{m}:{f}" for m, row in TABLE.items() for f in row[4]}
 
 
 def encode(value: object) -> bytes:

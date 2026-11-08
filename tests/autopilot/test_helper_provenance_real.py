@@ -29,6 +29,7 @@ from test_helper_provenance import (
     by_key,
     canon,
     digest,
+    load_tool,
     make_repo,
     run_tool,
 )
@@ -350,6 +351,13 @@ def test_ap00014_rows_are_owned_and_digested_from_current_bytes(mapping: dict) -
     for path in sorted(AP00014_OWNED - AP00014_TARGETS):
         assert path.startswith("tools/"), path
         assert path not in asset_paths, path
+
+
+def test_generator_digests_exactly_the_ap00014_asset_rows_this_file_asserts() -> None:
+    """The generator owns these digests, so its tuple and this file's
+    expectation are one invariant kept in two places. Drift between them
+    silently returns the staleness AP00014_DIGESTED exists to prevent."""
+    assert set(load_tool().AP00014_DIGESTED) == AP00014_TARGETS
 
 
 def pinned_source_root() -> Path | None:
