@@ -816,6 +816,16 @@
       "severity": "low",
       "reason": "Deferred in rework task 5 (cycle 1). Behaviour-preserving tidy-up, but it changes the signature of a private helper that two already-committed tests call directly with three arguments (tests/autopilot/test_helper_recovery_v3.py:223 and :293), in a file at 799 of its 800-line limit and outside task 5s write set. The shipped fix left log_sink_refusal.py untouched, so neither the duplicate realpath scan nor the dead parameter is newly introduced. Pats CLOSURE verdict is unresolved and routes it to the PRD-level review.",
       "prd": "00013-autopilot-session-helpers-v3.md"
+    },
+    {
+      "type": "deferred_decision",
+      "cycle": 1,
+      "issue": "The T3 fix covers only `_is_inside_git_dir`, as specified. Sibling Git probes on the same staging path still go through `dirty_tree._git`, which has no timeout and no OSError handling (`_resolve_roots` -> `_toplevel`, `_repo_problem`, `_tracked_problem`). If git is really missing, or one of these probes hangs, `stage_review` still raises before it reaches the guarded probe. The new tests stub only the `--is-inside-git-dir` call, so they do not exercise this. The PRD wording limits scope to `_is_inside_git_dir`, so this is a residual risk and not a spec violation.",
+      "severity": "\ud83d\udfe1",
+      "file": "plugins/autopilot/scripts/dirty_tree.py:19",
+      "action": "deferred",
+      "reason": "deferred by review-close",
+      "prd": "00013-autopilot-session-helpers-v3.md"
     }
   ]
 }

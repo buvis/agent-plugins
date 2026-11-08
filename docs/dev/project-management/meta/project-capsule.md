@@ -43,8 +43,8 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 ### Batch 202610250001
 - [x] 00012-autopilot-package-contract-v1.md (2 cycles; 47/47 tasks)
-- [ ] 00013-autopilot-session-helpers-v3.md (wip since 2026-11-05: the one user-authorized bounded recovery; T1 R1 root-anchored symlink refusal, T2 R3 descriptor-bound failed-artifact invalidation, T3 git-probe timeout fail-closed, T4 delivery evidence; rework_cap 2; no v4. Dispositions: `reports/00013-v3-admission.md`)
-- [ ] 00013 v1 and v2: hold (exhausted caps, cap_regression); not superseded until v3 passes its fresh full review. v2 cycle-2 review `reviews/00013-autopilot-session-helpers-v2-review-2.md`, stubs 00034-00037.
+- [x] 00013-autopilot-session-helpers-v3.md (2 cycles; 11/11 tasks; the one user-authorized bounded recovery; T1 R1 root-anchored symlink refusal, T2 R3 descriptor-bound failed-artifact invalidation, T3 git-probe timeout fail-closed, T4 delivery evidence. Dispositions: `reports/00013-v3-admission.md`; audit: `reviews/00013-autopilot-session-helpers-v3-audit.md`)
+- [ ] 00013 v1 and v2: hold (exhausted caps, cap_regression); superseded by v3's completed fresh full review. v2 cycle-2 review `reviews/00013-autopilot-session-helpers-v2-review-2.md`, stubs 00034-00037.
 - [ ] 00014-autopilot-host-execution-v1.md
 - [ ] 00015-autopilot-workflow-parity-v1.md
 - [ ] 00016-autopilot-controller-integration-v1.md
@@ -54,7 +54,7 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 - [ ] 00020-autopilot-controller-review-v1.md
 - [ ] 00021-autopilot-controller-records-v1.md
 
-Observations (2026-11-03T00:15Z full catchup): resuming AP00013 v2 at task 2 (first non-completed) with design and capsule reused by artifact; catchup ran full because commits past `catchup_head_sha` include non-loop committers. AP00012 completion and host provenance gates pass. Original review receipts and companion Tail sweep audit remain intact. Final Tail sweep suite: 104 passed; validator: 3 packages/15 skills. Next: fresh build session selects AP00013. The pytest count parser limitation remains documented; no new verification receipt is claimed.
+Observations (2026-11-08T16:36Z done gate): AP00013 v3 closed at cycle 2 after a tail sweep of tasks 9-11 (R1 receipt re-pin, R3 CHANGELOG conjunction, R4 artifact-parent-swap coverage check); full suite re-verified at 19 known AP00018 controller failures only. 35 autonomous decisions and 1 deferred decision (dirty_tree.py sibling git-probe timeout, out of T3 scope) projected to `decisions.md`. Next: fresh build session selects the next PRD (00014) from wip/backlog.
 
 ## 2026-11-03T00:45Z AP00013 v2 task-2 Devon-gate build catchup
 
