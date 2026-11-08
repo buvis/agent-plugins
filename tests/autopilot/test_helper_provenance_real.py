@@ -328,6 +328,21 @@ def test_new_helper_files_are_owned_and_digested_from_current_bytes(
         assert owners[path]["delivery_prd"] == "00018", path
 
 
+def test_ap00014_rows_are_owned_and_digested_from_current_bytes(mapping: dict) -> None:
+    """Every AP00014 row is owned by 00014 and digests its current bytes."""
+    assets = single_assets(mapping, sorted(AP00014_TARGETS))
+    owners = by_key(mapping["authored_file_owners"], "path")
+    for path in sorted(AP00014_TARGETS):
+        assert assets[path]["destination_blob_sha256"] == digest(
+            (ROOT / path).read_bytes()
+        ), path
+        assert owners[path]["delivery_prd"] == "00014", path
+        assert owners[path]["owner_repository"] == "buvis/agent-plugins", path
+        assert owners[path]["source_asset_id"] is None, path
+        assert owners[path]["source_blob_sha256"] is None, path
+        assert owners[path]["acceptance_cases"], path
+
+
 def pinned_source_root() -> Path | None:
     candidate = Path(
         os.environ.get("AUTOPILOT_SOURCE_ROOT", ROOT.parent / "claude-autopilot")
