@@ -216,7 +216,7 @@
     "engram": "ok",
     "checked_at": "2026-10-25T22:40:48Z"
   },
-  "tasks_total": 8,
+  "tasks_total": 11,
   "tasks_completed": 8,
   "replan_count": 0,
   "phases_completed": [],
@@ -227,7 +227,9 @@
     "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00012-autopilot-package-contract-v1-review-02.md::tail-sweep",
     "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00013-autopilot-session-helpers-v1-review-01.md::decision-gate",
     "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00013-autopilot-session-helpers-v2-review-1.md::decision-gate",
-    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00013-autopilot-session-helpers-v3-review-1.md::decision-gate"
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00013-autopilot-session-helpers-v3-review-1.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00013-autopilot-session-helpers-v3-review-2.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00013-autopilot-session-helpers-v3-review-2.md::tail-sweep"
   ],
   "codex_probe": {
     "batch_id": "202610250001",
@@ -237,7 +239,7 @@
     "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
     "checked_at": "2026-10-28T03:07:08.511437+00:00"
   },
-  "contract_card": "step: AP00013 v3, cycle 1 rework COMPLETE (all 8 tasks done, phase-done --outcome rework applied, cycle now 2). Next session enters Phase 4 of the review gate for cycle 2. No review file exists for cycle 2 yet, so no Phase 4 skip fires. Do NOT re-run cycle 1's review or decision gate.\n\ncycle 1 rework, what landed: task 5 = R7 HIGH fix in run_verification (81c89e1). task 6 = CHANGELOG bullet split + reviewed-head gate in the recovery report (7a55dcd). task 7 = receipts: a fresh exact non-elided T1 invocation beside the unrewritten historical one, a reviewed_head_gate pointer in the T4 entry, a re-pin of package_revision from 6888765 to 7a55dcd, and two source-map regenerations (08920c6, 5027944, 134346a, ff454c5, 7835825). task 8 = the test-file-split and map-timing deviations recorded in the report and the PRD (6d9de0f, 1539f6d, 4baf861).\n\ninvariants: rework_cap 2, so cycle 2 is the LAST cycle before the cap gate. Cycle 2 is INCREMENTAL: --since feca0d1a519c46fd2782d1cfd29f5ba4d14ac36e, --resume-thread 01a1bb4c-039d-73e2-b812-7bf04cb26d94, --settled-ledger. aegis forbids Co-Authored-By trailers. Never patch frozen buvis/claude-autopilot.\n\ngate at this head (4baf861 + the deslop and LOW-fix commits): tests/autopilot = 19 failed / 1255 passed, and all 19 are the AP 00018 controller deferral (8 capacity, 7 owner, 4 owner_recovery). unittest discover -s scripts = 59 OK. validate.py = 3 packages, 15 skills. generate_marketplace.py --check = up to date. The 3 provenance/package failures task 5 had introduced are RESOLVED by task 7's map regeneration. Do NOT read the 19 as a regression.\n\nhost gotchas, do not rediscover: the documented Pat lane sonnet-run.sh fails here with \"OAuth session expired and could not be refreshed\" and its retry dies on \"Session ID already in use\"; use the native autopilot:pat subagent and stamp `review: resume_failed` (the attempt grammar accepts only null or resume_failed, not \"passed\", \"clean\" or free text). `autopilot verify` REFUSES to run while `.herdr/icon.svg` is untracked, so the step-7 gate was run as four bare commands and no last-verification.json was written: the review's step 6 must read the gate line from the review file, not that record.\n\nFOREIGN DIRT, leave it alone: `.herdr/icon.svg` is untracked and unrelated to AP 00013. Do not commit it, do not delete it, do not let `git add -A` sweep it in.",
+  "contract_card": "step: AP00013 v3, cycle 2 CONVERGED. Review file `docs/dev/project-management/reviews/00013-autopilot-session-helpers-v3-review-2.md` is written and gates clean (`check_review_file.py --require-codex-guard`, and `autopilot gate --require-codex-guard --assert-constraint-met` exits 0). The decision gate ran (`review-close --batch-id decision-gate`, applied, 0 tasks) and the tail sweep created tasks 9, 10, 11 at sonnet (`review-close --batch-id tail-sweep`, applied). `rework_task_ids` = [\"9\",\"10\",\"11\"], all pending. `phase`/`next_phase` stay `review` and `cycle` stays 2 \u2014 NO phase-done was run here, by design (tail sweep step 3 loop-mode handoff, PRD 00208).\n\nNEXT SESSION: you land in Phase 4's rotation-resume skip because this cycle's review file exists and `rework_task_ids` names unfinished tasks whose names start with `[D2] Tail sweep`. That means: **resume at Tail sweep step 3** in `references/phase-review.md`, invoke `/autopilot:work` in rework mode on tasks 9, 10, 11, and then go to step 4 (Finalize) and the finalize hand-off \u2014 `autopilot phase-done --outcome converged`. Do NOT run Phase 6's exit (`--outcome rework`): that would reopen a converged cycle. Do NOT re-review, do NOT increment `cycle`, do NOT run another review cycle.\n\nWhat the three tasks must do:\n- task 9 (receipts, R1+R8): the receipt's `package_revision_note` and the recovery report both claim a recorded gate covers the rework's product bytes; the latest recorded gate is feca0d1, which precedes 81c89e1 (the task-5 `absolute()` fix). Append a \"Gate at the rework head (921efc5)\" section to `docs/dev/project-management/autopilot/reports/00013-helper-recovery-v3.md` with the four exact commands and results below, fix the report header pin (\"Tested package revision: 6888765\"), and point the receipt at it. Preserve historical runs. The report is deliberately unhashed, so no source-map regeneration follows.\n- task 10 (coverage, R4): cycle 1's queued check in `-checks-1.json` has NO recorded result. Run its `rg`, then add the artifact-sink variant of `test_sink_alias_a_log_parent_swapped_for_a_symlink_after_refuse_fails_the_sink` in `tests/autopilot/test_helper_recovery_v3_artifact.py` (it has room; `test_helper_recovery_v3.py` is at 799/800 lines), and record the check's outcome beside the check.\n- task 11 (prose, R3): `plugins/autopilot/CHANGELOG.md:33` lost its conjunction \u2014 \"..., stops the child's leftover processes when a sink fails late, removes only a leaf it created;\" needs \"and\" before \"removes\".\n\ninvariants: rework_cap 2 and the cycle CONVERGED, so the cap is irrelevant \u2014 never cap-pause or stall this cycle. aegis forbids Co-Authored-By trailers. Never patch frozen buvis/claude-autopilot. `[Unreleased]` CHANGELOG entries are required for feat/fix.\n\ngate at 921efc5, all four run BARE because `review-stage`'s `reuse_verdict` and `autopilot verify` both refuse on the dirty tree (untracked `.herdr/icon.svg`): `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` = 19 failed, 1255 passed in 489.25s; `python3 -m unittest discover -s scripts` = Ran 59 tests OK; `python3 scripts/validate.py` = 3 plugin packages, 15 skills; `python3 scripts/generate_marketplace.py --check` = up to date. The 19 are the AP 00018 controller deferral (8 capacity, 7 owner, 4 owner_recovery) \u2014 an external blocker, NOT a regression, never mask/delete/xfail/relabel. No `last-verification.json` was written this cycle, so read the gate line from the review file, not that record.\n\nhost gotchas, do not rediscover: `review-close` parses the WHOLE review file for finding rows \u2014 a second markdown table or a bare severity emoji in prose outside `## Consolidated Findings` refuses the batch as `findings_malformed` (hit twice here; both were rewritten as bullets/words). `consolidate_findings.py --ledger-dismiss BLAKE` did NOT dismiss Blake's R5 re-raise even though it matches a cycle-1 ledger entry at the identical `log_sink_refusal.py:141`; the gate dismissed it by judgment and recorded it in the ledger. Bob resumed codex thread 01a1bb4c cleanly. Carl exited 0 this cycle (no salvage needed). Bob's inlined prompt was 246953 bytes against a 30266-byte staged render, so his dispatch row's `prompt_bytes` understates it.\n\nFOREIGN DIRT, leave it alone: `.herdr/icon.svg` is untracked and unrelated. Do not commit it, do not delete it, never `git add -A`. Eve also left `docs/dev/tmp/eve-refuse-sibling-check.py` in the gitignored scratch tree.",
   "prd_budget_since": "2026-11-05T21:53:39Z",
   "design_mode": "run",
   "design_doc": "docs/dev/project-management/designs/00013-autopilot-session-helpers-v3-design.md",
@@ -324,6 +326,174 @@
       "cycle": 1,
       "action": "deferred, not fixed in task 5",
       "reason": "behaviour-preserving tidy-up only (the finding itself says both follow the design contract), but closing it changes the signature of a private helper that two already-committed tests call directly with three arguments (tests/autopilot/test_helper_recovery_v3.py:223 and :293). That file sits at 799 of its 800-line limit and is outside this task's write set, so the cleanup would mean editing a security-critical module's test contract purely to accommodate a micro-optimisation during a cycle whose purpose is closing the R7 HIGH regression. The fix Ivan shipped left log_sink_refusal.py untouched, so neither the duplicate realpath scan nor the dead parameter is newly introduced."
+    },
+    {
+      "issue": "R1 receipt package_revision_note does not describe the product bytes at the re-pinned revision",
+      "severity": "medium",
+      "cycle": 2,
+      "action": "swept (tail sweep task)",
+      "reason": "cycle 2: two voices (BLAKE, BOB) on real stale delivery evidence; the sweep task carries EVE's R8 remedy verbatim, including the 921efc5 gate section and the report header pin"
+    },
+    {
+      "issue": "R2 task 5's R6 deferral rationale is weak and state.json carries contradictory R6 decision rows",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discarded (settled deferral + out-of-scope state artifact)",
+      "reason": "cycle 2: the code change it argues for is the settled cycle-1 R6 deferral; the contradictory rows live in machine-written state.json outside this PRD's write paths"
+    },
+    {
+      "issue": "R3 the merged --verify CHANGELOG bullet lost its conjunction before 'removes only a leaf it created'",
+      "severity": "low",
+      "cycle": 2,
+      "action": "swept (tail sweep task)",
+      "reason": "cycle 2: two voices (ALICE, EVE), mechanical prose fix, verified present at plugins/autopilot/CHANGELOG.md:33"
+    },
+    {
+      "issue": "R4 cycle-1 queued check for artifact-sink parent-swap coverage has no recorded result and the race stays unpinned",
+      "severity": "medium",
+      "cycle": 2,
+      "action": "swept (tail sweep task)",
+      "reason": "cycle 2: two voices (BOB, EVE) plus the carried-forward unrun check from checks-1.json, whose entry carries no result; the one real coverage gap this cycle"
+    },
+    {
+      "issue": "R5 _root_anchor accepts any leading prefix whose realpath equals the root, so a third spelling is trusted",
+      "severity": "high",
+      "cycle": 2,
+      "action": "discarded (settled deferral, ledger)",
+      "reason": "cycle 2: identical to cycle-1 R12 at the same log_sink_refusal.py:141; designed root-alias anchoring, BLAKE the only raiser in both cycles and in both he concedes containment holds with O_NOFOLLOW-pinned below-root components. --ledger-dismiss BLAKE did not match the text mechanically, so the dismissal is recorded by the gate and in the ledger"
+    },
+    {
+      "issue": "R6 a missing or hung git still tracebacks out of stage_review through dirty_tree._git",
+      "severity": "medium",
+      "cycle": 2,
+      "action": "discarded (settled deferral)",
+      "reason": "cycle 2: this is cycle-1 R5, already in state.deferred_decisions; PRD T3 names _is_inside_git_dir only and dirty_tree.py is outside the T3 write paths"
+    },
+    {
+      "issue": "R7 T4's requirement to merge the overlapping CHANGELOG --verify bullets is unmet",
+      "severity": "medium",
+      "cycle": 2,
+      "action": "discarded (contradicts verified facts)",
+      "reason": "cycle 2: misreads T4. The overlap T4 names (the log on spawn failure) was merged at CHANGELOG.md:33, verified against the PRD text and the file; lines 34-37 are distinct behaviours"
+    },
+    {
+      "issue": "R8 the receipt and report claim a recorded gate covers the rework's product bytes when the latest recorded gate is feca0d1",
+      "severity": "medium",
+      "cycle": 2,
+      "action": "discarded (duplicate of R1, swept there)",
+      "reason": "cycle 2: same defect as the two-voice R1 row; the sweep task carries this row's remedy verbatim"
+    },
+    {
+      "issue": "R9 the report cites its raw gate log in the gitignored docs/dev/tmp tree",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discarded (single-voice)",
+      "reason": "cycle 2: ALICE only, and she states the evidence is usable because the counts are inline; docs/dev/tmp is the designated scratch tree and tracking raw logs is not a PRD write path"
+    },
+    {
+      "issue": "R10 the five new dup-failure cases pass against the pre-rework code",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discarded (mechanical replay control)",
+      "reason": "cycle 2: the raiser accepts the tests; same class as cycle-1 R14/R20, and cycle-1 R1 asked for exactly this pre-existing branch to be pinned"
+    },
+    {
+      "issue": "R11 _write_artifact's NUL-byte pwrite fallback exceeds the spec's truncation requirement",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discarded (single-voice)",
+      "reason": "cycle 2: BLAKE only, and he states it is defensive and low risk; it serves the spec rule that a failed artifact can never stay reusable"
+    },
+    {
+      "issue": "R12 prior R6 remains unresolved (duplicate anchor scans, unused parameter)",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discarded (settled deferral)",
+      "reason": "cycle 2: a restatement of the settled cycle-1 R6 deferral by its own author, asserting no new regression"
+    },
+    {
+      "issue": "R13 prior R5 remains deferred (sibling staging git probes lack timeout handling)",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discarded (settled deferral)",
+      "reason": "cycle 2: a restatement of the settled cycle-1 R5 deferral by its own author, out of PRD scope"
+    },
+    {
+      "issue": "R14 the CHANGELOG bullet says --verify accepts a relative --project-root 'again' though nothing was released",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discarded (single-voice)",
+      "reason": "cycle 2: EVE only, a wording preference on an unreleased entry; the changelog rule requires the entry and merging it back would re-fuse the clauses cycle-1 R2 asked to split"
+    },
+    {
+      "issue": "R15 DUP_CALLS patches os.dup2 speculatively with a positional-only fake",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discarded (single-voice)",
+      "reason": "cycle 2: EVE only, test-internal tidying; ALICE reviewed the same cases and accepted them, and the patch is scoped to the test's own context manager"
+    },
+    {
+      "issue": "R16 sibling git probes in dirty_tree._git have no timeout or OSError guard",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discarded (settled deferral)",
+      "reason": "cycle 2: the raiser files it as out of scope against the settled cycle-1 R5 deferral"
+    },
+    {
+      "issue": "R17 state.json carries the R6 issue twice with contradictory actions and two D1-D5 verdict sets",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discarded (single-voice, out of scope)",
+      "reason": "cycle 2: EVE only and filed by her as out of scope; state.json is machine-written workflow state, and two D1-D5 sets is the documented shape when Bob and Eve both run"
+    },
+    {
+      "issue": "R18 commit 1539f6d's subject names a test file it did not touch",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discarded (single-voice, unamendable)",
+      "reason": "cycle 2: EVE only and filed by her as out of scope; rewriting a pushed master commit needs a force push, which is not authorized"
+    },
+    {
+      "issue": "R19 [MECH] 5 dup tests pass against the pre-change code",
+      "severity": "medium",
+      "cycle": 2,
+      "action": "discarded (mechanical replay control)",
+      "reason": "cycle 2: the mechanical replay cannot distinguish a pin of retained behaviour from a missing pin, and cycle-1 R1 asked for this pre-existing os.dup branch to be pinned; same class as cycle-1 R14/R20"
+    },
+    {
+      "issue": "R20 [MECH] 28 relative_root tests pass against the pre-change code",
+      "severity": "medium",
+      "cycle": 2,
+      "action": "discarded (mechanical replay control)",
+      "reason": "cycle 2: the row's own text enumerates why each case passes at base and names the 5 corrective cases that did fail first; same class as cycle-1 R13/R19"
+    },
+    {
+      "issue": "R21 the receipt's reviewed_head_gate.log points at a gitignored scratch file",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discarded (single-voice)",
+      "reason": "cycle 2: EVE only and filed by her as out of scope; same fact as R9"
+    },
+    {
+      "cycle": 2,
+      "issue": "The receipt's `package_revision_note` says the per-task T1-T4 measurements were taken at 6888765, not at the re-pinned revision. This is disclosed honestly and the historical entries were preserved. But the receipt does not describe the product bytes at the pin.",
+      "severity": "medium",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 2,
+      "issue": "The edit that removed \", and leaves no reusable artifact after a failed write or close\" left the first `--verify` bullet's list without its conjunction: \"...stops the child's leftover processes when a sink fails late, removes only a leaf it created; ...\". It needs \"and\" before \"removes\".",
+      "severity": "low",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "cycle": 2,
+      "issue": "Prior R17 has a queued check but no recorded result establishing artifact-parent race coverage. Run `rg -n \"swap_artifact|artifact.*parent.*symlink|SPELLINGS\" tests/autopilot/test_helper_rework_sinks.py tests/autopilot/test_helper_recovery_v2_sinks.py`; inspect matching tests for mixed root/artifact spellings, a post-preflight parent swap, controlled refusal and unchanged sentinel bytes. Record the covering node or add the missing case.",
+      "severity": "medium",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
     }
   ],
   "tasks": [
@@ -627,6 +797,27 @@
       "usage_at_done": 243402,
       "calls_at_done": 119,
       "done_at": 1794151272
+    },
+    {
+      "name": "[D2] Tail sweep: docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe1 docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json:6: The receipt's `package_revision_note` says the per-task T1-T4 measurements were taken at 6888765, not at the re-pinned revision. This is disclosed honestly and the historical entries were preserved. But the receipt does not describe the product bytes at the pin. (found by: BLAKE, BOB)\n",
+      "model": "sonnet",
+      "id": "9",
+      "status": "pending"
+    },
+    {
+      "name": "[D2] Tail sweep: docs/dev/project-management/reviews/00013-autopilot-session-helpers-v3-checks-1.json",
+      "description": "### Findings (verbatim)\n- \ud83d\udfe1 docs/dev/project-management/reviews/00013-autopilot-session-helpers-v3-checks-1.json:7: Prior R17 has a queued check but no recorded result establishing artifact-parent race coverage. Run `rg -n \"swap_artifact|artifact.*parent.*symlink|SPELLINGS\" tests/autopilot/test_helper_rework_sinks.py tests/autopilot/test_helper_recovery_v2_sinks.py`; inspect matching tests for mixed root/artifact spellings, a post-preflight parent swap, controlled refusal and unchanged sentinel bytes. Record the covering node or add the missing case. (found by: BOB, EVE, verify-check)\n",
+      "model": "sonnet",
+      "id": "10",
+      "status": "pending"
+    },
+    {
+      "name": "[D2] Tail sweep: prose",
+      "description": "### Findings (verbatim)\n- \u26aa plugins/autopilot/CHANGELOG.md:33: The edit that removed \", and leaves no reusable artifact after a failed write or close\" left the first `--verify` bullet's list without its conjunction: \"...stops the child's leftover processes when a sink fails late, removes only a leaf it created; ...\". It needs \"and\" before \"removes\". (found by: ALICE, EVE)\n",
+      "model": "sonnet",
+      "id": "11",
+      "status": "pending"
     }
   ],
   "work_start_sha": "b786f5aa98f0b2b796666a0a410e9ae138e152b1",
@@ -680,7 +871,11 @@
       "verdict": "pass"
     }
   ],
-  "rework_task_ids": [],
+  "rework_task_ids": [
+    "9",
+    "10",
+    "11"
+  ],
   "deferred_decisions": [
     {
       "cycle": 1,

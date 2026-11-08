@@ -94,5 +94,149 @@
     "issue": "The source map has no helper-disposition row for `_root_anchor` (nor `_acquire_sink`, `_write_artifact`), and `_pinned_parent_fd`'s row still sits under `verification:` though it lives in log_sink_refusal; the generator's `log_sink_refusal` roster at update_helper_map.py:196 is a hardcoded pinned-source list",
     "file": "tools/autopilot/source-map.json:285899",
     "reason": "single-voice (EVE only) and out of this PRD's write paths: the roster lives in tools/autopilot/update_helper_map.py, which is read-only under v3. Eve bucketed it KNOWN for the same reason, and noted that file-level digest and adaptation rows do cover log_sink_refusal.py."
+  },
+  {
+    "cycle": 2,
+    "disposition": "settled-deferral",
+    "severity": "high",
+    "issue": "`_root_anchor` accepts ANY leading prefix whose realpath equals the root, so a third spelling is trusted. A path such as /outside/back/x.log (back -> root) gets `refuse()` == None and `_pinned_parent_fd` opens it. I reproduced this with a temp repo. The PRD says a path \"not under the root by either root spelling raises before any descriptor opens\" and that a path returning through a symlink to the root itself is refused. The new tests only cover paths that start under the root spelling (tests/autopilot/test_helper_recovery_v3.py:387-434), so this gap is untested. The write still lands inside the root, and the components below the prefix are O_NOFOLLOW-pinned, so it is not an escape. It is still a contract deviation.",
+    "file": "plugins/autopilot/scripts/log_sink_refusal.py:141",
+    "reason": "settled in cycle 1 as the same finding at the same line (cycle-1 R12, ledger disposition discarded): the shortest-prefix anchor is the designed root-alias behaviour, and the PRD's own sentence 'a symlinked ancestor of the root stays allowed' is what it implements. Blake is the only raiser in both cycles and in both he concedes the write lands inside the root with every below-prefix component O_NOFOLLOW-pinned, so containment holds and nothing escapes. The cycle-2 re-raise adds a reproduction but no fact that breaks the cycle-1 reason, so the settled call stands. Blake never sees the ledger by design; `--ledger-dismiss BLAKE` did not match this text mechanically, so the dismissal is recorded here by the gate instead."
+  },
+  {
+    "cycle": 2,
+    "disposition": "settled-deferral",
+    "severity": "medium",
+    "issue": "Git missing or not executable still tracebacks out of `stage_review`. `_is_inside_git_dir` now fails closed (review_stage.py:420). But `_resolve_roots` calls `_toplevel` (review_stage.py:606), and `_destination_problem` and `_repo_problem` call it too. These go through `dirty_tree._git`, which has no timeout and no OSError handling (plugins/autopilot/scripts/dirty_tree.py:19). With PATH lacking git, `_resolve_roots` raised FileNotFoundError in my run. The T3 tests stub only the `--is-inside-git-dir` probe, so they pass while the real \"git missing\" case still crashes. The Phase 1 exit criterion \"subprocess probes have explicit timeouts\" is also unmet for those `_git` probes. dirty_tree.py is outside the T3 writable paths, so this may be a PRD scoping gap.",
+    "file": "plugins/autopilot/scripts/review_stage.py:606",
+    "reason": "this is cycle-1 R5, already a recorded deferral in state.json deferred_decisions, restated this cycle by BOB (R13) and EVE (R16) as explicitly out of scope. PRD T3 names `_is_inside_git_dir` only and dirty_tree.py is outside the T3 write paths, so fixing it here would widen helper ownership the PRD forbids. A settled deferral is not re-argued."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "T4 asks for the overlapping CHANGELOG `--verify` bullets to be merged into one. plugins/autopilot/CHANGELOG.md:32-37 still has several separate `--verify` bullets that overlap on creation and removal of the artifact and log. The README wording matches the fixed behavior.",
+    "file": "plugins/autopilot/CHANGELOG.md:33",
+    "reason": "misreads the requirement, verified against the PRD and the file. T4 asks to merge the overlapping pair about the log on spawn failure, naming the exact wording ('keeps an existing log byte-identical when the spawn fails'; remove 'leaves no log behind'). That merge landed: CHANGELOG.md:33 now carries one bullet saying an existing log and result artifact stay byte-identical when the spawn fails. Lines 34-37 are distinct behaviours (leaf removal, failed-write emptying, component judging, nested pointer), not the overlap T4 names. Single-voice BLAKE."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The task 5 deferral of R6 rests on the claim that the file is \"outside task 5's write set\" and \"at 799 lines\". Changing the two direct `_symlinked_component(..., given_root, given_root)` calls to a 2-argument form adds no lines. The ledger rows in state.json also mark the same R6 issue \"auto-fixed / fixed by review-close\" while a second row says \"deferred, not fixed\", so the two disagree.",
+    "file": "plugins/autopilot/scripts/log_sink_refusal.py:164",
+    "reason": "two parts, both settled. The code change it argues for is cycle-1 R6, a recorded deferral in the batch deferred journal and assumptions.md; reopening it at cycle 2 would reverse a decision already taken on a behaviour-preserving private-signature change. The contradictory decision rows live in state.json, machine-written workflow state that this PRD may not edit (EVE records the same fact as out of scope in her KNOWN bucket); the deferred journal and assumptions.md carry the truthful disposition."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The new report section cites its raw gate log at docs/dev/tmp/gate-ap00013-v3-c1.log:467. That tree is gitignored under the working-documents rule, so a reader of the committed report cannot check the summary line. The counts are also written inline, so the evidence is usable.",
+    "file": "docs/dev/project-management/autopilot/reports/00013-helper-recovery-v3.md:204",
+    "reason": "single-voice (ALICE), and the raiser states the evidence is usable because the counts are inline. docs/dev/tmp is the designated scratch tree by the working-documents rule and tracking raw gate logs is not a PRD write path; EVE records the same fact as out of scope (R21)."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The receipt's `reviewed_head_gate.log` and the report cite `docs/dev/tmp/gate-ap00013-v3-c1.log`, a gitignored scratch file, as the raw evidence; only the inline counts are durable.",
+    "file": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json:139",
+    "reason": "same fact as the ALICE row above, recorded by EVE herself as out of scope: docs/dev/tmp is the designated scratch tree and tracking raw logs is not a PRD write path. Single-voice."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The five new dup-failure cases pass against the pre-rework code, because they cover the existing T2 branch and not new behavior. They are labelled controls or gap-fill tests, bind to intent (prior bytes preserved, sink closed, token propagated, hook reached), and I accept them. I record it only so the replay row does not reopen it.",
+    "file": "tests/autopilot/test_helper_recovery_v3_artifact.py:1181",
+    "reason": "contradicts nothing and asks for nothing: the raiser accepts the tests. Same class as cycle-1 R14/R20, discarded then for the same reason. The mechanical replay cannot tell a pin of retained behaviour from a missing pin, and cycle-1 R1 asked precisely for the pre-existing `os.dup` branch to be pinned, so these cases passing at base is by design."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "[MECH] 5 dup tests pass at base: they pin the pre-existing `os.dup` failure branch that R1 asked to test (present since a1aa604, so at feca0d1); the replay cannot tell a pin of retained behaviour from a missing pin.",
+    "file": "tests/autopilot/test_helper_recovery_v3_artifact.py:268",
+    "reason": "mechanical replay row, same computed fact as the ALICE row above and the same class as cycle-1 R14/R20. Cycle-1 R1 asked for the pre-existing `os.dup` failure branch to be pinned, so a passing-at-base result is the requested behaviour, not a missing pin."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "[MECH] 28 relative_root tests pass at base: the `refuse` cases pass absolute candidates (a relative root already resolved via realpath at base), the absolute-output CLI runs never hit the None anchor, and the stays-refused controls got the same `unsafe-artifact-path` slug at base; the 5 relative-output success cases are the fail-first pins of 81c89e1 and the replay shows exactly 5 failed at base.",
+    "file": "tests/autopilot/test_helper_recovery_v3_relative_root.py:106",
+    "reason": "mechanical replay row whose own text enumerates why each case passes at base, and names the 5 corrective cases that did fail first. Same class as cycle-1 R13/R19, discarded then for the same reason."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`_write_artifact` adds a NUL-byte `pwrite` fallback when `ftruncate` fails, and a reason-suffix message. The spec only asks for truncation through the kept descriptor. This is defensive and low risk. If `os.dup` fails, an existing leaf keeps its earlier record, which the CHANGELOG discloses.",
+    "file": "plugins/autopilot/scripts/verification.py:287",
+    "reason": "single-voice (BLAKE) and the raiser states it is defensive and low risk, with the dup-failure consequence already disclosed in the CHANGELOG. The fallback serves the spec's requirement that a failed artifact can never stay reusable."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Prior R6 remains unresolved: duplicate anchor scans and the unused parameter are explicitly deferred. The recorded reason limits task 5 to the relative-root correction and avoids changing existing private-helper test contracts; no new regression is shown.",
+    "file": "docs/dev/project-management/autopilot/deferred/202610250001-deferred.json:815",
+    "reason": "a restatement of the settled cycle-1 R6 deferral by its own author, asserting no new regression. Nothing to act on."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Prior R5 remains explicitly deferred: sibling staging Git probes lack timeout/start-error handling. Their implementation is unchanged and outside T3's specified `_is_inside_git_dir` correction.",
+    "file": "plugins/autopilot/scripts/dirty_tree.py:19",
+    "reason": "a restatement of the settled cycle-1 R5 deferral by its own author, out of PRD scope. Nothing to act on."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "R5: sibling Git probes via `dirty_tree._git` (`_toplevel`, `_repo_problem`, `_tracked_problem`) still have no timeout or OSError guard, so a hung or missing git can raise out of `stage_review` before the guarded probe. Out of scope: PRD T3 names `_is_inside_git_dir` only; recorded in state.json `deferred_decisions`.",
+    "file": "plugins/autopilot/scripts/dirty_tree.py:19",
+    "reason": "the raiser files it as out of scope against the settled cycle-1 R5 deferral. Nothing to act on."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "CHANGELOG bullet \"`--verify` accepts a relative `--project-root` again\": the file has only `[Unreleased]` (rg `^## \\[`), so no user ever saw the refusal; \"again\" asserts a released regression that did not exist and the bullet records an intra-release no-op. Fix: fold the relative-root clause into the root-anchored bullet (\"whichever way the root is spelled, relative or absolute\") and drop the standalone bullet, or at minimum drop \"again\".",
+    "file": "plugins/autopilot/CHANGELOG.md:32",
+    "reason": "single-voice (EVE) and a wording preference on an unreleased entry. The observation is correct on its facts, but the changelog rule requires an entry for the fix and the bullet describes the shipped behaviour accurately; merging it into the root-anchored bullet would re-fuse the clauses cycle 1 asked to split (R2). Not a task."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`DUP_CALLS = (\"dup\", \"dup2\")`: `_write_artifact` calls only `os.dup` (verification.py:296); patching `os.dup2` is speculative, and the fake's positional-only `(fd, *args)` signature would raise TypeError on a keyword `inheritable=` call to `os.dup2` from unrelated code while the global patch is live. Fix: patch `os.dup` only and delete `DUP_CALLS`.",
+    "file": "tests/autopilot/test_helper_recovery_v3_artifact.py:240",
+    "reason": "single-voice (EVE) test-internal tidying. ALICE reviewed the same cases and accepted them as binding to intent; the patch is scoped to the test's own context manager, so the hypothetical keyword call it describes has no caller inside that window."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "state.json `autonomous_decisions` carries the R6 issue twice with contradictory actions (\"auto-fixed / fixed by review-close\" and \"deferred, not fixed in task 5\"), and `doubts_rubric_verdicts` holds D1-D5 twice (Bob and Eve). Out of scope: workflow state is read-only under the PRD and machine-written by review-close; the deferred journal and assumptions.md carry the truthful disposition.",
+    "file": "docs/dev/project-management/autopilot/state.json:355",
+    "reason": "the raiser files it as out of scope and names the authoritative records. state.json is machine-written workflow state outside this PRD's write paths, and two D1-D5 sets is the documented shape when Bob and Eve both run."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Commit 1539f6d's subject \"prune slop from [D1] tests/autopilot/test_helper_recovery_v3_artifact.py\" names the task label, but `git show --stat` shows it touched only the recovery report (1+/2-), no test file. Out of scope: history on master; amending needs a force push, which is not authorized.",
+    "file": "N/A",
+    "reason": "the raiser files it as out of scope and the reason is correct: rewriting a pushed master commit needs a force push, which requires explicit human approval and is not authorized by this PRD. Nothing to act on in the working tree."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The receipt's `package_revision_note` says \"The gate that does cover the rework's product bytes is recorded in ...00013-helper-recovery-v3.md\", and the report (line 36-38) says the feca0d1 gate is \"the run that reflects the delivered state\". Both are false: feca0d1 is the base of this diff and precedes 81c89e1 (task 5, verification.py `absolute()`), so no recorded gate covers the rework's product bytes; the post-rework gate (19 failed / 1255 passed at 921efc5, unittest 59 OK, validate 3/15, marketplace up to date) exists only in state.json's contract_card. The report header still says \"Tested package revision: 6888765\" against the 7a55dcd pin. Fix: append a \"Gate at the rework head (921efc5)\" section to the report with the four exact commands, results and the 8/7/4 controller breakdown, and update the header pin; the report is deliberately unhashed, so no map regeneration follows.",
+    "file": "docs/dev/project-management/autopilot/reports/00013-helper-recovery-v3.md:36",
+    "reason": "not dropped: the same defect is swept this cycle as the consolidated two-voice row R1 (BLAKE, BOB) at the receipt, and the sweep task carries this row's remedy verbatim, including the report header pin and the 921efc5 gate section. Recorded as settled here only so the duplicate row is not raised again as its own finding."
   }
 ]
