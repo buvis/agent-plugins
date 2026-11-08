@@ -1,0 +1,6 @@
+{
+  "host_id": "claude",
+  "capabilities": [
+    "interception"
+  ]
+}
