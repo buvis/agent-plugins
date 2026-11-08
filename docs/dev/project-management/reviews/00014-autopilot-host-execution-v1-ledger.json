@@ -1,0 +1,154 @@
+[
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Hedged or tautological assertions: `assertIn(codex.can_delegate(), (True, False))` and `assertIn(gemini.can_delegate(), (True, False))` can never fail; `assertTrue(result is None or isinstance(result, list))` is the same shape. The same either-or pattern appears in test_jobs.py:306. test_compatibility.py:173 guards its assertion with `if expected:`, so it is vacuous on a host with no codex. Assert codex.can_delegate() is False.",
+    "file": "tests/autopilot/test_sessions.py:95",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`ProbeResult.evidence_path` is always None, even though probe-host.py writes an evidence file. The tool could return the path. build-compatibility.py also continues silently for hosts with no capability, which can leave a stale bundle on disk.",
+    "file": "tools/autopilot/probe-host.py:34",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`--run-guard` in autopilot.py always passes seam=None. Every stateful duty therefore refuses at the CLI, and the mode cannot demonstrate allow paths. This is consistent with the design but undocumented. Document it or add a test.",
+    "file": "plugins/autopilot/scripts/autopilot.py:182",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Recursion is bounded only by an exact (host_id, job_id) ancestry match. There is no depth limit, and a malformed ancestry entry raises KeyError. `build_job_intent` accepts any effort, role or tier, so \"require the intended effort in job metadata\" is unenforced.",
+    "file": "plugins/autopilot/scripts/jobs.py:70",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`_relay` trusts `verdict[\"allowed\"]` and `[\"reason\"]` without type or shape validation, so a truthy non-bool from a seam would pass. In `request_cross_session_job`, `{\"mode\": \"controller\", **seam.submit_job(...)}` lets the seam response override `mode`.",
+    "file": "plugins/autopilot/scripts/guards.py:36",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`claude.session_identity` depends on a `CLAUDE_SESSION_ID` env var that I could not confirm the host exports. `doctor.profile` is derived from declared hosts.json data (\"identity\" in codex or gemini caps), not from verified capability. `doctor` always runs guards against an allow-everything FakeSeam. It is flagged `guards_simulated`, but it still looks like a diagnostic pass.",
+    "file": "plugins/autopilot/scripts/doctor.py:32",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`build_job_intent` performs no validation despite promising a validated intent. Invalid isolation/tier values, missing effort, provider-named roles, and raw-content inputs pass directly to the seam. Validate the documented fields and artifact-reference shape before submission.",
+    "file": "plugins/autopilot/scripts/jobs.py:49",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Frozen intents retain caller-owned mutable dictionaries, and FakeSeam stores the same objects. Mutating input digests or constraints after submission changes recorded evidence. Snapshot nested data at construction and submission, with mutation regression tests.",
+    "file": "plugins/autopilot/scripts/jobs.py:40",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Role-capability tests exercise a test-only resolver over declarations, never associate mandatory jobs with requirements, and never request those jobs. Replace this surrogate with policy-driven job-request tests that expose unsupported roles and exercise jobs.py with Claude unimportable.",
+    "file": "tests/autopilot/test_sessions.py:105",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Compatibility tests depend on the developer’s installed Codex: the unimplemented-capability test dereferences `probe.capability` when a missing binary produces None. Use deterministic binary/auth fixtures, including an explicitly unavailable capability case.",
+    "file": "tests/autopilot/test_compatibility.py:180",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Doctor and probe-host lack behavioral tests for profile derivation, evidence output, relocation, and write containment. Add temporary-root CLI tests, including symlink/hard-link refusal and unavailable hosts; dispatch-table tests do not cover these acceptance scenarios.",
+    "file": "tests/autopilot/test_host_argv.py:115",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Probe evidence serializes `evidence_path=None` and discards the discovered binary path; it cannot identify its own evidence artifact or explain the static observation. Populate the evidence reference and retain non-secret probe inputs/results.",
+    "file": "tools/autopilot/probe-host.py:34",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The coordinator scan guesses a second autopilot.py location and skips when neither exists, although the task fixes the location. Read `SCRIPTS / \"autopilot.py\"` directly so a missing required dispatcher fails instead of skipping.",
+    "file": "tests/autopilot/test_compatibility.py:248",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "claude.py hardcodes interception \"available\" without a signal. The comment documents this, which the task allows. The gemini.py module has no docstring, unlike the sibling adapters.",
+    "file": "plugins/autopilot/scripts/gemini.py:1",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "`compatibility/gemini.json` is not in the spec's file list. `FakeSeam` ships in the production module `jobs.py`.",
+    "file": "plugins/autopilot/compatibility/gemini.json:1",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "The supplied replay shows `test_unrelated_arrays_and_original_owners_stay_byte_semantic` passes against the base revision. This is expected for its preservation invariant; it does not independently verify AP00014 additions and is not itself a regression.",
+    "file": "tests/autopilot/test_helper_provenance_real.py:237",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "The supplied run attributes 48 failures to AP00018 controller suites. Their repair belongs to that separate PRD and should remain distinct from AP00014’s five failures.",
+    "file": "N/A",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "build-compatibility.py writes JSON without trailing newline causing EOF warnings",
+    "file": "tools/autopilot/build-compatibility.py:48",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "Defensive test skips rather than fails when autopilot.py is missing",
+    "file": "tests/autopilot/test_compatibility.py:254",
+    "reason": "single-voice"
+  }
+]

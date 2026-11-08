@@ -826,6 +826,14 @@
       "action": "deferred",
       "reason": "deferred by review-close",
       "prd": "00013-autopilot-session-helpers-v3.md"
+    },
+    {
+      "type": "scope-overflow",
+      "issue": "Cycle 1 raised 43 consolidated findings. The top 10 by severity (9 CRITICAL rows R1,R4-R11 plus the highest-consensus HIGH row R2) are reworked this cycle; the remaining 14 HIGH rows (R3,R12-R24) are deferred to batch end and the 19 single-voice MEDIUM/LOW rows (R25-R43) are discarded to the settled-decisions ledger.",
+      "severity": "high",
+      "cycle": 1,
+      "reason": ">10 follow-up tasks from review: loop-mode scope alarm keeps the top 10 by severity and defers the rest",
+      "prd": "00014-autopilot-host-execution-v1.md"
     }
   ]
 }

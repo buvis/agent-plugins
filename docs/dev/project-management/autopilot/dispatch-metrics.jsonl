@@ -959,3 +959,11 @@
 {"id":"842f0b02","ended_at":1794167276,"elapsed_s":542,"outcome":"ok","detail":"closed-by: commit fd897c5ffb8b74ee06f4f43435957064d2a68f42"}
 {"id":"cb81b49d","ended_at":1794167276,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
 {"kind":"handoff","site":"build","edge":"leave","at":1794167276,"phase":"review","prd":"00014-autopilot-host-execution-v1.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794167305,"phase":"review","prd":"00014-autopilot-host-execution-v1.md"}
+{"id":"0bad5c28","kind":"bob","task":"review-ap00014-c1","queued_at":1794167374,"prompt_bytes":13393}
+{"id":"8f626661","kind":"carl","task":"review-ap00014-c1","queued_at":1794167374,"prompt_bytes":6609}
+{"id":"0bad5c28","ended_at":1794168585,"elapsed_s":1211,"outcome":"ok","detail":null}
+{"id":"8f626661","ended_at":1794168588,"elapsed_s":1214,"outcome":"ok","detail":null}
+{"id":"0bad5c28","ended_at":1794170120,"elapsed_s":2746,"outcome":"ok","detail":null}
+{"id":"8f626661","ended_at":1794170120,"elapsed_s":2746,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1794170207,"phase":"review","prd":"00014-autopilot-host-execution-v1.md"}
