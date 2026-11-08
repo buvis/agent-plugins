@@ -33,6 +33,7 @@ LEGACY = ["review-policy-v1", "review-evidence-v1", "review-fixtures-v1"]
 OPERATIONS = {
     "stage-review-v1", "group-findings-v1", "check-evidence-v1", "prepare-close-v1",
     "catchup-probe-v1", "verification-artifact-v1", "controller-required-v1",
+    "hosts-v1", "guards-v1", "diagnose-v1",
 }
 HELPERS = ("review_stage", "findings", "rework_groups", "review_evidence", "review_close",
            "catchup", "verification")

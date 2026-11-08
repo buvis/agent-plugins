@@ -423,7 +423,8 @@ print("isolated")
         self.assertEqual(listed[:3], FORMATS)
         self.assertEqual(listed[3:], [
             "stage-review-v1", "group-findings-v1", "check-evidence-v1", "prepare-close-v1",
-            "catchup-probe-v1", "verification-artifact-v1", "controller-required-v1"])
+            "catchup-probe-v1", "verification-artifact-v1", "controller-required-v1",
+            "hosts-v1", "guards-v1", "diagnose-v1"])
         expected = json.loads((self.package / "contracts/review-policy-v1.json").read_text())
         exported = self.facade("--export-policy")
         self.assertEqual(exported.returncode, 0, exported.stderr)
