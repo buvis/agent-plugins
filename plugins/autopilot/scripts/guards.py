@@ -2,13 +2,15 @@
 
 A stateful duty asks `seam.evaluate_guard` and relays its answer verbatim; it
 holds no policy of its own and refuses when no seam is given. A pure duty
-decides from its context alone and never sees a seam.
+decides from its own named context keys alone, never sees a seam, and denies
+when a required key is absent or mistyped. No generic `ok` flag has meaning.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
+from pathlib import PurePosixPath
 
 from jobs import ControllerSeam
 
@@ -40,12 +42,80 @@ def _relay(duty: GuardDuty, context: dict, seam: ControllerSeam) -> GuardOutcome
     )
 
 
-def _check(duty: GuardDuty, context: dict) -> GuardOutcome:
-    if context.get("ok", True) is False:
-        return GuardOutcome(
-            duty=duty, allowed=False, reason=f"{duty.value}_check_failed", stateful=False
-        )
+_LIFECYCLE_DIRS = ("backlog", "wip", "hold", "done")
+_META_KEEPERS = frozenset(
+    {
+        "project-capsule.md",
+        "decisions.md",
+        "troubleshooting.md",
+        "assumptions.md",
+        "agoge-profile.md",
+        "ecc-cursor",
+        "upstream-cursor",
+    }
+)
+_KNOWN_STORE_DIRS = frozenset(
+    {
+        "prds", "designs", "reviews", "plans", "autopilot", "meta", "discovery",
+        "intake", "specs", "notes", "walkthroughs", "audit-results", "spikes",
+    }
+)  # fmt: skip
+_STORE_SEGMENTS = ("docs", "dev", "project-management")
+_PHASE_SKILLS = frozenset(
+    {
+        "autopilot:work",
+        "autopilot:plan-tasks",
+        "autopilot:design-solution",
+        "autopilot:review-work-completion",
+        "autopilot:run-autopilot",
+        "git-ferry:catchup",
+    }
+)
+_GUARDED_SKILL_PREFIX = "autopilot:"
+_GUARDED_SKILL_EXACT = frozenset({"git-ferry:catchup"})
+
+
+def _allow(duty: GuardDuty) -> GuardOutcome:
     return GuardOutcome(duty=duty, allowed=True, reason=None, stateful=False)
+
+
+def _deny(duty: GuardDuty, detail: str) -> GuardOutcome:
+    return GuardOutcome(duty=duty, allowed=False, reason=f"{duty.value}: {detail}", stateful=False)
+
+
+def _is_type(value: object, kind: type) -> bool:
+    # bool is an int subclass; an int key must not accept True/False.
+    if kind is int:
+        return isinstance(value, int) and not isinstance(value, bool)
+    return isinstance(value, kind)
+
+
+def _missing_input(duty: GuardDuty, context: dict, required: dict) -> GuardOutcome | None:
+    """Fail closed: deny naming the first required key that is absent or mistyped."""
+    for key, kind in required.items():
+        if key not in context or not _is_type(context[key], kind):
+            return _deny(duty, f"missing or mistyped required input {key!r} ({kind.__name__})")
+    return None
+
+
+def _store_rel(parts: tuple[str, ...]) -> tuple[str, ...] | None:
+    """Path parts below the first whole-segment docs/dev/project-management, or None."""
+    n = len(_STORE_SEGMENTS)
+    for i in range(len(parts) - n + 1):
+        if parts[i : i + n] == _STORE_SEGMENTS:
+            return parts[i + n :]
+    return None
+
+
+def _store_rel_allowed(rel: tuple[str, ...]) -> bool:
+    if len(rel) < 2:
+        return False
+    top = rel[0]
+    if top == "prds":
+        return len(rel) >= 3 and rel[1] in _LIFECYCLE_DIRS
+    if top == "meta":
+        return len(rel) == 2 and rel[1] in _META_KEEPERS
+    return top in _KNOWN_STORE_DIRS
 
 
 def _guard_custody_push(context: dict, seam: ControllerSeam) -> GuardOutcome:
@@ -65,23 +135,80 @@ def _guard_review_completeness(context: dict, seam: ControllerSeam) -> GuardOutc
 
 
 def _guard_document_location(context: dict) -> GuardOutcome:
-    return _check(GuardDuty.DOCUMENT_LOCATION, context)
+    duty = GuardDuty.DOCUMENT_LOCATION
+    refused = _missing_input(duty, context, {"document_path": str})
+    if refused:
+        return refused
+    path = context["document_path"]
+    parts = PurePosixPath(path).parts
+    rel = _store_rel(parts)
+    if rel is None:
+        if parts and parts[0] in _LIFECYCLE_DIRS:
+            return _deny(duty, f"lifecycle directory outside the store: {path}")
+        return _allow(duty)
+    if _store_rel_allowed(rel):
+        return _allow(duty)
+    return _deny(duty, f"path not allowed in the project-management store: {path}")
 
 
 def _guard_delegation(context: dict) -> GuardOutcome:
-    return _check(GuardDuty.DELEGATION, context)
+    duty = GuardDuty.DELEGATION
+    refused = _missing_input(duty, context, {"dispatch_skill": str})
+    if refused:
+        return refused
+    skill = context["dispatch_skill"]
+    if skill in _PHASE_SKILLS:
+        return _deny(duty, f"whole phase skill must not be dispatched: {skill}")
+    return _allow(duty)
 
 
 def _guard_post_handoff(context: dict) -> GuardOutcome:
-    return _check(GuardDuty.POST_HANDOFF, context)
+    duty = GuardDuty.POST_HANDOFF
+    refused = _missing_input(duty, context, {"requested_skill": str, "leave_recorded": bool})
+    if refused:
+        return refused
+    skill = context["requested_skill"]
+    guarded = skill.startswith(_GUARDED_SKILL_PREFIX) or skill in _GUARDED_SKILL_EXACT
+    if not (context["leave_recorded"] and guarded):
+        return _allow(duty)
+    # Diverges from the source hook, which lets a malformed marker pass because
+    # prose backs it up. Here no prose backs it, so with one session key missing
+    # we cannot show the leave row is another session's and we refuse.
+    if (
+        "session" in context
+        and "leave_session" in context
+        and context["session"] != context["leave_session"]
+    ):
+        return _allow(duty)
+    return _deny(duty, f"skill requested after the leave row: {skill}")
 
 
 def _guard_departure(context: dict) -> GuardOutcome:
-    return _check(GuardDuty.DEPARTURE, context)
+    duty = GuardDuty.DEPARTURE
+    refused = _missing_input(
+        duty, context, {"leave_row_written": bool, "last_store_write_at": int, "leave_row_at": int}
+    )
+    if refused:
+        return refused
+    if not context["leave_row_written"]:
+        return _deny(duty, "no leave row was written")
+    if context["last_store_write_at"] > context["leave_row_at"]:
+        return _deny(duty, "a store write landed after the leave row")
+    return _allow(duty)
 
 
 def _guard_context_reinjection(context: dict) -> GuardOutcome:
-    return _check(GuardDuty.CONTEXT_REINJECTION, context)
+    duty = GuardDuty.CONTEXT_REINJECTION
+    refused = _missing_input(
+        duty, context, {"contract_card_present": bool, "contract_card_body": str}
+    )
+    if refused:
+        return refused
+    if not context["contract_card_present"]:
+        return _deny(duty, "contract card is not present")
+    if not context["contract_card_body"].strip():
+        return _deny(duty, "contract card body is blank")
+    return _allow(duty)
 
 
 _STATEFUL = {
