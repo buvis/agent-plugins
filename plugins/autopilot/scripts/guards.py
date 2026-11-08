@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
+import posixpath
 from pathlib import PurePosixPath
 
 from jobs import ControllerSeam
@@ -140,7 +141,9 @@ def _guard_document_location(context: dict) -> GuardOutcome:
     if refused:
         return refused
     path = context["document_path"]
-    parts = PurePosixPath(path).parts
+    parts = PurePosixPath(posixpath.normpath(path)).parts
+    if ".." in parts:
+        return _deny(duty, f"path climbs above its root and cannot be resolved: {path}")
     rel = _store_rel(parts)
     if rel is None:
         if parts and parts[0] in _LIFECYCLE_DIRS:
@@ -174,11 +177,8 @@ def _guard_post_handoff(context: dict) -> GuardOutcome:
     # Diverges from the source hook, which lets a malformed marker pass because
     # prose backs it up. Here no prose backs it, so with one session key missing
     # we cannot show the leave row is another session's and we refuse.
-    if (
-        "session" in context
-        and "leave_session" in context
-        and context["session"] != context["leave_session"]
-    ):
+    sessions = [context.get("session"), context.get("leave_session")]
+    if all(isinstance(s, str) and s.strip() for s in sessions) and sessions[0] != sessions[1]:
         return _allow(duty)
     return _deny(duty, f"skill requested after the leave row: {skill}")
 
