@@ -26,7 +26,7 @@
         "failed": 0,
         "deselected": 16,
         "duration_seconds": 14.58,
-        "note": "Measured in the cycle-1 rework session at HEAD cabae3d, which carries the T1 fix 27a16a3 and every later v3 commit. The command is complete as written: no elision, no placeholder. Its 90 passed matches the historical count above; that agreement is evidence, not a claim that the elided text is recovered, and the historical entry's numbers and duration are left exactly as first recorded."
+        "note": "Measured in the cycle-1 rework session at HEAD cabae3d, which carries the T1 fix 27a16a3 and every later v3 commit. cabae3d is a DESCENDANT of this file's package_revision pin 7a55dcd, and the only files that differ between the two revisions are autopilot store and evidence files (state.json, the metrics and deferred journals, meta/assumptions.md); no file under plugins/, tests/ or tools/ differs. The rerun therefore measures the pin's own product bytes. The command is complete as written: no elision, no placeholder. Its 90 passed matches the historical count above; that agreement is evidence, not a claim that the elided text is recovered, and the historical entry's numbers and duration are left exactly as first recorded."
       },
       "red_at_v2": {
         "failed": 48,
@@ -128,7 +128,7 @@
         "tests/autopilot/test_package.py::TargetPackageTest::test_readme_retains_every_source_heading_with_completed_adaptation_receipts"
       ],
       "failing_nodes_ownership": "19 AP 00018 controller nodes: external deferral owned by AP 00018. 5 provenance and package nodes: AP00013 v3, stale source-map digests before this refresh regenerated the map; see final_gate.",
-      "gate_is_pre_regeneration": "This entry and the final_gate object below record only the PRE-regeneration run at 6888765, because this file's own bytes are hashed into tools/autopilot/source-map.json and must be frozen before the map is regenerated. The 5 provenance and package nodes above are stale-digest failures of that freeze, not open defects.",
+      "gate_is_pre_regeneration": "The measurements in this entry and in the final_gate object below are the PRE-regeneration run at 6888765; the post-regeneration gate is pointed to in `reviewed_head_gate` beside this key. The pre-regeneration freeze exists because this file's own bytes are hashed into tools/autopilot/source-map.json and must be frozen before the map is regenerated. The 5 provenance and package nodes above are stale-digest failures of that freeze, not open defects.",
       "reviewed_head_gate": {
         "revision": "feca0d1a519c46fd2782d1cfd29f5ba4d14ac36e",
         "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q",
