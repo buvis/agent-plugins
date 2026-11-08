@@ -830,3 +830,19 @@
 {"id":"a2c087a4","ended_at":1794146278,"elapsed_s":2695,"outcome":"ok","detail":null}
 {"id":"12e3301e","ended_at":1794146278,"elapsed_s":2695,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1794146333,"phase":"review","prd":"00013-autopilot-session-helpers-v3.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794146377,"phase":"review","prd":"00013-autopilot-session-helpers-v3.md"}
+{"id":"3ae02696","kind":"tess","task":"5","queued_at":1794146573,"prompt_bytes":25395}
+{"id":"3ae02696","ended_at":1794147479,"elapsed_s":906,"outcome":"ok","detail":null}
+{"id":"1f8fef87","kind":"devon","task":"5","queued_at":1794147597,"prompt_bytes":6210}
+{"id":"1f8fef87","ended_at":1794148244,"elapsed_s":647,"outcome":"ok","detail":"7 of 7 exploits passed; tests too weak"}
+{"id":"915e97a3","kind":"tess","task":"5","queued_at":1794148288,"prompt_bytes":15294}
+{"id":"915e97a3","ended_at":1794148928,"elapsed_s":640,"outcome":"ok","detail":"all 7 weak points strengthened"}
+{"id":"eefe37dd","kind":"ivan","task":"5","queued_at":1794149073,"prompt_bytes":22850}
+{"id":"eefe37dd","ended_at":1794149345,"elapsed_s":272,"outcome":"ok","detail":null}
+{"id":"823250b5","kind":"pat","task":"5","queued_at":1794149527,"prompt_bytes":33308}
+{"id":"823250b5","ended_at":1794149555,"elapsed_s":28,"outcome":"error","detail":"sonnet-run OAuth session expired; falling back to native pat worker"}
+{"id":"8c4d4998","kind":"pat","task":"5","queued_at":1794149559,"prompt_bytes":33308}
+{"id":"8c4d4998","ended_at":1794149625,"elapsed_s":66,"outcome":"ok","detail":"2 resolved, 1 unresolved (recorded LOW deferral), NO FINDINGS"}
+{"id":"c01d3b4d","kind":"ivan","task":"6","queued_at":1794149921,"prompt_bytes":10556}
+{"id":"c01d3b4d","ended_at":1794150012,"elapsed_s":91,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1794150179,"phase":"review","prd":"00013-autopilot-session-helpers-v3.md"}

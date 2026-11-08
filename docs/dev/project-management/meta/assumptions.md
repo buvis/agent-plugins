@@ -62,3 +62,43 @@ Ivan:
 - The CHANGELOG bullet goes last in the existing Fixed list.
 
 Pat (LOW, recorded for the completion review): parallel id lists instead of `pytest.param(id=...)`; the `__all__ = ["project"]` re-export device (same shape as v2 review R27); the direct `_is_inside_git_dir` test overlaps the stage_review test.
+
+## 5: [D1] plugins/autopilot/scripts/ (review cycle 1 rework)
+
+Tess (initial):
+- The facade's `--verify` exit code for a green run is not documented, so every CLI test compares the relative run's exit code with the absolute run's instead of asserting a literal (observed: 0 on success, 2 on the path refusal).
+- `refuse()` is exercised with absolute candidates only; the task does not say whether a RELATIVE candidate anchors at cwd or at `repo_root`, so that contract was not invented. The relative-output behaviour is pinned at the CLI level, where the README fixes it.
+- The duplication step is injected by failing `os.dup`/`os.dup2` on the artifact sink's inode inside the `verification` module; the task named the step but not the call. The tests assert the injection was reached, so a different duplication mechanism fails loudly rather than passing vacuously.
+- `reason` is asserted to CONTAIN the injected OSError text, not to equal it, because the task says "carrying the underlying OSError text" without pinning the wrapper format.
+- The regression was attributed to commit 27a16a3 from its subject plus the observed accept/reject split, not from reading the source.
+
+Tess (strengthen after Devon):
+- The project's pytest invocation is `uv run --no-project --with pytest python -m pytest` (from `tools/autopilot/source-map.json`; no pytest config exists in the repo).
+- The five extra refusal reason strings asserted (`is not a regular file`, `is executable`, `has more than one hard link`, `resolves inside the store`, `resolves inside the git directory`) are treated as the existing contract because `tests/autopilot/test_local_paths.py` already pins them.
+- "Two spellings of one file" includes a relative/absolute pair, since the documented contract resolves relative output paths against the project root.
+- A `..` inside the project-root spelling (`unrelated cwd/../target project`) names the same directory and must behave like the absolute spelling; the `..` rule is about sink components below the root.
+- `report["artifact"]["log"]["path"]` for an absolutely spelled output is not pinned by the requirements, so it is asserted only through the resolve-join.
+- An exact `json.dumps(...) + b"\n"` byte assertion was declined as an invented serialization contract; a one-JSON-value read is equivalent against the dropped-`truncate(0)` exploit.
+- The leaf symlink points at an untracked regular file rather than `src/app.py`, because the tracked rule fires first and would mask a final-component exemption.
+
+Ivan:
+- The failing tests pin only a relative project ROOT (their `refuse` cases always pass absolute candidates), so the spelling is fixed at the `run_verification` boundary rather than teaching `refuse`/`_pinned_parent_fd` to absolutise relative candidates themselves; both would pass, and this is the smaller diff.
+- The new CHANGELOG bullet belongs at the top of the existing Unreleased "Fixed" list (newest first, matching where the recent verify-sink bullets sit).
+
+Orchestrator (recorded, not an assumption of a subagent): the ⚪ finding (pass the computed anchor into `_symlinked_component`, dropping its dead `toplevel` parameter and a duplicate realpath scan) was deliberately deferred, because closing it changes the signature of a private helper that `tests/autopilot/test_helper_recovery_v3.py:223` and `:293` call directly with three arguments, in a file at 799 of its 800-line limit and outside this task's write set. Pat's CLOSURE verdict for it is `unresolved`, accepted on that basis and routed to the PRD-level review. Recorded in `state.autonomous_decisions` and in the batch deferred JSON.
+
+Pat: no findings beyond the three CLOSURE verdicts (two resolved, one the deferral above). The documented `sonnet-run.sh` reviewer lane failed twice on this host (`OAuth session expired and could not be refreshed`, then `Session ID ... is already in use` once the first attempt had consumed the id), so the review ran through the native `autopilot:pat` worker on the same rendered prompt; the attempt record carries `review: resume_failed` as the fail-loud marker for that substitution.
+
+## 6: [D1] prose (review cycle 1 rework)
+
+Tess: skipped (docs-only task). Devon and the red check skipped with her.
+
+Ivan:
+- For "narrow it", the false fourth disclaimer was replaced with the still-true "or that the 19 AP 00018 controller failures are resolved", plus one sentence stating the provenance failures are resolved; the narrowed wording was not dictated.
+- The new section heading ("## Gate at the reviewed head (`feca0d1`, after map regeneration)") was chosen to mirror the existing "## Final gate (run at `6888765`, before map regeneration)" stamp style.
+- The new nested-repository bullet repeats the subject "`--verify` and the log-sink check" so it stands alone as a bullet; no fact was added or dropped.
+
+Orchestrator: the task first took the micro lane (2 findings, 2 files, both clean at claim time), but the post-edit ceiling measured net 34 lines against the lane's 30-line limit, so the edit was reverted with `git checkout --` and the task re-ran through the normal lane. The attempt carries `micro_lane: "overrun"`. The gate measurements handed to Ivan were verified first-hand, not taken from the review's summary: `docs/dev/tmp/gate-ap00013-v3-c1.log:467` reads "19 failed, 1217 passed in 452.99s", the log holds exactly 19 `FAILED` lines, and grouping them by file gives 8 `test_controller_capacity.py` + 7 `test_controller_owner.py` + 4 `test_controller_owner_recovery.py`, with no provenance or package node among them. That last fact is what let the report's "not verified" hedge be closed as verified rather than restated.
+
+Pat: skipped for this task (documentation-only diff, per the step-5.7 docs-only skip). The `review` field carries no docs-only value in the attempt grammar, so it is absent; this note is the fail-loud record of the skip. The PRD-level review lenses cover the prose.
+

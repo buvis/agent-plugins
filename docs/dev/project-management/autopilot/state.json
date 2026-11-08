@@ -217,7 +217,7 @@
     "checked_at": "2026-10-25T22:40:48Z"
   },
   "tasks_total": 8,
-  "tasks_completed": 4,
+  "tasks_completed": 6,
   "replan_count": 0,
   "phases_completed": [],
   "cycle": 1,
@@ -237,7 +237,7 @@
     "hook_doctor": "summary: 4 ok, 7 stale, 5 broken",
     "checked_at": "2026-10-28T03:07:08.511437+00:00"
   },
-  "contract_card": "step: AP00013 v3 REVIEW cycle 1 complete, did NOT converge. Decision gate applied (review-close --batch-id decision-gate, exit 0). Rework queued: tasks 5, 6, 7, 8, all pending, all tier opus, all `[D1]` (5 = plugins/autopilot/scripts/, 6 = prose, 7 = receipts json, 8 = test_helper_recovery_v3_artifact.py). NO rework design doc: the cycle carried no \ud83d\udd34 row, so the PRD 00194 design step did not run and these tasks carry no `### Contract` block. RESUME AT Phase 6 \"Dispatch rework\": invoke /autopilot:work in rework mode on 5,6,7,8 and do NOT hand off again (this session entered through the Phase 4 skip).\n\nreview file: reviews/00013-autopilot-session-helpers-v3-review-1.md (head_sha feca0d1a519c46fd2782d1cfd29f5ba4d14ac36e, codex_thread_id 01a1bb4c-039d-73e2-b812-7bf04cb26d94, gate passed with --require-codex-guard). ledger: reviews/00013-autopilot-session-helpers-v3-ledger.json (12 discards). checks queue: reviews/00013-autopilot-session-helpers-v3-checks-1.json (1 entry, Eve's VERIFY, run by work step 7). findings json: docs/dev/tmp/00013-autopilot-session-helpers-v3-decision-gate-1-findings.json. Both committed.\n\nwhy no convergence: R7, a confirmed public-CLI regression at \ud83d\udfe0 HIGH. `autopilot verify --project-root .` now exits 2 (unsafe-artifact-path) where the base accepted it, because `_root_anchor` returns None for a relative path and `_symlinked_component` then fails closed to \"is a symlink\". I verified BOTH ends myself, not from Alice's word: at HEAD refuse(Path('docs/dev/tmp/x.log'), Path('.')) == 'is a symlink'; the same call against the b786f5aa base helper == None. Task 5 owns the fix. CAUTION for the implementor: `_root_anchor` returns an INDEX into path.parts, and callers index the same (relative) parts at :46 and :167-169 \u2014 switching the anchor to path.absolute() must make every caller index the absolute parts too, or the index silently mismatches. Restore relative-root acceptance without reopening the `..` or symlink escapes T1 closed, and add the missing relative-root test.\n\nreview outcome: 21 consolidated rows from 5 lenses (Alice, Blake, Bob/codex, Carl/gemini, Eve/fable). 0 critical, 1 high (R7), 7 fix rows, 1 defer (R5, dirty_tree._git has no timeout, outside T3's write path), 1 routed-to-verification (R17), 12 discards. Verdict: 21 findings. Tests: 1217 passed, 19 failed, 0 skipped (the 19 are the pre-existing AP00018 controller nodes; counts read from the gate's raw log docs/dev/tmp/gate-ap00013-v3-c1.log:467 because the -q summary parser defect left review-stage's own line count-less).\n\ninvariants: rework_cap 2, so cycle 2 is the LAST cycle before the cap gate fires; cycle is still 1 (no phase-done ran, by PRD 00208 design). v1/v2 holds, caps and stubs untouched; no v4. Every review cycle runs Alice, Blake, Bob, Carl, Eve in a fresh session; Blake stays PRD-only. Cycle 2 is INCREMENTAL: pass --since feca0d1a519c46fd2782d1cfd29f5ba4d14ac36e and --resume-thread 01a1bb4c-039d-73e2-b812-7bf04cb26d94, and feed the ledger via --settled-ledger. Commit review artifacts immediately. The aegis hook forbids Co-Authored-By trailers; omit them. Never patch frozen buvis/claude-autopilot.\n\nSEQUENCING (unchanged): AP00013 v3 completion -> explicit AP00018 resume (plans/00018-replan-3.md section 4, docs/dev/tmp/ap00018-replan3/README.md first) -> AP00018 Pat retrospectives 3-6 + fresh completion review -> 19 controller tests and all checks green -> normal push, CI green -> waves. No backlog auto-selection.\n\nnext: fresh session resumes at Phase 6 Dispatch rework on tasks 5,6,7,8 (phase review, cycle 1, no re-review).",
+  "contract_card": "step: AP00013 v3 REVIEW cycle 1, Phase 6 rework IN PROGRESS, handed off at a task boundary (context-cap headroom rule, marker phase review == state.phase review). Tasks 5 and 6 are DONE and committed; tasks 7 and 8 are still pending in state.rework_task_ids. Resume by re-entering /autopilot:work in rework mode on 7 and 8 only. Do NOT re-review, do NOT re-run the decision gate (already applied, exit 0), do NOT run phase-done yet.\n\ndone so far: task 5 = the R7 HIGH fix, `root = project_root.absolute()` in run_verification (commit 81c89e1, 58 tests pass, Pat 2 CLOSURE resolved + 1 recorded LOW deferral). task 6 = CHANGELOG bullet split + reviewed-head gate recorded in the recovery report (commit 7a55dcd). Tests committed at 7c8425c and strengthened at 8b9ee75 after Devon proved 7 of 7 exploits.\n\nremaining: task 7 = docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json, the T1 receipt command contains a literal `...` elision (two-reviewer finding, BOB + EVE); recover the exact invocation from its raw log or record a fresh exact one WITHOUT rewriting the historical measurement. Task 7 also owns the receipts-side half of task 6's finding (the T4 entry records only the pre-regeneration gate at 6888765) - task 6 deliberately did not touch the receipts JSON, to keep file ownership clean. task 8 = record in the PRD or report the deviation that the failed-artifact tests live in tests/autopilot/test_helper_recovery_v3_artifact.py, which is not in the PRD's write-path list, and that the PRD's T2 Verify line (`-k failed_artifact` on the old file) no longer selects those tests.\n\ninvariants: rework_cap 2, cycle still 1, no phase-done has run (PRD 00208 design). After tasks 7 and 8 complete, run step 7 (ONE full suite) then `autopilot phase-done --outcome rework`, write-brief, the leave row, record-store, the Cycle 1 / cycle 2 banners, STOP. Cycle 2 is the LAST cycle before the cap gate and is INCREMENTAL: --since feca0d1a519c46fd2782d1cfd29f5ba4d14ac36e, --resume-thread 01a1bb4c-039d-73e2-b812-7bf04cb26d94, --settled-ledger. aegis forbids Co-Authored-By trailers. Never patch frozen buvis/claude-autopilot.\n\nhost gotchas hit this session, do not rediscover: the documented Pat lane `sonnet-run.sh` FAILS here with \"OAuth session expired and could not be refreshed\", and the one retry then fails with \"Session ID ... is already in use\" because the first attempt consumed the -S id. Use the native `autopilot:pat` subagent on the same rendered prompt instead, and stamp `review: resume_failed` (the attempt grammar has no value for this substitution). Expected full-suite baseline is 19 failed / 1217 passed, where all 19 are the AP 00018 controller deferral (8 test_controller_capacity, 7 test_controller_owner, 4 test_controller_owner_recovery) - verified from docs/dev/tmp/gate-ap00013-v3-c1.log:467. Do NOT treat those 19 as a regression.\n\nFOREIGN DIRT, leave it alone: `.herdr/icon.svg` is untracked and was NOT created by this work (appeared 15:44 this session, unrelated to AP 00013). `autopilot dirty` reports it, so the task-boundary clean-tree check fails on it. It is untracked, so no handoff can lose it. Do not commit it, do not delete it, and do not let a `git add -A` sweep it into a task commit.",
   "prd_budget_since": "2026-11-05T21:53:39Z",
   "design_mode": "run",
   "design_doc": "docs/dev/project-management/designs/00013-autopilot-session-helpers-v3-design.md",
@@ -317,6 +317,13 @@
       "severity": "medium",
       "action": "auto-fixed",
       "reason": "fixed by review-close"
+    },
+    {
+      "issue": "log_sink_refusal.py:156 refuse computes _root_anchor twice and _symlinked_component's toplevel parameter is dead; passing the computed anchor in would remove both",
+      "severity": "low",
+      "cycle": 1,
+      "action": "deferred, not fixed in task 5",
+      "reason": "behaviour-preserving tidy-up only (the finding itself says both follow the design contract), but closing it changes the signature of a private helper that two already-committed tests call directly with three arguments (tests/autopilot/test_helper_recovery_v3.py:223 and :293). That file sits at 799 of its 800-line limit and is outside this task's write set, so the cleanup would mean editing a security-critical module's test contract purely to accommodate a micro-optimisation during a cycle whose purpose is closing the R7 HIGH regression. The fix Ivan shipped left log_sink_refusal.py untouched, so neither the duplicate realpath scan nor the dead parameter is newly introduced."
     }
   ],
   "tasks": [
@@ -493,14 +500,63 @@
       "description": "### Findings (verbatim)\n- \ud83d\udfe0 plugins/autopilot/scripts/log_sink_refusal.py:147: `_root_anchor` returns None for any relative path, so `--verify` with a relative `--project-root` (for example `.`) is now refused with `unsafe-artifact-path`. The pre-change code (b786f5a) accepted it. README.md:263 documents `--project-root PATH` with no absolute-path requirement, and the CLI passes `Path(args.project_root)` through unchanged (plugins/autopilot/scripts/autopilot.py:171). `run_verification` builds `root / artifact_path` (plugins/autopilot/scripts/verification.py:469), which stays relative. Reproduced from the repo root: `_root_anchor(Path('docs/dev/tmp/x.log'), Path('.'))` returns None, and `refuse` returns \"is a symlink\" for it, but None for the absolute spelling. No test covers a relative root, and the CHANGELOG does not mention it. Anchoring on `path.absolute()` (no normalization) in `_root_anchor`, as design dispatch 2 suggested, would keep relative roots working. Or document and test the refusal. (found by: ALICE)\n- \ud83d\udfe1 plugins/autopilot/scripts/verification.py:296: The new `os.dup` failure branch of `_write_artifact` has no test. Pat flagged this as LOW in the recovery report, and `rg` finds no `dup` fault injection in tests/autopilot. The same branch leaves an existing leaf's earlier record in place, where the v2 `_empty_pinned` emptied it. The `_close_result_sink` docstring (\"`_write_artifact` already emptied it\") and the CHANGELOG (\"leaves no reusable artifact after a failed write or close\") are therefore not true on that path. The contract keeps this behavior, but it should be tested and the wording narrowed. (found by: ALICE, BOB, EVE)\n- \u26aa plugins/autopilot/scripts/log_sink_refusal.py:156: `refuse` calls `_root_anchor` once directly and again inside `_symlinked_component`. That is two realpath scans of the same path, and the `toplevel` parameter of `_symlinked_component` is now unused. Both follow the design contract. Passing the computed anchor in would remove the duplicate work and the dead parameter. (found by: ALICE, EVE)\n",
       "model": "opus",
       "id": "5",
-      "status": "pending"
+      "status": "completed",
+      "usage_at_start": 133179,
+      "calls_at_start": 12,
+      "started_at": 1794146416,
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": 1,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "split_hygiene": "clean",
+          "devon": "exploit_fixed",
+          "devon_exploit": "7 of 7 exploits passed all 36 original cases: the symlink rule could be switched off via the None anchor branch, _pinned_parent_fd could fall back to an unpinned symlink-following open, refuse could be a substring table over fixture names with repo_root ignored, sink.truncate(0) could be dropped, _unsafe_paths could lose its same-file and argv-token checks, the recorded log path could be a constant, and the symlink rule could exempt the final component",
+          "devon_weak_points": 7,
+          "devon_in_contract": [],
+          "review": "resume_failed"
+        }
+      ],
+      "usage_at_done": 285400,
+      "calls_at_done": 193,
+      "done_at": 1794149675
     },
     {
       "name": "[D1] prose",
       "description": "### Findings (verbatim)\n- \ud83d\udfe1 plugins/autopilot/CHANGELOG.md:1367: The new CHANGELOG bullet fuses two clauses badly. \"...and no longer read a nested repository's Git pointer: any symlink there ... is refused\" makes the colon explain the nested-repo clause instead of the root-anchored rule. It also duplicates the first bullet's \"leaves no reusable artifact after a failed write or close\" with the new T2 bullet. Split the symlink rule into its own bullet and drop the repeated clause. (found by: ALICE, BOB, EVE)\n- \ud83d\udfe1 docs/dev/project-management/autopilot/reports/00013-helper-recovery-v3.md:773: The recovery report and the receipt's T4 entry record only the pre-regeneration gate at 6888765 (24 failed, 1212 passed). They say that \"3 failed\" provenance nodes are unresolved. The reviewed HEAD run (19 failed, 1217 passed, only the AP 00018 nodes) is recorded in neither file. The delivery evidence is stale against the final state. Record the final run, or state clearly that the final gate lives elsewhere. (found by: ALICE, EVE)\n",
       "model": "opus",
       "id": "6",
-      "status": "pending"
+      "status": "completed",
+      "usage_at_start": 290831,
+      "calls_at_start": 199,
+      "started_at": 1794149735,
+      "attempts": [
+        {
+          "attempt": 1,
+          "model": "opus",
+          "outcome": "completed",
+          "review_cycle": 1,
+          "cause": null,
+          "implementor": "claude",
+          "preflight_outcome": null,
+          "pipeline": "full",
+          "micro_lane": "overrun",
+          "red_check": "n/a:docs-only-task",
+          "self_deslop": "skipped:trivial",
+          "style_gate": "clean",
+          "split_hygiene": "skipped:no-tests"
+        }
+      ],
+      "usage_at_done": 324487,
+      "calls_at_done": 236,
+      "done_at": 1794150062
     },
     {
       "name": "[D1] docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",

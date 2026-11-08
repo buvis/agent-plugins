@@ -809,6 +809,13 @@
       "reason": "rework cap reached with this finding unresolved",
       "prd": "00013-autopilot-session-helpers-v2.md",
       "op_id": "4dff7e357a11-dd29"
+    },
+    {
+      "type": "task-deferral",
+      "issue": "log_sink_refusal.py:156 refuse computes _root_anchor twice and _symlinked_components toplevel parameter is dead; passing the computed anchor in would remove both",
+      "severity": "low",
+      "reason": "Deferred in rework task 5 (cycle 1). Behaviour-preserving tidy-up, but it changes the signature of a private helper that two already-committed tests call directly with three arguments (tests/autopilot/test_helper_recovery_v3.py:223 and :293), in a file at 799 of its 800-line limit and outside task 5s write set. The shipped fix left log_sink_refusal.py untouched, so neither the duplicate realpath scan nor the dead parameter is newly introduced. Pats CLOSURE verdict is unresolved and routes it to the PRD-level review.",
+      "prd": "00013-autopilot-session-helpers-v3.md"
     }
   ]
 }
