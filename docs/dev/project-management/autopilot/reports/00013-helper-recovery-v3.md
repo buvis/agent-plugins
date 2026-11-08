@@ -1,9 +1,12 @@
 # AP00013 v3 helper recovery report
 
-Tested package revision: `6888765da6b57ba44e464f9ccfca3e19c1ab1be5` (branch
-`master`, HEAD when measured). The previous receipt pinned
-`0ed4c17ff964b04104b3961a83a0c8e5563b0f3a`. That receipt now sits whole under
-`historical_receipt` in `00013-helper-delivery-receipts.json`.
+Tested package revision: `6888765da6b57ba44e464f9ccfca3e19c1ab1be5` for the
+per-task T1-T4 runs below (branch `master`, HEAD when measured). The previous
+receipt pinned `0ed4c17ff964b04104b3961a83a0c8e5563b0f3a`. That receipt now
+sits whole under `historical_receipt` in `00013-helper-delivery-receipts.json`.
+The current receipt re-pins to `7a55dcd`, and the gate covering that pin's
+product bytes (post rework task 5, commit `81c89e1`) is "Gate at the rework
+head (`921efc5`)" below, not this header pin.
 
 At the start, `git status --short` showed only three autopilot store files
 dirty: `autopilot/dispatch-metrics.jsonl`,
@@ -133,6 +136,27 @@ No `test_helper_provenance_real.py`, `test_provenance.py` or `test_package.py`
 node is among them. This verifies the hedge in the section above: the 3
 post-regeneration provenance failures did resolve once the receipt and map were
 committed. They are no longer open.
+
+## Gate at the rework head (`921efc5`)
+
+Measured at commit `921efc5`, a descendant of rework task 5 (`81c89e1`, the
+`verification.py` fix) and of task 7's re-pin to `7a55dcd`. The receipt's
+`package_revision_note` points here for the gate that covers the rework's
+product bytes; the gate above ("Gate at the reviewed head, `feca0d1`")
+precedes `81c89e1` and does not. All four commands ran BARE: `review-stage`'s
+`reuse_verdict` and `autopilot verify` both refuse on the dirty tree
+(untracked `.herdr/icon.svg`).
+
+| command | exit | result |
+|---|---|---|
+| `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` | 1 | 19 failed, 1255 passed in 489.25s |
+| `python3 -m unittest discover -s scripts` | 0 | Ran 59 tests OK |
+| `python3 scripts/validate.py` | 0 | 3 plugin packages, 15 skills |
+| `python3 scripts/generate_marketplace.py --check` | 0 | `marketplace.json` is up to date |
+
+The 19 failures are the same AP 00018 controller deferral as every gate above
+(8 in `test_controller_capacity.py`, 7 in `test_controller_owner.py`, 4 in
+`test_controller_owner_recovery.py`) — an external blocker, not a regression.
 
 ## Deviations from the PRD
 
