@@ -1,6 +1,10 @@
 {
   "host_id": "claude",
   "capabilities": [
-    "interception"
-  ]
+    "delegation",
+    "identity",
+    "interception",
+    "isolation"
+  ],
+  "probe_kind": "static"
 }

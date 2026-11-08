@@ -1,4 +1,5 @@
 {
   "host_id": "gemini",
-  "capabilities": []
+  "capabilities": [],
+  "probe_kind": "static"
 }

@@ -1,8 +1,7 @@
 {
   "host_id": "codex",
   "capabilities": [
-    "delegation",
-    "identity",
     "isolation"
-  ]
+  ],
+  "probe_kind": "static"
 }
