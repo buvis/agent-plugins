@@ -887,3 +887,65 @@
 {"id":"db7ed779","ended_at":1794160884,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
 {"id":"69c64a47","ended_at":1794160884,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
 {"kind":"handoff","site":"build","edge":"leave","at":1794160884,"phase":"build","prd":"00014-autopilot-host-execution-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794160894,"phase":"build","prd":"00014-autopilot-host-execution-v1.md"}
+{"id":"1eb96575","kind":"ivan","task":"2","queued_at":1794161052,"prompt_bytes":50006}
+{"id":"344787cf","kind":"ivan","task":"2","queued_at":1794161090,"prompt_bytes":11716}
+{"id":"8d5e6920","kind":"pat","task":"2","queued_at":1794161307,"prompt_bytes":9539}
+{"id":"be6db147","kind":"ivan","task":"3","queued_at":1794161407,"prompt_bytes":9505}
+{"id":"2ada8035","kind":"pat","task":"3","queued_at":1794161561,"prompt_bytes":8004}
+{"id":"c0251cec","kind":"tess","task":"4","queued_at":1794161667,"prompt_bytes":55064}
+{"id":"470c9fef","kind":"tess","task":"4","queued_at":1794161685,"prompt_bytes":29972}
+{"id":"d38d4410","kind":"ivan","task":"4","queued_at":1794161931,"prompt_bytes":13535}
+{"id":"eb65a1e2","kind":"pat","task":"4","queued_at":1794162076,"prompt_bytes":15869}
+{"id":"60c25e8b","kind":"tess","task":"5","queued_at":1794162201,"prompt_bytes":31083}
+{"id":"5587f9ff","kind":"devon","task":"5","queued_at":1794162410,"prompt_bytes":6210}
+{"id":"317045f9","kind":"devon","task":"5","queued_at":1794162439,"prompt_bytes":4426}
+{"id":"317045f9","ended_at":1794162627,"elapsed_s":188,"outcome":"ok","detail":null}
+{"id":"258330b9","kind":"tess","task":"5","queued_at":1794162662,"prompt_bytes":15169}
+{"id":"d23efcc0","kind":"ivan","task":"5","queued_at":1794162800,"prompt_bytes":36118}
+{"id":"acce80a0","kind":"deslop","task":"5","queued_at":1794162904,"prompt_bytes":5815}
+{"id":"acce80a0","ended_at":1794162932,"elapsed_s":28,"outcome":"ok","detail":null}
+{"id":"9e6cfc2c","kind":"pat","task":"5","queued_at":1794162988,"prompt_bytes":31835}
+{"id":"5a9a53ad","kind":"tess","task":"6","queued_at":1794163145,"prompt_bytes":34411}
+{"id":"755b75ee","kind":"devon","task":"6","queued_at":1794163302,"prompt_bytes":3081}
+{"id":"755b75ee","ended_at":1794163469,"elapsed_s":167,"outcome":"ok","detail":null}
+{"id":"d3ff34ea","kind":"tess","task":"6","queued_at":1794163493,"prompt_bytes":13353}
+{"id":"4de1993e","kind":"ivan","task":"6","queued_at":1794163624,"prompt_bytes":24212}
+{"id":"8d6998dc","kind":"pat","task":"6","queued_at":1794163735,"prompt_bytes":25473}
+{"id":"d54d19b0","kind":"ivan","task":"7","queued_at":1794163866,"prompt_bytes":30162}
+{"id":"0c01fc72","kind":"deslop","task":"7","queued_at":1794164082,"prompt_bytes":3475}
+{"id":"0c01fc72","ended_at":1794164104,"elapsed_s":22,"outcome":"ok","detail":null}
+{"id":"67b2a848","kind":"pat","task":"7","queued_at":1794164157,"prompt_bytes":11938}
+{"id":"1210f63f","kind":"ivan","task":"8","queued_at":1794164265,"prompt_bytes":44881}
+{"id":"aa76a074","kind":"pat","task":"8","queued_at":1794164493,"prompt_bytes":6666}
+{"id":"4d39f39d","kind":"tess","task":"9","queued_at":1794164591,"prompt_bytes":42742}
+{"id":"ced2aec8","kind":"ivan","task":"9","queued_at":1794164964,"prompt_bytes":17577}
+{"id":"87101dda","kind":"deslop","task":"9","queued_at":1794165142,"prompt_bytes":3798}
+{"id":"87101dda","ended_at":1794165207,"elapsed_s":65,"outcome":"ok","detail":null}
+{"id":"6d0accef","kind":"pat","task":"9","queued_at":1794165262,"prompt_bytes":20404}
+{"id":"1eb96575","ended_at":1794165374,"elapsed_s":170,"outcome":"ok","detail":"closed-by: commit 2d7265751c74ba67975aaad25326077a194b2818"}
+{"id":"344787cf","ended_at":1794165374,"elapsed_s":132,"outcome":"ok","detail":"closed-by: commit 2d7265751c74ba67975aaad25326077a194b2818"}
+{"id":"8d5e6920","ended_at":1794165374,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"be6db147","ended_at":1794165374,"elapsed_s":111,"outcome":"ok","detail":"closed-by: commit ba4c3cc2e20e74f6d2bd05dadce25754e151dcdb"}
+{"id":"2ada8035","ended_at":1794165374,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"c0251cec","ended_at":1794165374,"elapsed_s":235,"outcome":"ok","detail":"closed-by: commit 0ff2575d78d9b0eb6b5e948459726695687bf35e"}
+{"id":"470c9fef","ended_at":1794165374,"elapsed_s":217,"outcome":"ok","detail":"closed-by: commit 0ff2575d78d9b0eb6b5e948459726695687bf35e"}
+{"id":"d38d4410","ended_at":1794165374,"elapsed_s":88,"outcome":"ok","detail":"closed-by: commit ad0ac5a73146eb1e3dde8e8b55ad0a1943b084fc"}
+{"id":"eb65a1e2","ended_at":1794165374,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"60c25e8b","ended_at":1794165374,"elapsed_s":578,"outcome":"ok","detail":"closed-by: commit 6c2e6e927a6bf2500fb3137160f132154738bb8c"}
+{"id":"258330b9","ended_at":1794165374,"elapsed_s":117,"outcome":"ok","detail":"closed-by: commit 6c2e6e927a6bf2500fb3137160f132154738bb8c"}
+{"id":"d23efcc0","ended_at":1794165374,"elapsed_s":69,"outcome":"ok","detail":"closed-by: commit b23dcad58bfb3a89a3783eabca44194ca3721c16"}
+{"id":"9e6cfc2c","ended_at":1794165374,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"5a9a53ad","ended_at":1794165374,"elapsed_s":461,"outcome":"ok","detail":"closed-by: commit 81c7f0d1d12a207345db9bce135b44a13f986c2d"}
+{"id":"d3ff34ea","ended_at":1794165374,"elapsed_s":113,"outcome":"ok","detail":"closed-by: commit 81c7f0d1d12a207345db9bce135b44a13f986c2d"}
+{"id":"4de1993e","ended_at":1794165374,"elapsed_s":64,"outcome":"ok","detail":"closed-by: commit 23a7d882fecea58186bc73408d34981ed4daa739"}
+{"id":"8d6998dc","ended_at":1794165374,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"d54d19b0","ended_at":1794165374,"elapsed_s":191,"outcome":"ok","detail":"closed-by: commit 21d5927fa66c18e642239d85d8c6a69299972619"}
+{"id":"67b2a848","ended_at":1794165374,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"1210f63f","ended_at":1794165374,"elapsed_s":186,"outcome":"ok","detail":"closed-by: commit 279e49ab3803b6711f0a7210f4b23e44829f8df0"}
+{"id":"aa76a074","ended_at":1794165374,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"4d39f39d","ended_at":1794165374,"elapsed_s":354,"outcome":"ok","detail":"closed-by: commit 66a3fbac856b0b6d2a147f0afd0182a4aaad5523"}
+{"id":"ced2aec8","ended_at":1794165374,"elapsed_s":156,"outcome":"ok","detail":"closed-by: commit 1769d153bdb29b58f26addc5970a56cad9bb59c7"}
+{"id":"6d0accef","ended_at":1794165374,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"5587f9ff","ended_at":1794165374,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
+{"kind":"handoff","site":"build","edge":"leave","at":1794165374,"phase":"build","prd":"00014-autopilot-host-execution-v1.md"}
