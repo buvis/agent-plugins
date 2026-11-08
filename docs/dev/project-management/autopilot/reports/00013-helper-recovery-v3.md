@@ -136,8 +136,7 @@ committed. They are no longer open.
 
 ## Deviations from the PRD
 
-Two things in the delivery do not match the PRD text. Both are recorded here,
-not fixed by rewriting history.
+Two things in the delivery do not match the PRD text.
 
 1. **The failed-artifact tests live in their own file.** The strengthened T2
    cases sit in `tests/autopilot/test_helper_recovery_v3_artifact.py`. The
