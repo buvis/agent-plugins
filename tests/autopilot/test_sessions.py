@@ -1,15 +1,18 @@
 """Cross-host tests driving claude.py, codex.py and gemini.py together.
 
 shared_core_without_claude proves the codex/gemini surface works end to end
-with the `claude` module unimportable. codex_gemini_role_capabilities proves
-review-policy-v1.json's mandatory reviewer roles can resolve to codex or
-gemini (never claude alone) for the capability subsets those roles need.
+with the `claude` module unimportable. codex_gemini_role_capabilities records
+which capability subsets contracts/hosts.json lets review-policy-v1.json's
+mandatory reviewer roles resolve to a non-claude host: isolation resolves to
+codex, and identity resolves to no non-claude host at all.
 """
 
 from __future__ import annotations
 
 import importlib
 import json
+import os
+import shutil
 import sys
 import unittest
 from pathlib import Path
@@ -22,33 +25,47 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 hosts = importlib.import_module("hosts")
+claude = importlib.import_module("claude")
+codex = importlib.import_module("codex")
 gemini = importlib.import_module("gemini")
 
 
 class GeminiCapabilityContractTest(unittest.TestCase):
-    """gemini.py declares identity-only capabilities in hosts.json; its
-    probe() and can_delegate() must be honest about that, never claiming
-    delegation/isolation/interception are available."""
+    """gemini.py implements no capability yet; its probe must say so, and must
+    obey the ProbeResult invariant in both branches."""
 
-    def test_probe_covers_every_capability_name(self) -> None:
-        result = gemini.probe(project_root=ROOT)
-        self.assertIsInstance(result, hosts.ProbeResult)
-        self.assertEqual(result.host_id, "gemini")
-        self.assertIsNotNone(result.capability)
+    def test_missing_binary_yields_no_capability_and_a_recorded_reason(self) -> None:
+        with mock.patch.object(shutil, "which", return_value=None):
+            result = gemini.probe(project_root=ROOT)
+        self.assertFalse(result.available)
+        self.assertIsNone(result.capability)
+        self.assertEqual(result.unavailable_reason, hosts.UNAVAILABLE_NO_BINARY)
+        self.assertIsNone(result.authenticated)
+
+    def test_present_binary_reports_every_capability_unimplemented(self) -> None:
+        with mock.patch.object(shutil, "which", return_value="/usr/bin/gemini"):
+            with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "k"}, clear=True):
+                result = gemini.probe(project_root=ROOT)
+        self.assertTrue(result.available)
+        self.assertIsNone(result.unavailable_reason)
         self.assertEqual(tuple(result.capability.statuses), hosts.CAPABILITY_NAMES)
-
-    def test_identity_status_is_one_of_the_known_values(self) -> None:
-        result = gemini.probe(project_root=ROOT)
-        identity_status = result.capability.statuses["identity"].status
-        self.assertIn(identity_status, ("available", "unavailable", "unimplemented"))
-
-    def test_non_identity_capabilities_are_never_reported_available(self) -> None:
-        result = gemini.probe(project_root=ROOT)
-        for name in ("delegation", "isolation", "interception"):
+        for name in hosts.CAPABILITY_NAMES:
             with self.subTest(capability=name):
-                status = result.capability.statuses[name].status
-                self.assertIn(status, ("unavailable", "unimplemented"))
-                self.assertNotEqual(status, "available")
+                self.assertEqual(result.capability.statuses[name].status, "unimplemented")
+
+    def test_auth_presence_stays_observable_even_with_no_capability_implemented(
+        self,
+    ) -> None:
+        """Every status is "unimplemented" either way, so `authenticated` is the
+        only field that records auth presence - and the PRD requires it be
+        recorded."""
+        with mock.patch.object(shutil, "which", return_value="/usr/bin/gemini"):
+            with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "k"}, clear=True):
+                with_auth = gemini.probe(project_root=ROOT)
+            with mock.patch.dict(os.environ, {}, clear=True):
+                without_auth = gemini.probe(project_root=ROOT)
+        self.assertIs(with_auth.authenticated, True)
+        self.assertIs(without_auth.authenticated, False)
 
     def test_can_delegate_is_unconditionally_false(self) -> None:
         self.assertIs(gemini.can_delegate(), False)
@@ -92,14 +109,13 @@ class SharedCoreWithoutClaudeTest(unittest.TestCase):
                 self.assertEqual(result.host_id, host_id)
 
     def test_can_delegate_succeeds_for_codex_and_gemini(self) -> None:
-        self.assertIn(self.codex.can_delegate(), (True, False))
-        self.assertIn(self.gemini.can_delegate(), (True, False))
+        self.assertIs(self.codex.can_delegate(), False)
+        self.assertIs(self.gemini.can_delegate(), False)
 
     def test_build_job_argv_succeeds_for_codex_and_gemini(self) -> None:
         for adapter in (self.codex, self.gemini):
             with self.subTest(adapter=adapter.__name__):
-                result = adapter.build_job_argv(None)
-                self.assertTrue(result is None or isinstance(result, list))
+                self.assertIsNone(adapter.build_job_argv(None))
 
 
 def _resolve_candidate_hosts(required_capabilities: tuple[str, ...], hosts_declared: dict) -> list[str]:
@@ -135,22 +151,19 @@ class CodexGeminiRoleCapabilitiesTest(unittest.TestCase):
         )
         self.assertEqual(union, {"alice", "blake", "bob", "carl", "eve"})
 
-    def test_identity_only_jobs_resolve_to_codex_and_gemini(self) -> None:
-        resolved = _resolve_candidate_hosts(("identity",), self.hosts_declared)
-        self.assertNotEqual(resolved, [])
-        self.assertIn("gemini", resolved)
-        self.assertIn("codex", resolved)
-        # claude is excluded from the candidate pool by construction, so a
-        # non-empty result here proves claude is never the ONLY host the
-        # full {claude, codex, gemini} set could offer for this subset.
-        self.assertNotEqual(set(resolved), {"claude"})
-
-    def test_identity_delegation_isolation_jobs_resolve_to_codex_only(self) -> None:
-        resolved = _resolve_candidate_hosts(("identity", "delegation", "isolation"), self.hosts_declared)
-        self.assertNotEqual(resolved, [])
-        self.assertIn("codex", resolved)
-        self.assertNotIn("gemini", resolved)
-        self.assertNotEqual(set(resolved), {"claude"})
+    def test_identity_jobs_resolve_to_no_non_claude_host_which_blocks_the_claude_free_profile(
+        self,
+    ) -> None:
+        """AP00014 implements native session identity on no non-Claude host, so
+        the PRD's Claude-free profile is not certifiable yet. This is the
+        explicit blocker the PRD requires, recorded rather than papered over;
+        AP 00017 owns the certification that would change it."""
+        self.assertEqual(_resolve_candidate_hosts(("identity",), self.hosts_declared), [])
+        self.assertEqual(
+            _resolve_candidate_hosts(("identity", "delegation", "isolation"), self.hosts_declared),
+            [],
+        )
+        self.assertEqual(_resolve_candidate_hosts(("isolation",), self.hosts_declared), ["codex"])
 
     def test_resolver_rejects_a_capability_subset_neither_host_declares(self) -> None:
         resolved = _resolve_candidate_hosts(("interception",), self.hosts_declared)
@@ -159,6 +172,51 @@ class CodexGeminiRoleCapabilitiesTest(unittest.TestCase):
     def test_empty_required_capabilities_resolves_to_both_hosts(self) -> None:
         resolved = _resolve_candidate_hosts((), self.hosts_declared)
         self.assertEqual(set(resolved), {"codex", "gemini"})
+
+
+class DeclaredCapabilitiesMatchImplementationTest(unittest.TestCase):
+    def test_contract_declares_exactly_what_each_adapter_implements(self) -> None:
+        declared = json.loads((CONTRACTS / "hosts.json").read_text())["hosts"]
+        for host_id, module in (("claude", claude), ("codex", codex), ("gemini", gemini)):
+            with self.subTest(host=host_id):
+                self.assertEqual(
+                    set(declared[host_id]["capabilities"]),
+                    set(module.IMPLEMENTED_CAPABILITIES),
+                )
+
+    def test_an_inert_backing_function_keeps_its_capability_unimplemented(self) -> None:
+        """A capability whose backing function cannot succeed is never declared."""
+        with mock.patch.dict(os.environ, {}, clear=True):
+            for host_id, module in (("codex", codex), ("gemini", gemini)):
+                with self.subTest(host=host_id):
+                    self.assertIsNone(module.session_identity())
+                    self.assertIs(module.can_delegate(), False)
+                    self.assertNotIn("identity", module.IMPLEMENTED_CAPABILITIES)
+                    self.assertNotIn("delegation", module.IMPLEMENTED_CAPABILITIES)
+
+    def test_claude_identity_is_implemented_because_it_returns_a_record(self) -> None:
+        with mock.patch.dict(os.environ, {"CLAUDE_SESSION_ID": "s-1"}, clear=True):
+            identity = claude.session_identity()
+        self.assertEqual(identity["host"], "claude")
+        self.assertEqual(identity["session_id"], "s-1")
+        self.assertIn("identity", claude.IMPLEMENTED_CAPABILITIES)
+        self.assertIs(claude.can_delegate(), True)
+
+    def test_no_static_probe_ever_claims_availability_or_certification(self) -> None:
+        """"supported" is the strongest claim a static probe may make."""
+        self.assertNotIn("available", hosts.CAPABILITY_STATUSES)
+        for host_id, module in (("claude", claude), ("codex", codex), ("gemini", gemini)):
+            for authenticated in (True, False):
+                with self.subTest(host=host_id, authenticated=authenticated):
+                    statuses = hosts.statuses_from(
+                        module.IMPLEMENTED_CAPABILITIES, authenticated=authenticated
+                    )
+                    for status in statuses.values():
+                        self.assertIn(status.status, hosts.CAPABILITY_STATUSES)
+        with mock.patch.object(shutil, "which", return_value="/usr/bin/claude"):
+            result = claude.probe(project_root=ROOT)
+        self.assertEqual(result.probe_kind, "static")
+        self.assertIs(result.certified, False)
 
 
 if __name__ == "__main__":
