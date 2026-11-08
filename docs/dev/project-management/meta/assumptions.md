@@ -348,3 +348,137 @@ Orchestrator:
 - No CHANGELOG entry for this task's `fix` commit: the design assigns the
   `plugins/autopilot/CHANGELOG.md` capability sentence to its own later task
   (section 9), so one entry lands there for the whole rework.
+
+## 18: [D1] plugins/autopilot/scripts/codex.py (closure verification, zero diff)
+
+- Nothing was implemented: the task's finding (R10, availability claimed without
+  proof) was already closed by task 11's `IMPLEMENTED_CAPABILITIES` change.
+  Verified against the contract's sections 3 and 5 and by running
+  `test_sessions.py` (22 passed, 35 subtests). No commit, and Pat did not run
+  because there is no diff to review.
+
+## 19: [D1] plugins/autopilot/compatibility/codex.json
+
+- Tess: the committed bundle key order is `host_id`, `capabilities`,
+  `probe_kind`, taken literally from the design's dict; the byte-exact test
+  fails if the generator emits another order (for example sorted keys).
+- Tess: the abort writes exactly ONE stderr line naming the sorted-first
+  overclaimed capability, so a generator that listed every overclaim would fail
+  the test.
+- Tess: `_authenticated_env` keeps the scrubbed `HOME`, so the "rich" run also
+  has no real `~/.codex/auth.json`; its auth presence comes from env vars only.
+- Tess: `EnvHelperControlTest` is an addition the task did not list. It exists so
+  a dropped `env=` cannot make the machine-independence test pass vacuously.
+- Tess: the exit-1 tests do not assert whether a bundle file is left behind on
+  abort, because the task did not pin it. (A later adversarial round made this a
+  requirement; see below.)
+- ORCHESTRATOR, accepted deviation from the design: the generator validates every
+  declared host BEFORE writing any bundle (two passes), where the design's
+  snippet validates and writes in one interleaved loop. Devon proved seven wrong
+  generators passed the original tests; this was weak point 5. A write-then-abort
+  build leaves an advertised bundle from a failed build, which is the finding's
+  own sentence ("No unsupported capability is advertised") reproducing. The
+  deviation changes no emitted byte for any contract that passes validation.
+- Tess, in-contract refusals: no `schema_version` validation was asserted (the
+  task pins none, and the generator ignores the field before and after this fix),
+  and the generator was NOT made to prune a pre-seeded stale bundle (deleting
+  files it did not create is destructive behaviour no requirement states). The
+  shipped-artifact hole is closed non-destructively instead, by
+  `CommittedBundlesTest` asserting the committed directory holds exactly one file
+  per declared host.
+- Ivan: `bundles` in pass 1 is a plain `dict` with no annotation, matching the
+  surrounding signature-only style.
+- Ivan: a declared host id is always an importable adapter module name; no error
+  handling was added for an unknown one, since no test exercises it. Pat later
+  raised this as LOW (an unknown id raises an uncaught `ModuleNotFoundError`
+  instead of the clean one-line stderr the overclaim path gives). Left unfixed:
+  no requirement defines the behaviour, and Tess disclosed the same gap
+  independently.
+
+## 20: [D1] plugins/autopilot/scripts/guards.py
+
+- ORCHESTRATOR: this task carried NO design contract (its finding is a HIGH, so
+  Phase 6 generated no rework design doc). The five duty rules were DERIVED by
+  reading the source Claude hooks that enforce them today
+  (`enforce_prd_location.py`, `guard_phase_delegation.py`,
+  `guard_skill_after_leave.py`, `note_session_leave.py`) rather than invented.
+  Two deliberate narrowings: the phase-delegation natural-language lexicon and
+  fixture corpus are NOT ported (DELEGATION matches an explicit dispatch-target
+  key, because a prose matcher is not an artifact check), and POST_HANDOFF fails
+  closed when only one of `session`/`leave_session` is present, where the source
+  hook lets a malformed marker pass because prose backs it up.
+- ORCHESTRATOR SPEC ERROR, caught before implementation: the first spec listed
+  the store's known directories from memory and was wrong in both directions. It
+  allowed `decisions` and `audits`, which are not store directories, and omitted
+  `intake`, `specs`, `notes`, `walkthroughs`, `audit-results` and `spikes`.
+  Corrected from the hook's `KNOWN_DIRS`. Tess also correctly refused to invent
+  the seven `meta/` keeper filenames, two of which are extensionless
+  (`ecc-cursor`, `upstream-cursor`); they were supplied from `KEEP_NAMES`.
+- Three existing `PureGuardTest` tests that pinned the `context["ok"]`
+  placeholder were deliberately removed as encoding the defect, and four kept
+  tests had their contexts adapted with intent unchanged. This is the requirement
+  changing, not a test bent to fit an implementation.
+- Tess: `DEPARTURE` timestamps are ints; skill and lifecycle matching is exact
+  and case-sensitive; the store segment is matched by whole path parts, so
+  `project-management-old` is outside the store; a lifecycle directory is denied
+  only as the FIRST path part, so `src/backlog/x.md` is allowed; a non-`str`
+  `document_path` is denied; `leave_recorded` must be a real `bool`, so `1` and
+  `"true"` are denied; equal departure timestamps allow.
+- Tess, disclosed limitation: the closed-set test pins the thirteen allowed
+  directory names plus near-miss denials, so it cannot by itself catch an
+  implementation that adds a fourteenth directory. Enumerating the complement is
+  not possible; the near-miss cases are the mitigation.
+- Ivan: a path that is exactly the store directory (empty `rel`) is denied as
+  fail-closed; the spec was silent on it. Paths are split with `PurePosixPath`,
+  so `/` is the separator and no filesystem is touched. Only the FIRST
+  `docs/dev/project-management` occurrence is treated as the store.
+- Ivan: `import posixpath` was placed between two `from` imports, which `isort`
+  would reorder; no linter runs in this repo's CI, so nothing catches it. Left
+  as-is because it falls outside the two authorised fixes.
+- Pat raised two MEDIUMs inside this task's files, both confirmed by the
+  orchestrator running the duty code directly before any fix: a real guard bypass
+  where `docs/dev/project-management/prds/wip/../../x.md` was ALLOWED while the
+  store-root path it resolves to is denied, and POST_HANDOFF accepting `None`,
+  `""`, `"  "` or `5` as proof the leave row belonged to another session. Both
+  were gaps in the derived spec, not Ivan deviating. Fixed with
+  `posixpath.normpath` plus a surviving-`..` denial, and a non-empty-`str`
+  session requirement. Pat's single allowed re-run returned NO FINDINGS.
+- Pat's LOW on `doctor.py` is recorded as an out-of-scope deferred finding:
+  `doctor.py` calls `run_guard(duty, {}, seam=seam)` with an empty context for
+  all nine duties, so the five pure duties now permanently deny there. That is
+  the finding being closed (diagnose no longer reports them as passing without
+  checking anything), and no test asserts the old allowed outcome, but `doctor.py`
+  was outside this task's allowlist.
+
+## 16: [D1] tools/autopilot/source-map.json (generator run, last step)
+
+- ORCHESTRATOR ran the generator directly rather than dispatching a subagent: the
+  deliverable is one deterministic regeneration, and a subagent's main risk here
+  is hand-editing a `destination_blob_sha256`, which the design forbids
+  absolutely. The attempt's `red_check` is stamped `n/a:micro-lane` only because
+  that is the closed grammar's single legal value for
+  `implementor: "orchestrator"`; there was no test-authoring step to red-check.
+- The design says `AP00014_DIGESTED` holds 13 paths AND says to keep it equal to
+  `AP00014_TARGETS`, which conflicts. The two `tools/` paths
+  (`probe-host.py`, `build-compatibility.py`) are in `AP00014_OWNED` but
+  deliberately are NOT asset rows, and a test asserts they are absent from
+  `asset_paths`. Task 15 resolved the conflict correctly in favour of the
+  invariant at 11 paths, so task 19's edit to `build-compatibility.py` does not
+  stale an asset digest.
+- The contract card's prediction was PARTLY WRONG. Three of the four
+  expected-failing tests now pass; the fourth,
+  `test_new_helper_files_are_owned_and_digested_from_current_bytes`, still fails,
+  and not for the predicted "not yet regenerated" reason. At line 300
+  `assert_refreshed_evidence` requires the CHANGELOG bytes at the delivery
+  receipts' pinned `package_revision` (444d733a, an AP00013 commit) to equal the
+  bytes on disk, and that commit predates every AP00014 CHANGELOG bullet. Proven
+  pre-existing by running the same test at the session-start commit a76b5f2 in a
+  throwaway worktree: it failed there too, at line 309 on the autopilot.py digest
+  staleness, which was masking this assertion. Deferred for the review gate,
+  because repointing `package_revision` is AP00013 receipts data the design
+  places outside this generator's ownership.
+- `test_content_roster_matches_frozen_inventory_and_actual_package_bytes` passes
+  only AFTER the regenerated map is committed, because its packaged target is
+  built from the committed tree.
+- Environment: `tests/autopilot` needs `pyyaml` and `jsonschema`, which the bare
+  runner lacks. Both were supplied via `uv --with`, matching what CI installs.
