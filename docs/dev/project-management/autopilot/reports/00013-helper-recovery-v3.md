@@ -134,6 +134,37 @@ node is among them. This verifies the hedge in the section above: the 3
 post-regeneration provenance failures did resolve once the receipt and map were
 committed. They are no longer open.
 
+## Deviations from the PRD
+
+Two things in the delivery do not match the PRD text. Both are recorded here,
+not fixed by rewriting history.
+
+1. **The failed-artifact tests live in their own file.** The strengthened T2
+   cases sit in `tests/autopilot/test_helper_recovery_v3_artifact.py`. The
+   PRD's "Repository Structure" list, which calls itself the complete set of
+   implementation write paths, does not name that file. Why: after Devon's
+   strengthening, `tests/autopilot/test_helper_recovery_v3.py` stood at 799
+   lines, one line under the 800-line ceiling in `rules/coding-style.md`, so
+   the new cases went into a second file. This is a style-limit consequence,
+   not a scope change. Consequence for the PRD's own verification text: T2's
+   recorded Verify line selects the failed-artifact cases with
+   `-k failed_artifact` on the old file, and that selector now matches none of
+   them. The command that does select them is:
+
+   ```
+   uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_helper_recovery_v3_artifact.py -q
+   ```
+
+   The receipt's `v3-T2` entry records that command green: 20 passed, exit 0,
+   8.88s. The file has since grown through rework, so a run today reports more
+   cases than the receipt's 20. The receipt number stays as recorded.
+
+2. **The source map was regenerated one task late.** Rework task 5 (commit
+   `81c89e1`) changed `plugins/autopilot/scripts/verification.py` without
+   regenerating `tools/autopilot/source-map.json`, which left three tests red.
+   Rework task 7 re-pinned the receipt's `package_revision` to `7a55dcd` and
+   regenerated the map, after which 52 provenance and package tests pass.
+
 ## Deferrals
 
 These are unchanged, as recorded in `00013-v3-admission.md`: R7 (AP 00018
