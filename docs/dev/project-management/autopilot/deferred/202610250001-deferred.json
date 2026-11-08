@@ -834,6 +834,20 @@
       "cycle": 1,
       "reason": ">10 follow-up tasks from review: loop-mode scope alarm keeps the top 10 by severity and defers the rest",
       "prd": "00014-autopilot-host-execution-v1.md"
+    },
+    {
+      "type": "tool-limitation",
+      "issue": "check_split_hygiene.py (plugins/autopilot, skills/work/scripts) reports UNUSED for a module-level binding that is re-exported to another test module: tests/autopilot/test_local_boundary.py:38 HELPERS is imported and asserted by tests/autopilot/test_local_boundary_state.py. Following its exit-1 deletion ladder would break the importer. Worth teaching the checker about cross-module imports, or documenting the re-export blind spot in style-gate.md.",
+      "severity": "medium",
+      "reason": "out of scope for AP00014; found while running the gate on an unrelated rework task",
+      "prd": "00014-autopilot-host-execution-v1.md"
+    },
+    {
+      "type": "preexisting-defect",
+      "issue": "tools/autopilot/source-map.json assets[] contains plugins/autopilot/plugin.json TWICE: after task 15 the array has 131 rows but only 130 unique destination_path values (at the review head it was 133 rows / 132 unique, so the duplicate predates this rework). test_package.py:299-302 compares SETS, so it cannot catch a duplicate row, and single_assets() only catches one if a test asks for that path. Found while measuring the asset set for the AP00014 assets-scope fix.",
+      "severity": "medium",
+      "reason": "pre-existing and out of scope for AP00014; de-duplicating a row changes the committed map and would need its own fail-first test (an assertion that destination_path values are unique), which belongs in its own PRD rather than inside this rework",
+      "prd": "00014-autopilot-host-execution-v1.md"
     }
   ]
 }

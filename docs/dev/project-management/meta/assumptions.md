@@ -276,3 +276,75 @@ and the pattern AP00018's own registration commit already used. The
 `sonnet-run.sh` reviewer lane (step 5.7) failed again on this host (same
 known runner/auth quirk, two attempts). `review: "failed:runner_unavailable"`
 recorded on the attempt; PRD-level review lenses cover it.
+
+## 11: [D1] plugins/autopilot/scripts/gemini.py - derive capability status from IMPLEMENTED_CAPABILITIES
+
+Tess (test author):
+- Placed `ProbeResultInvariantTest` at the end of `test_host_argv.py`, after
+  `ProbeResultImmutabilityTest`; "beside them" did not pin a line position.
+- Used `claude` as the available baseline host and `codex` as the unavailable
+  baseline host in `ProbeResultInvariantTest`, reusing the file's existing
+  `PROBED_AT` / `EVIDENCE_PATHS` / `_statuses_for` fixtures; the task named no
+  baseline host.
+- Folded a baseline-constructs-cleanly control assertion into the shared
+  `assert_rejects` helper rather than adding a ninth test method.
+- Rewrote the `test_sessions.py` module docstring clause in her own words (the
+  task required the update but supplied no replacement text).
+- claude auth env vars are `CLAUDE_CODE_OAUTH_TOKEN` / `ANTHROPIC_API_KEY` and
+  codex's is `CODEX_API_KEY`, read from the current adapter sources; the
+  contract does not name auth sources.
+- An adapter's `capability.statuses` must equal
+  `hosts.statuses_from(IMPLEMENTED_CAPABILITIES, authenticated=...)`, derived
+  from the contract's `statuses_from` docstring rather than from an explicit
+  statement that probes use that function.
+- `CapabilityStatus` keeps fields `name`, `status`, `reason` and
+  `HostCapability` keeps `host_id`, `statuses` (unchanged from production; the
+  contract does not restate them).
+- `can_delegate()` and an adapter's `authenticated` are real `bool` objects, so
+  `assertIs` against `in`-expressions is valid.
+- `test_host_argv.py`'s fake `_statuses_for` keeps the old `"available"` status
+  string: those dispatch tests pass the map through unvalidated, and the task
+  ordered only the two field additions to the fakes.
+- Codex auth also reads `~/.codex/auth.json`, which
+  `mock.patch.dict(os.environ, {}, clear=True)` cannot clear, so codex's
+  no-auth branch is pinned by binding its statuses to the auth it reports
+  rather than to a literal `False`. Machine independence outranks a flaky
+  literal.
+
+Ivan (implementor):
+- `gemini.build_job_argv(intent)` keeps its unannotated parameter (the contract
+  gave no snippet for it, and the tests only call it with `None`).
+- The claude.py `session_identity()` mandated sentence was appended to the
+  existing docstring as a second paragraph rather than replacing the existing
+  text, since the contract said the docstring "gains one sentence".
+- `gemini.py`'s new module docstring was placed above
+  `from __future__ import annotations`, the only legal position.
+
+Orchestrator:
+- Task 11's findings named only `gemini.py`, but the contract's section 1
+  (`ProbeResult.__post_init__`) makes the old claude and codex probes raise
+  `ValueError`, so sections 1-6 had to land as one unit. Task 11's writable set
+  is therefore `hosts.py`, `claude.py`, `codex.py`, `gemini.py` and
+  `contracts/hosts.json`. Sections 7-11 stay with their own later tasks.
+- The Ivan prompt overran the 50 000-byte dispatch budget at 52 644 with the
+  two test files inlined. One trim pass replaced the inlined test bodies with
+  their paths plus the narrow run command and the red baseline; Ivan read them
+  himself. Final prompt 18 667 bytes.
+- The step-5.6 self-deslop pass deleted the CLAUDE_SESSION_ID docstring
+  sentence that the design's section 5 mandates. Restored by orchestrator edit
+  in commit 12cf1c0; the deslop prompt's protected-construct list had omitted
+  it.
+- `sonnet-run.sh` (step 5.7) failed on this host again - "OAuth session expired
+  and could not be refreshed", then "Session ID already in use" on the retry.
+  Rather than stamp `review: failed:runner_unavailable` as task 10 did, this
+  task fell back to the native `autopilot:pat` reviewer subagent, which carries
+  the same persona and reporting contract. It returned `CLOSURE | resolved` for
+  the task's finding plus two LOW observations.
+- Pat's two LOW findings are left for the PRD-level review, not fixed here. The
+  first (gemini's `frozenset[str]` annotation) is contract-mandated verbatim.
+  The second (extract a `hosts.available()` constructor beside `unavailable()`)
+  is a behavior-preserving simplification the design does not specify, so
+  applying it would put this task outside its contract.
+- No CHANGELOG entry for this task's `fix` commit: the design assigns the
+  `plugins/autopilot/CHANGELOG.md` capability sentence to its own later task
+  (section 9), so one entry lands there for the whole rework.
