@@ -7,6 +7,8 @@ import importlib
 import sys
 import unittest
 import uuid
+from collections.abc import Callable
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest import mock
 
@@ -59,26 +61,55 @@ def _statuses_for(host_id: str) -> dict:
     return {name: _status(name, *rows[name]) for name in hosts.CAPABILITY_NAMES}
 
 
+def _available_kwargs(host_id: str, probed_at: str, evidence_path: str | None) -> dict:
+    return {
+        "host_id": host_id,
+        "available": True,
+        "capability": hosts.HostCapability(host_id=host_id, statuses=_statuses_for(host_id)),
+        "probed_at": probed_at,
+        "evidence_path": evidence_path,
+        "authenticated": True,
+    }
+
+
+def _unavailable_kwargs(host_id: str, probed_at: str, evidence_path: str | None) -> dict:
+    return {
+        "host_id": host_id,
+        "available": False,
+        "capability": None,
+        "probed_at": probed_at,
+        "evidence_path": evidence_path,
+        "unavailable_reason": hosts.UNAVAILABLE_NO_BINARY,
+    }
+
+
+_Builder = Callable[[str, str, "str | None"], dict]
+
+
+def _baseline_variants(builder: _Builder) -> list[tuple[str, dict]]:
+    """Every host_id, a fixture timestamp and a freshly minted one, a fixture
+    evidence path and a novel one: an invariant gated on any of those values
+    still has to run here."""
+    variants = []
+    for host_id in HOST_IDS:
+        for probed_at in (PROBED_AT[host_id], datetime.now(timezone.utc).isoformat()):
+            for evidence_path in (
+                EVIDENCE_PATHS[host_id],
+                f"docs/dev/tmp/evidence/{uuid.uuid4().hex}.json",
+            ):
+                variants.append((host_id, builder(host_id, probed_at, evidence_path)))
+    return variants
+
+
 def _available_result(host_id: str) -> object:
-    capability = hosts.HostCapability(host_id=host_id, statuses=_statuses_for(host_id))
     return hosts.ProbeResult(
-        host_id=host_id,
-        available=True,
-        capability=capability,
-        probed_at=PROBED_AT[host_id],
-        evidence_path=EVIDENCE_PATHS[host_id],
-        authenticated=True,
+        **_available_kwargs(host_id, PROBED_AT[host_id], EVIDENCE_PATHS[host_id])
     )
 
 
 def _unavailable_result(host_id: str) -> object:
     return hosts.ProbeResult(
-        host_id=host_id,
-        available=False,
-        capability=None,
-        probed_at=PROBED_AT[host_id],
-        evidence_path=EVIDENCE_PATHS[host_id],
-        unavailable_reason=hosts.UNAVAILABLE_NO_BINARY,
+        **_unavailable_kwargs(host_id, PROBED_AT[host_id], EVIDENCE_PATHS[host_id])
     )
 
 
@@ -279,63 +310,53 @@ class ProbeResultInvariantTest(unittest.TestCase):
     """__post_init__ refuses every self-contradictory ProbeResult. A validator
     with no test for its own rejections is the next thing to rot."""
 
-    def available_kwargs(self) -> dict:
-        host_id = "claude"
-        return {
-            "host_id": host_id,
-            "available": True,
-            "capability": hosts.HostCapability(host_id=host_id, statuses=_statuses_for(host_id)),
-            "probed_at": PROBED_AT[host_id],
-            "evidence_path": EVIDENCE_PATHS[host_id],
-            "authenticated": True,
-        }
-
-    def unavailable_kwargs(self) -> dict:
-        host_id = "codex"
-        return {
-            "host_id": host_id,
-            "available": False,
-            "capability": None,
-            "probed_at": PROBED_AT[host_id],
-            "evidence_path": EVIDENCE_PATHS[host_id],
-            "unavailable_reason": hosts.UNAVAILABLE_NO_BINARY,
-        }
-
-    def assert_rejects(self, baseline: dict, **override) -> None:
+    def assert_rejects_one(self, baseline: dict, **override) -> None:
         # Control: the untouched baseline must construct, so a __post_init__
         # that raises unconditionally cannot pass these tests.
         self.assertIsInstance(hosts.ProbeResult(**baseline), hosts.ProbeResult)
         with self.assertRaises(ValueError):
             hosts.ProbeResult(**{**baseline, **override})
 
+    def assert_rejects(self, builder: _Builder, **override) -> None:
+        """Rejection holds for every host_id and every timestamp, so the
+        invariant cannot be gated on a fixture value and skipped on a real
+        probe."""
+        for host_id, baseline in _baseline_variants(builder):
+            with self.subTest(host_id=host_id, probed_at=baseline["probed_at"]):
+                self.assert_rejects_one(baseline, **override)
+
     def test_rejects_an_available_result_with_no_capability(self) -> None:
-        self.assert_rejects(self.available_kwargs(), capability=None)
+        self.assert_rejects(_available_kwargs, capability=None)
 
     def test_rejects_an_available_result_that_also_carries_a_reason(self) -> None:
-        self.assert_rejects(
-            self.available_kwargs(), unavailable_reason=hosts.UNAVAILABLE_NO_AUTH
-        )
+        self.assert_rejects(_available_kwargs, unavailable_reason=hosts.UNAVAILABLE_NO_AUTH)
 
     def test_rejects_an_available_result_that_never_recorded_auth(self) -> None:
-        self.assert_rejects(self.available_kwargs(), authenticated=None)
+        self.assert_rejects(_available_kwargs, authenticated=None)
 
     def test_rejects_an_unavailable_result_that_carries_a_capability(self) -> None:
-        capability = hosts.HostCapability(host_id="codex", statuses=_statuses_for("codex"))
-        self.assert_rejects(self.unavailable_kwargs(), capability=capability)
+        for host_id, baseline in _baseline_variants(_unavailable_kwargs):
+            with self.subTest(host_id=host_id, probed_at=baseline["probed_at"]):
+                self.assert_rejects_one(
+                    baseline,
+                    capability=hosts.HostCapability(
+                        host_id=host_id, statuses=_statuses_for(host_id)
+                    ),
+                )
 
     def test_rejects_an_unavailable_result_with_no_reason(self) -> None:
-        self.assert_rejects(self.unavailable_kwargs(), unavailable_reason=None)
+        self.assert_rejects(_unavailable_kwargs, unavailable_reason=None)
 
     def test_rejects_an_unavailable_result_that_recorded_auth(self) -> None:
         for authenticated in (True, False):
             with self.subTest(authenticated=authenticated):
-                self.assert_rejects(self.unavailable_kwargs(), authenticated=authenticated)
+                self.assert_rejects(_unavailable_kwargs, authenticated=authenticated)
 
     def test_rejects_a_live_probe_kind(self) -> None:
-        self.assert_rejects(self.available_kwargs(), probe_kind="live")
+        self.assert_rejects(_available_kwargs, probe_kind="live")
 
     def test_rejects_a_certified_result(self) -> None:
-        self.assert_rejects(self.available_kwargs(), certified=True)
+        self.assert_rejects(_available_kwargs, certified=True)
 
 
 if __name__ == "__main__":

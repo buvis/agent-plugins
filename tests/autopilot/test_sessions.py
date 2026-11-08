@@ -10,11 +10,13 @@ codex, and identity resolves to no non-claude host at all.
 from __future__ import annotations
 
 import importlib
+import inspect
 import json
 import os
 import shutil
 import sys
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest import mock
 
@@ -104,9 +106,21 @@ class SharedCoreWithoutClaudeTest(unittest.TestCase):
     def test_probe_host_succeeds_for_codex_and_gemini(self) -> None:
         for host_id in ("codex", "gemini"):
             with self.subTest(host_id=host_id):
-                result = hosts.probe_host(host_id, project_root=ROOT)
+                with mock.patch.object(shutil, "which", return_value=f"/usr/bin/{host_id}"):
+                    with mock.patch.dict(os.environ, {}, clear=True):
+                        result = hosts.probe_host(host_id, project_root=ROOT)
+                        again = hosts.probe_host(host_id, project_root=ROOT)
                 self.assertIsInstance(result, hosts.ProbeResult)
                 self.assertEqual(result.host_id, host_id)
+                # A fresh probe every call, stamped now: an import-time
+                # singleton frozen at 1970 would pass neither assertion.
+                self.assertIsNot(result, again)
+                self.assertIsNot(result.capability.statuses, again.capability.statuses)
+                self.assertEqual(result.capability.statuses, again.capability.statuses)
+                stamped = datetime.fromisoformat(result.probed_at)
+                self.assertIsNotNone(stamped.utcoffset())
+                age = abs((datetime.now(timezone.utc) - stamped).total_seconds())
+                self.assertLess(age, 300)
 
     def test_can_delegate_succeeds_for_codex_and_gemini(self) -> None:
         self.assertIs(self.codex.can_delegate(), False)
@@ -174,15 +188,38 @@ class CodexGeminiRoleCapabilitiesTest(unittest.TestCase):
         self.assertEqual(set(resolved), {"codex", "gemini"})
 
 
+def _expected_status(implemented: bool, authenticated: bool) -> tuple[str, str | None]:
+    """The (status, reason) pair the contract demands for one capability name."""
+    if not implemented:
+        return ("unimplemented", None)
+    if authenticated:
+        return ("supported", None)
+    return ("unavailable", hosts.UNAVAILABLE_NO_AUTH)
+
+
 class DeclaredCapabilitiesMatchImplementationTest(unittest.TestCase):
+    ADAPTERS = (("claude", claude), ("codex", codex), ("gemini", gemini))
+    EXPECTED_IMPLEMENTED = {
+        "claude": {"identity", "delegation", "isolation", "interception"},
+        "codex": {"isolation"},
+        "gemini": set(),
+    }
+
     def test_contract_declares_exactly_what_each_adapter_implements(self) -> None:
+        """Both sides are pinned to the literal expected set, so trimming
+        hosts.json down to a crippled adapter cannot make this agree; and each
+        name is tied to the function that has to back it."""
         declared = json.loads((CONTRACTS / "hosts.json").read_text())["hosts"]
-        for host_id, module in (("claude", claude), ("codex", codex), ("gemini", gemini)):
-            with self.subTest(host=host_id):
-                self.assertEqual(
-                    set(declared[host_id]["capabilities"]),
-                    set(module.IMPLEMENTED_CAPABILITIES),
-                )
+        with mock.patch.dict(os.environ, {"CLAUDE_SESSION_ID": "s-9"}, clear=True):
+            for host_id, module in self.ADAPTERS:
+                with self.subTest(host=host_id):
+                    implemented = set(module.IMPLEMENTED_CAPABILITIES)
+                    self.assertEqual(implemented, self.EXPECTED_IMPLEMENTED[host_id])
+                    self.assertEqual(set(declared[host_id]["capabilities"]), implemented)
+                    self.assertIs("delegation" in implemented, module.can_delegate())
+                    self.assertIs(
+                        "identity" in implemented, module.session_identity() is not None
+                    )
 
     def test_an_inert_backing_function_keeps_its_capability_unimplemented(self) -> None:
         """A capability whose backing function cannot succeed is never declared."""
@@ -195,28 +232,140 @@ class DeclaredCapabilitiesMatchImplementationTest(unittest.TestCase):
                     self.assertNotIn("delegation", module.IMPLEMENTED_CAPABILITIES)
 
     def test_claude_identity_is_implemented_because_it_returns_a_record(self) -> None:
-        with mock.patch.dict(os.environ, {"CLAUDE_SESSION_ID": "s-1"}, clear=True):
-            identity = claude.session_identity()
-        self.assertEqual(identity["host"], "claude")
-        self.assertEqual(identity["session_id"], "s-1")
+        for session_id in ("s-1", "0f3c-second-session"):
+            with self.subTest(session_id=session_id):
+                with mock.patch.dict(
+                    os.environ, {"CLAUDE_SESSION_ID": session_id}, clear=True
+                ):
+                    identity = claude.session_identity()
+                self.assertEqual(identity["host"], "claude")
+                self.assertEqual(identity["session_id"], session_id)
+                self.assertEqual(identity["pid"], os.getpid())
+        with mock.patch.dict(os.environ, {}, clear=True):
+            self.assertIsNone(claude.session_identity())
         self.assertIn("identity", claude.IMPLEMENTED_CAPABILITIES)
         self.assertIs(claude.can_delegate(), True)
 
     def test_no_static_probe_ever_claims_availability_or_certification(self) -> None:
         """"supported" is the strongest claim a static probe may make."""
+        self.assertEqual(
+            hosts.CAPABILITY_STATUSES, ("supported", "unavailable", "unimplemented")
+        )
         self.assertNotIn("available", hosts.CAPABILITY_STATUSES)
-        for host_id, module in (("claude", claude), ("codex", codex), ("gemini", gemini)):
+        for host_id, module in self.ADAPTERS:
+            implemented = set(module.IMPLEMENTED_CAPABILITIES)
             for authenticated in (True, False):
                 with self.subTest(host=host_id, authenticated=authenticated):
                     statuses = hosts.statuses_from(
                         module.IMPLEMENTED_CAPABILITIES, authenticated=authenticated
                     )
-                    for status in statuses.values():
-                        self.assertIn(status.status, hosts.CAPABILITY_STATUSES)
+                    self.assertEqual(tuple(statuses), hosts.CAPABILITY_NAMES)
+                    for name in hosts.CAPABILITY_NAMES:
+                        self.assertEqual(
+                            (statuses[name].status, statuses[name].reason),
+                            _expected_status(name in implemented, authenticated),
+                        )
         with mock.patch.object(shutil, "which", return_value="/usr/bin/claude"):
-            result = claude.probe(project_root=ROOT)
+            with mock.patch.dict(
+                os.environ, {"CLAUDE_CODE_OAUTH_TOKEN": "t"}, clear=True
+            ):
+                result = claude.probe(project_root=ROOT)
         self.assertEqual(result.probe_kind, "static")
         self.assertIs(result.certified, False)
+
+
+class ClaudeCodexProbeContractTest(unittest.TestCase):
+    """claude.probe and codex.probe must read PATH and auth rather than assume
+    them: the same branches GeminiCapabilityContractTest pins for gemini."""
+
+    MODULES = (("claude", claude), ("codex", codex))
+    AUTH_ENV = {
+        "claude": {"CLAUDE_CODE_OAUTH_TOKEN": "t", "ANTHROPIC_API_KEY": "k"},
+        "codex": {"CODEX_API_KEY": "k"},
+    }
+
+    def test_missing_binary_yields_no_capability_and_a_recorded_reason(self) -> None:
+        for host_id, module in self.MODULES:
+            with self.subTest(host=host_id):
+                with mock.patch.object(shutil, "which", return_value=None):
+                    with mock.patch.dict(os.environ, self.AUTH_ENV[host_id], clear=True):
+                        result = module.probe(project_root=ROOT)
+                self.assertFalse(result.available)
+                self.assertIsNone(result.capability)
+                self.assertEqual(result.unavailable_reason, hosts.UNAVAILABLE_NO_BINARY)
+                self.assertIsNone(result.authenticated)
+
+    def test_present_binary_with_auth_reports_implemented_capabilities_supported(self) -> None:
+        for host_id, module in self.MODULES:
+            with self.subTest(host=host_id):
+                with mock.patch.object(shutil, "which", return_value=f"/usr/bin/{host_id}"):
+                    with mock.patch.dict(os.environ, self.AUTH_ENV[host_id], clear=True):
+                        result = module.probe(project_root=ROOT)
+                self.assertTrue(result.available)
+                self.assertIsNone(result.unavailable_reason)
+                self.assertIs(result.authenticated, True)
+                self.assertEqual(
+                    result.capability.statuses,
+                    hosts.statuses_from(
+                        module.IMPLEMENTED_CAPABILITIES, authenticated=True
+                    ),
+                )
+
+    def test_claude_without_auth_marks_every_implemented_capability_unavailable(self) -> None:
+        with mock.patch.object(shutil, "which", return_value="/usr/bin/claude"):
+            with mock.patch.dict(os.environ, {}, clear=True):
+                result = claude.probe(project_root=ROOT)
+        self.assertTrue(result.available)
+        self.assertIs(result.authenticated, False)
+        self.assertEqual(tuple(result.capability.statuses), hosts.CAPABILITY_NAMES)
+        for name in claude.IMPLEMENTED_CAPABILITIES:
+            with self.subTest(capability=name):
+                status = result.capability.statuses[name]
+                self.assertEqual(status.status, "unavailable")
+                self.assertEqual(status.reason, hosts.UNAVAILABLE_NO_AUTH)
+
+    def test_codex_statuses_follow_the_auth_presence_it_recorded(self) -> None:
+        """codex auth also lives in a file under the user's home, which patching
+        os.environ cannot clear, so bind its statuses to the auth it reports
+        instead of to a machine-dependent expectation."""
+        with mock.patch.object(shutil, "which", return_value="/usr/bin/codex"):
+            with mock.patch.dict(os.environ, {}, clear=True):
+                result = codex.probe(project_root=ROOT)
+        self.assertTrue(result.available)
+        self.assertIsInstance(result.authenticated, bool)
+        self.assertEqual(
+            result.capability.statuses,
+            hosts.statuses_from(
+                codex.IMPLEMENTED_CAPABILITIES, authenticated=result.authenticated
+            ),
+        )
+
+
+class AdapterProbeSignatureTest(unittest.TestCase):
+    """Every adapter takes the project it probes as a required keyword, so no
+    adapter can quietly ignore project_root."""
+
+    MODULES = (("claude", claude), ("codex", codex), ("gemini", gemini))
+
+    def test_every_adapter_takes_project_root_as_its_only_required_keyword(self) -> None:
+        for host_id, module in self.MODULES:
+            with self.subTest(host=host_id):
+                parameters = inspect.signature(module.probe).parameters
+                self.assertEqual(tuple(parameters), ("project_root",))
+                self.assertIs(parameters["project_root"].default, inspect.Parameter.empty)
+                self.assertIs(
+                    parameters["project_root"].kind, inspect.Parameter.KEYWORD_ONLY
+                )
+
+    def test_every_adapter_rejects_a_probe_without_a_keyword_project_root(self) -> None:
+        for host_id, module in self.MODULES:
+            with self.subTest(host=host_id):
+                with mock.patch.object(shutil, "which", return_value=None):
+                    with mock.patch.dict(os.environ, {}, clear=True):
+                        with self.assertRaises(TypeError):
+                            module.probe()
+                        with self.assertRaises(TypeError):
+                            module.probe(ROOT)
 
 
 if __name__ == "__main__":
