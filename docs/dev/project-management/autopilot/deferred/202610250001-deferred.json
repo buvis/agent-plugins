@@ -848,6 +848,39 @@
       "severity": "medium",
       "reason": "pre-existing and out of scope for AP00014; de-duplicating a row changes the committed map and would need its own fail-first test (an assertion that destination_path values are unique), which belongs in its own PRD rather than inside this rework",
       "prd": "00014-autopilot-host-execution-v1.md"
+    },
+    {
+      "type": "assumed-ambiguity",
+      "question": "Task 20 has no design contract: what exactly must each of the five pure guard duties (document_location, delegation, post_handoff, departure, context_reinjection) check, given the PRD says only preserve the duties and keep pure helpers artifact-only?",
+      "assumption": "Each pure duty checks its own named artifact facts from explicit duty-specific context keys and fails closed when a required key is absent, with each rule derived from the corresponding source hook. guard_phase_delegation natural-language lexicon deliberately not ported; DELEGATION decides on an explicit dispatch-target key.",
+      "severity": "high",
+      "prd": "00014-autopilot-host-execution-v1.md"
+    },
+    {
+      "type": "out-of-scope-finding",
+      "issue": "doctor.py calls run_guard(duty, {}, seam=seam) with an empty context for all nine duties, so after task 20 the five pure duties always deny there and diagnose permanently reports five failing guards. Either diagnose should supply real per-duty context, or it should report the pure duties as not-evaluated rather than failed. No test covers diagnose guard outcomes.",
+      "severity": "low",
+      "file": "plugins/autopilot/scripts/doctor.py",
+      "found_by": "PAT (task 20 per-task review)",
+      "reason": "doctor.py is outside task 20 file allowlist; the task owned guards.py only. Raised as LOW by the per-task reviewer and independently confirmed by the orchestrator before the fix landed.",
+      "prd": "00014-autopilot-host-execution-v1.md"
+    },
+    {
+      "type": "pre-existing-test-failure",
+      "issue": "test_helper_provenance_real.py::test_new_helper_files_are_owned_and_digested_from_current_bytes still fails after the task 16 generator run, now at line 300 in assert_refreshed_evidence: it asserts digest(git show <receipts package_revision>:plugins/autopilot/CHANGELOG.md) == digest(CHANGELOG.md on disk), but the pinned package_revision is 444d733a (an AP00013 commit) whose CHANGELOG predates every AP00014 bullet. PROVEN PRE-EXISTING: the same test fails at the session-start commit a76b5f2 in a clean worktree, there at line 309 on the autopilot.py digest staleness; that earlier assertion was masking this one, so the generator run did not cause the failure, it uncovered it. Fixing it means repointing the delivery receipts package_revision to a commit containing the current CHANGELOG bytes, which is AP00013 receipts data, not the source map, and which the rework design explicitly says is \"AP00014s own and not this generators to rewrite\"; it may also move frozen digests (INVENTORY_SHA, OTHER_ASSETS_SHA) that other tests pin.",
+      "severity": "high",
+      "file": "tests/autopilot/test_helper_provenance_real.py",
+      "found_by": "ORCHESTRATOR (task 16 verification)",
+      "reason": "No task in this rework owns the delivery receipts package_revision, and the contract card wrongly predicted all four expected-failing tests would clear on the generator run. Three did clear (test_generator_check_accepts_the_committed_map, test_ap00014_rows_are_owned_and_digested_from_current_bytes, test_content_roster_matches_frozen_inventory_and_actual_package_bytes). This one needs a decision about receipts ownership that belongs to the review gate, not to an unattended work pass.",
+      "prd": "00014-autopilot-host-execution-v1.md"
+    },
+    {
+      "type": "pre-existing-suite-red",
+      "issue": "The full tests/autopilot suite is NOT green at the end of this rework: 49 failed, 1442 passed, 46337 subtests passed. ALL 49 are pre-existing and none was introduced by this rework. 48 are controller tests (test_controller_capacity.py, test_controller_owner.py, test_controller_owner_recovery.py) covering the controller state store, owner credentials and capacity reserves, which this PRD does not touch; the 49th is the test_new_helper_files_are_owned_and_digested_from_current_bytes provenance failure recorded separately. PROVEN by running those three controller files at the session-start commit a76b5f2 in a clean throwaway worktree (since removed): 48 failed, 9 passed, with an identical test-and-subtest failure list. Every other documented suite is green: unittest discover -s scripts (59 OK), scripts/validate.py (3 packages, 15 skills), and the four specflow suites (54, 387, 58, 41 OK).",
+      "severity": "high",
+      "found_by": "ORCHESTRATOR (step 7 final verification)",
+      "reason": "The work skill requires the phase to stop only once the suite is fully green, and it is not. No task in this rework introduced any of these failures, and the handling-failures loop has no offending task to re-open, so fixing 48 controller tests from another PRD inside this rework would be far outside scope. Recorded here so the review gate adjudicates rather than the phase reporting green over a red suite.",
+      "prd": "00014-autopilot-host-execution-v1.md"
     }
   ]
 }

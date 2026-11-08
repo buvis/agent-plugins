@@ -1011,3 +1011,29 @@
 {"id":"9af2d81f","ended_at":1794174819,"elapsed_s":44,"outcome":"ok","detail":null}
 {"id":"60d9dfe8","ended_at":1794174900,"elapsed_s":318,"outcome":"ok","detail":"closed-by: commit 12cf1c0182895f9c1e3c10d4256096ab643b5aa0"}
 {"kind":"handoff","site":"review","edge":"leave","at":1794174900,"phase":"review","prd":"00014-autopilot-host-execution-v1.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794174948,"phase":"review","prd":"00014-autopilot-host-execution-v1.md"}
+{"id":"84d89506","kind":"tess","task":"19","queued_at":1794175181,"prompt_bytes":37838}
+{"id":"84d89506","ended_at":1794175432,"elapsed_s":251,"outcome":"ok","detail":null}
+{"id":"15f447c6","kind":"devon","task":"19","queued_at":1794175498,"prompt_bytes":4712}
+{"id":"15f447c6","ended_at":1794175814,"elapsed_s":316,"outcome":"ok","detail":null}
+{"id":"bee2709e","kind":"tess","task":"19","queued_at":1794175861,"prompt_bytes":18843}
+{"id":"c9121750","kind":"ivan","task":"19","queued_at":1794176354,"prompt_bytes":35713}
+{"id":"c9121750","ended_at":1794176438,"elapsed_s":84,"outcome":"ok","detail":null}
+{"id":"4da5dbc9","kind":"pat","task":"19","queued_at":1794176530,"prompt_bytes":43534}
+{"id":"4da5dbc9","ended_at":1794176570,"elapsed_s":40,"outcome":"ok","detail":null}
+{"id":"a14cb5e9","kind":"tess","task":"20","queued_at":1794176811,"prompt_bytes":32581}
+{"id":"a14cb5e9","ended_at":1794176950,"elapsed_s":139,"outcome":"ok","detail":null}
+{"id":"24e8fee9","kind":"tess","task":"20","queued_at":1794177000,"prompt_bytes":15064}
+{"id":"24e8fee9","ended_at":1794177037,"elapsed_s":37,"outcome":"ok","detail":null}
+{"id":"0077252f","kind":"ivan","task":"20","queued_at":1794177116,"prompt_bytes":43487}
+{"id":"0077252f","ended_at":1794177169,"elapsed_s":53,"outcome":"ok","detail":null}
+{"id":"6924b78b","kind":"pat","task":"20","queued_at":1794177276,"prompt_bytes":42396}
+{"id":"6924b78b","ended_at":1794177326,"elapsed_s":50,"outcome":"ok","detail":null}
+{"id":"5509c2a5","kind":"tess","task":"20","queued_at":1794177377,"prompt_bytes":15184}
+{"id":"5509c2a5","ended_at":1794177421,"elapsed_s":44,"outcome":"ok","detail":null}
+{"id":"e54407f4","kind":"ivan","task":"20","queued_at":1794177473,"prompt_bytes":14655}
+{"id":"e54407f4","ended_at":1794177506,"elapsed_s":33,"outcome":"ok","detail":null}
+{"id":"d1cd7d25","kind":"pat","task":"20","queued_at":1794177556,"prompt_bytes":9077}
+{"id":"d1cd7d25","ended_at":1794177579,"elapsed_s":23,"outcome":"ok","detail":null}
+{"id":"bee2709e","ended_at":1794178365,"elapsed_s":476,"outcome":"ok","detail":"closed-by: commit f2b8ad368278652613ed21d08afded1e524a50db"}
+{"kind":"handoff","site":"review","edge":"leave","at":1794178365,"phase":"review","prd":"00014-autopilot-host-execution-v1.md"}
