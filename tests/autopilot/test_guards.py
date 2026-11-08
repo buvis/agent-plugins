@@ -2,7 +2,9 @@
 
 custody_push_denied proves a CUSTODY_PUSH call relays the seam's denial.
 missing_controller_seam_refused proves every stateful duty refuses with
-seam=None. Pure duties decide from context["ok"] alone and never see a seam.
+seam=None. Pure duties decide from their own context keys alone, fail closed
+when a key is missing, and never see a seam (per-duty rules live in
+test_guards_pure_duties.py).
 """
 
 from __future__ import annotations
@@ -53,6 +55,42 @@ PURE = (
     GuardDuty.DEPARTURE,
     GuardDuty.CONTEXT_REINJECTION,
 )
+
+# One context per pure duty that satisfies its own required keys and passes.
+PASSING = {
+    GuardDuty.DOCUMENT_LOCATION: {
+        "document_path": "docs/dev/project-management/prds/wip/00014-x.md"
+    },
+    GuardDuty.DELEGATION: {"dispatch_skill": "autopilot:use-codex"},
+    GuardDuty.POST_HANDOFF: {"requested_skill": "autopilot:work", "leave_recorded": False},
+    GuardDuty.DEPARTURE: {
+        "leave_row_written": True,
+        "last_store_write_at": 1,
+        "leave_row_at": 2,
+    },
+    GuardDuty.CONTEXT_REINJECTION: {
+        "contract_card_present": True,
+        "contract_card_body": "card body",
+    },
+}
+
+# One context per pure duty that supplies every key and fails the rule.
+FAILING = {
+    GuardDuty.DOCUMENT_LOCATION: {
+        "document_path": "docs/dev/project-management/prds/00014-x.md"
+    },
+    GuardDuty.DELEGATION: {"dispatch_skill": "autopilot:work"},
+    GuardDuty.POST_HANDOFF: {"requested_skill": "autopilot:work", "leave_recorded": True},
+    GuardDuty.DEPARTURE: {
+        "leave_row_written": True,
+        "last_store_write_at": 3,
+        "leave_row_at": 2,
+    },
+    GuardDuty.CONTEXT_REINJECTION: {
+        "contract_card_present": True,
+        "contract_card_body": "   ",
+    },
+}
 
 
 class _RecordingFakeSeam(jobs.FakeSeam):
@@ -195,9 +233,10 @@ class MissingControllerSeamRefusedTest(unittest.TestCase):
     def test_pure_duties_do_not_refuse_without_seam(self) -> None:
         for duty in PURE:
             with self.subTest(duty=duty.value):
-                outcome = guards.run_guard(duty, {}, seam=None)
+                outcome = guards.run_guard(duty, dict(PASSING[duty]), seam=None)
                 self.assertIs(outcome.allowed, True)
                 self.assertIsNone(outcome.reason)
+                self.assertNotEqual(outcome.reason, "missing_controller_seam")
 
 
 class StatefulRelayTest(unittest.TestCase):
@@ -274,50 +313,33 @@ class StatefulRelayTest(unittest.TestCase):
 
 
 class PureGuardTest(unittest.TestCase):
-    def test_allows_when_ok_is_true_or_absent(self) -> None:
+    def test_ok_true_alone_denies_every_pure_duty(self) -> None:
         for duty in PURE:
-            for context in ({}, {"ok": True}, {"ok": True, "path": "docs/x.md"}):
+            for context in ({"ok": True}, {}, {"ok": True, "path": "docs/x.md"}):
                 with self.subTest(duty=duty.value, context=context):
-                    _assert_outcome(
-                        self,
-                        guards.run_guard(duty, context, seam=None),
-                        GuardOutcome(duty=duty, allowed=True, reason=None, stateful=False),
-                    )
+                    outcome = guards.run_guard(duty, context, seam=None)
+                    self.assertIs(outcome.allowed, False)
+                    self.assertIs(outcome.stateful, False)
+                    self.assertIsInstance(outcome.reason, str)
+                    self.assertIn(duty.value, outcome.reason)
 
-    def test_denies_with_duty_named_reason_when_ok_is_false(self) -> None:
-        contexts = (
-            {"ok": False},
-            {"ok": False, "path": "docs/x.md"},
-            {"ok": False, "prd": "00014", "x": 1},
-            {"zz": {"a": [1]}, "ok": False},
-        )
+    def test_ok_flag_has_no_effect_on_a_real_verdict(self) -> None:
         for duty in PURE:
-            for context in contexts:
-                with self.subTest(duty=duty.value, context=context):
-                    _assert_outcome(
-                        self,
-                        guards.run_guard(duty, context, seam=None),
-                        GuardOutcome(
-                            duty=duty,
-                            allowed=False,
-                            reason=f"{duty.value}_check_failed",
-                            stateful=False,
-                        ),
-                    )
-
-    def test_near_miss_keys_do_not_deny(self) -> None:
-        for duty in PURE:
-            for context in ({"okay": False}, {"not_ok": False}, {"OK": False}, {"ok_": False}):
-                with self.subTest(duty=duty.value, context=context):
+            for ok in (True, False):
+                with self.subTest(duty=duty.value, ok=ok, kind="passing"):
+                    context = {**PASSING[duty], "ok": ok}
                     self.assertIs(guards.run_guard(duty, context, seam=None).allowed, True)
+                with self.subTest(duty=duty.value, ok=ok, kind="failing"):
+                    context = {**FAILING[duty], "ok": ok}
+                    self.assertIs(guards.run_guard(duty, context, seam=None).allowed, False)
 
     def test_never_consult_a_provided_seam(self) -> None:
         for duty in PURE:
-            for ok in (True, False):
-                with self.subTest(duty=duty.value, ok=ok):
+            for contexts, expected in ((PASSING, True), (FAILING, False)):
+                with self.subTest(duty=duty.value, expected=expected):
                     seam = _TripwireSeam()
-                    outcome = guards.run_guard(duty, {"ok": ok}, seam=seam)
-                    self.assertIs(outcome.allowed, ok)
+                    outcome = guards.run_guard(duty, dict(contexts[duty]), seam=seam)
+                    self.assertIs(outcome.allowed, expected)
                     self.assertIs(outcome.stateful, False)
                     self.assertEqual(seam.calls, [])
 
@@ -325,7 +347,7 @@ class PureGuardTest(unittest.TestCase):
         for duty in PURE:
             seam = _RecordingFakeSeam(guard_rules={duty.value: (False, "seam_says_no")})
             with self.subTest(duty=duty.value):
-                outcome = guards.run_guard(duty, {}, seam=seam)
+                outcome = guards.run_guard(duty, dict(PASSING[duty]), seam=seam)
                 self.assertIs(outcome.allowed, True)
                 self.assertEqual(seam.guard_calls, [])
                 self.assertEqual(seam.submitted_intents, [])
@@ -343,14 +365,15 @@ class PureGuardTest(unittest.TestCase):
             with self.subTest(duty=duty.value):
                 _assert_outcome(
                     self,
-                    fn({"ok": False}),
-                    GuardOutcome(
-                        duty=duty, allowed=False, reason=f"{duty.value}_check_failed", stateful=False
-                    ),
+                    fn(dict(PASSING[duty])),
+                    GuardOutcome(duty=duty, allowed=True, reason=None, stateful=False),
                 )
-                _assert_outcome(
-                    self, fn({}), GuardOutcome(duty=duty, allowed=True, reason=None, stateful=False)
+                denied = fn(dict(FAILING[duty]))
+                self.assertEqual(
+                    (denied.duty, denied.allowed, denied.stateful),
+                    (duty, False, False),
                 )
+                self.assertIsInstance(denied.reason, str)
 
 
 class RunGuardSignatureTest(unittest.TestCase):
