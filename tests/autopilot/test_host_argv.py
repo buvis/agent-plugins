@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import dataclasses
 import importlib
 import sys
 import unittest
+import uuid
 from pathlib import Path
 from unittest import mock
 
@@ -148,6 +150,7 @@ class ProbeHostDispatchTest(unittest.TestCase):
                 self.assertEqual(result.evidence_path, EVIDENCE_PATHS[host_id])
 
     def test_available_result_preserves_each_capability_status(self) -> None:
+        self.assertEqual(hosts.CAPABILITY_NAMES, ("identity", "delegation", "isolation", "interception"))
         for host_id in HOST_IDS:
             with self.subTest(host_id=host_id):
                 self.install_all_available()
@@ -158,14 +161,17 @@ class ProbeHostDispatchTest(unittest.TestCase):
                 self.assertEqual(tuple(result.capability.statuses), hosts.CAPABILITY_NAMES)
 
     def test_available_statuses_differ_between_hosts_as_reported(self) -> None:
+        self.assertEqual(hosts.UNAVAILABLE_NO_BINARY, "no_binary")
+        self.assertEqual(hosts.UNAVAILABLE_NO_AUTH, "no_auth")
+        self.assertNotEqual(hosts.UNAVAILABLE_NO_BINARY, hosts.UNAVAILABLE_NO_AUTH)
         self.install_all_available()
         claude = hosts.probe_host("claude", project_root=PROJECT_ROOTS["claude"])
         codex = hosts.probe_host("codex", project_root=PROJECT_ROOTS["codex"])
         self.assertEqual(claude.capability.statuses["isolation"].status, "unavailable")
-        self.assertEqual(claude.capability.statuses["isolation"].reason, hosts.UNAVAILABLE_NO_AUTH)
+        self.assertEqual(claude.capability.statuses["isolation"].reason, "no_auth")
         self.assertEqual(codex.capability.statuses["isolation"].status, "available")
         self.assertIsNone(codex.capability.statuses["isolation"].reason)
-        self.assertEqual(codex.capability.statuses["identity"].reason, hosts.UNAVAILABLE_NO_BINARY)
+        self.assertEqual(codex.capability.statuses["identity"].reason, "no_binary")
         self.assertEqual(codex.capability.statuses["delegation"].status, "unimplemented")
         self.assertIsNone(codex.capability.statuses["delegation"].reason)
 
@@ -189,11 +195,15 @@ class ProbeHostDispatchTest(unittest.TestCase):
                 self.assertIn("unknown host_id", str(caught.exception))
                 self.assertEqual(fakes.calls, [])
 
-    def test_unknown_host_id_message_names_the_rejected_id(self) -> None:
+    def test_unknown_host_id_message_names_the_full_rejected_id(self) -> None:
         self.install_all_available()
-        with self.assertRaises(ValueError) as caught:
-            hosts.probe_host("claudex", project_root=PROJECT_ROOTS["claude"])
-        self.assertIn("claudex", str(caught.exception))
+        for host_id in ("claude-code-preview", "", "codex "):
+            with self.subTest(host_id=host_id):
+                with self.assertRaises(ValueError) as caught:
+                    hosts.probe_host(host_id, project_root=PROJECT_ROOTS["claude"])
+                message = str(caught.exception)
+                self.assertIn("unknown host_id", message)
+                self.assertIn(repr(host_id), message)
 
     def test_dispatch_uses_the_adapter_table_not_a_fixed_host_list(self) -> None:
         fakes = self.install({"codex": _available_result("codex")})
@@ -207,19 +217,60 @@ class ProbeHostDispatchTest(unittest.TestCase):
 
     def test_empty_adapter_table_rejects_every_host_id(self) -> None:
         self.install({})
-        for host_id in HOST_IDS:
+        for host_id in (*HOST_IDS, "kiro", "copilot", uuid.uuid4().hex):
             with self.subTest(host_id=host_id):
                 with self.assertRaises(ValueError) as caught:
-                    hosts.probe_host(host_id, project_root=PROJECT_ROOTS[host_id])
+                    hosts.probe_host(host_id, project_root=PROJECT_ROOTS["claude"])
                 self.assertIn("unknown host_id", str(caught.exception))
 
     def test_adapter_exception_propagates_to_the_caller(self) -> None:
-        failure = RuntimeError("probe exploded")
-        fakes = self.install({"claude": _available_result("claude"), "gemini": failure})
-        with self.assertRaises(RuntimeError) as caught:
-            hosts.probe_host("gemini", project_root=PROJECT_ROOTS["gemini"])
-        self.assertIs(caught.exception, failure)
-        self.assertEqual([call[0] for call in fakes.calls], ["gemini"])
+        failures = (
+            RuntimeError("probe exploded"),
+            OSError("binary unreadable"),
+            ValueError("bad adapter output"),
+            KeyboardInterrupt(),
+        )
+        for failure in failures:
+            with self.subTest(failure=type(failure).__name__):
+                fakes = self.install({"claude": _available_result("claude"), "gemini": failure})
+                with self.assertRaises(type(failure)) as caught:
+                    hosts.probe_host("gemini", project_root=PROJECT_ROOTS["gemini"])
+                self.assertIs(caught.exception, failure)
+                self.assertEqual([call[0] for call in fakes.calls], ["gemini"])
+
+    def test_non_probe_result_adapter_return_is_passed_through_unreplaced(self) -> None:
+        for outcome in (None, object()):
+            with self.subTest(outcome=outcome):
+                fakes = self.install({"codex": outcome, "claude": _available_result("claude")})
+                result = hosts.probe_host("codex", project_root=PROJECT_ROOTS["codex"])
+                self.assertIs(result, outcome)
+                self.assertEqual([call[0] for call in fakes.calls], ["codex"])
+
+    def test_project_root_is_required_and_keyword_only(self) -> None:
+        fakes = self.install_all_available()
+        with self.assertRaises(TypeError):
+            hosts.probe_host("codex")
+        with self.assertRaises(TypeError):
+            hosts.probe_host("codex", Path("/x"))
+        self.assertEqual(fakes.calls, [])
+
+
+class ProbeResultImmutabilityTest(unittest.TestCase):
+    def test_probe_result_capability_and_status_reject_field_assignment(self) -> None:
+        result = _available_result("claude")
+        capability = result.capability
+        status = capability.statuses["isolation"]
+        cases = (
+            (result, "available", False),
+            (capability, "host_id", "codex"),
+            (status, "status", "available"),
+        )
+        for instance, field, value in cases:
+            with self.subTest(type=type(instance).__name__):
+                before = getattr(instance, field)
+                with self.assertRaises(dataclasses.FrozenInstanceError):
+                    setattr(instance, field, value)
+                self.assertEqual(getattr(instance, field), before)
 
 
 if __name__ == "__main__":
