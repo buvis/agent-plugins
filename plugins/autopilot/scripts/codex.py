@@ -18,6 +18,8 @@ from hosts import (
     ProbeResult,
 )
 
+HOST_ID = "codex"
+
 _AUTH_ENV_VAR = "CODEX_API_KEY"
 _AUTH_FILE = Path.home() / ".codex" / "auth.json"
 

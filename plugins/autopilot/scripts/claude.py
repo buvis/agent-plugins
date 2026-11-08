@@ -20,6 +20,8 @@ from hosts import (
     ProbeResult,
 )
 
+HOST_ID = "claude"
+
 
 def probe(*, project_root: Path) -> ProbeResult:
     """STATIC checks only: binary-on-PATH and auth presence. Never a live
