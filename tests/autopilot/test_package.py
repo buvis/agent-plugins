@@ -31,6 +31,21 @@ EDGE_SHA = "b10e71c1b359f953f028cf9d84b7063e826c5df51e4791c3b7f89aa388ca8a93"
 OWNER_SHA = "d7ded009798a6d0437bda8384b0e8ac02bdd258e17bda0d098611160ab30fa52"
 GATE_SIZE = 742
 GATE_SHA = "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75"
+AP00014_OWNED = frozenset({
+    "plugins/autopilot/compatibility/claude.json",
+    "plugins/autopilot/compatibility/codex.json",
+    "plugins/autopilot/compatibility/gemini.json",
+    "plugins/autopilot/contracts/hosts.json",
+    "plugins/autopilot/scripts/claude.py",
+    "plugins/autopilot/scripts/codex.py",
+    "plugins/autopilot/scripts/doctor.py",
+    "plugins/autopilot/scripts/gemini.py",
+    "plugins/autopilot/scripts/guards.py",
+    "plugins/autopilot/scripts/hosts.py",
+    "plugins/autopilot/scripts/jobs.py",
+    "tools/autopilot/build-compatibility.py",
+    "tools/autopilot/probe-host.py",
+})
 
 # External boundaries only: deny network, process launches, and author-home reads.
 GUARD = '''
@@ -199,8 +214,13 @@ class TargetPackageTest(unittest.TestCase):
             self.assertIsNone(row["source_asset_id"])
             self.assertIsNone(row["source_blob_sha256"])
             self.assertEqual(row["owner_repository"], "buvis/agent-plugins")
-            later = "00018" if "/controller/" in row["path"] else "00013"
-            self.assertEqual(row["delivery_prd"], "00012" if index < 21 else later)
+            if "/controller/" in row["path"]:
+                expected_owner = "00018"
+            elif row["path"] in AP00014_OWNED:
+                expected_owner = "00014"
+            else:
+                expected_owner = "00013"
+            self.assertEqual(row["delivery_prd"], "00012" if index < 21 else expected_owner)
             self.assertTrue((self.target / row["path"]).is_file())
             self.assert_acceptance_cases(row["acceptance_cases"])
         history = " ".join((self.package / "CHANGELOG.md").read_text().split())
