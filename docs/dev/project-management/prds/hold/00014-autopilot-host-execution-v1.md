@@ -3,6 +3,8 @@ default_model: opus
 model_tier_rationale: Provider process behavior, hook boundaries and isolation require judgment.
 lane: full
 eligibility: ls docs/dev/project-management/prds/done/00012-* docs/dev/project-management/prds/done/00013-* # link-ok: lifecycle output
+critical_on_master: 635e37640b82c66f8ed7e5063605ce4481f81407..273be89f1d993447b49a1d1b895b71e28259a0e6
+ledger: deferred/202610250001-deferred.json#cf5f8a63cae1
 ---
 # Autopilot host execution and enforcement
 
@@ -11,6 +13,9 @@ Source: [three-layer design](../../designs/00011-autopilot-standalone-design.md)
 ## Overview
 
 ### Problem Statement
+
+> **Custody (cap_critical, batch 202610250001):** cycle 2 of 2 (cap) left R1 unresolved CRITICAL: tests/autopilot/test_helper_provenance_real.py::test_new_helper_files_are_owned_and_digested_from_current_bytes still fails (assert_refreshed_evidence compares CHANGELOG.md at pinned package_revision 444d733a against current bytes; AP00014 edited it after that revision) [3/4 consensus, review-2.md R1]; four HIGH rows also open: R3 claude-free profile unimplemented, R4 compatibility assets are capability lists not client assets, R5 phase-2 probes static only, R6 codex declares isolation with no implementation, R7 build-compatibility imports a module named by contract input Commits 635e37640b82c66f8ed7e5063605ce4481f81407..273be89f1d993447b49a1d1b895b71e28259a0e6 (53) are live on master. Resolve with autopilot custody resolve.
+
 Client hooks and native session bindings stay in the plugin. Workflow authority belongs to its controller; OVCAQ owns cross-session/cross-driver process launch.
 
 ### Target Users

@@ -1037,3 +1037,10 @@
 {"id":"d1cd7d25","ended_at":1794177579,"elapsed_s":23,"outcome":"ok","detail":null}
 {"id":"bee2709e","ended_at":1794178365,"elapsed_s":476,"outcome":"ok","detail":"closed-by: commit f2b8ad368278652613ed21d08afded1e524a50db"}
 {"kind":"handoff","site":"review","edge":"leave","at":1794178365,"phase":"review","prd":"00014-autopilot-host-execution-v1.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794178403,"phase":"review","prd":"00014-autopilot-host-execution-v1.md"}
+{"id":"034273d0","kind":"bob","task":"review-ap14c2","queued_at":1794178865,"prompt_bytes":37513}
+{"id":"d4536293","kind":"carl","task":"review-ap14c2","queued_at":1794178865,"prompt_bytes":30652}
+{"id":"b02ccacf","kind":"bob","task":"review-ap14c2","queued_at":1794179571,"detail":"retry of 034273d0"}
+{"id":"034273d0","ended_at":1794179732,"elapsed_s":867,"outcome":"error","detail":"exit 1 (input_too_large: 1440792 chars)"}
+{"id":"b02ccacf","ended_at":1794179732,"elapsed_s":161,"outcome":"ok","detail":"retry"}
+{"id":"d4536293","ended_at":1794179732,"elapsed_s":867,"outcome":"ok","detail":null}
