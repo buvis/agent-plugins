@@ -402,8 +402,9 @@ def _close_result_sink(sink, pin: _Pin, drop: bool, untrusted: bool) -> None:
     is closed here and a leaf this run created is removed, while a leaf that
     already existed stays exactly as it was. `untrusted` says a record was
     written but its write or close failed: `_write_artifact` already emptied
-    it, and a leaf this run created is removed as well. The pinned
-    descriptor is closed on every path."""
+    it unless it failed before writing (its `os.dup` branch), where an
+    existing leaf keeps its earlier record, and a leaf this run created is
+    removed as well. The pinned descriptor is closed on every path."""
     if drop:
         try:
             sink.close()
@@ -458,14 +459,19 @@ def run_verification(
     log_path: Path,
     timeout: float = GATE_TIMEOUT_S,
 ) -> dict:
-    """Runs `argv` once in `project_root` and writes its artifact. Invalid
-    argv/timeout raise ValueError; an unsafe output path, a dirty tree, a
-    moved HEAD or either sink failing to open is refused before spawning,
-    with nothing written."""
+    """Runs `argv` once in `project_root` and writes its artifact. A
+    relative `project_root` is the same request as its absolute spelling.
+    Invalid argv/timeout raise ValueError; an unsafe output path, a dirty
+    tree, a moved HEAD or either sink failing to open is refused before
+    spawning, with nothing written."""
     if not _posix_supported():
         return {"schema_version": 1, "ok": False, "error": "unsupported-platform"}
     _validate_inputs(argv, timeout)
-    root = project_root
+    # The sink rules judge an output path by its components after the root's
+    # leading spelling, so the root (and every path joined onto it below) is
+    # absolutised here. `absolute()`, not `resolve()`: it must not collapse a
+    # `..` component, which those rules refuse.
+    root = project_root.absolute()
     artifact = artifact_path if artifact_path.is_absolute() else root / artifact_path
     log = log_path if log_path.is_absolute() else root / log_path
     if _unsafe_paths(root, artifact, log, argv):
