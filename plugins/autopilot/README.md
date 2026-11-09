@@ -321,3 +321,20 @@ This package is not published to any marketplace. No installation is supported
 yet; the historical Install and Update sections describe the source plugin.
 Real-host evidence is unavailable: the helpers are tested in a sandbox only, and
 no host profile is certified.
+
+## Controller contract bundle
+
+`contracts/controller-v1.json` pins the controller protocol, package version,
+schema and fixture digests, operations and capabilities. Regenerate it with
+`python3 tools/autopilot/export-controller-contract.py`; `--check` verifies it.
+Its `sha256sum` from the repository root is:
+
+```text
+7bef27adaee3a786f6d0ce1e91176492d1012e67eae6ab2500e31150136eaa98  plugins/autopilot/contracts/controller-v1.json
+```
+
+The installed controller argv is:
+
+```json
+["python3", "<installed-plugin-root>/controller/main.py"]
+```
