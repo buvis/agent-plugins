@@ -22,21 +22,38 @@ DEFAULT_ROOT = Path(__file__).resolve().parent.parent.parent / "plugins" / "auto
 TARGET = Path("contracts") / "controller-v1.json"
 SCHEMA = Path("contracts") / "controller" / "workflow-v1.json"
 FIXTURES = Path("contracts") / "controller" / "fixtures-v1.json"
-# Kept equal to `controller/main.py --json contract` by the export tests.
+# The export tests check these equal literal sets in the test and are a subset
+# of what `controller/main.py --json contract` reports.
 OPERATIONS = ["workflow.open", "owner.acquire", "owner.release", "owner.recover"]
 CAPABILITIES = ["workflow.core.v1"]
+LIMIT = 16777216
+
+
+def checked(root: Path, relative: Path, regular: bool = True) -> Path:
+    """root / relative with no symlink component; a regular file under LIMIT."""
+    path = root
+    for part in relative.parts:
+        path = path / part
+        info = path.lstat()
+        if stat.S_ISLNK(info.st_mode):
+            raise ValueError(f"{path} is a symlink")
+    if regular and not (stat.S_ISREG(info.st_mode) and info.st_size < LIMIT):
+        raise ValueError(f"{path} is not a regular file under {LIMIT} bytes")
+    return path
 
 
 def build_bundle(root: Path) -> bytes:
-    manifest = json.loads((root / "plugin.json").read_bytes())
+    manifest = json.loads(checked(root, Path("plugin.json")).read_bytes())
     version = manifest.get("version") if isinstance(manifest, dict) else None
     if not isinstance(version, str) or not version:
         raise ValueError("plugin.json version must be a non-empty string")
     bundle = {
         "protocol_major": 1,
         "package_version": version,
-        "schema_digest": hashlib.sha256((root / SCHEMA).read_bytes()).hexdigest(),
-        "fixture_digest": hashlib.sha256((root / FIXTURES).read_bytes()).hexdigest(),
+        "schema_digest": hashlib.sha256(checked(root, SCHEMA).read_bytes()).hexdigest(),
+        "fixture_digest": hashlib.sha256(
+            checked(root, FIXTURES).read_bytes()
+        ).hexdigest(),
         "operations": OPERATIONS,
         "capabilities": CAPABILITIES,
     }
@@ -73,6 +90,7 @@ def main(argv: list[str]) -> int:
     root = args.plugin_root
     try:
         data = build_bundle(root)
+        checked(root, TARGET.parent, regular=False)
         if args.check:
             if matches(root / TARGET, data):
                 return 0

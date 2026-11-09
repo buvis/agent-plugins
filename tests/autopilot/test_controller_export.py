@@ -391,6 +391,44 @@ class ControllerBundleReproducibleTest(IsolatedCase):
                 target.write_bytes(self.committed)
                 self.assert_exit(self.export("--check"), 0)
 
+    def test_controller_bundle_reproducible_refuses_symlinked_contracts_directory(
+        self,
+    ) -> None:
+        contracts = self.plugin / "contracts"
+        moved = self.base / "moved" / "contracts"
+        moved.parent.mkdir()
+        shutil.move(contracts, moved)
+        contracts.symlink_to(moved, target_is_directory=True)
+        before = (stable_tree(self.plugin), stable_tree(moved))
+        self.assert_exit(self.export("--check"), 1)
+        self.assertEqual((stable_tree(self.plugin), stable_tree(moved)), before)
+        # Export would otherwise write the bundle through the link, outside the root.
+        (moved / TARGET.name).unlink()
+        before = (stable_tree(self.plugin), stable_tree(moved))
+        self.assertNotEqual(self.export().returncode, 0)
+        self.assertEqual((stable_tree(self.plugin), stable_tree(moved)), before)
+        self.assertFalse(os.path.lexists(moved / TARGET.name))
+        self.assertTrue(contracts.is_symlink())
+
+    def test_controller_bundle_reproducible_refuses_symlinked_input_file(
+        self,
+    ) -> None:
+        schema = self.plugin / SCHEMA
+        copy = self.base / "schema copy.json"
+        shutil.copy2(schema, copy)
+        schema.unlink()
+        schema.symlink_to(copy)
+        before = stable_tree(self.base)
+        self.assertNotEqual(self.export("--check").returncode, 0)
+        self.assertEqual(stable_tree(self.base), before)
+        target = self.plugin / TARGET
+        target.unlink()
+        before = stable_tree(self.base)
+        self.assertNotEqual(self.export().returncode, 0)
+        self.assertEqual(stable_tree(self.base), before)
+        self.assertFalse(os.path.lexists(target))
+        self.assertTrue(schema.is_symlink())
+
 
 class ControllerWithoutUpperLayersTest(IsolatedCase):
     def test_controller_without_upper_layers_guard_denies_checkout_and_author_home(
