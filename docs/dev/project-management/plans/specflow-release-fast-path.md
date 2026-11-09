@@ -74,7 +74,7 @@ task would be told to do T-050 like every other, so there are no lanes.
 The fallbacks of R1 and of the Codex home are design changes, so both are
 proven before phase 0 writes the rulings into the design. No branch is
 needed: scripts live under `docs/dev/tmp/specflow/probes/`, the results go
-into section 8 of this file, committed on master.
+into section 8 of this file, committed on the 00009 branch.
 
 1. Codex: a temporary `CODEX_HOME` under `docs/dev/tmp/specflow/evals/`
    holding a copy of `~/.codex/auth.json` and the plugin installed by the
