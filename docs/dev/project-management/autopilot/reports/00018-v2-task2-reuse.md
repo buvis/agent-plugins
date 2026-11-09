@@ -82,3 +82,30 @@ ASSUMPTIONS: none
 FILES_TOUCHED:
 tests/autopilot/test_controller_kernel.py
 docs/dev/project-management/autopilot/reports/00018-v2-task2-reuse.md
+
+## Successor verification — 2026-11-09
+
+Verdict: **pass: characterized publication-guard blocker resolved**.
+The original blocked findings and pinned-source comparison above remain intact.
+Completed prerequisite Task 11 restored the original source guard behavior by
+forwarding `publication_guard` into the existing `_commit_pair` plumbing;
+target `store.py:158-183` confirms that forwarding at line 179. Its independent
+test strengthening addressed all eight adversarial gaps, as recorded in
+`00018-v2-task11-tests.md`. This verification did not replay source inspection
+or change runtime, tests, state, receipts, or custody.
+
+The exact authorized command ran once with a 300-second subprocess timeout:
+
+```sh
+mise exec -- uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_kernel.py tests/autopilot/test_controller_kernel_adversarial.py tests/autopilot/test_controller_paths.py tests/autopilot/test_controller_schema.py tests/autopilot/test_controller_store_guards_v2.py -q --tb=line
+```
+
+Exit: **0**. Exact summary: **60 passed in 0.87s**.
+This closes the characterized blocker within the recorded comparison scope;
+the declared restore/schema/path divergences above remain unchanged. The
+coordinator owns final repository checks. No commit or state update occurred.
+
+ASSUMPTIONS: none
+
+FILES_TOUCHED:
+docs/dev/project-management/autopilot/reports/00018-v2-task2-reuse.md
