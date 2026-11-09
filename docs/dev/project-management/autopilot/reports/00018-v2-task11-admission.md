@@ -1,0 +1,7 @@
+# Bounded source-fidelity prerequisite
+
+Task 2 found a concrete invariant loss, rather than a failed implementation repair: its existing suite passed 51 cases, then a new source-backed characterization failed once. Its contributed test and report remain committed at cf17c94. The attempt is preserved as aborted/error and the task returns to pending behind new task 11; no counters/caps or original dependencies were reset. This new unit implements missing original AP00018 source-preservation scope, not v3/retry admission.
+
+Task 11 touches store.py plus kernel tests. Canonical classify_tier.py selected opus/algorithmic_risk with the PRD opus floor. Estimate 60000 tokens, peak 80000; existing source and tests are bounded to two files. Runtime guard plumbing exists; only source-fidelity behavior and tests are in scope. Test author is isolated from implementation. Required Devon, red check, Ivan, style/split gates and tool-less/high Pat remain. Source route backend opus native worker is adapted to OpenAI gpt-6.1-sol/high with independent Anthropic completion review available through the host driver. Actual metadata, not this configuration claim, will determine review routing.
+
+The exact-one-call success assertion is contradicted by pinned source checks after all six durability hooks. Replace it with stronger complete-boundary observations; no scenario or security check is exempted. Keep source, held evidence, historical receipts and pending AP00014 custody intact; all work local.

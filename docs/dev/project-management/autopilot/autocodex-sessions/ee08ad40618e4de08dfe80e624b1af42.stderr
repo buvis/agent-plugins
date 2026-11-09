@@ -1,0 +1,86 @@
+2026-11-09T07:29:01.060477Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: [Fact-Forcing Gate]
+
+Before the first Bash command this session, present these facts:
+
+1. The current user request in one sentence
+2. What this specific command verifies or produces
+
+Present the facts, then retry the same operation.. Command: cat ~/.claude/AGENTS.md AGENTS.md /Users/bob/.claude/plugins/cache/buvis-plugins/autopilot/0.10.0/skills/run-autopilot/SKILL.md
+2026-11-09T07:37:21.833349Z ERROR codex_core::tools::router: error=Command blocked by PreToolUse hook: BLOCKED: shell redirects into docs/dev/project-management/ or docs/dev/tmp/ are not allowed.
+
+Use the Write tool for development artifacts.
+See ~/.claude/rules/working-documents.md.. Command: cat > docs/dev/tmp/ap00018-v2-recovery/devon10-trial/prepare.py <<'PY'
+from pathlib import Path
+import sys
+
+BASE = '''import copy
+import json
+from pathlib import Path
+from jsonschema import Draft202012Validator
+
+CONTRACTS = Path(__file__).resolve().parents[2] / "contracts" / "controller"
+_original = json.loads((CONTRACTS / "workflow-v1.json").read_text())
+_contract = copy.deepcopy(_original)
+_fixtures = json.loads((CONTRACTS / "fixtures-v1.json").read_text())
+_examples = [c["input"] for c in _fixtures["cases"] if c["name"] in ("kernel-initial", "kernel-owned")]
+
+class SchemaError(ValueError):
+    pass
+
+'''
+NORMAL = '''
+def validate_state(value: object) -> dict:
+    validator = Draft202012Validator({**_contract, "$ref": "#/$defs/state"})
+    if not validator.is_valid(value):
+        raise SchemaError("invalid_request")
+    return value
+'''
+MUTATIONS = {
+1: ('_contract["$defs"]["state"]["required"] = []', '_witness = {}'),
+2: ('''def erase_types(node):
+    if isinstance(node, dict):
+        node.pop("type", None)
+        for child in node.values():
+            erase_types(child)
+    elif isinstance(node, list):
+        for child in node:
+            erase_types(child)
+erase_types(_contract)''', '_witness = copy.deepcopy(_examples[0])\n_witness["revision"] = "nonsense"'),
+3: ('_contract["$defs"]["nonnegative_integer"].pop("minimum")', '_witness = copy.deepcopy(_examples[0])\n_witness["revision"] = -99'),
+4: ('_contract["$defs"]["owner"]["additionalProperties"] = True', '_witness = copy.deepcopy(_examples[1])\n_witness["owner"]["process_identity"] = "unowned"'),
+5: ('_contract["$defs"]["state"]["properties"]["actors"].pop("maxProperties")', '_witness = copy.deepcopy(_examples[1])\n_witness["actors"]["third-actor"] = copy.deepcopy(_witness["actors"]["operator-synthetic"])\n_witness["actors"]["third-actor"]["actor_id"] = "third-actor"'),
+6: ('_contract["$defs"]["workflow"]["properties"]["tasks"].pop("maxItems")', '_witness = copy.deepcopy(_examples[0])\n_witness["workflow"]["tasks"] = ["unowned-task"]'),
+7: ('_contract["$defs"]["workflow"]["properties"]["review"]["properties"]["cap"].pop("const")', '_witness = copy.deepcopy(_examples[0])\n_witness["workflow"]["review"]["cap"] = 99'),
+}
+i = int(sys.argv[1])
+if i == 8:
+    mutation = '''def validate_state(value: object) -> dict:
+    if value in _examples:
+        return value
+    raise SchemaError("only memorized examples allowed")
+'''
+    proof = '''_witness = copy.deepcopy(_examples[0])
+_witness["revision"] = 2
+assert Draft202012Validator({**_original, "$ref": "#/$defs/state"}).is_valid(_witness)
+try:
+    validate_state(_witness)
+except SchemaError:
+    pass
+else:
+    raise AssertionError("expected wrong rejection")
+'''
+    code = BASE + mutation + proof
+else:
+    mutation, witness = MUTATIONS[i]
+    proof = witness + '''
+assert not Draft202012Validator({**_original, "$ref": "#/$defs/state"}).is_valid(_witness)
+assert validate_state(_witness) == _witness
+'''
+    code = BASE + mutation + '\n' + NORMAL + '\n' + proof
+path = Path(__file__).parent / 'plugins/autopilot/controller/autopilot_state/schema.py'
+path.write_text(code)
+path.with_name('__init__.py').write_text('import sys\nsys.dont_write_bytecode = True\n')
+print('Exploit',i)
+print('Wrong implementation mutation:\n' + mutation)
+print('Import-time witness proof:\n' + proof)
+PY

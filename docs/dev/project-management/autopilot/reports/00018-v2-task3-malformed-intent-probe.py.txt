@@ -1,0 +1,35 @@
+import copy
+import hashlib
+import json
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path.cwd() / "tests/autopilot"))
+from controller_cli_support import canonical, private_path, tree
+from controller_owner_support import OwnerCLITest
+case = OwnerCLITest(methodName="runTest")
+case.setUp()
+try:
+    _, _, operator = case.bootstrap()
+    _, _, owner, _ = case.acquire(operator)
+    request = case.request(owner, "owner.release", "malformed-predecessor-probe")
+    historical = case.retain(owner, "probe-historical.json")
+    old = copy.deepcopy(case.state())
+    case.crash(request, owner, "intent_dir_fsynced")
+    intent_path = private_path(case.root) / "credential-intent.json"
+    intent = json.loads(intent_path.read_bytes())
+    old["actors"] = {key: value for key, value in old["actors"].items() if value["role"] != "operator"}
+    intent["old_actors"] = old["actors"]
+    intent["old_state_digest"] = hashlib.sha256(canonical(old)).hexdigest()
+    intent_path.write_bytes(canonical(intent))
+    before = tree(private_path(case.root))
+    result = case.apply(request, historical)
+    try:
+        response = json.loads(result.stdout)
+    except (ValueError, TypeError):
+        response = None
+    structured = isinstance(response, dict) and response.get("error_code") == "recovery_required" and response.get("revision") == old["revision"]
+    unchanged = tree(private_path(case.root)) == before
+    print(json.dumps({"returncode": result.returncode, "structured_recovery_required": structured, "stderr_has_traceback": b"Traceback" in result.stderr, "evidence_unchanged": unchanged}))
+    assert result.returncode == 1 and structured and not result.stderr and unchanged, "malformed owner intent must produce a structured unchanged rejection"
+finally:
+    case.doCleanups()

@@ -1,0 +1,3 @@
+CLOSURE | resolved | "Cleanup is not idempotent... `_publish_credentials` then verifies every operator `previous["stage"]` unconditionally" | The delta guards the check with `current != candidate or layout.exists(layout.actors / previous["stage"])`. After state commit a removed rollback file is skipped, so a `final` matching its digest continues. Before commit it is still required. If the rollback file is present it is verified, so corrupt evidence is still rejected. The new `test_partial_cleanup_recovers_owner_receipts_without_waiving_evidence_checks` covers stage, rollback and both removed, for all three operations. The cleanup regression failed before the fix and passes after it.
+
+NO FINDINGS

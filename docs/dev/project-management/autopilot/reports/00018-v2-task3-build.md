@@ -1,0 +1,28 @@
+# Task3 build evidence
+
+Canonical Tess prompt41231 bytes, dispatche97de450; native OpenAI gpt-6.1-sol/high logicalopus (raw metadata retained). Source route backendopus native Agent maps to that worker; independent Anthropic completion review supported through autocodex driver. Existing owner/capacity/recovery tests remain read-only mandatory acceptance. New writer has no implementation access. No skipped source role or prompt increase.
+
+Tess identified four public-protocol coverage gaps: canonical replay across encodings, retired intermediate operator receipt authority, file safety on replay, and intact crash intent forward completion. Work remains in progress; no implementation or completion claim.
+
+Initial Tess four tests committed eb65491; four expected failures in0.70s. Main quality gate found zero tautological shapes and clean style. Devon0a80d7bc wrote isolated wrong CLI that passed all4 tests in16.72s; eight reported weak points and actual tool evidence retained in00018-v2-task3-devon-raw-evidence.jsonl. No broader-suite claim. Canonical320 files and65 testcopies unchanged;327 scratchfiles overwritten with placeholders.
+
+Isolated Tess strengthening e832e542 addressed all eight rows without production reads or existing-test edits. Test file291lines/maxfunction30; style, split hygiene and shape checks clean. Strengthening committed c3cdb2f. Main red check after final refinement:4failed in0.76s, expected successful owner calls rejected and intent crash boundary not reached.
+
+Ivan8f97b62c canonical prompt47038 bytes, with production-only allowlist and six named owner/bootstrap/capacity acceptance test files. Native logicalopus maps to OpenAI gpt-6.1-sol/high. No prompt increase, omitted role, test edit or whole-suite dispatch. Implementation in progress; no gate green claim.
+
+
+First implementation f7cf82c ran exact six-file acceptance once:46passed2failed in93.13s. Targeted diagnosis2failed in3.78s found one real snapshot revision defect and one root-oracle contradiction. Source protocol says selected current revision, or0beforeinitialization. Existing helper instead used original root revision1 when an empty different root was selected. Independent Tess corrected one call (1a0bab0) and added original1/selected2+empty0 controls preserving both stores. Canonical named gate2passed in1.32s, timeout300. Initial python3 lacked pytest; unpinned uv retry2passed0.47s was superseded by canonical3.12 result, all captured in raw author report. No shared-helper, authorization or old scenario weakened. Split hygiene deleted only existing unused operation import in df03a3a; recheckclean.
+
+Concrete failedopus gate selected native gpt-6-astra/high for next bounded feedback attempt per host policy (logical tier remainsopus). Snapshot fix c6dde39 reads state under existing shared lock before pending-intent refusal, preserving revision without reconciliation. Exact six-file gate49passed107.48s. Prompt50209 bytes was not dispatched; one allowed removal of later export context yielded48935. No cap/limit increase. First model segment remains aborted/error in state; second segment records actualAstra.
+
+Single style pass84d23d2 split validate_intent69->36lines and finish_intent61->35, with two same-file helpers36/29. Expanded AST exactly matches original ordering. Full named gate49passed106.55s. Final styleclean. Self-deslop source skip: latest successful fix commits were below30netlines/2files; no discretionary omission.
+
+Pat cycle1 tool-less/high session4ff431aa-53d1-443e-a032-e40303357014. Full render71962 was not dispatched; one allowed trim removed duplicate global architecture and repeated Verify text, keeping full43838-byte diff, entire persona+mandate, all task acceptance criteria and current exact command/result. Dispatched49292 bytes. Pat found MEDIUM partial cleanup plus3LOW, all raw verdicts retained.
+
+Final Tess slot4 added cleanup regression and strict missing-before-commit/corrupt-after-commit controls for all3operations. Initial author run1failed0.53s exposed consumed-stage test assumption; corrected version initially unexecuted, ASTvalid. Coordinator then proved actual regression1failed2.69s. Test commit3fedc64; no fifth Tess call.
+
+One MEDIUM code fix4a6f881 allows absent rollback only when current==candidate, still validates every present stage/rollback and requires matching final credentials. All six-file tests50passed111.89s, timeout300. Style/split gates clean. Fix prompt57069 was not dispatched; one allowed trim removed unchanged kernel and later export background, yielding48435. Pat cycle2 resumed same Claude conversation with11628-byte full delta+new gate evidence, explicit high/tools-empty; CLOSURE resolved, NO FINDINGS, parserexit0. No third MEDIUM cycle.
+
+LOW adjudication: raw-key/predecessor claim is not an observed external defect; apply already converts validation/key errors. Reproducible isolated malformed-predecessor probe returned CLI1 with structured recovery_required at current revision, stderr empty, evidence unchanged. Probe source retained in reports. Duplicate operation set and optional prepare-helper suggestions remain LOW maintainability notes for final review; no behavior-preserving refactor added.
+
+Task3 completes with second actual-model segmentgpt-6-astra/high, logicalopus, pipelinelean feedback after first full Tess/Devon pipeline. Earlier gpt-6.1-sol contribution remains recorded; no history relabel. Task4/5/7/8 pending. Full implementation suite, repository final gate and fresh three-lens completion review not yet run. No publication/install/push or custody disposition.

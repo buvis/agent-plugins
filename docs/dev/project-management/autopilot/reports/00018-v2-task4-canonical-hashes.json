@@ -1,0 +1,38 @@
+[
+  {
+    "path": "plugins/autopilot/controller/main.py",
+    "sha256": "42675eb51c2e9353e09b291e88dcf64cc2ca4d77ffb03cbbacea36a053e6272e"
+  },
+  {
+    "path": "plugins/autopilot/controller/autopilot_state/store.py",
+    "sha256": "efb162854c016fc747b8b0bb5bd5172ff6cf2888c2b4746437b964952f4c7cb5"
+  },
+  {
+    "path": "plugins/autopilot/controller/autopilot_state/paths.py",
+    "sha256": "9972c808bc27b0f348f2ea8409fe431222048fa3ece60050944f89fdd6f5b850"
+  },
+  {
+    "path": "plugins/autopilot/controller/autopilot_state/protocol.py",
+    "sha256": "2c195c6341b7f303e50eff7c9abd23956cdf886676f661f622c4dcbe7b2d02e0"
+  },
+  {
+    "path": "plugins/autopilot/controller/autopilot_state/__init__.py",
+    "sha256": "112612bf2e928c2e0310d6556bb13fc28c00db70297b90a8527486cd2562e408"
+  },
+  {
+    "path": "plugins/autopilot/controller/autopilot_state/owner.py",
+    "sha256": "d80d7b7dd7caf5af1904a1c3da32afa700c676b2a009526c122c2b8c8eeca571"
+  },
+  {
+    "path": "plugins/autopilot/controller/autopilot_state/actors.py",
+    "sha256": "055b873c96f0b9339cf0dd2e96c409a0bda95ccbedf34e4bc5a5dd1c99e61614"
+  },
+  {
+    "path": "plugins/autopilot/controller/autopilot_state/schema.py",
+    "sha256": "7aaedd121767bdebbbf82e8194c79efac29b3cf3c210fd1de478c763d3ac3a13"
+  },
+  {
+    "path": "tests/autopilot/test_controller_staging_limits.py",
+    "sha256": "136e7ba4d8d85e3c878768f0edb437fd0821ab40f55ed837aac2905de29faa92"
+  }
+]

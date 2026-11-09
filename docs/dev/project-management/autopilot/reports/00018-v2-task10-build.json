@@ -1,0 +1,46 @@
+{
+  "task": "10",
+  "attempt": 1,
+  "logical_tier": "opus",
+  "launcher": "codex-native",
+  "actual_model": "gpt-6.1-sol",
+  "actual_provider": "openai",
+  "effort": "high",
+  "dispatch": "faee727a",
+  "source_route": "backend opus native Claude Agent",
+  "host_route": "native OpenAI gpt-6.1-sol/high",
+  "independent_review_route": "Anthropic Opus/xhigh via autocodex driver",
+  "raw_model_evidence": "docs/dev/project-management/autopilot/reports/00018-v2-task10-raw-model.jsonl",
+  "implementation_commit": "32aaa4a",
+  "verification": {
+    "command": "mise exec -- uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_schema.py tests/autopilot/test_controller_recovery_characterization.py -q --tb=line",
+    "exit": 0,
+    "summary": "33 passed in 0.38s"
+  },
+  "style_gate": "clean",
+  "split_hygiene": "clean",
+  "reflow": "clean",
+  "assumptions": [],
+  "notes": "Original cases preserved; generated bundle refresh remains task 5. Test-only Pat gate skip per source; Task9 special mandatory Pat reconciliation completed separately.",
+  "adversarial": {
+    "dispatch": "c0133514",
+    "model": "gpt-6.1-sol",
+    "provider": "openai",
+    "effort": "high",
+    "exploits": 8,
+    "result": "All eight weak points strengthened by isolated Tess; no Devon recheck per source one-pass policy",
+    "dispositions": [
+      "1. strengthened: test_kernel_state_requires_every_owned_top_level_field",
+      "2. strengthened: test_kernel_revision_rejects_noninteger_text",
+      "3. strengthened: test_kernel_revisions_and_epochs_reject_negative_values",
+      "4. strengthened: test_kernel_owner_rejects_process_identity",
+      "5. strengthened: test_kernel_actor_registry_rejects_three_valid_descriptors",
+      "6. strengthened: test_kernel_tasks_cannot_be_populated",
+      "7. strengthened: test_kernel_review_cap_remains_two",
+      "8. strengthened: test_kernel_accepts_independent_states_beyond_frozen_examples"
+    ]
+  },
+  "quality_gate": "11 behavior tests; real runtime/schema assertions; acceptance/rejection, empty and capacity boundaries; zero computed tautologies; style and split hygiene clean",
+  "strengthening_commit": "4dd90b07626e423020df54d90d0509e569c1defc",
+  "strengthening_model_evidence": "docs/dev/project-management/autopilot/reports/00018-v2-task10-strengthen-raw-model.jsonl"
+}

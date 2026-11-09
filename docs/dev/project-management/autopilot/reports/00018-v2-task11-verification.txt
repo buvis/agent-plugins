@@ -1,0 +1,5 @@
+Command: mise exec -- uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_kernel.py tests/autopilot/test_controller_store_guards_v2.py -q --tb=line
+Before implementation: exit1, 4 failed,22 passed in0.46s (three guard regressions and replacement-mutator guard regression).
+After implementation: exit0, 26 passed in0.53s.
+Canonical style gate: exit0. Split hygiene: exit0. Computed tautology check:26 functions,zero findings. Reflow:exit0.
+Eight independent Devon wrong implementations were verified passing before all eight weak points were strengthened. No second Devon pass per workflow. All original scenarios retained; exact-one guard assertion replaced with stronger complete boundary evidence, no guard-call count ceiling.
