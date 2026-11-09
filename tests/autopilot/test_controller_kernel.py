@@ -148,6 +148,27 @@ class StoreTest(unittest.TestCase):
         self.assertEqual(self.store.read(), result)
         self.assertEqual(json.loads(self.backup.read_bytes()), current)
 
+    def test_publication_guard_rechecks_changed_evidence_before_state_replace(self) -> None:
+        self.seed_pair()
+        before = self.pair()
+        evidence_valid = True
+
+        def invalidate_evidence(boundary: DurabilityBoundary) -> None:
+            nonlocal evidence_valid
+            if boundary == DurabilityBoundary.STATE_TEMP_FSYNCED:
+                evidence_valid = False
+
+        def guard() -> None:
+            if not evidence_valid:
+                raise RuntimeError("publication evidence changed")
+
+        store = StateStore(self.path, boundary_hook=invalidate_evidence)
+        with self.assertRaisesRegex(RuntimeError, "publication evidence changed"):
+            store.transaction(lambda value: None, expected_revision=1,
+                              publication_guard=guard)
+        self.assertEqual(self.pair(), before)
+        self.assertEqual(self.store.read()["revision"], 1)
+
     def test_all_six_boundaries_surface_errors_and_interrupts_and_repair_the_pair(self) -> None:
         expected = {
             "BACKUP_TEMP_FSYNCED": "backup_temp_fsynced",
