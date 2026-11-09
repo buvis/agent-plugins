@@ -35,3 +35,7 @@ Devon dispatchf8a19443 receives tests/public interfaces only, gpt-6.1-sol/high, 
 Repository validator at pause:3packages/15skills passed. Last completed Task3 acceptance50passed111.89s; Task4 latest new test run5failed3passed28.19s. Full implementation suite not yet run. No PRD completed, no completion review, no custody acceptance or push.
 
 Canonical pause written through statectl, schema/task consistency validated6/11; phase/next_phase paused. Task4 aborted test-authoring group retained actualOpenAI model; no implementation or adversarial pass falsely stamped.
+
+Committed pause snapshot:00018-v2-build-pause-state.json, SHA-25612e039140e9cbf32656c00e1de7068f3904bb964935864ec2ae03cac9c5cd62e. Canonical live state/card/brief remain in source-designated ignored paths. Snapshot is evidence only, never a replacement state writer or permission to restore it over a newer workflow.
+
+Record-store5152781 captured recovery artifacts correctly but its advisory --prd commit-message argument used an incorrect descriptive slug. Actual state.prd was and remains00018-autopilot-controller-kernel-v2.md; this follow-up records the exact canonical filename. No state identity changed.
