@@ -176,6 +176,7 @@ class StateStore:
         self._commit_pair(
             backup_bytes=current_raw, state_bytes=state_bytes,
             old_state=current_raw, old_backup=previous_backup,
+            publication_guard=publication_guard,
         )
         return committed
 
