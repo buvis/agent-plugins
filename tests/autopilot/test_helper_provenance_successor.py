@@ -336,7 +336,9 @@ def test_successor_breaking_a_rule_is_refused_without_writing(
 
 
 @pytest.mark.parametrize(
-    "text", ["[]\n", "{not json\n", ""], ids=["array", "malformed", "empty"]
+    "text",
+    ["[]\n", "{not json\n", "", "null\n"],
+    ids=["array", "malformed", "empty", "null"],
 )
 def test_default_successor_that_is_not_a_json_object_is_refused(
     tmp_path: Path, text: str

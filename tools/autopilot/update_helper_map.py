@@ -581,7 +581,7 @@ def apply_successor(result: dict, root: Path, successor: dict, artifact: dict) -
         sha = hashlib.sha256((root / path).read_bytes()).hexdigest()
         row["destination_blob_sha256"] = sha
         row["evidence"] = dict(cited)
-        if path in REFRESHED:
+        if path in REFRESHED[1:]:
             row["evidence"].update(artifact_id=path, artifact_sha256=sha)
 
 
@@ -623,7 +623,8 @@ def apply(
         validate(document["helper_dispositions"], document)
     if receipts is not None:
         validate_receipts(receipts)
-    if successor is not None:
+    has_successor = successor is not None or successor_artifact is not None
+    if has_successor:
         validate_successor_receipts(successor, artifact)
     result = copy.deepcopy(document)
     result["helper_dispositions"] = build_dispositions(document)
@@ -646,7 +647,7 @@ def apply(
         upsert(result["authored_file_owners"], "path", owner_row(path))
     revision = (receipts or {}).get("package_revision")
     refresh_shared_evidence(result["assets"], root, evidence, unavailable, revision)
-    if successor is not None:
+    if has_successor:
         apply_successor(result, root, successor, successor_artifact)
     refresh_ap00014_digests(result["assets"], root)
     return result
