@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import unittest
@@ -33,6 +34,10 @@ class OwnerV2Test(OwnerCLITest):
                    (second, second_response, operators[2]),
                    (recovered, recovered_response, operators[3])]
         self.assertNotEqual(owner, second_owner)
+        issued = [*operators.values(), operator, owner, second_owner]
+        digests = {hashlib.sha256(credential(path)["secret"].encode()).digest()
+                   for path in issued}
+        self.assertEqual(len(digests), len(issued), "issued secrets must be distinct")
         return records, operators, operator
 
     def test_canonical_receipts_replay_after_rotation_with_different_json_encodings(self) -> None:
@@ -53,12 +58,13 @@ class OwnerV2Test(OwnerCLITest):
                 for actor in actors:
                     actual = self.response(self.apply(request, actor, raw=raw))
                     self.assertEqual(actual, response)
-                    self.assertEqual(tree(private_path(self.root)), before)
+                    self.assertTrue(tree(private_path(self.root)) == before, "private evidence changed")
             recovered = records[-1][0]
             for jobs in (["job-alpha", "job-beta"], ["job-alpha-extra", "job-beta-extra"]):
                 changed = recovered | {"payload": recovered["payload"] | {
                     "reconciled_job_ids": jobs}}
                 self.reject_unchanged(changed, operator, "invalid_request")
+            self.assert_fresh_requests_validate_revision_payload_and_operation(operator, tag)
             self.assertIsNone(self.snapshot()["owner"])
 
     def test_retired_intermediate_operator_cannot_borrow_another_epochs_receipt_authority(self) -> None:
@@ -74,9 +80,18 @@ class OwnerV2Test(OwnerCLITest):
             self.reject_unchanged(request, None, "wrong_binding")
             self.reject_unchanged(request | {"request_id": request["request_id"] + "-extra"},
                                   historical, "wrong_binding")
-        self.assertEqual(tree(private_path(self.root)), before)
+        self.assertTrue(tree(private_path(self.root)) == before, "private evidence changed")
         self.assertEqual(self.state()["lease_epoch"], 4)
         self.assertEqual(set(self.state()["actors"]), {credential(current)["actor_id"]})
+        for request, _, historical in (records[1], records[3], records[4]):
+            for source in (historical, current):
+                self.assert_replay_rejects_changed_credential_bindings(request, source)
+        _, _, owner, operator = self.acquire(current, request_id="authority-current-owner")
+        wrong_release = self.request(operator, "owner.release", "authority-operator-release")
+        self.reject_unchanged(wrong_release, operator, "wrong_binding")
+        wrong_acquire = self.request(owner, "owner.acquire", "authority-owner-acquire", {
+            "mode": "manual", "native_session_id": "authority-wrong-role"})
+        self.reject_unchanged(wrong_acquire, owner, "wrong_binding")
 
     def test_exact_receipt_replay_still_checks_credential_file_safety(self) -> None:
         records, _, current = self.history("private")
@@ -87,6 +102,11 @@ class OwnerV2Test(OwnerCLITest):
                 stem = f"{request['request_id']}-{index}"
                 valid = self.retain(source, stem + ".json")
                 self.assertEqual(self.response(self.apply(request, valid)), response)
+                forged = self.retain(source, stem + "-forged.json")
+                value = credential(forged)
+                value["secret"] = self.changed_secret(value["secret"])
+                forged.write_bytes(canonical(value))
+                self.reject_unchanged(request, forged, "wrong_binding")
                 invalid = self.base / (stem + ".json-extra")
                 invalid.symlink_to(valid)
                 self.reject_unchanged(request, invalid, "wrong_binding")
@@ -103,6 +123,43 @@ class OwnerV2Test(OwnerCLITest):
                     invalid_copy = self.retain(source, stem + "-malformed.json")
                     invalid_copy.write_bytes(raw)
                     self.reject_unchanged(request, invalid_copy, "wrong_binding")
+
+    @staticmethod
+    def changed_secret(secret: str) -> str:
+        return ("A" if secret[0] != "A" else "B") + secret[1:]
+
+    def assert_replay_rejects_changed_credential_bindings(self, request: dict,
+                                                        source: Path) -> None:
+        original = credential(source)
+        changes = {"project_id": "0" * 64,
+                   "workflow_id": original["workflow_id"] + "-extra",
+                   "lease_epoch": original["lease_epoch"] + 1, "role": "owner"}
+        for field, replacement in changes.items():
+            with self.subTest(operation=request["operation"], credential_field=field):
+                forged = self.retain(source, f"binding-{field}.json")
+                forged.write_bytes(canonical(original | {field: replacement}))
+                self.reject_unchanged(request, forged, "wrong_binding")
+
+    def assert_fresh_requests_validate_revision_payload_and_operation(self, operator: Path,
+                                                                    tag: str) -> None:
+        stale = self.request(operator, "owner.acquire", f"{tag}-stale-acquire", {
+            "mode": "manual", "native_session_id": "stale-session"})
+        stale["expected_revision"] -= 1
+        self.reject_unchanged(stale, operator, "revision_conflict")
+        invalid = (({"reason": "", "reconciled_job_ids": []}, "invalid_request"),
+                   ({"reason": "é" * 2049, "reconciled_job_ids": []}, "invalid_request"),
+                   ({"reason": "Attended", "reconciled_job_ids": [1]}, "invalid_request"),
+                   ({"reason": "Attended", "reconciled_job_ids": ["job", "job"]},
+                    "invalid_request"),
+                   ({"reason": "Attended", "reconciled_job_ids": ["job"]},
+                    "rejected_evidence"))
+        for index, (payload, error) in enumerate(invalid):
+            with self.subTest(recovery_payload=index):
+                request = self.request(operator, "owner.recover", f"{tag}-invalid-{index}",
+                                       payload)
+                self.reject_unchanged(request, operator, error)
+        unknown = self.request(operator, "owner.unknown", f"{tag}-unknown-operation")
+        self.reject_unchanged(unknown, operator, "invalid_request")
 
     def prepared_crash(self, name: str, tag: str) -> tuple[dict, Path]:
         _, _, operator = self.bootstrap()
@@ -128,7 +185,7 @@ class OwnerV2Test(OwnerCLITest):
                                  ("workflow_id", request["workflow_id"] + "-extra")):
                 changed = request | {field: value}
                 self.reject_unchanged(changed, historical, "wrong_binding")
-            self.assertEqual(tree(private_path(self.root)), before)
+            self.assertTrue(tree(private_path(self.root)) == before, "private evidence changed")
         completed = self.response(self.apply(request, historical),
                                   revision=request["expected_revision"] + 1)
         self.assert_transition(request, completed, historical)
@@ -138,15 +195,82 @@ class OwnerV2Test(OwnerCLITest):
         if request["operation"] != "owner.release":
             current = Path(completed["result"]["operator_actor_file"])
             self.assertEqual(self.response(self.apply(request, current)), completed)
-        self.assertEqual(tree(private_path(self.root)), after)
+        self.assertTrue(tree(private_path(self.root)) == after, "private evidence changed")
         self.assertEqual(set(self.state()["receipts"]), receipts | {request["request_id"]})
         self.snapshot()
+
+    @staticmethod
+    def response_objects(value: object) -> list[dict]:
+        # Locate contract-defined responses without assuming an intent field name.
+        if isinstance(value, dict):
+            responses = ([value] if set(value) == {
+                "ok", "revision", "result", "error_code", "retryable"} else [])
+            return responses + [response for item in value.values()
+                                for response in OwnerV2Test.response_objects(item)]
+        if isinstance(value, list):
+            return [response for item in value
+                    for response in OwnerV2Test.response_objects(item)]
+        return []
+
+    def tamper_pending_evidence(self, damage: str, request: dict,
+                               initial_paths: set[Path], index: int = 0) -> tuple[Path, bytes]:
+        root = private_path(self.root)
+        if damage == "response":
+            path = root / "credential-intent.json"
+            original = path.read_bytes()
+            value = json.loads(original)
+            responses = [response for response in self.response_objects(value)
+                         if response["revision"] == request["expected_revision"] + 1]
+            self.assertTrue(bool(responses), "intent must retain its complete response")
+            responses[index]["revision"] += 7
+        elif damage == "state":
+            path = root / "state.json"
+            original = path.read_bytes()
+            value = json.loads(original)
+            value["revision"] += 7
+        else:
+            stages = [path for path in (root / "actors").iterdir()
+                      if path not in initial_paths and path.is_file()
+                      and credential(path).get("role") == "operator"
+                      and credential(path).get("lease_epoch") == request["lease_epoch"] + 1]
+            self.assertEqual(len(stages), 1, "one staged operator credential is required")
+            path = stages[0]
+            original = path.read_bytes()
+            value = credential(path)
+            value["secret"] = self.changed_secret(value["secret"])
+        path.write_bytes(canonical(value))
+        return path, original
+
+    def assert_tampered_crash_preserves_evidence(self, name: str, damage: str,
+                                               parent: Path) -> None:
+        tag = f"{name}-tampered-{damage}"
+        self.root = parent / name / f"tampered-{damage}"
+        self.root.mkdir(parents=True)
+        request, actor = self.prepared_crash(name, tag)
+        historical = self.retain(actor, tag + "-historical.json")
+        initial_paths = set((private_path(self.root) / "actors").iterdir())
+        self.crash(request, actor, "intent_dir_fsynced")
+        intent = private_path(self.root) / "credential-intent.json"
+        probes = (len([response for response in self.response_objects(json.loads(intent.read_bytes()))
+                       if response["revision"] == request["expected_revision"] + 1])
+                  if damage == "response" else 1)
+        self.assertGreater(probes, 0, "intent must retain its complete response")
+        for index in range(probes):
+            with self.subTest(response_copy=index):
+                path, original = self.tamper_pending_evidence(damage, request, initial_paths, index)
+                self.reject_unchanged(request, historical, "recovery_required")
+                self.assertTrue(intent.exists())
+                path.write_bytes(original)
+        self.assert_crash_completes_once(request, historical)
 
     def test_intact_owner_crash_evidence_finishes_and_replays_exactly_once(self) -> None:
         parent = self.root
         common = ("stage_fsynced", "intent_dir_fsynced", "operator_credential_published",
                   "state_published", "cleanup_dir_fsynced")
         for name in ("owner.acquire", "owner.release", "owner.recover"):
+            for damage in ("response", "staged-credential", "state"):
+                with self.subTest(operation=name, damage=damage):
+                    self.assert_tampered_crash_preserves_evidence(name, damage, parent)
             boundaries = common + (("owner_credential_published",)
                                    if name == "owner.acquire" else ())
             for boundary in boundaries:
