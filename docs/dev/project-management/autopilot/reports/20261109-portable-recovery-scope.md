@@ -33,6 +33,12 @@ Portable completion requires AP00017's real isolated Codex/Gemini profile and di
 
 Keep all work local. At the final boundary report completed PRDs, remaining blockers, exact verification results and any pending custody. The product is unfinished until its final certification gates pass.
 
+## Baseline verification
+
+Before implementation on 2026-11-09, the unmodified production tree produced **20 failed, 1433 passed in 332.71s** with `mise exec -- uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q --tb=short`. Eight failures are in test_controller_capacity.py, seven in test_controller_owner.py, four in test_controller_owner_recovery.py, and one is test_helper_provenance_real.py::test_new_helper_files_are_owned_and_digested_from_current_bytes (CHANGELOG.md differs from its pinned receipt revision). This is a failing baseline, not an acceptance exemption.
+
+Both recovery PRDs pass the create-prd grounding checker with zero blocking or unverified rows. Repository validation passes: 3 plugin packages and 15 skills. Recovery admission commit: eb54a3a.
+
 ## Unresolved questions
 
 None needed to begin implementation. Real host capability availability is measured by probes; custody disposition remains a separate attended decision after concrete repair evidence exists.
