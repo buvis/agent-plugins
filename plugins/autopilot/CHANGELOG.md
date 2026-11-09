@@ -30,6 +30,7 @@
 
 ### Fixed
 
+- **autopilot**: finish interrupted owner credential cleanup after state publication, while rejecting missing precommit evidence and corrupt remaining files.
 - **autopilot**: report the current durable revision when snapshots refuse pending credential intents, without reconciling them.
 - **autopilot**: rotate owner leases and operator credentials recoverably, retaining exact receipt replay without restoring retired mutation authority.
 - **autopilot**: restore transaction publication guard checks at every durability boundary, preserving exact state and backup rollback when evidence changes.

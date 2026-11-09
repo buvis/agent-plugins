@@ -216,7 +216,8 @@ def _publish_credentials(intent: dict, layout: actors.PrivateLayout,
     for entry in intent["credentials"]:
         stage, final = layout.actors / entry["stage"], layout.actors / entry["final"]
         previous = entry["previous"]
-        if previous is not None:
+        if previous is not None and (
+                current != candidate or layout.exists(layout.actors / previous["stage"])):
             verify_file(layout, layout.actors / previous["stage"], previous)
         if layout.exists(stage):
             verify_file(layout, stage, entry)
