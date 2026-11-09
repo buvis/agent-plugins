@@ -135,11 +135,11 @@ def generate(
     )
 
 
-def assert_contract_rows(document: dict) -> None:
-    rows = [r for r in document["assets"] if r["destination_path"] == CONTRACT]
+def assert_contract_rows(document: dict, path: str = CONTRACT) -> None:
+    rows = [r for r in document["assets"] if r["destination_path"] == path]
     assert len(rows) == 1, rows
     row = rows[0]
-    assert set(row) == set(asset_row(CONTRACT))
+    assert set(row) == set(asset_row(path))
     assert row["source_asset_id"] is None
     assert row["source_blob_sha256"] is None
     # A new authored asset: adapted, no section plan, no entry point.
@@ -149,9 +149,9 @@ def assert_contract_rows(document: dict) -> None:
     cases = row["acceptance_cases"]
     assert isinstance(cases, list) and cases, cases
     assert any(case.get("status") == row["evidence"]["status"] for case in cases)
-    owners = [r for r in document["authored_file_owners"] if r["path"] == CONTRACT]
+    owners = [r for r in document["authored_file_owners"] if r["path"] == path]
     assert len(owners) == 1, owners
-    assert set(owners[0]) == set(owner_row(CONTRACT))
+    assert set(owners[0]) == set(owner_row(path))
     assert owners[0]["delivery_prd"] == "00018"
     assert owners[0]["owner_repository"] == "buvis/agent-plugins"
     assert owners[0]["source_asset_id"] is None
@@ -258,6 +258,36 @@ def test_successor_certifies_only_the_paths_it_lists(
         owners = {row["path"] for row in document["authored_file_owners"]}
         assert CONTRACT not in owners
     assert_other_rows_unchanged(baseline, document)
+
+
+def test_listed_controller_file_without_a_map_row_is_registered_once(
+    tool: ModuleType, tmp_path: Path
+) -> None:
+    mapping = build_repo(tmp_path, "unmapped")
+    listed = "plugins/autopilot/controller/autopilot_state/owner.py"
+    unlisted = "plugins/autopilot/controller/autopilot_state/other.py"
+    for path in (listed, unlisted):
+        write_json(tmp_path / path, {"tag": path})
+    successor = valid_successor(tmp_path)
+    successor["paths"].append(listed)
+    document = generate(tool, tmp_path, mapping, successor)
+    assert_contract_rows(document, listed)
+    row = by_key(document["assets"], "destination_path")[listed]
+    assert "AP00018" in row["adaptation_reason"]
+    assert row["destination_blob_sha256"] == digest((tmp_path / listed).read_bytes())
+    assert row["evidence"] == {
+        "status": "passed",
+        "artifact_id": SUCCESSOR,
+        "artifact_sha256": digest((tmp_path / SUCCESSOR).read_bytes()),
+        "tested_package_revision": REVISIONS[0],
+    }
+    owners = {r["path"] for r in document["authored_file_owners"]}
+    assets = {r["destination_path"] for r in document["assets"]}
+    assert unlisted not in assets and unlisted not in owners
+    mapping.write_bytes(encode(document))
+    again = generate(tool, tmp_path, mapping, successor)
+    assert_contract_rows(again, listed)
+    assert canon(again) == canon(document)
 
 
 INVALID = {

@@ -546,6 +546,31 @@ def refresh_ap00014_digests(assets: list[dict], root: Path) -> None:
             ).hexdigest()
 
 
+def register_controller_asset(result: dict, root: Path, path: str, cited: dict) -> None:
+    digest = hashlib.sha256((root / path).read_bytes()).hexdigest()
+    row = asset_row(path, digest, dict(cited))
+    row["adaptation_reason"] = (
+        "Newly authored AP00018 controller asset; no pinned source asset or "
+        "source sections. Delivery evidence records packaged bytes, not host "
+        "certification."
+    )
+    row["acceptance_cases"][0]["expected_outcome"] = (
+        "The packaged AP00018 controller asset exists at the recorded digest; "
+        "it certifies no host execution."
+    )
+    owner = owner_row(path)
+    owner["delivery_prd"] = "00018"
+    owner["acceptance_cases"] = [
+        {
+            "case_id": f"authored-{path}",
+            "expected_outcome": "The packaged AP00018 controller asset exists at "
+            "the recorded digest.",
+        }
+    ]
+    upsert(result["assets"], "destination_path", row)
+    upsert(result["authored_file_owners"], "path", owner)
+
+
 def apply_successor(result: dict, root: Path, successor: dict, artifact: dict) -> None:
     revision = successor["package_revision"]
     cited = {"status": "passed", **artifact, "tested_package_revision": revision}
@@ -574,6 +599,10 @@ def apply_successor(result: dict, root: Path, successor: dict, artifact: dict) -
         ]
         upsert(result["assets"], "destination_path", row)
         upsert(result["authored_file_owners"], "path", owner)
+    known = {row["destination_path"] for row in result["assets"]}
+    for path in sorted(listed - known):
+        if path.startswith(CONTROLLER_PREFIXES):
+            register_controller_asset(result, root, path, cited)
     for row in result["assets"]:
         path = row["destination_path"]
         if path not in listed:
