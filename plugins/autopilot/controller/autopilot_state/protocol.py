@@ -270,9 +270,9 @@ def snapshot(root: Path) -> dict:
             return response(snapshot_projection(root, None))
         with store._locked(exclusive=False):
             layout.verify()
-            if layout.exists(layout.private / "credential-intent.json"):
-                raise ProtocolError("recovery_required")
             current = store._read_locked() if layout.exists(store.path) else None
+            if layout.exists(layout.private / "credential-intent.json"):
+                raise ProtocolError("recovery_required", 0 if current is None else current["revision"])
             if current is not None:
                 state_binding(current, root)
             return response(snapshot_projection(root, current), 0 if current is None else current["revision"])
