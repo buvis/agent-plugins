@@ -450,13 +450,18 @@ def validate_receipts(receipts: dict, prd: str = "00013") -> None:
             raise ValueError("receipts package_revision must be 40 lowercase hex")
 
 
-def validate_successor_receipts(successor: dict, supersedes_artifact: dict | None) -> None:
+def validate_successor_receipts(
+    successor: dict, supersedes_artifact: dict | None
+) -> None:
     if not isinstance(successor, dict):
         raise ValueError("successor receipts must be a JSON object")
     validate_receipts(successor, prd="00018")
     if "package_revision" not in successor:
         raise ValueError("successor receipts need a package_revision")
-    if supersedes_artifact is None or successor.get("supersedes") != supersedes_artifact:
+    if (
+        supersedes_artifact is None
+        or successor.get("supersedes") != supersedes_artifact
+    ):
         raise ValueError(
             "successor receipts must supersede the exact AP00013 receipts loaded"
         )
@@ -580,6 +585,32 @@ def apply_successor(result: dict, root: Path, successor: dict, artifact: dict) -
             row["evidence"].update(artifact_id=path, artifact_sha256=sha)
 
 
+def refresh_shared_evidence(
+    assets: list[dict],
+    root: Path,
+    evidence: dict,
+    unavailable: dict,
+    revision: str | None,
+) -> None:
+    for row in assets:
+        path = row["destination_path"]
+        if path not in REFRESHED:
+            continue
+        sha = hashlib.sha256((root / path).read_bytes()).hexdigest()
+        row["destination_blob_sha256"] = sha
+        if path == REFRESHED[0]:
+            row["evidence"] = dict(evidence)
+        elif revision is None:
+            row["evidence"] = dict(unavailable)
+        else:
+            row["evidence"] = {
+                "status": "passed",
+                "artifact_id": path,
+                "artifact_sha256": sha,
+                "tested_package_revision": revision,
+            }
+
+
 def apply(
     document: dict,
     receipts: dict | None,
@@ -614,23 +645,7 @@ def apply(
         )
         upsert(result["authored_file_owners"], "path", owner_row(path))
     revision = (receipts or {}).get("package_revision")
-    for row in result["assets"]:
-        path = row["destination_path"]
-        if path not in REFRESHED:
-            continue
-        sha = hashlib.sha256((root / path).read_bytes()).hexdigest()
-        row["destination_blob_sha256"] = sha
-        if path == REFRESHED[0]:
-            row["evidence"] = dict(evidence)
-        elif revision is None:
-            row["evidence"] = dict(unavailable)
-        else:
-            row["evidence"] = {
-                "status": "passed",
-                "artifact_id": path,
-                "artifact_sha256": sha,
-                "tested_package_revision": revision,
-            }
+    refresh_shared_evidence(result["assets"], root, evidence, unavailable, revision)
     if successor is not None:
         apply_successor(result, root, successor, successor_artifact)
     refresh_ap00014_digests(result["assets"], root)
