@@ -2,7 +2,9 @@
 
 Written 2026-11-09 at master `956eab5`. Measured with
 `validate_spec.py status --json`, the task files, the eval inventory, and the
-installed host CLIs. Executed plans leave this folder when the work is done.
+installed host CLIs. Amended the same day at `f298da9`: the parallel lanes of
+phase 1 and the early 00001 lane were wrong (section 7, item 6); probes now
+come before phase 0. Executed plans leave this folder when the work is done.
 
 ## 1. What is left
 
@@ -46,37 +48,89 @@ the edits, and the artifact is re-approved at the same gate when its
 | R3 | Parity source runs are headless: the source skill runs on Claude Code through `claude -p` in the developer's normal profile (`--setting-sources user`), invoked by name, on the same fixture and turns. The same judge scores the 431 rules; the developer reviews each per-skill report, not each row. | 00009 design: Parity gate step 2, Data model "run by hand"; tasks T-058 Contract. | Six skills by hand, 431 rows by hand. |
 | R4 | T-066's target `buvis/claude-autopilot` is frozen since 2026-11-01. The repoint item goes to this repository's `docs/dev/project-management/intake/new/` for `plugins/autopilot`. | 00001 tasks T-066 Location, Details, Verify. | None workable; the frozen repo refuses commits. |
 
-Not a ruling, only ordering (section 4): the package is frozen before the
-second and third hosts run, so a fix never stales three hosts at once.
+Not rulings, only ordering (section 4): the package is frozen before the
+second and third hosts run, so a fix never stales three hosts at once; and
+T-051 and T-052 move after T-057 in `tasks.md` (their `Depends on: T-050`
+lines allow it, SR-TSK-002's topological order holds), so the developer's
+Kiro IDE hours land once, on the frozen package, after the 470 evals have
+found what they find.
 
 ## 4. Sequence
 
-Critical path: T-056 runners -> Claude Code shakedown -> package freeze ->
-Codex and Kiro runs -> T-058 parity -> 00009 review and merge -> T-063,
-T-064 -> tag.
+Critical path: probes -> phase 0 -> T-050 -> T-056 -> T-054 -> T-053,
+T-081 -> T-057 (Claude Code shakedown, freeze, Codex and kiro-cli runs) ->
+T-051, T-052 -> T-055 -> T-058 -> 00009 review and merge -> T-060 to T-064
+-> tag.
 
-### Phase 0: gate and state (one session; developer about 20 minutes)
+One branch for all of 00009: `feature/specflow-00009`, worktree
+`~/git/src/worktrees/agent-plugins/feature-specflow-00009`. The skill
+serializes tasks: `status` names as `nextTask` the first unchecked task whose
+`Depends on:` tasks are checked, in file order (`specflow_helper/status.py`,
+`next_task`), and SR-IMP-003 allows only that task. A side branch for one
+task would be told to do T-050 like every other, so there are no lanes.
 
-1. Branch `feature/specflow-00009`, worktree
-   `~/git/src/worktrees/agent-plugins/feature-specflow-00009`.
-2. Apply R1 to R4 to the 00009 design and tasks and the 00001 tasks.
+### Probes (first session, before phase 0; developer not needed)
+
+The fallbacks of R1 and of the Codex home are design changes, so both are
+proven before phase 0 writes the rulings into the design. No branch is
+needed: scripts live under `docs/dev/tmp/specflow/probes/`, the results go
+into section 8 of this file, committed on master.
+
+1. Codex: a temporary `CODEX_HOME` under `docs/dev/tmp/specflow/evals/`
+   holding a copy of `~/.codex/auth.json` and the plugin installed by the
+   00008 route (`codex plugin marketplace add <checkout> --json`,
+   `codex plugin add specflow@buvis-agent-plugins --json`); `codex exec
+   --json` answers one spec-workflow status turn on a scratch workspace with
+   its own `git init`. The home is removed afterwards.
+2. kiro-cli v3: with the Power installed at `~/.kiro/powers/installed/specflow`,
+   `kiro-cli chat --no-interactive --output-format stream-json` (or ACP as
+   `acp_review.py` of intake 00022 does) answers the same turn on the same
+   workspace, and the stream shows the Power loaded.
+3. Claude Code: `claude -p --plugin-dir plugins/specflow --output-format
+   stream-json --verbose` with user settings left out (`--setting-sources
+   project,local`, or `--bare` when it accepts `CLAUDE_CODE_OAUTH_TOKEN`); the
+   init event lists `specflow:spec-workflow`, and the probe records which
+   instruction files still load. Token and nested-run notes: project memory
+   `host-tests-from-inside-a-session`.
+
+A probe that fails is reported with its output; nothing is worked around.
+Its fallback from section 3 then replaces the ruling in phase 0's edits.
+
+### Phase 0: gate and state (same session; developer about 20 minutes)
+
+1. Worktree `feature-specflow-00009` on branch `feature/specflow-00009`
+   from master.
+2. Apply R1 to R4, or the fallbacks the probes forced, to the 00009 design
+   and tasks and the 00001 tasks; move T-051 and T-052 after T-057.
 3. Recover `.specflow.json` for 00009 and 00001 (spec-workflow recovery
    mode on the receipts in each `qa-log.md`); the developer confirms the
    requirements approvals as they stand and approves the amended design and
    tasks in the same answer. Hashes from `validate_spec.py hash --json`.
-4. Commit. `status --json` shows both specs with every gate open.
+4. Commit. `status --json` shows 00009 at `implementation` with `nextTask`
+   T-050, and 00001 at `implementation` blocked on 00009.
 
-### Phase 1: instruments (parallel agent sessions, no host runs yet)
+### Phase 1: instruments (one branch, tasks in file order, no host runs yet)
 
-| Lane | Tasks | Notes |
-|---|---|---|
-| A | T-050 fixtures + `test_fixtures.py` | Reuse the fixture specs under `tests/specflow/fixtures/sessions/` where one already is the named shape; add only what is missing. |
-| B | T-056 runners, scorer, judge, `result.schema.json`, `test_score.py` | Probes first, in this order: (1) Codex sign-in from a temporary `CODEX_HOME` holding a copy of `~/.codex/auth.json` and the plugin installed by the 00008 route (`codex plugin marketplace add <checkout>`, `codex plugin add specflow@buvis-agent-plugins`); (2) kiro-cli v3 loads the installed Power and answers one spec-workflow turn; (3) `claude -p --plugin-dir plugins/specflow` with user settings left out (`--setting-sources` without `user`, or `--bare` if it accepts `CLAUDE_CODE_OAUTH_TOKEN`), and the instruction files it still reports. A probe that fails stops the lane and is reported; nothing is worked around silently. Codex exposes no read events, so `filesRead` for Codex is recorded as not measured (design fallback). |
-| C | T-054 security review + `tests/specflow/security/` + CI step | Independent of A and B. |
-| D | T-081 fixture copy from `buvis/calcard-mcp` 00032 + `test_conversion_fixture.py` + CI step; the 8 missing sessions and their eval records (T-053, T-057 authoring half) | Read the copy for anything non-public before committing. |
-| E | 00001 T-060, T-061, T-062 drafts on `feature/specflow-00001`, branched from the 00009 branch once lane A lands | All three stay inside the safe paths (`README.md`, `CHANGELOG.md`, `docs/`), so they stale no evidence. Final text waits for T-058's two maintainer guides. |
+Each task is its own fresh session that says "continue spec 00009"; the
+skill resumes from the files.
 
-### Phase 2: shakedown on Claude Code only
+1. T-050 fixtures + `test_fixtures.py`. Reuse the fixture specs under
+   `tests/specflow/fixtures/sessions/` where one already is the named shape;
+   add only what is missing.
+2. T-056 runners (`run_claude.py`, `run_codex.py`, `run_kiro.py`), scorer,
+   judge, `result.schema.json`, `test_score.py`, `manual-run.md`. The probe
+   scripts are its starting point. Codex exposes no read events, so
+   `filesRead` for Codex is recorded as not measured (design fallback).
+3. T-054 security review + `tests/specflow/security/` + CI step.
+4. T-053, then T-081: the fixture copy from `buvis/calcard-mcp` 00032 (read it
+   for anything non-public before committing), `test_conversion_fixture.py`,
+   CI step, the two sessions and their eval records. Their host runs are the
+   first live runs; they count while the package revision stands.
+
+00001 waits: SR-SKL-007 holds its implementation until 00009 is complete,
+so T-060 to T-062 start in phase 5. The earlier lane E is withdrawn.
+
+### Phase 2: shakedown on Claude Code only (T-057, first half)
 
 1. Run all 59 sessions on `claude-code`, four at a time, with a per-session
    `--max-budget-usd` cap. Score. Judge rubrics (R2).
@@ -85,20 +139,23 @@ T-064 -> tag.
    when the eval is wrong (say so in the `Outcome:` line). Rerun only
    Claude Code. Repeat until green. Each rerun is a new `<n>.json`.
 
-### Phase 3: freeze and fan out
+### Phase 3: freeze and fan out (T-057 second half, then T-051 to T-058)
 
 1. Record the package tree id (`git rev-parse HEAD:plugins/specflow`) as the
    frozen revision. No edit under `plugins/specflow/skills/` or to a
    manifest after this point without returning to phase 2.
-2. In parallel: Codex batch (temporary home, removed at batch end), kiro-cli
-   batch, and the developer's Kiro IDE subset (T-051 Kiro steps, T-052, the
-   two type notes). T-053 and T-081 sessions ride in the batches.
+2. In parallel inside T-057: Codex batch (temporary home, removed at batch
+   end) and kiro-cli batch; the two Kiro IDE type notes by the developer.
+   T-053 and T-081 sessions ride in the batches.
 3. Score and judge as in phase 2. A failure that needs a package fix sends
    all three hosts back to phase 2; an eval or judge error is fixed in
-   place and that session is rerun on the affected hosts only.
-4. T-055 from the stored records (sizes measured by script; loading compared
+   place and that session is rerun on the affected hosts only. T-057 is
+   checked.
+4. T-051, then T-052: the developer's Kiro IDE steps on the frozen package;
+   the Codex and Claude Code steps headless through the T-056 runners.
+5. T-055 from the stored records (sizes measured by script; loading compared
    per phase and profile; Codex marked not measured).
-5. T-058: six source skills headless (R3), judge, six reports, the two
+6. T-058: six source skills headless (R3), judge, six reports, the two
    maintainer guides.
 
 ### Phase 4: close 00009
@@ -147,8 +204,8 @@ T-064 -> tag.
 | Say "tag" for T-065; file T-067 | Phase 5 | 15 min |
 
 Everything else is agent work. Agent wall-clock, assuming the probes pass
-and two shakedown rounds: phase 0 and 1 about three days, phase 2 and 3
-about four, phase 4 and 5 about three.
+and two shakedown rounds: probes, phase 0 and 1 about five days (the tasks
+run one after another), phase 2 and 3 about four, phase 4 and 5 about three.
 
 ## 6. Risks
 
@@ -180,5 +237,15 @@ Asked one at a time, in this order.
 4. R4: ruled 2026-11-09, yes: T-066's item goes to this repository's intake
    for `plugins/autopilot`.
 5. Reviewer roster: ruled 2026-11-09: alice, blake, bob, as in 00008.
+6. Parallel lanes A to E of the first version: withdrawn 2026-11-09 by the
+   planner, no question for the developer. `next_task` and SR-IMP-003
+   serialize the tasks of a spec in file order, and SR-SKL-007 holds 00001
+   until 00009 is complete. Sections 3 and 4 carry the correction.
 
-No question is open. Phase 0 can start.
+No question is open. The probe session can start.
+
+## 8. Probe results
+
+Filled by the probe session (section 4), one entry per probe: the command,
+the exit code, the evidence line from the output, pass or fail, and the
+fallback chosen on a fail.
