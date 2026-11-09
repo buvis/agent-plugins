@@ -117,6 +117,17 @@ def validate_intent(intent: object, layout: actors.PrivateLayout) -> dict:
             or (request["operation"] == "owner.recover" and request["payload"]["reconciled_job_ids"])):
         raise StateIOError("inconsistent owner predecessor")
     protocol.actor_binding(request, authorizer, old["revision"])
+    descriptors = _intent_credentials(intent, request, old)
+    expected, completed = transition(old, request, descriptors["operator"],
+                                     descriptors.get("owner"), layout)
+    receipt = expected["receipts"][request["request_id"]]
+    if (candidate != expected or intent["response"] != completed or intent["receipt"] != receipt
+            or intent["request_digest"] != receipt["request_digest"]):
+        raise StateIOError("inconsistent owner intent")
+    return intent
+
+
+def _intent_credentials(intent: dict, request: dict, old: dict) -> dict:
     entries = intent["credentials"]
     roles = ["operator", "owner"] if request["operation"] == "owner.acquire" else ["operator"]
     if not isinstance(entries, list) or len(entries) != len(roles):
@@ -151,13 +162,7 @@ def validate_intent(intent: object, layout: actors.PrivateLayout) -> dict:
             raise StateIOError("duplicate owner stage")
         names.add(entry["stage"])
         descriptors[role] = descriptor
-    expected, completed = transition(old, request, descriptors["operator"],
-                                     descriptors.get("owner"), layout)
-    receipt = expected["receipts"][request["request_id"]]
-    if (candidate != expected or intent["response"] != completed or intent["receipt"] != receipt
-            or intent["request_digest"] != receipt["request_digest"]):
-        raise StateIOError("inconsistent owner intent")
-    return intent
+    return descriptors
 
 
 def verify_file(layout: actors.PrivateLayout, path: Path, entry: dict) -> None:
@@ -182,6 +187,30 @@ def finish_intent(request: dict, actor_file: Path | None, intent: dict,
             current["revision"] != intent["old_revision"]
             or actors.digest(actors.canonical(current)) != intent["old_state_digest"])):
         raise StateIOError("state does not match owner intent")
+    _publish_credentials(intent, layout, current, candidate)
+
+    def guard() -> None:
+        layout.verify()
+        for entry in intent["credentials"]:
+            verify_file(layout, layout.actors / entry["final"], entry)
+
+    guard()
+    if current != candidate:
+        store._transaction_locked(lambda unused: candidate, expected_revision=intent["old_revision"],
+                                  publication_guard=guard)
+    guard()
+    for entry in intent["credentials"]:
+        layout.remove(layout.actors / entry["stage"])
+        if entry["previous"] is not None:
+            layout.remove(layout.actors / entry["previous"]["stage"])
+    os.fsync(layout.directories[layout.actors])
+    layout.remove(layout.private / "credential-intent.json")
+    os.fsync(layout.directories[layout.private])
+    return intent["response"]
+
+
+def _publish_credentials(intent: dict, layout: actors.PrivateLayout,
+                         current: dict, candidate: dict) -> None:
     pending = []
     # Validate every piece of evidence before publishing any credential.
     for entry in intent["credentials"]:
@@ -209,25 +238,6 @@ def finish_intent(request: dict, actor_file: Path | None, intent: dict,
                    dst_dir_fd=layout.directories[layout.actors])
         layout.verify()
         os.fsync(layout.directories[layout.actors])
-
-    def guard() -> None:
-        layout.verify()
-        for entry in intent["credentials"]:
-            verify_file(layout, layout.actors / entry["final"], entry)
-
-    guard()
-    if current != candidate:
-        store._transaction_locked(lambda unused: candidate, expected_revision=intent["old_revision"],
-                                  publication_guard=guard)
-    guard()
-    for entry in intent["credentials"]:
-        layout.remove(layout.actors / entry["stage"])
-        if entry["previous"] is not None:
-            layout.remove(layout.actors / entry["previous"]["stage"])
-    os.fsync(layout.directories[layout.actors])
-    layout.remove(layout.private / "credential-intent.json")
-    os.fsync(layout.directories[layout.private])
-    return intent["response"]
 
 
 def apply_locked(request: dict, actor_file: Path | None, current: dict,
