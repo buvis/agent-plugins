@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import secrets
 import stat
 import subprocess
 import sys
@@ -19,6 +20,8 @@ FILE_LIMIT = 64
 BYTE_LIMIT = 16777216
 OPERATIONS = ("workflow.open", "owner.acquire", "owner.release", "owner.recover")
 BOUNDARIES = ("stage_fsynced", "intent_replace")
+KERNEL_BOUNDARIES = ("backup_temp_fsynced", "state_temp_fsynced")
+DAMAGE_KINDS = ("unreadable", "permissions", "symlink", "hardlink", "directory", "fifo")
 
 # Stop immediately before publishing the fixed intent. This leaves the real
 # fsynced intent temporary and credential stages, without reading runtime code.
@@ -74,8 +77,14 @@ runpy.run_path(main, run_name="__main__")
 '''
 
 
-def signature(path: Path) -> tuple:
-    """Compare evidence without putting credential plaintext in test failures."""
+def signature(path: Path, *, changed: bool = True) -> tuple:
+    """Compare evidence without putting credential plaintext in test failures.
+
+    The inode change time exposes writes hidden by restored bytes or reset
+    modification times. Only an attended archive rename omits it, and the
+    contract's state.json.lock sidecar, whose metadata every locked call
+    refreshes; its bytes, mode and mtime still count.
+    """
     info = path.lstat()
     content = None
     if stat.S_ISLNK(info.st_mode):
@@ -85,8 +94,11 @@ def signature(path: Path) -> tuple:
             content = hashlib.sha256(path.read_bytes()).hexdigest()
         except PermissionError:
             content = "unreadable"
-    return (info.st_dev, info.st_ino, info.st_mode, info.st_nlink,
-            info.st_uid, info.st_gid, info.st_size, info.st_mtime_ns, content)
+    value = (info.st_dev, info.st_ino, info.st_mode, info.st_nlink,
+             info.st_uid, info.st_gid, info.st_size, info.st_mtime_ns, content)
+    if not changed or path.name == "state.json.lock":
+        return value
+    return value + (info.st_ctime_ns,)
 
 
 def evidence(root: Path) -> dict:
@@ -173,6 +185,66 @@ class ControllerStagingLimitsTest(OwnerCLITest):
                         "refusal changed evidence or created proposed files")
         self.assertFalse((root / "credential-intent.json").exists())
 
+    def refuse_without_authority(self, request: dict, actor: Path | None) -> None:
+        """Bad revisions and forged credentials report state, never request echoes."""
+        root = private_path(self.root)
+        current = self.state()["revision"] if (root / "state.json").exists() else 0
+        cases = [(request | {"expected_revision": request["expected_revision"] + 7}, actor, None)]
+        if actor is not None:
+            forged = self.retain(actor, f"forged-{self.serial}.json")
+            fields = json.loads(forged.read_bytes()) | {"secret": secrets.token_urlsafe(32)}
+            forged.write_bytes(json.dumps(fields).encode("utf-8"))
+            cases.append((request, forged, "recovery_required"))
+        for candidate, credential, excluded in cases:
+            before = evidence(root)
+            completed = self.apply(candidate, credential)
+            self.assertTrue(completed.returncode == 1, "invalid authority was not rejected")
+            value = json.loads(completed.stdout)
+            self.assertIs(value["ok"], False)
+            self.assertIsNone(value["result"])
+            self.assertTrue(type(value["revision"]) is int and value["revision"] == current,
+                            "rejection did not carry the current state revision")
+            self.assertTrue(value["error_code"] not in {None, excluded},
+                            "staging admission ran before actor authentication")
+            self.assertTrue(evidence(root) == before, "rejection changed evidence")
+
+    def crash_until_refused(self, request: dict, actor: Path | None, boundary: str,
+                            stages: list[Path]) -> list[Path]:
+        root = private_path(self.root)
+        stages = list(stages)
+        for _ in range(FILE_LIMIT + 1):
+            before = evidence(root)
+            completed, crash_code = self.crash_attempt(request, actor, boundary)
+            if completed.returncode != crash_code:
+                self.checked_response(completed, request, "recovery_required")
+                self.assertTrue(evidence(root) == before)
+                return stages
+            self.assertTrue(completed.stdout == b"")
+            new = [path for path in root.rglob("*") if path not in before and path.is_file()]
+            self.assertTrue(bool(new), "repeated crash must retain new evidence")
+            self.assertTrue(all(signature(path) == value for path, value in before.items()
+                                if path.is_file()))
+            stages.extend(new)
+            self.assertLessEqual(len(stages), FILE_LIMIT)
+            self.assertLess(sum(path.stat().st_size for path in stages), BYTE_LIMIT // 2)
+            self.assertFalse((root / "credential-intent.json").exists())
+        self.fail("repeated crashes did not reach a fail-closed resource boundary")
+
+    def admit_at_count_boundary(self, request: dict, actor: Path | None, owned: list[Path],
+                                archivable: list[Path], proposal: int) -> None:
+        """Archive real orphans offline to one file over, then exactly at, the limit."""
+        self.assertGreater(len(owned) + proposal, FILE_LIMIT,
+                           "refused although the complete proposal fit the file limit")
+        owned, archivable = list(owned), list(archivable)
+        while len(owned) + proposal > FILE_LIMIT:
+            if len(owned) + proposal == FILE_LIMIT + 1:
+                self.refuse_unchanged(request, actor)
+            path = archivable.pop()
+            self.archive_one(path)
+            owned.remove(path)
+        self.assertEqual(len(owned) + proposal, FILE_LIMIT)
+        self.succeed_preserving(request, actor, owned)
+
     def succeed_preserving(self, request: dict, actor: Path | None,
                            orphans: list[Path]) -> None:
         before = {path: signature(path) for path in orphans}
@@ -191,10 +263,11 @@ class ControllerStagingLimitsTest(OwnerCLITest):
     def archive_one(self, path: Path) -> None:
         archive = self.base / f"offline-{self.root.name}"
         archive.mkdir(mode=0o700, exist_ok=True)
-        before = signature(path)
+        # A rename legitimately updates the inode change time.
+        before = signature(path, changed=False)
         destination = archive / path.name
         path.rename(destination)
-        self.assertTrue(signature(destination) == before,
+        self.assertTrue(signature(destination, changed=False) == before,
                         "attended fixture archive did not retain the original evidence")
 
     def read_only_at_saturation(self) -> None:
@@ -212,48 +285,33 @@ class ControllerStagingLimitsTest(OwnerCLITest):
                         "read-only calls changed saturated staging evidence")
 
     def test_repeated_pre_intent_crashes_stop_at_file_budget_without_changing_evidence(self) -> None:
+        proposals: dict[str, int] = {}
         for name in OPERATIONS:
-            for boundary in BOUNDARIES:
+            # An intent_replace crash stages the complete proposal; measure it first.
+            for boundary in reversed(BOUNDARIES):
                 with self.subTest(operation=name, boundary=boundary):
                     label = f"count-{name}-{boundary}"
                     self.project(label)
                     request, actor = self.prepared(name, label)
                     stages = self.stages_after_crash(request, actor, boundary)
-                    last_batch = stages[:]
+                    if boundary == "intent_replace":
+                        proposals[name] = len(stages)
+                    self.assertIn(name, proposals, "complete proposal size was not measured")
+                    proposal = proposals[name]
+                    self.assertLessEqual(len(stages), proposal)
                     fixed = {path: signature(path) for path in private_path(self.root).rglob("*")
                              if path.is_file() and path not in stages}
-                    for _ in range(FILE_LIMIT + 1):
-                        before = evidence(private_path(self.root))
-                        completed, crash_code = self.crash_attempt(request, actor, boundary)
-                        if completed.returncode != crash_code:
-                            self.checked_response(completed, request, "recovery_required")
-                            self.assertTrue(evidence(private_path(self.root)) == before)
-                            break
-                        self.assertTrue(completed.stdout == b"")
-                        new = [path for path in private_path(self.root).rglob("*")
-                               if path not in before and path.is_file()]
-                        self.assertTrue(bool(new), "repeated crash must retain new evidence")
-                        self.assertTrue(all(signature(path) == value for path, value in before.items()
-                                            if path.is_file()))
-                        last_batch = new
-                        stages.extend(new)
-                        self.assertLessEqual(len(stages), FILE_LIMIT)
-                        self.assertLess(sum(path.stat().st_size for path in stages), BYTE_LIMIT // 2)
-                        self.assertFalse((private_path(self.root) / "credential-intent.json").exists())
-                    else:
-                        self.fail("repeated crashes did not reach a fail-closed resource boundary")
+                    stages = self.crash_until_refused(request, actor, boundary, stages)
                     self.assertGreater(len(stages), 1)
                     self.assertTrue(all(signature(path) == value for path, value in fixed.items()))
                     self.refuse_unchanged(request, actor)
                     self.refuse_unchanged(request | {"request_id": request["request_id"] + "-near"}, actor)
+                    self.refuse_without_authority(request, actor)
                     if actor is not None:
                         self.read_only_at_saturation()
-                    # One full last crash batch is retained offline. The same
-                    # full proposal now fits at the last admitted count boundary.
-                    for path in last_batch:
-                        self.archive_one(path)
-                    remaining = [path for path in stages if path.exists()]
-                    self.succeed_preserving(request, actor, remaining)
+                    # Retain crash files offline one at a time: one file over
+                    # the limit still refuses, an exact fit is admitted.
+                    self.admit_at_count_boundary(request, actor, stages, stages, proposal)
 
     def test_byte_budget_refuses_below_at_and_above_limit_independently_of_count(self) -> None:
         for name in OPERATIONS:
@@ -271,6 +329,7 @@ class ControllerStagingLimitsTest(OwnerCLITest):
                         self.assertEqual(sum(path.stat().st_size for path in stages), BYTE_LIMIT + delta)
                         self.refuse_unchanged(request, actor)
                         self.refuse_unchanged(request | {"request_id": request["request_id"] + "-near"}, actor)
+                        self.refuse_without_authority(request, actor)
                         if actor is not None:
                             self.read_only_at_saturation()
 
@@ -292,6 +351,7 @@ class ControllerStagingLimitsTest(OwnerCLITest):
                     self.assertEqual(existing + proposal, BYTE_LIMIT + delta)
                     if delta:
                         self.refuse_unchanged(request, actor)
+                        self.refuse_without_authority(request, actor)
                         if actor is not None:
                             self.read_only_at_saturation()
                     else:
@@ -322,9 +382,17 @@ class ControllerStagingLimitsTest(OwnerCLITest):
         self.assertTrue(evidence(root) == committed)
         return orphans, response
 
+    def following_mutation(self, name: str, response: dict) -> tuple[dict, Path]:
+        operator = Path(response["result"]["operator_actor_file"])
+        next_name = "owner.recover" if name == "owner.acquire" else "owner.acquire"
+        payload = ({"reason": "Attended kernel orphan recovery", "reconciled_job_ids": []}
+                   if next_name == "owner.recover" else
+                   {"mode": "manual", "native_session_id": "after-kernel-orphan"})
+        return self.request(operator, next_name, "after-kernel-orphan", payload), operator
+
     def test_reconciled_kernel_publication_orphans_count_toward_next_mutation_byte_budget(self) -> None:
         for name in OPERATIONS[1:]:
-            for boundary in ("backup_temp_fsynced", "state_temp_fsynced"):
+            for boundary in KERNEL_BOUNDARIES:
                 with self.subTest(operation=name, boundary=boundary):
                     label = f"kernel-{name}-{boundary}"
                     self.project(label)
@@ -336,14 +404,44 @@ class ControllerStagingLimitsTest(OwnerCLITest):
                     with orphans[0].open("r+b") as stream:
                         stream.truncate(BYTE_LIMIT - other)
                     self.assertEqual(sum(path.stat().st_size for path in orphans), BYTE_LIMIT)
-                    operator = Path(response["result"]["operator_actor_file"])
-                    next_name = "owner.recover" if name == "owner.acquire" else "owner.acquire"
-                    payload = ({"reason": "Attended kernel orphan recovery", "reconciled_job_ids": []}
-                               if next_name == "owner.recover" else
-                               {"mode": "manual", "native_session_id": "after-kernel-orphan"})
-                    following = self.request(operator, next_name, "after-kernel-orphan", payload)
+                    following, operator = self.following_mutation(name, response)
                     self.refuse_unchanged(following, operator)
+                    self.refuse_without_authority(following, operator)
                     self.read_only_at_saturation()
+
+    def test_reconciled_kernel_publication_orphans_count_toward_next_mutation_file_budget(self) -> None:
+        for name in OPERATIONS[1:]:
+            for boundary in KERNEL_BOUNDARIES:
+                with self.subTest(operation=name, boundary=boundary):
+                    label = f"kernel-count-{name}-{boundary}"
+                    self.project(label)
+                    request, actor = self.prepared(name, label)
+                    orphans, response = self.publication_orphans(request, actor, boundary)
+                    following, operator = self.following_mutation(name, response)
+                    batch = self.stages_after_crash(following, operator, "intent_replace")
+                    owned = self.crash_until_refused(following, operator, "intent_replace",
+                                                     orphans + batch)
+                    self.refuse_without_authority(following, operator)
+                    self.read_only_at_saturation()
+                    # Only crash stages are archived, so every kernel orphan
+                    # stays in the owned set at both count boundaries.
+                    crashed = [path for path in owned if path not in orphans]
+                    self.admit_at_count_boundary(following, operator, owned, crashed, len(batch))
+
+    def test_unsafe_kernel_publication_orphans_refuse_next_mutation_without_touching_evidence(self) -> None:
+        for name in OPERATIONS[1:]:
+            for boundary in KERNEL_BOUNDARIES:
+                with self.subTest(operation=name, boundary=boundary):
+                    label = f"kernel-unsafe-{name}-{boundary}"
+                    self.project(label)
+                    request, actor = self.prepared(name, label)
+                    orphans, response = self.publication_orphans(request, actor, boundary)
+                    following, operator = self.following_mutation(name, response)
+                    for kind in DAMAGE_KINDS:
+                        for target in orphans:
+                            self.refuse_damaged(following, operator, target, kind)
+                    # Every orphan is restored, so the same mutation is admitted.
+                    self.succeed_preserving(following, operator, orphans)
 
     def test_safe_orphans_below_both_limits_allow_real_mutations_and_exact_replay(self) -> None:
         for name in OPERATIONS:
@@ -382,25 +480,48 @@ class ControllerStagingLimitsTest(OwnerCLITest):
             os.mkfifo(path, 0o600)
         return outside
 
+    def restore(self, path: Path, kind: str, outside: Path | None) -> None:
+        """Put the original bytes back as a safe private file after a refusal."""
+        if outside is None:
+            path.chmod(0o600)
+            return
+        if kind == "directory":
+            path.rmdir()
+        else:
+            path.unlink()
+        outside.rename(path)
+
+    def refuse_damaged(self, request: dict, actor: Path | None, target: Path, kind: str) -> None:
+        outside = self.damage(target, kind)
+        before = signature(outside) if outside is not None else None
+        self.refuse_unchanged(request, actor)
+        if outside is not None:
+            self.assertTrue(signature(outside) == before)
+        self.restore(target, kind, outside)
+
     def test_unsafe_or_unreadable_owned_artifacts_refuse_without_touching_evidence(self) -> None:
         for name in OPERATIONS:
             for boundary in BOUNDARIES:
-                for kind in ("unreadable", "permissions", "symlink", "hardlink", "directory", "fifo"):
+                for kind in DAMAGE_KINDS:
                     with self.subTest(operation=name, boundary=boundary, kind=kind):
                         label = f"unsafe-{name}-{boundary}-{kind}"
                         self.project(label)
                         request, actor = self.prepared(name, label)
                         stages = self.stages_after_crash(request, actor, boundary)
-                        # Exercise the root intent temporary independently of
-                        # credential stages when this crash exposes both.
-                        target = next((path for path in stages if path.parent == private_path(self.root)),
-                                      stages[0])
+                        # Exercise the root intent temporary first, then every
+                        # credential stage and rollback copy the crash left.
+                        ordered = sorted(stages, key=lambda path: path.parent != private_path(self.root))
+                        target = ordered[0]
                         outside = self.damage(target, kind)
                         before = signature(outside) if outside is not None else None
                         self.refuse_unchanged(request, actor)
                         self.refuse_unchanged(request | {"request_id": request["request_id"] + "-near"}, actor)
+                        self.refuse_without_authority(request, actor)
                         if outside is not None:
                             self.assertTrue(signature(outside) == before)
+                        self.restore(target, kind, outside)
+                        for path in ordered[1:]:
+                            self.refuse_damaged(request, actor, path, kind)
 
     def test_empty_staging_set_allows_bootstrap_and_all_owner_mutations(self) -> None:
         for suffix in ("alpha", "beta"):
