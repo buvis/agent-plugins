@@ -10,7 +10,7 @@ import unittest
 from pathlib import Path
 
 from controller_cli_support import MAIN, canonical, fresh_request, private_path, tree
-from controller_owner_support import OwnerCLITest, credential, operation
+from controller_owner_support import OwnerCLITest, credential
 
 
 class OwnerTest(OwnerCLITest):
