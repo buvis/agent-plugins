@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "prd": "00018",
+  "supersedes": {
+    "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
+    "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e"
+  },
+  "package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957",
+  "paths": [
+    "plugins/autopilot/README.md",
+    "plugins/autopilot/CHANGELOG.md",
+    "plugins/autopilot/contracts/controller-v1.json",
+    "plugins/autopilot/contracts/controller/fixtures-v1.json",
+    "plugins/autopilot/contracts/controller/provenance.json",
+    "plugins/autopilot/contracts/controller/workflow-v1.json",
+    "plugins/autopilot/controller/autopilot_state/__init__.py",
+    "plugins/autopilot/controller/autopilot_state/actors.py",
+    "plugins/autopilot/controller/autopilot_state/owner.py",
+    "plugins/autopilot/controller/autopilot_state/paths.py",
+    "plugins/autopilot/controller/autopilot_state/protocol.py",
+    "plugins/autopilot/controller/autopilot_state/schema.py",
+    "plugins/autopilot/controller/autopilot_state/store.py",
+    "plugins/autopilot/controller/main.py"
+  ],
+  "tasks": [
+    {
+      "task": "a",
+      "tests": "tests/autopilot/test_controller_staging_limits.py, tests/autopilot/test_controller_bootstrap_recovery.py, tests/autopilot/test_controller_owner_recovery.py, tests/autopilot/test_controller_capacity.py, tests/autopilot/test_controller_owner.py, tests/autopilot/test_controller_bootstrap.py, tests/autopilot/test_controller_owner_v2.py, tests/autopilot/test_controller_kernel.py, tests/autopilot/test_controller_kernel_adversarial.py, tests/autopilot/test_controller_store_guards_v2.py",
+      "command": "mise exec -- uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_staging_limits.py tests/autopilot/test_controller_bootstrap_recovery.py tests/autopilot/test_controller_owner_recovery.py tests/autopilot/test_controller_capacity.py tests/autopilot/test_controller_owner.py tests/autopilot/test_controller_bootstrap.py tests/autopilot/test_controller_owner_v2.py tests/autopilot/test_controller_kernel.py tests/autopilot/test_controller_kernel_adversarial.py tests/autopilot/test_controller_store_guards_v2.py -q --tb=line",
+      "passed": 92,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "duration_seconds": 263.93
+    },
+    {
+      "task": "b",
+      "tests": "tests/autopilot/test_controller_protocol.py, tests/autopilot/test_controller_schema.py, tests/autopilot/test_controller_paths.py, tests/autopilot/test_controller_recovery_characterization.py, tests/autopilot/test_controller_export.py",
+      "command": "mise exec -- uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_protocol.py tests/autopilot/test_controller_schema.py tests/autopilot/test_controller_paths.py tests/autopilot/test_controller_recovery_characterization.py tests/autopilot/test_controller_export.py -q --tb=line",
+      "passed": 69,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "duration_seconds": 8.31
+    },
+    {
+      "task": "c",
+      "tests": "tests/autopilot/test_helper_provenance_successor.py",
+      "command": "mise exec -- uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_helper_provenance_successor.py -q --tb=line",
+      "passed": 46,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "duration_seconds": 3.64
+    }
+  ],
+  "real_host": {
+    "status": "unavailable",
+    "reason": "No live install or publication was authorized; no Claude Code, Codex or Kiro host execution of the controller was run for AP00018 v2."
+  }
+}
