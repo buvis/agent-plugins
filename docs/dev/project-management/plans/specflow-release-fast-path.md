@@ -249,3 +249,55 @@ No question is open. The probe session can start.
 Filled by the probe session (section 4), one entry per probe: the command,
 the exit code, the evidence line from the output, pass or fail, and the
 fallback chosen on a fail.
+
+### 2026-11-09 probe session
+
+Scripts: `docs/dev/tmp/specflow/probes/{codex,kiro,claude}.bash` (ignored).
+Probes ran in that order. No failed command was retried or bypassed.
+
+1. **Codex — FAIL**, command `bash docs/dev/tmp/specflow/probes/codex.bash`,
+   exit **1**. Output:
+   ```text
+   /Users/bob/git/src/worktrees/agent-plugins/feature-specflow-00009/docs/dev/tmp/specflow/probes/workspace/.git/hooks/: Operation not permitted
+   ```
+   Scratch `git init` failed before the temporary home, auth copy, install,
+   or model invocation. No temporary Codex home was created or remains.
+   D11 is unproven. Fallback: instruction-file isolation must be chosen
+   explicitly before a Codex batch; a tainted run needs the developer's
+   release-evidence waiver. This session moves no instruction file and
+   grants no waiver.
+2. **Kiro Power loading — PASS**, command
+   `bash docs/dev/tmp/specflow/probes/kiro.bash`, exit **0**.
+   Command uses `kiro-cli chat --v3 --no-interactive --output-format stream-json`.
+   Evidence: `runStarted` reports `engine: v3`; server startup reports
+   `KAS (Kiro Agent Server)` version `0.66.70`; final output:
+   ```text
+   kiro_powers activate specflow returned two skills, convert-prd and spec-workflow.
+   readSkill spec-workflow returned the skill's full content.
+   ```
+   Limitation: the incomplete scratch Git repository made the helper resolve
+   the enclosing checkout. This proves Power activation, not scratch isolation
+   or a complete eval runner. R1 applies; T-056 must enforce workspace isolation.
+3. **Claude Code — FAIL**, command
+   `bash docs/dev/tmp/specflow/probes/claude.bash`, exit **0** (semantic failure).
+   Command uses `claude -p --plugin-dir <checkout>/plugins/specflow
+   --setting-sources project,local --output-format stream-json --verbose`.
+   Init: Claude Code `2.1.319`, model `claude-opus-5-5`, plugin
+   `specflow@inline`, skills include `specflow:spec-workflow`.
+   Failure output:
+   ```text
+   Path is outside allowed working directories
+   This command requires approval
+   I couldn't produce a full spec status. The workspace has no specs, and I wasn't allowed to load the helper or its required references.
+   ```
+   Reference reads and `validate_spec.py status --json` were denied. No
+   permission workaround was attempted. The model reports these loaded
+   instruction files: user `CLAUDE.md`, project `CLAUDE.md`, and user rules
+   `operating-principles.md`, `communication.md`, `coding-style.md`,
+   `changelog.md`, `working-documents.md`, `testing.md`, `memory.md`,
+   `writing.md`, `development-workflow.md`, `ai-app-design.md`, `tools.md`.
+   Imported AGENTS files and aegis references are unmeasured. Excluding user
+   settings therefore does not prove instruction isolation. Fallbacks:
+   retain D10 (every rubric judged manually) and manual source-skill parity
+   runs and row judgements (R2/R3 fallbacks). Automated Claude release
+   evidence remains blocked until isolation and permissions are proven.
