@@ -2394,5 +2394,125 @@
     "state_temp_fsynced",
     "state_replaced",
     "state_dir_fsynced"
+  ],
+  "kernel_field_ownership": {
+    "source_commit": "cf8be72214a515c84ee42f0d8b30e65cc2a4ebb7",
+    "core_mappings": {
+      "WorkState.repo_root": "repo_root",
+      "ReviewState.cap": "workflow.review.cap",
+      "State.schema_version": "schema_version",
+      "State.revision": "revision"
+    },
+    "unowned_fields": [
+      "pid",
+      "process_id",
+      "process_identity",
+      "launcher",
+      "heartbeat",
+      "resource_usage",
+      "tui",
+      "extensions",
+      "session_id",
+      "control",
+      "completed_at",
+      "head_sha",
+      "tasks_completed",
+      "tasks_total",
+      "autonomous_decisions",
+      "escalated_decisions"
+    ],
+    "expected_error": "invalid_request"
+  },
+  "contract_examples": [
+    {
+      "case": "open-fresh",
+      "unowned_locations": [
+        [],
+        [
+          "payload"
+        ]
+      ],
+      "expected_error": "invalid_request"
+    },
+    {
+      "case": "open-existing",
+      "unowned_locations": [
+        [],
+        [
+          "payload"
+        ]
+      ],
+      "expected_error": "invalid_request"
+    },
+    {
+      "case": "acquire",
+      "unowned_locations": [
+        [],
+        [
+          "payload"
+        ]
+      ],
+      "expected_error": "invalid_request"
+    },
+    {
+      "case": "release",
+      "unowned_locations": [
+        [],
+        [
+          "payload"
+        ]
+      ],
+      "expected_error": "invalid_request"
+    },
+    {
+      "case": "recover",
+      "unowned_locations": [
+        [],
+        [
+          "payload"
+        ]
+      ],
+      "expected_error": "invalid_request"
+    },
+    {
+      "case": "open-result",
+      "unowned_locations": [
+        [],
+        [
+          "result"
+        ]
+      ],
+      "expected_error": "invalid_request"
+    },
+    {
+      "case": "acquire-result",
+      "unowned_locations": [
+        [],
+        [
+          "result"
+        ]
+      ],
+      "expected_error": "invalid_request"
+    },
+    {
+      "case": "release-result",
+      "unowned_locations": [
+        [],
+        [
+          "result"
+        ]
+      ],
+      "expected_error": "invalid_request"
+    },
+    {
+      "case": "recover-result",
+      "unowned_locations": [
+        [],
+        [
+          "result"
+        ]
+      ],
+      "expected_error": "invalid_request"
+    }
   ]
 }
