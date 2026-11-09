@@ -1,484 +1,69 @@
-# Assumption ledger - AP 00014 (autopilot host execution v1)
+# Assumption ledger - AP 00018 v2 (autopilot controller kernel)
 
-Per-plan ledger: replaced at the first completed task of this plan, per the work
-skill's assumption-ledger rule.
+Per-plan ledger: replaced at the first task of this plan that records one, per
+the work skill's assumption-ledger rule. The Codex host ran tasks 1, 2, 3, 9, 10
+and 11 without writing here; their assumptions live in
+`docs/dev/project-management/autopilot/reports/00018-v2-*`. The previous AP00014
+ledger is in git history.
 
-## 1: Build contracts/hosts.json and scripts/hosts.py capability model
+## 4: Bound pre-intent staging artifacts across bootstrap and owner mutations
 
 Tess (strengthen after Devon):
-- `hosts._ADAPTERS` is a module attribute `probe_host` reads on every call; a
-  "fill if empty" lazy import inside `probe_host` would break the empty-table
-  test, so the table is assumed to be built once at import/call-site setup.
-- The `ValueError` message contains `repr(host_id)` (not a plain `f"...{host_id}"`)
-  so empty-string and trailing-space ids stay distinguishable in the text.
-- `KeyboardInterrupt` raised by an adapter must reach the caller unchanged, same
-  as any other exception.
-- `HostCapability.statuses` keeps keys in `CAPABILITY_NAMES` order.
+
+- The full proposed file set equals what an `intent_replace` crash leaves (stages, rollback copies, intent temp), not the transient StateStore publication temps.
+- A forged credential must be rejected by authentication before the staging budget runs, with any error code except `recovery_required`; no specific code is pinned.
+- For a bad `expected_revision`, any rejection code is accepted; only the returned revision value is checked.
+- Exempting `state.json.lock` from the ctime check is safe: a black-box probe showed it is the only entry whose ctime a read-only call changes.
 
 Ivan:
-- Adapters (`claude`, `codex`, `gemini`) are imported as top-level sibling
-  modules under `plugins/autopilot/scripts/`, the same way the test imports
-  `hosts` (via `sys.path` insertion), since they do not exist yet.
-- `contracts/hosts.json` did not exist yet; created with the exact content
-  given in the design doc excerpt, since no test reads it.
 
-Orchestrator: the `sonnet-run.sh` reviewer lane (step 5.7) failed twice on this
-host (`OAuth session expired and could not be refreshed`, then `Session ID ...
-is already in use` once the first attempt had consumed the id) — the same
-known host quirk recorded in project memory. The attempt record carries
-`review: "failed:runner_unavailable"` as the fail-loud marker; the PRD-level
-review lenses cover what the per-task reviewer missed.
+- The proposed set is the credential stages, rollback copy and intent temp; the StateStore publication temporary is not pre-budgeted (tests require admission at exactly owned + proposal == 64). Pat LOW: a crash at a publication boundary can retain up to two state-size temps beyond the admitted budget; later mutations then refuse. Deferred to task 6's recovery docs.
+- Owned artifacts are identified by exact generated-name patterns; other names in these directories do not count toward the budget.
+- Only new bootstrap and owner mutations are budgeted; intent reconciliation, receipt replay, snapshots and `workflow.open` on an existing state are not (the last is untested).
+- Removing the stale-temp cleanup applies to the whole StateStore library, not only the controller; a per-store option did not fit the harness's exact constructor signature.
 
-## 2: Build scripts/claude.py host adapter
-
-Ivan:
-- `hosts.py` lives in the same `plugins/autopilot/scripts/` directory and
-  exports `CAPABILITY_NAMES`, `CapabilityStatus`, `HostCapability`,
-  `ProbeResult`, `UNAVAILABLE_NO_AUTH` exactly as shown in the architecture
-  excerpt, importable as `from hosts import ...`.
-- `identity`/`delegation`/`isolation` capability status is gated on presence
-  of `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` env vars as the "real
-  signal" for auth presence (task gave no concrete signal for these three;
-  only guided `interception` explicitly). No test exercises these exact
-  values, so this doesn't affect pass/fail, only honesty of the static check.
-- `session_identity()` uses `CLAUDE_SESSION_ID` env var as the native
-  session-id signal (not specified in the given contract; no test exercises
-  it).
-- `build_job_argv`'s `intent` parameter keeps the literal `"JobIntent"`
-  string annotation from the design excerpt without importing/defining
-  `JobIntent` (it doesn't exist yet; safe because
-  `from __future__ import annotations` defers evaluation).
-
-Orchestrator: the `sonnet-run.sh` reviewer lane (step 5.7) failed again on
-this host (same known runner/auth quirk as task 1: `OAuth session expired`,
-then `Session ID ... is already in use`). `review: "failed:runner_unavailable"`
-recorded on the attempt; PRD-level review lenses cover it.
-
-## 3: Build scripts/codex.py host adapter
-
-Ivan:
-- Auth detection convention is not specified beyond "env var or config file
-  existence check only"; chose `CODEX_API_KEY` env var or `~/.codex/auth.json`
-  file existence as the simplest plausible convention. No failing test
-  exercises this choice.
-- `probe()` does not attempt to read/parse a Codex version string even when
-  the binary is found, because getting a real version string without
-  `subprocess` isn't possible and the task forbids calling `subprocess`
-  anywhere; version info is omitted rather than guessed.
-- `build_job_argv()` always returns `None` — `JobIntent` (task 5) isn't
-  landed yet and wasn't in the file allowlist, so no role-to-argv mapping
-  could be inspected; returning `None` universally is the conservative,
-  honest placeholder.
-- `identity`/`delegation`/`isolation` capability status for Codex are gated
-  together on the same auth check (all available together, or all
-  unavailable/no_auth together) since the architecture excerpt gave no
-  per-capability distinction for Codex.
-
-Orchestrator: the `sonnet-run.sh` reviewer lane (step 5.7) failed again on
-this host (same known runner/auth quirk). `review: "failed:runner_unavailable"`
-recorded on the attempt; PRD-level review lenses cover it.
-
-## 4: Build scripts/gemini.py host adapter and cross-host test_sessions.py
-
-Tess:
-- `build_job_argv`'s return contract for gemini is unspecified beyond "same
-  four-function surface" as claude/codex; only asserted it doesn't raise and
-  returns either `None` or a list.
-- `gemini.probe()`'s "identity" capability status itself is unconstrained
-  (only delegation/isolation/interception are pinned to never-"available");
-  asserted it is one of the three known status strings.
-- The resolver helper's candidate pool is restricted to ("codex", "gemini")
-  per the task's literal wording; the "claude is never the ONLY host"
-  assertion is a logical corollary rather than a resolver that includes
-  claude in its own candidate list.
-- Per-job_id capability requirements (exactly which capabilities "alice" or
-  "carl" need) are not given anywhere in the two contract files, so no such
-  mapping was invented; tested the two literal capability subsets the task
-  specifies plus the mandatory-job-union check.
-
-Ivan:
-- Gemini's auth check uses the `GEMINI_API_KEY` environment variable
-  (claude.py/codex.py's exact auth convention were outside the file
-  allowlist, so the most common Gemini CLI auth convention was used instead
-  of guessing a config-file path).
-
-Orchestrator: the `sonnet-run.sh` reviewer lane (step 5.7) failed again on
-this host (same known runner/auth quirk). `review: "failed:runner_unavailable"`
-recorded on the attempt; PRD-level review lenses cover it.
-
-## 5: Build scripts/jobs.py job-request builder and ControllerSeam protocol
-
-Tess:
-- `FakeSeam.submitted_intents` is a public list of the `JobIntent` objects
-  passed to `submit_job`, in call order, empty at construction, one per
-  instance (not shared across instances).
-- `FakeSeam`'s constructor takes one keyword argument, `guard_rules`, shaped
-  `{duty: (allowed, reason)}`.
-- `FakeSeam.evaluate_guard` returns `{"allowed": True, "reason": None}` for
-  a duty with no rule; key matching is exact (no prefix/suffix/case fallback).
-- After Devon's strengthen round: `FakeSeam.submit_job` must accept every
-  job (`accepted is True`, non-empty string `job_ref`, distinct refs per
-  submission on one instance).
-- The standalone-mode `intent` in the response is a deep copy — mutating it
-  must never change the frozen `JobIntent`.
-
-Ivan:
-- `FakeSeam.submit_job`'s `job_ref` format is `"fake-job-<n>"`, counted per
-  instance.
-- The `RecursionError` message text is free-form; only the exception type
-  is pinned by the tests.
-
-Devon (adversarial validation, opus tier): broke the original 27 tests with
-8 stacked exploits in one deliberately wrong `jobs.py` (always-rejecting
-FakeSeam, first/last-only ancestry scan, host-id guessed from module
-`__name__` instead of `HOST_ID`, fabricated argv for codex/gemini ignoring
-the real adapter, dropped non-`accepted`/`job_ref` seam-response keys,
-class-level shared `submitted_intents`, case-sensitive effort substring
-check, shared (non-deep-copied) `inputs`/`policy_constraints` dicts in the
-standalone response). Tess strengthened all 8; the real implementation
-(Ivan) passes the strengthened 30-test suite cleanly with none of the
-exploited shortcuts.
-
-Orchestrator: the `sonnet-run.sh` reviewer lane (step 5.7) failed again on
-this host (same known runner/auth quirk). `review: "failed:runner_unavailable"`
-recorded on the attempt; PRD-level review lenses cover it.
-
-## 6: Build scripts/guards.py nine-duty guard library
-
-Orchestrator (this task's own simplification, since the design doc leaves
-the exact artifact check unspecified for each pure duty): each pure
-`_guard_<duty>` function decides `allowed` from one caller-supplied key,
-`context.get("ok", True)` (`is False` check) - deny with reason
-`f"{duty.value}_check_failed"`, else allow with reason `None`. This is
-deliberately not real artifact probing (reading a file, checking git
-state); the PRD ships the guard library only, not real interception wiring.
-
-Tess / Ivan:
-- A pure guard denies only when `ok` is exactly `False` (`is False`); a
-  missing `ok` key or any other value allows.
-- The seam is called with `duty.value` (a plain str), matching
-  `jobs.ControllerSeam.evaluate_guard(duty: str, ...)`.
-- `run_guard` must never mutate the caller's context dict (not stated by
-  the contract, but implied by "thin wrapper that forwards context
-  verbatim").
-- A member's name string (e.g. "CUSTODY_PUSH") counts as "not a GuardDuty
-  member" - duties are identified by their StrEnum VALUE, not their name.
-- Unknown-duty rejection raises one of `(ValueError, KeyError)` - the
-  contract does not pin the exact type.
-
-Devon (adversarial validation, opus tier): broke the original 25 tests with
-8 stacked exploits (hardcoded per-duty denial reasons ignoring the seam's
-actual reason, dropped non-prd/branch context keys, mutated the caller's
-context after the call, a stateful duty that let `context["ok"]` override
-the seam's allow verdict, a pure guard that accepted a `seam` under the
-name `controller=None` and called `submit_job` on it without detection,
-StrEnum/str identity confusion in outcome comparisons, and case-insensitive
-duty-name lookup). Tess strengthened all 8; the real implementation (Ivan)
-passes the strengthened 27-test suite cleanly with none of the exploited
-shortcuts.
-
-Orchestrator: the `sonnet-run.sh` reviewer lane (step 5.7) failed again on
-this host (same known runner/auth quirk). `review: "failed:runner_unavailable"`
-recorded on the attempt; PRD-level review lenses cover it.
-
-## 7: Build scripts/doctor.py and wire hosts/guards/diagnose modes into autopilot.py
-
-Ivan:
-- `profile` is `"claude-free"` whenever the union of codex's and gemini's
-  declared capabilities (from `contracts/hosts.json`) is non-empty (always
-  true today), else `"mixed"` - a live comparison against the contract
-  file, never a hardcoded string.
-- `diagnose()` passes an empty `{}` context to every guard duty.
-- The two new CLI modes beyond `--diagnose` (`--probe-host HOST_ID
-  --project-root PATH`, `--run-guard DUTY --context PATH`) have no pinned
-  exact invocation form in the task contract; kept as small as the
-  existing `_catchup_probe` shape, with `--context` reusing the existing
-  `_read_json`/`_INPUTS` live-state-path refusal.
-- `--run-guard` passes `seam=None` (no CLI flag exists for binding a real
-  `ControllerSeam` - AP00016's job); a stateful duty therefore always
-  refuses with `"missing_controller_seam"` through this CLI path today,
-  which is correct per the guard contract, not a shortcut.
-
-Orchestrator: this task's three new `_CAPABILITIES` entries changed
-`--list-capabilities`' output, which a pre-existing test
-(`tests/autopilot/test_facade.py::test_capabilities_are_exact_contract_formats_without_runtime_side_effects`)
-hardcoded as an exact list. Fixed by adding `"hosts-v1"`, `"guards-v1"`,
-`"diagnose-v1"` to that test's `HELPER_OPERATIONS` constant - a minimal,
-in-scope fix for a regression this task's own change caused, even though
-`test_facade.py` was not in this task's `files` list.
-
-Orchestrator: the `sonnet-run.sh` reviewer lane (step 5.7) failed again on
-this host (same known runner/auth quirk). `review: "failed:runner_unavailable"`
-recorded on the attempt; PRD-level review lenses cover it.
-
-## 8: Build tools/autopilot/probe-host.py maintainer CLI
-
-Ivan:
-- `sys.path` insertion resolves `plugins/autopilot/scripts` via
-  `Path(__file__).resolve().parent.parent.parent / "plugins" / "autopilot" / "scripts"`
-  from `tools/autopilot/probe-host.py`'s own location, matching the
-  `tests/autopilot/*.py` pattern.
-- The evidence write uses `O_TRUNC` (review_stage.py `_write`'s flags)
-  rather than `O_EXCL`, so a probe re-run at the same host_id within the
-  same UTC second does not crash.
-
-Orchestrator: the `sonnet-run.sh` reviewer lane (step 5.7) failed again on
-this host (same known runner/auth quirk). `review: "failed:runner_unavailable"`
-recorded on the attempt; PRD-level review lenses cover it.
-
-## 9: Build tools/autopilot/build-compatibility.py and generate compatibility bundles
-
-Tess: the bundle JSON schema (field names) is unpinned by the task; tested
-via a schema-agnostic recursive scan over the parsed JSON (collects every
-leaf string matching a known capability name) rather than asserting a key
-name, so the test checks the substantive claim without inventing a
-contract.
-
-Ivan: bundle schema is `{"host_id": str, "capabilities": [str, ...]}` -
-the simplest shape satisfying the schema-agnostic test. Dispatch goes
-through `hosts.probe_host(host_id, ...)` generically rather than importing
-each adapter module directly.
-
-Orchestrator: added a `probe_result.capability is None` guard before
-`.statuses` in the implementor's draft - without it, any declared host
-whose probe returns `available=False` (binary missing - a real,
-documented `ProbeResult` shape) would crash the ENTIRE build, not just
-skip that one host. None of this environment's adapters trigger it today,
-but it is real documented behavior worth guarding defensively at a real
-system boundary (external probe result), not speculative.
-
-Orchestrator: the `sonnet-run.sh` reviewer lane (step 5.7) failed again on
-this host (same known runner/auth quirk). `review: "failed:runner_unavailable"`
-recorded on the attempt; PRD-level review lenses cover it.
-
-## 10: Register AP00014 files in the helper source map and update CHANGELOG.md
-
-Ivan: for `assets[].acceptance_cases[].case_id` followed the observed AP00018
-precedent of stripping the `plugins/autopilot/` prefix (e.g.
-`asset-new-scripts/hosts.py`) rather than the task's illustrative
-`asset-new-<path>` template, since the task said to mirror AP00018's actual
-rows verbatim. For `authored_file_owners[].acceptance_cases[].case_id` used
-the full path, matching existing rows for both `plugins/autopilot/` and
-`tools/autopilot/` files. No "pending OV-xxxx" annotation was added to the
-CHANGELOG entry since none was discoverable from the compatibility JSON files.
-
-Orchestrator: registering the 13 new AP00014 rows in `assets[]` introduced a
-new regression in `tests/autopilot/test_helper_provenance_real.py::
-test_unrelated_arrays_and_original_owners_stay_byte_semantic` (confirmed by
-diffing the test run with/without the edit) - the new rows fell into that
-test's frozen "others" hash bucket. Fixed by adding an `AP00014_TARGETS`
-frozenset to the skip set, mirroring the `CONTROLLER_PREFIXES` precedent
-commit 4cb0ff7 set for AP00018; verified the recomputed hash matches the
-existing frozen constant exactly, so no other row changed. This widens the
-task's edited-files list beyond its stated Location (source-map.json,
-CHANGELOG.md) to include this one test file - the narrowest fix available,
-and the pattern AP00018's own registration commit already used. The
-`sonnet-run.sh` reviewer lane (step 5.7) failed again on this host (same
-known runner/auth quirk, two attempts). `review: "failed:runner_unavailable"`
-recorded on the attempt; PRD-level review lenses cover it.
-
-## 11: [D1] plugins/autopilot/scripts/gemini.py - derive capability status from IMPLEMENTED_CAPABILITIES
-
-Tess (test author):
-- Placed `ProbeResultInvariantTest` at the end of `test_host_argv.py`, after
-  `ProbeResultImmutabilityTest`; "beside them" did not pin a line position.
-- Used `claude` as the available baseline host and `codex` as the unavailable
-  baseline host in `ProbeResultInvariantTest`, reusing the file's existing
-  `PROBED_AT` / `EVIDENCE_PATHS` / `_statuses_for` fixtures; the task named no
-  baseline host.
-- Folded a baseline-constructs-cleanly control assertion into the shared
-  `assert_rejects` helper rather than adding a ninth test method.
-- Rewrote the `test_sessions.py` module docstring clause in her own words (the
-  task required the update but supplied no replacement text).
-- claude auth env vars are `CLAUDE_CODE_OAUTH_TOKEN` / `ANTHROPIC_API_KEY` and
-  codex's is `CODEX_API_KEY`, read from the current adapter sources; the
-  contract does not name auth sources.
-- An adapter's `capability.statuses` must equal
-  `hosts.statuses_from(IMPLEMENTED_CAPABILITIES, authenticated=...)`, derived
-  from the contract's `statuses_from` docstring rather than from an explicit
-  statement that probes use that function.
-- `CapabilityStatus` keeps fields `name`, `status`, `reason` and
-  `HostCapability` keeps `host_id`, `statuses` (unchanged from production; the
-  contract does not restate them).
-- `can_delegate()` and an adapter's `authenticated` are real `bool` objects, so
-  `assertIs` against `in`-expressions is valid.
-- `test_host_argv.py`'s fake `_statuses_for` keeps the old `"available"` status
-  string: those dispatch tests pass the map through unvalidated, and the task
-  ordered only the two field additions to the fakes.
-- Codex auth also reads `~/.codex/auth.json`, which
-  `mock.patch.dict(os.environ, {}, clear=True)` cannot clear, so codex's
-  no-auth branch is pinned by binding its statuses to the auth it reports
-  rather than to a literal `False`. Machine independence outranks a flaky
-  literal.
-
-Ivan (implementor):
-- `gemini.build_job_argv(intent)` keeps its unannotated parameter (the contract
-  gave no snippet for it, and the tests only call it with `None`).
-- The claude.py `session_identity()` mandated sentence was appended to the
-  existing docstring as a second paragraph rather than replacing the existing
-  text, since the contract said the docstring "gains one sentence".
-- `gemini.py`'s new module docstring was placed above
-  `from __future__ import annotations`, the only legal position.
+## 5: Export canonical controller bundle and prove isolated relocation
 
 Orchestrator:
-- Task 11's findings named only `gemini.py`, but the contract's section 1
-  (`ProbeResult.__post_init__`) makes the old claude and codex probes raise
-  `ValueError`, so sections 1-6 had to land as one unit. Task 11's writable set
-  is therefore `hosts.py`, `claude.py`, `codex.py`, `gemini.py` and
-  `contracts/hosts.json`. Sections 7-11 stay with their own later tasks.
-- The Ivan prompt overran the 50 000-byte dispatch budget at 52 644 with the
-  two test files inlined. One trim pass replaced the inlined test bodies with
-  their paths plus the narrow run command and the red baseline; Ivan read them
-  himself. Final prompt 18 667 bytes.
-- The step-5.6 self-deslop pass deleted the CLAUDE_SESSION_ID docstring
-  sentence that the design's section 5 mandates. Restored by orchestrator edit
-  in commit 12cf1c0; the deslop prompt's protected-construct list had omitted
-  it.
-- `sonnet-run.sh` (step 5.7) failed on this host again - "OAuth session expired
-  and could not be refreshed", then "Session ID already in use" on the retry.
-  Rather than stamp `review: failed:runner_unavailable` as task 10 did, this
-  task fell back to the native `autopilot:pat` reviewer subagent, which carries
-  the same persona and reporting contract. It returned `CLOSURE | resolved` for
-  the task's finding plus two LOW observations.
-- Pat's two LOW findings are left for the PRD-level review, not fixed here. The
-  first (gemini's `frozenset[str]` annotation) is contract-mandated verbatim.
-  The second (extract a `hosts.available()` constructor beside `unavailable()`)
-  is a behavior-preserving simplification the design does not specify, so
-  applying it would put this task outside its contract.
-- No CHANGELOG entry for this task's `fix` commit: the design assigns the
-  `plugins/autopilot/CHANGELOG.md` capability sentence to its own later task
-  (section 9), so one entry lands there for the whole rework.
 
-## 18: [D1] plugins/autopilot/scripts/codex.py (closure verification, zero diff)
+- Exporter CLI pinned to the repo generator convention (no args writes, `--plugin-root`, `--check` exits 0/1, argparse misuse exits 2); the contract names no flags.
+- Task 5 writes only the bundle sha256 pin and installed argv into the README, because its acceptance asserts the README digest; Task 6 writes the remaining docs.
 
-- Nothing was implemented: the task's finding (R10, availability claimed without
-  proof) was already closed by task 11's `IMPLEMENTED_CAPABILITIES` change.
-  Verified against the contract's sections 3 and 5 and by running
-  `test_sessions.py` (22 passed, 35 subtests). No commit, and Pat did not run
-  because there is no diff to review.
+Tess:
 
-## 19: [D1] plugins/autopilot/compatibility/codex.json
+- The exporter is one self-contained stdlib script whose default plugin root comes from its own location (`../../plugins/autopilot`).
+- The bundle's operations/capabilities equal the implemented sets (4 operations, `workflow.core.v1`); list order is not pinned.
+- README holds the exact `sha256sum` line with two spaces and the literal argv; "affirmative" means the argv paragraph has no not/never/avoid/n't.
+- Export over a symlink at the bundle path replaces it; missing inputs and an invalid version exit non-zero (not pinned to 1); the bundle mode may not exceed the sibling schema file's bits.
+- An installed controller run with `-B` writes nothing inside its package folder; a `+<build>` suffix follows the semver build pattern.
 
-- Tess: the committed bundle key order is `host_id`, `capabilities`,
-  `probe_kind`, taken literally from the design's dict; the byte-exact test
-  fails if the generator emits another order (for example sorted keys).
-- Tess: the abort writes exactly ONE stderr line naming the sorted-first
-  overclaimed capability, so a generator that listed every overclaim would fail
-  the test.
-- Tess: `_authenticated_env` keeps the scrubbed `HOME`, so the "rich" run also
-  has no real `~/.codex/auth.json`; its auth presence comes from env vars only.
-- Tess: `EnvHelperControlTest` is an addition the task did not list. It exists so
-  a dropped `env=` cannot make the machine-independence test pass vacuously.
-- Tess: the exit-1 tests do not assert whether a bundle file is left behind on
-  abort, because the task did not pin it. (A later adversarial round made this a
-  requirement; see below.)
-- ORCHESTRATOR, accepted deviation from the design: the generator validates every
-  declared host BEFORE writing any bundle (two passes), where the design's
-  snippet validates and writes in one interleaved loop. Devon proved seven wrong
-  generators passed the original tests; this was weak point 5. A write-then-abort
-  build leaves an advertised bundle from a failed build, which is the finding's
-  own sentence ("No unsupported capability is advertised") reproducing. The
-  deviation changes no emitted byte for any contract that passes validation.
-- Tess, in-contract refusals: no `schema_version` validation was asserted (the
-  task pins none, and the generator ignores the field before and after this fix),
-  and the generator was NOT made to prune a pre-seeded stale bundle (deleting
-  files it did not create is destructive behaviour no requirement states). The
-  shipped-artifact hole is closed non-destructively instead, by
-  `CommittedBundlesTest` asserting the committed directory holds exactly one file
-  per declared host.
-- Ivan: `bundles` in pass 1 is a plain `dict` with no annotation, matching the
-  surrounding signature-only style.
-- Ivan: a declared host id is always an importable adapter module name; no error
-  handling was added for an unknown one, since no test exercises it. Pat later
-  raised this as LOW (an unknown id raises an uncaught `ModuleNotFoundError`
-  instead of the clean one-line stderr the overclaim path gives). Left unfixed:
-  no requirement defines the behaviour, and Tess disclosed the same gap
-  independently.
+Ivan:
 
-## 20: [D1] plugins/autopilot/scripts/guards.py
+- Bundle serialization is indent-2, sorted keys, trailing newline; mode is the schema file's bits masked to 0o666.
+- Input errors exit 1, the same code as a stale `--check`; only `contracts/` between the plugin root and the bundle is checked for symlinks, the root itself is trusted; a small lstat-to-read window remains (no O_NOFOLLOW).
+- Pat LOWs left open: the explicit parent check is redundant with the input walk; no test covers the input size cap.
 
-- ORCHESTRATOR: this task carried NO design contract (its finding is a HIGH, so
-  Phase 6 generated no rework design doc). The five duty rules were DERIVED by
-  reading the source Claude hooks that enforce them today
-  (`enforce_prd_location.py`, `guard_phase_delegation.py`,
-  `guard_skill_after_leave.py`, `note_session_leave.py`) rather than invented.
-  Two deliberate narrowings: the phase-delegation natural-language lexicon and
-  fixture corpus are NOT ported (DELEGATION matches an explicit dispatch-target
-  key, because a prose matcher is not an artifact check), and POST_HANDOFF fails
-  closed when only one of `session`/`leave_session` is present, where the source
-  hook lets a malformed marker pass because prose backs it up.
-- ORCHESTRATOR SPEC ERROR, caught before implementation: the first spec listed
-  the store's known directories from memory and was wrong in both directions. It
-  allowed `decisions` and `audits`, which are not store directories, and omitted
-  `intake`, `specs`, `notes`, `walkthroughs`, `audit-results` and `spikes`.
-  Corrected from the hook's `KNOWN_DIRS`. Tess also correctly refused to invent
-  the seven `meta/` keeper filenames, two of which are extensionless
-  (`ecc-cursor`, `upstream-cursor`); they were supplied from `KEEP_NAMES`.
-- Three existing `PureGuardTest` tests that pinned the `context["ok"]`
-  placeholder were deliberately removed as encoding the defect, and four kept
-  tests had their contexts adapted with intent unchanged. This is the requirement
-  changing, not a test bent to fit an implementation.
-- Tess: `DEPARTURE` timestamps are ints; skill and lifecycle matching is exact
-  and case-sensitive; the store segment is matched by whole path parts, so
-  `project-management-old` is outside the store; a lifecycle directory is denied
-  only as the FIRST path part, so `src/backlog/x.md` is allowed; a non-`str`
-  `document_path` is denied; `leave_recorded` must be a real `bool`, so `1` and
-  `"true"` are denied; equal departure timestamps allow.
-- Tess, disclosed limitation: the closed-set test pins the thirteen allowed
-  directory names plus near-miss denials, so it cannot by itself catch an
-  implementation that adds a fourteenth directory. Enumerating the complement is
-  not possible; the near-miss cases are the mitigation.
-- Ivan: a path that is exactly the store directory (empty `rel`) is denied as
-  fail-closed; the spec was silent on it. Paths are split with `PurePosixPath`,
-  so `/` is the separator and no filesystem is touched. Only the FIRST
-  `docs/dev/project-management` occurrence is treated as the store.
-- Ivan: `import posixpath` was placed between two `from` imports, which `isort`
-  would reorder; no linter runs in this repo's CI, so nothing catches it. Left
-  as-is because it falls outside the two authorised fixes.
-- Pat raised two MEDIUMs inside this task's files, both confirmed by the
-  orchestrator running the duty code directly before any fix: a real guard bypass
-  where `docs/dev/project-management/prds/wip/../../x.md` was ALLOWED while the
-  store-root path it resolves to is denied, and POST_HANDOFF accepting `None`,
-  `""`, `"  "` or `5` as proof the leave row belonged to another session. Both
-  were gaps in the derived spec, not Ivan deviating. Fixed with
-  `posixpath.normpath` plus a surviving-`..` denial, and a non-empty-`str`
-  session requirement. Pat's single allowed re-run returned NO FINDINGS.
-- Pat's LOW on `doctor.py` is recorded as an out-of-scope deferred finding:
-  `doctor.py` calls `run_guard(duty, {}, seam=seam)` with an empty context for
-  all nine duties, so the five pure duties now permanently deny there. That is
-  the finding being closed (diagnose no longer reports them as passing without
-  checking anything), and no test asserts the old allowed outcome, but `doctor.py`
-  was outside this task's allowlist.
+## 6: Document supported kernel Python floor and sealed-workflow recovery
 
-## 16: [D1] tools/autopilot/source-map.json (generator run, last step)
+Ivan:
 
-- ORCHESTRATOR ran the generator directly rather than dispatching a subagent: the
-  deliverable is one deterministic regeneration, and a subagent's main risk here
-  is hand-editing a `destination_blob_sha256`, which the design forbids
-  absolutely. The attempt's `red_check` is stamped `n/a:micro-lane` only because
-  that is the closed grammar's single legal value for
-  `implementor: "orchestrator"`; there was no test-authoring step to red-check.
-- The design says `AP00014_DIGESTED` holds 13 paths AND says to keep it equal to
-  `AP00014_TARGETS`, which conflicts. The two `tools/` paths
-  (`probe-host.py`, `build-compatibility.py`) are in `AP00014_OWNED` but
-  deliberately are NOT asset rows, and a test asserts they are absent from
-  `asset_paths`. Task 15 resolved the conflict correctly in favour of the
-  invariant at 11 paths, so task 19's edit to `build-compatibility.py` does not
-  stale an asset digest.
-- The contract card's prediction was PARTLY WRONG. Three of the four
-  expected-failing tests now pass; the fourth,
-  `test_new_helper_files_are_owned_and_digested_from_current_bytes`, still fails,
-  and not for the predicted "not yet regenerated" reason. At line 300
-  `assert_refreshed_evidence` requires the CHANGELOG bytes at the delivery
-  receipts' pinned `package_revision` (444d733a, an AP00013 commit) to equal the
-  bytes on disk, and that commit predates every AP00014 CHANGELOG bullet. Proven
-  pre-existing by running the same test at the session-start commit a76b5f2 in a
-  throwaway worktree: it failed there too, at line 309 on the autopilot.py digest
-  staleness, which was masking this assertion. Deferred for the review gate,
-  because repointing `package_revision` is AP00013 receipts data the design
-  places outside this generator's ownership.
-- `test_content_roster_matches_frozen_inventory_and_actual_package_bytes` passes
-  only AFTER the regenerated map is committed, because its packaged target is
-  built from the committed tree.
-- Environment: `tests/autopilot` needs `pyyaml` and `jsonschema`, which the bare
-  runner lacks. Both were supplied via `uv --with`, matching what CI installs.
+- "Verify an unchanged snapshot" in orphan recovery means run `snapshot` and confirm the state is unchanged after moving the orphans.
+- The new content sits in `###` subsections under the Task 5 `## Controller contract bundle` heading; the sibling archive is "named by the workflow ID" with no invented path.
+
+Orchestrator: Task 5's README text named the unshipped exporter as a `python3 tools/...` command, which the package resource-closure check rejects; it now names the tool without a command form (b56b106).
+
+## 7: Add tested successor delivery receipts for current package ownership
+
+Orchestrator: successor format pinned (path, fields, binding `paths`); Task 7's gate is the generator tests, the committed-map assertions go green at Task 8.
+
+Tess:
+
+- README.md/CHANGELOG.md in the successor `paths` rule mean the plugin's files; an unlisted shared doc keeps its whole AP00013-pinned row.
+- A successor task's `tests` lists ", "-separated test files that exist and appear in its `command`; a string `passed` or a blank status is invalid.
+- The new contract asset row uses the standard asset field set with source fields None.
+
+Ivan:
+
+- A listed controller path with no existing asset row (other than controller-v1.json) is ignored, not refused.
+- A successor without loaded AP00013 receipts is refused; contract rows are upserted on every run that lists the path.
+- Pat LOWs left open: the contract-row construction could move into a helper; the CHANGELOG entry describes an unshipped maintainer tool.

@@ -1111,3 +1111,66 @@
 {"id":"c7f06b9d","kind":"tess","task":"4","queued_at":1794218584,"prompt_bytes":27464}
 {"id":"f8a19443","kind":"devon","task":"4","queued_at":1794219114,"prompt_bytes":27814}
 {"id":"f8a19443","ended_at":1794219421,"elapsed_s":307,"outcome":"error","detail":"provider cyber_policy error; no completed adversarial result; no implementation dispatched"}
+{"id":"c7f06b9d","ended_at":1794226607,"elapsed_s":null,"outcome":"lost","detail":"open at build/resume handoff"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794226607,"phase":"build","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"aa963998","kind":"devon","task":"4","queued_at":1794226800,"prompt_bytes":27821}
+{"id":"aa963998","ended_at":1794227226,"elapsed_s":426,"outcome":"ok","detail":"exploit found: 6 weak points"}
+{"id":"0a2eb10e","kind":"tess","task":"4","queued_at":1794227266,"prompt_bytes":31445}
+{"id":"0a2eb10e","ended_at":1794227804,"elapsed_s":538,"outcome":"ok","detail":"5 strengthened, 1 in-contract"}
+{"id":"7ee66e27","kind":"ivan","task":"4","queued_at":1794228147,"prompt_bytes":48326}
+{"id":"7ee66e27","ended_at":1794228776,"elapsed_s":629,"outcome":"ok","detail":"92 passed acceptance"}
+{"id":"a70ec997","kind":"pat","task":"4","queued_at":1794229240,"prompt_bytes":3161222}
+{"id":"a70ec997","ended_at":1794229247,"elapsed_s":7,"outcome":"error","detail":"render oversize (unscoped range), never dispatched"}
+{"id":"929c2da1","kind":"pat","task":"4","queued_at":1794229250,"prompt_bytes":48157}
+{"id":"929c2da1","ended_at":1794229325,"elapsed_s":75,"outcome":"ok","detail":"3 LOW; first attempt failed OAuth, retried with setup token"}
+{"id":"62bebc61","kind":"tess","task":"5","queued_at":1794229443,"prompt_bytes":21762}
+{"id":"62bebc61","ended_at":1794229844,"elapsed_s":401,"outcome":"ok","detail":"11 tests, 9 red on missing files"}
+{"id":"efbb4b19","kind":"devon","task":"5","queued_at":1794229908,"prompt_bytes":21773}
+{"id":"efbb4b19","ended_at":1794230343,"elapsed_s":435,"outcome":"ok","detail":"exploit found: 8 weak points plus APFS dir-nlink test defect"}
+{"id":"2978ec14","kind":"tess","task":"5","queued_at":1794230370,"prompt_bytes":16991}
+{"id":"2978ec14","ended_at":1794230568,"elapsed_s":198,"outcome":"ok","detail":"8 strengthened (1 partial in-contract), nlink defect fixed"}
+{"id":"d7b707a6","kind":"ivan","task":"5","queued_at":1794230602,"prompt_bytes":32894}
+{"id":"d7b707a6","ended_at":1794230695,"elapsed_s":93,"outcome":"ok","detail":"15 passed"}
+{"id":"1d92c897","kind":"deslop","task":"5","queued_at":1794230744,"prompt_bytes":14621}
+{"id":"1d92c897","ended_at":1794230781,"elapsed_s":37,"outcome":"ok","detail":"no slop found"}
+{"id":"e5a3287e","kind":"pat","task":"5","queued_at":1794230797,"prompt_bytes":38737}
+{"id":"9a48899a","kind":"ivan","task":"5","queued_at":1794230868,"prompt_bytes":11636}
+{"id":"e5a3287e","ended_at":1794230869,"elapsed_s":72,"outcome":"ok","detail":"1 MEDIUM, 4 LOW"}
+{"id":"9a48899a","ended_at":1794230941,"elapsed_s":73,"outcome":"ok","detail":"MEDIUM fixed, 17 passed"}
+{"id":"b718ec73","kind":"pat","task":"5","queued_at":1794230972,"prompt_bytes":9144}
+{"id":"b718ec73","ended_at":1794230998,"elapsed_s":26,"outcome":"ok","detail":"MEDIUM resolved; 2 LOW"}
+{"id":"bfda8f65","kind":"ivan","task":"6","queued_at":1794231025,"prompt_bytes":9541}
+{"id":"bfda8f65","ended_at":1794231100,"elapsed_s":75,"outcome":"ok","detail":"docs written, 30 passed"}
+{"id":"27505104","kind":"deslop","task":"6","queued_at":1794231131,"prompt_bytes":15939}
+{"id":"27505104","ended_at":1794231188,"elapsed_s":57,"outcome":"ok","detail":"committed 33a77e3"}
+{"id":"abea7c1e","kind":"tess","task":"7","queued_at":1794231355,"prompt_bytes":35069}
+{"id":"abea7c1e","ended_at":1794231361,"elapsed_s":6,"outcome":"error","detail":"wrong subject file, re-rendered, never dispatched"}
+{"id":"b2275c87","kind":"tess","task":"7","queued_at":1794231365,"prompt_bytes":35073}
+{"id":"b2275c87","ended_at":1794231735,"elapsed_s":370,"outcome":"ok","detail":"36 red as expected, 19 green"}
+{"id":"0ed02552","kind":"devon","task":"7","queued_at":1794231800,"prompt_bytes":42849}
+{"id":"0ed02552","ended_at":1794232098,"elapsed_s":298,"outcome":"ok","detail":"exploit found: 8 weak points"}
+{"id":"21e25415","kind":"tess","task":"7","queued_at":1794232137,"prompt_bytes":17010}
+{"id":"21e25415","ended_at":1794232293,"elapsed_s":156,"outcome":"ok","detail":"8 strengthened"}
+{"id":"45f0da96","kind":"ivan","task":"7","queued_at":1794232334,"prompt_bytes":35683}
+{"id":"45f0da96","ended_at":1794232485,"elapsed_s":151,"outcome":"ok","detail":"successor tests green; 6 committed-map red pending Task 8"}
+{"id":"922857dd","kind":"deslop","task":"7","queued_at":1794232522,"prompt_bytes":14273}
+{"id":"922857dd","ended_at":1794232582,"elapsed_s":60,"outcome":"ok","detail":"no slop found"}
+{"id":"e548c4ca","kind":"ivan","task":"7","queued_at":1794232605,"prompt_bytes":10232}
+{"id":"e548c4ca","ended_at":1794232645,"elapsed_s":40,"outcome":"ok","detail":"apply split, 76 passed"}
+{"id":"090ee571","kind":"pat","task":"7","queued_at":1794232667,"prompt_bytes":47373}
+{"id":"090ee571","ended_at":1794232723,"elapsed_s":56,"outcome":"ok","detail":"1 MEDIUM, 3 LOW"}
+{"id":"26739e3c","kind":"ivan","task":"7","queued_at":1794232726,"prompt_bytes":11009}
+{"id":"26739e3c","ended_at":1794232771,"elapsed_s":45,"outcome":"ok","detail":"MEDIUM fixed, 77 passed"}
+{"id":"760799ce","kind":"pat","task":"7","queued_at":1794232800,"prompt_bytes":6666}
+{"id":"760799ce","ended_at":1794232817,"elapsed_s":17,"outcome":"ok","detail":"MEDIUM resolved, no new findings"}
+{"id":"6c9c92d9","kind":"pat","task":"7","queued_at":1794232827,"prompt_bytes":3214}
+{"id":"6c9c92d9","ended_at":1794232842,"elapsed_s":15,"outcome":"ok","detail":"NO FINDINGS"}
+{"id":"27959aa6","kind":"ivan","task":"8","queued_at":1794232891,"prompt_bytes":10032}
+{"id":"27959aa6","ended_at":1794233339,"elapsed_s":448,"outcome":"error","detail":"blocked: generator writes no row for listed owner.py; test_package needs committed map"}
+{"id":"161b292b","kind":"ivan","task":"7","queued_at":1794233368,"prompt_bytes":12423}
+{"id":"161b292b","ended_at":1794233454,"elapsed_s":86,"outcome":"ok","detail":"regression fixed, 78 passed"}
+{"id":"fca91bbb","kind":"pat","task":"7","queued_at":1794233481,"prompt_bytes":9868}
+{"id":"fca91bbb","ended_at":1794233498,"elapsed_s":17,"outcome":"ok","detail":"1 LOW (duplicated row builder)"}
+{"id":"cfa3a4ac","kind":"ivan","task":"8","queued_at":1794233511,"prompt_bytes":10587}
+{"id":"cfa3a4ac","ended_at":1794233881,"elapsed_s":370,"outcome":"ok","detail":"gates green; map regenerated at 50c8c2f"}
+{"kind":"handoff","site":"build","edge":"leave","at":1794234589,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
