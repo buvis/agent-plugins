@@ -214,7 +214,8 @@ class TargetPackageTest(unittest.TestCase):
             self.assertIsNone(row["source_asset_id"])
             self.assertIsNone(row["source_blob_sha256"])
             self.assertEqual(row["owner_repository"], "buvis/agent-plugins")
-            if "/controller/" in row["path"]:
+            if ("/controller/" in row["path"]
+                    or row["path"] == "plugins/autopilot/contracts/controller-v1.json"):
                 expected_owner = "00018"
             elif row["path"] in AP00014_OWNED:
                 expected_owner = "00014"
