@@ -1,0 +1,27 @@
+{
+  "site": "host_per_task_review_transport",
+  "required": [
+    "fresh read-only tool-less Pat process",
+    "explicit high effort",
+    "source Sonnet wrapper and preserved nesting/permissions"
+  ],
+  "observed": [
+    {
+      "path": "/Users/bob/.claude/plugins/cache/buvis-plugins/autopilot/0.10.0/skills/use-sonnet/scripts/sonnet-run.sh",
+      "resolved_path": "/Users/bob/.claude/plugins/cache/buvis-plugins/autopilot/0.10.0/skills/use-sonnet/scripts/sonnet-run.sh",
+      "sha256": "950aabcd9060ebe31eca0c2a2ba2e74fd83a7463077683a534a05c8e85c92e22",
+      "effort_case": false,
+      "tools_case": true
+    },
+    {
+      "path": "/Users/bob/.agents/skills/use-sonnet/scripts/sonnet-run.sh",
+      "resolved_path": "/Users/bob/git/src/github.com/buvis/agent-skills/skills/use-sonnet/scripts/sonnet-run.sh",
+      "sha256": "95e11f10b482b5c8e1ae0fbef93d5b7caa33a9e29561a3432c9a66ff6a566fbb",
+      "effort_case": true,
+      "tools_case": false
+    }
+  ],
+  "installed_changed": false,
+  "permissions_changed": false,
+  "review_dispatched": false
+}

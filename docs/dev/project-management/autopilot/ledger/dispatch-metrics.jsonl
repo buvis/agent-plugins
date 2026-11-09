@@ -1045,3 +1045,9 @@
 {"id":"b02ccacf","ended_at":1794179732,"elapsed_s":161,"outcome":"ok","detail":"retry"}
 {"id":"d4536293","ended_at":1794179732,"elapsed_s":867,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"build","edge":"leave","at":1794180279,"phase":"build","prd":"00014-autopilot-host-execution-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794206540,"phase":"build","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"b8bf0322","kind":"ivan","task":"1","queued_at":1794207024,"prompt_bytes":29230}
+{"id":"b8bf0322","ended_at":1794207126,"elapsed_s":102,"outcome":"error","detail":"worker aborted at self-counted 142362 input bytes; no edits or verification; bounded continuation required"}
+{"id":"14e66bbc","kind":"ivan","task":"9","queued_at":1794207209,"prompt_bytes":28884}
+{"id":"14e66bbc","ended_at":1794207460,"elapsed_s":251,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"build","edge":"leave","at":1794207585,"phase":"paused","prd":"00018-autopilot-controller-kernel-v2.md"}

@@ -1,0 +1,138 @@
+```json
+{
+  "cardinal_sins": [],
+  "blockers": [],
+  "findings": [
+    {
+      "severity": "non-blocker",
+      "title": "Pair repair may restore state from .bak, which contradicts the corrupt-state refusal",
+      "evidence": "Kernel section: \"Preserve ... backup/state pair repair\" and \"security-identical backup restore retains source revision and repair outcomes\". The same section says \"Corrupt current state refuses with recovery_required ... Never silently overwrite corruption.\" The design never says which direction repair runs. Credentials are published separately from state. If read-time repair ever rebuilds state.json from .bak, that rolls back lease_epoch and receipts and resurrects revoked credentials. The design only closes this hole for restore().",
+      "suggested_fix": "State the rule: repair may only regenerate .bak from a valid state.json, never the reverse. Add a fixture that corrupts state.json beside a valid older .bak and asserts byte-identical files plus recovery_required. Make the provenance divergence list say so. Confirm against the pinned source with `git show` before planning."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "Crash recovery may pass by always returning recovery_required",
+      "evidence": "Actors and lease section: an intent crash is \"reconciled forward exactly once ... or returns recovery_required retaining evidence\". The dispatch-1 note already says existing owner recovery tests permit recovery_required after intact-boundary crashes and defers the quality check to completion review. The PRD forbids weaker assertions, but \"or\" lets an implementation return recovery_required at every boundary. The \"original caller retrieves the receipt after recovery\" fixture then has nothing to bind to.",
+      "suggested_fix": "Enumerate the only conditions that allow recovery_required: hash mismatch, unreadable or unsafe artifact, budget exceeded, and an unvalidatable old or candidate state. Otherwise reconciliation MUST succeed. Add per-boundary fixtures that assert success with intact artifacts, and make that the Phase 1 task 3 acceptance."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "No exit for a pending intent when the original request is gone",
+      "evidence": "Only the identical request may finish an intent, and snapshot \"reports recovery_required while an intent exists\". Every unrelated call, including owner.recover, returns recovery_required. The capacity exit procedure's step \"verify an owner-null snapshot\" therefore cannot run while an intent is pending. If the caller lost its request file, the workflow is wedged and only manual forensics remain. The staged rollback copies (\"stage+fsync all new bytes and rollback copies\") are never given a use, since recovery is forward-only. They also hold plaintext old secrets, which sits oddly with \"intent records ... never plaintext secrets\".",
+      "suggested_fix": "Have the recovery_required snapshot expose non-secret intent metadata (operation, request_id, request digest) so a supervisor can resend. Either document an attended offline rollback from the rollback copies, or drop the rollback copies. Say which."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "Error-code and result mapping per operation and failure is not specified",
+      "evidence": "Protocol section lists seven codes and says fixtures carry \"explicit expected errors\", but gives no table. Unspecified cases: acquire against an existing owner (lease_exclusion), wrong role (wrong_actor), stale epoch (epoch_revoked), a second concurrent acquire, a lost lock, a bad credential file, and existing workflow.open with a mismatched binding. revision_conflict is the only retryable code, so mapping lease_exclusion to it would send consumers into pointless retries. Result shapes for owner.release and owner.recover are also vague (\"return ... where rotation is required\"), yet \"Freeze schemas ... for all four\" is required. This is a public contract consumed by OVCAQ.",
+      "suggested_fix": "Add a table of operation x failure -> error_code, retryable and result shape to the Protocol section, and make Phase 0 fixtures assert it. State that operator callers must re-read the operator file on every call because its secret and epoch rotate."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "No retryable busy outcome for lock contention or a hung lock holder",
+      "evidence": "Data flow says \"acquires store lock\". The design says \"Preserve source lock/read/publication guards\" but never says whether the flock blocks, has a timeout, or is non-blocking. Callers only get a 30-second test deadline. A stuck process holding the lock would hang every CLI call, and no error code fits a timeout. Only revision_conflict is retryable.",
+      "suggested_fix": "Specify non-blocking flock with a bounded wait. Map expiry to an existing code, and say which and whether it is retryable. Add a test where a subprocess holds the lock."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "Orphan-artifact budget lets harmless crashes permanently wedge the workflow",
+      "evidence": "Actors and lease section: a 64-file / 16 MiB cap with \"Never delete an orphan automatically\". Pre-intent crashes leave only unreferenced stages that change no state. A single owner operation stages roughly 6-8 files, so about 8-10 killed CLI runs reach the cap. After that every operation returns recovery_required until a human removes files by hand. The CLI has no cleanup command, and the user's `rm` is warden-gated.",
+      "suggested_fix": "Under the exclusive lock, with no intent present, allow reclaiming provably unreferenced stages by moving them into a bounded quarantine instead of deleting. Or add the attended-recovery steps to the README with exact commands. Test both."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "Snapshot output limit equals the state ceiling, so an at-ceiling state cannot be snapshotted",
+      "evidence": "Protocol: \"snapshot/response output limit is 16777216\". Kernel: MAX_STATE_BYTES is 16777216, and the emergency reserve lets state grow to the ceiling. Snapshot adds an envelope around the state. The capacity exit procedure needs \"verify an owner-null snapshot\" after the emergency release, which is exactly when state is largest.",
+      "suggested_fix": "Set the snapshot limit to at least the state ceiling plus envelope headroom, or cap normal state so that snapshot fits. Add a byte-saturation test that snapshots after the emergency release."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "The 4094-receipt cap can seal a workflow mid-PRD and cannot carry state over",
+      "evidence": "Kernel: normal admission stops at 4094 receipts, the sealed workflow exits through archive and a fresh empty workflow, and \"never merge identities\". Later PRDs add task.start, finish, attempt, job.* and review.* operations. Each PRD may use dozens to hundreds of receipts, so a long batch will hit the cap with in-flight batch and work state that cannot move to the new workflow. The design accepts this (\"explicit terminal boundary\"). That makes it not a cardinal sin, but no usage estimate is given. The reserve is also two slots, yet both emergency operations require an active owner and clear it, so only one can ever fire. Hitting 4096 is unreachable except through corruption.",
+      "suggested_fix": "Add a rough receipts-per-PRD estimate and the expected batch lifetime to the Risks section, and record the carry-over limitation for AP00019. Optionally reduce the reserve to one slot."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "restore() cannot succeed on state the protocol actually produces",
+      "evidence": "Kernel: restore requires the backup's lease_epoch, owner, actors and receipts to equal current. Every successful operation appends a receipt, so the last-good .bak (revision N-1) differs from current in receipts. In this kernel restore is therefore refused for all protocol-produced state, and the \"security-identical restore\" test needs hand-built fixtures. It is a dead primitive with a security-sensitive surface.",
+      "suggested_fix": "Either drop restore() from the extraction and record the divergence in provenance, or state which real scenario can pass the gate and test that scenario instead of a synthetic one."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "Hand-written validator and the JSON Schema are two sources of truth",
+      "evidence": "schema.py hand-validates state, while contracts/controller/workflow-v1.json is the \"canonical JSON Schema\". The runtime is stdlib-only, so it cannot use the schema. Nothing in the design ties them together.",
+      "suggested_fix": "Add a test-time check (jsonschema is allowed in requirements-test.txt) that runs every positive and negative fixture through both and requires the same verdict. Name it in the Test strategy section."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "kernel_equivalence could depend on the OVCAQ checkout and so skip in CI",
+      "evidence": "PRD Phase 1 task 1 requires equivalence with source outcomes. The source is an absolute path (/Users/bob/git/.../ovcaq) that CI and installed-relocation tests cannot reach. The PRD also forbids skips in the owner and capacity tests.",
+      "suggested_fix": "State that no pytest test reads the OVCAQ repo. Equivalence runs against frozen fixtures, and provenance hashes are checked only by the maintainer tool. The PRD already requires that tests not skip."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "main.py is invoked through bare python3 with a 3.12 floor and no version guard is specified",
+      "evidence": "The controller argv is [\"python3\", ...] and the floor is 3.12. A host python3 of 3.9 to 3.11 would fail with a syntax or import error, not a structured response. The README only \"documents\" the floor. fcntl.flock also makes the controller POSIX-only, and macOS fsync does not flush the disk cache without F_FULLFSYNC. Crash injection covers process death only.",
+      "suggested_fix": "Add a version and platform guard at the top of main.py, written in syntax valid on old Pythons. It should exit 2 with a fixed message. Add one test that simulates an old interpreter, and state the POSIX-only and process-crash durability scope in the README."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "recovery_required carries no non-secret reason for the operator",
+      "evidence": "The response is a closed five-field object and \"Redact diagnostics\". recovery_required covers intent pending, budget exceeded, hash mismatch, unsafe artifact and corrupt state. The operator cannot tell them apart, and the only observability is receipts and snapshot.",
+      "suggested_fix": "Specify a fixed reason token on stderr, such as intent_present, artifact_budget, hash_mismatch or state_corrupt. It must contain no request or credential values. Test the token per case."
+    },
+    {
+      "severity": "question",
+      "title": "Does an existing-workflow workflow.open write a receipt?",
+      "evidence": "Protocol: \"Existing workflow.open requires a valid actor and all existing bindings; it cannot reset or acquire ownership.\" It does not say whether the call is read-only or creates a receipt and bumps the revision. If it writes, a loop of opens with fresh request IDs burns the 4094-receipt budget. If it does not, the replay semantics are unclear.",
+      "suggested_fix": "Decide and state it. Recommend read-only, returning the current identity, with no receipt and no revision change."
+    },
+    {
+      "severity": "question",
+      "title": "Delivery receipts and the term \"current revision\"",
+      "evidence": "Phase 2 task 3: the successor receipt is \"bound to the current revision and raw file digest\". A commit cannot name its own hash, so the revision must be the base commit or a tree digest. README, CHANGELOG and the bundle are also mutually dependent (the README holds the bundle hash).",
+      "suggested_fix": "Say which revision is meant (the base commit of the delivery) and bind by raw file digests. Confirm the update_helper_map.py generation order so no cycle exists."
+    },
+    {
+      "severity": "question",
+      "title": "Project identity is the resolved root path, and worktrees and case-variant paths are separate projects",
+      "evidence": "Kernel: project_id = SHA-256 of the resolved root. The repo convention is git worktrees under ~/git/src/worktrees/{repo}/{name}, and `git worktree move` is the sanctioned relocation. A moved or renamed root fails wrong_binding forever, with \"explicit future migration\" as the only path. Each worktree gets its own private store and lease. Different case spellings on case-insensitive APFS yield different IDs for the same directory.",
+      "suggested_fix": "Confirm that per-root leases are intended (worktrees hold different checkouts). Add a README note that a move requires the archive and new-workflow procedure. Optionally normalize case with os.path.realpath plus a case-fold check."
+    },
+    {
+      "severity": "question",
+      "title": "Schema evolution for the reserved workflow fields",
+      "evidence": "Kernel: workflow is exactly {batch:null, work:null, tasks:[], review:{cap:2}, recovery:null, jobs:[]} and \"later producer PRDs define their expanded schemas and migration\". Downgrade refuses newer state. The rule is not written down for how AP00019 populates the reserves: whether schema_version bumps, whether migration is in place under CAS with a backup, and how the contract schema_digest changes. This is a deferral, not a cardinal sin, because no migration exists yet to plan and the reserves are empty.",
+      "suggested_fix": "Add two sentences fixing the rule now, for example: a schema_version bump, an in-place migration under the store lock with the .bak taken first, and a new schema_digest. Keep the migration code itself for AP00019."
+    },
+    {
+      "severity": "non-blocker",
+      "title": "Design lists three test files, but the PRD requires five more",
+      "evidence": "Module placement lists tests/autopilot/test_controller_{kernel,protocol,actors}.py. The PRD structure and Phase 1 task 3 acceptance require test_controller_capacity, _owner, _owner_recovery, _bootstrap, _bootstrap_recovery, plus test_helper_provenance_real and test_package. The design also says owner operations \"currently return missing_capability\", while the PRD treats owner tests as already existing.",
+      "suggested_fix": "List every test file in the design's Module placement and state the current status of the owner operations after the Phase 0 recheck, so the planner assigns work correctly."
+    }
+  ],
+  "checked_correct": [
+    {
+      "anchor": "Cardinal-sin sweep",
+      "note": "No cardinal sin found. Rollback and restore: the .bak pair, package rollback and the archive-hash-restore roundtrip test cover it. Resources: every input, output, artifact, receipt-count and byte size is capped. Secrets: credentials are 0600 files under a 0700 root, only SHA-256 digests are stored, and git-ignore is verified. Versioning: protocol_major, schema_version and a pinned bundle digest. Human owner: Bob is named. Single-writer is the accepted design. Finite receipts are a recorded, accepted tradeoff with a tested exit path."
+    },
+    {
+      "anchor": "Actors and lease: historical receipt retrieval",
+      "note": "Retrieval is limited to read-only access to the original receipt (historical digest, or the same actor and role at an epoch not earlier than the authorizing one). It grants no mutation, and altered envelopes conflict. This closes the lost-acknowledgement case without opening epoch-revocation bypass."
+    },
+    {
+      "anchor": "Kernel: reserve and byte accounting",
+      "note": "Normal candidates are capped at 14 MiB and checked before intent is written. The 2 MiB reserve admits only operations that clear an active owner. Responses are capped at 64 KiB. This closes the failure mode of a post-credential _canonical_bytes error."
+    },
+    {
+      "anchor": "Kernel: path and root handling",
+      "note": "Descriptor-based no-follow creation, ancestor inode rechecks, single-link regular-file checks and rejection of payload-selected paths go beyond Path.resolve containment. The tightening to security-identical backups is explicit and characterized."
+    },
+    {
+      "anchor": "Contract A bundle",
+      "note": "The PRD and design agree on bundle keys, types, size, the symlink rule, digest documentation and the single installed argv. Superset semantics versus design \"matches\" are compatible, since the runtime and bundle regenerate together."
+    }
+  ]
+}
+```
