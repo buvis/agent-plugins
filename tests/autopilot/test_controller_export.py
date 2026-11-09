@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import shutil
 import stat
@@ -45,6 +46,7 @@ INSTALLED_ARGV = '["python3", "<installed-plugin-root>/controller/main.py"]'
 LIMIT = 16777216
 HEX = re.compile(r"[0-9a-f]{64}")
 BUILD = r"[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*"
+NEGATION = re.compile(r"\b(?:not|never|avoid)\b|n't", re.IGNORECASE)
 
 # Runs a script with the stdlib only (-I -S), denying every read of the source
 # checkout and the author home outside this test's sandbox and the interpreter.
@@ -83,6 +85,38 @@ runpy.run_path(script, run_name="__main__")
 
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def stable_tree(root: Path) -> dict:
+    """tree() with directory link counts masked; APFS counts entries in them."""
+    return {
+        key: (kind, mode, None if stat.S_ISDIR(kind) else links, content)
+        for key, (kind, mode, links, content) in tree(root).items()
+    }
+
+
+def heading_levels(lines: list[str]) -> list[int]:
+    levels, fenced = [], False
+    for line in lines:
+        if line.lstrip().startswith("```"):
+            fenced = not fenced
+        match = None if fenced else re.match(r"(#{1,6}) ", line)
+        levels.append(len(match.group(1)) if match else 0)
+    return levels
+
+
+def heading_section(text: str, needle: str) -> list[str]:
+    """Lines of the Markdown heading section that contains needle."""
+    lines = text.splitlines()
+    levels = heading_levels(lines)
+    index = next(i for i, line in enumerate(lines) if needle in line)
+    start = next((i for i in range(index, -1, -1) if levels[i]), 0)
+    depth = levels[start] or 6
+    end = next(
+        (i for i in range(start + 1, len(lines)) if 0 < levels[i] <= depth),
+        len(lines),
+    )
+    return lines[start:end]
 
 
 def copy_plugin(destination: Path) -> Path:
@@ -171,29 +205,82 @@ class ControllerBundleReproducibleTest(IsolatedCase):
     ) -> None:
         target = self.plugin / TARGET
         target.unlink()
-        before, cwd = tree(self.plugin), tree(self.cwd)
+        before, cwd = stable_tree(self.plugin), tree(self.cwd)
         self.assert_exit(self.export(), 0)
         self.assertEqual(target.read_bytes(), self.committed)
         info = target.lstat()
         self.assertTrue(stat.S_ISREG(info.st_mode))
         self.assertEqual(info.st_nlink, 1)
-        after = tree(self.plugin)
+        # No permission bit beyond the committed sibling contracts' bits.
+        sibling = stat.S_IMODE((self.plugin / SCHEMA).lstat().st_mode)
+        mode = stat.S_IMODE(info.st_mode)
+        self.assertEqual(mode & ~sibling, 0, oct(mode))
+        self.assertTrue(mode & stat.S_IRUSR, oct(mode))
+        after = stable_tree(self.plugin)
         self.assertEqual(
             {key: value for key, value in after.items() if key != str(TARGET)}, before
         )
         self.assert_exit(self.export(), 0)
         self.assert_exit(self.export("--check"), 0)
-        self.assertEqual(tree(self.plugin), after)
+        self.assertEqual(stable_tree(self.plugin), after)
         self.assertEqual(tree(self.cwd), cwd)
+
+    def test_controller_bundle_reproducible_export_replaces_symlink_check_rejects_it(
+        self,
+    ) -> None:
+        target = self.plugin / TARGET
+        outside = self.base / "outside.json"
+        victim = b'{"victim": true}\n'
+        outside.write_bytes(victim)
+        target.unlink()
+        target.symlink_to(outside)
+        self.assert_exit(self.export(), 0)
+        self.assertEqual(outside.read_bytes(), victim)
+        info = target.lstat()
+        self.assertTrue(stat.S_ISREG(info.st_mode))
+        self.assertEqual(info.st_nlink, 1)
+        self.assertEqual(target.read_bytes(), self.committed)
+        # A symlinked bundle is rejected even when its bytes match.
+        outside.write_bytes(self.committed)
+        target.unlink()
+        target.symlink_to(outside)
+        before = stable_tree(self.base)
+        self.assert_exit(self.export("--check"), 1)
+        self.assertEqual(stable_tree(self.base), before)
+
+    def test_controller_bundle_reproducible_rejects_unknown_flags_without_writing(
+        self,
+    ) -> None:
+        target = self.plugin / TARGET
+        target.unlink()
+        misuses = (
+            ["--chek"],
+            ["--check", "--plugin-root"],
+            ["--plugin-root", str(self.plugin), "extra"],
+        )
+        for arguments in misuses:
+            with self.subTest(arguments=arguments):
+                before = stable_tree(self.base)
+                self.assert_exit(self.export(*arguments), 2)
+                self.assertEqual(stable_tree(self.base), before)
+                self.assertFalse(os.path.lexists(target))
 
     def test_controller_bundle_reproducible_relocated_plugin_root_exports_same_bytes(
         self,
     ) -> None:
         other = copy_plugin(self.base / "elsewhere" / "plugin root" / "autopilot")
         (other / TARGET).unlink()
+        # Covers the plugin root's parents, the other root, cwd, HOME and TMPDIR.
+        before = stable_tree(self.base)
         self.assert_exit(self.export("--plugin-root", str(other)), 0)
         self.assertEqual((other / TARGET).read_bytes(), self.committed)
+        after = stable_tree(self.base)
+        written = str((other / TARGET).relative_to(self.base))
+        self.assertEqual(
+            {key: value for key, value in after.items() if key != written}, before
+        )
         self.assert_exit(self.export("--check", "--plugin-root", str(other)), 0)
+        self.assertEqual(stable_tree(self.base), after)
         self.assertEqual((self.plugin / TARGET).read_bytes(), self.committed)
 
     def test_controller_bundle_reproducible_export_reads_assets_of_given_plugin_root(
@@ -220,18 +307,73 @@ class ControllerBundleReproducibleTest(IsolatedCase):
         self.assert_exit(self.export("--check", "--plugin-root", str(other)), 0)
         self.assertEqual(tree(self.plugin), default_before)
         self.assert_exit(self.export("--check"), 0)
+        (other / SCHEMA).write_bytes((other / SCHEMA).read_bytes() + b"\n")
+        stale = (other / TARGET).read_bytes()
+        self.assert_exit(self.export("--check", "--plugin-root", str(other)), 1)
+        self.assertEqual((other / TARGET).read_bytes(), stale)
+        self.assert_exit(self.export("--plugin-root", str(other)), 0)
+        rewritten = strict_json((other / TARGET).read_bytes())
+        self.assertEqual(rewritten["schema_digest"], digest(other / SCHEMA))
+        self.assertNotEqual(rewritten["schema_digest"], committed["schema_digest"])
+        self.assertEqual(rewritten["fixture_digest"], exported["fixture_digest"])
+        self.assert_exit(self.export("--check", "--plugin-root", str(other)), 0)
+
+    def test_controller_bundle_reproducible_export_rejects_non_string_or_empty_version(
+        self,
+    ) -> None:
+        path = self.plugin / "plugin.json"
+        manifest = json.loads(path.read_bytes())
+        for version in (123, ""):
+            with self.subTest(version=version):
+                manifest_text = json.dumps(manifest | {"version": version}, indent=2)
+                path.write_text(manifest_text + "\n")
+                before = stable_tree(self.base)
+                self.assertNotEqual(self.export().returncode, 0)
+                self.assertEqual(stable_tree(self.base), before)
+                self.assertEqual((self.plugin / TARGET).read_bytes(), self.committed)
+
+    def test_controller_bundle_reproducible_check_fails_when_inputs_are_missing(
+        self,
+    ) -> None:
+        for relative in (Path("plugin.json"), SCHEMA, FIXTURES):
+            with self.subTest(missing=str(relative)):
+                source = self.plugin / relative
+                saved = source.read_bytes()
+                source.unlink()
+                before = stable_tree(self.base)
+                self.assertNotEqual(self.export("--check").returncode, 0)
+                self.assertEqual(stable_tree(self.base), before)
+                self.assertEqual((self.plugin / TARGET).read_bytes(), self.committed)
+                source.write_bytes(saved)
+                self.assert_exit(self.export("--check"), 0)
 
     def test_controller_bundle_reproducible_check_rejects_missing_and_near_miss_bundles(
         self,
     ) -> None:
         target = self.plugin / TARGET
-        schema_digest = strict_json(self.committed)["schema_digest"].encode()
+        bundle = strict_json(self.committed)
+        schema_digest = bundle["schema_digest"].encode()
+        fixture = bundle["fixture_digest"].encode()
+        version = json.dumps(bundle["package_version"]).encode()
+        same_length = {
+            "flipped fixture digest": self.committed.replace(
+                fixture, fixture[:-1] + (b"1" if fixture.endswith(b"0") else b"0")
+            ),
+            "renamed operation": self.committed.replace(
+                b'"workflow.open"', b'"workflow.shut"'
+            ),
+            "drifted version": self.committed.replace(
+                version,
+                version[:-2] + (b"1" if version[-2:-1] == b"0" else b"0") + b'"',
+                1,
+            ),
+        }
         variants = {
             "missing": None,
             "trailing newline": self.committed + b"\n",
             "truncated": self.committed[:-1],
             "stale digest": self.committed.replace(schema_digest, b"0" * 64),
-        }
+        } | same_length
         for name, payload in variants.items():
             with self.subTest(variant=name):
                 if payload is None:
@@ -239,6 +381,9 @@ class ControllerBundleReproducibleTest(IsolatedCase):
                 else:
                     self.assertNotEqual(payload, self.committed)
                     target.write_bytes(payload)
+                if name in same_length:
+                    self.assertEqual(len(payload), len(self.committed))
+                    self.assertNotEqual(strict_json(payload), bundle)
                 before = tree(self.plugin)
                 self.assert_exit(self.export("--check"), 1)
                 self.assertEqual(tree(self.plugin), before)
@@ -402,12 +547,25 @@ class ContractBundlePinnableTest(BundleAssertions):
     ) -> None:
         raw = hashlib.sha256(BUNDLE.read_bytes()).hexdigest()
         text = README.read_text(encoding="utf-8")
-        self.assertIn(f"{raw}  {BUNDLE_RELATIVE}", text)
+        pin = f"{raw}  {BUNDLE_RELATIVE}"
+        self.assertIn(pin, text)
         for line in text.splitlines():
             if "controller-v1.json" in line:
                 for token in HEX.findall(line):
                     self.assertEqual(token, raw, line)
+        # Every digest in the bundle pin's heading section is the raw digest.
+        for line in heading_section(text, pin):
+            for token in HEX.findall(line):
+                self.assertEqual(token, raw, line)
         self.assertIn(INSTALLED_ARGV, text)
+        # The argv is stated affirmatively, not only inside a prohibition.
+        paragraphs = re.split(r"\n[ \t]*\n", text)
+        affirmative = [
+            block
+            for block in paragraphs
+            if INSTALLED_ARGV in block and not NEGATION.search(block)
+        ]
+        self.assertTrue(affirmative, "argv appears only beside a negation")
 
 
 if __name__ == "__main__":
