@@ -135,7 +135,6 @@ class StateStore:
             raise StateError("revision: initialization requires revision 0")
         if self._artifact_exists(self._path):
             raise StateExistsError(f"state already exists: {self._path}")
-        self._cleanup_stale_temps()
         self._publish_bytes(
             self._path, _canonical_bytes(validated),
             temp_boundary=DurabilityBoundary.STATE_TEMP_FSYNCED,
@@ -159,7 +158,6 @@ class StateStore:
         self, mutator: Mutator, *, expected_revision: int | None = None,
         publication_guard: Callable[[], None] | None = None,
     ) -> State:
-        self._cleanup_stale_temps()
         current_raw = self._read_bytes(self._path)
         current = self._decode_state(current_raw)
         self._check_revision(current, expected_revision)
@@ -193,7 +191,6 @@ class StateStore:
         self, *, expected_revision: int | None = None,
         precondition: Precondition | None = None,
     ) -> State:
-        self._cleanup_stale_temps()
         current_raw = self._read_bytes(self._path)
         current = self._decode_state(current_raw)
         self._check_revision(current, expected_revision)
@@ -377,7 +374,6 @@ class StateStore:
                 or self._snapshot(self._backup_path) != old_backup
             ):
                 self._repair(old_state=old_state, old_backup=old_backup)
-            self._cleanup_stale_temps()
             raise
 
     def _publish_bytes(
@@ -538,18 +534,6 @@ class StateStore:
             raise StateIOError(f"{label} is not a regular file: {path}")
         if opened.st_nlink != 1 or linked.st_nlink != 1:
             raise StateIOError(f"{label} has multiple hard links: {path}")
-
-    def _cleanup_stale_temps(self) -> None:
-        prefix = f".{self._path.name}.autopilot-"
-        directory = self._directory_fd.get()
-        try:
-            for name in os.listdir(directory):
-                if name.startswith(prefix) and name.endswith(".tmp"):
-                    artifact = os.stat(name, dir_fd=directory, follow_symlinks=False)
-                    if stat.S_ISREG(artifact.st_mode) and artifact.st_nlink == 1:
-                        os.unlink(name, dir_fd=directory)
-        except OSError as error:
-            raise StateIOError(f"cannot clean state temp files: {error}") from error
 
     def _fsync_directory(self, directory: Path) -> None:
         try:

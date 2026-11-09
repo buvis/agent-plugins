@@ -21,6 +21,14 @@ INTENT_KEYS = {"version", "request", "request_digest", "old_revision",
                "receipt", "new_actor", "stage", "final", "credential_digest"}
 INTENT_LIMIT = 33554432
 NORMAL_STATE_LIMIT = 14680064
+STAGING_FILE_LIMIT = 64
+STAGING_BYTE_LIMIT = 16777216
+# Controller-owned temporaries: intent and StateStore publication temps in the
+# private directory, credential stages and rollback copies under actors.
+PRIVATE_ARTIFACT = re.compile(r"\.(?:intent|state\.json\.autopilot)-[0-9a-f]{32}\.tmp")
+ACTOR_ARTIFACT = re.compile(
+    r"\.(?:(?:operator|owner)-[0-9a-f]{32}\.stage|operator-[0-9a-f]{32}\.rollback)"
+)
 
 
 class BindingError(ValueError):
@@ -145,6 +153,21 @@ class PrivateLayout:
             raise StateIOError("file exceeds resource limit")
         return raw
 
+    def inspect(self, path: Path) -> int:
+        """Descriptor-check one private file without reading it; return its size."""
+        parent = self.directories[path.parent]
+        before = os.stat(path.name, dir_fd=parent, follow_symlinks=False)
+        self._regular(before, True)
+        descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
+        try:
+            opened = os.fstat(descriptor)
+        finally:
+            os.close(descriptor)
+        self._regular(opened, True)
+        if (before.st_dev, before.st_ino) != (opened.st_dev, opened.st_ino):
+            raise StateIOError("file changed while opening")
+        return opened.st_size
+
     @staticmethod
     def _regular(info: os.stat_result, private: bool) -> None:
         if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
@@ -234,6 +257,22 @@ def read_public(path: Path, limit: int = 16777216) -> bytes:
         return layout.read(path, limit, private=False)
 
 
+def admit_staging(layout: PrivateLayout, proposed: list[bytes]) -> None:
+    """Refuse a staging set that, with retained orphans, exceeds either budget.
+
+    Orphans are never deleted here; an unsafe or unreadable one refuses.
+    """
+    count, size = len(proposed), sum(len(raw) for raw in proposed)
+    layout.verify()
+    for parent, pattern in ((layout.private, PRIVATE_ARTIFACT), (layout.actors, ACTOR_ARTIFACT)):
+        for name in os.listdir(layout.directories[parent]):
+            if pattern.fullmatch(name):
+                count += 1
+                size += layout.inspect(parent / name)
+    if count > STAGING_FILE_LIMIT or size > STAGING_BYTE_LIMIT:
+        raise StateIOError("staging budget exhausted")
+
+
 def credential_descriptor(raw: bytes) -> dict:
     value = schema.decode_json(raw.decode("utf-8"), source="credential")
     if not isinstance(value, dict) or set(value) != CREDENTIAL_KEYS:
@@ -321,6 +360,7 @@ def prepare_bootstrap(request: dict, layout: PrivateLayout, response: dict) -> d
     encoded = canonical(intent)
     if len(encoded) > INTENT_LIMIT:
         raise StateIOError("intent exceeds resource limit")
+    admit_staging(layout, [raw, encoded])
     layout.write_new(layout.actors / intent["stage"], raw)
     temporary = layout.private / f".intent-{secrets.token_hex(16)}.tmp"
     layout.write_new(temporary, encoded)

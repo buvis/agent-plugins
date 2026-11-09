@@ -30,6 +30,7 @@
 
 ### Fixed
 
+- **autopilot**: bound retained controller staging, rollback, intent and state-publication temporaries to 64 files and 16777216 bytes, refusing bootstrap and owner mutations with `recovery_required` before staging when the full proposal would exceed either limit or a retained artifact is unsafe or unreadable; the state store no longer deletes crash-orphaned publication temporaries.
 - **autopilot**: finish interrupted owner credential cleanup after state publication, while rejecting missing precommit evidence and corrupt remaining files.
 - **autopilot**: report the current durable revision when snapshots refuse pending credential intents, without reconciling them.
 - **autopilot**: rotate owner leases and operator credentials recoverably, retaining exact receipt replay without restoring retired mutation authority.

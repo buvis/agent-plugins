@@ -81,6 +81,7 @@ def prepare(request: dict, current: dict, layout: actors.PrivateLayout) -> dict:
     encoded = actors.canonical(intent)
     if len(encoded) > actors.INTENT_LIMIT:
         raise StateIOError("intent exceeds resource limit")
+    actors.admit_staging(layout, [raw for _, raw in staged] + [encoded])
     for name, raw in staged:
         layout.write_new(layout.actors / name, raw)
     temporary = layout.private / f".intent-{secrets.token_hex(16)}.tmp"
