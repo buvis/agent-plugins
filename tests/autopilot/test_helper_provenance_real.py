@@ -46,6 +46,14 @@ FROZEN = {
     "regression_cases": "e7331e78365b23d430469e0edbcd4be456b1fffe69ca16e2e27411c59dca3648",
 }
 CONTROLLER_PREFIXES = ("plugins/autopilot/controller/", "plugins/autopilot/contracts/controller/")
+CONTROLLER_CONTRACT = "plugins/autopilot/contracts/controller-v1.json"
+AP00013_RECEIPTS = (
+    "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json"
+)
+SUCCESSOR_RECEIPTS = (
+    "docs/dev/project-management/autopilot/reports/"
+    "00018-v2-controller-delivery-receipts.json"
+)
 AP00014_TARGETS = frozenset({
     "plugins/autopilot/scripts/hosts.py",
     "plugins/autopilot/scripts/claude.py",
@@ -114,6 +122,10 @@ NEW_CAPABILITIES = (
 LEGACY_CAPABILITIES = ("review-policy-v1", "review-evidence-v1", "review-fixtures-v1")
 NEGATION = r"(?i)\b(?:no|not|never|unavailable|without|cannot)\b|n't\b"
 HEADING = re.compile(r"^(#{1,6})[^\S\n]+(.+?)[^\S\n]*#*[^\S\n]*$", re.MULTILINE)
+
+
+def is_controller(path: str) -> bool:
+    return path.startswith(CONTROLLER_PREFIXES) or path == CONTROLLER_CONTRACT
 
 
 def sha_of_ids(ids: list[str]) -> str:
@@ -246,7 +258,7 @@ def test_unrelated_arrays_and_original_owners_stay_byte_semantic(mapping: dict) 
         row
         for row in mapping["assets"]
         if row["destination_path"] not in skipped
-        and not row["destination_path"].startswith(CONTROLLER_PREFIXES)
+        and not is_controller(row["destination_path"])
     ]
     assert hashlib.sha256(canon(others).encode()).hexdigest() == OTHER_ASSETS_SHA
     assets = single_assets(mapping, list(REFRESHED_STABLE))
@@ -277,12 +289,63 @@ def assert_receipts_file(evidence: dict) -> None:
     assert receipts["real_host"]["reason"].strip()
 
 
+def assert_successor_tasks(tasks: list) -> None:
+    # Truthful test results: positive counts for runs of test files that exist.
+    assert isinstance(tasks, list) and tasks
+    for task in tasks:
+        assert type(task["passed"]) is int and task["passed"] > 0, task
+        assert isinstance(task["command"], str) and task["command"].strip(), task
+        assert isinstance(task["tests"], str) and task["tests"].strip(), task
+        for name in task["tests"].split(", "):
+            assert re.fullmatch(r"tests/(?:[\w-]+/)*test_\w+\.py", name), name
+            assert (ROOT / name).is_file(), name
+            assert name in task["command"], name
+
+
+def load_successor_receipt() -> dict:
+    """Validate the default AP00018 successor receipt and return it."""
+    successor = json.loads((ROOT / SUCCESSOR_RECEIPTS).read_bytes())
+    assert type(successor["schema_version"]) is int
+    assert successor["schema_version"] == 1
+    assert successor["prd"] == "00018"
+    historical = {
+        "artifact_id": AP00013_RECEIPTS,
+        "artifact_sha256": digest((ROOT / AP00013_RECEIPTS).read_bytes()),
+    }
+    assert successor["supersedes"] == historical
+    revision = successor["package_revision"]
+    assert re.fullmatch(r"[0-9a-f]{40}", revision), revision
+    paths = successor["paths"]
+    assert isinstance(paths, list) and paths
+    assert len(set(paths)) == len(paths), paths
+    for path in paths:
+        assert path in REFRESHED[1:] or is_controller(path), path
+        assert (ROOT / path).is_file(), path
+    assert_successor_tasks(successor["tasks"])
+    assert successor["real_host"]["status"] == "unavailable"
+    assert successor["real_host"]["reason"].strip()
+    load_tool().validate_successor_receipts(successor, historical)
+    return successor
+
+
+def successor_evidence(successor: dict) -> dict:
+    return {
+        "status": "passed",
+        "artifact_id": SUCCESSOR_RECEIPTS,
+        "artifact_sha256": digest((ROOT / SUCCESSOR_RECEIPTS).read_bytes()),
+        "tested_package_revision": successor["package_revision"],
+    }
+
+
 def assert_refreshed_evidence(assets: dict) -> None:
     receipts_evidence = assets[sorted(HELPER_TARGETS)[0]]["evidence"]
+    # The historical AP00013 receipt stays cited by the helpers and autopilot.py.
+    assert receipts_evidence["artifact_id"] == AP00013_RECEIPTS
     assert assets[REFRESHED[0]]["evidence"] == receipts_evidence
     receipts = json.loads((ROOT / receipts_evidence["artifact_id"]).read_bytes())
-    revision = receipts["package_revision"]
-    assert re.fullmatch(r"[0-9a-f]{40}", revision), revision
+    assert re.fullmatch(r"[0-9a-f]{40}", receipts["package_revision"])
+    # README and CHANGELOG changed after AP00013, so the successor receipt owns them.
+    revision = load_successor_receipt()["package_revision"]
     for path in REFRESHED[1:]:
         sha = digest((ROOT / path).read_bytes())
         assert assets[path]["evidence"] == {
@@ -323,12 +386,53 @@ def test_new_helper_files_are_owned_and_digested_from_current_bytes(
     controller = [
         row["destination_path"]
         for row in mapping["assets"]
-        if row["destination_path"].startswith(CONTROLLER_PREFIXES)
+        if is_controller(row["destination_path"])
     ]
     controller_assets = single_assets(mapping, controller)
     for path in controller:
         assert "AP00013" not in controller_assets[path]["adaptation_reason"], path
         assert owners[path]["delivery_prd"] == "00018", path
+
+
+def test_successor_receipt_supersedes_the_exact_ap00013_receipts() -> None:
+    historical = (ROOT / AP00013_RECEIPTS).read_bytes()
+    successor = load_successor_receipt()
+    assert successor["supersedes"]["artifact_sha256"] == digest(historical)
+    tool = load_tool()
+    default = Path(tool.DEFAULT_SUCCESSOR_RECEIPTS).as_posix()
+    assert default.endswith(SUCCESSOR_RECEIPTS), default
+    near_miss = {"artifact_id": AP00013_RECEIPTS, "artifact_sha256": "0" * 64}
+    with pytest.raises(ValueError):
+        tool.validate_successor_receipts(successor, near_miss)
+    assert (ROOT / AP00013_RECEIPTS).read_bytes() == historical
+
+
+def test_controller_assets_digest_current_bytes_and_cite_the_successor(
+    mapping: dict,
+) -> None:
+    expected = successor_evidence(load_successor_receipt())
+    controller = [
+        row["destination_path"]
+        for row in mapping["assets"]
+        if is_controller(row["destination_path"])
+    ]
+    assert CONTROLLER_CONTRACT in controller
+    assert len(controller) > 1
+    assets = single_assets(mapping, controller)
+    owners = by_key(mapping["authored_file_owners"], "path")
+    for path in controller:
+        row = assets[path]
+        assert row["destination_blob_sha256"] == digest((ROOT / path).read_bytes()), (
+            path
+        )
+        assert row["evidence"] == expected, path
+        assert owners[path]["delivery_prd"] == "00018", path
+        assert owners[path]["owner_repository"] == "buvis/agent-plugins", path
+    contract = assets[CONTROLLER_CONTRACT]
+    assert contract["source_asset_id"] is None
+    assert contract["source_blob_sha256"] is None
+    assert owners[CONTROLLER_CONTRACT]["source_asset_id"] is None
+    assert owners[CONTROLLER_CONTRACT]["acceptance_cases"]
 
 
 def test_ap00014_rows_are_owned_and_digested_from_current_bytes(mapping: dict) -> None:
