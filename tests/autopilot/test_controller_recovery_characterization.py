@@ -22,6 +22,12 @@ CONTRACT = json.loads((CONTRACTS / "workflow-v1.json").read_text())
 
 
 class RecoveryCharacterizationTest(unittest.TestCase):
+    def assert_state_rejected(self, value: object) -> None:
+        validator = Draft202012Validator({**CONTRACT, "$ref": "#/$defs/state"})
+        self.assertFalse(validator.is_valid(value))
+        with self.assertRaises(schema.SchemaError):
+            schema.validate_state(value)
+
     def test_kernel_field_ownership_matches_pinned_source_characterization(self) -> None:
         provenance = json.loads((CONTRACTS / "provenance.json").read_text())
         ownership = FIXTURES["kernel_field_ownership"]
@@ -63,6 +69,82 @@ class RecoveryCharacterizationTest(unittest.TestCase):
                         self.assertFalse(validator.is_valid(changed))
                         with self.assertRaises(schema.SchemaError):
                             schema.validate_state(changed)
+
+    def test_kernel_state_requires_every_owned_top_level_field(self) -> None:
+        self.assert_state_rejected({})
+        original = CASES["kernel-initial"]["input"]
+        for field in original:
+            changed = copy.deepcopy(original)
+            del changed[field]
+            with self.subTest(missing=field):
+                self.assert_state_rejected(changed)
+
+    def test_kernel_revision_rejects_noninteger_text(self) -> None:
+        changed = copy.deepcopy(CASES["kernel-initial"]["input"])
+        changed["revision"] = "nonsense"
+        self.assert_state_rejected(changed)
+
+    def test_kernel_revisions_and_epochs_reject_negative_values(self) -> None:
+        locations = (
+            ("revision",), ("lease_epoch",), ("owner", "lease_epoch"),
+            ("actors", "operator-synthetic", "lease_epoch"),
+            ("actors", "owner-synthetic", "lease_epoch"),
+            ("receipts", "open-synthetic", "authorizing_actor", "lease_epoch"),
+            ("receipts", "open-synthetic", "response", "revision"),
+            ("receipts", "open-synthetic", "response", "result", "lease_epoch"),
+        )
+        for location in locations:
+            changed = copy.deepcopy(CASES["kernel-owned"]["input"])
+            target = changed
+            for field in location[:-1]:
+                target = target[field]
+            target[location[-1]] = -1
+            with self.subTest(location=location):
+                self.assert_state_rejected(changed)
+
+    def test_kernel_owner_rejects_process_identity(self) -> None:
+        changed = copy.deepcopy(CASES["kernel-owned"]["input"])
+        changed["owner"]["process_identity"] = "synthetic-process"
+        self.assert_state_rejected(changed)
+
+    def test_kernel_actor_registry_rejects_three_valid_descriptors(self) -> None:
+        changed = copy.deepcopy(CASES["kernel-owned"]["input"])
+        extra = copy.deepcopy(changed["actors"]["operator-synthetic"])
+        extra["actor_id"] = "operator-extra"
+        changed["actors"]["operator-extra"] = extra
+        validator = Draft202012Validator({**CONTRACT, "$ref": "#/$defs/actor"})
+        for descriptor in changed["actors"].values():
+            validator.validate(descriptor)
+        self.assertEqual(len(changed["actors"]), 3)
+        self.assert_state_rejected(changed)
+
+    def test_kernel_tasks_cannot_be_populated(self) -> None:
+        changed = copy.deepcopy(CASES["kernel-initial"]["input"])
+        changed["workflow"]["tasks"] = ["synthetic-task"]
+        self.assert_state_rejected(changed)
+
+    def test_kernel_review_cap_remains_two(self) -> None:
+        changed = copy.deepcopy(CASES["kernel-initial"]["input"])
+        changed["workflow"]["review"]["cap"] = 99
+        self.assert_state_rejected(changed)
+
+    def test_kernel_accepts_independent_states_beyond_frozen_examples(self) -> None:
+        validator = Draft202012Validator({**CONTRACT, "$ref": "#/$defs/state"})
+        for revision in (0, 2):
+            value = {
+                "schema_version": 1, "revision": revision,
+                "project_id": "f" * 64,
+                "workflow_id": f"independent-workflow-{revision}",
+                "repo_root": "/independent/project", "lease_epoch": 0,
+                "owner": None, "actors": {}, "receipts": {},
+                "workflow": {
+                    "batch": None, "work": None, "tasks": [],
+                    "review": {"cap": 2}, "recovery": None, "jobs": [],
+                },
+            }
+            with self.subTest(revision=revision):
+                validator.validate(value)
+                self.assertEqual(schema.validate_state(value), value)
 
     def test_contract_examples_reject_unowned_envelope_payload_and_response_fields(self) -> None:
         self.assertEqual({example["case"] for example in FIXTURES["contract_examples"]}, {
