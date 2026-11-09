@@ -136,7 +136,10 @@ class OwnerTest(OwnerCLITest):
             self.reject_unchanged(request, fake, "wrong_binding")
         near_root = self.base / "project-extra"
         near_root.mkdir()
-        self.reject_unchanged(request, owner, "wrong_binding", root=near_root)
+        before = tree(private_path(self.root))
+        self.response(self.apply(request, owner, root=near_root), "wrong_binding", revision=0)
+        self.assertTrue(tree(private_path(self.root)) == before,
+                        "rejection changed original project evidence")
         self.assertFalse(private_path(near_root).exists())
         self.clear(owner)
 

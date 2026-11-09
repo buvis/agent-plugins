@@ -13,6 +13,35 @@ from controller_owner_support import OwnerCLITest, credential
 
 
 class OwnerV2Test(OwnerCLITest):
+    def test_wrong_binding_reports_selected_root_revision_and_preserves_both_projects(self) -> None:
+        _, _, operator = self.bootstrap()
+        _, _, owner, _ = self.acquire(operator)
+        request = self.request(owner, "owner.release", "cross-project-release")
+        original_root = self.root
+        original_before = tree(private_path(original_root))
+        selected_root = self.base / "project-extra"
+        selected_root.mkdir()
+        self.response(self.apply(request, owner, root=selected_root),
+                      "wrong_binding", revision=0)
+        self.assertFalse(private_path(selected_root).exists())
+        self.assertTrue(tree(private_path(original_root)) == original_before,
+                        "empty selected-root rejection changed original project evidence")
+        self.root = selected_root
+        _, _, selected_operator = self.bootstrap()
+        _, _, selected_owner, _ = self.acquire(selected_operator)
+        self.clear(selected_owner)
+        selected_revision = self.state()["revision"]
+        self.assertEqual(selected_revision, 2)
+        selected_before = tree(private_path(selected_root))
+        self.root = original_root
+        self.assertEqual(self.state()["revision"], 1)
+        self.response(self.apply(request, owner, root=selected_root),
+                      "wrong_binding", revision=selected_revision)
+        self.assertTrue(tree(private_path(selected_root)) == selected_before,
+                        "rejection changed selected project evidence")
+        self.assertTrue(tree(private_path(original_root)) == original_before,
+                        "rejection changed original project evidence")
+
     def history(self, tag: str) -> tuple[list[tuple], dict[int, Path], Path]:
         fresh, opened, operator = self.bootstrap()
         operators = {0: self.retain(operator, f"{tag}-operator-zero.json")}
