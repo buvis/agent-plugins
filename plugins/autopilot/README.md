@@ -338,3 +338,101 @@ The installed controller argv is:
 ```json
 ["python3", "<installed-plugin-root>/controller/main.py"]
 ```
+
+### Runtime and commands
+
+The controller needs Python 3.12 or newer. It uses the standard library only.
+Run it with the installed argv and one of these commands:
+
+```text
+--json contract
+--json snapshot --project-root PATH
+--json apply --project-root PATH --request FILE [--actor-file PATH]
+```
+
+Exit code 0 means success. Exit code 1 means a structured rejection. Exit code
+2 means argument misuse. Callers must bound execution time.
+
+### Implemented operations
+
+The controller implements four operations: `workflow.open`, `owner.acquire`,
+`owner.release` and `owner.recover`. It advertises one capability,
+`workflow.core.v1`. All later operation families are unavailable until
+implemented: policy, prd, task, lane, job, review, custody, verification,
+phase, artifact and records. A request for one of them returns
+`missing_capability` and writes nothing.
+
+### Private store
+
+The controller keeps its state in `<project-root>/.autopilot/controller/`, a
+private directory with mode 0700. It holds `state.json`, `state.json.bak`,
+`state.json.lock` and `actors/`. Credentials are files with mode 0600. Their
+contents never appear in responses or logs.
+
+### Receipt capacity
+
+Normal receipt admission stops at 4094 entries. Two more slots are reserved
+for `owner.release` and `owner.recover`. These may clear an active owner at
+saturation, but they never acquire a new one. At 4096 entries the workflow is
+sealed against all new mutations. Exact receipt retrieval and `snapshot` stay
+available.
+
+### Leave a sealed workflow
+
+No archival or state removal runs automatically. Follow these steps by hand,
+in order:
+
+1. Finish or reconcile jobs. This controller supports no jobs, so there is
+   nothing to do here yet.
+2. Release or recover ownership with `owner.release` or `owner.recover`. These
+   use the reserve capacity.
+3. Run `snapshot` and verify that the owner is null.
+4. Copy the entire private controller directory to a private offline archive.
+   Verify every file hash.
+5. Rename the original private directory into a sibling private archive named
+   by the workflow ID.
+6. Open a new workflow with `workflow.open` at the fixed empty controller path.
+
+Never delete the archive. Archived state, credentials, receipts and schema stay
+replayable. To replay them, take the new workflow offline and place the
+original directory back at its original project binding. Never merge
+identities.
+
+### Bounded orphans
+
+A crash can leave controller-owned staging, rollback and temporary files. These
+are credential `.stage` and `.rollback` files under `actors/`, plus
+`.intent-*.tmp` files and state publication `.state.json.autopilot-*.tmp` files
+in the private directory. The controller limits them to 64 files and 16777216
+bytes in total. It refuses a bootstrap or owner mutation with
+`recovery_required`, and changes nothing, when the full proposal would exceed
+either limit. It does the same when it finds an unsafe or unreadable owned
+artifact. The controller never deletes an orphan.
+
+The admitted proposal leaves out the transient state publication temporaries.
+A crash at a publication boundary can therefore keep up to two more
+temporaries, each up to the size of the state. The next mutation then refuses.
+
+### Recover from orphans
+
+Archive-based recovery requires the operator to take the workflow offline,
+retain all bytes, and restore the verified consistent state and credentials
+before retry. Follow these steps in order:
+
+1. Stop all callers.
+2. Copy the private directory to a private offline archive. Verify every file
+   hash.
+3. Move only the identified orphan files into that archive. Never delete them.
+4. Keep `state.json`, `state.json.bak`, the credentials and
+   `credential-intent.json` in place.
+5. Run `snapshot` and verify that the state is unchanged.
+6. Resume the callers.
+
+A pending `credential-intent.json` makes `snapshot` report
+`recovery_required`. Only the identical original request, with its original
+credential, finishes it.
+
+### Host support
+
+This section covers the local controller only. It claims no real host support
+and no host certification. Host execution needs separate probe evidence.
