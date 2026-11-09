@@ -292,6 +292,105 @@ class OwnerV2Test(OwnerCLITest):
                 path.write_bytes(original)
         self.assert_crash_completes_once(request, historical)
 
+    def pending_cleanup_files(self, request: dict, actor: Path,
+                              historical: Path) -> tuple[dict[tuple[str, int], Path],
+                                                         dict[Path, bytes]]:
+        actors = private_path(self.root) / "actors"
+        initial_paths = set(actors.iterdir())
+        before = self.state()
+        self.crash(request, actor, "intent_dir_fsynced")
+        self.assertEqual(self.state(), before)
+        stages = {}
+        for path in set(actors.iterdir()) - initial_paths:
+            value = credential(path)
+            key = (value["role"], value["lease_epoch"])
+            self.assertNotIn(key, stages, "staging evidence must be unambiguous")
+            self.assertEqual(value["project_id"], request["project_id"])
+            self.assertEqual(value["workflow_id"], request["workflow_id"])
+            stages[key] = path
+        expected = {("operator", request["lease_epoch"]),
+                    ("operator", request["lease_epoch"] + 1)}
+        if request["operation"] == "owner.acquire":
+            expected.add(("owner", request["lease_epoch"] + 1))
+        self.assertEqual(set(stages), expected)
+        intact = tree(private_path(self.root))
+        for key, path in stages.items():
+            with self.subTest(missing_before_publication=key):
+                original = path.read_bytes()
+                path.unlink()
+                try:
+                    self.reject_unchanged(request, historical, "recovery_required")
+                    self.assertTrue((private_path(self.root) / "credential-intent.json").exists())
+                finally:
+                    path.write_bytes(original)
+                    path.chmod(0o600)
+        self.assertTrue(tree(private_path(self.root)) == intact,
+                        "restoring missing evidence must preserve the pending transaction")
+        staged_bytes = {path: path.read_bytes() for path in stages.values()}
+        self.crash(request, historical, "state_published")
+        return stages, staged_bytes
+
+    def assert_corrupt_cleanup_evidence_is_retained(self, request: dict, historical: Path,
+                                                   evidence: dict[Path, bytes]) -> None:
+        intact = tree(private_path(self.root))
+        for index, (path, staged) in enumerate(evidence.items()):
+            with self.subTest(corrupt_after_publication=index):
+                original = path.read_bytes() if path.exists() else None
+                value = json.loads(staged)
+                value["secret"] = self.changed_secret(value["secret"])
+                path.write_bytes(canonical(value))
+                path.chmod(0o600)
+                try:
+                    self.reject_unchanged(request, historical, "recovery_required")
+                    self.assertTrue((private_path(self.root) / "credential-intent.json").exists())
+                finally:
+                    if original is None:
+                        path.unlink(missing_ok=True)
+                    else:
+                        path.write_bytes(original)
+        self.assertTrue(tree(private_path(self.root)) == intact,
+                        "corruption controls must restore every original byte")
+
+    def test_partial_cleanup_recovers_owner_receipts_without_waiving_evidence_checks(self) -> None:
+        parent = self.root
+        for name in ("owner.acquire", "owner.release", "owner.recover"):
+            for removed in ("stage", "rollback", "stage-and-rollback"):
+                with self.subTest(operation=name, removed=removed):
+                    tag = f"{name}-partial-cleanup-{removed}"
+                    self.root = parent / tag
+                    self.root.mkdir()
+                    request, actor = self.prepared_crash(name, tag)
+                    historical = self.retain(actor, tag + "-historical.json")
+                    stages, staged_bytes = self.pending_cleanup_files(request, actor, historical)
+                    committed = self.state()
+                    response = committed["receipts"][request["request_id"]]["response"]
+                    self.assert_transition(request, response, historical)
+                    store = private_path(self.root)
+                    pair = {path: path.read_bytes() for path in
+                            (store / "state.json", store / "state.json.bak")}
+                    finals = [Path(response["result"]["operator_actor_file"])]
+                    if name == "owner.acquire":
+                        finals.append(Path(response["result"]["actor_file"]))
+                    final_bytes = {path: path.read_bytes() for path in finals}
+                    self.assert_corrupt_cleanup_evidence_is_retained(
+                        request, historical, staged_bytes | final_bytes)
+                    self.assertTrue(stages[("operator", request["lease_epoch"])].is_file())
+                    epochs = ((request["lease_epoch"] + 1,) if removed == "stage" else
+                              (request["lease_epoch"],) if removed == "rollback" else
+                              (request["lease_epoch"] + 1, request["lease_epoch"]))
+                    for epoch in epochs:
+                        stages[("operator", epoch)].unlink(missing_ok=True)
+                    self.assertTrue((store / "credential-intent.json").exists())
+                    self.assert_crash_completes_once(request, historical)
+                    self.assertEqual(self.state(), committed)
+                    self.assertTrue(all(path.read_bytes() == raw for path, raw in pair.items()),
+                                    "cleanup replay must not republish committed state or backup")
+                    self.assertTrue(all(path.read_bytes() == raw
+                                        for path, raw in final_bytes.items()),
+                                    "cleanup replay must not rotate final credentials again")
+                    self.assertTrue(all(not path.exists() for path in stages.values()),
+                                    "successful reconciliation must finish credential cleanup")
+
     def test_intact_owner_crash_evidence_finishes_and_replays_exactly_once(self) -> None:
         parent = self.root
         common = ("stage_fsynced", "intent_dir_fsynced", "operator_credential_published",
