@@ -140,13 +140,81 @@ class StoreTest(unittest.TestCase):
         self.assertEqual(called, ["publication"])
         self.assertEqual(self.pair(), before)
         self.assertEqual(self.store.read(), current)
-        called.clear()
-        result = self.store.transaction(lambda value: None,
-                                        publication_guard=lambda: called.append("success"))
-        self.assertEqual(called, ["success"])
-        self.assertEqual(result, dict(current, revision=2))
-        self.assertEqual(self.store.read(), result)
-        self.assertEqual(json.loads(self.backup.read_bytes()), current)
+
+    def test_valid_publication_guard_observes_every_boundary_before_proceeding(self) -> None:
+        current = self.seed_pair()
+        boundaries = []
+        observed = []
+        snapshots = []
+        other = self.directory / "state.json-extra"
+        other_backup = self.directory / "state.json.bak-extra"
+        other.write_bytes(b"near-match state evidence")
+        other_backup.write_bytes(b"near-match backup evidence")
+
+        def observe_boundary(boundary: DurabilityBoundary) -> None:
+            self.assertIn(tuple(boundaries), observed)
+            boundaries.append(boundary)
+            snapshots.append(self.pair())
+
+        def guard() -> None:
+            if tuple(boundaries) not in observed:
+                self.assertEqual(self.pair(), snapshots[-1])
+            observed.append(tuple(boundaries))
+
+        store = StateStore(self.path, boundary_hook=observe_boundary)
+        for revision in (1, 2):
+            with self.subTest(revision=revision):
+                boundaries.clear()
+                observed.clear()
+                snapshots[:] = [self.pair()]
+                result = store.transaction(lambda value: None, expected_revision=revision,
+                                           publication_guard=guard)
+                self.assertEqual(boundaries, list(DurabilityBoundary))
+                for count in range(len(boundaries) + 1):
+                    self.assertIn(tuple(boundaries[:count]), observed)
+                self.assertEqual(result, dict(current, revision=revision + 1))
+                self.assertEqual(self.store.read(), result)
+                self.assertEqual(json.loads(self.backup.read_bytes()), current)
+                self.assertEqual(other.read_bytes(), b"near-match state evidence")
+                self.assertEqual(other_backup.read_bytes(), b"near-match backup evidence")
+                current = result
+
+    def test_changed_publication_guard_rejects_every_boundary_and_preserves_exact_pair(self) -> None:
+        for revision in (1, 2):
+            for boundary in DurabilityBoundary:
+                directory = self.directory / f"{revision}-{boundary.value}"
+                directory.mkdir()
+                path = directory / "state.json"
+                backup = directory / "state.json.bak"
+                seed = StateStore(path)
+                initial = self.initial if revision == 1 else dict(frozen_state(owned=True), revision=0)
+                seed.initialize(initial)
+                for _ in range(revision):
+                    current = seed.transaction(lambda value: None)
+                before = (path.read_bytes(), backup.read_bytes())
+                calls = []
+                observed = []
+
+                def invalidate_evidence(item: DurabilityBoundary) -> None:
+                    calls.append(item)
+
+                def guard() -> None:
+                    observed.append(tuple(calls))
+                    if boundary in calls:
+                        raise RuntimeError(f"publication evidence changed: {boundary.value}")
+
+                with self.subTest(boundary=boundary, revision=revision):
+                    store = StateStore(path, boundary_hook=invalidate_evidence)
+                    with self.assertRaisesRegex(RuntimeError, f"changed: {boundary.value}"):
+                        store.transaction(lambda value: None, expected_revision=revision,
+                                          publication_guard=guard)
+                    expected = list(DurabilityBoundary)
+                    expected = expected[:expected.index(boundary) + 1]
+                    self.assertEqual(calls, expected)
+                    self.assertIn(tuple(expected), observed)
+                    self.assertEqual((path.read_bytes(), backup.read_bytes()), before)
+                    self.assertEqual(seed.read(), current)
+                    self.assertEqual(seed.read()["revision"], revision)
 
     def test_publication_guard_rechecks_changed_evidence_before_state_replace(self) -> None:
         self.seed_pair()
