@@ -1155,6 +1155,13 @@
       "type": "deferred_decision",
       "prd": "00014-autopilot-host-execution-v1.md",
       "op_id": "cf5f8a63cae1-dd22"
+    },
+    {
+      "type": "custody",
+      "choice": "accept",
+      "commit_range": "635e37640b82c66f8ed7e5063605ce4481f81407..273be89f1d993447b49a1d1b895b71e28259a0e6",
+      "op_id": "cf5f8a63cae1-resolve",
+      "prd": "00014-autopilot-host-execution-v1.md"
     }
   ]
 }
