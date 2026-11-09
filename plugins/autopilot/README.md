@@ -382,8 +382,7 @@ available.
 No archival or state removal runs automatically. Follow these steps by hand,
 in order:
 
-1. Finish or reconcile jobs. This controller supports no jobs, so there is
-   nothing to do here yet.
+1. Finish or reconcile jobs. This controller supports no jobs yet.
 2. Release or recover ownership with `owner.release` or `owner.recover`. These
    use the reserve capacity.
 3. Run `snapshot` and verify that the owner is null.
