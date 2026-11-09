@@ -7,7 +7,7 @@ import json
 import secrets
 from pathlib import Path
 
-from . import actors, schema
+from . import actors, owner, schema
 from .paths import resolve_project_root
 from .store import FutureSchemaError, RevisionConflictError, StateError, StateIOError, StateStore
 
@@ -42,7 +42,8 @@ def public_contract() -> tuple[dict, dict]:
     metadata = {"protocol_major": 1, "package_version": manifest["version"],
                 "schema_digest": actors.digest(raw_schema),
                 "fixture_digest": actors.digest(raw_fixtures),
-                "operations": ["workflow.open"], "capabilities": ["workflow.core.v1"]}
+                "operations": ["workflow.open", "owner.acquire", "owner.release", "owner.recover"],
+                "capabilities": ["workflow.core.v1"]}
     return metadata, declared["x-controller"]
 
 
@@ -61,8 +62,13 @@ def validate_payload(operation: str, payload: object) -> None:
         reason = payload["reason"]
         if not isinstance(reason, str) or not 1 <= len(reason.encode("utf-8")) <= 4096:
             raise schema.SchemaError("invalid reason")
-        if payload["reconciled_job_ids"] != []:
+        jobs = payload["reconciled_job_ids"]
+        if not isinstance(jobs, list):
             raise schema.SchemaError("invalid reconciled jobs")
+        for job in jobs:
+            schema._identity(job)
+        if len(set(jobs)) != len(jobs):
+            raise schema.SchemaError("duplicate reconciled jobs")
 
 
 def parse_request(raw: bytes, declared: dict) -> dict:
@@ -126,7 +132,7 @@ def existing_open(request: dict, actor_file: Path | None, current: dict,
             fresh_binding(request, revision)
         else:
             actor_binding(request, receipt["authorizing_actor"], revision)
-            actors.authenticate(actor_file, receipt["authorizing_actor"], layout)
+            actors.authenticate_receipt(actor_file, receipt["authorizing_actor"], current, layout)
         actors.verify_operator(layout, current)
         return receipt["response"]
     if request["workflow_id"] is None:
@@ -163,14 +169,20 @@ def apply_locked(request: dict, actor_file: Path | None, layout: actors.PrivateL
             state_binding(current, layout.root)
         if request["project_id"] != project_identity(layout.root) or request["job_id"] is not None:
             raise ProtocolError("wrong_binding", revision)
+        if current is not None and request["workflow_id"] not in (None, current["workflow_id"]):
+            raise ProtocolError("wrong_binding", revision)
         intent = actors.read_intent(layout)
         if intent is not None:
+            if intent["request"]["operation"] in OWNER_OPERATIONS:
+                return owner.finish_intent(request, actor_file, intent, layout, store, current)
             fresh_binding(request, revision)
             if request != intent["request"]:
                 code = ("invalid_request" if request["request_id"] ==
                         intent["request"]["request_id"] else "recovery_required")
                 raise ProtocolError(code, revision)
             return actors.finish_bootstrap(intent, layout, store, current)
+        if request["operation"] in OWNER_OPERATIONS and current is not None:
+            return owner.apply_locked(request, actor_file, current, layout, store)
         if request["operation"] != "workflow.open":
             raise ProtocolError("missing_capability", revision)
         if current is not None:

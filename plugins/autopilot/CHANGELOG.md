@@ -30,6 +30,7 @@
 
 ### Fixed
 
+- **autopilot**: rotate owner leases and operator credentials recoverably, retaining exact receipt replay without restoring retired mutation authority.
 - **autopilot**: restore transaction publication guard checks at every durability boundary, preserving exact state and backup rollback when evidence changes.
 - **autopilot**: `--verify` accepts a relative `--project-root` again and judges it exactly as its absolute spelling, instead of refusing every output path it resolves with `unsafe-artifact-path`.
 - **autopilot**: `--verify` proves both its log sink and its result-artifact sink openable before it spawns the child and judges each sink by the file it actually opened; when the spawn fails, an existing log and result artifact stay byte-identical and a log this run created is removed; it reports a sink open, write or close failure as its own controlled error with the child killed, stops the child's leftover processes when a sink fails late, and removes only a leaf it created; `--export-policy --out` refuses a reader-less FIFO instead of hanging and refuses up front where `O_NOFOLLOW` is missing; the log sink judges containment before it reads a Git pointer.

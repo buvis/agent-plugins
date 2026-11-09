@@ -272,11 +272,25 @@ def verify_operator(layout: PrivateLayout, current: dict) -> None:
         raise StateIOError("current operator credential unavailable") from error
 
 
-def admit(candidate: dict, response: dict) -> dict:
+def authenticate_receipt(path: Path | None, descriptor: dict, current: dict,
+                         layout: PrivateLayout) -> None:
+    try:
+        authenticate(path, descriptor, layout)
+        return
+    except BindingError:
+        active = current["actors"].get(descriptor["actor_id"])
+        if (active is None or active["role"] != descriptor["role"]
+                or active["lease_epoch"] < descriptor["lease_epoch"]):
+            raise
+    authenticate(path, active, layout)
+
+
+def admit(candidate: dict, response: dict, *, emergency: bool = False) -> dict:
     candidate = schema.validate_state(candidate)
     stored = (json.dumps(candidate, ensure_ascii=False, indent=2, sort_keys=True)
               + "\n").encode("utf-8")
-    if len(stored) > NORMAL_STATE_LIMIT or len(candidate["receipts"]) > 4094:
+    if not emergency and (len(stored) > NORMAL_STATE_LIMIT
+                          or len(candidate["receipts"]) > 4094):
         raise StateIOError("normal capacity exhausted")
     if len(canonical(response)) > 65536:
         raise StateIOError("response exceeds resource limit")
@@ -354,7 +368,12 @@ def read_intent(layout: PrivateLayout) -> dict | None:
     if not layout.exists(path):
         return None
     raw = layout.read(path, INTENT_LIMIT)
-    return validate_intent(schema.decode_json(raw.decode("utf-8"), source="intent"), layout)
+    value = schema.decode_json(raw.decode("utf-8"), source="intent")
+    if isinstance(value, dict) and isinstance(value.get("request"), dict) and (
+            value["request"].get("operation") in {"owner.acquire", "owner.release", "owner.recover"}):
+        from . import owner
+        return owner.validate_intent(value, layout)
+    return validate_intent(value, layout)
 
 
 def verify_credential(layout: PrivateLayout, path: Path, intent: dict) -> None:
