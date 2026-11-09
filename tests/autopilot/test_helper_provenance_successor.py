@@ -39,11 +39,19 @@ CONTROLLER = (
     "plugins/autopilot/contracts/controller/state.json",
 )
 SHARED = REFRESHED[1:]
-# Prefix and suffix near-misses of controller paths are not controller assets.
+# Prefix, suffix and substring near-misses of controller paths are not
+# controller assets.
 NEAR_MISSES = (
     "plugins/autopilot/contracts/controller-v2.json",
     "plugins/autopilot/controllers/main.py",
+    "plugins/autopilot/scripts/controller_shim.py",
+    "docs/controller-notes.md",
 )
+NOT_APPLICABLE_GATE = {
+    "status": "not-applicable",
+    "operation": "none",
+    "entry_point": None,
+}
 PLANNED = {
     "status": "planned",
     "artifact_id": None,
@@ -89,7 +97,7 @@ def valid_successor(root: Path, revision: str = REVISIONS[0]) -> dict:
             "artifact_sha256": digest((root / AP00013).read_bytes()),
         },
         "package_revision": revision,
-        "paths": [*SHARED, CONTRACT, CONTROLLER[0]],
+        "paths": [*SHARED, CONTRACT, *CONTROLLER],
         "tasks": [
             {"tests": tests[0], "command": f"pytest -q {tests[0]}", "passed": 31},
             {"tests": tests[1], "command": f"pytest -q {tests[1]}", "passed": 9},
@@ -130,9 +138,17 @@ def generate(
 def assert_contract_rows(document: dict) -> None:
     rows = [r for r in document["assets"] if r["destination_path"] == CONTRACT]
     assert len(rows) == 1, rows
-    assert set(rows[0]) == set(asset_row(CONTRACT))
-    assert rows[0]["source_asset_id"] is None
-    assert rows[0]["source_blob_sha256"] is None
+    row = rows[0]
+    assert set(row) == set(asset_row(CONTRACT))
+    assert row["source_asset_id"] is None
+    assert row["source_blob_sha256"] is None
+    # A new authored asset: adapted, no section plan, no entry point.
+    assert row["disposition"] == "adapted"
+    assert row["section_plan"] == []
+    assert row["entry_point_gate"] == NOT_APPLICABLE_GATE
+    cases = row["acceptance_cases"]
+    assert isinstance(cases, list) and cases, cases
+    assert any(case.get("status") == row["evidence"]["status"] for case in cases)
     owners = [r for r in document["authored_file_owners"] if r["path"] == CONTRACT]
     assert len(owners) == 1, owners
     assert set(owners[0]) == set(owner_row(CONTRACT))
@@ -199,6 +215,51 @@ def test_valid_successor_moves_shared_docs_and_controller_rows_to_it(
     assert_other_rows_unchanged(baseline, document)
 
 
+# `paths` is binding: the successor certifies exactly the paths it lists.
+NARROW = {
+    "contract-only": (CONTRACT,),
+    "changelog-and-one-controller": (SHARED[1], CONTROLLER[1]),
+}
+
+
+@pytest.mark.parametrize("listed", NARROW.values(), ids=NARROW.keys())
+def test_successor_certifies_only_the_paths_it_lists(
+    tool: ModuleType, tmp_path: Path, listed: tuple[str, ...]
+) -> None:
+    mapping = build_repo(tmp_path, "narrow")
+    baseline = generate(tool, tmp_path, mapping)
+    successor = {**valid_successor(tmp_path), "paths": list(listed)}
+    document = generate(tool, tmp_path, mapping, successor)
+    old, new = (by_key(d["assets"], "destination_path") for d in (baseline, document))
+    cited = {
+        "status": "passed",
+        "artifact_id": SUCCESSOR,
+        "artifact_sha256": digest((tmp_path / SUCCESSOR).read_bytes()),
+        "tested_package_revision": REVISIONS[0],
+    }
+    for path in (*SHARED, *CONTROLLER):
+        if path not in listed:
+            # Unlisted rows keep exactly what the generator gives them today.
+            assert canon(new[path]) == canon(old[path]), path
+            continue
+        sha = digest((tmp_path / path).read_bytes())
+        assert new[path]["destination_blob_sha256"] == sha, path
+        own = {**cited, "artifact_id": path, "artifact_sha256": sha}
+        assert new[path]["evidence"] == (cited if path in CONTROLLER else own), path
+    for path in set(SHARED) - set(listed):
+        assert new[path]["evidence"]["tested_package_revision"] == "a" * 40, path
+    for path in set(CONTROLLER) - set(listed):
+        assert new[path]["evidence"] == PLANNED, path
+    if CONTRACT in listed:
+        assert_contract_rows(document)
+        assert new[CONTRACT]["evidence"] == cited
+    else:
+        assert CONTRACT not in new
+        owners = {row["path"] for row in document["authored_file_owners"]}
+        assert CONTRACT not in owners
+    assert_other_rows_unchanged(baseline, document)
+
+
 INVALID = {
     "wrong-prd": lambda d: d.update(prd="00013"),
     "prd-near-miss": lambda d: d.update(prd="000180"),
@@ -206,12 +267,19 @@ INVALID = {
     "future-schema": lambda d: d.update(schema_version=2),
     "upper-revision": lambda d: d.update(package_revision="C" * 40),
     "short-revision": lambda d: d.update(package_revision="c" * 39),
+    "long-revision": lambda d: d.update(package_revision="c" * 41),
+    "revision-trailing-junk": lambda d: d.update(package_revision="c" * 40 + "-x"),
+    "revision-trailing-newline": lambda d: d.update(package_revision="c" * 40 + "\n"),
     "empty-tasks": lambda d: d.update(tasks=[]),
     "zero-passed": lambda d: d["tasks"][1].update(passed=0),
+    "negative-passed": lambda d: d["tasks"][1].update(passed=-1),
+    "string-passed": lambda d: d["tasks"][0].update(passed="31"),
     "bool-passed": lambda d: d["tasks"][0].update(passed=True),
     "blank-tests": lambda d: d["tasks"][1].update(tests="  "),
     "blank-command": lambda d: d["tasks"][0].update(command=""),
     "real-host-passed": lambda d: d["real_host"].update(status="passed"),
+    "real-host-skipped": lambda d: d["real_host"].update(status="skipped"),
+    "real-host-blank-status": lambda d: d["real_host"].update(status=""),
     "blank-real-host-reason": lambda d: d["real_host"].update(reason=" "),
     "supersedes-digest-mismatch": lambda d: d["supersedes"].update(
         artifact_sha256=digest(b"other receipts")
@@ -226,6 +294,12 @@ INVALID = {
     "helper-path": lambda d: d["paths"].append(REFRESHED[0]),
     "contract-near-miss": lambda d: d["paths"].append(NEAR_MISSES[0]),
     "controller-near-miss": lambda d: d["paths"].append(NEAR_MISSES[1]),
+    "controller-substring-script": lambda d: d["paths"].append(NEAR_MISSES[2]),
+    "controller-substring-doc": lambda d: d["paths"].append(NEAR_MISSES[3]),
+    "dotdot-escape-from-controller": lambda d: d["paths"].append(
+        "plugins/autopilot/controller/../scripts/autopilot.py"
+    ),
+    "absolute-controller-path": lambda d: d["paths"].append("/" + CONTROLLER[0]),
     "readme-suffix-near-miss": lambda d: d["paths"].append(SHARED[0] + ".bak"),
 }
 
@@ -313,6 +387,11 @@ def test_cli_applies_the_default_successor_idempotently(
     assert check.returncode == 0, check.stderr
     assert (root / AP00013).read_bytes() == receipts
     assert (root / SUCCESSOR).read_bytes() == successor
+    # Changing only the successor receipt makes the written map stale.
+    write_json(root / SUCCESSOR, valid_successor(root, REVISIONS[0]))
+    stale = run_tool("--map", mapping, "--root", root, "--check", cwd=elsewhere)
+    assert stale.returncode == 1, stale.stdout + stale.stderr
+    assert mapping.read_bytes() == written
 
 
 def test_successor_flag_overrides_the_default_successor_path(tmp_path: Path) -> None:

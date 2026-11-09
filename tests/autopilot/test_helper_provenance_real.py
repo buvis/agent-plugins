@@ -319,6 +319,9 @@ def load_successor_receipt() -> dict:
     assert isinstance(paths, list) and paths
     assert len(set(paths)) == len(paths), paths
     for path in paths:
+        # Normalized repo-relative paths only: no '..', '.', '//' or leading '/'.
+        assert isinstance(path, str) and Path(path).as_posix() == path, path
+        assert not Path(path).is_absolute() and ".." not in Path(path).parts, path
         assert path in REFRESHED[1:] or is_controller(path), path
         assert (ROOT / path).is_file(), path
     assert_successor_tasks(successor["tasks"])
@@ -345,8 +348,11 @@ def assert_refreshed_evidence(assets: dict) -> None:
     receipts = json.loads((ROOT / receipts_evidence["artifact_id"]).read_bytes())
     assert re.fullmatch(r"[0-9a-f]{40}", receipts["package_revision"])
     # README and CHANGELOG changed after AP00013, so the successor receipt owns them.
-    revision = load_successor_receipt()["package_revision"]
+    successor = load_successor_receipt()
+    revision = successor["package_revision"]
     for path in REFRESHED[1:]:
+        # The successor certifies only the paths it lists.
+        assert path in successor["paths"], path
         sha = digest((ROOT / path).read_bytes())
         assert assets[path]["evidence"] == {
             "status": "passed",
@@ -410,7 +416,8 @@ def test_successor_receipt_supersedes_the_exact_ap00013_receipts() -> None:
 def test_controller_assets_digest_current_bytes_and_cite_the_successor(
     mapping: dict,
 ) -> None:
-    expected = successor_evidence(load_successor_receipt())
+    successor = load_successor_receipt()
+    expected = successor_evidence(successor)
     controller = [
         row["destination_path"]
         for row in mapping["assets"]
@@ -426,11 +433,23 @@ def test_controller_assets_digest_current_bytes_and_cite_the_successor(
             path
         )
         assert row["evidence"] == expected, path
+        assert path in successor["paths"], path
         assert owners[path]["delivery_prd"] == "00018", path
         assert owners[path]["owner_repository"] == "buvis/agent-plugins", path
     contract = assets[CONTROLLER_CONTRACT]
     assert contract["source_asset_id"] is None
     assert contract["source_blob_sha256"] is None
+    # A new authored asset: adapted, no section plan, no entry point.
+    assert contract["disposition"] == "adapted"
+    assert contract["section_plan"] == []
+    assert contract["entry_point_gate"] == {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": None,
+    }
+    cases = contract["acceptance_cases"]
+    assert isinstance(cases, list) and cases, cases
+    assert any(case.get("status") == expected["status"] for case in cases), cases
     assert owners[CONTROLLER_CONTRACT]["source_asset_id"] is None
     assert owners[CONTROLLER_CONTRACT]["acceptance_cases"]
 
