@@ -1,0 +1,18 @@
+{
+  "alice-openai-recovery.md": {
+    "bytes": 7747,
+    "sha256": "8f2c2f6ae12394762450fc2430fe6de7badaeb147cb3dbc181a442fc3a21a44f"
+  },
+  "blake-openai-recovery.md": {
+    "bytes": 20760,
+    "sha256": "1035a2ac5180066503251f6e9e59803e8f472089f294410f9897e72737008233"
+  },
+  "bob-openai-recovery-inlined.md": {
+    "bytes": 5271058,
+    "sha256": "851c1c00711965e07698b3d1eba4341bf0015f5a4265922b63eeefa58cb7c447"
+  },
+  "bob-openai-recovery.md": {
+    "bytes": 15556,
+    "sha256": "98d1f2840b278358c98591f2416a4c3125ef6e378965adfa9d6e0285007b5539"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "gate_sha256": "4b6c0d174c193e23f743f634ecf188b989c9df1c73e26315a1f9d534dedba56f",
+  "verification_sha256": "aa112b593abdd82754decf0ea1fb6c3b051c835ea145263e34e0dcc91928c0eb",
+  "adapter": "/tmp/autocodex-ap00018-review-counts-ed2bb331.py",
+  "adapter_sha256": "7545a9a5f2bbd005a95fc111ebc022588a6473f571f095b0fff8ad1fc19d4ce6",
+  "narrow_correction_check": "test_cap_custody_helpers.py::test_modules_load_from_package_without_source_or_test_runtime: 1 passed in 0.03s, exit 0"
+}

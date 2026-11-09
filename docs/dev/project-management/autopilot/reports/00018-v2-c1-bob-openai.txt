@@ -1,0 +1,27 @@
+FIX:
+- (none)
+
+VERIFY:
+[BOB] ⚪ Cannot statically verify: review is incomplete because this session exposes no filesystem read, glob, or grep tool. No read was attempted or denied. Provide an authorized read tool or inline the complete context, diff, and engram pack, then repeat the whole-contract review. Supplied gate results do not replace source inspection. | File: N/A | Task: general
+
+KNOWN:
+- (none)
+
+R1: fail
+R2: fail
+R3: fail
+R4: fail
+R6: fail
+R7: fail
+R8: fail
+R9: fail
+R10: fail
+R11: fail
+R12: fail
+R13: fail
+
+D1: pass
+D2: pass
+D3: pass
+D4: pass
+D5: pass

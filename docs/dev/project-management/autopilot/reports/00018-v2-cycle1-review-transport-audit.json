@@ -1,0 +1,98 @@
+[
+  {
+    "path": "docs/dev/project-management/autopilot/reports/00018-v2-c1-alice-anthropic-efab7c136bf14ecf89d4e852cad407c5.jsonl",
+    "sha256": "127bafb39741038ca554ed27e418a8039c395325eb3abb1f599df1335d2c3859",
+    "stderr": "docs/dev/project-management/autopilot/reports/00018-v2-c1-alice-anthropic-efab7c136bf14ecf89d4e852cad407c5.stderr",
+    "stderr_sha256": "c5f79a055e6dc7096fc0fb6f5f1ccfdbf9b62497a1fd529cb0fcb9f969a1dbe2",
+    "backend": "kiro",
+    "models": [
+      "claude-opus-5.5"
+    ],
+    "efforts": [
+      "medium"
+    ],
+    "native_session": "sess_798d4c6c-3fca-436e-99c4-268e5f86b3be",
+    "permission_denied": false,
+    "api_status": null,
+    "transport_success": true,
+    "usable_review": false
+  },
+  {
+    "path": "docs/dev/project-management/autopilot/reports/00018-v2-c1-alice-openai-b9f4d8a1d49e449cb77c4a9617b67de2.jsonl",
+    "sha256": "f58aaecc34f344f602db73f7a00cbe2cad190cfc14b154e29daa63da9e8b3661",
+    "stderr": "docs/dev/project-management/autopilot/reports/00018-v2-c1-alice-openai-b9f4d8a1d49e449cb77c4a9617b67de2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "backend": "codex",
+    "models": [],
+    "efforts": [],
+    "native_session": "01a1c26d-decb-7a30-b1c4-f0cbd6336262",
+    "permission_denied": false,
+    "api_status": null,
+    "transport_success": true,
+    "usable_review": false
+  },
+  {
+    "path": "docs/dev/project-management/autopilot/reports/00018-v2-c1-blake-anthropic-97c81ce862d74b309c028779cffd11d5.jsonl",
+    "sha256": "9682c55e67a97a938036a8fb3e9abcf89401ccfa9958ab5f5628fe71e2b6d534",
+    "stderr": "docs/dev/project-management/autopilot/reports/00018-v2-c1-blake-anthropic-97c81ce862d74b309c028779cffd11d5.stderr",
+    "stderr_sha256": "067485ab49f6a7188c7b300c56aeb2b9e2de5a58781336fa2457490462935200",
+    "backend": "kiro",
+    "models": [
+      "claude-opus-5.5"
+    ],
+    "efforts": [
+      "medium"
+    ],
+    "native_session": "sess_00dd4390-8512-4480-b48f-931061ecff35",
+    "permission_denied": false,
+    "api_status": null,
+    "transport_success": true,
+    "usable_review": false
+  },
+  {
+    "path": "docs/dev/project-management/autopilot/reports/00018-v2-c1-blake-openai-9e76f595f86849af978ee4af71223d9e.jsonl",
+    "sha256": "5a03cbb514fcb42e874a59c00327f0cddc8de1b9ab22ffea7a25c4b5ad138635",
+    "stderr": "docs/dev/project-management/autopilot/reports/00018-v2-c1-blake-openai-9e76f595f86849af978ee4af71223d9e.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "backend": "codex",
+    "models": [],
+    "efforts": [],
+    "native_session": "01a1c26d-decb-7653-88cb-00280c3489ac",
+    "permission_denied": false,
+    "api_status": null,
+    "transport_success": true,
+    "usable_review": false
+  },
+  {
+    "path": "docs/dev/project-management/autopilot/reports/00018-v2-c1-bob-anthropic-497a8ad9dfab4bc6b29886817b14356e.jsonl",
+    "sha256": "81e762d5f16efd85ad9682e2522197a069e2be01d6471c45c46a1f0ee61be913",
+    "stderr": "docs/dev/project-management/autopilot/reports/00018-v2-c1-bob-anthropic-497a8ad9dfab4bc6b29886817b14356e.stderr",
+    "stderr_sha256": "f2b85fb98e529433f7d7d3858bc109dc0ba302fbf8aecbdc9d65f5931c55a2f2",
+    "backend": "kiro",
+    "models": [
+      "claude-opus-5.5"
+    ],
+    "efforts": [
+      "medium"
+    ],
+    "native_session": "sess_9bfb1d5d-c6ce-4ec2-93c2-950e6271fb0e",
+    "permission_denied": false,
+    "api_status": null,
+    "transport_success": true,
+    "usable_review": false
+  },
+  {
+    "path": "docs/dev/project-management/autopilot/reports/00018-v2-c1-bob-openai-27411693f46d4fddb531ccc06c063a93.jsonl",
+    "sha256": "34b2be9af396e96523a805bf5376e1d71d3d8b3fe0150d140a9dfbd95ebdc8f4",
+    "stderr": "docs/dev/project-management/autopilot/reports/00018-v2-c1-bob-openai-27411693f46d4fddb531ccc06c063a93.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "backend": "codex",
+    "models": [],
+    "efforts": [],
+    "native_session": "01a1c26d-decb-7460-9418-aba877487f0b",
+    "permission_denied": false,
+    "api_status": null,
+    "transport_success": true,
+    "usable_review": false
+  }
+]

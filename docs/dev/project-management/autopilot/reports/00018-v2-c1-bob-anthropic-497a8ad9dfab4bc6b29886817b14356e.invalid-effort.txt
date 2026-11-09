@@ -1,0 +1,51 @@
+Static review only. I ran nothing; the coordinator's gate results stand in for test runs. Every assigned file was readable. The grep tool returned no matches on the diff file, so I reviewed the current source files and the review context instead.
+
+[BOB] 🟡 Repeated crashes during an existing-workflow `workflow.open` can pile up `.state.json.autopilot-*.tmp` orphans with no limit. `existing_open` publishes through `store._transaction_locked` but never calls `actors.admit_staging`, so the 64-file / 16777216-byte bound is never checked on this path. | File: plugins/autopilot/controller/autopilot_state/protocol.py:157 | Task: 4
+[BOB] 🟡 The staging budget leaves out the two StateStore publication temporaries (backup temp and state temp). The README admits that a crash can leave "up to two more temporaries, each up to the size of the state", which breaks the hard bound on all controller-owned temp artifacts. The intent bytes are compact JSON, but the store temps are written with indent=2 and can be larger. | File: plugins/autopilot/controller/autopilot_state/owner.py:85 | Task: 4
+[BOB] 🟡 The successor-evidence test checks only README and CHANGELOG bytes against `git show <package_revision>:path`. Controller assets (store.py, owner.py and the rest) cite `tested_package_revision` but are only digested from current bytes, so a later edit after 50c8c2ff would pass with a stale claim. | File: tests/autopilot/test_helper_provenance_real.py:416 | Task: 7
+[BOB] ⚪ Cannot statically verify: the successor receipt's passed counts (92/69/46, 0 failed or skipped) match real runs at package_revision 50c8c2ff. The tests check only for positive integers and that the test files exist. | File: docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json | Task: 8
+[BOB] 🟡 `apply_successor` repeats `register_controller_asset` almost line for line for `CONTROLLER_CONTRACT`; only the reason and outcome wording differ. | File: tools/autopilot/update_helper_map.py:578 | Task: 7
+[BOB] ⚪ `recover_matching` accepts either `recovery_required` or success after intact boundary crashes. That either-or hedge cannot pin forward reconciliation, even though owner_v2 proves every intact boundary completes. | File: tests/autopilot/test_controller_owner_recovery.py:66 | Task: 3
+[BOB] ⚪ [MECH] 2 export tests pass at base (the isolation guard and argument misuse) | File: tests/autopilot/test_controller_export.py | Task: 5
+[BOB] ⚪ [MECH] 7 kernel tests pass at base | File: tests/autopilot/test_controller_kernel.py | Task: 2
+[BOB] ⚪ [MECH] 8 characterization tests pass at base | File: tests/autopilot/test_controller_recovery_characterization.py | Task: 1
+[BOB] ⚪ [MECH] 3 store guard tests pass at base | File: tests/autopilot/test_controller_store_guards_v2.py | Task: 11
+[BOB] ⚪ [MECH] 1 provenance test passes at base | File: tests/autopilot/test_helper_provenance_real.py | Task: 7
+[BOB] ⚪ [MECH] 1 no-successor test passes at base | File: tests/autopilot/test_helper_provenance_successor.py | Task: 7
+
+FIX:
+- Existing open skips the staging admission check — plugins/autopilot/controller/autopilot_state/protocol.py:157 — call `actors.admit_staging(layout, [indented candidate bytes])` before `_transaction_locked`, and add a test that crashes repeatedly during existing open.
+- The staging proposal leaves out the store publication temps — plugins/autopilot/controller/autopilot_state/owner.py:85 and plugins/autopilot/controller/autopilot_state/actors.py:385 — add the two state-sized temp entries (current raw bytes and indented candidate bytes, 2 files) to the proposed set in both `prepare` functions. Then delete the README caveat at plugins/autopilot/README.md:411.
+- Controller successor paths are not checked against the revision — tests/autopilot/test_helper_provenance_real.py:416 — run the `git show {revision}:{path}` digest check for every path in `successor["paths"]`, not only REFRESHED[1:].
+- Duplicated asset registration — tools/autopilot/update_helper_map.py:578 — give `register_controller_asset` a `label` parameter ("controller asset" or "controller contract bundle") and call it for `CONTROLLER_CONTRACT` too.
+- Either-or hedge — tests/autopilot/test_controller_owner_recovery.py:66 — drop the `returncode == 1` branch and assert success for every intact boundary.
+VERIFY:
+- Successor receipt counts are truthful — at commit 50c8c2ffa001a33f9e8f2e289be8de6af280f957, run the three recorded commands from the receipt. Confirm they report 92, 69 and 46 passed with 0 failed and 0 skipped.
+KNOWN:
+- 2 export tests pass at base — they guard the pre-existing main.py and the test isolation harness, so passing at base is expected for relocation checks.
+- 7 kernel tests pass at base — Task 2 is defined as test-only reuse verification of the extracted store; passing at base is the stated intent.
+- 8 characterization tests pass at base — Tasks 1, 9 and 10 characterize existing schema ownership, with no production edits authorized.
+- 3 store guard tests pass at base — they pin fsync ordering and initialize races that already existed next to the Task 11 guard fix, which other tests do pin.
+- 1 provenance test passes at base — it checks that unrelated rows stay unchanged and is meant to pass at base.
+- 1 no-successor test passes at base — it checks that the generator still behaves as before without a successor receipt.
+
+R1: pass
+R2: pass
+R3: pass
+R4: pass
+R6: pass
+R7: pass
+R8: pass
+R9: fail
+R10: pass
+R11: pass
+R12: pass
+R13: pass
+
+```
+D1: pass
+D2: pass
+D3: pass
+D4: pass
+D5: pass
+```

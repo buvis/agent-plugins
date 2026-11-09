@@ -1,0 +1,70 @@
+"""Prepare policy-readable inputs before any external reviewer dispatch."""
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+root = Path.cwd()
+tmp = root / 'docs/dev/tmp'
+dest = root / 'docs/dev/project-management/autopilot/reports/00018-v2-cycle1-inputs'
+dest.mkdir(exist_ok=True)
+cycle = 'ap00018-v2-c1'
+paths = {}
+for pattern in (f'*{cycle}.md', f'*{cycle}.diff'):
+    for source in tmp.glob(pattern):
+        if '-prompt-' not in source.name:
+            paths[str(source)] = str(dest / source.name)
+for source, target in paths.items():
+    text = Path(source).read_text()
+    # Update staging references only; the diff is an immutable review input.
+    if not source.endswith('.diff'):
+        for old, new in paths.items():
+            text = text.replace(old, new)
+    Path(target).write_text(text)
+
+policy = '''HOST TOOL POLICY (overrides launcher-specific shell examples below):
+Use only your read, glob and grep tools. NEVER use a shell, including git, rg,
+tests, linters, package managers, or process commands. Do not modify files.
+The coordinator supplies the gate results. Use bounded reads and grep for
+large generated files. A denied read invalidates review: report it explicitly.
+Do not read ignored paths, workflow state, prior reviews or sibling outputs.
+Repository root: /Users/bob/git/src/github.com/buvis/agent-plugins
+
+'''
+gate = '\n## Additional gate evidence\n\n'
+gate += 'Repository validator: 3 packages and 15 skills passed. Validator unittest: 59 passed.\n'
+gate += 'Marketplace --check, bundle exporter --check, helper map --map tools/autopilot/source-map.json --check: exit 0.\n'
+log = (tmp / f'gate-{cycle}.log').read_text()
+summary = next(line for line in reversed(log.splitlines()) if ' passed in ' in line)
+(dest / 'suite-output.txt').write_text(log)
+gate += f'Current HEAD full suite completed with exit 0: {summary}\n'
+gate += 'The earlier counts-unavailable line reflects the installed summary parser, not a test failure. '
+gate += 'The coordinator is running the source-required counted verification pass; do not rerun the suite.\n'
+outputs = []
+for name in ('alice', 'blake', 'bob'):
+    source = tmp / f'{name}-prompt-{cycle}.md'
+    text = source.read_text()
+    for old, new in paths.items():
+        text = text.replace(old, new)
+    text = policy + text + gate
+    if name != 'blake':
+        text += '\nScope: review the WHOLE v2 contract, including reused behavior; historical failures are not exemptions.\n'
+        text += 'Generated files are reviewable through bounded reads; retain coverage of all changed files.\n'
+    if name == 'bob':
+        # The host's read-tool transport supersedes the source CLI's no-read
+        # workaround; the complete context and diff remain mandatory inputs.
+        text += '\nThe host authorizes read/glob/grep instead of the source static CLI shell examples. '
+        text += 'Read the complete staged context and diff in bounded sections; do not execute anything. '
+        text += 'Retain both consensus R verdicts and D1-D5 verdicts, and both doubt/de-slop lenses.\n'
+        text += 'Every finding must also use a [BOB] severity issue line; categorize it once in FIX/VERIFY/KNOWN.\n'
+    target = dest / source.name
+    target.write_text(text)
+    outputs.append(target)
+for path in [*(Path(x) for x in paths.values()), *outputs]:
+    result = subprocess.run(['git', 'check-ignore', '--', str(path)], capture_output=True, text=True)
+    if result.returncode != 1 or not path.is_file():
+        raise RuntimeError(f'unreadable or ignored required input: {path}: {result.stdout}{result.stderr}')
+manifest = {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in [*(Path(x) for x in paths.values()), *outputs]}
+(dest / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+print(json.dumps({'prompts': [str(x) for x in outputs], 'inputs': len(paths)}))

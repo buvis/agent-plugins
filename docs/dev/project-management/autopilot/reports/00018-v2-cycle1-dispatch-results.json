@@ -1,0 +1,56 @@
+[
+  {
+    "provider": "openai",
+    "lens": "alice",
+    "dispatch_id": "e9fe30c7",
+    "host_exec_session": 55104,
+    "exit": 0,
+    "stdout": "autocodex: review saved to /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00018-v2-c1-alice-openai.txt\n",
+    "usable_review": false
+  },
+  {
+    "provider": "openai",
+    "lens": "blake",
+    "dispatch_id": "3f712b77",
+    "host_exec_session": 15269,
+    "exit": 0,
+    "stdout": "autocodex: review saved to /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00018-v2-c1-blake-openai.txt\n",
+    "usable_review": false
+  },
+  {
+    "provider": "openai",
+    "lens": "bob",
+    "dispatch_id": "6eea943d",
+    "host_exec_session": 32320,
+    "exit": 0,
+    "stdout": "autocodex: review saved to /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00018-v2-c1-bob-openai.txt\n",
+    "usable_review": false
+  },
+  {
+    "provider": "anthropic",
+    "lens": "blake",
+    "dispatch_id": "5c4d7d9d",
+    "host_exec_session": 78874,
+    "exit": 1,
+    "stdout": "autocodex: kiro running; raw output: /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00018-v2-c1-blake-anthropic-97c81ce862d74b309c028779cffd11d5.jsonl\nautocodex: review failed; missing=[]; raw=/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00018-v2-c1-blake-anthropic-97c81ce862d74b309c028779cffd11d5.jsonl\n",
+    "usable_review": false
+  },
+  {
+    "provider": "anthropic",
+    "lens": "bob",
+    "dispatch_id": "dc67b463",
+    "host_exec_session": 32420,
+    "exit": 1,
+    "stdout": "autocodex: kiro running; raw output: /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00018-v2-c1-bob-anthropic-497a8ad9dfab4bc6b29886817b14356e.jsonl\nautocodex: review failed; missing=[]; raw=/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00018-v2-c1-bob-anthropic-497a8ad9dfab4bc6b29886817b14356e.jsonl\n",
+    "usable_review": false
+  },
+  {
+    "provider": "anthropic",
+    "lens": "alice",
+    "dispatch_id": "a4cea615",
+    "host_exec_session": 1991,
+    "exit": 1,
+    "stdout": "autocodex: kiro running; raw output: /Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00018-v2-c1-alice-anthropic-efab7c136bf14ecf89d4e852cad407c5.jsonl\nautocodex: review failed; missing=[]; raw=/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00018-v2-c1-alice-anthropic-efab7c136bf14ecf89d4e852cad407c5.jsonl\n",
+    "usable_review": false
+  }
+]

@@ -1174,3 +1174,19 @@
 {"id":"cfa3a4ac","kind":"ivan","task":"8","queued_at":1794233511,"prompt_bytes":10587}
 {"id":"cfa3a4ac","ended_at":1794233881,"elapsed_s":370,"outcome":"ok","detail":"gates green; map regenerated at 50c8c2f"}
 {"kind":"handoff","site":"build","edge":"leave","at":1794234589,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794262665,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"258d295c","kind":"bob","task":"review-ap00018-v2-c1","queued_at":1794263296,"prompt_bytes":13540}
+{"id":"258d295c","ended_at":1794263335,"elapsed_s":39,"outcome":"error","detail":"staged prompt superseded before dispatch by policy-readable host transport; no reviewer ran"}
+{"id":"a4cea615","kind":"alice","task":"review-ap00018-v2-c1-anthropic","queued_at":1794263335,"prompt_bytes":7651}
+{"id":"5c4d7d9d","kind":"blake","task":"review-ap00018-v2-c1-anthropic","queued_at":1794263335,"prompt_bytes":20664}
+{"id":"dc67b463","kind":"bob","task":"review-ap00018-v2-c1-anthropic","queued_at":1794263335,"prompt_bytes":15450}
+{"id":"e9fe30c7","kind":"alice","task":"review-ap00018-v2-c1-openai","queued_at":1794263335,"prompt_bytes":7651}
+{"id":"3f712b77","kind":"blake","task":"review-ap00018-v2-c1-openai","queued_at":1794263335,"prompt_bytes":20664}
+{"id":"6eea943d","kind":"bob","task":"review-ap00018-v2-c1-openai","queued_at":1794263335,"prompt_bytes":15450}
+{"id":"e9fe30c7","ended_at":1794263554,"elapsed_s":219,"outcome":"error","detail":"unusable review: transport completed but required inputs remained unread under coordinator prompt restriction"}
+{"id":"3f712b77","ended_at":1794263554,"elapsed_s":219,"outcome":"error","detail":"unusable review: transport completed but required inputs remained unread under coordinator prompt restriction"}
+{"id":"6eea943d","ended_at":1794263554,"elapsed_s":219,"outcome":"error","detail":"unusable review: transport completed but required inputs remained unread under coordinator prompt restriction"}
+{"id":"5c4d7d9d","ended_at":1794263798,"elapsed_s":463,"outcome":"error","detail":"required xhigh effort not applied: observed claude-opus-5.5/medium; helper exit 1; raw evidence retained"}
+{"id":"dc67b463","ended_at":1794263798,"elapsed_s":463,"outcome":"error","detail":"required xhigh effort not applied: observed claude-opus-5.5/medium; helper exit 1; raw evidence retained"}
+{"id":"a4cea615","ended_at":1794263865,"elapsed_s":530,"outcome":"error","detail":"required xhigh effort not applied: observed claude-opus-5.5/medium; helper exit 1; raw evidence retained"}
+{"kind":"handoff","site":"review","edge":"leave","at":1794264855,"phase":"paused","prd":"00018-autopilot-controller-kernel-v2.md"}
