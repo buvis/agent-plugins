@@ -4,6 +4,9 @@ The required independent review could not be certified. State is paused at
 `host_review_capability`. No completed review artifact, convergence, rework task,
 cap change, or backend substitution was recorded. The PRD remains in `wip/`;
 batch `202611090642`, cycle 1, cap 3, work base and all 11 completed tasks remain.
+The exact CLI-written live state is checkpointed in
+`00018-v2-cycle1-paused-state.json`. The recovery card and session brief are
+checkpointed beside it. These are evidence copies, not alternate state writers.
 
 Implementation provenance is audited in
 `00018-autopilot-controller-kernel-v2-implementation-models.json` and its sibling

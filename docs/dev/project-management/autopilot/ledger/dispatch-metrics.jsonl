@@ -1190,3 +1190,4 @@
 {"id":"dc67b463","ended_at":1794263798,"elapsed_s":463,"outcome":"error","detail":"required xhigh effort not applied: observed claude-opus-5.5/medium; helper exit 1; raw evidence retained"}
 {"id":"a4cea615","ended_at":1794263865,"elapsed_s":530,"outcome":"error","detail":"required xhigh effort not applied: observed claude-opus-5.5/medium; helper exit 1; raw evidence retained"}
 {"kind":"handoff","site":"review","edge":"leave","at":1794264855,"phase":"paused","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"leave","at":1794264901,"phase":"paused","prd":"00018-autopilot-controller-kernel-v2.md"}
