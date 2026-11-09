@@ -325,8 +325,9 @@ no host profile is certified.
 ## Controller contract bundle
 
 `contracts/controller-v1.json` pins the controller protocol, package version,
-schema and fixture digests, operations and capabilities. Regenerate it with
-`python3 tools/autopilot/export-controller-contract.py`; `--check` verifies it.
+schema and fixture digests, operations and capabilities. Maintainers regenerate
+it in a repository checkout with the unshipped exporter
+`tools/autopilot/export-controller-contract.py`, whose check mode verifies it.
 Its `sha256sum` from the repository root is:
 
 ```text
