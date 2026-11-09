@@ -1,0 +1,828 @@
+[
+  {
+    "name": "standard-feature",
+    "copies": [
+      {
+        "from": "sessions/implementation-failed-check",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-cart-rounding": {
+        "phase": "implementation",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "approved"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    }
+  },
+  {
+    "name": "standard-bugfix",
+    "copies": [
+      {
+        "from": "sessions/bugfix-refuted",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-discount-total": {
+        "phase": "implementation",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "approved"
+        },
+        "specType": "bugfix",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    }
+  },
+  {
+    "name": "partial-feature",
+    "copies": [
+      {
+        "from": "sessions/design-review-quick",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-order-notes": {
+        "phase": "design",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "draft",
+          "tasks": "missing"
+        },
+        "specType": "feature",
+        "profile": "quick",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    }
+  },
+  {
+    "name": "partial-bugfix",
+    "copies": [
+      {
+        "from": "sessions/bugfix-confirmed",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-discount-total": {
+        "phase": "tasks",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "missing"
+        },
+        "specType": "bugfix",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    }
+  },
+  {
+    "name": "stale-feature",
+    "copies": [
+      {
+        "from": "sessions/design-stale-upstream",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-search-filters": {
+        "phase": "requirements",
+        "artifacts": {
+          "requirements": "stale",
+          "design": "missing",
+          "tasks": "missing"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    },
+    "errors": [
+      [
+        "requirements.md",
+        "stale-approvals",
+        "the requirements.md approval is stale: its content changed since the approval"
+      ]
+    ]
+  },
+  {
+    "name": "verification-feature",
+    "copies": [
+      {
+        "from": "sessions/completion-success",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-cart-rounding": {
+        "phase": "verification",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "approved"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    }
+  },
+  {
+    "name": "hold-and-intake",
+    "copies": [
+      {
+        "from": "sessions/status-summary",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-gift-cards": {
+        "phase": "implementation",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "approved"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": {
+          "status": "on_hold",
+          "reason": "waiting for the payment provider's gift-card API",
+          "since": "2026-10-10"
+        }
+      },
+      ".kiro/specs/00002-cart-rounding": {
+        "phase": "implementation",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "approved"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    },
+    "intakeItems": [
+      ".kiro/specflow/intake/processed/00001-gift-cards",
+      ".kiro/specflow/intake/processed/00002-cart-rounding"
+    ]
+  },
+  {
+    "name": "quick-feature",
+    "copies": [
+      {
+        "from": "sessions/implementation-failed-check",
+        "to": "."
+      },
+      {
+        "from": "workflow/quick-feature",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-cart-rounding": {
+        "phase": "implementation",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "approved"
+        },
+        "specType": "feature",
+        "profile": "quick",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    }
+  },
+  {
+    "name": "completed-feature",
+    "copies": [
+      {
+        "from": "sessions/completion-success",
+        "to": "."
+      },
+      {
+        "from": "workflow/completed-feature",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-cart-rounding": {
+        "phase": "complete",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "approved"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    }
+  },
+  {
+    "name": "design-first-partial-feature",
+    "copies": [
+      {
+        "from": "sessions/implementation-failed-check",
+        "to": "."
+      },
+      {
+        "from": "workflow/design-first-partial-feature",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-cart-rounding": {
+        "phase": "requirements",
+        "artifacts": {
+          "requirements": "draft",
+          "design": "approved",
+          "tasks": "draft"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "design-first",
+        "state": "valid",
+        "hold": null
+      }
+    }
+  },
+  {
+    "name": "design-first-stale-feature",
+    "copies": [
+      {
+        "from": "sessions/implementation-failed-check",
+        "to": "."
+      },
+      {
+        "from": "workflow/design-first-stale-feature",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-cart-rounding": {
+        "phase": "design",
+        "artifacts": {
+          "requirements": "stale",
+          "design": "stale",
+          "tasks": "stale"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "design-first",
+        "state": "valid",
+        "hold": null
+      }
+    },
+    "errors": [
+      [
+        "requirements.md",
+        "stale-approvals",
+        "the requirements.md approval is stale: upstream design.md changed since its approval"
+      ],
+      [
+        "design.md",
+        "stale-approvals",
+        "the design.md approval is stale: its content changed since the approval"
+      ],
+      [
+        "tasks.md",
+        "stale-approvals",
+        "the tasks.md approval is stale: upstream design.md changed since its approval"
+      ]
+    ]
+  },
+  {
+    "name": "quick-bugfix",
+    "copies": [
+      {
+        "from": "sessions/bugfix-refuted",
+        "to": "."
+      },
+      {
+        "from": "workflow/quick-bugfix",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-discount-total": {
+        "phase": "implementation",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "approved"
+        },
+        "specType": "bugfix",
+        "profile": "quick",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    }
+  },
+  {
+    "name": "completed-bugfix",
+    "copies": [
+      {
+        "from": "sessions/bugfix-refuted",
+        "to": "."
+      },
+      {
+        "from": "workflow/completed-bugfix",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-discount-total": {
+        "phase": "complete",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "approved"
+        },
+        "specType": "bugfix",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    }
+  },
+  {
+    "name": "design-first-partial-bugfix",
+    "copies": [
+      {
+        "from": "sessions/bugfix-refuted",
+        "to": "."
+      },
+      {
+        "from": "workflow/design-first-partial-bugfix",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-discount-total": {
+        "phase": "requirements",
+        "artifacts": {
+          "requirements": "draft",
+          "design": "approved",
+          "tasks": "draft"
+        },
+        "specType": "bugfix",
+        "profile": "standard",
+        "order": "design-first",
+        "state": "valid",
+        "hold": null
+      }
+    }
+  },
+  {
+    "name": "design-first-stale-bugfix",
+    "copies": [
+      {
+        "from": "sessions/bugfix-refuted",
+        "to": "."
+      },
+      {
+        "from": "workflow/design-first-stale-bugfix",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-discount-total": {
+        "phase": "design",
+        "artifacts": {
+          "requirements": "stale",
+          "design": "stale",
+          "tasks": "stale"
+        },
+        "specType": "bugfix",
+        "profile": "standard",
+        "order": "design-first",
+        "state": "valid",
+        "hold": null
+      }
+    },
+    "errors": [
+      [
+        "bugfix.md",
+        "stale-approvals",
+        "the bugfix.md approval is stale: upstream design.md changed since its approval"
+      ],
+      [
+        "design.md",
+        "stale-approvals",
+        "the design.md approval is stale: its content changed since the approval"
+      ],
+      [
+        "tasks.md",
+        "stale-approvals",
+        "the tasks.md approval is stale: upstream design.md changed since its approval"
+      ]
+    ]
+  },
+  {
+    "name": "missing-required-path",
+    "copies": [
+      {
+        "from": "workflow/missing-required-path",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-cart-rounding": {
+        "phase": "requirements",
+        "artifacts": {
+          "requirements": "missing",
+          "design": "draft",
+          "tasks": "draft"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    },
+    "validationPhase": "tasks",
+    "errors": [
+      [
+        "requirements.md",
+        "required-files",
+        "requirements.md is missing in phase tasks"
+      ]
+    ]
+  },
+  {
+    "name": "invalid-state",
+    "copies": [
+      {
+        "from": "sessions/implementation-failed-check",
+        "to": "."
+      },
+      {
+        "from": "workflow/invalid-state",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-cart-rounding": {
+        "phase": "requirements",
+        "artifacts": {
+          "requirements": "draft",
+          "design": "draft",
+          "tasks": "draft"
+        },
+        "specType": "feature",
+        "profile": null,
+        "order": "requirements-first",
+        "state": "invalid",
+        "hold": null
+      }
+    },
+    "schemaErrors": [
+      "$.profile: expected string, got integer"
+    ],
+    "errors": [
+      [
+        ".specflow.json",
+        "state-valid",
+        "$.profile: expected string, got integer"
+      ]
+    ]
+  },
+  {
+    "name": "unsupported-version",
+    "copies": [
+      {
+        "from": "sessions/implementation-failed-check",
+        "to": "."
+      },
+      {
+        "from": "workflow/unsupported-version",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-cart-rounding": {
+        "phase": "requirements",
+        "artifacts": {
+          "requirements": "draft",
+          "design": "draft",
+          "tasks": "draft"
+        },
+        "specType": "feature",
+        "profile": null,
+        "order": "requirements-first",
+        "state": "invalid",
+        "hold": null
+      }
+    },
+    "schemaErrors": [
+      "$.schemaVersion: expected 1"
+    ],
+    "errors": [
+      [
+        ".specflow.json",
+        "state-valid",
+        "unsupported state version 2"
+      ]
+    ]
+  },
+  {
+    "name": "recorded-hash-mismatch",
+    "copies": [
+      {
+        "from": "sessions/implementation-failed-check",
+        "to": "."
+      },
+      {
+        "from": "workflow/recorded-hash-mismatch",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/00001-cart-rounding": {
+        "phase": "tasks",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "stale"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    },
+    "errors": [
+      [
+        "tasks.md",
+        "stale-approvals",
+        "the tasks.md approval is stale: its content changed since the approval"
+      ]
+    ]
+  },
+  {
+    "name": "recovered-requirements-first",
+    "copies": [
+      {
+        "from": "kiro/requirements-first",
+        "to": ".kiro/specs/requirements-first"
+      },
+      {
+        "from": "workflow/recovered-requirements-first",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/requirements-first": {
+        "phase": "requirements",
+        "artifacts": {
+          "requirements": "draft",
+          "design": "draft",
+          "tasks": "draft"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    },
+    "nativeCapture": "kiro/requirements-first",
+    "errors": [
+      [
+        "tasks.md",
+        "requirement-coverage",
+        "no task references 5"
+      ]
+    ],
+    "warningRules": {
+      "requirement-source": 7
+    }
+  },
+  {
+    "name": "recovered-design-first",
+    "copies": [
+      {
+        "from": "kiro/design-first",
+        "to": ".kiro/specs/design-first"
+      },
+      {
+        "from": "workflow/recovered-design-first",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/design-first": {
+        "phase": "design",
+        "artifacts": {
+          "requirements": "draft",
+          "design": "draft",
+          "tasks": "draft"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "design-first",
+        "state": "valid",
+        "hold": null
+      }
+    },
+    "nativeCapture": "kiro/design-first",
+    "errors": [
+      [
+        "tasks.md",
+        "requirement-coverage",
+        "no task references 8"
+      ],
+      [
+        "design.md",
+        "placeholders",
+        "line 353: placeholder N/A"
+      ],
+      [
+        "design.md",
+        "placeholders",
+        "line 370: placeholder N/A"
+      ],
+      [
+        "design.md",
+        "placeholders",
+        "line 388: placeholder N/A"
+      ],
+      [
+        "design.md",
+        "placeholders",
+        "line 405: placeholder N/A"
+      ]
+    ],
+    "warningRules": {
+      "requirement-source": 11
+    }
+  },
+  {
+    "name": "recovered-bugfix",
+    "copies": [
+      {
+        "from": "kiro/bugfix",
+        "to": ".kiro/specs/bugfix"
+      },
+      {
+        "from": "workflow/recovered-bugfix",
+        "to": "."
+      }
+    ],
+    "specs": {
+      ".kiro/specs/bugfix": {
+        "phase": "requirements",
+        "artifacts": {
+          "requirements": "draft",
+          "design": "draft",
+          "tasks": "draft"
+        },
+        "specType": "bugfix",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    },
+    "nativeCapture": "kiro/bugfix",
+    "errors": [],
+    "warningRules": {
+      "portable-links": 52
+    }
+  },
+  {
+    "name": "configured-workspace",
+    "copies": [
+      {
+        "from": "specs/00101-feature-sample",
+        "to": "planning/specs/00101-feature-sample"
+      },
+      {
+        "from": "workflow/configured-workspace",
+        "to": "."
+      }
+    ],
+    "specs": {
+      "planning/specs/00101-feature-sample": {
+        "phase": "implementation",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "approved"
+        },
+        "specType": "feature",
+        "profile": "standard",
+        "order": "requirements-first",
+        "state": "valid",
+        "hold": null
+      }
+    },
+    "intakeItems": [
+      "planning/work/intake/processed/00101-feature-sample"
+    ]
+  },
+  {
+    "name": "intake-only",
+    "copies": [
+      {
+        "from": "workflow/intake-only",
+        "to": "."
+      }
+    ],
+    "specs": {},
+    "intake": [
+      "00001-greeting"
+    ],
+    "intakeItems": [
+      ".kiro/specflow/intake/new/00001-greeting"
+    ]
+  },
+  {
+    "name": "spike-standalone",
+    "copies": [
+      {
+        "from": "workflow/spike-standalone",
+        "to": "."
+      }
+    ],
+    "specs": {},
+    "intake": [
+      "00001-greeting"
+    ],
+    "intakeItems": [
+      ".kiro/specflow/intake/new/00001-greeting"
+    ],
+    "spikeForm": "standalone"
+  },
+  {
+    "name": "spike-branch",
+    "copies": [
+      {
+        "from": "workflow/spike-branch",
+        "to": "."
+      }
+    ],
+    "specs": {},
+    "intake": [
+      "00001-greeting"
+    ],
+    "intakeItems": [
+      ".kiro/specflow/intake/new/00001-greeting"
+    ],
+    "spikeForm": "branch"
+  },
+  {
+    "name": "spike-sketch",
+    "copies": [
+      {
+        "from": "workflow/spike-sketch",
+        "to": "."
+      }
+    ],
+    "specs": {},
+    "intake": [
+      "00001-greeting"
+    ],
+    "intakeItems": [
+      ".kiro/specflow/intake/new/00001-greeting"
+    ],
+    "spikeForm": "sketch"
+  }
+]

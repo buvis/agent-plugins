@@ -2,7 +2,7 @@
 
 The first sub-bullets of `Details:` and `Verify:` are carried from the source plan in intake item 00001. In them, `design §n` means the source design, `.kiro/specs` means the specs folder, and a task ID may belong to another spec; `docs/dev/project-management/reviews/2026-10-04-specflow-split-map.md` names the spec that now holds each section and each task. Lines written for this plan name a task of another spec with its spec, as in `T-030 (00006)`.
 
-- [ ] T-050 Build canonical workflow fixtures
+- [x] T-050 Build canonical workflow fixtures
   - Requirements: 00004 VAL-001 criterion 1; 00004 STATE-001 criterion 4
   - Depends on: none
   - Location: `tests/specflow/fixtures/workflow/`, `tests/specflow/contract/test_fixtures.py`
@@ -16,6 +16,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
   - Acceptance criteria: 00004 VAL-001 criterion 1; 00004 STATE-001 criterion 4
   - Verify:
     - `tests/specflow/contract/test_fixtures.py`: each fixture passes schema and artifact validation, or fails with exactly the finding it was built to show; and `status --json` of each fixture reports the phase, the artifact statuses, and the hold it is named for; the intake-only workspace shows its item in `intake[]`.
+  - Outcome: 2026-11-10: added workflow/inventory.json, documented literal overlays reusing session fixtures and unchanged T-027 captures, and contract/test_fixtures.py; 27 workspaces cover the required states and spike forms without regenerating approvals during tests. `python3 -B -m unittest discover -s tests/specflow/contract -p test_fixtures.py` passed 3 tests across all 27 cases; full unittest discovery passed contract 390, release 54, rules 58, review 41, and scripts 59 (602 total). `python3 scripts/validate.py` validated 3 packages and 15 skills; unfiltered check_rules.py, verify_release.py, generate_marketplace.py --check, and Ruff passed. Exact native-capture diagnostics remain documented test expectations; no host probes or package changes.
 
 - [ ] T-056 Build the scenario eval runners
   - Requirements: RULE-001
