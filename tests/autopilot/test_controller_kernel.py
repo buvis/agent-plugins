@@ -48,6 +48,11 @@ class StoreTest(unittest.TestCase):
         self.store.initialize(self.initial)
         return self.store.transaction(lambda value: None, expected_revision=0)
 
+    def assert_private_artifacts(self) -> None:
+        for suffix in ("", ".bak", ".lock"):
+            artifact = Path(str(self.path) + suffix)
+            self.assertEqual(stat.S_IMODE(artifact.stat().st_mode) & 0o077, 0, artifact)
+
     def test_initialization_is_create_only_and_returned_states_are_isolated(self) -> None:
         result = self.store.initialize(self.initial)
         self.assertEqual(result, self.initial)
@@ -83,6 +88,12 @@ class StoreTest(unittest.TestCase):
             self.store.initialize(frozen_state(owned=True))
         self.assertFalse(self.path.exists())
         self.assertFalse(self.backup.exists())
+        before = set(self.directory.iterdir())
+        with self.assertRaises(schema.SchemaError):
+            self.store.initialize({})
+        self.assertFalse(self.path.exists())
+        self.assertFalse(self.backup.exists())
+        self.assertEqual(set(self.directory.iterdir()), before)
 
     def test_transactions_copy_mutations_assign_revisions_and_preserve_last_good_backup(self) -> None:
         self.store.initialize(self.initial)
@@ -94,6 +105,7 @@ class StoreTest(unittest.TestCase):
             candidate["revision"] = 100
 
         first = self.store.transaction(acquire, expected_revision=0)
+        self.assert_private_artifacts()
         self.assertEqual(first, frozen_state(owned=True))
         self.assertEqual(json.loads(self.backup.read_bytes()), self.initial)
         seen[0]["actors"].clear()
@@ -102,6 +114,7 @@ class StoreTest(unittest.TestCase):
         replacement = frozen_state(owned=True)
         replacement["revision"] = 99
         second = self.store.transaction(lambda value: replacement, expected_revision=1)
+        self.assert_private_artifacts()
         expected = frozen_state(owned=True)
         expected["revision"] = 2
         self.assertEqual(second, expected)
@@ -355,6 +368,7 @@ class StoreTest(unittest.TestCase):
             checked.append(copy.deepcopy(value))
 
         restored = self.store.restore(expected_revision=1, precondition=precondition)
+        self.assert_private_artifacts()
         expected = copy.deepcopy(backup)
         expected["revision"] = 2
         self.assertEqual(restored, expected)
@@ -365,6 +379,7 @@ class StoreTest(unittest.TestCase):
         self.assertEqual(self.store.read(), expected)
         previous = copy.deepcopy(expected)
         again = self.store.restore(expected_revision=2)
+        self.assert_private_artifacts()
         expected = dict(current, revision=3)
         self.assertEqual(again, expected)
         self.assertEqual(self.store.read(), expected)
@@ -400,6 +415,16 @@ class StoreTest(unittest.TestCase):
                 with self.assertRaises(BackupError):
                     self.store.restore()
                 self.assertEqual(self.pair(), before)
+
+    def test_restore_requires_backup_without_creating_or_changing_artifacts(self) -> None:
+        current = self.seed_pair()
+        self.backup.unlink()
+        before = {item.name: item.read_bytes() for item in self.directory.iterdir()}
+        with self.assertRaises(BackupError):
+            self.store.restore(expected_revision=current["revision"])
+        self.assertEqual({item.name: item.read_bytes() for item in self.directory.iterdir()}, before)
+        self.assertFalse(self.backup.exists())
+        self.assertEqual(self.store.read(), current)
 
     def test_restore_boundary_failures_preserve_security_identical_pair(self) -> None:
         self.seed_pair()
@@ -452,6 +477,9 @@ class StoreTest(unittest.TestCase):
                 else:
                     os.link(outside, artifact)
                 with self.subTest(suffix=suffix, kind=kind):
+                    if suffix == "":
+                        with self.assertRaises(StateError):
+                            StateStore(self.path).read()
                     with self.assertRaises(StateError):
                         StateStore(self.path).transaction(lambda value: None)
                     self.assertEqual(outside.read_bytes(), original)
@@ -490,6 +518,12 @@ class StoreTest(unittest.TestCase):
         self.assertEqual(((displaced / "state.json").read_bytes(),
                           (displaced / "state.json.bak").read_bytes()), before)
 
+    @staticmethod
+    def stop_process(process: subprocess.Popen) -> None:
+        if process.poll() is None:
+            process.kill()
+        process.communicate(timeout=5)
+
     def run_writers(self, *, writers: int, iterations: int, expected: int | None) -> list[dict]:
         script = """
 import json, sys, time
@@ -513,15 +547,17 @@ except RevisionConflictError:
     print(json.dumps({'outcome': 'conflict'}))
 """
         gate = self.base / "start-gate"
+        gate.unlink(missing_ok=True)
         processes = []
         for index in range(writers):
             ready = self.base / f"ready-{index}"
+            ready.unlink(missing_ok=True)
             command = [sys.executable, "-c", script, str(CONTROLLER), str(self.path),
                        str(gate), str(ready), str(iterations), str(expected) if expected is not None else "none"]
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                        cwd=self.base, env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1"))
             processes.append(process)
-            self.addCleanup(lambda process=process: process.kill() if process.poll() is None else None)
+            self.addCleanup(self.stop_process, process)
         deadline = time.monotonic() + 20
         while not all((self.base / f"ready-{index}").exists() for index in range(writers)):
             self.assertLess(time.monotonic(), deadline, "writers must reach the shared start gate")
@@ -537,13 +573,30 @@ except RevisionConflictError:
 
     def test_real_process_cas_allows_exactly_one_writer_for_the_same_revision(self) -> None:
         self.store.initialize(self.initial)
-        results = self.run_writers(writers=3, iterations=1, expected=0)
-        self.assertEqual([item["outcome"] for item in results].count("committed"), 1)
-        self.assertEqual([item["outcome"] for item in results].count("conflict"), 2)
-        self.assertIn({"outcome": "committed", "revision": 1}, results)
-        expected = dict(self.initial, revision=1)
-        self.assertEqual(self.store.read(), expected)
-        self.assertEqual(json.loads(self.backup.read_bytes()), self.initial)
+        for revision in (0, 1):
+            with self.subTest(revision=revision):
+                results = self.run_writers(writers=3, iterations=1, expected=revision)
+                self.assertEqual([item["outcome"] for item in results].count("committed"), 1)
+                self.assertEqual([item["outcome"] for item in results].count("conflict"), 2)
+                self.assertIn({"outcome": "committed", "revision": revision + 1}, results)
+                expected = dict(self.initial, revision=revision + 1)
+                self.assertEqual(self.store.read(), expected)
+                self.assertEqual(json.loads(self.backup.read_bytes()), dict(self.initial, revision=revision))
+
+    def test_positive_stale_revisions_reject_transactions_and_restore_without_side_effects(self) -> None:
+        self.seed_pair()
+        current = self.store.transaction(lambda value: None, expected_revision=1)
+        before = self.pair()
+        called = []
+        with self.assertRaises(RevisionConflictError):
+            self.store.transaction(lambda value: called.append("mutator"), expected_revision=1)
+        self.assertEqual(called, [])
+        self.assertEqual(self.pair(), before)
+        with self.assertRaises(RevisionConflictError):
+            self.store.restore(expected_revision=1, precondition=lambda value: called.append("restore"))
+        self.assertEqual(called, [])
+        self.assertEqual(self.pair(), before)
+        self.assertEqual(self.store.read(), current)
 
     def test_real_process_writers_serialize_all_revision_increments_without_lost_updates(self) -> None:
         self.store.initialize(self.initial)
