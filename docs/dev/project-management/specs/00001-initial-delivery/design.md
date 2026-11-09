@@ -17,7 +17,7 @@ Decision inputs: `meta/decisions.md` (2026-09-27 scope and intake; 2026-09-28 ai
 - By decision 2026-10-04 #10, T-061 takes over one check from T-053: the user documentation states the one-writer contract, and that writers at the same moment are outside it.
 - `AGENTS.md` and `CONTRIBUTING.md` (repository root): a user-visible change gets a changelog entry in the same commit; the plugin table in the root README changes when a plugin is published.
 - Tagging and publishing are outward-facing and cannot be undone cleanly. T-065 runs only on the developer's explicit instruction.
-- T-066 and T-067 write into two other repositories, `buvis/claude-autopilot` and `buvis/agent-skills`. They add an intake item or a PRD there and change nothing else.
+- R4 (2026-11-09): T-066 writes an intake item under this repository’s `docs/dev/project-management/intake/new/` for `plugins/autopilot`; `buvis/claude-autopilot` is frozen and must not be written. T-067 still hands retirement to `buvis/agent-skills` on the developer’s instruction.
 
 ### Design principles
 
@@ -195,7 +195,7 @@ agent-plugins/
 | `docs/dev/project-management/reviews/YYYY-MM-DD-specflow-upstream-catchup.md`, `tools/specflow/upstream/sources.md` | new, edit | T-064 | the report and the cursor moves of the catch-up before the release |
 | `README.md` | edit | T-065 | the plugin table gains specflow |
 | git tag `specflow-v0.1.0` and its release notes | new | T-065 | the release |
-| an intake item in `buvis/claude-autopilot` | new | T-066 | the repoint request |
+| `docs/dev/project-management/intake/new/` | new | T-066 | the repoint request for `plugins/autopilot` in this repository |
 | an intake item or PRD in `buvis/agent-skills` | new | T-067 | the retirement request with the parity reports |
 
 ## Components and interfaces
@@ -256,11 +256,11 @@ Order: T-060 and T-061 (documentation) in either order; T-062 (policy, changelog
 - T-063: both tools exit 0 on the clean checkout; the catch-up skill, the cursors, the rule inventory, the evals, the parity reports, and every repository-only tool are absent from `plugins/specflow/`.
 - T-064: all eight measures hold, including the evals on all hosts and parity; no accepted capability or check is deferred.
 - T-065: installing from the tag yields the tree that was tested, compared by the git tree id of `plugins/specflow/`.
-- T-066: the item exists in claude-autopilot and cites the status schema version; `test_package_does_not_name_autopilot`, which T-061 writes into `test_docs.py`, scans the package, case-insensitive. T-067: the item or PRD in agent-skills cites each parity report, and every skill it retires is marked ready in its report.
+- T-066: the item exists in this repository’s intake for `plugins/autopilot` and cites the status schema version; `test_package_does_not_name_autopilot`, which T-061 writes into `test_docs.py`, scans the package, case-insensitive. T-067: the item or PRD in agent-skills cites each parity report, and every skill it retires is marked ready in its report.
 
 ## Rollout and migration
 
-This spec is the rollout. The first release has no earlier version, so nothing migrates on the plugin's side. On the developer's side, the personal skills retire in their own repository after their parity gates, and autopilot repoints in its own; neither is done here. The root README plugin table changes with the tag, not before.
+This spec is the rollout. The first release has no earlier version, so nothing migrates on the plugin's side. On the developer's side, the personal skills retire in their own repository after their parity gates, and the autopilot repoint is requested in this repository’s intake for `plugins/autopilot`; implementation of neither migration is done here. The root README plugin table changes with the tag, not before.
 
 ## Risks and edge cases
 

@@ -197,3 +197,34 @@ each landing exactly once.
 - Outstanding questions: none.
 - Next action: implementation, in dependency order, starting with 00002 (T-001); once the helper of 00004 exists, recovery mode records these receipts as real approvals after the developer confirms each.
 - Verdict: COMPLETE (10 tasks planned; implementation not started).
+
+## Requirements approval recovery (2026-11-09)
+
+- Question: "Do you confirm 00009’s requirements approval as they stand?"
+- Answer: "yes".
+- Reading: the developer confirms the requirements re-approval receipt of 2026-10-04 against the current requirements. The terminology question was resolved against the canonical buvis/docs agent operations taxonomy: host remains the correct term. No artifact text changed for terminology.
+- Validation: requirements valid. The helper’s canonical hash and approval metadata are recorded in `.specflow.json`; feature, requirements-first, standard are recovered from the conversion receipt.
+- Scope: requirements only. Amended design and tasks remain draft and await explicit approval. No instruction-isolation choice or release-evidence waiver is granted.
+
+## Review: design.md 2026-11-10
+
+- 1 | Blocking | R2/R3 manual fallback inferred from an unrelated status probe | developer selected targeted checks: "yes, follow recommended option"; both capability checks passed; restored the previously ruled automation with its review safeguards | resolved; full validation remains in T-056/T-058
+- Evidence: release fast-path plan section 8, targeted R2/R3 checks. This is approval of the review resolution, not approval of the design or tasks.
+- 2 | Question | Kiro engine evidence versus IDE evidence | developer confirmed the automated/manual testing split: "yes, it does" | resolved
+- Reading: CLI runs provide engine evidence; manual IDE checks retain handoff, native-edit coexistence, and spec-type opening evidence. This confirms that design decision only; overall design and tasks approval remain pending.
+- 3 | Question | Test isolation after failed setup probes | developer answered "yes" to retaining isolation as a T-056 acceptance condition before release evidence is collected | resolved
+- Reading: fixtures may proceed first. The Codex setup failure did not test authentication; the Claude probe did not prove instruction isolation. No personal instruction file move or contaminated-evidence waiver is authorized. Overall design and tasks approval remain pending.
+
+## Design approval recovery (2026-11-10)
+
+- Question: "Do you approve 00009’s amended design as reviewed?"
+- Answer: "yes".
+- Scope: the current amended design, including restored R2/R3, R1’s automated/manual Kiro split, and isolation as a T-056 acceptance condition. Requirements remain approved; tasks remain draft.
+- Validation: design valid; canonical hash, helper UTC approval time, current commit, and upstream hash copied into state. Code-baseline helper returned not_checked because the placement includes session directories rather than an exhaustive explicit file list; that advisory limitation is preserved. No personal instruction-file move or contaminated-evidence waiver is authorized.
+
+## Tasks approval recovery (2026-11-10)
+
+- Question: "Do you approve 00009’s amended task plan?"
+- Answer: "agreed".
+- Reading: explicit approval of the current ten-task plan in the presented serial order, including T-051 and T-052 after T-057. Three advisory placement warnings and the unmeasured design code baseline were disclosed.
+- Validation: tasks phase reports no errors. Helper canonical hash, approval time, commit, and upstream hashes copied into state. All tasks remain unchecked. T-050 starts only in a fresh session. No instruction-file move or release-evidence waiver is authorized.

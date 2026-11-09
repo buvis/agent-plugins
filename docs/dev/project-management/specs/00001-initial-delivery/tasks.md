@@ -111,16 +111,16 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 - [ ] T-066 Hand off the autopilot repoint
   - Requirements: 00009 REL-002 criterion 8
   - Depends on: T-061
-  - Location: an intake item in `buvis/claude-autopilot`
-  - Premise: The developer has given an explicit instruction to commit and push into the other repository; the approval of this plan is not that instruction. Without it, the item's text is reported to the developer, and the task stays unchecked until the item exists in the other repository.
+  - Location: an intake item under `docs/dev/project-management/intake/new/` in this repository for `plugins/autopilot`
+  - Premise: `buvis/claude-autopilot` is frozen since 2026-11-01. The repoint request belongs to `plugins/autopilot` in this repository.
   - Contract: T-066 asks autopilot to read approved specs from the specs folder through the status document (`statusVersion` cited) instead of `prds/backlog`, and to keep its own settings out of specflow's files.
   - Details:
-    - Write an intake item in `buvis/claude-autopilot` asking autopilot to read approved specs from `.kiro/specs` through the status JSON (design §7.6) instead of `prds/backlog`, and to keep its own knobs outside specflow's files (ART-001.9).
+    - Write an intake item under this repository’s `docs/dev/project-management/intake/new/` for `plugins/autopilot` asking autopilot to read approved specs from `.kiro/specs` through the status JSON (design §7.6) instead of `prds/backlog`, and to keep its own knobs outside specflow's files (ART-001.9).
     - Name the dependency: create-prd and review-prd-backlog retire only after that repoint lands (`qa-log.md` Q2).
-    - This task adds one intake item in the other repository, in that repository's own form, and changes nothing else there; the item's path goes in the `Outcome:` line. The item holds no secret and no machine path. If that repository cannot be written, report the item's text so the developer can file it by hand.
+    - This task adds one intake item in this repository’s intake form and makes no implementation change; the item's path goes in the `Outcome:` line. The item holds no secret and no machine path. Never write into the frozen repository.
   - Acceptance criteria: 00009 REL-002 criterion 8
   - Verify:
-    - the intake item exists in claude-autopilot, cites the status schema version, and nothing in `plugins/specflow/` names autopilot.
+    - the intake item exists under this repository’s `docs/dev/project-management/intake/new/`, targets `plugins/autopilot`, cites the status schema version, and nothing in `plugins/specflow/` names autopilot.
     - `test_package_does_not_name_autopilot` in `test_docs.py` (written by T-061) passes; it scans the package, case-insensitive.
 
 - [ ] T-067 Hand off skill retirement

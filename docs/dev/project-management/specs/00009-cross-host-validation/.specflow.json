@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "specId": "00009-cross-host-validation",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "c6b28b5cecc45af746957cc9e107c6f73d887de4cb999646c27ff64949dd2758",
+      "approvedSha256": "c6b28b5cecc45af746957cc9e107c6f73d887de4cb999646c27ff64949dd2758",
+      "approvedAt": "2026-11-09T22:16:31Z",
+      "approvedCommit": "0190d03fbc505686252851e062ea9c902b60e903"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "53866e37235717db5486e3467a87c7554dcb8da79f50b789957f05994a5ef871",
+      "approvedSha256": "53866e37235717db5486e3467a87c7554dcb8da79f50b789957f05994a5ef871",
+      "approvedAt": "2026-11-09T23:23:52Z",
+      "approvedCommit": "0190d03fbc505686252851e062ea9c902b60e903",
+      "upstreamSha256": {
+        "requirements": "c6b28b5cecc45af746957cc9e107c6f73d887de4cb999646c27ff64949dd2758"
+      },
+      "approvedCode": {
+        "status": "not_checked",
+        "reason": "tests/specflow/evals/sessions is a directory; tests/specflow/fixtures/sessions is a directory"
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "625edb3c564955a6ec723daa90bc95f48a873787756f8df69e9dd8e805e7be76",
+      "approvedSha256": "625edb3c564955a6ec723daa90bc95f48a873787756f8df69e9dd8e805e7be76",
+      "approvedAt": "2026-11-09T23:25:01Z",
+      "approvedCommit": "0190d03fbc505686252851e062ea9c902b60e903",
+      "upstreamSha256": {
+        "requirements": "c6b28b5cecc45af746957cc9e107c6f73d887de4cb999646c27ff64949dd2758",
+        "design": "53866e37235717db5486e3467a87c7554dcb8da79f50b789957f05994a5ef871"
+      }
+    }
+  }
+}

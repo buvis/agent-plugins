@@ -301,3 +301,13 @@ Probes ran in that order. No failed command was retried or bypassed.
    retain D10 (every rubric judged manually) and manual source-skill parity
    runs and row judgements (R2/R3 fallbacks). Automated Claude release
    evidence remains blocked until isolation and permissions are proven.
+
+
+### 2026-11-10 targeted R2/R3 checks
+
+The developer chose the recommended review option to check these capabilities separately. Original failures above remain unchanged; no denied operation was retried. Commands ran from the checkout root. Both used Claude Code 2.1.321, explicit model `claude-opus-5-5`, and a $1 cap per check.
+
+- `bash docs/dev/tmp/specflow/probes/judge.bash`: exit 0, PASS. `--setting-sources project,local --tools ""` supplies only two synthetic candidates and a fixed rubric. Init reports `tools: []`. Output: candidate A PASS (one question, first option recommended), candidate B FAIL (two questions, second option recommended), as expected. No permission denials. Cost $0.1057578; session `e8e42b3d-19c0-4bf6-b473-08e043daa930`. This proves invocation and one known-answer check, not general judge accuracy or model diversity for live Claude runs.
+- `bash docs/dev/tmp/specflow/probes/source-skill.bash`: exit 0, PASS for invocation and reference reads. `--setting-sources user --tools Skill,Read` invoked `elicit-requirements` by name, read classification-guide.md and question-bank.md through existing user permissions, classified the idea, and asked its first question. No permission denials, writes, delegation, or downstream skill calls. Cost $0.3352864; session `14c4fca3-84f7-460a-b20c-4bbc071de024`. AskUserQuestion was unavailable; output used a plain-text question. This does not prove a complete source session, writes, unattended question replay, all six skills, or parity.
+
+Correction: the original Claude status failure does not establish failure of either independent capability. Restore the previously ruled R2/R3 in the draft, retaining their developer review safeguards and full T-056/T-058 validation. Claude specflow-run instruction isolation and denied reference/status access remain unresolved. Design approval remains pending.

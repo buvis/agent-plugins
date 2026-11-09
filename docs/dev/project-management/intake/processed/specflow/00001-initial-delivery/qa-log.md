@@ -587,3 +587,26 @@ here unchanged as the record. Implementation starts with 00002 (T-001).
 ## Deferred to T-065 (2026-10-09)
 
 - When T-065 (the release) runs, reopen findings R6 and R18 of `reviews/00002-package-boundary-review-01.md`: the release check matches forbidden names exactly (`parity-report.md` and `evals.json` pass) and markers case-sensitively (`catch-up` passes). They were deferred because broader matching risks refusing innocent files.
+
+## Requirements approval recovery (2026-11-10)
+
+- Question: "Do you confirm 00001’s requirements approval as it stands?"
+- Answer: "ok, approved".
+- Reading: confirms the 2026-10-04 requirements approval receipt against the current requirements. Feature, requirements-first, and standard recovered from the conversion receipt.
+- Validation: requirements valid. Helper canonical hash, UTC approval time, current commit, and workflow version copied into state. Amended design and tasks remain draft. No implementation, publishing, tagging, or external migration is authorized by this confirmation.
+
+## Design approval recovery (2026-11-10)
+
+- Question: "Do you approve 00001’s amended design?"
+- Answer: "yes".
+- Scope: current design, with R4 redirecting the repoint intake to this repository for plugins/autopilot. No write to the frozen claude-autopilot repository.
+- Validation: design valid. Helper hash, UTC approval time, commit, upstream hash, and code-baseline result copied into state. Code baseline is not_checked because the intake placement is a directory, not a concrete future item path.
+- Requirements remain approved; tasks remain draft. Implementation waits on 00009. Tagging, publishing, and external migration still require their separate instructions.
+
+## Tasks approval recovery (2026-11-10)
+
+- Question: "Do you approve 00001’s amended task plan?"
+- Answer: "yes".
+- Scope: the current eight-task release plan, with T-066’s intake redirected to this repository for plugins/autopilot.
+- Validation: tasks valid. Helper canonical hash, UTC approval time, commit, and upstream hashes copied into state. All tasks remain unchecked; implementation waits on 00009.
+- Tagging/publishing and the external retirement handoff retain their separate explicit-instruction requirements. This session commits approvals and checks status only; T-050 starts in a fresh session.

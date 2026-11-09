@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "specId": "00001-initial-delivery",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "4a70503f9c2a84fc625e747d41925161dcd6e35b2e3e6f1aad09be183fe20e64",
+      "approvedSha256": "4a70503f9c2a84fc625e747d41925161dcd6e35b2e3e6f1aad09be183fe20e64",
+      "approvedAt": "2026-11-09T23:27:09Z",
+      "approvedCommit": "0190d03fbc505686252851e062ea9c902b60e903"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "4199f1840f506432e23020d34d61d8d0b0b39fd10789c1a4fb74d915b5829215",
+      "approvedSha256": "4199f1840f506432e23020d34d61d8d0b0b39fd10789c1a4fb74d915b5829215",
+      "approvedAt": "2026-11-09T23:27:52Z",
+      "approvedCommit": "0190d03fbc505686252851e062ea9c902b60e903",
+      "upstreamSha256": {
+        "requirements": "4a70503f9c2a84fc625e747d41925161dcd6e35b2e3e6f1aad09be183fe20e64"
+      },
+      "approvedCode": {
+        "status": "not_checked",
+        "reason": "docs/dev/project-management/intake/new is a directory"
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "840e796f31f2995d59fbb2728d5a154f6be068f602afd4ebd15c17732fe1020e",
+      "approvedSha256": "840e796f31f2995d59fbb2728d5a154f6be068f602afd4ebd15c17732fe1020e",
+      "approvedAt": "2026-11-09T23:29:50Z",
+      "approvedCommit": "0190d03fbc505686252851e062ea9c902b60e903",
+      "upstreamSha256": {
+        "requirements": "4a70503f9c2a84fc625e747d41925161dcd6e35b2e3e6f1aad09be183fe20e64",
+        "design": "4199f1840f506432e23020d34d61d8d0b0b39fd10789c1a4fb74d915b5829215"
+      }
+    }
+  }
+}

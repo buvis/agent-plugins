@@ -9,7 +9,7 @@ This spec produces the evidence the first release rests on. It builds the canoni
 - Depends on 00003 to 00008: every reference, check, eval record, and host install exists before this spec starts.
 - This spec owns evidence obligations: RULE-001 criteria 4 and 6, and success measures 1 to 3 and 6 to 8 (REL-002). Its other tasks prove again, on real hosts, criteria that earlier specs own, and cite them across the dependency.
 - By decision 2026-10-04 #10, T-053 no longer checks the user documentation; that check moved to T-061 in 00001. T-081 came here from phase 5, because it needs the fixtures of T-050.
-- Kiro IDE has no headless mode. Its runs are recorded manual runs by the developer: the same fixture and turns, the captured files and transcript, scored like any other run.
+- Kiro host sessions use kiro-cli engine v3 headless with the installed specflow Power (R1, Power activation proven 2026-11-09). Only the three Kiro steps of T-051, T-052, and the own-spec-type notes of `intake-bugfix` and `shared-dialogue-design-first` stay manual in Kiro IDE. CLI records retain `host: kiro-ide`, use `mode: automated`, and name kiro-cli and Kiro Agent Server versions in `hostVersion`. Kiro CLI remains untested as a supported product and is not listed as supported (PKG-003.4 unchanged).
 - Everything here lives outside the package, under `tests/specflow/` and `docs/dev/project-management/reviews/`; the release check of 00002 fails if any of it appears inside.
 
 Section numbers such as `§7.3` in carried passages are those of the source design in intake item 00001; `docs/dev/project-management/reviews/2026-10-04-specflow-split-map.md` names the spec that now holds each section.
@@ -23,7 +23,7 @@ tests/specflow/
 │   └── conversion/calcard-00032/     # The reference conversion: source PRD and its artifact set as it stands (T-081)
 ├── compatibility/                    # Handoff, coexistence, context efficiency, conversion: records and tests
 ├── evals/
-│   ├── runners/                      # run_claude.py, run_codex.py, score.py, manual-run.md
+│   ├── runners/                      # run_claude.py, run_codex.py, run_kiro.py, score.py, manual-run.md
 │   ├── schemas/result.schema.json    # The run record
 │   ├── results/<host>/<session>/     # Stored run records with their scores, one file per run
 │   └── README.md                     # How to run the evals on each host
@@ -48,7 +48,7 @@ A run and its score are separate steps. A runner plays one session on one host a
 | `docs/dev/project-management/reviews/YYYY-MM-DD-specflow-security-review.md` | new | T-054 | the security review |
 | `tests/specflow/security/test_*.py` | new | T-054 | one regression test per finding, and `test_stdlib_only.py` |
 | `tests/specflow/compatibility/context-efficiency.md` | new | T-055 | measured sizes, and which references each phase loaded |
-| `tests/specflow/evals/runners/run_claude.py`, `run_codex.py`, `score.py`, `manual-run.md` | new | T-056 | the runners, the scorer, the manual procedure |
+| `tests/specflow/evals/runners/run_claude.py` | new | T-056 | Claude Code runner |
 | `tests/specflow/evals/schemas/result.schema.json`, `tests/specflow/rules/test_score.py`, `tests/specflow/fixtures/results/` | new | T-056 | the run record, and scorer tests on stored records |
 | `tests/specflow/evals/SR-<area>-NNN.json`, `tests/specflow/evals/sessions/` | edit | T-057 | any eval record or session still missing |
 | `tests/specflow/evals/results/<host>/<session>/<n>.json` | new | T-057 | the stored results, per host and run |
@@ -57,6 +57,10 @@ A run and its score are separate steps. A runner plays one session on one host a
 | `tests/specflow/evals/sessions/conversion-calcard.json` | new | T-081 | the conversion session |
 | `tests/specflow/compatibility/test_conversion_fixture.py` | new | T-081 | the structural comparison of a stored conversion run with the proven set |
 | `.github/workflows/validate.yml` | edit | T-054, T-081 | one step each, added with the first test of its folder: `tests/specflow/security`, `tests/specflow/compatibility` |
+| `tests/specflow/evals/runners/run_codex.py` | new | T-056 | Codex runner |
+| `tests/specflow/evals/runners/run_kiro.py` | new | T-056 | kiro-cli v3 runner and Power activation evidence |
+| `tests/specflow/evals/runners/score.py` | new | T-056 | common scorer |
+| `tests/specflow/evals/runners/manual-run.md` | new | T-056 | manual IDE steps |
 
 ## Components and interfaces
 
@@ -105,25 +109,29 @@ One record with two parts. Sizes: lines and bytes of `SKILL.md`'s frontmatter an
 
 ### Eval runners of T-056
 
-- Runners: Claude Code headless (`claude -p` with the plugin loaded) and Codex (`codex exec`) run sessions unattended. Kiro IDE uses a recorded manual run per session: the same fixture and turns, the captured files and transcript, and the scoring of every eval on that session, stored with the results.
+- Runners: Claude Code headless (`claude -p` with the plugin loaded) and Codex (`codex exec`) run sessions unattended. Kiro sessions use `run_kiro.py` with `kiro-cli chat --v3 --no-interactive --output-format stream-json` and the installed Power; only the IDE-asserted steps use recorded manual runs: the same fixture and turns, the captured files and transcript, and the scoring of every eval on that session, stored with the results.
 - A broken session fails every eval on it; the result names the session so the fix lands once.
 - Eval records are written with each reference. Every eval runs on every supported host before release 0.1 (requirements §9); CI runs `check_rules.py` and deterministic tests on ordinary changes. Release evidence records the tested runtime/fixture revisions so changed inputs are rechecked before publication; unchanged results need not be rerun merely to repeat a gate.
 
 ```text
 python3 tests/specflow/evals/runners/run_claude.py <session> [--out DIR]
 python3 tests/specflow/evals/runners/run_codex.py <session> [--out DIR]
+python3 tests/specflow/evals/runners/run_kiro.py <session> [--out DIR]
 python3 tests/specflow/evals/runners/score.py <run-record.json>
 ```
 
-A runner plays one session and writes a run record. `score.py` reads a run record, evaluates every eval whose `session` matches, and writes the scores into the record. Exit codes of all three: 0 done (for the scorer: every eval passed), 1 a failed eval, an unjudged rubric, or a broken session, 2 a usage error, a host that could not start, or an installed plugin that is not the revision under test. `manual-run.md` tells the developer how to produce the same run record from a Kiro IDE session, under the same preconditions.
+A runner plays one session and writes a run record. `score.py` reads a run record, evaluates every eval whose `session` matches, and writes the scores into the record. Exit codes of all four: 0 done (for the scorer: every eval passed), 1 a failed eval, an unjudged rubric, or a broken session, 2 a usage error, a host that could not start, or an installed plugin that is not the revision under test. `manual-run.md` tells the developer how to produce the same run record from a Kiro IDE session, under the same preconditions.
 
 Run environment:
+
+- The probes of 2026-11-09 are recorded in `plans/specflow-release-fast-path.md` section 8. Scratch Git initialization failed before any temporary Codex home was created; D11 is unproven. Before a Codex batch the developer must explicitly choose instruction-file isolation; any tainted run needs an explicit release-evidence waiver. No waiver or instruction-file move is granted by this design approval. The Claude probe loaded the plugin but denied reference reads and status execution, and still loaded user instruction files. Claude automated release evidence is blocked until permissions and instruction isolation are proven; no failed probe is worked around. Separate targeted checks on 2026-11-10 proved text-only judging and normal-profile source-skill invocation without permission denials. R2 and R3 therefore remain the selected design; their full validation belongs to T-056 and T-058. These checks do not clear Claude specflow-run isolation or permission blockers.
+- The Kiro probe proves Power activation through KAS 0.66.70, but its helper resolved the enclosing checkout after scratch Git initialization failed. T-056 must verify a workspace is its own Git root before any host starts.
 
 - The runner copies the session's fixture to a scratch workspace under `docs/dev/tmp/specflow/evals/` and runs `git init` and one commit there, so every git command of the agent under test sees the workspace and not this repository. A session that names another in `continues` starts from that session's finished workspace; the runner plays a session and the sessions that continue it in one batch, and the record of the later one names the run it started from.
 - One session is one conversation, resumed turn by turn (`claude -p --resume`, `codex exec resume`). A `continues` session is a new conversation. A turn may carry an `expects` pattern (00005): when the agent's previous reply does not match it, the session is broken at that turn and the record says so; a turn without one is fed unconditionally. This keeps a run that went off script from passing assertions about what is absent.
 - The developer's own instructions, skills, hooks, and plugins must not reach the agent: they hold the personal skills specflow is compared with, and rules such as one question per message, which two assertion kinds test. The runner passes the host's flags that leave user-level settings out (the installed `claude --help` lists them; T-056 fixes the set), and the record lists every instruction file the host still loaded. For Codex the reviewer found no flag that leaves out the user-level instruction file, so its runner uses a temporary Codex home, described below. A run where they could not be left out says so and is not release evidence.
 - Each runner fixes a permission or sandbox mode limited to the scratch workspace, a timeout per turn, and a spending cap per session, as constants in the runner.
-- Claude Code loads the plugin per run with `--plugin-dir plugins/specflow` and installs nothing. Codex has no such option in `codex exec --help`, as the pre-pass reviewer read it. By the developer's ruling of 2026-10-04 (D11), its runner makes a temporary Codex home for the batch that holds only the sign-in and the plugin, installed by the install surface the T-042 record of 00008 names; it hashes the installed copy and exits 2 when that differs from `runtimeRevision`. The developer's own Codex home is not touched. The temporary home lives under the ignored `docs/dev/tmp/specflow/evals/` and holds a copy of the sign-in, so the runner removes it when the batch ends, also after a failure. Nobody has run this yet: T-056 first proves that the sign-in works from a temporary home, and if it does not, the task stops and the developer decides.
+- Claude Code loads the plugin per run with `--plugin-dir plugins/specflow` and installs nothing. Codex has no such option in `codex exec --help`, as the pre-pass reviewer read it. By the developer's ruling of 2026-10-04 (D11), its runner makes a temporary Codex home for the batch that holds only the sign-in and the plugin, installed by the install surface the T-042 record of 00008 names; it hashes the installed copy and exits 2 when that differs from `runtimeRevision`. The developer's own Codex home is not touched. The temporary home lives under the ignored `docs/dev/tmp/specflow/evals/` and holds a copy of the sign-in, so the runner removes it when the batch ends, also after a failure. The 2026-11-09 probe failed before authentication; the fallback and release-evidence restrictions above apply. A temporary home, if subsequently authorized and proven, must still be removed on success or failure.
 
 Scoring:
 
@@ -131,7 +139,7 @@ Scoring:
 - The scorer implements every assertion kind of the eval schema of 00005 and fails on a kind it does not know; a test compares the two lists.
 - File kinds read `files` and `unchanged`. Read kinds read `filesRead`. `one_question_per_message` passes when no entry of `messages` has more than one sentence that ends in a question mark outside fenced code and outside its list of options. `recommended_option_first` passes when, in every entry that marks an option as recommended, that option is the first one listed.
 - The status comparison across hosts is a second command, `score.py --compare <record> <record> ...`, given one session's latest record per host. It compares the named fields of each record's `status` only: `phase`, `artifacts`, `gates`, `hold`, and whether `nextTask` is null. Text a model wrote, such as a task title, is not compared.
-- A `rubric` assertion is judged by the developer, by hand: the scorer prints the rubric and the messages it applies to, and stores the verdict, the judge, and the reason in `scores`. Until it is judged the scorer exits 1.
+- A `rubric` assertion is scored by a model judge through `claude -p` with a fixed prompt. Store `judge: model:<id>`, verdict, and reason. When testing Claude Code, use a judge model different from the model under test. The developer judges every FAIL and a random 10% of PASS verdicts per host and session; if more than 1 of 10 sampled verdicts is wrong, that session’s rubrics are judged manually (R2, amending D10). Until judged the scorer exits 1.
 
 ### Conversion acceptance of T-081
 
@@ -145,7 +153,7 @@ Before release 0.1, per source skill covered by RULE-001.6:
 
 1. Collect the inputs: the fixture and the developer turns of each session whose evals carry the skill's rules.
 
-2. Run the source skill (on Claude Code, where it lives) and specflow (on every supported host) on the same inputs.
+2. The source skill runs headlessly on Claude Code in the developer’s normal profile (`claude -p --setting-sources user`), invoked by name on the same fixture and developer turns. The same model judge scores each mapped rule. The developer reviews each of the six per-skill reports; failed verdicts and sampled passes follow R2. This source-run adapter uses source-skill paths rather than specflow’s asserted paths (R3). Run specflow on every supported host on the same inputs.
 3. Record, per rule, the source result and specflow's result per host in `tests/specflow/parity/<skill>.md`.
 4. The skill may retire only when every rule mapped from it passes on specflow on every host. A rule the source skill fails still has to pass on specflow: the rule is the contract, not the old behavior.
 
@@ -178,11 +186,11 @@ The run record, `tests/specflow/evals/results/<host>/<session>/<n>.json` with `n
 | `unchanged` | array | yes | workspace paths whose content equals the fixture's |
 | `scores` | array | no | written by the scorer: one object per eval with `rule`, the git blob id of the eval file, `passed`, the failing assertions, and for a rubric the verdict, the judge, and the reason |
 
-A parity report, `tests/specflow/parity/<skill>.md`: one row per rule mapped from the skill, with the source skill's result and specflow's result on each host, and the verdict ready to retire or not. specflow's results come from the stored run records. The source skill's result is a recorded judgement: the source skill is run by hand on Claude Code, where it lives, on the same input, and each rule is judged against what it produced and noted in the report; no runner plays the source skill, since the evals assert specflow's paths. The same input is the fixture and the developer turns of each session whose evals carry the skill's rules; an example of the skill's own counts once it is such a session.
+A parity report, `tests/specflow/parity/<skill>.md`: one row per rule mapped from the skill, with the source skill's result and specflow's result on each host, and the verdict ready to retire or not. specflow's results come from the stored run records. The source skill runs headlessly on Claude Code in the developer’s normal profile (`claude -p --setting-sources user`), invoked by name on the same fixture and developer turns. The same model judge scores each mapped rule. The developer reviews each of the six per-skill reports; failed verdicts and sampled passes follow R2. This source-run adapter uses source-skill paths rather than specflow’s asserted paths (R3). The same input is the fixture and the developer turns of each session whose evals carry the skill's rules; an example of the skill's own counts once it is such a session.
 
 ## Data and control flow
 
-Order: T-050 first, since everything else runs on its fixtures. Then the runners T-056, the handoff T-051, coexistence T-052, and the security review T-054, in any order. T-053 and T-081 are sessions and need T-056. Then T-057: every session on every host, every eval scored. Then T-055, which reads those run records, and T-058, the parity gate.
+Order, serially in task-file order: T-050, T-056, T-054, T-053, T-081, T-057, T-051, T-052, T-055, T-058. T-057 shakes down Claude Code first, freezes the package tree, then runs Codex and Kiro CLI on that tree. Package fixes return to Claude shakedown and stale all hosts; eval or judge corrections rerun only the affected sessions and hosts. T-051 and T-052 use the frozen package.
 
 Evidence is tied to revisions. Each run record names the package and fixture revisions it ran on. When either changes afterwards, the affected sessions are run again before the release (T-064 in 00001); an unchanged result is not rerun merely to repeat a gate.
 
@@ -220,8 +228,8 @@ The deterministic tests join CI when T-050 lands. Host runs do not run in CI: th
 ## Risks and edge cases
 
 - An eval passes on one run and fails on the next, since a model's output varies: impact m, likelihood m; mitigation: assertions are deterministic wherever one fits, and a rubric is marked as one; fallback: the failing run is kept and investigated, and the rule or its wording is fixed.
-- Host runs cost more time than planned, with every session on three hosts and one host by hand: impact m, likelihood h; mitigation: evals are grouped onto as few sessions as stay readable, so the run count follows sessions, not rules; fallback: none that keeps the release rule, since no eval may be skipped.
-- A headless host does not expose which files the agent read: impact m, likelihood m; mitigation: the runner takes `filesRead` from the host's own event output; fallback: the context-efficiency record marks that host as not measured, and the manual procedure is used for it.
+- Host runs cost more time than planned, with every session on three hosts and manual IDE assertions: impact m, likelihood h; mitigation: evals are grouped onto as few sessions as stay readable, so the run count follows sessions, not rules; fallback: none that keeps the release rule, since no eval may be skipped.
+- Codex read events are not available and its `filesRead` is recorded as not measured. A headless host does not expose which files the agent read: impact m, likelihood m; mitigation: the runner takes `filesRead` from the host's own event output; fallback: the context-efficiency record marks that host as not measured, and the manual procedure is used for it.
 - Likely next change, a fourth supported host: each host is one runner or one manual procedure; impact l, likelihood m; mitigation: the scorer and the run record are host-neutral; fallback: a recorded manual run.
 - Likely next change, a second version of the run record: results are stored per host and carry `schemaVersion`; impact l, likelihood m; mitigation: the scorer rejects a version it does not know; fallback: rerun the sessions.
 - Likely next change, more sessions as rules are added: nothing limits their number; impact l, likelihood h; mitigation: a new rule joins an existing session when it can; fallback: none needed.
@@ -243,8 +251,8 @@ The deterministic tests join CI when T-050 lands. Host runs do not run in CI: th
 ## Alternatives considered
 
 1. **Checklists run by hand on every host** (smallest diff: no runner, no scorer). Rejected. RULE-001 criterion 4 wants every eval run on every host; by hand, each change to a rule would cost three full manual passes.
-2. **Two runners, one scorer, and a recorded manual run for the host with no headless mode** (chosen). The added scripts buy repeatable runs on two hosts and one scoring path for all three.
-3. **An eval framework.** Rejected without a registry search: it would have to drive two different host command lines and accept a hand-made record for the third, and maintainer tooling carries no dependency (`AGENTS.md`).
+2. **Three runners, one scorer, and manual IDE assertions** (chosen by R1). The same Kiro Agent Server loads the installed Power; the recorded IDE steps retain UI evidence.
+3. **An eval framework.** Rejected without a registry search: it would have to drive three different host command lines and accept hand-made IDE records, and maintainer tooling carries no dependency (`AGENTS.md`).
 4. **Host runs in CI.** Rejected for the first release: they need signed-in hosts and a person for Kiro IDE; CI runs the deterministic tests, and the release reads the stored results.
 
 ## Reuse inventory
@@ -254,12 +262,12 @@ The deterministic tests join CI when T-050 lands. Host runs do not run in CI: th
 - The guard test of T-025 (00004), cited by the concurrent-edit session instead of repeated.
 - The Kiro captures of 00004 (T-027), the sessions and fixtures written with each reference in 00006 and 00007, and the host records of 00008.
 - The security findings and regression tests of T-076 and T-077 (00007).
-- `claude -p` and `codex exec` as the two headless hosts; `sys.stdlib_module_names` for the import test.
+- `claude -p`, `codex exec`, and kiro-cli v3 as the three headless engines; `sys.stdlib_module_names` for the import test.
 - The calcard-mcp artifact set as it stands (task plan not approved, no receipt), as the acceptance fixture.
 - Searches: nothing in `scripts`, `.github`, `plugins`, or `templates` runs a host or scores a transcript; the repository's only tests are `scripts/test_validate.py`.
 
 ## Open decisions
 
-No decision is open. Rulings of 2026-10-04 (design gates report), taken in above: D9, the fixture is compared by structure, in its true condition, and completed work is tested on a seeded variant; D10, the developer judges each rubric assertion by hand; D11, the Codex runner uses a temporary Codex home, which T-056 proves first.
+No decision is open. Rulings of 2026-10-04 (design gates report), taken in above: D9, the fixture is compared by structure, in its true condition, and completed work is tested on a seeded variant; D10, amended by R2 to model judging with developer review of FAILs and sampled PASSes; D11, the Codex runner uses a temporary Codex home, which T-056 proves first.
 
-Choices the source left to the design, made above and listed for approval: the run record and its fields; one scorer for automated and manual runs; the run environment (a git repository per workspace, user-level settings left out, limits per turn and per session); one conversation per session and what makes a session broken; the three script names and their exit codes; host runs outside CI with stored results as evidence; the import test as the dependency scan; concurrent edit as a session; the source skill's parity result as a recorded judgement; and the folders for records, security tests, and results.
+Choices the source left to the design, made above and listed for approval: the run record and its fields; one scorer for automated and manual runs; the run environment (a git repository per workspace, user-level settings left out, limits per turn and per session); one conversation per session and what makes a session broken; the four script names and their exit codes; host runs outside CI with stored results as evidence; the import test as the dependency scan; concurrent edit as a session; the source skill's parity result as a recorded judgement; and the folders for records, security tests, and results.
