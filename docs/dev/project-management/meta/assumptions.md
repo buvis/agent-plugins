@@ -67,3 +67,26 @@ Ivan:
 - A listed controller path with no existing asset row (other than controller-v1.json) is ignored, not refused.
 - A successor without loaded AP00013 receipts is refused; contract rows are upserted on every run that lists the path.
 - Pat LOWs left open: the contract-row construction could move into a helper; the CHANGELOG entry describes an unshipped maintainer tool.
+
+## 12 (rework, cycle 1): [D1] plugins/autopilot/
+
+Tess:
+
+- `reconciled_job_ids` entries use the same 64-lowercase-hex "identity" format as `workflow_id`/`project_id` elsewhere (e.g. `"a" * 64`) — the only identity shape shown in the excerpts/sample given.
+- The CLI's `--json` subprocess output is the literal JSON shape of `protocol.response()` (`{"ok", "revision", "result", "error_code", "retryable"}`), read via `completed.stdout` (str or bytes); bypassed the sample test file's unlisted `self.response()` helper rather than guess its behavior for a new error path.
+- Crashing at the `intent_dir_fsynced` boundary during `owner.acquire`, then replaying the identical request, exercises `owner.finish_intent`'s reconciliation path specifically (bypassing `owner.prepare`'s own already-correct `admit_staging` call).
+- Used `actors.STAGING_FILE_LIMIT` as the seeded orphan count to guarantee the ceiling is exceeded regardless of what the reconciliation itself proposes.
+- The new `deliberate_divergences` entry is matched by a tolerant substring/keyword check (`_cleanup_stale_temps`, `staging budget`, `staging-admission`, `admit_staging`), since the fix's exact wording wasn't pinned.
+- Added the `sys.path` insertion for `plugins/autopilot/controller` mirroring `test_controller_kernel.py`'s exact pattern — the excerpts implied a plain `autopilot_state` import without showing how it resolves on `sys.path`.
+- (finding 4) Reused `OwnerCLITest`'s real CLI-driven fixtures to produce a genuinely valid on-disk `owner.recover` intent, rather than hand-constructing a fake intent dict, since `read_intent` requires `schema.decode_json` to succeed first.
+- (finding 4) Monkeypatching `owner.validate_intent`/`actors.validate_intent`/`protocol.OWNER_OPERATIONS` works because `read_intent` resolves all three via late module-attribute lookup, not import-time binding.
+- (finding 4) Restoring the three monkeypatched globals in a `finally` block is sufficient isolation; no other test in the suite caches a pre-patch reference within the same process.
+- (finding 4) The dispatch-recording fakes return `{}` since `read_intent`'s return value isn't asserted by that test — only which fake got called.
+
+Ivan:
+
+- `owner.finish_intent`'s new `admit_staging` call is guarded by the existing `current != candidate` condition — the only branch that actually creates new publication-temp bytes via `store._transaction_locked`.
+- The two bytes passed to `admit_staging` are `_canonical_bytes(current)` and `_canonical_bytes(candidate)`, matching what `_commit_pair` would stage as `backup_bytes`/`state_bytes`.
+- The new `provenance.json` divergence entry's wording is the implementor's own phrasing; the test only requires a keyword match.
+
+Orchestrator: fixed a pre-existing bug in Tess's `seed_orphans` test helper (orphan files written with the process umask, 0o644, instead of the 0o600 `admit_staging`/`inspect` requires of real production orphans) — a one-line `chmod(0o600)` so `test_reconciliation_succeeds_well_under_the_staging_budget` exercises the budget path instead of an unrelated permission check. Pat (step-5.7 per-task review) was unavailable both dispatch attempts (`sonnet-run.sh`: "OAuth token revoked" then "Session ID already in use") — recorded `review: "failed:runner_auth"`; the mandatory PRD-level review cycle still covers this diff.
