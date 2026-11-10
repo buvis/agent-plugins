@@ -1125,5 +1125,152 @@ class CodexHomeTest(unittest.TestCase):
             self.assertFalse(record["releaseEvidence"])
 
 
+class CodexBoundaryTest(unittest.TestCase):
+    def test_probe_checks_are_not_satisfied_without_a_sandbox(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            payload = run_codex.prepare_probe(Path(folder))
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-I",
+                    "-B",
+                    "-c",
+                    run_codex.PROBE_SCRIPT,
+                    json.dumps(payload),
+                ],
+                cwd=payload["workspace"],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            checks = json.loads(result.stdout)
+            self.assertTrue(checks["workspace-read"])
+            self.assertTrue(checks["workspace-write"])
+            self.assertTrue(checks["plugin-read"])
+            self.assertTrue(checks["helper-status"])
+            self.assertFalse(checks["control-read-denied"])
+            self.assertFalse(checks["plugin-write-denied"])
+            self.assertFalse(checks["symlink-read-denied"])
+
+    def test_missing_sentinel_does_not_count_as_permission_denial(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            payload = run_codex.prepare_probe(Path(folder))
+            Path(payload["control"]).unlink()
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-I",
+                    "-B",
+                    "-c",
+                    run_codex.PROBE_SCRIPT,
+                    json.dumps(payload),
+                ],
+                cwd=payload["workspace"],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            self.assertFalse(json.loads(result.stdout)["control-read-denied"])
+
+    def test_incomplete_probe_report_cannot_pass(self) -> None:
+        self.assertFalse(run_codex.probe_passed({"workspace-read": True}))
+        complete = dict.fromkeys(run_codex.PROBE_CHECKS, True)
+        self.assertTrue(run_codex.probe_passed(complete))
+        complete["control-read-denied"] = False
+        self.assertFalse(run_codex.probe_passed(complete))
+
+    def test_probe_rejects_inherited_git_state_before_setup(self) -> None:
+        with (
+            mock.patch.dict(os.environ, {"GIT_DIR": "/synthetic/repository"}),
+            mock.patch.object(run_codex, "prepare_probe", autospec=True) as prepare,
+            self.assertRaisesRegex(run_claude.HostError, "GIT_"),
+        ):
+            run_codex.boundary_probe(Path("/synthetic/codex"))
+        prepare.assert_not_called()
+
+    def test_probe_keeps_secrets_out_and_cleans_up_after_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            scratch = Path(folder)
+            calls = []
+
+            def command(
+                args: list[str], cwd: Path, env: dict, timeout: float
+            ) -> subprocess.CompletedProcess:
+                calls.append(args)
+                self.assertNotIn("OPENAI_API_KEY", env)
+                self.assertNotIn("CLAUDE_CODE_OAUTH_TOKEN", env)
+                self.assertFalse((Path(env["CODEX_HOME"]) / "auth.json").exists())
+                if "--show-toplevel" in args:
+                    output = str(cwd)
+                elif "--absolute-git-dir" in args:
+                    output = str(cwd / ".git")
+                elif "--version" in args:
+                    output = "codex-cli synthetic"
+                elif "sandbox" in args:
+                    self.assertIn("--include-managed-config", args)
+                    self.assertNotIn("macos", args)
+                    return subprocess.CompletedProcess(args, 0, "{}", "")
+                else:
+                    output = ""
+                return subprocess.CompletedProcess(args, 0, output, "")
+
+            with (
+                mock.patch.dict(
+                    os.environ,
+                    {
+                        "OPENAI_API_KEY": "synthetic",
+                        "CLAUDE_CODE_OAUTH_TOKEN": "synthetic",
+                    },
+                    clear=True,
+                ),
+                mock.patch.object(sys, "platform", "darwin"),
+                mock.patch.object(
+                    run_claude, "command", autospec=True, side_effect=command
+                ),
+            ):
+                report = run_codex.boundary_probe(Path(sys.executable), scratch=scratch)
+            self.assertFalse(report["passed"])
+            self.assertFalse(report["releaseEvidence"])
+            self.assertTrue(report["cleanup"])
+            self.assertEqual(list(scratch.iterdir()), [])
+            self.assertIn("<batch>", report["generatedPolicy"])
+            self.assertNotIn(str(scratch), json.dumps(report))
+            self.assertEqual(sum("sandbox" in args for args in calls), 1)
+
+    def test_probe_cleans_up_on_interruption(self) -> None:
+        with (
+            tempfile.TemporaryDirectory() as folder,
+            mock.patch.dict(os.environ, {}, clear=True),
+            mock.patch.object(sys, "platform", "darwin"),
+            mock.patch.object(
+                run_claude, "command", autospec=True, side_effect=KeyboardInterrupt
+            ),
+            self.assertRaises(KeyboardInterrupt),
+        ):
+            scratch = Path(folder)
+            try:
+                run_codex.boundary_probe(Path(sys.executable), scratch=scratch)
+            finally:
+                self.assertEqual(list(scratch.iterdir()), [])
+
+    def test_probe_rejects_ancestor_instructions(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            parent = Path(folder)
+            (parent / "AGENTS.md").write_text("Synthetic ancestor instructions")
+            with self.assertRaisesRegex(run_claude.HostError, "ancestor"):
+                run_codex.prepare_probe(parent / "batch")
+
+    def test_probe_rejects_broad_python_runtime(self) -> None:
+        with (
+            mock.patch.object(sys, "base_prefix", "/"),
+            self.assertRaisesRegex(run_claude.HostError, "too broad"),
+        ):
+            run_codex.probe_config(
+                {"workspace": "/synthetic/workspace", "plugin": "/synthetic/plugin"}
+            )
+
+
 if __name__ == "__main__":
     unittest.main()

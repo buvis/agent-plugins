@@ -55,6 +55,43 @@ installed executable directly. Expected output is `specflow-sandbox-ok` with
 exit 0. It uses no model or authentication. This checks command launch only;
 restricted-read policy, write denial, instruction inventory, and all boundary
 sentinels remain unproven. No live runner is enabled by this check.
+The developer subsequently reported the expected marker. This confirms command
+launch outside the outer profile; the pasted prompt's leading status is not a
+separately measured exit code for that command.
+
+### Synthetic shell boundary probe
+
+`run_codex.py --probe-boundary --codex <installed-executable>` now combines the
+next shell checks in one developer-run command. Run it outside `run-agent` from
+the repository root, using Python 3.10 or later. It creates and removes its own
+private system-temporary batch. It never logs in, loads real authentication,
+calls a model, changes broker trust, or enables the live runner.
+
+The probe verifies a copy of the plugin against its committed tree, creates an
+independent Git workspace and an empty Codex home, and generates a candidate
+[permissions profile](https://learn.chatgpt.com/docs/permissions). It requests
+strict configuration and inclusion of managed configuration. Runtime reads are
+limited to platform defaults and the selected Python installation; workspace
+writes and plugin reads are explicit. The generated policy is reported, not
+claimed to be an independent dump of effective settings.
+
+Eleven checks cover workspace read/write, plugin read, helper status, denied
+control/home/other-workspace/temporary-sentinel reads, plugin writes, and symlink
+read/write attempts. Reads and writes use Python and child shell tools; only
+EACCES/EPERM satisfies a direct denied operation. Missing files, malformed or
+incomplete reports, nonzero sandbox exit, and failed cleanup cannot pass. The
+home sentinel is inside the disposable Codex home; no real personal file is a
+test target. A real-home deny rule is generated but not independently probed.
+
+Output is one JSON diagnostic with versions, package/policy/probe fingerprints,
+normalized generated policy, each check, and cleanup. Exit 0 means these shell
+checks passed; exit 1 means the report failed; exit 2 means setup was unavailable
+or interrupted. The probe has a 180-second total deadline and reuses process-group
+cleanup. Its report always has `releaseEvidence: false`: native Codex file tools,
+loaded-instruction inventory, network enforcement, independent authentication,
+and the live adapter remain unproven. Rerun neither the refused broker request
+nor sandbox execution from the outer-profile agent session.
+
 
 ## Implemented resource controls
 
