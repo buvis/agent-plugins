@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import copy
 import json
+import subprocess
 from pathlib import Path
 from types import ModuleType
 
@@ -475,3 +476,47 @@ def test_without_a_successor_receipt_the_generator_behaves_as_today(
             "tested_package_revision": "a" * 40,
         }, path
     assert (tmp_path / AP00013).read_bytes() == receipts
+
+
+def git(*args: str, cwd: Path) -> None:
+    subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True)
+
+
+def test_successor_is_refused_when_a_listed_file_changed_since_its_revision(
+    tool: ModuleType, tmp_path: Path
+) -> None:
+    mapping = build_repo(tmp_path, "stale")
+    git("init", "--quiet", cwd=tmp_path)
+    git("config", "user.email", "test@example.invalid", cwd=tmp_path)
+    git("config", "user.name", "test", cwd=tmp_path)
+    git("add", "-A", cwd=tmp_path)
+    git("commit", "--quiet", "-m", "initial", cwd=tmp_path)
+    committed_revision = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=tmp_path, check=True,
+        capture_output=True, text=True,
+    ).stdout.strip()
+    (tmp_path / CONTROLLER[0]).write_text("# edited after the receipt's revision\n")
+
+    successor = valid_successor(tmp_path, revision=committed_revision)
+    with pytest.raises(ValueError, match="stale"):
+        generate(tool, tmp_path, mapping, successor)
+
+
+def test_successor_is_accepted_when_listed_files_match_its_revision(
+    tool: ModuleType, tmp_path: Path
+) -> None:
+    mapping = build_repo(tmp_path, "fresh")
+    git("init", "--quiet", cwd=tmp_path)
+    git("config", "user.email", "test@example.invalid", cwd=tmp_path)
+    git("config", "user.name", "test", cwd=tmp_path)
+    git("add", "-A", cwd=tmp_path)
+    git("commit", "--quiet", "-m", "initial", cwd=tmp_path)
+    committed_revision = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=tmp_path, check=True,
+        capture_output=True, text=True,
+    ).stdout.strip()
+
+    successor = valid_successor(tmp_path, revision=committed_revision)
+    document = generate(tool, tmp_path, mapping, successor)
+    assets = by_key(document["assets"], "destination_path")
+    assert assets[CONTROLLER[0]]["evidence"]["tested_package_revision"] == committed_revision

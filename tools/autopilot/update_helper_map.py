@@ -25,6 +25,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -546,59 +547,83 @@ def refresh_ap00014_digests(assets: list[dict], root: Path) -> None:
             ).hexdigest()
 
 
-def register_controller_asset(result: dict, root: Path, path: str, cited: dict) -> None:
-    digest = hashlib.sha256((root / path).read_bytes()).hexdigest()
-    row = asset_row(path, digest, dict(cited))
-    row["adaptation_reason"] = (
+def register_controller_asset(
+    result: dict,
+    root: Path,
+    path: str,
+    cited: dict,
+    adaptation_reason: str = (
         "Newly authored AP00018 controller asset; no pinned source asset or "
         "source sections. Delivery evidence records packaged bytes, not host "
         "certification."
-    )
-    row["acceptance_cases"][0]["expected_outcome"] = (
+    ),
+    expected_outcome: str = (
         "The packaged AP00018 controller asset exists at the recorded digest; "
         "it certifies no host execution."
-    )
+    ),
+    owner_expected_outcome: str = (
+        "The packaged AP00018 controller asset exists at the recorded digest."
+    ),
+) -> None:
+    digest = hashlib.sha256((root / path).read_bytes()).hexdigest()
+    row = asset_row(path, digest, dict(cited))
+    row["adaptation_reason"] = adaptation_reason
+    row["acceptance_cases"][0]["expected_outcome"] = expected_outcome
     owner = owner_row(path)
     owner["delivery_prd"] = "00018"
     owner["acceptance_cases"] = [
-        {
-            "case_id": f"authored-{path}",
-            "expected_outcome": "The packaged AP00018 controller asset exists at "
-            "the recorded digest.",
-        }
+        {"case_id": f"authored-{path}", "expected_outcome": owner_expected_outcome}
     ]
     upsert(result["assets"], "destination_path", row)
     upsert(result["authored_file_owners"], "path", owner)
+
+
+def verify_listed_paths_match_revision(root: Path, revision: str, paths: set[str]) -> None:
+    """Refuse a successor whose listed paths changed since its package_revision.
+
+    Outside a real git checkout (the synthetic test fixtures under
+    tests/autopilot) there is no history to check against, so the verification
+    is a no-op there; production always runs inside a real checkout.
+    """
+    probe = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "--is-inside-work-tree"],
+        capture_output=True, text=True,
+    )
+    if probe.returncode != 0 or probe.stdout.strip() != "true":
+        return
+    for path in sorted(paths):
+        committed = subprocess.run(
+            ["git", "-C", str(root), "show", f"{revision}:{path}"], capture_output=True,
+        )
+        if committed.returncode != 0 or committed.stdout != (root / path).read_bytes():
+            raise ValueError(
+                f"successor package_revision {revision} is stale for {path!r}: "
+                "current bytes do not match that revision"
+            )
 
 
 def apply_successor(result: dict, root: Path, successor: dict, artifact: dict) -> None:
     revision = successor["package_revision"]
     cited = {"status": "passed", **artifact, "tested_package_revision": revision}
     listed = set(successor["paths"])
+    verify_listed_paths_match_revision(root, revision, listed)
     if CONTROLLER_CONTRACT in listed:
-        path = CONTROLLER_CONTRACT
-        digest = hashlib.sha256((root / path).read_bytes()).hexdigest()
-        row = asset_row(path, digest, dict(cited))
-        row["adaptation_reason"] = (
-            "Newly authored AP00018 controller contract bundle; no pinned source "
-            "asset or source sections. Delivery evidence records packaged bytes, "
-            "not host certification."
+        register_controller_asset(
+            result, root, CONTROLLER_CONTRACT, cited,
+            adaptation_reason=(
+                "Newly authored AP00018 controller contract bundle; no pinned source "
+                "asset or source sections. Delivery evidence records packaged bytes, "
+                "not host certification."
+            ),
+            expected_outcome=(
+                "The packaged controller contract bundle exists at the recorded digest; "
+                "it certifies no host execution."
+            ),
+            owner_expected_outcome=(
+                "The packaged AP00018 controller contract bundle exists at "
+                "the recorded digest."
+            ),
         )
-        row["acceptance_cases"][0]["expected_outcome"] = (
-            "The packaged controller contract bundle exists at the recorded digest; "
-            "it certifies no host execution."
-        )
-        owner = owner_row(path)
-        owner["delivery_prd"] = "00018"
-        owner["acceptance_cases"] = [
-            {
-                "case_id": f"authored-{path}",
-                "expected_outcome": "The packaged AP00018 controller contract bundle "
-                "exists at the recorded digest.",
-            }
-        ]
-        upsert(result["assets"], "destination_path", row)
-        upsert(result["authored_file_owners"], "path", owner)
     known = {row["destination_path"] for row in result["assets"]}
     for path in sorted(listed - known):
         if path.startswith(CONTROLLER_PREFIXES):

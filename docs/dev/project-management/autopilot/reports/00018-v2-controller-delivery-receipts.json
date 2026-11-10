@@ -5,7 +5,7 @@
     "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
     "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e"
   },
-  "package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957",
+  "package_revision": "8825c4079eeef00180a26843c72bb080efb466d1",
   "paths": [
     "plugins/autopilot/README.md",
     "plugins/autopilot/CHANGELOG.md",

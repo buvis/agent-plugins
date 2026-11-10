@@ -162,7 +162,7 @@
         "status": "passed",
         "artifact_id": "plugins/autopilot/README.md",
         "artifact_sha256": "a1610da2c894be6abecc896d9f008adc92a2c3ab1a58a61838c96eea3718d658",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
@@ -7253,7 +7253,7 @@
         "status": "passed",
         "artifact_id": "plugins/autopilot/CHANGELOG.md",
         "artifact_sha256": "6389a3f55a47cc70e9c9c061d20fb67b598f3db706ab98dc1aedfa7834608e0b",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
@@ -7738,15 +7738,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "6acc4b269de7399f87870a11b3c120423138ad0ddacb2de1ed6765860c20aad4",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "artifact_sha256": "b39d370c0d86dacfb720cb7d1e527a57e737430c26efa53e35cf28b8f0a1e6cf",
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/contracts/controller/provenance.json",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "6172dff49c67a3eb1a6fc8056980b814023410aa1eaf5097efcd3ab22fff696c",
+      "destination_blob_sha256": "a4495885e4cea6bb55b3892c99ee0d992f82616f35945b8bef1ae4b2f62fe763",
       "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7765,8 +7765,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "6acc4b269de7399f87870a11b3c120423138ad0ddacb2de1ed6765860c20aad4",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "artifact_sha256": "b39d370c0d86dacfb720cb7d1e527a57e737430c26efa53e35cf28b8f0a1e6cf",
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
@@ -7792,8 +7792,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "6acc4b269de7399f87870a11b3c120423138ad0ddacb2de1ed6765860c20aad4",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "artifact_sha256": "b39d370c0d86dacfb720cb7d1e527a57e737430c26efa53e35cf28b8f0a1e6cf",
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
@@ -7819,15 +7819,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "6acc4b269de7399f87870a11b3c120423138ad0ddacb2de1ed6765860c20aad4",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "artifact_sha256": "b39d370c0d86dacfb720cb7d1e527a57e737430c26efa53e35cf28b8f0a1e6cf",
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/actors.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "808bef213516b2ad63f341018459f8a91b8d0cf0b88399584fa991c1b6ab80f8",
+      "destination_blob_sha256": "394dfb09ec4eedc327cdd10bc1f46f55e5302e1ed873c9659985223c0b1e69bc",
       "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7846,8 +7846,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "6acc4b269de7399f87870a11b3c120423138ad0ddacb2de1ed6765860c20aad4",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "artifact_sha256": "b39d370c0d86dacfb720cb7d1e527a57e737430c26efa53e35cf28b8f0a1e6cf",
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
@@ -7873,15 +7873,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "6acc4b269de7399f87870a11b3c120423138ad0ddacb2de1ed6765860c20aad4",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "artifact_sha256": "b39d370c0d86dacfb720cb7d1e527a57e737430c26efa53e35cf28b8f0a1e6cf",
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/protocol.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "2c195c6341b7f303e50eff7c9abd23956cdf886676f661f622c4dcbe7b2d02e0",
+      "destination_blob_sha256": "07b3a387ca48e4983330a10f6acea562e295e55e3cc38e98f19f61fab7d840f8",
       "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7900,8 +7900,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "6acc4b269de7399f87870a11b3c120423138ad0ddacb2de1ed6765860c20aad4",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "artifact_sha256": "b39d370c0d86dacfb720cb7d1e527a57e737430c26efa53e35cf28b8f0a1e6cf",
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
@@ -7927,8 +7927,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "6acc4b269de7399f87870a11b3c120423138ad0ddacb2de1ed6765860c20aad4",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "artifact_sha256": "b39d370c0d86dacfb720cb7d1e527a57e737430c26efa53e35cf28b8f0a1e6cf",
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
@@ -7954,8 +7954,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "6acc4b269de7399f87870a11b3c120423138ad0ddacb2de1ed6765860c20aad4",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "artifact_sha256": "b39d370c0d86dacfb720cb7d1e527a57e737430c26efa53e35cf28b8f0a1e6cf",
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
@@ -7981,8 +7981,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "6acc4b269de7399f87870a11b3c120423138ad0ddacb2de1ed6765860c20aad4",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "artifact_sha256": "b39d370c0d86dacfb720cb7d1e527a57e737430c26efa53e35cf28b8f0a1e6cf",
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
@@ -8305,15 +8305,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "6acc4b269de7399f87870a11b3c120423138ad0ddacb2de1ed6765860c20aad4",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "artifact_sha256": "b39d370c0d86dacfb720cb7d1e527a57e737430c26efa53e35cf28b8f0a1e6cf",
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/owner.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "2b9ea04df71d4803bf1f835c9236d8a62f6258c0dd04f6a4940b68a06c50d334",
+      "destination_blob_sha256": "8df5b5fc9758cc072826791005a6426a83ed98fb4098299076ed90471471f5f4",
       "adaptation_reason": "Newly authored AP00018 controller asset; no pinned source asset or source sections. Delivery evidence records packaged bytes, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -8332,8 +8332,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "6acc4b269de7399f87870a11b3c120423138ad0ddacb2de1ed6765860c20aad4",
-        "tested_package_revision": "50c8c2ffa001a33f9e8f2e289be8de6af280f957"
+        "artifact_sha256": "b39d370c0d86dacfb720cb7d1e527a57e737430c26efa53e35cf28b8f0a1e6cf",
+        "tested_package_revision": "8825c4079eeef00180a26843c72bb080efb466d1"
       }
     }
   ],
