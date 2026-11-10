@@ -270,6 +270,31 @@ def validation_findings(files: dict[str, str], check: str, revision: str) -> lis
         ]
 
 
+def require_evidence(assertion: dict, record: dict) -> None:
+    """Reject unavailable measurements before scoring or invoking a judge."""
+    kind = assertion["kind"]
+    if "turn" in assertion and not 1 <= assertion["turn"] <= len(record["messages"]):
+        raise RecordError("requested turn was not recorded")
+    if (
+        kind
+        in {
+            "message_matches",
+            "message_lacks",
+            "one_question_per_message",
+            "recommended_option_first",
+            "question_count_at_most",
+        }
+        and not record["messages"]
+    ):
+        raise RecordError("no messages recorded")
+    if kind in {"file_read", "file_not_read"}:
+        if record.get("readMeasurement", "not-measured") != "measured":
+            raise RecordError("file reads not measured")
+        before = assertion.get("before_turn", len(record["filesRead"]) + 1)
+        if not 1 <= before <= len(record["filesRead"]) + 1:
+            raise RecordError("read boundary was not recorded")
+
+
 def assertion_result(
     assertion: dict, record: dict, files: dict[str, str]
 ) -> tuple[bool, str]:
@@ -277,11 +302,10 @@ def assertion_result(
     if kind not in KINDS:
         return False, f"unknown assertion kind: {kind}"
     try:
+        require_evidence(assertion, record)
         messages = record["messages"]
         if "turn" in assertion:
             turn = assertion["turn"]
-            if not 1 <= turn <= len(messages):
-                return False, "requested turn was not recorded"
             messages = [messages[turn - 1]]
         path = assertion.get("path", "")
         if kind in {
@@ -304,8 +328,6 @@ def assertion_result(
             found = re.search(assertion["pattern"], files[path]) is not None
             passed = found if kind == "file_matches" else not found
         elif kind in {"message_matches", "message_lacks"}:
-            if not messages:
-                return False, "no messages recorded"
             found = any(re.search(assertion["pattern"], m) for m in messages)
             passed = found if kind == "message_matches" else not found
         elif kind == "one_question_per_message":
@@ -318,11 +340,7 @@ def assertion_result(
                 and sum(question_count(m) for m in messages) <= assertion["count"]
             )
         elif kind in {"file_read", "file_not_read"}:
-            if record.get("readMeasurement", "not-measured") != "measured":
-                return False, "file reads not measured"
             before = assertion.get("before_turn", len(record["filesRead"]) + 1)
-            if not 1 <= before <= len(record["filesRead"]) + 1:
-                return False, "read boundary was not recorded"
             found = any(path in reads for reads in record["filesRead"][: before - 1])
             passed = found if kind == "file_read" else not found
         elif kind in {"validation_passes", "validation_reports"}:
@@ -333,6 +351,8 @@ def assertion_result(
         else:
             return False, "rubric is unjudged"
         return bool(passed), "passed" if passed else "assertion failed"
+    except RecordError:
+        raise
     except (KeyError, ValueError, OSError, re.error) as error:
         return False, str(error)
 
@@ -507,6 +527,10 @@ def score_record(
         evals.append((evaluation, object_id(path.read_bytes())))
     if not evals:
         raise RecordError("no evals match this session")
+    if "brokenAt" not in record:
+        for evaluation, _ in evals:
+            for assertion in evaluation["assertions"]:
+                require_evidence(assertion, record)
     files = {} if "brokenAt" in record else finished_files(record, results)
     rubrics = (
         {}

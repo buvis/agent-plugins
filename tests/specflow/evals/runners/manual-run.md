@@ -22,8 +22,8 @@ The approved scratch layout is an external private batch under the macOS system
 temporary root, containing `workspaces/`, `resources/`, and `control/`. The old
 repository-local root cannot support the required Git initialization under the
 active Seatbelt profile. The current blocked engine still uses that legacy root
-for synthetic checks; external layout and installed-host boundary proof remain
-to be implemented. Do not remove the preflight refusal merely to try a session.
+for synthetic checks; integration of the external layout into live runs and
+the remaining installed-host boundary proof are still outstanding. Do not remove the preflight refusal merely to try a session.
 
 The approved Claude route uses an isolated configuration home, setup-token auth,
 verified fixture settings, and an explicit plugin read directory with native-tool
@@ -34,107 +34,55 @@ inventory, required helper/reference access, denied credential reads and plugin 
 and cleanup before admitting release evidence. Never infer isolation from a
 model's own statement or from successful synthetic tests.
 
-On 2026-11-10, `codex sandbox macos --help` failed with
-`sandbox-exec: sandbox_apply: Operation not permitted`, including the normal
-escalated attempt. The developer attempted to approve broker request
-`de45a93cb7035582b243fcb97d9d1c5e`; warrant refused because the resolved
-mise-managed Codex executable is outside `trusted_exe_roots`. The request is
-refused, not pending, and did not execute the diagnostic. Do not retry it through
-a wrapper, relocate the binary, or broaden broker trust as part of this task.
-The developer subsequently ran that command outside `run-agent` and received
-`sandbox-exec: execvp() of 'macos' failed: No such file or directory`. The command
-was incorrect for installed 0.167.0: local `codex help sandbox` succeeds and
-shows `codex sandbox [OPTIONS] [COMMAND]...`, with no `macos` subcommand. Thus
-the old invocation tried to execute a program named `macos`; it was not a help
-check. The initial outer-profile denial remains valid, but does not establish
-that the installed sandbox is unusable outside that profile.
+## Verified synthetic shell boundary
 
-The corrected developer-run launch check is
-`codex sandbox -- /bin/echo specflow-sandbox-ok`, outside `run-agent`, using the
-installed executable directly. Expected output is `specflow-sandbox-ok` with
-exit 0. It uses no model or authentication. This checks command launch only;
-restricted-read policy, write denial, instruction inventory, and all boundary
-sentinels remain unproven. No live runner is enabled by this check.
-The developer subsequently reported the expected marker. This confirms command
-launch outside the outer profile; the pasted prompt's leading status is not a
-separately measured exit code for that command.
+The developer-run Codex probe passed all eleven checks on 2026-11-10, with
+sandbox exit 0 and cleanup true. Versions: Codex 0.167.0, Python 3.15.2, Apple Git
+2.54.0 (Apple Git-157). Normalized policy SHA-256:
+`53a54b5b99edd7cd40b22105ab8a177518f06bed4a0a1f1bc934a455e179ddf5`.
+The full developer-reported diagnostic and fingerprints are retained in 00009's
+QA log under "T-056 shell boundary passed". This is shell evidence only;
+`releaseEvidence` remains false.
 
-### Synthetic shell boundary probe
+The probe uses a private external batch, an independent Git workspace, a plugin
+copy verified against its committed tree, and an empty unauthenticated Codex
+home. It selects a named [permissions profile](https://learn.chatgpt.com/docs/permissions)
+and includes managed configuration. The generated policy grants platform/Python
+runtime reads, read access to the explicitly selected Git executable, workspace
+writes, and plugin reads. No read grant covers the containing developer-tools
+directory. The chosen Git directory leads the clean child PATH so the helper
+uses that executable. Git version and binary SHA-256 are reported.
 
-`run_codex.py --probe-boundary --codex <installed-executable> --git-executable <git-file>` now combines the
-next shell checks in one developer-run command. Run it outside `run-agent` from
-the repository root, using Python 3.10 or later. It creates and removes its own
-private system-temporary batch. It never logs in, loads real authentication,
-calls a model, changes broker trust, or enables the live runner.
+Checks cover workspace read/write, plugin read, helper status, denied control/home/
+other-workspace/temporary-sentinel reads, plugin writes, and symlink read/write
+attempts. Both Python and child shell operations are tested. Only EACCES/EPERM
+satisfies a direct denied operation; missing files cannot pass. Missing checks,
+nonzero sandbox exit, or failed cleanup cannot pass. The home sentinel is in the
+disposable Codex home; no real personal file is a test target.
 
-Start the supervisor with an explicit environment, because it rejects inherited
-`GIT_*` settings before setup. Resolve Python through mise before clearing the
-environment; invoking `mise exec` inside the cleared environment could add
-settings again. Keep the caller's shell configuration unchanged:
+Use this command from the repository root in a developer terminal outside
+`run-agent` when a changed configuration needs another proof. Resolve Python
+before clearing inherited environment settings:
 
 ```sh
 /usr/bin/env -i HOME="$HOME" PATH="/usr/bin:/bin" "$(mise which python3)" -B tests/specflow/evals/runners/run_codex.py --probe-boundary --codex <installed-executable> --git-executable <git-file>
 ```
 
-The developer's first probe invocation stopped at the inherited-Git guard. No
-batch or sandbox was created. The revised launch prefix was checked separately:
-Python 3.15.2 starts with no inherited `GIT_*` variables. Actual boundary execution
-still requires the developer's terminal outside `run-agent`.
+The observed Git executable is
+`/Library/Developer/CommandLineTools/usr/bin/git`. The probe never logs in,
+loads real credentials, calls a model, changes broker trust, or enables the live
+runner. It has a 180-second deadline and process-group cleanup. Exit 0 means
+these checks passed, 1 means the report failed, and 2 means setup was unavailable
+or interrupted. Output includes normalized generated policy, fingerprints,
+checks, and cleanup; it is not an independent dump of effective settings.
 
-The first clean-environment run completed external Git setup and cleanup, then
-Codex 0.167.0 rejected `--strict-config` for the `sandbox` subcommand. That flag
-has been removed; the named permission profile and managed configuration remain.
-No checks ran in that attempt (`checks: {}`, sandbox exit 1, `passed: false`,
-`cleanup: true`). Codex also warned that it could not create PATH helper aliases
-under the temporary home. The warning was not the reported fatal error; no path
-change or permission workaround is selected. The probe uses absolute executable
-paths for its Python and shell checks. The next developer-run result passed ten of eleven checks, including every denied
-read/write and symlink check. Only helper status failed: Apple Git dispatch through
-xcrun could not resolve the active developer tools in the restricted environment.
-The sandbox command itself exited 0 and cleanup succeeded; overall passed stayed
-false. A read-only supervisor inspection found the installed Git executable and
-successfully read its version, so reinstalling developer tools is not indicated
-by this evidence.
-
-The next candidate therefore requires `--git-executable` explicitly. It grants
-read access only to that resolved executable file, uses it for Git setup, and
-puts its directory first in the child PATH so the helper resolves the same Git.
-It grants no read permission to the containing developer-tools tree. On the
-observed machine, xcrun identifies `/Library/Developer/CommandLineTools/usr/bin/git`,
-which reports Git 2.54.0 (Apple Git-157). The report includes Git version and binary
-SHA-256, with the policy path normalized as `<git-runtime>`. No binary is copied
-or relocated and no permanent policy changes. This revised runtime allowance is
-prepared for the developer-run check, not executed from the outer-profile agent.
-All eleven checks must run again because the generated policy has changed.
-
-
-
-The probe verifies a copy of the plugin against its committed tree, creates an
-independent Git workspace and an empty Codex home, and generates a candidate
-[permissions profile](https://learn.chatgpt.com/docs/permissions). It selects the named
-permission profile explicitly and includes managed configuration. Runtime reads are
-limited to platform defaults, the selected Python installation, and the selected
-Git executable file; workspace
-writes and plugin reads are explicit. The generated policy is reported, not
-claimed to be an independent dump of effective settings.
-
-Eleven checks cover workspace read/write, plugin read, helper status, denied
-control/home/other-workspace/temporary-sentinel reads, plugin writes, and symlink
-read/write attempts. Reads and writes use Python and child shell tools; only
-EACCES/EPERM satisfies a direct denied operation. Missing files, malformed or
-incomplete reports, nonzero sandbox exit, and failed cleanup cannot pass. The
-home sentinel is inside the disposable Codex home; no real personal file is a
-test target. A real-home deny rule is generated but not independently probed.
-
-Output is one JSON diagnostic with versions, package/policy/probe fingerprints,
-normalized generated policy, each check, and cleanup. Exit 0 means these shell
-checks passed; exit 1 means the report failed; exit 2 means setup was unavailable
-or interrupted. The probe has a 180-second total deadline and reuses process-group
-cleanup. Its report always has `releaseEvidence: false`: native Codex file tools,
-loaded-instruction inventory, network enforcement, independent authentication,
-and the live adapter remain unproven. Rerun neither the refused broker request
-nor sandbox execution from the outer-profile agent session.
-
+The helper-alias warning persisted in the successful run and did not prevent any
+of these eleven checks. Native Codex file tools, complete loaded-instruction
+inventory, real-home and network enforcement, independent authentication, and
+the live adapter remain unproven. Do not extend this result to those controls.
+The outer-profile agent still cannot launch the nested sandbox, and warrant
+refused its executable path. Do not retry either refused route. Earlier probe
+syntax/setup failures are preserved in the QA log, not repeated here.
 
 ## Implemented resource controls
 

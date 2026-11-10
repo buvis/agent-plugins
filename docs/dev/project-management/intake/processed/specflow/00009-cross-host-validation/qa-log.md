@@ -491,3 +491,51 @@ Review and validation:
 - Prepared an explicit --git-executable argument. The candidate profile adds read access to that resolved file only; all existing denial rules remain. The supervisor uses it directly and prepends its directory to the clean child PATH for helper Git resolution. The parent directory is not granted read access. Reports bind Git version and binary SHA-256. A missing/non-executable file, wrong filename, or directory fails before setup. No copy, relocation, broker trust change, managed-policy change, credential use, or model run.
 - Regression for the exact Git read rule failed before implementation. The complete 60-test instrument suite passes on Python 3.15 and 3.10, including the new directory-rejection test and existing failure/cleanup tests with the selected runtime. Ruff and CLI help pass. Review verified that the change grants no parent-directory access, preserves all check names and mandatory passing semantics, and requires rerunning all checks under the changed policy. Historical ten-pass evidence is not reused as proof of that policy.
 - State remains standard/implementation, all three artifacts approved, no stale artifacts, hold, gate blockers or specs-folder problems; 1/10 checked, T-056 next, directory-based code-baseline warning unchanged. Only Outcome progress changed in the approved task artifact. The developer-run revised runtime check is the next evidence needed; live preflight stays blocked.
+
+
+## T-056 shell boundary passed (2026-11-10)
+
+- The developer supplied this report from the external terminal. All eleven shell assertions passed, including helper status; exitCode 0 and cleanup true. The normalized policy, probe script, runner file, and selected Git binary SHA-256 values were independently matched to the local artifacts. No new probe execution occurred in the agent session.
+- This closes the synthetic shell-boundary check for the reported configuration only. Native file tools, instruction inventory, real-home/network tests, authentication, and live adapters still need proof. releaseEvidence remains false and T-056 stays unchecked. The helper-alias warning is non-blocking for the eleven observed checks only.
+- Replaced the accumulating probe diary in manual-run.md with current verified operation and scope; history remains in this QA log.
+
+```json
+{
+  "scope": "synthetic-shell-boundary-only",
+  "releaseEvidence": false,
+  "hostVersion": "codex-cli 0.167.0",
+  "pythonVersion": "3.15.2",
+  "gitVersion": "git version 2.54.0 (Apple Git-157)",
+  "gitRuntimeSha256": "a73bf622a2e470d5d57a4b1d5aef1e8680e67278018d4858a2f93825b7d595c7",
+  "runtimeRevision": "402636e2b12f6cd34f2e9d54418e07233c61246f",
+  "generatedPolicy": "default_permissions = \"specflow-probe\"\n[permissions.specflow-probe]\nextends = \":workspace\"\n[permissions.specflow-probe.filesystem]\n\":root\" = \"deny\"\n\":minimal\" = \"read\"\n\":tmpdir\" = \"deny\"\n\":slash_tmp\" = \"deny\"\n\"<home>\" = \"deny\"\n\"<batch>/workspaces/probe\" = \"write\"\n\"<batch>/control/codex-home/plugins/specflow\" = \"read\"\n\"<python-runtime>\" = \"read\"\n\"<git-runtime>\" = \"read\"\n[permissions.specflow-probe.network]\nenabled = false\n",
+  "policySha256": "53a54b5b99edd7cd40b22105ab8a177518f06bed4a0a1f1bc934a455e179ddf5",
+  "probeSha256": "c7f66987ce22dfc761ab6c46119c4edac99622b1926a6fd2bf322585a5577936",
+  "runnerSha256": "c61d0187223ccbd63eb07111a545719dd593820fb50a318aa2a35c884b29fda6",
+  "checks": {
+    "control-read-denied": true,
+    "helper-status": true,
+    "home-read-denied": true,
+    "other-workspace-read-denied": true,
+    "plugin-read": true,
+    "plugin-write-denied": true,
+    "symlink-read-denied": true,
+    "symlink-write-denied": true,
+    "temp-read-denied": true,
+    "workspace-read": true,
+    "workspace-write": true
+  },
+  "exitCode": 0,
+  "passed": true,
+  "diagnostic": "WARNING: proceeding, even though we could not create PATH aliases: Refusing to create helper binaries under temporary dir \"<batch>\" (codex_home: AbsolutePathBuf(\"<batch>/control/codex-home\"))\n",
+  "cleanup": true
+}
+```
+
+## T-056 unavailable scoring evidence (2026-11-10)
+
+- Continued authorized instrument work: the scorer returned ordinary failure for missing read measurements or requested turns, contradicting the approved unavailable-evidence exit 2. Validation revision errors were also swallowed by the assertion's ValueError handler.
+- Added a shared required-evidence check before judging and individual scoring; propagated RecordError from validation instead of manufacturing a failed assertion. Missing measurements, read boundaries, messages or requested turns are unavailable. Genuine assertion failures, broken conversations and notRun records retain their existing exit-1 behavior. Invalid scoring leaves the input file unchanged; no new scores are persisted.
+- Three new regression tests and the strengthened existing absence test failed on old behavior, then passed. The judge-boundary test uses a valid synthetic verdict and confirms the judge is never called when required reads are unavailable. Tests also cover exit 2 and unchanged input bytes, and unavailable validator revisions. All 63 instrument tests pass on Python 3.15 and 3.10; Ruff and repository validation pass.
+- Review checked the distinction between unavailable measurements and an observed absent file, preserved broken/notRun handling, and confirmed no live host, judge, login, credential access, or sandbox retry occurred. Removed redundant test data. This does not implement the remaining release-eligibility predicate or adapters.
+- Status remains standard/implementation, requirements/design/tasks approved, no stale artifacts, hold, gate blockers or specs-folder problems; 1/10 complete, T-056 next. The known directory-based code-baseline warning remains. Only Outcome progress changes in the approved tasks artifact.

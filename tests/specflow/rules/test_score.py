@@ -85,10 +85,86 @@ class ScoreTest(unittest.TestCase):
 
     def test_missing_turn_and_unmeasured_reads_cannot_pass_absence(self) -> None:
         assertion = {"kind": "message_lacks", "pattern": "secret", "turn": 5}
-        self.assertFalse(score.assertion_result(assertion, self.record, {})[0])
+        with self.assertRaises(score.RecordError):
+            score.assertion_result(assertion, self.record, {})
         self.record["readMeasurement"] = "not-measured"
         assertion = {"kind": "file_not_read", "path": "secret.txt"}
-        self.assertFalse(score.assertion_result(assertion, self.record, {})[0])
+        with self.assertRaises(score.RecordError):
+            score.assertion_result(assertion, self.record, {})
+
+    def test_cli_unavailable_evidence_exits_two_without_writing_scores(self) -> None:
+        for assertion in (
+            {"kind": "file_read", "path": "result.txt"},
+            {"kind": "file_not_read", "path": "secret.txt"},
+            {"kind": "message_matches", "pattern": "Status", "turn": 99},
+        ):
+            with (
+                self.subTest(assertion=assertion),
+                tempfile.TemporaryDirectory() as folder,
+            ):
+                root = Path(folder)
+                record = {**self.record, "readMeasurement": "not-measured"}
+                path = root / "record.json"
+                before = json.dumps(record)
+                path.write_text(before)
+                evaluation = {
+                    "schemaVersion": 1,
+                    "rule": "SR-DLG-001",
+                    "session": record["session"],
+                    "assertions": [assertion],
+                }
+                (root / "SR-DLG-001.json").write_text(json.dumps(evaluation))
+                self.assertEqual(score.main([str(path)], root), 2)
+                self.assertEqual(path.read_text(), before)
+
+    def test_unavailable_reads_are_rejected_before_model_judging(self) -> None:
+        self.record["readMeasurement"] = "not-measured"
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            rubric_eval = score.read_json(
+                next((FIXTURES / "rubrics").glob("SR-*.json"))
+            )
+            evaluation = {
+                "schemaVersion": 1,
+                "rule": "SR-DLG-001",
+                "session": self.record["session"],
+                "assertions": [
+                    rubric_eval["assertions"][0],
+                    {"kind": "file_read", "path": "result.txt"},
+                ],
+            }
+            (root / "SR-DLG-001.json").write_text(json.dumps(evaluation))
+            with (
+                mock.patch.object(
+                    score,
+                    "model_judge",
+                    autospec=True,
+                    return_value={
+                        "verdict": "PASS",
+                        "judge": "model:judge",
+                        "reason": "Synthetic",
+                    },
+                ) as judge,
+                self.assertRaisesRegex(score.RecordError, "reads not measured"),
+            ):
+                score.score_record(self.record, root, judge_model="judge")
+            judge.assert_not_called()
+
+    def test_validation_input_errors_are_not_failed_assertions(self) -> None:
+        with (
+            mock.patch.object(
+                score,
+                "validation_findings",
+                autospec=True,
+                side_effect=score.RecordError("revision unavailable"),
+            ),
+            self.assertRaisesRegex(score.RecordError, "revision unavailable"),
+        ):
+            score.assertion_result(
+                {"kind": "validation_passes", "check": "requirement-ids"},
+                self.record,
+                {},
+            )
 
     def test_compare_ignores_titles_but_not_approvals(self) -> None:
         other = copy.deepcopy(self.record)
