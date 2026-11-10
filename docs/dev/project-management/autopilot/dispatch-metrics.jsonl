@@ -1199,3 +1199,12 @@
 {"id":"b4943d96","ended_at":1794349423,"elapsed_s":2113,"outcome":"ok","detail":null}
 {"id":"66317477","ended_at":1794349423,"elapsed_s":2113,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1794349508,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794349544,"phase":"build","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"2e0b82ea","kind":"tess","task":"12","queued_at":1794349640,"prompt_bytes":128170}
+{"id":"3a83a931","kind":"tess","task":"12","queued_at":1794349667,"prompt_bytes":93364}
+{"id":"51bf2cd0","kind":"tess","task":"12","queued_at":1794349911,"prompt_bytes":32751}
+{"id":"ab35be38","kind":"ivan","task":"12","queued_at":1794350687,"prompt_bytes":15443}
+{"id":"88e6e2ca","kind":"pat","task":"12","queued_at":1794351659,"prompt_bytes":23355}
+{"id":"bb1fe11e","kind":"pat","task":"13","queued_at":1794352213,"prompt_bytes":19082}
+{"id":"39155b4e","kind":"pat","task":"14","queued_at":1794352887,"prompt_bytes":25543}
+{"id":"a62e3e2a","kind":"pat","task":"15","queued_at":1794353162,"prompt_bytes":8899}
