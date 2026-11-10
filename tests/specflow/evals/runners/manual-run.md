@@ -67,6 +67,21 @@ the repository root, using Python 3.10 or later. It creates and removes its own
 private system-temporary batch. It never logs in, loads real authentication,
 calls a model, changes broker trust, or enables the live runner.
 
+Start the supervisor with an explicit environment, because it rejects inherited
+`GIT_*` settings before setup. Resolve Python through mise before clearing the
+environment; invoking `mise exec` inside the cleared environment could add
+settings again. Keep the caller's shell configuration unchanged:
+
+```sh
+/usr/bin/env -i HOME="$HOME" PATH="/usr/bin:/bin" "$(mise which python3)" -B tests/specflow/evals/runners/run_codex.py --probe-boundary --codex <installed-executable>
+```
+
+The developer's first probe invocation stopped at the inherited-Git guard. No
+batch or sandbox was created. The revised launch prefix was checked separately:
+Python 3.15.2 starts with no inherited `GIT_*` variables. Actual boundary execution
+still requires the developer's terminal outside `run-agent`.
+
+
 The probe verifies a copy of the plugin against its committed tree, creates an
 independent Git workspace and an empty Codex home, and generates a candidate
 [permissions profile](https://learn.chatgpt.com/docs/permissions). It requests
