@@ -2,18 +2,21 @@
 
 from __future__ import annotations
 
+import contextlib
 import copy
 import json
 import subprocess
 import sys
 import tempfile
 import unittest
+from collections.abc import Iterator
 from pathlib import Path
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "tests/specflow/evals/runners"))
 import run_claude
+import run_codex
 import score
 
 FIXTURES = ROOT / "tests/specflow/fixtures/results"
@@ -294,6 +297,25 @@ class ScoreTest(unittest.TestCase):
 
 
 class RunnerTest(unittest.TestCase):
+    def test_failed_workspace_setup_never_enters_host_batch(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            adapter = run_claude.Claude("tested-model")
+            with (
+                mock.patch.object(adapter, "preflight", autospec=True),
+                mock.patch.object(adapter, "batch", autospec=True) as batch,
+                mock.patch.object(
+                    run_claude,
+                    "initialize_workspace",
+                    autospec=True,
+                    side_effect=run_claude.HostError("workspace initialization denied"),
+                ),
+            ):
+                code = run_claude.run_batch(adapter, "status-summary", Path(folder))
+            self.assertEqual(code, 2)
+            batch.assert_not_called()
+            record = score.read_json(Path(folder) / "claude-code/status-summary/1.json")
+            self.assertIn("initialization denied", record["notRun"])
+
     def test_interruption_leaves_a_valid_not_run_record(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             out = Path(folder)
@@ -316,6 +338,7 @@ class RunnerTest(unittest.TestCase):
             adapter = run_claude.Claude("tested-model")
             with (
                 mock.patch.object(adapter, "preflight"),
+                mock.patch.object(run_claude, "initialize_workspace", autospec=True),
                 mock.patch.object(
                     adapter, "batch", side_effect=run_claude.HostError("setup failed")
                 ),
@@ -610,6 +633,214 @@ class RunnerTest(unittest.TestCase):
             self.assertEqual(
                 record["files"], [{"path": "note.md", "text": "second writer"}]
             )
+
+
+class CodexHomeTest(unittest.TestCase):
+    """Synthetic sign-in and installer; no installed host or real credential used."""
+
+    @contextlib.contextmanager
+    def environment(self) -> Iterator[tuple[Path, Path, Path]]:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            workspace = root / "workspace"
+            workspace.mkdir()
+            sign_in = root / "auth.json"
+            sign_in.write_text('{"synthetic": "fixture-only"}')
+            scratch = root / "scratch"
+            scratch.mkdir()
+            yield workspace, sign_in, scratch
+
+    def test_home_is_private_and_removed_after_success(self) -> None:
+        with self.environment() as (workspace, sign_in, scratch):
+            before = sign_in.read_bytes()
+            observed = []
+
+            def installer(
+                args: list[str], cwd: Path, env: dict | None = None, timeout: int = 600
+            ) -> subprocess.CompletedProcess:
+                home = Path(env["CODEX_HOME"])
+                observed.append(home)
+                self.assertEqual(cwd, workspace)
+                self.assertEqual(home.stat().st_mode & 0o777, 0o700)
+                self.assertEqual((home / "auth.json").stat().st_mode & 0o777, 0o600)
+                self.assertEqual((home / "auth.json").read_bytes(), before)
+                if args[1:3] == ["plugin", "add"]:
+                    plugin = home / "plugins/cache/buvis-agent-plugins/specflow/0.1.0"
+                    plugin.mkdir(parents=True)
+                    (plugin / "plugin.json").write_text('{"name":"specflow"}')
+                return subprocess.CompletedProcess(args, 0, "{}", "")
+
+            expected_dir = workspace / "expected"
+            expected_dir.mkdir()
+            (expected_dir / "plugin.json").write_text('{"name":"specflow"}')
+            revision = run_claude.package_revision(expected_dir)
+            with (
+                mock.patch.object(run_claude, "verify_workspace", autospec=True),
+                mock.patch.object(
+                    run_claude, "command", side_effect=installer, autospec=True
+                ),
+                run_codex.temporary_home(
+                    workspace, sign_in, revision, scratch=scratch
+                ) as home,
+            ):
+                self.assertEqual(len(observed), 2)
+                self.assertEqual(list(home.glob("AGENTS*")), [])
+                self.assertFalse((home / "config.toml").exists())
+            self.assertFalse(home.exists())
+            self.assertEqual(list(scratch.iterdir()), [])
+            self.assertEqual(sign_in.read_bytes(), before)
+
+    def test_installer_failures_and_interruptions_remove_home(self) -> None:
+        for error in (OSError("installer failed"), KeyboardInterrupt()):
+            with (
+                self.subTest(error=type(error).__name__),
+                self.environment() as (workspace, sign_in, scratch),
+            ):
+                with (
+                    mock.patch.object(run_claude, "verify_workspace", autospec=True),
+                    mock.patch.object(
+                        run_claude, "command", side_effect=error, autospec=True
+                    ),
+                    self.assertRaises(type(error)),
+                    run_codex.temporary_home(
+                        workspace, sign_in, "0" * 40, scratch=scratch
+                    ),
+                ):
+                    self.fail("failed install must not yield a home")
+                self.assertEqual(list(scratch.iterdir()), [])
+                self.assertTrue(sign_in.exists())
+
+    def test_mismatch_removes_home_and_cli_returns_two(self) -> None:
+        with self.environment() as (workspace, sign_in, scratch):
+
+            def installer(
+                args: list[str], cwd: Path, env: dict | None = None, timeout: int = 600
+            ) -> subprocess.CompletedProcess:
+                if args[1:3] == ["plugin", "add"]:
+                    plugin = (
+                        Path(env["CODEX_HOME"])
+                        / "plugins/cache/buvis-agent-plugins/specflow/0.1.0"
+                    )
+                    plugin.mkdir(parents=True)
+                    (plugin / "plugin.json").write_text('{"name":"wrong revision"}')
+                return subprocess.CompletedProcess(args, 0, "{}", "")
+
+            with (
+                mock.patch.object(run_claude, "verify_workspace", autospec=True),
+                mock.patch.object(
+                    run_claude, "command", side_effect=installer, autospec=True
+                ),
+                self.assertRaisesRegex(run_claude.HostError, "differs"),
+                run_codex.temporary_home(workspace, sign_in, "0" * 40, scratch=scratch),
+            ):
+                self.fail("mismatched package must not yield a home")
+            self.assertEqual(list(scratch.iterdir()), [])
+            adapter = run_codex.Codex("tested-model")
+            with (
+                mock.patch.object(adapter, "preflight", autospec=True),
+                mock.patch.object(run_claude, "initialize_workspace", autospec=True),
+                mock.patch.object(run_claude, "verify_workspace", autospec=True),
+                mock.patch.object(
+                    run_claude, "command", side_effect=installer, autospec=True
+                ),
+                mock.patch.object(
+                    run_codex.Path, "home", return_value=sign_in.parent, autospec=True
+                ),
+            ):
+                auth_dir = sign_in.parent / ".codex"
+                auth_dir.mkdir()
+                (auth_dir / "auth.json").write_bytes(sign_in.read_bytes())
+                code = run_claude.run_batch(
+                    adapter, "status-summary", scratch / "results"
+                )
+            self.assertEqual(code, 2)
+            record = score.read_json(scratch / "results/codex/status-summary/1.json")
+            self.assertIn("differs", record["notRun"])
+            self.assertNotIn("scores", record)
+
+    def test_nonzero_installer_never_persists_its_output(self) -> None:
+        with self.environment() as (workspace, sign_in, scratch):
+            failure = subprocess.CompletedProcess(
+                [], 7, "synthetic-secret", "synthetic-secret"
+            )
+            with (
+                mock.patch.object(run_claude, "verify_workspace", autospec=True),
+                mock.patch.object(
+                    run_claude, "command", return_value=failure, autospec=True
+                ),
+                self.assertRaisesRegex(
+                    run_claude.HostError, r"^Codex plugin setup failed \(exit 7\)$"
+                ),
+                run_codex.temporary_home(workspace, sign_in, "0" * 40, scratch=scratch),
+            ):
+                self.fail("failed install must not yield a home")
+            self.assertEqual(list(scratch.iterdir()), [])
+
+    def test_body_failure_and_missing_package_remove_home(self) -> None:
+        with self.environment() as (workspace, sign_in, scratch):
+
+            def installer(
+                args: list[str], cwd: Path, env: dict | None = None, timeout: int = 600
+            ) -> subprocess.CompletedProcess:
+                plugin = (
+                    Path(env["CODEX_HOME"])
+                    / "plugins/cache/buvis-agent-plugins/specflow/0.1.0"
+                )
+                plugin.mkdir(parents=True, exist_ok=True)
+                (plugin / "plugin.json").write_text("{}")
+                return subprocess.CompletedProcess(args, 0, "{}", "")
+
+            with (
+                mock.patch.object(run_claude, "verify_workspace", autospec=True),
+                mock.patch.object(
+                    run_claude, "command", side_effect=installer, autospec=True
+                ),
+                mock.patch.object(run_claude, "verify_plugin", autospec=True),
+                self.assertRaisesRegex(run_claude.HostError, "turn failed"),
+                run_codex.temporary_home(workspace, sign_in, "0" * 40, scratch=scratch),
+            ):
+                raise run_claude.HostError("turn failed")
+            self.assertEqual(list(scratch.iterdir()), [])
+            with (
+                mock.patch.object(run_claude, "verify_workspace", autospec=True),
+                mock.patch.object(
+                    run_claude,
+                    "command",
+                    return_value=subprocess.CompletedProcess([], 0, "{}", ""),
+                    autospec=True,
+                ),
+                self.assertRaisesRegex(run_claude.HostError, "exactly one"),
+                run_codex.temporary_home(workspace, sign_in, "0" * 40, scratch=scratch),
+            ):
+                self.fail("missing package must not yield a home")
+            self.assertEqual(list(scratch.iterdir()), [])
+
+    def test_unverified_workspace_never_reads_sign_in_or_runs_installer(self) -> None:
+        with self.environment() as (workspace, sign_in, scratch):
+            sign_in.unlink()
+            with (
+                mock.patch.object(run_claude, "command", autospec=True) as command,
+                self.assertRaisesRegex(run_claude.HostError, "own .git"),
+                run_codex.temporary_home(workspace, sign_in, "0" * 40, scratch=scratch),
+            ):
+                self.fail("unverified workspace must not yield a home")
+            command.assert_not_called()
+            self.assertEqual(list(scratch.iterdir()), [])
+
+    def test_codex_entry_point_records_blockers_without_setup(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            with mock.patch.object(run_codex, "temporary_home", autospec=True) as setup:
+                self.assertEqual(
+                    run_claude.main(
+                        ["status-summary", "--model", "tested-model", "--out", folder],
+                        adapter_type=run_codex.Codex,
+                    ),
+                    2,
+                )
+            setup.assert_not_called()
+            record = score.read_json(Path(folder) / "codex/status-summary/1.json")
+            self.assertIn("spending", record["notRun"])
+            self.assertFalse(record["releaseEvidence"])
 
 
 if __name__ == "__main__":

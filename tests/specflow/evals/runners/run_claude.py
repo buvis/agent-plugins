@@ -263,7 +263,7 @@ class Claude:
         )
 
     @contextlib.contextmanager
-    def batch(self) -> Iterator[None]:
+    def batch(self, workspace: Path) -> Iterator[None]:
         yield
 
     def new_conversation(self) -> None:
@@ -426,16 +426,7 @@ def run_batch(
         except (HostError, OSError, ValueError, subprocess.SubprocessError) as error:
             startup_error = str(error)
         with contextlib.ExitStack() as resources:
-            if startup_error is None:
-                try:
-                    resources.enter_context(adapter.batch())
-                except (
-                    HostError,
-                    OSError,
-                    ValueError,
-                    subprocess.SubprocessError,
-                ) as error:
-                    startup_error = str(error)
+            batch_started = False
             for session_path, session in sessions:
                 path, number = reserve_record(out, adapter.host, session["name"])
                 record = {
@@ -483,6 +474,18 @@ def run_batch(
                         raise HostError("continuation parent did not finish")
                     write_files(workspace, completed[parent] if parent else initial)
                     initialize_workspace(workspace)
+                    if not batch_started:
+                        try:
+                            resources.enter_context(adapter.batch(workspace))
+                        except (
+                            HostError,
+                            OSError,
+                            ValueError,
+                            subprocess.SubprocessError,
+                        ) as error:
+                            startup_error = str(error)
+                            raise
+                        batch_started = True
                     play_session(adapter, session, workspace, record)
                     if not record.get("notRun") and not record.get("brokenAt"):
                         completed[session["name"]] = snapshot(workspace)

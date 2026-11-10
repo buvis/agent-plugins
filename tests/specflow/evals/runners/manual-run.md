@@ -2,7 +2,8 @@
 
 T-056 is **incomplete**. The scorer and shared batch machinery have deterministic
 tests. The Claude entry point records `notRun` and exits 2 before starting a host.
-Codex and Kiro adapters and the three-host live self-check are still outstanding.
+Codex has a blocked entry point and tested temporary-home setup. Its conversation
+adapter, the Kiro adapter, and the three-host live self-check are still outstanding.
 Synthetic records under `fixtures/results/` are instrument tests, never release
 evidence. No instruction-isolation choice or evidence waiver has been granted.
 
@@ -30,6 +31,39 @@ directories, or permission bypass. Its preflight deliberately refuses launch.
 Removing that refusal requires implementing and verifying the missing controls,
 not an undocumented command-line override. No stored run is marked release
 evidence automatically.
+
+### Investigation and offline checks, 2026-11-10
+
+- Installed versions: Codex 0.167.0 and kiro-cli 2.35.1. Their current headless
+  help still exposes no dollar spending cap. Codex's
+  [configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference)
+  documents experimental weighted token-budget tracking; this does not establish
+  dollar enforcement. Kiro's [headless guide](https://kiro.dev/docs/cli/headless/)
+  documents workflow timeouts and exact tool permissions, not a session dollar cap.
+- Codex `--ignore-user-config` skips config.toml, not all instruction sources.
+  The temporary-home choice remains necessary. Claude's installed `--bare` help
+  says it disables CLAUDE.md discovery but excludes OAuth authentication; the
+  existing setup token does not establish that route. No authentication was read
+  or copied, and no denied setup or reference/status operation was retried.
+- Kiro's [custom-agent reference](https://kiro.dev/docs/custom-agents/configuration-reference/)
+  describes workspace-scoped `chat.disableInheritingDefaultResources` plus
+  explicit resources. This is a candidate for isolation, not proof on 2.35.1;
+  validate fixture-local instructions, Power activation, actual model/server
+  versions, and excluded personal instructions before accepting evidence.
+- `run_codex.temporary_home` now verifies the workspace before any installer,
+  creates a private home and mode-0600 sign-in copy, installs by the T-045 route,
+  verifies the package tree, and cleans up via a context manager. Deterministic
+  tests use synthetic sign-in bytes and a fake installer. They cover success,
+  exceptions, KeyboardInterrupt, nonzero installation, missing package, package
+  mismatch, and failure after installation. They do not prove live sign-in or
+  isolation. SIGKILL and machine failure remain outside Python cleanup guarantees.
+- The shared batch now initializes and verifies the workspace before entering
+  host setup. Failed initialization cannot trigger the installer. A synthetic
+  installed-package mismatch produces an exit-2, score-free `notRun` record.
+
+The current design revision proposes concrete limits and isolation choices for
+approval. Those changes are not implemented by this checkpoint. Both existing
+entry points remain blocked, and T-056 remains unchecked.
 
 ## Manual procedure
 
