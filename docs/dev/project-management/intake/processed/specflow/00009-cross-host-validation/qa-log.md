@@ -437,3 +437,11 @@ Review and validation:
 - Verification: 50 tests pass on Python 3.15 and Python 3.10; stdlib trace coverage is run_claude 91.1%, run_codex 94.1%, score 90.8%. Ruff, repository validation (3 packages, 15 skills), unfiltered rule checks, and diff whitespace checks pass. Coverage files are ignored scratch at docs/dev/tmp/specflow/t056-approved-coverage/.
 - Environment evidence: Codex sandbox help failed with macOS sandbox_apply Operation not permitted under both default and normal escalated execution. Requested normal outside-profile diagnostic through warrant, ID de45a93cb7035582b243fcb97d9d1c5e; pending, not approved or executed. A test's ps check was also denied under both routes; replaced that process-table query with observation of the test's own inherited pipe, preserving the descendant-termination assertion without accessing denied metadata.
 - No real sign-in, model run, prior denied reference/status retry, security-policy edit, or waiver occurred. T-056 remains partial. Its remaining live-policy/adapter work needs the actual installed-host route proven before enabling preflight. Independent-login integration and external scratch preparation must retain the approved phase and credential boundaries.
+
+
+## T-056 warrant refusal (2026-11-10)
+
+- Developer-reported result: approval of de45a93cb7035582b243fcb97d9d1c5e was refused because the resolved mise-managed Codex 0.167.0 executable is outside the broker's trusted_exe_roots. The diagnostic did not execute; the earlier pending status is superseded.
+- Preserve the broker policy and the refused executable boundary. No wrapper, binary relocation, new request, authentication, model run, or security configuration change was attempted.
+- Next evidence: the developer runs the installed executable's `sandbox macos --help` directly outside run-agent and supplies its output. This is the design's developer-run diagnostic route, not isolation proof or permission to enable live preflight.
+- Status remains standard/implementation, requirements/design/tasks approved, no stale artifacts, hold, gate blockers, or specs-folder problems; 1/10 tasks checked, T-056 next. The directory-based code-baseline warning remains. Only evidence/progress documentation changed.

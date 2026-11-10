@@ -36,11 +36,15 @@ model's own statement or from successful synthetic tests.
 
 On 2026-11-10, `codex sandbox macos --help` failed with
 `sandbox-exec: sandbox_apply: Operation not permitted`, including the normal
-escalated attempt. Broker request `de45a93cb7035582b243fcb97d9d1c5e` asks for the
-same help check outside the outer Seatbelt profile. It does not launch a model
-or request authentication. Until that route is cleared, do not retry through a
-sandbox bypass. Track its observed result in T-056's Outcome; the request alone
-is not proof or approval.
+escalated attempt. The developer attempted to approve broker request
+`de45a93cb7035582b243fcb97d9d1c5e`; warrant refused because the resolved
+mise-managed Codex executable is outside `trusted_exe_roots`. The request is
+refused, not pending, and did not execute the diagnostic. Do not retry it through
+a wrapper, relocate the binary, or broaden broker trust as part of this task.
+The remaining route is a developer-run `codex sandbox macos --help` diagnostic
+outside `run-agent`, using the installed executable directly. This help check
+uses no model or authentication. Its output is capability evidence only; actual
+boundary proof still precedes live evaluation.
 
 ## Implemented resource controls
 
