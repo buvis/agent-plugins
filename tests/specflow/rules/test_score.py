@@ -5,9 +5,12 @@ from __future__ import annotations
 import contextlib
 import copy
 import json
+import os
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from collections.abc import Iterator
 from pathlib import Path
@@ -243,9 +246,86 @@ class ScoreTest(unittest.TestCase):
             },
         }
         scored = score.rubric_verdicts(self.record, evaluations, {}, None, review)
+        self.assertFalse(self.record["rubricReview"]["manualAll"])
+        review["verdicts"][state["sample"][1]] = {
+            "verdict": "FAIL",
+            "judge": "human:developer",
+            "reason": "Second wrong judgment",
+        }
+        scored = score.rubric_verdicts(self.record, evaluations, {}, None, review)
         self.assertTrue(self.record["rubricReview"]["manualAll"])
         self.assertEqual(len(self.record["rubricReview"]["required"]), 20)
         self.assertFalse(any(v["passed"] for v in scored.values()))
+
+    def test_pass_sample_has_minimum_and_rounds_up_without_rerolling(self) -> None:
+        for count, expected in [(0, 0), (3, 3), (10, 10), (11, 10), (101, 11)]:
+            with self.subTest(count=count):
+                record = copy.deepcopy(self.record)
+                evaluations = [
+                    (
+                        {
+                            "rule": f"SR-DLG-{i:03}",
+                            "assertions": [{"kind": "rubric", "rubric": "Check"}],
+                        },
+                        "a" * 40,
+                    )
+                    for i in range(1, count + 1)
+                ]
+                # One FAIL ensures the empty PASS population still has review state.
+                evaluations.append(
+                    (
+                        {
+                            "rule": "SR-DLG-999",
+                            "assertions": [{"kind": "rubric", "rubric": "Fail"}],
+                        },
+                        "a" * 40,
+                    )
+                )
+                verdicts = [
+                    {"verdict": "PASS", "judge": "model:judge", "reason": "Checked"}
+                    for _ in range(count)
+                ] + [{"verdict": "FAIL", "judge": "model:judge", "reason": "Failed"}]
+                with mock.patch.object(
+                    score, "model_judge", side_effect=verdicts, autospec=True
+                ):
+                    score.rubric_verdicts(record, evaluations, {}, "judge", None)
+                sample = record["rubricReview"]["sample"].copy()
+                self.assertEqual(len(sample), expected)
+                self.assertIn("SR-DLG-999:1", record["rubricReview"]["required"])
+                score.rubric_verdicts(record, evaluations, {}, None, None)
+                self.assertEqual(record["rubricReview"]["sample"], sample)
+
+    def test_release_eligibility_does_not_invalidate_human_judgment(self) -> None:
+        verdict = {"verdict": "PASS", "judge": "model:judge", "reason": "Checked"}
+        with mock.patch.object(
+            score, "model_judge", return_value=verdict, autospec=True
+        ):
+            score.score_record(self.record, FIXTURES / "rubrics", judge_model="judge")
+        review = {
+            "evidenceSha256": self.record["rubricReview"]["evidenceSha256"],
+            "verdicts": {
+                "SR-DLG-003:1": {
+                    "verdict": "PASS",
+                    "judge": "human:developer",
+                    "reason": "Checked",
+                }
+            },
+        }
+        self.assertEqual(
+            score.score_record(self.record, FIXTURES / "rubrics", reviews=review), 0
+        )
+        self.record["releaseEvidence"] = True
+        self.assertEqual(
+            score.score_record(self.record, FIXTURES / "rubrics", reviews=review), 0
+        )
+        with (
+            mock.patch.object(score, "JUDGE_PROMPT", "Changed judging instructions"),
+            self.assertRaisesRegex(score.RecordError, "different evidence"),
+        ):
+            score.score_record(self.record, FIXTURES / "rubrics", reviews=review)
+        self.record["instructionFiles"].append("<home>/AGENTS.md")
+        with self.assertRaisesRegex(score.RecordError, "different evidence"):
+            score.score_record(self.record, FIXTURES / "rubrics", reviews=review)
 
     def test_judge_requires_reported_model_and_no_tools(self) -> None:
         for model, tools, allowed in [
@@ -267,7 +347,9 @@ class ScoreTest(unittest.TestCase):
             )
             with (
                 self.subTest(model=model, tools=tools),
-                mock.patch.object(score.subprocess, "run", return_value=result),
+                mock.patch.object(
+                    run_claude, "command", return_value=result, autospec=True
+                ),
             ):
                 if allowed:
                     verdict = score.model_judge("other-model", "Check", {}, "tested")
@@ -297,6 +379,155 @@ class ScoreTest(unittest.TestCase):
 
 
 class RunnerTest(unittest.TestCase):
+    def test_batch_deadline_covers_setup_and_scoring(self) -> None:
+        for phase, expected_code in [("setup", 2), ("scoring", 1)]:
+            with self.subTest(phase=phase), tempfile.TemporaryDirectory() as folder:
+                clock = [0.0]
+                adapter = run_claude.Claude("tested-model")
+
+                def expire(
+                    *args: object, clock: list[float] = clock, **kwargs: object
+                ) -> int:
+                    clock[0] = run_claude.BATCH_TIMEOUT + 1
+                    return 0
+
+                with (
+                    mock.patch.object(
+                        score.time,
+                        "monotonic",
+                        side_effect=lambda clock=clock: clock[0],
+                    ),
+                    mock.patch.object(
+                        adapter,
+                        "preflight",
+                        side_effect=expire if phase == "setup" else None,
+                    ),
+                    mock.patch.object(
+                        adapter, "turn", return_value=("Reply", [])
+                    ) as host,
+                    mock.patch.object(
+                        run_claude, "initialize_workspace", autospec=True
+                    ),
+                    mock.patch.object(run_claude, "verify_workspace", autospec=True),
+                    mock.patch.object(
+                        run_claude,
+                        "capture_status",
+                        return_value=score.read_json(FIXTURES / "manual.json")[
+                            "status"
+                        ],
+                    ),
+                    mock.patch.object(
+                        score, "score_record", side_effect=expire, autospec=True
+                    ),
+                ):
+                    code = run_claude.run_batch(adapter, "status-summary", Path(folder))
+                self.assertEqual(code, expected_code)
+                record = score.read_json(
+                    Path(folder) / "claude-code/status-summary/1.json"
+                )
+                self.assertIn("deadline", record["notRun"])
+                self.assertNotIn("scores", record)
+                if phase == "setup":
+                    host.assert_not_called()
+
+    def test_sigterm_unwinds_and_restores_the_previous_handler(self) -> None:
+        previous = signal.getsignal(signal.SIGTERM)
+        with self.assertRaises(KeyboardInterrupt), run_claude.interruption_signals():
+            signal.raise_signal(signal.SIGTERM)
+        self.assertEqual(signal.getsignal(signal.SIGTERM), previous)
+
+    def test_timeout_kills_a_descendant_that_ignores_termination(self) -> None:
+        child = (
+            "import signal,time; "
+            "signal.signal(signal.SIGTERM,signal.SIG_IGN); "
+            "print('child-ready',flush=True); time.sleep(30)"
+        )
+        parent = (
+            "import subprocess,sys,time; "
+            f"subprocess.Popen([sys.executable,'-c',{child!r}]); time.sleep(30)"
+        )
+        started = time.monotonic()
+        with self.assertRaises(subprocess.TimeoutExpired) as caught:
+            run_claude.command([sys.executable, "-c", parent], ROOT, timeout=1)
+        self.assertIn(b"child-ready", caught.exception.output)
+        # The child keeps the captured pipe open and ignores TERM. communicate
+        # cannot finish this soon unless cleanup also terminates that descendant.
+        self.assertLess(time.monotonic() - started, 15)
+
+    def test_enclosing_deadline_limits_commands_without_starting_after_expiry(
+        self,
+    ) -> None:
+        clock = [0.0]
+        with mock.patch.object(
+            score.time, "monotonic", side_effect=lambda clock=clock: clock[0]
+        ):
+            with score.deadline(50):
+                clock[0] = 10
+                with score.deadline(100):
+                    self.assertEqual(score.remaining_timeout(600), 40)
+                    clock[0] = 50
+                    with (
+                        mock.patch.object(run_claude.subprocess, "Popen") as start,
+                        self.assertRaises(subprocess.TimeoutExpired),
+                    ):
+                        run_claude.command(["must-not-start"], ROOT)
+                    start.assert_not_called()
+            self.assertEqual(score.remaining_timeout(600), 600)
+
+    def test_session_deadline_stops_between_turns_and_retains_reply(self) -> None:
+        clock = [0.0]
+        record = score.read_json(FIXTURES / "manual.json")
+        record["messages"], record["filesRead"] = [], []
+        adapter = run_claude.Claude("tested-model")
+
+        def turn(prompt: str, workspace: Path) -> tuple[str, list[str]]:
+            clock[0] = run_claude.SESSION_TIMEOUT + 1
+            return "First reply", []
+
+        with (
+            tempfile.TemporaryDirectory() as folder,
+            mock.patch.object(
+                score.time, "monotonic", side_effect=lambda clock=clock: clock[0]
+            ),
+            mock.patch.object(run_claude, "verify_workspace", autospec=True),
+            mock.patch.object(adapter, "turn", side_effect=turn, autospec=True) as host,
+        ):
+            run_claude.play_session(
+                adapter,
+                {"turns": [{"developer": "First"}, {"developer": "Second"}]},
+                Path(folder),
+                record,
+            )
+        self.assertEqual(host.call_count, 1)
+        self.assertEqual(record["messages"], ["First reply"])
+        self.assertIn("deadline", record["notRun"])
+
+    def test_turn_limit_rejects_continuation_before_host_setup(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "parent.json").write_text(
+                json.dumps(
+                    {
+                        "schemaVersion": 1,
+                        "name": "parent",
+                        "fixture": "sessions/status-summary",
+                        "turns": [{"developer": "Start"}],
+                    }
+                )
+            )
+            (root / "child.json").write_text(
+                json.dumps(
+                    {
+                        "schemaVersion": 1,
+                        "name": "child",
+                        "continues": "parent",
+                        "turns": [{"developer": "Again"}] * 25,
+                    }
+                )
+            )
+            with self.assertRaisesRegex(score.RecordError, "turn limit"):
+                run_claude.sessions_for("parent", root)
+
     def test_failed_workspace_setup_never_enters_host_batch(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             adapter = run_claude.Claude("tested-model")
@@ -325,9 +556,10 @@ class RunnerTest(unittest.TestCase):
                 mock.patch.object(adapter, "turn", side_effect=KeyboardInterrupt),
                 mock.patch.object(run_claude, "initialize_workspace"),
                 mock.patch.object(run_claude, "verify_workspace"),
-                self.assertRaises(KeyboardInterrupt),
             ):
-                run_claude.run_batch(adapter, "status-summary", out)
+                self.assertEqual(
+                    run_claude.run_batch(adapter, "status-summary", out), 2
+                )
             record = score.read_json(out / "claude-code/status-summary/1.json")
             score.validate_record(record)
             self.assertIn("interrupted", record["notRun"])
@@ -598,6 +830,12 @@ class RunnerTest(unittest.TestCase):
             self.assertIn("isolation", record["notRun"])
             self.assertNotIn("scores", record)
             self.assertFalse(record["releaseEvidence"])
+            self.assertEqual(record["model"], "test-model")
+            self.assertEqual(record["hostVersion"], "not-started")
+            self.assertIsNone(record["status"])
+            self.assertEqual(record["messages"], [])
+            self.assertEqual(record["files"], [])
+            self.assertEqual(record["instructionMeasurement"], "not-measured")
             score.validate_record(record)
 
     def test_edit_precedes_turn_and_expects_breaks_without_a_second_reply(self) -> None:
@@ -637,6 +875,39 @@ class RunnerTest(unittest.TestCase):
 
 class CodexHomeTest(unittest.TestCase):
     """Synthetic sign-in and installer; no installed host or real credential used."""
+
+    @staticmethod
+    def provision(home: Path) -> None:
+        assert list(home.iterdir()) == []
+        fd = os.open(home / "auth.json", os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "w") as stream:
+            stream.write('{"synthetic": "fixture-only"}')
+
+    def test_unprovisioned_or_nonprivate_sign_in_never_installs(self) -> None:
+        for mode in (None, 0o644):
+            with (
+                self.subTest(mode=mode),
+                self.environment() as (workspace, _sign_in, scratch),
+            ):
+
+                def provision(home: Path, mode: int | None = mode) -> None:
+                    if mode is not None:
+                        self.provision(home)
+                        (home / "auth.json").chmod(mode)
+
+                with (
+                    mock.patch.object(run_claude, "verify_workspace", autospec=True),
+                    mock.patch.object(
+                        run_claude, "command", autospec=True
+                    ) as installer,
+                    self.assertRaisesRegex(run_claude.HostError, "independent sign-in"),
+                    run_codex.temporary_home(
+                        workspace, "0" * 40, scratch=scratch, provision=provision
+                    ),
+                ):
+                    self.fail("invalid credentials must not reach installation")
+                installer.assert_not_called()
+                self.assertEqual(list(scratch.iterdir()), [])
 
     @contextlib.contextmanager
     def environment(self) -> Iterator[tuple[Path, Path, Path]]:
@@ -680,7 +951,7 @@ class CodexHomeTest(unittest.TestCase):
                     run_claude, "command", side_effect=installer, autospec=True
                 ),
                 run_codex.temporary_home(
-                    workspace, sign_in, revision, scratch=scratch
+                    workspace, revision, scratch=scratch, provision=self.provision
                 ) as home,
             ):
                 self.assertEqual(len(observed), 2)
@@ -703,7 +974,7 @@ class CodexHomeTest(unittest.TestCase):
                     ),
                     self.assertRaises(type(error)),
                     run_codex.temporary_home(
-                        workspace, sign_in, "0" * 40, scratch=scratch
+                        workspace, "0" * 40, scratch=scratch, provision=self.provision
                     ),
                 ):
                     self.fail("failed install must not yield a home")
@@ -731,11 +1002,14 @@ class CodexHomeTest(unittest.TestCase):
                     run_claude, "command", side_effect=installer, autospec=True
                 ),
                 self.assertRaisesRegex(run_claude.HostError, "differs"),
-                run_codex.temporary_home(workspace, sign_in, "0" * 40, scratch=scratch),
+                run_codex.temporary_home(
+                    workspace, "0" * 40, scratch=scratch, provision=self.provision
+                ),
             ):
                 self.fail("mismatched package must not yield a home")
             self.assertEqual(list(scratch.iterdir()), [])
             adapter = run_codex.Codex("tested-model")
+            adapter.provision = self.provision
             with (
                 mock.patch.object(adapter, "preflight", autospec=True),
                 mock.patch.object(run_claude, "initialize_workspace", autospec=True),
@@ -759,7 +1033,7 @@ class CodexHomeTest(unittest.TestCase):
             self.assertNotIn("scores", record)
 
     def test_nonzero_installer_never_persists_its_output(self) -> None:
-        with self.environment() as (workspace, sign_in, scratch):
+        with self.environment() as (workspace, _sign_in, scratch):
             failure = subprocess.CompletedProcess(
                 [], 7, "synthetic-secret", "synthetic-secret"
             )
@@ -771,13 +1045,15 @@ class CodexHomeTest(unittest.TestCase):
                 self.assertRaisesRegex(
                     run_claude.HostError, r"^Codex plugin setup failed \(exit 7\)$"
                 ),
-                run_codex.temporary_home(workspace, sign_in, "0" * 40, scratch=scratch),
+                run_codex.temporary_home(
+                    workspace, "0" * 40, scratch=scratch, provision=self.provision
+                ),
             ):
                 self.fail("failed install must not yield a home")
             self.assertEqual(list(scratch.iterdir()), [])
 
     def test_body_failure_and_missing_package_remove_home(self) -> None:
-        with self.environment() as (workspace, sign_in, scratch):
+        with self.environment() as (workspace, _sign_in, scratch):
 
             def installer(
                 args: list[str], cwd: Path, env: dict | None = None, timeout: int = 600
@@ -797,7 +1073,9 @@ class CodexHomeTest(unittest.TestCase):
                 ),
                 mock.patch.object(run_claude, "verify_plugin", autospec=True),
                 self.assertRaisesRegex(run_claude.HostError, "turn failed"),
-                run_codex.temporary_home(workspace, sign_in, "0" * 40, scratch=scratch),
+                run_codex.temporary_home(
+                    workspace, "0" * 40, scratch=scratch, provision=self.provision
+                ),
             ):
                 raise run_claude.HostError("turn failed")
             self.assertEqual(list(scratch.iterdir()), [])
@@ -810,7 +1088,9 @@ class CodexHomeTest(unittest.TestCase):
                     autospec=True,
                 ),
                 self.assertRaisesRegex(run_claude.HostError, "exactly one"),
-                run_codex.temporary_home(workspace, sign_in, "0" * 40, scratch=scratch),
+                run_codex.temporary_home(
+                    workspace, "0" * 40, scratch=scratch, provision=self.provision
+                ),
             ):
                 self.fail("missing package must not yield a home")
             self.assertEqual(list(scratch.iterdir()), [])
@@ -821,7 +1101,9 @@ class CodexHomeTest(unittest.TestCase):
             with (
                 mock.patch.object(run_claude, "command", autospec=True) as command,
                 self.assertRaisesRegex(run_claude.HostError, "own .git"),
-                run_codex.temporary_home(workspace, sign_in, "0" * 40, scratch=scratch),
+                run_codex.temporary_home(
+                    workspace, "0" * 40, scratch=scratch, provision=self.provision
+                ),
             ):
                 self.fail("unverified workspace must not yield a home")
             command.assert_not_called()
@@ -839,7 +1121,7 @@ class CodexHomeTest(unittest.TestCase):
                 )
             setup.assert_not_called()
             record = score.read_json(Path(folder) / "codex/status-summary/1.json")
-            self.assertIn("spending", record["notRun"])
+            self.assertIn("independent sign-in", record["notRun"])
             self.assertFalse(record["releaseEvidence"])
 
 

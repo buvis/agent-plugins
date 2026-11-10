@@ -25,8 +25,11 @@ import score
 ROOT = score.ROOT
 SCRATCH = ROOT / "docs/dev/tmp/specflow/evals"
 TURN_TIMEOUT = 600
+MAX_SESSION_TURNS = 24
+SESSION_TIMEOUT = 1800
+BATCH_TIMEOUT = 7200
 SESSION_BUDGET_USD = 5
-PERMISSION_MODE = "default"
+PERMISSION_MODE = "manual"
 FIXTURES = ROOT / "tests/specflow/fixtures"
 SESSIONS = score.EVALS / "sessions"
 
@@ -36,9 +39,10 @@ class HostError(RuntimeError):
 
 
 def command(
-    args: list[str], cwd: Path, env: dict | None = None, timeout: int = TURN_TIMEOUT
+    args: list[str], cwd: Path, env: dict | None = None, timeout: float = TURN_TIMEOUT
 ) -> subprocess.CompletedProcess:
     """Never use a shell; terminate the process group, including tools, on timeout."""
+    timeout = score.remaining_timeout(timeout)
     with subprocess.Popen(
         args,
         cwd=cwd,
@@ -209,6 +213,8 @@ def sessions_for(name: str, directory: Path = SESSIONS) -> list[tuple[Path, dict
                 visit(child)
 
     visit(name)
+    if any(len(session["turns"]) > MAX_SESSION_TURNS for _, session in ordered):
+        raise score.RecordError(f"session exceeds turn limit ({MAX_SESSION_TURNS})")
     return ordered
 
 
@@ -346,11 +352,13 @@ class Claude:
         return final["result"], reads
 
 
+@score.deadline(SESSION_TIMEOUT)
 def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) -> None:
     adapter.new_conversation()
     baseline = snapshot(workspace)
     try:
         for turn_number, turn in enumerate(session["turns"], 1):
+            score.remaining_timeout(TURN_TIMEOUT)
             if "expects" in turn and (
                 not record["messages"]
                 or not re.search(turn["expects"], record["messages"][-1])
@@ -371,6 +379,7 @@ def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) 
             record["filesRead"].append(
                 [p.removeprefix(str(workspace) + "/") for p in reads]
             )
+        score.remaining_timeout(TURN_TIMEOUT)
         record["status"] = capture_status(workspace)
         if record["status"] is None:
             record["notRun"] = "status helper could not run"
@@ -388,6 +397,7 @@ def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) 
         record["instructionFiles"] = adapter.instruction_files
 
 
+@score.deadline(BATCH_TIMEOUT)
 def run_batch(
     adapter: Claude,
     name: str,
@@ -448,6 +458,11 @@ def run_batch(
                     "readMeasurement": "not-measured",
                     "instructionMeasurement": "not-measured",
                     "releaseEvidence": False,
+                    "notes": (
+                        f"Requested model: {adapter.model}; reported identity unverified until launch. "
+                        f"Limits: {MAX_SESSION_TURNS} turns; {TURN_TIMEOUT}s per turn; "
+                        f"{SESSION_TIMEOUT}s per session; {BATCH_TIMEOUT}s per batch."
+                    ),
                 }
                 workspace = root / session["name"]
                 workspace.mkdir()
@@ -470,6 +485,7 @@ def run_batch(
                 try:
                     if startup_error:
                         raise HostError(startup_error)
+                    score.remaining_timeout(TURN_TIMEOUT)
                     if parent and parent not in completed:
                         raise HostError("continuation parent did not finish")
                     write_files(workspace, completed[parent] if parent else initial)
@@ -496,6 +512,9 @@ def run_batch(
                     subprocess.SubprocessError,
                 ) as error:
                     record["notRun"] = str(error)
+                except KeyboardInterrupt:
+                    startup_error = "runner interrupted"
+                    record["notRun"] = startup_error
                 normalized = normalize(record, replacements)
                 score.validate_record(normalized)
                 if "notRun" not in normalized:
@@ -503,6 +522,7 @@ def run_batch(
                         code = max(
                             code, score.score_record(normalized, eval_dir, results=out)
                         )
+                        score.remaining_timeout(TURN_TIMEOUT)
                     except (
                         score.RecordError,
                         OSError,
@@ -511,9 +531,22 @@ def run_batch(
                     ) as error:
                         normalized["notRun"] = f"scoring could not finish: {error}"
                         normalized.pop("scores", None)
-                        code = max(code, 2)
+                        code = max(
+                            code,
+                            1
+                            if isinstance(error, subprocess.TimeoutExpired)
+                            and normalized["messages"]
+                            else 2,
+                        )
+                    except KeyboardInterrupt:
+                        startup_error = "runner interrupted during scoring"
+                        normalized["notRun"] = startup_error
+                        normalized.pop("scores", None)
+                        code = max(code, 1 if normalized["messages"] else 2)
                 else:
                     code = max(code, 2 if not normalized["messages"] else 1)
+                if normalized.get("notRun"):
+                    completed.pop(session["name"], None)
                 score.write_json(path, normalized)
                 records[session["name"]] = number
                 print(path)
@@ -529,7 +562,8 @@ def main(argv: list[str] | None = None, adapter_type: type = Claude) -> int:
     try:
         if args.model in {"auto", "default"}:
             raise score.RecordError("choose an explicit model")
-        return run_batch(adapter_type(args.model), args.session, args.out)
+        with interruption_signals():
+            return run_batch(adapter_type(args.model), args.session, args.out)
     except (
         HostError,
         score.RecordError,
@@ -539,6 +573,28 @@ def main(argv: list[str] | None = None, adapter_type: type = Claude) -> int:
     ) as error:
         print(f"runner: {error}", file=sys.stderr)
         return 2
+    except KeyboardInterrupt:
+        print("runner: interrupted before a run could be recorded", file=sys.stderr)
+        return 2
+
+
+@contextlib.contextmanager
+def interruption_signals() -> Iterator[None]:
+    """Turn termination into normal unwinding; never change callers' handlers."""
+
+    def interrupt(signum: int, frame: object) -> None:
+        raise KeyboardInterrupt
+
+    previous = {
+        number: signal.getsignal(number) for number in (signal.SIGINT, signal.SIGTERM)
+    }
+    try:
+        for number in previous:
+            signal.signal(number, interrupt)
+        yield
+    finally:
+        for number, handler in previous.items():
+            signal.signal(number, handler)
 
 
 if __name__ == "__main__":

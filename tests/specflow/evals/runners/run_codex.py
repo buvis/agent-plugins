@@ -6,7 +6,7 @@ from __future__ import annotations
 import contextlib
 import os
 import tempfile
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from pathlib import Path
 
 import run_claude as runner
@@ -16,22 +16,23 @@ import score
 @contextlib.contextmanager
 def temporary_home(
     workspace: Path,
-    sign_in: Path,
     revision: str,
     *,
     scratch: Path = runner.SCRATCH,
+    provision: Callable[[Path], None],
 ) -> Iterator[Path]:
-    """Install into a private disposable home; never alter the source sign-in."""
+    """Provision directly into a fresh home; never accept an existing sign-in path."""
     runner.verify_workspace(workspace)
-    if sign_in.is_symlink() or not sign_in.is_file():
-        raise runner.HostError("Codex sign-in must be a regular file")
     scratch.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="codex-home-", dir=scratch) as folder:
         home = Path(folder)
-        # Create with private permissions before writing even one credential byte.
-        fd = os.open(home / "auth.json", os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-        with os.fdopen(fd, "wb") as stream:
-            stream.write(sign_in.read_bytes())
+        provision(home)
+        sign_in = home / "auth.json"
+        if sign_in.is_symlink() or not sign_in.is_file():
+            raise runner.HostError("independent sign-in must be a regular file")
+        metadata = sign_in.stat()
+        if metadata.st_nlink != 1 or metadata.st_mode & 0o777 != 0o600:
+            raise runner.HostError("independent sign-in must be private and unlinked")
         env = {
             key: value
             for key, value in os.environ.items()
@@ -71,16 +72,19 @@ class Codex:
 
     def preflight(self) -> None:
         raise runner.HostError(
-            "Codex launch blocked: spending cap, explicit instruction-isolation choice, "
-            "and workspace-scoped permissions remain unresolved"
+            "Codex launch blocked: independent sign-in provisioning and native "
+            "instruction/read isolation remain unproven"
         )
+
+    def provision(self, home: Path) -> None:
+        raise runner.HostError("independent sign-in provisioning is not implemented")
 
     @contextlib.contextmanager
     def batch(self, workspace: Path) -> Iterator[None]:
         # This guard also protects direct callers, outside run_batch.
         self.preflight()
         revision = score.git("rev-parse", "HEAD:plugins/specflow").decode().strip()
-        with temporary_home(workspace, Path.home() / ".codex/auth.json", revision):
+        with temporary_home(workspace, revision, provision=self.provision):
             yield
 
 

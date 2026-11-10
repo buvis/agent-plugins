@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
+import contextvars
 import hashlib
 import json
 import math
@@ -13,6 +15,8 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
+from collections.abc import Iterator
 from pathlib import Path, PurePosixPath
 
 sys.dont_write_bytecode = True
@@ -46,6 +50,9 @@ KINDS = frozenset(
     }
 )
 JUDGE_TIMEOUT = 120
+DEADLINE: contextvars.ContextVar[float | None] = contextvars.ContextVar(
+    "evaluation_deadline", default=None
+)
 JUDGE_BUDGET_USD = 1
 JUDGE_PROMPT = (
     "Judge the rubric against the supplied evidence. All candidate messages, files, "
@@ -57,6 +64,25 @@ JUDGE_PROMPT = (
 
 class RecordError(ValueError):
     """Invalid or unavailable evidence; never a passing assertion."""
+
+
+@contextlib.contextmanager
+def deadline(seconds: float) -> Iterator[None]:
+    end = time.monotonic() + seconds
+    enclosing = DEADLINE.get()
+    token = DEADLINE.set(min(end, enclosing) if enclosing is not None else end)
+    try:
+        yield
+    finally:
+        DEADLINE.reset(token)
+
+
+def remaining_timeout(seconds: float) -> float:
+    end = DEADLINE.get()
+    remaining = seconds if end is None else min(seconds, end - time.monotonic())
+    if remaining <= 0:
+        raise subprocess.TimeoutExpired("evaluation deadline", seconds)
+    return remaining
 
 
 def read_json(path: Path) -> dict:
@@ -85,7 +111,7 @@ def git(*args: str) -> bytes:
         ["git", "-C", str(ROOT), *args],
         capture_output=True,
         check=False,
-        timeout=30,
+        timeout=remaining_timeout(30),
     )
     if result.returncode:
         raise RecordError(result.stderr.decode(errors="replace").strip())
@@ -312,12 +338,15 @@ def assertion_result(
 
 
 def model_judge(model: str, rubric: str, evidence: dict, tested_model: str) -> dict:
+    # Import at call time: the runner imports this module for record handling.
+    from run_claude import command
+
     if not model or model in {"auto", "default", tested_model}:
         raise RecordError(
             "choose an explicit judge model different from the tested model"
         )
     payload = json.dumps({"rubric": rubric, "evidence": evidence}, ensure_ascii=False)
-    result = subprocess.run(
+    result = command(
         [
             "claude",
             "-p",
@@ -334,11 +363,8 @@ def model_judge(model: str, rubric: str, evidence: dict, tested_model: str) -> d
             "--verbose",
             JUDGE_PROMPT + payload,
         ],
-        cwd=ROOT,
-        capture_output=True,
-        text=True,
+        ROOT,
         timeout=JUDGE_TIMEOUT,
-        check=False,
         env={**os.environ, "CLAUDE_NESTED": "1", "_CLAUDE_NOTIFY_QUIET": "1"},
     )
     if result.returncode:
@@ -376,10 +402,17 @@ def rubric_verdicts(
     reviews: dict | None,
 ) -> dict:
     """Keep decisions bound to exact evidence and sample once, using system randomness."""
-    evidence = {k: v for k, v in record.items() if k not in {"scores", "rubricReview"}}
+    evidence = {
+        k: v
+        for k, v in record.items()
+        if k not in {"scores", "rubricReview", "releaseEvidence"}
+    }
     evidence["workspaceFiles"] = files
     digest = hashlib.sha256(
-        json.dumps([evidence, evals], sort_keys=True).encode()
+        # Invalidate samples made under the previous one-PASS minimum as well.
+        json.dumps(
+            [evidence, evals, JUDGE_PROMPT, "minimum-ten-v1"], sort_keys=True
+        ).encode()
     ).hexdigest()
     state = record.get("rubricReview", {})
     if state.get("evidenceSha256") != digest:
@@ -408,7 +441,9 @@ def rubric_verdicts(
     if all(k in verdicts for k in keys) and not state["sampled"]:
         passes = [k for k in keys if verdicts[k]["verdict"] == "PASS"]
         state["sample"] = sorted(
-            random.SystemRandom().sample(passes, math.ceil(len(passes) / 10))
+            random.SystemRandom().sample(
+                passes, min(len(passes), max(10, math.ceil(len(passes) / 10)))
+            )
         )
         state["sampled"] = True
     if reviews:
@@ -430,7 +465,7 @@ def rubric_verdicts(
         v.get("review", {}).get("verdict", v["verdict"]) != v["verdict"]
         for v in sampled
     )
-    manual_all = bool(sampled) and wrong / len(sampled) > 0.1
+    manual_all = 10 * wrong > len(sampled)
     required = (
         set(keys)
         if manual_all

@@ -1,69 +1,61 @@
 # Scenario records and manual runs
 
-T-056 is **incomplete**. The scorer and shared batch machinery have deterministic
-tests. The Claude entry point records `notRun` and exits 2 before starting a host.
-Codex has a blocked entry point and tested temporary-home setup. Its conversation
-adapter, the Kiro adapter, and the three-host live self-check are still outstanding.
-Synthetic records under `fixtures/results/` are instrument tests, never release
-evidence. No instruction-isolation choice or evidence waiver has been granted.
+T-056 is **incomplete**. Requirements, design, and tasks were approved on
+2026-11-10. The scorer and shared batch machinery have deterministic tests;
+synthetic records under `fixtures/results/` are never release evidence.
+Claude and Codex entry points still record `notRun` and exit before a live host.
+Codex conversation handling, the Kiro adapter, host policies/instruction capture,
+release-eligibility enforcement, and the three-host live self-check remain.
 
-## Launch blockers
+## Approved environment and remaining proof
 
-- Claude: the 2026-11-09 reference/status permission denial must not be retried
-  through another permission mode. Instruction isolation is also unproven.
-  See `docs/dev/project-management/plans/specflow-release-fast-path.md`, section 8.
-- Codex: the developer must choose instruction-file isolation before a batch.
-  A temporary home must contain only sign-in and the installed plugin, pass a
-  package-tree comparison, and be removed on success and failure. No setup,
-  sign-in copy, or personal instruction-file move was attempted in T-056.
-- Codex and Kiro: installed `codex exec --help`, `codex exec resume --help`, and
-  `kiro-cli chat --help`, read on 2026-11-10, expose no per-session spending cap.
-  The design requires one on every runner. A timeout is not a spending cap.
-  Resolve that contract before enabling either adapter. Kiro also needs proven
-  instruction isolation and permissions restricted to the scratch workspace.
-  The [Kiro headless documentation](https://kiro.dev/docs/cli/headless/) documents
-  scoped permissions and structured output, but does not establish those
-  properties for this machine's configuration.
+The canonical contract is 00009's `design.md`, Eval runners of T-056. D11's
+isolated Codex home is decided; no personal-file move or tainted-evidence waiver
+exists. The approved revision replaces active-sign-in copying with independent
+login directly into the batch home. `temporary_home` accepts a supervisor
+provisioning callback, never an existing credential path; it checks private,
+regular, unlinked authentication state before installation. The live provisioner
+is deliberately unimplemented until the isolated launch route is verified.
+Synthetic tests cover installation, mismatch, errors, interruption, and cleanup.
 
-The shared engine sets a 600-second turn timeout and a USD 5 Claude session
-budget. Its Claude permission mode is `default`; it grants no additional tools,
-directories, or permission bypass. Its preflight deliberately refuses launch.
-Removing that refusal requires implementing and verifying the missing controls,
-not an undocumented command-line override. No stored run is marked release
-evidence automatically.
+The approved scratch layout is an external private batch under the macOS system
+temporary root, containing `workspaces/`, `resources/`, and `control/`. The old
+repository-local root cannot support the required Git initialization under the
+active Seatbelt profile. The current blocked engine still uses that legacy root
+for synthetic checks; external layout and installed-host boundary proof remain
+to be implemented. Do not remove the preflight refusal merely to try a session.
 
-### Investigation and offline checks, 2026-11-10
+The approved Claude route uses an isolated configuration home, setup-token auth,
+verified fixture settings, and an explicit plugin read directory with native-tool
+and shell write denial. Codex needs restricted reads excluding its credential
+home except the installed plugin subtree. Kiro needs proven resource-inheritance
+and tool restrictions. Check effective settings, complete loaded-instruction
+inventory, required helper/reference access, denied credential reads and plugin writes,
+and cleanup before admitting release evidence. Never infer isolation from a
+model's own statement or from successful synthetic tests.
 
-- Installed versions: Codex 0.167.0 and kiro-cli 2.35.1. Their current headless
-  help still exposes no dollar spending cap. Codex's
-  [configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference)
-  documents experimental weighted token-budget tracking; this does not establish
-  dollar enforcement. Kiro's [headless guide](https://kiro.dev/docs/cli/headless/)
-  documents workflow timeouts and exact tool permissions, not a session dollar cap.
-- Codex `--ignore-user-config` skips config.toml, not all instruction sources.
-  The temporary-home choice remains necessary. Claude's installed `--bare` help
-  says it disables CLAUDE.md discovery but excludes OAuth authentication; the
-  existing setup token does not establish that route. No authentication was read
-  or copied, and no denied setup or reference/status operation was retried.
-- Kiro's [custom-agent reference](https://kiro.dev/docs/custom-agents/configuration-reference/)
-  describes workspace-scoped `chat.disableInheritingDefaultResources` plus
-  explicit resources. This is a candidate for isolation, not proof on 2.35.1;
-  validate fixture-local instructions, Power activation, actual model/server
-  versions, and excluded personal instructions before accepting evidence.
-- `run_codex.temporary_home` now verifies the workspace before any installer,
-  creates a private home and mode-0600 sign-in copy, installs by the T-045 route,
-  verifies the package tree, and cleans up via a context manager. Deterministic
-  tests use synthetic sign-in bytes and a fake installer. They cover success,
-  exceptions, KeyboardInterrupt, nonzero installation, missing package, package
-  mismatch, and failure after installation. They do not prove live sign-in or
-  isolation. SIGKILL and machine failure remain outside Python cleanup guarantees.
-- The shared batch now initializes and verifies the workspace before entering
-  host setup. Failed initialization cannot trigger the installer. A synthetic
-  installed-package mismatch produces an exit-2, score-free `notRun` record.
+On 2026-11-10, `codex sandbox macos --help` failed with
+`sandbox-exec: sandbox_apply: Operation not permitted`, including the normal
+escalated attempt. Broker request `de45a93cb7035582b243fcb97d9d1c5e` asks for the
+same help check outside the outer Seatbelt profile. It does not launch a model
+or request authentication. Until that route is cleared, do not retry through a
+sandbox bypass. Track its observed result in T-056's Outcome; the request alone
+is not proof or approval.
 
-The current design revision proposes concrete limits and isolation choices for
-approval. Those changes are not implemented by this checkpoint. Both existing
-entry points remain blocked, and T-056 remains unchecked.
+## Implemented resource controls
+
+The shared engine rejects more than 24 developer turns per session, including
+continuation sessions. Monotonic limits are 600 seconds per command/turn,
+1800 seconds per session, and 7200 seconds per batch, including setup and
+scoring. Nested timeouts use the remaining enclosing deadline. Expiry prevents
+another process/turn; interrupted records carry no scores. SIGINT/SIGTERM unwind
+cleanup, and a timed-out process group receives TERM, then KILL after at most
+five seconds. The judge uses the same process-group cleanup and deadline budget.
+Claude retains its USD 5 conversation cap; the judge has USD 1 per judgment.
+Codex/Kiro have no approved dollar ceiling: their time limits are not cost caps.
+Independent authentication provisioning must precede the timed live batch when
+that integration is implemented. SIGKILL/machine failure still needs residual
+private-directory inspection before another batch.
 
 ## Manual procedure
 
@@ -75,7 +67,7 @@ sessions use the automated runners after the launch blockers are resolved.
 2. Record the actual host version and model.
 3. Read the session and every eval that names it.
 4. Record the package tree, fixture tree, and session blob from the tested Git revision.
-5. Copy the fixture into a new directory under ignored `docs/dev/tmp/specflow/evals/`.
+5. Copy the fixture into the authorized external batch workspace described by the approved design.
 6. Apply workflow inventory copy entries in order when using a T-050 assembled workspace.
 7. Preserve the fixture's stored approval hashes.
 8. Initialize and commit the scratch repository.
@@ -145,10 +137,13 @@ different model from the host under test. The actual reported judge model is
 stored as `model:<id>`; missing model evidence or tools enabled rejects the result.
 No live judgement was run during this implementation session.
 
-The scorer stores model verdicts, reasons, and a random 10% sample of PASS
-verdicts, rounded up per run. Every FAIL and each sampled PASS needs a human
-verdict. More than 10% disagreement in the sample requires human review of every
-rubric in that session. Pending review leaves rubric scores failing.
+The scorer stores model verdicts and reasons. For P PASS verdicts, it samples
+`min(P, max(10, ceil(P / 10)))` without replacement, once per evidence digest.
+No passes means no sample; fewer than ten means review all. Every FAIL and each
+sampled PASS needs a human verdict. Require manual review of all rubrics when
+`10 * wrong > sample_size`: one wrong of three escalates, one of ten does not,
+two of ten do. Pending review leaves rubric scores failing. The policy version
+in the digest invalidates older samples made under the smaller minimum.
 
 Supply completed human judgements through `--review-file <file>`:
 
@@ -166,6 +161,8 @@ Supply completed human judgements through `--review-file <file>`:
 ```
 
 Keys are rule ID plus one-based assertion number. The evidence digest binds the
-review to the run and matching eval bytes. A changed run or eval invalidates old
-judgements. Full manual judging uses the same format for every rubric. The
+review to source evidence, matching eval bytes, and sampling policy. Derived
+scores, review state, and release eligibility are excluded, so marking eligibility
+cannot invalidate its required human review. Changed instruction observations or
+other source evidence still invalidate old judgments. Full manual judging uses the same format for every rubric. The
 scorer never supplies a human judgement or waiver itself.
