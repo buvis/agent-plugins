@@ -378,3 +378,43 @@ Verification of the revised draft:
 - All three advisory scans ran after the final design edit. Section weight has no heavy outliers; Overview and Rollout are intentionally brief, and Architecture's excluded code fence contains its directory diagram. The sole qualifier hit is `fast` within the historical plan filename, not an ungrounded performance claim. No adversarial/framing signals were found.
 - Design validation reports the two expected stale-approval errors only, plus a portable-links warning for the proposed macOS temporary root. That path is an explicit local execution location, not a repository link or a path persisted into public records; the warning is adjudicated, not evidence of a broken link. No content/schema validation error was reported.
 - Reconciliation updates only the current design hash; prior approved hashes, times, and code baseline are preserved. No task contract, requirements, runner code, or host result changed. Design and task reapproval remain required before implementation.
+
+## Design approval: environment revision (2026-11-10)
+
+- Question: "Approve the revised design? Task-contract alignment follows approval."
+- Answer: "yes, approved".
+- Approved artifact: design at commit 68d1eafbeb98329e9eb470c5ffeec27ef5dc780f, canonical hash d96dacf6197d19da3f44a2adbb5c87fd09518bc2817f4d98174a186ac6862b2d. Approval time and workflow version are copied from the hash helper.
+- Scope: external scratch and explicit Claude isolation route; independent Codex batch login and restricted reads; Codex/Kiro time/turn limits without dollar caps; R2 minimum sample and rounding; all 13 review resolutions. D11 remains decided. Live proof, normal permission gates, and human review requirements remain. No credential provisioning, permission bypass, or evidence waiver is inferred.
+- Validation before recording: only stale design/task approvals, plus the previously adjudicated macOS temporary-root portability warning. Code-baseline helper returned not_checked because placement contains directories; its exact result is preserved. Requirements remain approved. Tasks remain stale pending contract alignment and separate approval.
+
+## Task-plan alignment and review (2026-11-10)
+
+- Inputs: approved RULE-001/REL-002 requirements and approved design hash `d96dacf6197d19da3f44a2adbb5c87fd09518bc2817f4d98174a186ac6862b2d`; standard, requirements-first. Extraction preserves the existing fixture/instrument/security/concurrency/conversion/eval/handoff/coexistence/context/parity modules and their reuse relationships.
+- Ten tasks, unchanged serial order: T-050, T-056, T-054, T-053, T-081, T-057, T-051, T-052, T-055, T-058. T-050 stays checked; both historical Outcome lines remain byte-identical. No new task or reordering was inferred.
+- T-056 now carries the approved scratch, Claude, Codex, Kiro, isolation, limits, sampling, metadata, digest, privacy, and exit contracts. Fourteen environment/evidence paragraphs were checked as exact copies. The premise pins the current 41-test checkpoint and partial adapters; an AST count verified it.
+- T-057 and completion criteria require release eligibility and the frozen runtime/fixture/session/eval and review inputs. T-051/T-052 now explicitly depend on T-057 because the approved design says they use its frozen package. T-058 copies the revised six-step parity procedure. Removed obsolete active-login copying, repeated isolation choice, personal-file fallback, and universal dollar-cap wording from operative contracts; historical outcomes remain history.
+- No requirements/design conflict or new design choice was found. Existing live-control uncertainties remain acceptance checks, not task-planning ambiguities. Normal setup authorization and independent sign-in provisioning remain prerequisites.
+
+Five sizing checks applied to every task (outcome/slice/contracts, independent
+split, post-dependency verification, boundary recheck, and blocker assessment):
+
+| Task | Outcome and boundary | Result |
+|---|---|---|
+| T-050 | Canonical fixture set and validator test | Completed slice preserved |
+| T-056 | Comparable session records across host adapters and one scorer | Keep coupled: environment, lifecycle, schema, judgment state, caller, and shared self-check must agree; no unfinished adapter is accepted as task completion |
+| T-054 | Security findings with corresponding regressions and CI discovery | Keep report/test pairs together |
+| T-053 | Agent concurrent-edit evidence on one session | Session/eval/fixture/records verify one behavior |
+| T-081 | Conversion comparison against proven inputs | Fixture/comparator/host evidence verify one outcome |
+| T-057 | Complete passing behavioral coverage on a frozen candidate | Eval/session/fixture/result changes share coverage and revision gate |
+| T-051 | Cross-host handoff evidence | One bounded record, verified after freeze |
+| T-052 | Native-edit coexistence evidence | One bounded record, verified after freeze |
+| T-055 | Context-efficiency measurements | One report from completed run evidence |
+| T-058 | Per-skill retirement parity verdicts and their run instructions | Reports/guides share the same evidence procedure |
+
+Review and validation:
+
+- Exact-copy checks, ten-task ordering, topological dependencies, preserved T-050/outcomes, and obsolete-contract absence pass. Repository validator passes (3 packages, 15 skills); `git diff --check` passes after removing generated trailing whitespace.
+- Task validation has only the expected stale-task approval error. Advisories remain: three placement paths (`concurrent-edit`, `conversion-calcard`, `tests/specflow/fixtures/sessions/<name>/`); historical progress fields retained while replanning; and the documented macOS scratch root. The two bare session names are explanatory Location text, and the fixture family already belongs to T-057; none changes scope. The design code-baseline helper still cannot hash directory placement as explicit files.
+- Skeptical review verified three failure possibilities: approval metadata targets the exact reviewed design; completed progress was not reset; no old credential fallback remains operative. De-slop removed the repeated parity prose and contradictory exit/cap wording. The second pass found no further contract defect.
+- Status: requirements/design approved; tasks stale; implementation closed solely by task approval. Current task hash `229f978542901eee0ea80265533708464593f32ea25db19c5bfa4946991f8970`. No test execution, live host, authentication copy, or permission change is claimed by these document checks.
+- Next gate: explicit approval of this revised task plan. Then resume T-056 under its verified premises; no later task starts first.
