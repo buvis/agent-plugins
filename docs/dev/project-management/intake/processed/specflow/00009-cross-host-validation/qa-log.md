@@ -445,3 +445,11 @@ Review and validation:
 - Preserve the broker policy and the refused executable boundary. No wrapper, binary relocation, new request, authentication, model run, or security configuration change was attempted.
 - Next evidence: the developer runs the installed executable's `sandbox macos --help` directly outside run-agent and supplies its output. This is the design's developer-run diagnostic route, not isolation proof or permission to enable live preflight.
 - Status remains standard/implementation, requirements/design/tasks approved, no stale artifacts, hold, gate blockers, or specs-folder problems; 1/10 tasks checked, T-056 next. The directory-based code-baseline warning remains. Only evidence/progress documentation changed.
+
+
+## T-056 sandbox command correction (2026-11-10)
+
+- Developer output: `sandbox-exec: execvp() of 'macos' failed: No such file or directory`. The earlier command supplied by the agent used the wrong syntax for this installed CLI.
+- Read-only `codex --help` and `codex help sandbox` both succeed locally. Installed sandbox syntax is `codex sandbox [OPTIONS] [COMMAND]...`; `macos` was interpreted as the program to execute. Named permissions profiles and explicit sandbox state are advertised. Help availability is no longer blocked; actual policy enforcement remains unproven.
+- Corrected developer-run command: `codex sandbox -- /bin/echo specflow-sandbox-ok`, outside run-agent using the installed executable directly. Expect the marker and exit 0. No model or authentication is involved. This checks launch only, not any release boundary.
+- No retry of sandbox execution, broker request, security policy change, or model run occurred in the agent session. T-056 remains incomplete; artifact approvals and canonical task hash are unchanged. Historical pending/help-check claims above are superseded by this correction.

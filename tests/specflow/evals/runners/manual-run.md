@@ -41,10 +41,20 @@ escalated attempt. The developer attempted to approve broker request
 mise-managed Codex executable is outside `trusted_exe_roots`. The request is
 refused, not pending, and did not execute the diagnostic. Do not retry it through
 a wrapper, relocate the binary, or broaden broker trust as part of this task.
-The remaining route is a developer-run `codex sandbox macos --help` diagnostic
-outside `run-agent`, using the installed executable directly. This help check
-uses no model or authentication. Its output is capability evidence only; actual
-boundary proof still precedes live evaluation.
+The developer subsequently ran that command outside `run-agent` and received
+`sandbox-exec: execvp() of 'macos' failed: No such file or directory`. The command
+was incorrect for installed 0.167.0: local `codex help sandbox` succeeds and
+shows `codex sandbox [OPTIONS] [COMMAND]...`, with no `macos` subcommand. Thus
+the old invocation tried to execute a program named `macos`; it was not a help
+check. The initial outer-profile denial remains valid, but does not establish
+that the installed sandbox is unusable outside that profile.
+
+The corrected developer-run launch check is
+`codex sandbox -- /bin/echo specflow-sandbox-ok`, outside `run-agent`, using the
+installed executable directly. Expected output is `specflow-sandbox-ok` with
+exit 0. It uses no model or authentication. This checks command launch only;
+restricted-read policy, write denial, instruction inventory, and all boundary
+sentinels remain unproven. No live runner is enabled by this check.
 
 ## Implemented resource controls
 
