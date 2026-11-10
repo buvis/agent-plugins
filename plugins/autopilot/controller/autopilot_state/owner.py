@@ -10,7 +10,7 @@ import secrets
 from pathlib import Path
 
 from . import actors, schema
-from .store import StateIOError, StateStore
+from .store import StateIOError, StateStore, _canonical_bytes
 
 INTENT_KEYS = {"version", "request", "request_digest", "old_revision",
                "old_state_digest", "old_actor", "old_actors", "old_owner",
@@ -188,6 +188,8 @@ def finish_intent(request: dict, actor_file: Path | None, intent: dict,
             current["revision"] != intent["old_revision"]
             or actors.digest(actors.canonical(current)) != intent["old_state_digest"])):
         raise StateIOError("state does not match owner intent")
+    if current != candidate:
+        actors.admit_staging(layout, [_canonical_bytes(current), _canonical_bytes(candidate)])
     _publish_credentials(intent, layout, current, candidate)
 
     def guard() -> None:

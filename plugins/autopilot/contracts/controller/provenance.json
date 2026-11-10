@@ -1060,6 +1060,11 @@
       "topic": "evidence",
       "source": "tests characterize OVCAQ runtime",
       "target": "these portable JSON Schema tests validate configuration only; fixtures declare future runtime scenarios, not executed durability/auth evidence"
+    },
+    {
+      "topic": "staging cleanup",
+      "source": "StateStore._cleanup_stale_temps automatically deletes stale publication temp files",
+      "target": "no automatic deletion; orphaned staging artifacts are bounded instead by the staging-admission budget (actors.admit_staging) that refuses new staging once the file/byte ceiling is reached"
     }
   ],
   "test_map": [

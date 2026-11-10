@@ -37,7 +37,9 @@ class OwnerRecoveryStagingBudgetTest(OwnerCLITest):
     def seed_orphans(self, count: int, name: str = "state.json.autopilot") -> None:
         private = private_path(self.root)
         for _ in range(count):
-            (private / f".{name}-{secrets.token_hex(16)}.tmp").write_bytes(b"orphan")
+            path = private / f".{name}-{secrets.token_hex(16)}.tmp"
+            path.write_bytes(b"orphan")
+            path.chmod(0o600)
 
     def result(self, completed) -> dict:
         payload = completed.stdout
