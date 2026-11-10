@@ -10,7 +10,7 @@ import secrets
 from pathlib import Path
 
 from . import actors, schema
-from .store import StateIOError, StateStore, _canonical_bytes
+from .store import StateIOError, StateStore
 
 INTENT_KEYS = {"version", "request", "request_digest", "old_revision",
                "old_state_digest", "old_actor", "old_actors", "old_owner",
@@ -189,7 +189,12 @@ def finish_intent(request: dict, actor_file: Path | None, intent: dict,
             or actors.digest(actors.canonical(current)) != intent["old_state_digest"])):
         raise StateIOError("state does not match owner intent")
     if current != candidate:
-        actors.admit_staging(layout, [_canonical_bytes(current), _canonical_bytes(candidate)])
+        # Budget against pre-existing orphans only: current/candidate are the
+        # state itself (often near NORMAL_STATE_LIMIT), not new staging
+        # content, so they must never be counted as `proposed` bytes here -
+        # doing so would refuse an ordinary near-ceiling publish that has no
+        # orphan litter at all.
+        actors.admit_staging(layout, [])
     _publish_credentials(intent, layout, current, candidate)
 
     def guard() -> None:

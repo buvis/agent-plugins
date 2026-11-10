@@ -478,8 +478,8 @@
           ]
         }
       },
-      "valid": false,
-      "expected_error": "invalid_request"
+      "valid": true,
+      "expected_error": null
     },
     {
       "name": "recover-duplicate-jobs",

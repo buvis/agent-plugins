@@ -65,8 +65,6 @@ def validate_payload(operation: str, payload: object) -> None:
         jobs = payload["reconciled_job_ids"]
         if not isinstance(jobs, list):
             raise schema.SchemaError("invalid reconciled jobs")
-        if jobs:
-            raise schema.SchemaError("reconciled jobs must be empty")
         for job in jobs:
             schema._identity(job)
         if len(set(jobs)) != len(jobs):

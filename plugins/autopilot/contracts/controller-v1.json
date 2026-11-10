@@ -2,7 +2,7 @@
   "capabilities": [
     "workflow.core.v1"
   ],
-  "fixture_digest": "50788e87e2a0a301d6f08a299e250f706cc64302263e5bf9e1b889b7abf8e077",
+  "fixture_digest": "a76ebeb6227f49747d2a1e49ae11dbac4b75af2bcf4ace9f2a49681e0f81a292",
   "operations": [
     "workflow.open",
     "owner.acquire",
@@ -11,5 +11,5 @@
   ],
   "package_version": "0.10.0",
   "protocol_major": 1,
-  "schema_digest": "9c19410840fb7067fc1cded39d63df050e62a9700e4714f57ab9527d6749c5f4"
+  "schema_digest": "22e8385490b9251aad50b057ddb95109bcc1985523b91af1fd9250e16627bb49"
 }

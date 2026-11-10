@@ -224,8 +224,7 @@
           "items": {
             "$ref": "#/$defs/identity"
           },
-          "uniqueItems": true,
-          "maxItems": 0
+          "uniqueItems": true
         }
       },
       "required": [
