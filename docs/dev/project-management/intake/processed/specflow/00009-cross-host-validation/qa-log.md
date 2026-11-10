@@ -228,3 +228,73 @@ each landing exactly once.
 - Answer: "agreed".
 - Reading: explicit approval of the current ten-task plan in the presented serial order, including T-051 and T-052 after T-057. Three advisory placement warnings and the unmeasured design code baseline were disclosed.
 - Validation: tasks phase reports no errors. Helper canonical hash, approval time, commit, and upstream hashes copied into state. All tasks remain unchecked. T-050 starts only in a fresh session. No instruction-file move or release-evidence waiver is authorized.
+
+## Implementation unblock request (2026-11-10)
+
+- Question: "Must Codex/Kiro retain spending caps?" The presented options were retaining caps, replacing them with fixed turn/time limits through a design/task revision, or leaving the choice undecided.
+- Answer: "do whatever can be done to unblock this".
+- Reading: investigate and complete safe independent work, then prepare the supported unblock path. This is not an explicit artifact approval, isolation choice, or contaminated-evidence waiver. No approval metadata is refreshed.
+- Independent work: commit `9dbfd3a` fixes host setup preceding workspace verification, adds private temporary Codex-home setup and a blocked entry point, and adds eight deterministic tests. 41 instrument tests pass on Python 3.15 and 3.10; the full five suites total 643 passing tests. Repository validation, check_rules, verify_release, marketplace check, and Ruff pass. No live host or real authentication copy ran. T-056 remains unchecked; its Outcome distinguishes deterministic cleanup proof from missing live proof.
+- Investigation: installed help for Codex 0.167.0 and kiro-cli 2.35.1 exposes no dollar cap. Current official Codex documentation describes experimental weighted token accounting, not a proven dollar cap. Kiro documents scoped permissions and resource inheritance controls, which still need verification on 2.35.1. Installed Claude help excludes OAuth from bare mode. Sources and limits are recorded in the design and manual-run guidance.
+- Proposed change: retain Claude's USD 5 cap; use 24 developer turns, 600 seconds per turn, 1800 seconds per session, and 7200 seconds per batch for all runners; explicitly disclose the absent Codex/Kiro dollar ceiling. Propose temporary-home Codex isolation without moving personal instruction files. Normal permission controls and all live checks remain mandatory.
+- SR-IMP-006 applied: implementation stopped before changing that contract. The design revision makes design/tasks stale; requirements remain approved. Tasks retain their previously approved text until the design is reapproved, then their copied contract must be updated and reapproved. No T-054 or 00001 task starts.
+
+## Review: design.md 2026-11-10, unblock revision
+
+- Domain: internal command-line evaluation instruments; maturity: revision of an approved design. Tier 2: persistent run records and continuing maintainer use. No new public schema, vendor commitment, or cross-team rollout draws Tier 3. Per SR-RVD-114, an already-approved design reviewed again has no new adversarial pre-pass. The inline walkthrough uses the full Tier 2 checklist, cardinal sins, techniques, ten stress scenarios, anti-patterns, and all three advisory scans. Routine fixes use standing authorization; no user decision is fabricated.
+- Comprehension notes: "only sign-in and plugin" could forbid generated installation/conversation state; the old reuse search could mislead an implementer into duplicating the now-existing instruments. Both are clarified below.
+- 1 | Blocking | Required Codex/Kiro dollar caps have no demonstrated enforcement surface | revised the design to propose explicit turn/time limits and disclose the financial limitation; approval remains pending | resolved in draft
+- 2 | Non-blocking | "Only sign-in and plugin" could prohibit host-generated metadata | distinguished inherited personal material from generated install/conversation state | resolved
+- 3 | Non-blocking | Original reuse inventory is now historical | named current shared batch, scorer, temporary-home setup, and 41 tests | resolved
+- 4 | Question | Accept turn/time limits without a Codex/Kiro dollar ceiling | explicit decision included in the design approval request | open
+- 5 | Question | Select temporary-home Codex instruction isolation | explicit decision included in the design approval request; no personal-file move or tainted-evidence waiver requested | open
+
+Checklist verdicts (SR-RVD-027 to SR-RVD-051):
+
+- 027 Solid: Requirement traceability keeps RULE-001.4 and REL-002 evidence obligations intact.
+- 028 Solid: Context, parity review, and Open decisions retain the developer as operator and decision-maker.
+- 029 Solid: Run environment separates installed-help evidence, current documentation, and unproven host behavior.
+- 030 Solid: Alternatives considered includes keeping caps, finite time limits, and a rejected billing proxy/API harness.
+- 031 Solid: Architecture keeps host adapters separate from scoring and shares existing batch machinery.
+- 032 Solid: Data model retains version 1; immutable fixture/revision references reconstruct records, and records remain tracked and reproducible.
+- 033 Solid: Eval runners retains exact exit codes and defines the limits and notes fields without changing the schema.
+- 034 Solid: Run environment uses monotonic deadlines, serial execution within a batch, exact continuation ancestry, and numbered reruns.
+- 035 Solid: Resource limits cap each invocation; tenfold scenario volume requires additional explicit batches rather than larger implicit limits.
+- 036 Concern: Live host permission/isolation proof remains unavailable. Run environment blocks launch, records notRun, and preserves the manual or permission-approval route.
+- 037 Solid: Data model and Error handling distinguish failures, unmeasured inputs, broken sessions, and missing scores.
+- 038 Solid: Instruction isolation specifies private credential copies, no inherited personal configuration, installed-tree checks, and no permission bypass.
+- 039 Solid: Security and privacy keeps synthetic scenario data and requires reviewing external fixtures before publication; temporary sign-in copies are not records.
+- 040 Concern: Codex/Kiro billed dollars are not capped. Resource limits and Risks state the trade-off for explicit approval; time is not represented as cost enforcement.
+- 041 Not applicable: Rollout has no deployed service, regions, tenants, or shared production topology.
+- 042 Solid: Rollout retains deterministic checks first, live evidence before release, and rechecking changed inputs. A rejected proposal can restore the earlier cap requirement without migrating records.
+- 043 Solid: Resource limits adds concrete deadline, descendant-process, continuation, over-limit, and cancellation tests; live checks stay separate.
+- 044 Solid: Data and control flow retains serial task order and the frozen-runtime fan-out after Claude shakedown.
+- 045 Solid: Module placement owns manual-run guidance, run records, and T-056 Outcome evidence.
+- 046 Solid: Open decisions names both pending decisions; host proof is a prerequisite, not an assumed result.
+- 047 Solid: The new constants agree throughout the revision. The tasks' old contract is deliberately stale until design approval permits replanning.
+- 048 Solid: No billing proxy, new dependency, custom provider, or alternate host harness is introduced.
+- 049 Solid: Draft edits and temporary-home setup are reversible; personal profiles and existing records remain untouched.
+- 050 Solid: Alternatives and evidence explain why limits replace the unsupported cap and why personal instructions are not moved.
+- 051 Solid: Read run_claude.py, run_codex.py, score.py, test_score.py, result schema, manual-run guidance, T-042/T-045 records, installed CLI help, and the 51 current sessions; maximum session length is 17 turns.
+
+Technique and stress results:
+
+- Cardinal sins: checked the full list. No newly deferred authorization, silent state migration, production ownership gap, or unbounded automatic batch is introduced. The copied sign-in is required by D11, private, temporary, and excluded from records; it is not a hardcoded or published credential. Financial limits remain an explicit approval decision.
+- Socratic/evidence probes, five whys, and claim ladder: the cap requirement came from safe automation, but the two installed hosts expose no verified cap. A time limit is a different control; the revision says so. No ungrounded qualifier appeared in the scan.
+- Premortem: The eval release could fail because bounded runs were mistaken for bounded dollars. A later operator might also mistake successful mock cleanup for proof of instruction isolation. The revised contract explicitly distinguishes both pairs and retains live checks. If interruption leaves a credential copy, a later batch must report it rather than silently continuing. This does not claim immunity to SIGKILL or machine failure.
+- Inverse problem and wrong-problem check: the instruments still produce comparable real-host behavior evidence, not merely quick green tests. Cognitive-bias scan rejected the tempting shortcut of declaring isolation from CLI flags or successful synthetic tests. Negative-space audit added explicit cancellation, deadline consumption during setup, and residual-home handling to the proposed contract.
+- Conway, hidden coupling, and bus factor: one developer operates the three adapters; their shared package revision, scorer, account quotas, and release gate are intentional dependencies. Manual-run guidance and recorded outcomes support continuation by another session.
+- Falsifiability, assumption graph, and decision-versus-outcome: installed-cap absence is bounded to inspected surfaces, while isolation and live authentication remain unproven. New deadline tests and host evidence can refute the proposed mechanisms. The decision does not rely on a lucky earlier run.
+- Compression, telephone, and surprise checks: preserve real hosts, serial bounded batches, private temporary home, immutable evidence, and explicit failures. The material clarification is that a CLI's time/token control does not establish a dollar ceiling. No missing load-bearing control is hidden in prose.
+- Section weight: the scanner flags Eval runners and Data model as heavy, with no light outliers. Those sections own the wire format, host lifecycle, and revised control contracts; trimming the clauses would remove implementation obligations. Anti-pattern review found no unsupported technology choice or unmarked future claim.
+- Time horizon and asymmetric risk: day one requires live proof; later releases recheck changed runtime/fixtures; end of life retains Git records and removes temporary homes. Personal-file movement and tainted evidence have disproportionate downside and remain unselected.
+- Ten stress cases: 10x volume requires additional bounded batches; a four-hour dependency outage produces notRun; reverting preserves earlier records; a new maintainer uses recorded commands and contracts; a security response blocks launches without rewriting evidence; source of truth remains Git plus numbered records; doubled prices require stopping/revisiting cost controls; audits distinguish mock and live evidence; breaking schemas require versioning/reruns; serial execution and deadlines limit a noisy invocation. No scenario silently waives a required eval.
+- All three scans ran: section-weight outliers adjudicated above, zero ungrounded qualifiers, zero adversarial/framing signals. No Tier 2 lens or script was skipped. Tier 3 persona and full counterfactual passes are not applicable to this revision.
+- Recap: one blocking finding and two non-blocking findings resolved in the draft; two decision questions remain for approval; none disputed or deferred. No new pre-pass was required for this already-approved design. A second read checked the two clarification edits. Actionability holds for the draft; developer approval and surprise feedback remain pending. This review records no approval or live-test result.
+- Validation: repository validation passes (3 packages, 15 skills); reconciliation dry-run has no remaining changes. Design-phase validation reports only the two expected stale-approval errors for design/tasks, not a content or shape error. Their old approved hashes/times are preserved. Do not record a new approval from this check; the explicit design gate and subsequent task update/reapproval remain required.
+
+## Doubt review of the implementation checkpoint (2026-11-10)
+
+- Eight doubts: four fixed (setup ordering, repeated test imports, missing nested test annotations, and the stale reuse claim); two verified (private cleanup across failure paths and exit-2 mismatch records); two known (live authentication/instruction isolation and unfinished conversation adapters/self-checks). The second pass found no further in-scope code fix.
+- Bloat check: the additional tests exercise cleanup, credential privacy, real tree hashing, batch ordering, and failure records; no new framework or dependency was introduced. The temporary-home helper is separately callable for deterministic lifecycle tests. Repeated imports were removed; comments describe credential/error-output hazards rather than narrating assignments.
+- Completeness check: T-056 is partial. No full-spec completion review, T-054 work, 00001 work, or release evidence is claimed. Further implementation waits for the revised design and task gates.

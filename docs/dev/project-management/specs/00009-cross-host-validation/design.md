@@ -130,8 +130,80 @@ Run environment:
 - The runner copies the session's fixture to a scratch workspace under `docs/dev/tmp/specflow/evals/` and runs `git init` and one commit there, so every git command of the agent under test sees the workspace and not this repository. A session that names another in `continues` starts from that session's finished workspace; the runner plays a session and the sessions that continue it in one batch, and the record of the later one names the run it started from.
 - One session is one conversation, resumed turn by turn (`claude -p --resume`, `codex exec resume`). A `continues` session is a new conversation. A turn may carry an `expects` pattern (00005): when the agent's previous reply does not match it, the session is broken at that turn and the record says so; a turn without one is fed unconditionally. This keeps a run that went off script from passing assertions about what is absent.
 - The developer's own instructions, skills, hooks, and plugins must not reach the agent: they hold the personal skills specflow is compared with, and rules such as one question per message, which two assertion kinds test. The runner passes the host's flags that leave user-level settings out (the installed `claude --help` lists them; T-056 fixes the set), and the record lists every instruction file the host still loaded. For Codex the reviewer found no flag that leaves out the user-level instruction file, so its runner uses a temporary Codex home, described below. A run where they could not be left out says so and is not release evidence.
-- Each runner fixes a permission or sandbox mode limited to the scratch workspace, a timeout per turn, and a spending cap per session, as constants in the runner.
+- Each runner fixes a permission or sandbox mode limited to the scratch workspace and the resource limits below as constants in the runner. Claude retains a USD 5 session cap. Codex and Kiro use explicit turn and elapsed-time limits, without a dollar cap; this trade-off requires approval of this design revision before implementation resumes.
 - Claude Code loads the plugin per run with `--plugin-dir plugins/specflow` and installs nothing. Codex has no such option in `codex exec --help`, as the pre-pass reviewer read it. By the developer's ruling of 2026-10-04 (D11), its runner makes a temporary Codex home for the batch that holds only the sign-in and the plugin, installed by the install surface the T-042 record of 00008 names; it hashes the installed copy and exits 2 when that differs from `runtimeRevision`. The developer's own Codex home is not touched. The temporary home lives under the ignored `docs/dev/tmp/specflow/evals/` and holds a copy of the sign-in, so the runner removes it when the batch ends, also after a failure. The 2026-11-09 probe failed before authentication; the fallback and release-evidence restrictions above apply. A temporary home, if subsequently authorized and proven, must still be removed on success or failure.
+
+Resource limits (revision proposed 2026-11-10):
+
+- `MAX_SESSION_TURNS = 24` developer turns, `TURN_TIMEOUT = 600` seconds,
+  `SESSION_TIMEOUT = 1800` seconds, and `BATCH_TIMEOUT = 7200` seconds apply to
+  every runner. The runner checks the full continuation graph before setup and
+  rejects a session exceeding the turn limit with exit 2. The largest current
+  session has 17 turns; 24 leaves limited headroom without truncating a fixture.
+- A session deadline starts before its first host turn. The batch deadline
+  starts before scratch setup and includes installation, all sessions, and
+  scoring. Deadlines use a monotonic clock. Each subprocess timeout is the
+  minimum of its own limit and the remaining enclosing deadlines. Deadline
+  exhaustion prevents another process or turn from starting; it never silently
+  skips remaining turns or continuation sessions.
+- Only one host process runs at a time within a batch, with no automatic session
+  retry. On timeout or cancellation, terminate its process group, allow at most
+  five seconds for termination, then kill and reap it. Do not start cleanup while
+  child tools can still write. Persist interrupted sessions as `notRun`, without
+  scores; exit 2 before any reply, otherwise 1. Record dependent sessions as not
+  run when their parent did not finish. Never present a partial run as a pass.
+- Claude uses `SESSION_BUDGET_USD = 5` across a resumed conversation. Codex and
+  Kiro have no proven per-session dollar cap in their installed CLI surfaces;
+  their elapsed-time limits are not represented as a spending ceiling. Record
+  the configured limits and reported usage, when available, in `notes` without
+  adding required fields to result schema version 1. Do not estimate dollars
+  from undocumented rates. The developer controls how many batches are launched.
+- Tests must cover deadline exhaustion between turns, a hung process and its
+  descendant, setup consuming the batch deadline, a continuation consuming the
+  remaining batch deadline, a session above the turn limit, and cleanup after
+  interruption. Existing result numbering, revision checks, human rubric review,
+  and every live self-check remain required.
+
+Instruction isolation and permission proof:
+
+- The proposed Codex choice is a temporary `CODEX_HOME` whose only inherited
+  input is a private sign-in copy, with specflow installed into that home. Host-
+  generated install metadata and conversation state are allowed; copied personal
+  configuration, instructions, skills, hooks, and other plugins are not. The approval question must
+  name this choice explicitly. Do not move or edit personal instruction files.
+  The directory is mode 0700 and the sign-in file mode 0600 before credentials
+  are written. The runner verifies the scratch Git root before installing, and
+  verifies the installed tree before starting a model. The deterministic tests
+  of `run_codex.temporary_home` prove cleanup with synthetic credentials, not
+  compatibility with the live sign-in or instruction isolation.
+- No prior denied operation is retried through altered permission flags or a
+  sandbox bypass. If a launch prerequisite is denied, stop that route and obtain
+  authorization through the normal approval mechanism or a developer-run check.
+  The live self-check stays blocked until the approved route proves workspace
+  containment, required reference reads, and helper execution. An approval of
+  this design does not approve an OS/tool permission request.
+- Kiro's documented workspace setting
+  `chat.disableInheritingDefaultResources` is a candidate for a custom agent
+  that names only fixture-local instructions and the installed Power. Verify
+  it on the installed CLI rather than assuming support from current docs. Claude
+  `--bare` is not selected: installed help says it excludes OAuth, so the setup
+  token does not establish that route. Keep both hosts blocked until their
+  instruction-loading and permission evidence exists.
+- Fixture-local instruction files remain part of each scenario; isolation must
+  exclude personal instructions without disabling those inputs. Capture known
+  loaded files and distinguish incomplete measurement. No tainted run is release
+  evidence without a separate explicit developer waiver; this revision requests
+  none. SIGINT, SIGTERM, and caught failures must unwind temporary-home cleanup.
+  SIGKILL or machine failure cannot guarantee cleanup; before another batch, stop
+  and report any leftover `codex-home-*` directory for verified removal.
+
+Evidence read on 2026-11-10: installed `codex exec --help`, `codex exec resume
+--help` (0.167.0), `kiro-cli chat --help` (2.35.1), and `claude --help`;
+[Codex configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference),
+[Kiro headless mode](https://kiro.dev/docs/cli/headless/), and
+[Kiro custom-agent configuration](https://kiro.dev/docs/custom-agents/configuration-reference/).
+Codex's experimental weighted token-budget tracking does not prove a dollar cap.
+No model invocation or denied-operation retry was used for this investigation.
 
 Scoring:
 
@@ -234,6 +306,7 @@ The deterministic tests join CI when T-050 lands. Host runs do not run in CI: th
 - Likely next change, a second version of the run record: results are stored per host and carry `schemaVersion`; impact l, likelihood m; mitigation: the scorer rejects a version it does not know; fallback: rerun the sessions.
 - Likely next change, more sessions as rules are added: nothing limits their number; impact l, likelihood h; mitigation: a new rule joins an existing session when it can; fallback: none needed.
 - The temporary Codex home does not work with the developer's sign-in: impact m, likelihood m; mitigation: T-056 proves it before any Codex session is run; fallback: the developer chooses between moving the instruction file aside for a batch and recording the taint; a tainted run is release evidence only if the developer waives that rule.
+- Codex/Kiro elapsed-time limits do not bound billed dollars: impact m, likelihood m; mitigation: explicit models, finite serial batches, no automatic session retries, and recorded usage where available; fallback: stop automated runs and retain the spending-cap requirement until an enforceable host control exists. Approval of this revision accepts this trade-off, not unlimited automatic batches.
 - Edge case: a manual run and an automated run of the same session are scored by the same evals; `mode` only records how the run was made.
 
 ## Requirement traceability
@@ -255,6 +328,19 @@ The deterministic tests join CI when T-050 lands. Host runs do not run in CI: th
 3. **An eval framework.** Rejected without a registry search: it would have to drive three different host command lines and accept hand-made IDE records, and maintainer tooling carries no dependency (`AGENTS.md`).
 4. **Host runs in CI.** Rejected for the first release: they need signed-in hosts and a person for Kiro IDE; CI runs the deterministic tests, and the release reads the stored results.
 
+5. **Retain dollar caps on all hosts** (smallest diff). Safe but leaves Codex/Kiro
+   blocked because no supported enforcement mechanism was found. **Bounded
+   turns and elapsed time** is proposed to permit finite evaluation runs while
+   exposing the financial limitation. A custom billing proxy or different API
+   harness is rejected: it adds infrastructure, may not serve these sign-ins,
+   and would change the host under test.
+
+6. **Temporary Codex home versus moving personal instructions.** The temporary
+   home is proposed because it leaves the developer's profile unchanged and has
+   a tested cleanup path. Moving personal files affects concurrent sessions;
+   accepting instruction contamination would weaken the behavioral evidence.
+   Neither alternative is authorized as a fallback by this revision.
+
 ## Reuse inventory
 
 - The session and eval formats and `check_rules.py` of 00005; `check_schema` of 00004 for the run record.
@@ -264,10 +350,18 @@ The deterministic tests join CI when T-050 lands. Host runs do not run in CI: th
 - The security findings and regression tests of T-076 and T-077 (00007).
 - `claude -p`, `codex exec`, and kiro-cli v3 as the three headless engines; `sys.stdlib_module_names` for the import test.
 - The calcard-mcp artifact set as it stands (task plan not approved, no receipt), as the acceptance fixture.
-- Searches: nothing in `scripts`, `.github`, `plugins`, or `templates` runs a host or scores a transcript; the repository's only tests are `scripts/test_validate.py`.
+- Original design-time searches found no runner or scorer in `scripts`, `.github`, `plugins`, or `templates`. At the 2026-11-10 revision, reuse `tests/specflow/evals/runners/run_claude.py` for workspace verification, process-group termination, batch records, and tree hashing; `score.py` for scoring and normalization inputs; and `run_codex.py:temporary_home` for private installation and cleanup. `tests/specflow/rules/test_score.py` contains 41 deterministic instrument tests. These modules remain partial and blocked for live execution as their checkpoint documentation states.
 
 ## Open decisions
 
-No decision is open. Rulings of 2026-10-04 (design gates report), taken in above: D9, the fixture is compared by structure, in its true condition, and completed work is tested on a seeded variant; D10, amended by R2 to model judging with developer review of FAILs and sampled PASSes; D11, the Codex runner uses a temporary Codex home, which T-056 proves first.
+Pending approval of the 2026-11-10 revision: accept the stated Codex/Kiro
+turn/time limits without dollar caps and explicitly choose temporary-home Codex
+instruction isolation. The developer requested "do whatever can be done to
+unblock this"; this authorizes preparing this revision, not recording its
+approval or a release-evidence waiver. Once this design is approved, align
+T-056's copied limits contract and request task-plan reapproval before further
+implementation. The task order and all verification obligations stay unchanged.
+
+Earlier rulings remain: D9, the fixture is compared by structure, in its true condition, and completed work is tested on a seeded variant; D10, amended by R2 to model judging with developer review of FAILs and sampled PASSes; D11, the Codex runner uses a temporary Codex home, which T-056 proves first.
 
 Choices the source left to the design, made above and listed for approval: the run record and its fields; one scorer for automated and manual runs; the run environment (a git repository per workspace, user-level settings left out, limits per turn and per session); one conversation per session and what makes a session broken; the four script names and their exit codes; host runs outside CI with stored results as evidence; the import test as the dependency scan; concurrent edit as a session; the source skill's parity result as a recorded judgement; and the folders for records, security tests, and results.

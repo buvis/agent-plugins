@@ -16,8 +16,8 @@
     },
     "design": {
       "path": "design.md",
-      "status": "approved",
-      "sha256": "53866e37235717db5486e3467a87c7554dcb8da79f50b789957f05994a5ef871",
+      "status": "stale",
+      "sha256": "7f6296c5539d37cde89cbd44861dcce80f6141aae0e8a21bd76a17824b8d6662",
       "approvedSha256": "53866e37235717db5486e3467a87c7554dcb8da79f50b789957f05994a5ef871",
       "approvedAt": "2026-11-09T23:23:52Z",
       "approvedCommit": "0190d03fbc505686252851e062ea9c902b60e903",
@@ -31,7 +31,7 @@
     },
     "tasks": {
       "path": "tasks.md",
-      "status": "approved",
+      "status": "stale",
       "sha256": "625edb3c564955a6ec723daa90bc95f48a873787756f8df69e9dd8e805e7be76",
       "approvedSha256": "625edb3c564955a6ec723daa90bc95f48a873787756f8df69e9dd8e805e7be76",
       "approvedAt": "2026-11-09T23:25:01Z",
