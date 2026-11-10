@@ -35,9 +35,10 @@ scripts are portable Agent Plugins v1 components, so this works on every host.
 
 - **Blind roles.** Intake 00065's rule holds: exclude corpus `memory`, and any
   builder reasoning, from a blind role's pack.
-- **No clash with the Engram plugin nudge.** An Engram plugin with per-host
-  hooks is being spiked (`buvis/engram`,
-  `docs/dev/project-management/spikes/engram-plugin/`). The spiked contract:
+- **No clash with the Engram plugin nudge.** The Engram plugin with per-host
+  hooks is specced as PRD `00067-engram-plugin-v1` here and Engram PRD 00012
+  (`engram nudge`), from the spike at `buvis/engram`,
+  `docs/dev/project-management/spikes/engram-plugin/`. The contract:
   the orchestrator exports `ENGRAM_PACK_FILE=<pack path>` to a worker it
   injected, and the hook drops hits the pack already holds; `ENGRAM_NUDGE=off`
   silences the hook for a role that must not receive recall at all (blind
