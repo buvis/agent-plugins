@@ -1191,3 +1191,11 @@
 {"id":"a4cea615","ended_at":1794263865,"elapsed_s":530,"outcome":"error","detail":"required xhigh effort not applied: observed claude-opus-5.5/medium; helper exit 1; raw evidence retained"}
 {"kind":"handoff","site":"review","edge":"leave","at":1794264855,"phase":"paused","prd":"00018-autopilot-controller-kernel-v2.md"}
 {"kind":"handoff","site":"review","edge":"leave","at":1794264901,"phase":"paused","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794347194,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"b4943d96","kind":"bob","task":"review-ap00018-c1-20261110","queued_at":1794347310,"prompt_bytes":13410}
+{"id":"66317477","kind":"carl","task":"review-ap00018-c1-20261110","queued_at":1794347310,"prompt_bytes":6636}
+{"id":"b4943d96","ended_at":1794348739,"elapsed_s":1429,"outcome":"ok","detail":null}
+{"id":"66317477","ended_at":1794348742,"elapsed_s":1432,"outcome":"ok","detail":null}
+{"id":"b4943d96","ended_at":1794349423,"elapsed_s":2113,"outcome":"ok","detail":null}
+{"id":"66317477","ended_at":1794349423,"elapsed_s":2113,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1794349508,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
