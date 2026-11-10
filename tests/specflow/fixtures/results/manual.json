@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "host": "kiro-ide",
+  "hostVersion": "synthetic manual fixture",
+  "mode": "manual",
+  "session": "status-summary",
+  "model": "synthetic",
+  "instructionFiles": [],
+  "runtimeRevision": "402636e2b12f6cd34f2e9d54418e07233c61246f",
+  "fixtureRevision": "310eff59f313d7ad5d4a6bbd06ff56b8e06989cb",
+  "sessionRevision": "489a53f9adb467a43063dae6299ab6bca138eb60",
+  "status": {
+    "statusVersion": 1,
+    "specs": [
+      {
+        "spec": "00001-example",
+        "phase": "implementation",
+        "artifacts": {
+          "requirements": "approved",
+          "design": "approved",
+          "tasks": "approved"
+        },
+        "gates": {
+          "implementation": "open"
+        },
+        "hold": null,
+        "nextTask": {
+          "id": "T-001",
+          "title": "Example"
+        }
+      }
+    ],
+    "problems": [],
+    "intake": []
+  },
+  "messages": [
+    "Which option?\n1. Keep it (Recommended).\n2. Change it.",
+    "Status reported."
+  ],
+  "filesRead": [
+    [],
+    []
+  ],
+  "files": [
+    {
+      "path": "result.txt",
+      "text": "Status reported.\n"
+    }
+  ],
+  "unchanged": [],
+  "notes": "Synthetic manual-format fixture; never live host or release evidence.",
+  "readMeasurement": "measured",
+  "instructionMeasurement": "measured",
+  "releaseEvidence": false
+}

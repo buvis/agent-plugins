@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "specflow run record",
+  "description": "Stored evidence, not a host transcript. Turn indices are one-based. Missing measurement means unknown. notRun records carry no scores. Semantic checks are in score.validate_record.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "host",
+    "hostVersion",
+    "mode",
+    "session",
+    "model",
+    "instructionFiles",
+    "runtimeRevision",
+    "fixtureRevision",
+    "sessionRevision",
+    "status",
+    "messages",
+    "filesRead",
+    "files",
+    "unchanged"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {"type": "integer", "const": 1},
+    "host": {"enum": ["claude-code", "codex", "kiro-ide"]},
+    "hostVersion": {"type": "string", "minLength": 1},
+    "mode": {"enum": ["automated", "manual"]},
+    "session": {"type": "string", "pattern": "[a-z0-9]+(-[a-z0-9]+)*"},
+    "model": {"type": "string", "minLength": 1},
+    "instructionFiles": {"type": "array", "items": {"type": "string"}},
+    "runtimeRevision": {"type": "string", "pattern": "[0-9a-f]{40}"},
+    "fixtureRevision": {"type": "string", "pattern": "[0-9a-f]{40}"},
+    "sessionRevision": {"type": "string", "pattern": "[0-9a-f]{40}"},
+    "status": {"type": ["object", "null"]},
+    "messages": {"type": "array", "items": {"type": "string"}},
+    "filesRead": {"type": "array", "items": {"type": "array", "items": {"type": "string"}}},
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "text"],
+        "additionalProperties": false,
+        "properties": {"path": {"type": "string", "minLength": 1}, "text": {"type": "string"}}
+      }
+    },
+    "unchanged": {"type": "array", "items": {"type": "string"}},
+    "continuesRun": {
+      "type": "object",
+      "required": ["host", "session", "n"],
+      "additionalProperties": false,
+      "properties": {
+        "host": {"enum": ["claude-code", "codex", "kiro-ide"]},
+        "session": {"type": "string", "pattern": "[a-z0-9]+(-[a-z0-9]+)*"},
+        "n": {"type": "integer"}
+      }
+    },
+    "brokenAt": {"type": "integer"},
+    "notRun": {"type": "string", "minLength": 1},
+    "notes": {"type": "string"},
+    "readMeasurement": {"enum": ["measured", "not-measured"]},
+    "instructionMeasurement": {"enum": ["measured", "not-measured"]},
+    "releaseEvidence": {"type": "boolean"},
+    "scores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule", "evalRevision", "passed", "failures", "rubrics"],
+        "additionalProperties": false,
+        "properties": {
+          "rule": {"type": "string", "pattern": "SR-[A-Z]{3}-[0-9]{3}"},
+          "evalRevision": {"type": "string", "pattern": "[0-9a-f]{40}"},
+          "passed": {"type": "boolean"},
+          "failures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["assertion", "kind", "reason"],
+              "properties": {
+                "assertion": {"type": "integer"},
+                "kind": {"type": "string", "minLength": 1},
+                "reason": {"type": "string", "minLength": 1}
+              }
+            }
+          },
+          "rubrics": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["assertion", "verdict", "judge", "reason", "passed"],
+              "properties": {
+                "assertion": {"type": "integer"},
+                "verdict": {"enum": ["PASS", "FAIL"]},
+                "judge": {"type": "string", "minLength": 1},
+                "reason": {"type": "string", "minLength": 1},
+                "passed": {"type": "boolean"},
+                "review": {"type": "object"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "rubricReview": {
+      "type": "object",
+      "required": ["evidenceSha256", "verdicts", "sample", "sampled", "manualAll", "required"],
+      "properties": {
+        "evidenceSha256": {"type": "string", "pattern": "[0-9a-f]{64}"},
+        "verdicts": {"type": "object"},
+        "sample": {"type": "array", "items": {"type": "string"}},
+        "sampled": {"type": "boolean"},
+        "manualAll": {"type": "boolean"},
+        "required": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-003",
+  "session": "status-summary",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the reply give useful status?"
+    }
+  ]
+}

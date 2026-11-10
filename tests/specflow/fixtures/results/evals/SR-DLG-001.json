@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-001",
+  "session": "status-summary",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "Status reported"
+    },
+    {
+      "kind": "file_matches",
+      "path": "result.txt",
+      "pattern": "Status reported"
+    }
+  ]
+}

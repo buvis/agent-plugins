@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-002",
+  "session": "status-summary",
+  "assertions": [
+    {
+      "kind": "message_matches",
+      "pattern": "deliberately impossible sentinel"
+    }
+  ]
+}
