@@ -431,7 +431,7 @@ class ControllerBundleReproducibleTest(IsolatedCase):
 
 
 class ControllerWithoutUpperLayersTest(IsolatedCase):
-    def test_controller_without_upper_layers_guard_denies_checkout_and_author_home(
+    def test_isolation_guard_denies_checkout_and_author_home(
         self,
     ) -> None:
         probe = self.base / "probe" / "probe.py"
