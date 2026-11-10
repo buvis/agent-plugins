@@ -230,7 +230,6 @@ def boundary_probe(codex: Path, *, scratch: Path = Path("/private/tmp")) -> dict
         result = runner.command(
             [
                 str(codex),
-                "--strict-config",
                 "sandbox",
                 "--permission-profile",
                 "specflow-probe",

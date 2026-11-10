@@ -81,11 +81,21 @@ batch or sandbox was created. The revised launch prefix was checked separately:
 Python 3.15.2 starts with no inherited `GIT_*` variables. Actual boundary execution
 still requires the developer's terminal outside `run-agent`.
 
+The first clean-environment run completed external Git setup and cleanup, then
+Codex 0.167.0 rejected `--strict-config` for the `sandbox` subcommand. That flag
+has been removed; the named permission profile and managed configuration remain.
+No checks ran in that attempt (`checks: {}`, sandbox exit 1, `passed: false`,
+`cleanup: true`). Codex also warned that it could not create PATH helper aliases
+under the temporary home. The warning was not the reported fatal error; no path
+change or permission workaround is selected. The probe uses absolute executable
+paths for its Python and shell checks. Its corrected execution remains pending.
+
+
 
 The probe verifies a copy of the plugin against its committed tree, creates an
 independent Git workspace and an empty Codex home, and generates a candidate
-[permissions profile](https://learn.chatgpt.com/docs/permissions). It requests
-strict configuration and inclusion of managed configuration. Runtime reads are
+[permissions profile](https://learn.chatgpt.com/docs/permissions). It selects the named
+permission profile explicitly and includes managed configuration. Runtime reads are
 limited to platform defaults and the selected Python installation; workspace
 writes and plugin reads are explicit. The generated policy is reported, not
 claimed to be an independent dump of effective settings.

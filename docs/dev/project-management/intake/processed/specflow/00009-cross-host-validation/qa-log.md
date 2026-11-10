@@ -471,3 +471,13 @@ Review and validation:
 - Developer's probe invocation stopped at `remove inherited GIT_ variables before the probe`. This guard precedes temporary setup and all sandbox commands; it remains intact.
 - Corrected the developer command to resolve the Python executable with mise first, then use `env -i` with HOME and the system PATH. Verified this prefix independently: Python 3.15.2 reports an empty inherited-Git-variable list. No variable values were printed and no user shell configuration was changed.
 - No native sandbox retry, broker request, credential use, or security-policy change occurred. Only progress and manual guidance changed; T-056 remains incomplete with its approvals unchanged. The full developer-run probe is still pending.
+
+
+## T-056 installed sandbox rejects strict-config (2026-11-10)
+
+- Developer's JSON report identifies codex-cli 0.167.0 and Python 3.15.2; runtimeRevision 402636e2b12f6cd34f2e9d54418e07233c61246f. Policy SHA-256 c40d591c0554095fed47861d8af2da4f72787c45bf504f8da7779b7ca795efe6; probe SHA-256 c7f66987ce22dfc761ab6c46119c4edac99622b1926a6fd2bf322585a5577936; runner SHA-256 9f6b5f651c206c3e246c3126419367018ed027b5d3bb1949b32ba08603ca2932, verified against the committed pre-fix runner.
+- Observed checks {}, exitCode 1, passed false, cleanup true, releaseEvidence false. The report is reached only after external Git initialization/root verification, package-tree verification, and version capture; these setup steps succeeded. No boundary assertion ran.
+- Fatal diagnostic: `Error: --strict-config is not supported for codex sandbox`. A separate warning said PATH helper aliases could not be created under the temporary Codex home, while explicitly continuing. No conclusion about boundary enforcement follows from either message.
+- Removed the unsupported flag, which the agent had added without subcommand acceptance evidence. Retained the explicit named permission profile, managed configuration, exact report completeness checks, and all boundary assertions. No location change, sandbox bypass, managed-policy edit, broker request, or authentication is part of this correction. Earlier claims that strict configuration would be used are superseded.
+- Regression assertion rejected the pre-fix invocation; all eight boundary tests pass after the fix on Python 3.15 and 3.10. Ruff and repository validation pass. The check for the named profile value is explicit. No agent-side sandbox retry occurred; the developer-run command is unchanged and will execute the corrected script.
+- T-056 remains incomplete. The generated policy is unchanged and the corrected native execution is still pending. Canonical task approval is preserved; only its Outcome progress changed.

@@ -1209,7 +1209,12 @@ class CodexBoundaryTest(unittest.TestCase):
                 elif "--version" in args:
                     output = "codex-cli synthetic"
                 elif "sandbox" in args:
+                    # Installed 0.167.0 rejects this global flag for sandbox.
+                    self.assertNotIn("--strict-config", args)
                     self.assertIn("--include-managed-config", args)
+                    self.assertEqual(
+                        args[args.index("--permission-profile") + 1], "specflow-probe"
+                    )
                     self.assertNotIn("macos", args)
                     return subprocess.CompletedProcess(args, 0, "{}", "")
                 else:
