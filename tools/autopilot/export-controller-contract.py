@@ -23,7 +23,12 @@ TARGET = Path("contracts") / "controller-v1.json"
 SCHEMA = Path("contracts") / "controller" / "workflow-v1.json"
 FIXTURES = Path("contracts") / "controller" / "fixtures-v1.json"
 # The export tests check these equal literal sets in the test and are a subset
-# of what `controller/main.py --json contract` reports.
+# of what `controller/main.py --json contract` reports. Kept as a literal copy
+# rather than an import of autopilot_state.protocol (this script is
+# self-contained stdlib and never reads live workflow state) - the
+# authoritative definition this must track is
+# plugins/autopilot/controller/autopilot_state/protocol.py's
+# OWNER_OPERATIONS / public_contract().
 OPERATIONS = ["workflow.open", "owner.acquire", "owner.release", "owner.recover"]
 CAPABILITIES = ["workflow.core.v1"]
 LIMIT = 16777216
@@ -65,7 +70,9 @@ def matches(target: Path, expected: bytes) -> bool:
         info = target.lstat()
     except FileNotFoundError:
         return False
-    return stat.S_ISREG(info.st_mode) and target.read_bytes() == expected
+    if not stat.S_ISREG(info.st_mode) or info.st_size != len(expected):
+        return False
+    return target.read_bytes() == expected
 
 
 def write_atomic(target: Path, data: bytes, mode: int) -> None:

@@ -391,6 +391,30 @@ class ControllerBundleReproducibleTest(IsolatedCase):
                 target.write_bytes(self.committed)
                 self.assert_exit(self.export("--check"), 0)
 
+    def test_controller_bundle_reproducible_check_rejects_an_oversized_committed_bundle(
+        self,
+    ) -> None:
+        target = self.plugin / TARGET
+        target.write_bytes(self.committed + b"\x00" * LIMIT)
+        before = tree(self.plugin)
+        self.assert_exit(self.export("--check"), 1)
+        self.assertEqual(tree(self.plugin), before)
+        target.write_bytes(self.committed)
+        self.assert_exit(self.export("--check"), 0)
+
+    def test_controller_bundle_reproducible_export_refuses_an_oversized_schema_or_fixture(
+        self,
+    ) -> None:
+        for relative in (SCHEMA, FIXTURES):
+            with self.subTest(oversized=str(relative)):
+                source = self.plugin / relative
+                saved = source.read_bytes()
+                source.write_bytes(saved + b"\x00" * LIMIT)
+                self.assertNotEqual(self.export().returncode, 0)
+                self.assertNotEqual(self.export("--check").returncode, 0)
+                source.write_bytes(saved)
+                self.assert_exit(self.export("--check"), 0)
+
     def test_controller_bundle_reproducible_refuses_symlinked_contracts_directory(
         self,
     ) -> None:
