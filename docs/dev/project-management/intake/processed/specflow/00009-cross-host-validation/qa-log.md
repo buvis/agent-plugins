@@ -298,3 +298,83 @@ Technique and stress results:
 - Eight doubts: four fixed (setup ordering, repeated test imports, missing nested test annotations, and the stale reuse claim); two verified (private cleanup across failure paths and exit-2 mismatch records); two known (live authentication/instruction isolation and unfinished conversation adapters/self-checks). The second pass found no further in-scope code fix.
 - Bloat check: the additional tests exercise cleanup, credential privacy, real tree hashing, batch ordering, and failure records; no new framework or dependency was introduced. The temporary-home helper is separately callable for deterministic lifecycle tests. Repeated imports were removed; comments describe credential/error-output hazards rather than narrating assignments.
 - Completeness check: T-056 is partial. No full-spec completion review, T-054 work, 00001 work, or release evidence is claimed. Further implementation waits for the revised design and task gates.
+
+## Review: design.md 2026-11-10, developer's 13 findings
+
+The developer rejected the previous environment design and reported no edits.
+All 13 findings are supported. The earlier review's Solid verdicts on isolation,
+interfaces, privacy, and internal consistency were too strong; this review
+supersedes those judgments. Routine draft fixes use standing authorization.
+No artifact approval, permission change, sign-in, host run, or waiver is inferred.
+
+| Finding | Resolution in canonical design | Status |
+|---|---|---|
+| 1 Claude has no route | Proposed: external workspace, isolated config, explicit plugin directory access with separate native/shell write denial, generated settings and setup-token protection | Resolved in draft; live proof pending |
+| 2 Scratch root and inherited instructions | Explain the verified Seatbelt hook-write deny and documented ancestor discovery; separate Git-root proof from instruction proof; static history added to plan section 8 | Resolved |
+| 3 D11 decided/pending and fallback contradiction | Temporary home remains decided; remove repeated choice and personal-file-move fallback; distinguish credential-source revision from original ruling | Resolved |
+| 4 Copied sign-in risk | Propose independent batch login; forbid active refresh-token copy/sync; require native and shell tool denial of private home | Resolved in draft; provisioning/proof pending |
+| 5 Code/schema drift | Represent all 24 schema properties and nested score/review fields; mark existing partial files edit; group T-056 rows; add omitted directories | Resolved |
+| 6 Undefined taint | Define expected fixture/continuation/edit inventory, content and import checks, tainted versus unknown, and explicit release predicate | Resolved in draft; enforcement pending |
+| 7 Small samples | Propose min(P, max(10, ceil(P/10))), empty-set behavior, stable sampling, and 10*wrong>S escalation | Resolved in draft; R2 amendment pending approval |
+| 8 Exit/notRun ambiguity | One command-specific exit table; define never-started metadata, incomplete evidence, and invalid-input behavior | Resolved |
+| 9 Pre-freeze records | T-053/T-081 provisional until runtime/fixture/session/eval and judge inputs match frozen candidate | Resolved |
+| 10 Kiro evidence overstated | Explain R1 engine evidence for REL-002.6 separately from IDE checks and unproven runner isolation | Resolved |
+| 11 Privacy | Normalize every record string; review machine paths/secrets before commit; reject and repeat unsafe collection | Resolved |
+| 12 Diary mixed with decisions | Decided, Proposed, Blocked subsections; probe chronology retained in plan | Resolved |
+| 13 Text/ordering | Single parity procedure, smaller steps, measured-versus-unavailable read risk, contiguous T-056 rows | Resolved |
+
+Tier 2 review repeated inline under SR-RVD-114 (already-approved design;
+no new adversarial pre-pass). Full checklist verdicts follow; no lens omitted.
+
+- 027 Solid: Requirement traceability preserves all RULE-001/REL-002 obligations.
+- 028 Solid: Run environment and parity gate identify the developer as operator and final human reviewer.
+- 029 Concern: Proposed native controls need installed-version proof; Blocked names each falsifiable acceptance check.
+- 030 Solid: Alternatives retain existing instruments, reject a billing proxy/framework, and explain independent login versus copied authentication.
+- 031 Solid: Architecture separates fixtures, host adapters, scorer, records, and parity reports; Module placement matches existing code.
+- 032 Solid: Data model covers schema version 1, null status, evidence lineage, review state, and temporary-state deletion.
+- 033 Solid: Error handling is the sole exit contract; Data model specifies never-started versus reported metadata.
+- 034 Solid: Run environment serializes sessions and token ownership, uses monotonic deadlines, and preserves continuation ancestry.
+- 035 Solid: Limits bound each batch; greater scenario volume requires more explicitly launched batches, not unbounded retries.
+- 036 Concern: Native isolation/authentication remain unproven; Blocked rejects unsupported controls without changing evidence rules.
+- 037 Solid: Records distinguish broken, incomplete, unmeasured, tainted, and ineligible states with reasons and proof references.
+- 038 Concern: Security and privacy defines tool/host boundaries and independent credentials; enforcement is a T-056 prerequisite, not a claimed result.
+- 039 Solid: Security and privacy includes home paths, transcripts, fixture contents, normalization, and pre-commit inspection.
+- 040 Concern: Time is not a dollar ceiling; Risks and Open decisions retain explicit acceptance of Codex/Kiro cost exposure.
+- 041 Not applicable: No deployed service, regional topology, or production tenancy is introduced.
+- 042 Solid: Data and control flow identifies provisional records and revision invalidation before release; existing numbered results survive rollback.
+- 043 Solid: Testing strategy includes negative boundary tests, deadline failures, sampling boundaries, digest invalidation, and real-host self-checks.
+- 044 Solid: Task order remains serial and T-057's freeze governs earlier T-053/T-081 records.
+- 045 Solid: Module placement owns manual guidance and records; the plan stores historical diagnosis, while the design owns current contracts.
+- 046 Solid: Open decisions separates proposed changes from settled D11 and unverified implementation.
+- 047 Solid after correction: The data table matches the schema; duplicate parity/exit prose is removed. Tasks intentionally retain stale contracts until reapproval.
+- 048 Solid: Existing partial instruments are reused; no new framework, billing proxy, or alternate model harness is introduced.
+- 049 Solid: These are reversible document/configuration proposals; permission changes and authentication provisioning are separate gates.
+- 050 Solid: Context explains the CLI/IDE evidence split and environment rationale without needing probe chronology.
+- 051 Solid: Compared schema, runner setup/preflight/metadata paths, scorer sample/digest/compare code, fixture paths, and installed-version evidence.
+
+Additional lenses and skeptical second pass:
+
+- Cardinal sins: checked all entries. The prior active-token copy was an asymmetric risk, now removed from the proposed live route. Existing setup-token use follows the developer's explicit launcher policy; the design adds tool-environment denial and never embeds credential values. Authentication and authorization must be proven within T-056, before any release run. Git retains public evidence; private authentication state is disposable. Unsupported controls block execution rather than becoming later hardening work.
+- Socratic/five-whys/claim ladder: Git isolation does not imply instruction isolation; a private file mode does not isolate same-UID tools; Power activation does not imply IDE compatibility. The revised acceptance checks measure each separately. Current vendor docs identify mechanisms, not proof of installed behavior.
+- Premortem: The release failed because a green mock test was mistaken for real isolation. Personal instructions then changed behavior while identical fixture hashes made the records look comparable. A copied refresh token disrupted the developer's normal sign-in. Path normalization concealed the source of contamination. The new design separates measured inventory, credential ownership, pre-normalization classification, and release eligibility, and refuses unknown evidence.
+- Inverse problem/wrong-problem check: The system still validates real-host behavior against the release contract; it does not optimize merely for finishing runs. Bias check rejects preserving the active-sign-in copy just because its helper already exists.
+- Negative space/asymmetric risk: Added token rotation, sibling-home reads, failed setup before metadata, sample sizes below ten, provisional revisions, and private-state cleanup. Credential safety outweighs avoiding an independent login.
+- Coupling/Conway/bus factor: One operator owns adapters, account quotas, policy versions, and freeze/review state. Explicit records and manual guidance carry those dependencies to the next session; no cross-team coordination structure is invented.
+- Falsifiability/assumption graph: Git root and tree hash are deterministic; installed settings enforcement and complete instruction inventory remain load-bearing unproven assumptions. Synthetic sentinels and the exact-host live self-check can refute them. A failed proof stops that route.
+- Compression/telephone/surprise: The essential contract is isolated real hosts, bounded batches, immutable input lineage, explicit unknowns, and human-checked scoring. The material surprises are independent login and a minimum sample of ten; Open decisions names both.
+- Time horizons/decision versus outcome: Day one requires proof before running; subsequent releases recheck changed inputs; end of life removes private state and retains Git evidence. No lucky probe outcome justifies an unverified control.
+- Ten stress scenarios: 10x volume needs more bounded batches; a four-hour outage records notRun; rollback preserves old records; a replacement maintainer follows the current design rather than historical probe commands; a security incident stops launches and rotates exposed credentials; Git revisions and records answer source-of-truth questions; doubled prices permit stopping batches but have no false dollar knob; an audit requires actual boundary evidence; a breaking schema needs a new version/reruns; serial processes and deadlines contain one runaway invocation.
+- Anti-patterns: The old diary and duplicated contracts were removed. No control is described as proven merely because current documentation names it. Unknown installed-version enforcement remains explicit; no silent weaker route is offered.
+- Doubts verified: all top-level schema properties are documented; all T-056 existing/new labels match disk; sampling examples were calculated at P=0,3,10,11,101. Doubts fixed: derived releaseEvidence would invalidate its own judgment digest, so exclude it and require a regression test; excluding all Claude settings would also exclude fixture rules, so retain verified fixture project/local sources in the external workspace. These are proposed implementation changes, not claims about the current code.
+- De-slop: removed the repeated parity procedure and repeated Codex-home selection; split environment decisions from proof history and grouped module rows. Second pass found no further draft contradiction requiring a code change.
+
+Approval remains pending. The next phase after design approval is task-contract
+alignment and task approval, not host execution. T-056 remains unchecked;
+T-054 and 00001 are untouched.
+
+Verification of the revised draft:
+
+- Repository validator passes: 3 packages, 15 skills. All 24 top-level result-schema properties appear in the design; existing/new T-056 placement and sampling examples pass static checks. `git diff --check` passes.
+- All three advisory scans ran after the final design edit. Section weight has no heavy outliers; Overview and Rollout are intentionally brief, and Architecture's excluded code fence contains its directory diagram. The sole qualifier hit is `fast` within the historical plan filename, not an ungrounded performance claim. No adversarial/framing signals were found.
+- Design validation reports the two expected stale-approval errors only, plus a portable-links warning for the proposed macOS temporary root. That path is an explicit local execution location, not a repository link or a path persisted into public records; the warning is adjudicated, not evidence of a broken link. No content/schema validation error was reported.
+- Reconciliation updates only the current design hash; prior approved hashes, times, and code baseline are preserved. No task contract, requirements, runner code, or host result changed. Design and task reapproval remain required before implementation.

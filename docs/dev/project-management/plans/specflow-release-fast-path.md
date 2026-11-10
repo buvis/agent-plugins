@@ -311,3 +311,44 @@ The developer chose the recommended review option to check these capabilities se
 - `bash docs/dev/tmp/specflow/probes/source-skill.bash`: exit 0, PASS for invocation and reference reads. `--setting-sources user --tools Skill,Read` invoked `elicit-requirements` by name, read classification-guide.md and question-bank.md through existing user permissions, classified the idea, and asked its first question. No permission denials, writes, delegation, or downstream skill calls. Cost $0.3352864; session `14c4fca3-84f7-460a-b20c-4bbc071de024`. AskUserQuestion was unavailable; output used a plain-text question. This does not prove a complete source session, writes, unattended question replay, all six skills, or parity.
 
 Correction: the original Claude status failure does not establish failure of either independent capability. Restore the previously ruled R2/R3 in the draft, retaining their developer review safeguards and full T-056/T-058 validation. Claude specflow-run instruction isolation and denied reference/status access remain unresolved. Design approval remains pending.
+
+### 2026-11-10 static diagnosis after design review
+
+This addendum corrects the interpretation of the earlier failures; it does not
+replace their recorded results. No denied operation, live host, credential copy,
+or login was run during this investigation.
+
+- The active `~/.config/seatbelt/ai-agents.sb` denies writes matching
+  `~/git/src/.*/.git/hooks(/|$)` (line 158), as well as the current project's
+  hook directory (line 149). Thus scratch `git init` inside this checkout hits
+  an explicit deny. A different Git root alone does not solve that failure.
+- Claude's documented instruction discovery includes every ancestor directory,
+  independent of Git boundaries. This checkout has `CLAUDE.md` and `AGENTS.md`;
+  its ancestors include the developer's home. The observed project instruction
+  load is consistent with that mechanism. The failed probe did not isolate or
+  test parent discovery separately. Source: [Claude memory loading](https://code.claude.com/docs/en/memory#how-claudemd-files-load).
+- The plugin was outside the fixture workspace, while access was limited to
+  that workspace. `Path is outside allowed working directories` is consistent
+  with this conflicting configuration. Merely adding the plugin directory also
+  widens default writes, so the revised design pairs read access with explicit
+  native-tool and shell write denial.
+- D11 selected a temporary Codex home in October; the failed November probe
+  leaves its execution unproven, not its selection pending. Earlier statements
+  asking the developer to choose isolation again were incorrect. No personal
+  instruction move or tainted-evidence waiver exists.
+- Copying the active authentication state can race refresh-token rotation.
+  Independent login directly into the batch home is proposed instead. It has
+  not been provisioned or tested. Filesystem modes alone do not prevent tools
+  running under the same UID from reading credentials.
+
+The canonical 00009 design now defines external scratch placement, a concrete
+Claude route, independent Codex authentication, restricted tool reads, and
+explicit proof gates. This plan's older commands, cost estimates, and scratch
+paths are historical until design/task reapproval aligns the execution plan.
+Do not run those commands as a recovery procedure. Normal permission approval
+or a developer-run check is required before testing the revised setup; changing
+location is not authorization to bypass the earlier denial.
+
+Unresolved questions: approve the revised design, then align and reapprove its
+task contracts. Installed-host isolation and authentication remain acceptance
+checks, not assumed outcomes.
