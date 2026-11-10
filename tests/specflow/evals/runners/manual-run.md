@@ -61,7 +61,7 @@ separately measured exit code for that command.
 
 ### Synthetic shell boundary probe
 
-`run_codex.py --probe-boundary --codex <installed-executable>` now combines the
+`run_codex.py --probe-boundary --codex <installed-executable> --git-executable <git-file>` now combines the
 next shell checks in one developer-run command. Run it outside `run-agent` from
 the repository root, using Python 3.10 or later. It creates and removes its own
 private system-temporary batch. It never logs in, loads real authentication,
@@ -73,7 +73,7 @@ environment; invoking `mise exec` inside the cleared environment could add
 settings again. Keep the caller's shell configuration unchanged:
 
 ```sh
-/usr/bin/env -i HOME="$HOME" PATH="/usr/bin:/bin" "$(mise which python3)" -B tests/specflow/evals/runners/run_codex.py --probe-boundary --codex <installed-executable>
+/usr/bin/env -i HOME="$HOME" PATH="/usr/bin:/bin" "$(mise which python3)" -B tests/specflow/evals/runners/run_codex.py --probe-boundary --codex <installed-executable> --git-executable <git-file>
 ```
 
 The developer's first probe invocation stopped at the inherited-Git guard. No
@@ -88,7 +88,24 @@ No checks ran in that attempt (`checks: {}`, sandbox exit 1, `passed: false`,
 `cleanup: true`). Codex also warned that it could not create PATH helper aliases
 under the temporary home. The warning was not the reported fatal error; no path
 change or permission workaround is selected. The probe uses absolute executable
-paths for its Python and shell checks. Its corrected execution remains pending.
+paths for its Python and shell checks. The next developer-run result passed ten of eleven checks, including every denied
+read/write and symlink check. Only helper status failed: Apple Git dispatch through
+xcrun could not resolve the active developer tools in the restricted environment.
+The sandbox command itself exited 0 and cleanup succeeded; overall passed stayed
+false. A read-only supervisor inspection found the installed Git executable and
+successfully read its version, so reinstalling developer tools is not indicated
+by this evidence.
+
+The next candidate therefore requires `--git-executable` explicitly. It grants
+read access only to that resolved executable file, uses it for Git setup, and
+puts its directory first in the child PATH so the helper resolves the same Git.
+It grants no read permission to the containing developer-tools tree. On the
+observed machine, xcrun identifies `/Library/Developer/CommandLineTools/usr/bin/git`,
+which reports Git 2.54.0 (Apple Git-157). The report includes Git version and binary
+SHA-256, with the policy path normalized as `<git-runtime>`. No binary is copied
+or relocated and no permanent policy changes. This revised runtime allowance is
+prepared for the developer-run check, not executed from the outer-profile agent.
+All eleven checks must run again because the generated policy has changed.
 
 
 
@@ -96,7 +113,8 @@ The probe verifies a copy of the plugin against its committed tree, creates an
 independent Git workspace and an empty Codex home, and generates a candidate
 [permissions profile](https://learn.chatgpt.com/docs/permissions). It selects the named
 permission profile explicitly and includes managed configuration. Runtime reads are
-limited to platform defaults and the selected Python installation; workspace
+limited to platform defaults, the selected Python installation, and the selected
+Git executable file; workspace
 writes and plugin reads are explicit. The generated policy is reported, not
 claimed to be an independent dump of effective settings.
 

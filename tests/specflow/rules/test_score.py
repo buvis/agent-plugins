@@ -1126,6 +1126,29 @@ class CodexHomeTest(unittest.TestCase):
 
 
 class CodexBoundaryTest(unittest.TestCase):
+    def test_probe_allows_only_the_selected_git_executable(self) -> None:
+        selected = Path("/synthetic/developer-tools/usr/bin/git")
+        policy = run_codex.probe_config(
+            {"workspace": "/synthetic/workspace", "plugin": "/synthetic/plugin"},
+            git_executable=selected,
+        )
+        self.assertIn(f'{json.dumps(str(selected))} = "read"', policy)
+        self.assertNotIn(f'{json.dumps(str(selected.parent))} = "read"', policy)
+        self.assertIn('":root" = "deny"', policy)
+
+    def test_probe_rejects_a_directory_as_git_runtime(self) -> None:
+        with (
+            tempfile.TemporaryDirectory() as folder,
+            mock.patch.dict(os.environ, {}, clear=True),
+            mock.patch.object(sys, "platform", "darwin"),
+            mock.patch.object(run_codex, "prepare_probe", autospec=True) as prepare,
+        ):
+            selected = Path(folder) / "git"
+            selected.mkdir()
+            with self.assertRaisesRegex(run_claude.HostError, "executable Git file"):
+                run_codex.boundary_probe(Path(sys.executable), git_executable=selected)
+            prepare.assert_not_called()
+
     def test_probe_checks_are_not_satisfied_without_a_sandbox(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             payload = run_codex.prepare_probe(Path(folder))
@@ -1187,12 +1210,17 @@ class CodexBoundaryTest(unittest.TestCase):
             mock.patch.object(run_codex, "prepare_probe", autospec=True) as prepare,
             self.assertRaisesRegex(run_claude.HostError, "GIT_"),
         ):
-            run_codex.boundary_probe(Path("/synthetic/codex"))
+            run_codex.boundary_probe(
+                Path("/synthetic/codex"), git_executable=Path("/synthetic/git")
+            )
         prepare.assert_not_called()
 
     def test_probe_keeps_secrets_out_and_cleans_up_after_failure(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             scratch = Path(folder)
+            selected_git = scratch / "git"
+            selected_git.write_text("synthetic binary, never executed")
+            selected_git.chmod(0o700)
             calls = []
 
             def command(
@@ -1202,12 +1230,19 @@ class CodexBoundaryTest(unittest.TestCase):
                 self.assertNotIn("OPENAI_API_KEY", env)
                 self.assertNotIn("CLAUDE_CODE_OAUTH_TOKEN", env)
                 self.assertFalse((Path(env["CODEX_HOME"]) / "auth.json").exists())
+                self.assertEqual(
+                    env["PATH"].split(os.pathsep)[0], str(scratch.resolve())
+                )
                 if "--show-toplevel" in args:
                     output = str(cwd)
                 elif "--absolute-git-dir" in args:
                     output = str(cwd / ".git")
                 elif "--version" in args:
-                    output = "codex-cli synthetic"
+                    output = (
+                        "git version synthetic"
+                        if args[0] == str(selected_git.resolve())
+                        else "codex-cli synthetic"
+                    )
                 elif "sandbox" in args:
                     # Installed 0.167.0 rejects this global flag for sandbox.
                     self.assertNotIn("--strict-config", args)
@@ -1235,11 +1270,13 @@ class CodexBoundaryTest(unittest.TestCase):
                     run_claude, "command", autospec=True, side_effect=command
                 ),
             ):
-                report = run_codex.boundary_probe(Path(sys.executable), scratch=scratch)
+                report = run_codex.boundary_probe(
+                    Path(sys.executable), git_executable=selected_git, scratch=scratch
+                )
             self.assertFalse(report["passed"])
             self.assertFalse(report["releaseEvidence"])
             self.assertTrue(report["cleanup"])
-            self.assertEqual(list(scratch.iterdir()), [])
+            self.assertEqual(list(scratch.iterdir()), [selected_git])
             self.assertIn("<batch>", report["generatedPolicy"])
             self.assertNotIn(str(scratch), json.dumps(report))
             self.assertEqual(sum("sandbox" in args for args in calls), 1)
@@ -1256,7 +1293,11 @@ class CodexBoundaryTest(unittest.TestCase):
         ):
             scratch = Path(folder)
             try:
-                run_codex.boundary_probe(Path(sys.executable), scratch=scratch)
+                run_codex.boundary_probe(
+                    Path(sys.executable),
+                    git_executable=Path("/usr/bin/git"),
+                    scratch=scratch,
+                )
             finally:
                 self.assertEqual(list(scratch.iterdir()), [])
 
@@ -1273,7 +1314,8 @@ class CodexBoundaryTest(unittest.TestCase):
             self.assertRaisesRegex(run_claude.HostError, "too broad"),
         ):
             run_codex.probe_config(
-                {"workspace": "/synthetic/workspace", "plugin": "/synthetic/plugin"}
+                {"workspace": "/synthetic/workspace", "plugin": "/synthetic/plugin"},
+                git_executable=Path("/synthetic/git"),
             )
 
 

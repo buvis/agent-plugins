@@ -140,7 +140,7 @@ def prepare_probe(batch: Path) -> dict[str, str]:
     return payload
 
 
-def probe_config(payload: dict[str, str]) -> str:
+def probe_config(payload: dict[str, str], *, git_executable: Path) -> str:
     """Candidate profile from https://learn.chatgpt.com/docs/permissions."""
     runtime = Path(sys.base_prefix).resolve()
     if runtime in {Path("/"), Path.home().resolve(), Path("/private/tmp")}:
@@ -154,6 +154,7 @@ def probe_config(payload: dict[str, str]) -> str:
         payload["workspace"]: "write",
         payload["plugin"]: "read",
         str(runtime): "read",
+        str(git_executable): "read",
     }
     return "\n".join(
         [
@@ -170,22 +171,31 @@ def probe_config(payload: dict[str, str]) -> str:
 
 
 @score.deadline(180)
-def boundary_probe(codex: Path, *, scratch: Path = Path("/private/tmp")) -> dict:
+def boundary_probe(
+    codex: Path, *, git_executable: Path, scratch: Path = Path("/private/tmp")
+) -> dict:
     """Developer-run macOS shell probe; deliberately separate from live preflight."""
     if any(key.startswith("GIT_") for key in os.environ):
         raise runner.HostError("remove inherited GIT_ variables before the probe")
     if sys.platform != "darwin":
         raise runner.HostError("this boundary probe requires macOS")
     codex = codex.resolve(strict=True)
+    git_executable = git_executable.resolve(strict=True)
+    if (
+        git_executable.name != "git"
+        or not git_executable.is_file()
+        or not os.access(git_executable, os.X_OK)
+    ):
+        raise runner.HostError("select an executable Git file named git")
     with tempfile.TemporaryDirectory(prefix="specflow-evals-", dir=scratch) as folder:
         batch = Path(folder).resolve()
         payload = prepare_probe(batch)
         workspace, home = Path(payload["workspace"]), Path(payload["codex_home"])
-        config = probe_config(payload)
+        config = probe_config(payload, git_executable=git_executable)
         (home / "config.toml").write_text(config)
         (home / "config.toml").chmod(0o600)
         env = {
-            "PATH": os.defpath,
+            "PATH": str(git_executable.parent) + os.pathsep + os.defpath,
             "HOME": str(batch / "control/empty-home"),
             "CODEX_HOME": str(home),
             "TMPDIR": str(batch),
@@ -197,10 +207,10 @@ def boundary_probe(codex: Path, *, scratch: Path = Path("/private/tmp")) -> dict
         }
         Path(env["HOME"]).mkdir(mode=0o700)
         for args in (
-            ["git", "init"],
-            ["git", "add", "--all"],
+            [str(git_executable), "init"],
+            [str(git_executable), "add", "--all"],
             [
-                "git",
+                str(git_executable),
                 "-c",
                 "user.name=specflow probe",
                 "-c",
@@ -218,8 +228,11 @@ def boundary_probe(codex: Path, *, scratch: Path = Path("/private/tmp")) -> dict
                     "probe Git setup failed; no sandbox command started"
                 )
         for args, expected in (
-            (["git", "rev-parse", "--show-toplevel"], workspace),
-            (["git", "rev-parse", "--absolute-git-dir"], workspace / ".git"),
+            ([str(git_executable), "rev-parse", "--show-toplevel"], workspace),
+            (
+                [str(git_executable), "rev-parse", "--absolute-git-dir"],
+                workspace / ".git",
+            ),
         ):
             result = runner.command(args, workspace, env, 30)
             if result.returncode or Path(result.stdout.strip()).resolve() != expected:
@@ -227,6 +240,11 @@ def boundary_probe(codex: Path, *, scratch: Path = Path("/private/tmp")) -> dict
         version = runner.command([str(codex), "--version"], workspace, env, 10)
         if version.returncode:
             raise runner.HostError("could not identify installed Codex")
+        git_version = runner.command(
+            [str(git_executable), "--version"], workspace, env, 10
+        )
+        if git_version.returncode or not git_version.stdout.startswith("git version "):
+            raise runner.HostError("could not identify selected Git")
         result = runner.command(
             [
                 str(codex),
@@ -260,6 +278,7 @@ def boundary_probe(codex: Path, *, scratch: Path = Path("/private/tmp")) -> dict
                 str(batch): "<batch>",
                 str(Path.home()): "<home>",
                 str(Path(sys.base_prefix).resolve()): "<python-runtime>",
+                str(git_executable): "<git-runtime>",
             },
         )
         report = {
@@ -267,6 +286,8 @@ def boundary_probe(codex: Path, *, scratch: Path = Path("/private/tmp")) -> dict
             "releaseEvidence": False,
             "hostVersion": version.stdout.strip(),
             "pythonVersion": sys.version.split()[0],
+            "gitVersion": git_version.stdout.strip(),
+            "gitRuntimeSha256": hashlib.sha256(git_executable.read_bytes()).hexdigest(),
             "runtimeRevision": payload["runtimeRevision"],
             "generatedPolicy": normalized_config,
             "policySha256": hashlib.sha256(normalized_config.encode()).hexdigest(),
@@ -294,10 +315,11 @@ def probe_main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Synthetic Codex shell boundary probe")
     parser.add_argument("--probe-boundary", action="store_true", required=True)
     parser.add_argument("--codex", type=Path, required=True)
+    parser.add_argument("--git-executable", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         with runner.interruption_signals():
-            report = boundary_probe(args.codex)
+            report = boundary_probe(args.codex, git_executable=args.git_executable)
         print(json.dumps(report, indent=2))
         return 0 if report["passed"] else 1
     except (runner.HostError, score.RecordError) as error:
