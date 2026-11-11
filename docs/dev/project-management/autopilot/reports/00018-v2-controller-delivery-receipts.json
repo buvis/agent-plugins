@@ -5,7 +5,7 @@
     "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
     "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e"
   },
-  "package_revision": "441b15c8becb18ca518cb3c9e26d155a574f32cc",
+  "package_revision": "46b0142db21219ac51237b56d5e2d9a1f712db53",
   "paths": [
     "plugins/autopilot/README.md",
     "plugins/autopilot/CHANGELOG.md",
@@ -26,32 +26,42 @@
     {
       "task": "a",
       "tests": "tests/autopilot/test_controller_staging_limits.py, tests/autopilot/test_controller_bootstrap_recovery.py, tests/autopilot/test_controller_owner_recovery.py, tests/autopilot/test_controller_capacity.py, tests/autopilot/test_controller_owner.py, tests/autopilot/test_controller_bootstrap.py, tests/autopilot/test_controller_owner_v2.py, tests/autopilot/test_controller_kernel.py, tests/autopilot/test_controller_kernel_adversarial.py, tests/autopilot/test_controller_store_guards_v2.py",
-      "command": "mise exec -- uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_staging_limits.py tests/autopilot/test_controller_bootstrap_recovery.py tests/autopilot/test_controller_owner_recovery.py tests/autopilot/test_controller_capacity.py tests/autopilot/test_controller_owner.py tests/autopilot/test_controller_bootstrap.py tests/autopilot/test_controller_owner_v2.py tests/autopilot/test_controller_kernel.py tests/autopilot/test_controller_kernel_adversarial.py tests/autopilot/test_controller_store_guards_v2.py -q --tb=line",
-      "passed": 92,
+      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_staging_limits.py tests/autopilot/test_controller_bootstrap_recovery.py tests/autopilot/test_controller_owner_recovery.py tests/autopilot/test_controller_capacity.py tests/autopilot/test_controller_owner.py tests/autopilot/test_controller_bootstrap.py tests/autopilot/test_controller_owner_v2.py tests/autopilot/test_controller_kernel.py tests/autopilot/test_controller_kernel_adversarial.py tests/autopilot/test_controller_store_guards_v2.py -q --tb=line -p no:cacheprovider",
+      "passed": 89,
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 263.93
+      "duration_seconds": 243.82
     },
     {
       "task": "b",
       "tests": "tests/autopilot/test_controller_protocol.py, tests/autopilot/test_controller_schema.py, tests/autopilot/test_controller_paths.py, tests/autopilot/test_controller_recovery_characterization.py, tests/autopilot/test_controller_export.py",
-      "command": "mise exec -- uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_protocol.py tests/autopilot/test_controller_schema.py tests/autopilot/test_controller_paths.py tests/autopilot/test_controller_recovery_characterization.py tests/autopilot/test_controller_export.py -q --tb=line",
-      "passed": 69,
+      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_protocol.py tests/autopilot/test_controller_schema.py tests/autopilot/test_controller_paths.py tests/autopilot/test_controller_recovery_characterization.py tests/autopilot/test_controller_export.py -q --tb=line -p no:cacheprovider",
+      "passed": 71,
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 8.31
+      "duration_seconds": 9.09
     },
     {
       "task": "c",
       "tests": "tests/autopilot/test_helper_provenance_successor.py",
-      "command": "mise exec -- uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_helper_provenance_successor.py -q --tb=line",
-      "passed": 46,
+      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_helper_provenance_successor.py -q --tb=line -p no:cacheprovider",
+      "passed": 48,
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 3.64
+      "duration_seconds": 4.51
+    },
+    {
+      "task": "d",
+      "tests": "tests/autopilot/test_actors_read_intent_dispatch.py, tests/autopilot/test_controller_actors.py, tests/autopilot/test_controller_contract_agreement.py, tests/autopilot/test_controller_kernel_recover_jobs.py, tests/autopilot/test_controller_owner_recovery_staging_budget.py, tests/autopilot/test_controller_provenance_scope_prose.py, tests/autopilot/test_controller_staging_admission.py, tests/autopilot/test_provenance_staging_divergence.py, tests/autopilot/test_helper_map_refresh_agreement.py",
+      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_actors_read_intent_dispatch.py tests/autopilot/test_controller_actors.py tests/autopilot/test_controller_contract_agreement.py tests/autopilot/test_controller_kernel_recover_jobs.py tests/autopilot/test_controller_owner_recovery_staging_budget.py tests/autopilot/test_controller_provenance_scope_prose.py tests/autopilot/test_controller_staging_admission.py tests/autopilot/test_provenance_staging_divergence.py tests/autopilot/test_helper_map_refresh_agreement.py -q --tb=line -p no:cacheprovider",
+      "passed": 60,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "duration_seconds": 6.35
     }
   ],
   "real_host": {
