@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import secrets
 import sys
 import unittest
 from pathlib import Path
@@ -18,15 +19,23 @@ from autopilot_state import protocol
 
 SCENARIO_KEYS = {"name", "setup", "action", "expected_error", "expected"}
 EVIDENCE_CASE = "recover-nonempty-jobs"
-NULL_OPEN = {"protocol_major": 1, "operation": "workflow.open",
-             "request_id": "open-direct", "expected_revision": 0,
-             "project_id": "a" * 64, "workflow_id": None, "actor_id": None,
-             "job_id": None, "lease_epoch": None, "payload": {}}
-BOUND_RELEASE = {"protocol_major": 1, "operation": "owner.release",
-                 "request_id": "release-direct", "expected_revision": 3,
-                 "project_id": "b" * 64, "workflow_id": "workflow-direct",
-                 "actor_id": "operator-direct", "job_id": None,
-                 "lease_epoch": 2, "payload": {}}
+
+
+def null_open(**changes: object) -> dict:
+    """An unbound open with a request_id no implementation can special-case."""
+    return {"protocol_major": 1, "operation": "workflow.open",
+            "request_id": f"open-{secrets.token_hex(16)}", "expected_revision": 0,
+            "project_id": "a" * 64, "workflow_id": None, "actor_id": None,
+            "job_id": None, "lease_epoch": None, "payload": {}} | changes
+
+
+def bound_release(**changes: object) -> dict:
+    """A bound release with a request_id no implementation can special-case."""
+    return {"protocol_major": 1, "operation": "owner.release",
+            "request_id": f"release-{secrets.token_hex(16)}", "expected_revision": 3,
+            "project_id": "b" * 64, "workflow_id": "workflow-direct",
+            "actor_id": "operator-direct", "job_id": None,
+            "lease_epoch": 2, "payload": {}} | changes
 
 
 class RequestParsingAgreementTest(unittest.TestCase):
@@ -56,39 +65,51 @@ class RequestParsingAgreementTest(unittest.TestCase):
                     protocol.parse_request(raw, self.declared)
                 self.assertEqual(caught.exception.code, case["expected_error"])
 
+    def admit(self, request: dict, seen: set) -> None:
+        seen.add(request["request_id"])
+        self.assertEqual(protocol.parse_request(canonical(request), self.declared),
+                         request)
+
+    def refuse(self, request: dict, seen: set) -> None:
+        seen.add(request["request_id"])
+        with self.assertRaises(protocol.ProtocolError) as caught:
+            protocol.parse_request(canonical(request), self.declared)
+        self.assertEqual(caught.exception.code, "invalid_request")
+
     def test_null_workflow_id_admits_only_a_zero_revision_unbound_open(self) -> None:
-        self.assertEqual(protocol.parse_request(canonical(NULL_OPEN), self.declared),
-                         NULL_OPEN)
+        seen: set[str] = set()
         rejected = {
             "owner operation": {"operation": "owner.release"},
             "non-null actor at revision zero": {"actor_id": "operator-direct"},
             "non-null lease epoch": {"lease_epoch": 0},
             "nonzero expected revision": {"expected_revision": 1},
         }
-        for clause, change in rejected.items():
-            with self.subTest(clause=clause):
-                with self.assertRaises(protocol.ProtocolError) as caught:
-                    protocol.parse_request(canonical(NULL_OPEN | change), self.declared)
-                self.assertEqual(caught.exception.code, "invalid_request")
+        for attempt in range(2):
+            with self.subTest(clause="unbound open", attempt=attempt):
+                self.admit(null_open(), seen)
+            for clause, change in rejected.items():
+                with self.subTest(clause=clause, attempt=attempt):
+                    self.refuse(null_open(**change), seen)
+        self.assertEqual(len(seen), 2 * (1 + len(rejected)),
+                         "every clause must be pinned under distinct request ids")
 
     def test_bound_workflow_id_requires_an_identity_actor_and_nonnegative_epoch(self) -> None:
-        self.assertEqual(protocol.parse_request(canonical(BOUND_RELEASE), self.declared),
-                         BOUND_RELEASE)
-        self.assertEqual(protocol.parse_request(
-            canonical(BOUND_RELEASE | {"lease_epoch": 0}), self.declared),
-            BOUND_RELEASE | {"lease_epoch": 0})
+        seen: set[str] = set()
         rejected = {
             "null actor": {"actor_id": None},
             "empty actor": {"actor_id": ""},
             "null lease epoch": {"lease_epoch": None},
             "negative lease epoch": {"lease_epoch": -1},
         }
-        for clause, change in rejected.items():
-            with self.subTest(clause=clause):
-                with self.assertRaises(protocol.ProtocolError) as caught:
-                    protocol.parse_request(canonical(BOUND_RELEASE | change),
-                                           self.declared)
-                self.assertEqual(caught.exception.code, "invalid_request")
+        for attempt in range(2):
+            for epoch in (2, 0):
+                with self.subTest(clause="bound release", epoch=epoch, attempt=attempt):
+                    self.admit(bound_release(lease_epoch=epoch), seen)
+            for clause, change in rejected.items():
+                with self.subTest(clause=clause, attempt=attempt):
+                    self.refuse(bound_release(**change), seen)
+        self.assertEqual(len(seen), 2 * (2 + len(rejected)),
+                         "every clause must be pinned under distinct request ids")
 
 
 class RecoveryEvidenceScenarioTest(unittest.TestCase):
@@ -102,17 +123,29 @@ class RecoveryEvidenceScenarioTest(unittest.TestCase):
         scenarios = self.fixtures["scenarios"]
         self.assertIn(EVIDENCE_CASE, [case["name"] for case in self.fixtures["cases"]
                                       if case["definition"] == "request"])
-        others = [item for item in scenarios if EVIDENCE_CASE not in item["action"]]
+        action = f"apply {EVIDENCE_CASE}"
+        others = [item for item in scenarios if item["action"] != action]
         self.assertTrue(others, "no other scenario remained for a shape comparison")
         for item in others:
             self.assertEqual(set(item), SCENARIO_KEYS)
-        matching = [item for item in scenarios if EVIDENCE_CASE in item["action"]]
+        matching = [item for item in scenarios if item["action"] == action]
         self.assertEqual(len(matching), 1,
                          f"scenarios must apply {EVIDENCE_CASE} exactly once")
         scenario = matching[0]
         self.assertEqual(set(scenario), SCENARIO_KEYS)
         self.assertEqual(scenario["expected_error"], "rejected_evidence")
-        self.assertTrue(scenario["expected"])
+        self.assertTrue(scenario["setup"], "the refusal records no starting state")
+        for step in scenario["setup"]:
+            self.assertGreater(len(str(step).split()), 1, f"empty setup step: {step}")
+        self.assertGreaterEqual(len(scenario["expected"]), 2,
+                                "the refusal records fewer claims than it makes")
+        for claim in scenario["expected"]:
+            self.assertGreater(len(str(claim).split()), 2, f"empty claim: {claim}")
+        claims = " ".join(scenario["expected"]).lower()
+        self.assertIn("unchanged", claims,
+                      "the scenario does not claim the evidence survives the refusal")
+        self.assertTrue(any(word in claims for word in ("evidence", "job")),
+                        "the scenario does not name the refused reconciliation evidence")
         self.assertEqual(len({item["name"] for item in scenarios}), len(scenarios))
 
 

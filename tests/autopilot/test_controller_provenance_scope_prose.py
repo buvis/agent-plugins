@@ -13,8 +13,21 @@ DOCUMENT_KEYS = {"provenance_version", "source", "scope", "symbol_map",
                  "field_ownership", "preserved_invariants", "deliberate_divergences",
                  "test_map", "new_protocol_obligations", "unverified"}
 DENIALS = ("no runtime has been extracted", "remain obligations")
+# Any honest scope says a runtime exists and that executed tests cover it; each
+# group lists the wordings that satisfy one of those two claims.
+AFFIRMATIONS = (("runtime",),
+                ("extracted", "exists", "ships"),
+                ("tests/autopilot", "executed tests", "covered by tests",
+                 "test coverage"))
 RUNTIME_SUBJECTS = ("runtime implementation", "runtime test")
+RETAINED_UNVERIFIED = ("host support or certification",
+                       "installation, publication, package version changes")
+SECTION_MINIMUM = {"source": 7, "symbol_map": 4, "field_ownership": 144,
+                   "preserved_invariants": 9, "deliberate_divergences": 9,
+                   "new_protocol_obligations": 5}
 MAPPED_ROWS = 17
+DISTINCT_TARGETS = 8
+DISTINCT_TARGET_FILES = 3
 CONTROL = ("tests/autopilot/test_provenance_staging_divergence.py"
            "::test_deliberate_divergences_names_the_dropped_stale_temp_cleanup")
 
@@ -26,6 +39,10 @@ class ProvenanceScopeProseTest(unittest.TestCase):
 
     def test_document_keeps_every_other_top_level_section(self) -> None:
         self.assertEqual(set(self.provenance), DOCUMENT_KEYS)
+        for section, minimum in SECTION_MINIMUM.items():
+            with self.subTest(section=section):
+                self.assertGreaterEqual(len(self.provenance[section]), minimum,
+                                        "the correction emptied a recorded section")
 
     def test_scope_no_longer_denies_runtime_extraction_or_certification(self) -> None:
         scope = self.provenance["scope"]
@@ -35,11 +52,19 @@ class ProvenanceScopeProseTest(unittest.TestCase):
             with self.subTest(denial=denial):
                 self.assertNotIn(denial, scope.lower(),
                                  "scope still denies the extracted runtime")
+        for group in AFFIRMATIONS:
+            with self.subTest(claim=group[0]):
+                self.assertTrue(any(phrase in scope.lower() for phrase in group),
+                                "scope does not state that a runtime exists and "
+                                f"that executed tests cover it: {group}")
 
     def test_unverified_no_longer_lists_runtime_implementation_or_test_execution(self) -> None:
         unverified = self.provenance["unverified"]
         self.assertIsInstance(unverified, list)
-        self.assertTrue(unverified, "unverified must still record its open items")
+        for retained in RETAINED_UNVERIFIED:
+            with self.subTest(retained=retained):
+                self.assertIn(retained, unverified,
+                              "the correction dropped a genuinely open item")
         for entry in unverified:
             self.assertIsInstance(entry, str)
             for subject in RUNTIME_SUBJECTS:
@@ -58,9 +83,9 @@ class ProvenanceScopeProseTest(unittest.TestCase):
     def test_every_test_map_entry_names_a_test_that_exists(self) -> None:
         test_map = self.provenance["test_map"]
         self.assertIsInstance(test_map, list)
-        self.assertGreaterEqual(len(test_map), MAPPED_ROWS,
-                                "a mapped obligation was dropped instead of mapped")
-        self.assertEqual(len({entry["source"] for entry in test_map}), len(test_map))
+        self.assertEqual(len(test_map), MAPPED_ROWS,
+                         "a mapped obligation was dropped, or a junk row padded the map")
+        self.assertEqual(len({entry["source"] for entry in test_map}), MAPPED_ROWS)
         for entry in test_map:
             with self.subTest(source=entry["source"]):
                 self.assertEqual(set(entry), {"source", "target", "note"})
@@ -68,6 +93,17 @@ class ProvenanceScopeProseTest(unittest.TestCase):
                 self.assertIsNotNone(target, "mapped runtime check has no target test")
                 self.assertTrue(resolve_test_target(target),
                                 f"target does not name an existing test: {target}")
+                self.assertGreater(len(str(entry["note"]).split()), 1,
+                                   f"mapped target carries no note: {target}")
+                self.assertNotEqual(Path(target.partition("::")[0]).name,
+                                    Path(__file__).name,
+                                    "a mapped obligation points at this test module")
+        self.assertGreaterEqual(len({entry["target"] for entry in test_map}),
+                                DISTINCT_TARGETS,
+                                "mapped obligations collapse onto too few tests")
+        self.assertGreaterEqual(
+            len({entry["target"].partition("::")[0] for entry in test_map}),
+            DISTINCT_TARGET_FILES, "mapped obligations collapse onto too few modules")
 
 
 if __name__ == "__main__":

@@ -24,6 +24,7 @@ CONTROLLER = ROOT / "plugins" / "autopilot" / "controller"
 sys.path.insert(0, str(CONTROLLER))
 
 from autopilot_state import actors
+from autopilot_state.store import StateExistsError, StateIOError, StateStore
 
 CREATORS = 5
 ROUNDS = 12
@@ -95,23 +96,37 @@ class StagingAdmissionTest(OwnerCLITest):
         token = secrets.token_hex(16)
         private = private_path(self.root)
         return [private / f".intent-{token[:31]}.tmp",
-                private / f"intent-{token}.tmp",
+                private / f".intent-{token.upper()}.tmp",
                 private / f".state.json.autopilot-{token}.tmp.bak",
                 private / "actors" / f".operator-{token}.stage.bak",
                 private / "actors" / f".owner-{token}.rollback"][index % 5]
 
-    def seed(self, count: int, *, owned: bool) -> list[Path]:
+    def seed(self, count: int, *, owned: bool, size: int | None = None) -> list[Path]:
         created = []
         for index in range(count):
             path = self.owned_name(index) if owned else self.decoy_name(index)
             matched = (actors.PRIVATE_ARTIFACT.fullmatch(path.name) is not None
                        or actors.ACTOR_ARTIFACT.fullmatch(path.name) is not None)
             self.assertIs(matched, owned, f"fixture name contradicts its role: {path.name}")
-            path.write_bytes(b"retained staging evidence")
+            if size is None:
+                path.write_bytes(b"retained staging evidence")
+            else:
+                with path.open("wb") as handle:
+                    handle.truncate(size)
             path.chmod(0o600)
             created.append(path)
         self.assertEqual(len(set(created)), count)
         return created
+
+    def seed_over_the_byte_budget(self) -> list[Path]:
+        """Few enough orphans to pass the file budget, big enough to fail bytes."""
+        count = 4
+        self.assertLess(count, actors.STAGING_FILE_LIMIT)
+        orphans = self.seed(count, owned=True,
+                            size=actors.STAGING_BYTE_LIMIT // count + 1)
+        self.assertGreater(sum(path.stat().st_size for path in orphans),
+                           actors.STAGING_BYTE_LIMIT)
+        return orphans
 
     def crashed_bootstrap(self, label: str) -> dict:
         """Leave a pending bootstrap intent and no published state on disk."""
@@ -143,6 +158,37 @@ class StagingAdmissionTest(OwnerCLITest):
                 self.assertNotIn(request_id, self.state()["receipts"])
         self.assertEqual({path: path.read_bytes() for path in orphans}, before,
                          "admission removed or rewrote retained orphan evidence")
+
+    def test_existing_open_is_refused_while_retained_orphan_bytes_exceed_the_budget(self) -> None:
+        self.project("existing-bytes")
+        _, opened = self.open("open-existing-bytes")
+        actor = Path(opened["result"]["actor_file"])
+        orphans = self.seed_over_the_byte_budget()
+        self.assertLessEqual(len(orphans), actors.STAGING_FILE_LIMIT)
+        request = existing_request(self.root, opened["result"], "existing-byte-budget", 0)
+        response = self.response(self.apply(request, actor), "recovery_required",
+                                 revision=0)
+        self.assertIsNone(response["result"])
+        self.assertEqual(self.state()["revision"], 0)
+        self.assertNotIn("existing-byte-budget", self.state()["receipts"])
+        self.assertEqual([path.stat().st_size for path in orphans],
+                         [actors.STAGING_BYTE_LIMIT // len(orphans) + 1] * len(orphans),
+                         "admission truncated retained orphan evidence")
+
+    def test_existing_open_still_publishes_with_large_orphans_under_both_budgets(self) -> None:
+        self.project("existing-large")
+        _, opened = self.open("open-existing-large")
+        actor = Path(opened["result"]["actor_file"])
+        each = actors.STAGING_BYTE_LIMIT // 4 - 262144
+        orphans = self.seed(4, owned=True, size=each)
+        total = sum(path.stat().st_size for path in orphans)
+        self.assertLess(total, actors.STAGING_BYTE_LIMIT)
+        self.assertGreater(total, actors.STAGING_BYTE_LIMIT // 2)
+        request = existing_request(self.root, opened["result"], "existing-large", 0)
+        response = self.response(self.apply(request, actor), revision=1)
+        self.assertEqual(self.state()["revision"], 1)
+        self.assertEqual(self.state()["receipts"]["existing-large"]["response"], response)
+        self.assertTrue(all(path.is_file() for path in orphans))
 
     def test_existing_open_without_owned_orphans_advances_the_revision_by_one(self) -> None:
         self.project("existing-admitted")
@@ -184,6 +230,20 @@ class StagingAdmissionTest(OwnerCLITest):
         self.assertTrue((private / "credential-intent.json").is_file())
         self.assertEqual(tree(private), before, "refusal changed private evidence")
         self.assertTrue(all(path.is_file() for path in orphans))
+
+    def test_bootstrap_reconciliation_is_refused_while_orphan_bytes_exceed_the_budget(self) -> None:
+        request = self.crashed_bootstrap("bootstrap-bytes")
+        orphans = self.seed_over_the_byte_budget()
+        self.assertLessEqual(len(orphans), actors.STAGING_FILE_LIMIT)
+        private = private_path(self.root)
+        response = self.response(self.apply(request), "recovery_required", revision=0)
+        self.assertIsNone(response["result"])
+        self.assertFalse((private / "state.json").exists(),
+                         "a refused reconciliation published a revision anyway")
+        self.assertTrue((private / "credential-intent.json").is_file())
+        self.assertEqual([path.stat().st_size for path in orphans],
+                         [actors.STAGING_BYTE_LIMIT // len(orphans) + 1] * len(orphans),
+                         "admission truncated retained orphan evidence")
 
     def test_bootstrap_reconciliation_publishes_revision_zero_without_owned_orphans(self) -> None:
         request = self.crashed_bootstrap("bootstrap-admitted")
@@ -234,6 +294,30 @@ class StateLockRaceTest(unittest.TestCase):
             self.assertEqual(error, b"")
             results.append(json.loads(output))
         return results
+
+    def corrupt_lock(self, label: str, kind: str) -> Path:
+        """A state path whose lock sidecar is aliased, not a legitimate peer's."""
+        directory = self.base / label
+        directory.mkdir()
+        path = directory / "state.json"
+        lock = path.with_name(path.name + ".lock")
+        if kind == "symlink":
+            lock.symlink_to(directory / "elsewhere.lock")
+        else:
+            peer = directory / "peer.lock"
+            peer.write_bytes(b"")
+            os.link(peer, lock)
+        return path
+
+    def test_a_corrupt_state_lock_sidecar_is_an_io_error_not_a_lost_race(self) -> None:
+        for kind in ("symlink", "hard-link"):
+            with self.subTest(sidecar=kind):
+                path = self.corrupt_lock(f"corrupt-{kind}", kind)
+                with self.assertRaises(StateIOError) as caught:
+                    StateStore(path).initialize(self.initial)
+                self.assertNotIsInstance(caught.exception, StateExistsError,
+                                         "a corrupt lock was reported as a lost race")
+                self.assertFalse(path.exists(), "a refused initialize published state")
 
     def test_concurrent_lock_creators_either_win_or_lose_without_an_io_error(self) -> None:
         for attempt in range(ROUNDS):
