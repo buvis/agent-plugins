@@ -39,9 +39,26 @@ ON_HOLD = (
 )
 STILL_PLANNED = "AP00018 delivery evidence is still planned."
 PENDING = "AP00018 delivery evidence is pending a real host run."
+# Prose that claims nothing about the delivery evidence, so the refresh has no
+# reason to touch it.
+NO_CLAIM = "Packaged bytes exist."
 CLAIMS = re.compile(r"(?i)\b(planned|pending|on[\s-]hold)\b")
 FRESH_ROW = "plugins/autopilot/controller/autopilot_state/owner.py"
 UNRESOLVABLE = ("d" * 40, "9f" * 20)
+# A listed path that sorts after every controller and shared path, so checking
+# the alphabetically last listed path alone cannot notice a stale sibling.
+LATE = "plugins/autopilot/zz.py"
+# No refusal may tell its reader that the successor was accepted anyway.
+ACCEPTANCE = re.compile(
+    r"(?i)(\bproceeding\b|publishing anyway|treated as fine|nothing to worry"
+    r"|no problem|\bis fine\b|\blooks fine\b)"
+)
+# An unresolvable revision must be named as one, not reported as stale bytes.
+UNRESOLVED = re.compile(
+    r"(?i)(unresolv|cannot resolve|cannot be resolved|could not resolve"
+    r"|could not be resolved|does not resolve|not a valid|invalid object"
+    r"|unknown revision|bad revision|no such revision)"
+)
 
 
 @pytest.fixture(scope="module")
@@ -77,7 +94,7 @@ def contradictions() -> dict[str, dict]:
             "adaptation_reason": ON_HOLD,
             "acceptance_cases": [
                 case(CONTROLLER[0], "planned", STILL_PLANNED),
-                case(CONTROLLER[0] + "#2", "planned", "Packaged bytes exist."),
+                case(CONTROLLER[0] + "#2", "planned", NO_CLAIM),
             ],
         },
         CONTROLLER[1]: {"adaptation_reason": PENDING, "acceptance_cases": []},
@@ -121,6 +138,20 @@ def git_stderr(*args: object) -> str:
     return lines[0]
 
 
+def assert_refusal(message: str, revision: str, *named: str) -> None:
+    """Every refusal binds itself to the successor's revision and still refuses.
+
+    The marker is the literal `package_revision` or the revision itself, so a
+    message that only forwards git's stderr does not qualify, and no refusal
+    may carry a phrase that says the successor was published anyway.
+    """
+    assert message.strip(), repr(message)
+    assert "package_revision" in message or revision in message, message
+    assert not ACCEPTANCE.search(message), message
+    for text in named:
+        assert text in message, (text, message)
+
+
 @pytest.mark.parametrize("revision", REVISIONS)
 def test_refreshed_listed_row_acceptance_cases_match_its_evidence(
     tool: ModuleType, tmp_path: Path, revision: str
@@ -157,6 +188,35 @@ def test_refreshed_listed_rows_drop_planned_pending_and_on_hold_prose(
         assert set(new[path]) == set(old[path]), path
         assert ON_HOLD not in strings(new[path]), path
         assert PENDING not in strings(new[path]), path
+        # The replacement reason describes this row, not the refresh in general.
+        reason = new[path]["adaptation_reason"]
+        assert path in reason, (path, reason)
+        assert "AP00018" in reason, (path, reason)
+    # Prose that claims nothing has nothing to contradict, so it survives.
+    cases = by_key(new[CONTROLLER[0]]["acceptance_cases"], "case_id")
+    assert cases[f"asset-{CONTROLLER[0]}#2"]["expected_outcome"] == NO_CLAIM
+
+
+def test_a_refresh_keeps_every_field_it_has_no_claim_to_rewrite(
+    tool: ModuleType, tmp_path: Path
+) -> None:
+    rewritten = {
+        "destination_blob_sha256",
+        "evidence",
+        "adaptation_reason",
+        "acceptance_cases",
+    }
+    mapping = build_repo(tmp_path, "fields")
+    staged = stage(mapping, contradictions())
+    document = generate(tool, tmp_path, mapping, valid_successor(tmp_path))
+    old, new = (by_key(d["assets"], "destination_path") for d in (staged, document))
+    assert old[SHARED[0]]["section_plan"], "the fixture needs a value-bearing field"
+    for path in (CONTROLLER[0], CONTROLLER[1], SHARED[0]):
+        assert set(new[path]) == set(old[path]), path
+        for field in set(old[path]) - rewritten:
+            assert canon(new[path][field]) == canon(old[path][field]), (path, field)
+        kept = {item["case_id"] for item in old[path]["acceptance_cases"]}
+        assert kept <= {item["case_id"] for item in new[path]["acceptance_cases"]}, path
 
 
 def test_rows_outside_the_successor_paths_keep_their_prose_and_status(
@@ -203,6 +263,29 @@ def test_freshly_registered_listed_rows_agree_with_their_evidence(
             assert not CLAIMS.search(text), (path, text)
 
 
+def test_a_refresh_inside_a_work_tree_is_refused_while_a_listed_file_is_stale(
+    tool: ModuleType, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    mapping = build_repo(tmp_path, "callsite")
+    stage(mapping, contradictions())
+    revision = commit_all(tmp_path, monkeypatch)
+    target = tmp_path / CONTROLLER[0]
+    body = target.read_text()
+    target.write_text(body + "# appended after the revision\n")
+    with pytest.raises(ValueError, match="stale") as refused:
+        generate(tool, tmp_path, mapping, valid_successor(tmp_path, revision))
+    assert_refusal(str(refused.value), revision, CONTROLLER[0])
+    # Restoring the listed bytes lets the same receipt refresh the row.
+    target.write_text(body)
+    document = generate(tool, tmp_path, mapping, valid_successor(tmp_path, revision))
+    row = by_key(document["assets"], "destination_path")[CONTROLLER[0]]
+    assert row["evidence"]["tested_package_revision"] == revision
+    for item in row["acceptance_cases"]:
+        assert item["status"] == row["evidence"]["status"], item
+    for text in strings(row):
+        assert not CLAIMS.search(text), text
+
+
 def test_listed_paths_are_accepted_at_their_revision_and_refused_when_stale(
     tool: ModuleType, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -215,23 +298,77 @@ def test_listed_paths_are_accepted_at_their_revision_and_refused_when_stale(
     assert tool.verify_listed_paths_match_revision(tmp_path, second, listed) is None
     with pytest.raises(ValueError, match="stale") as refused:
         tool.verify_listed_paths_match_revision(tmp_path, first, listed)
-    assert CONTROLLER[0] in str(refused.value)
+    assert_refusal(str(refused.value), first, CONTROLLER[0])
     # Nothing is listed, so nothing is stale.
     assert tool.verify_listed_paths_match_revision(tmp_path, first, set()) is None
+
+
+def test_a_stale_listed_path_is_refused_wherever_it_sorts(
+    tool: ModuleType, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    build_repo(tmp_path, "sorts")
+    (tmp_path / LATE).write_text("# a listed path that sorts after the rest\n")
+    revision = commit_all(tmp_path, monkeypatch)
+    (tmp_path / CONTROLLER[0]).write_text("# edited after the revision\n")
+    pair = {CONTROLLER[0], LATE}
+    assert sorted(pair) == [CONTROLLER[0], LATE]
+    with pytest.raises(ValueError, match="stale") as first:
+        tool.verify_listed_paths_match_revision(tmp_path, revision, pair)
+    assert_refusal(str(first.value), revision, CONTROLLER[0])
+    # The real receipt lists fourteen paths, with the stale one among them.
+    many = {CONTROLLER[0], LATE, *SHARED, CONTRACT, *NEAR_MISSES}
+    assert len(many) > 2
+    assert min(many) != CONTROLLER[0] and max(many) != CONTROLLER[0]
+    with pytest.raises(ValueError, match="stale") as among:
+        tool.verify_listed_paths_match_revision(tmp_path, revision, many)
+    assert_refusal(str(among.value), revision, CONTROLLER[0])
+
+
+# Edits a byte-count or first-bytes comparison would miss. Each keeps the
+# file's first eight bytes; the flag says whether it keeps the byte count.
+EDITS = {
+    "appended-tail": (lambda body: body + "# appended after the revision\n", False),
+    "same-length-tail": (lambda body: body[:-2] + "X\n", True),
+}
+
+
+@pytest.mark.parametrize("edit,same_length", EDITS.values(), ids=EDITS.keys())
+def test_a_listed_path_is_refused_however_small_its_change_is(
+    tool: ModuleType,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    edit,
+    same_length: bool,
+) -> None:
+    build_repo(tmp_path, "bytes")
+    revision = commit_all(tmp_path, monkeypatch)
+    target = tmp_path / CONTROLLER[0]
+    body = target.read_text()
+    edited = edit(body)
+    assert edited != body and edited[:8] == body[:8]
+    assert ((len(edited) == len(body)) is same_length) and len(body) > 8
+    target.write_text(edited)
+    with pytest.raises(ValueError, match="stale") as refused:
+        tool.verify_listed_paths_match_revision(
+            tmp_path, revision, {SHARED[0], CONTROLLER[0]}
+        )
+    assert_refusal(str(refused.value), revision, CONTROLLER[0])
 
 
 def test_an_edited_path_the_receipt_does_not_list_is_not_checked(
     tool: ModuleType, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     build_repo(tmp_path, "near")
+    (tmp_path / LATE).write_text("# a listed path that sorts after the rest\n")
     revision = commit_all(tmp_path, monkeypatch)
     (tmp_path / NEAR_MISSES[1]).write_text("# edited, and not listed\n")
-    listed = {CONTROLLER[0]}
+    listed = {CONTROLLER[0], LATE}
     assert tool.verify_listed_paths_match_revision(tmp_path, revision, listed) is None
-    with pytest.raises(ValueError, match="stale"):
+    with pytest.raises(ValueError, match="stale") as refused:
         tool.verify_listed_paths_match_revision(
             tmp_path, revision, listed | {NEAR_MISSES[1]}
         )
+    assert_refusal(str(refused.value), revision, NEAR_MISSES[1])
 
 
 def test_a_directory_outside_a_git_work_tree_skips_verification(
@@ -285,6 +422,7 @@ def test_a_probe_failure_that_is_not_an_absent_work_tree_is_refused(
     with pytest.raises(ValueError) as refused:
         tool.verify_listed_paths_match_revision(root, REVISIONS[0], {SHARED[0]})
     assert expected in str(refused.value), (expected, str(refused.value))
+    assert_refusal(str(refused.value), REVISIONS[0])
 
 
 def test_an_absent_git_executable_is_refused_by_the_module_itself(
@@ -300,6 +438,7 @@ def test_an_absent_git_executable_is_refused_by_the_module_itself(
     with pytest.raises(ValueError) as refused:
         tool.verify_listed_paths_match_revision(root, revision, {CONTROLLER[0]})
     assert "git" in str(refused.value).lower()
+    assert_refusal(str(refused.value), revision)
 
 
 @pytest.mark.parametrize("unknown", UNRESOLVABLE)
@@ -316,20 +455,25 @@ def test_a_revision_git_cannot_resolve_is_refused_as_unresolvable_not_as_stale(
     with pytest.raises(ValueError) as unresolved:
         tool.verify_listed_paths_match_revision(root, unknown, listed)
     assert "stale" in str(stale.value).lower()
+    assert_refusal(str(stale.value), revision, CONTROLLER[0])
     assert str(unresolved.value) != str(stale.value)
     assert "stale" not in str(unresolved.value).lower()
     assert unknown in str(unresolved.value)
+    assert UNRESOLVED.search(str(unresolved.value)), str(unresolved.value)
+    assert_refusal(str(unresolved.value), unknown)
 
 
 def test_a_listed_path_missing_at_the_revision_is_refused_with_git_stderr(
     tool: ModuleType, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     build_repo(tmp_path, "absent")
+    (tmp_path / LATE).write_text("# a listed path that sorts after the rest\n")
     revision = commit_all(tmp_path, monkeypatch)
     write_json(tmp_path / FRESH_ROW, {"tag": FRESH_ROW})
     expected = git_stderr("-C", tmp_path, "show", f"{revision}:{FRESH_ROW}")
+    listed = {SHARED[0], FRESH_ROW, LATE}
+    assert max(listed) == LATE
     with pytest.raises(ValueError) as refused:
-        tool.verify_listed_paths_match_revision(
-            tmp_path, revision, {SHARED[0], FRESH_ROW}
-        )
+        tool.verify_listed_paths_match_revision(tmp_path, revision, listed)
     assert expected in str(refused.value), (expected, str(refused.value))
+    assert_refusal(str(refused.value), revision)
