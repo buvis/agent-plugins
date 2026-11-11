@@ -157,10 +157,10 @@ class ControllerBootstrapTest(ControllerCLITest):
                 self.response(completed, "invalid_request", revision=0)
                 self.assertNotIn(b"untrusted-value", completed.stdout + completed.stderr)
                 self.assertEqual(tree(self.root), {})
-        mismatches = [("expected_revision", 1, "revision_conflict"),
-                      ("expected_revision", 2, "revision_conflict"),
-                      ("actor_id", "actor-prefix", "wrong_binding"),
-                      ("actor_id", "actor-prefix-extra", "wrong_binding")]
+        mismatches = [("expected_revision", 1, "invalid_request"),
+                      ("expected_revision", 2, "invalid_request"),
+                      ("actor_id", "actor-prefix", "invalid_request"),
+                      ("actor_id", "actor-prefix-extra", "invalid_request")]
         for key, value, error in mismatches:
             with self.subTest(key=key, value=value):
                 self.response(self.apply(dict(request, **{key: value})), error, revision=0)

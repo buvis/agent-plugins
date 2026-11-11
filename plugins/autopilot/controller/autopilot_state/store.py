@@ -48,6 +48,8 @@ type Mutator = Callable[[State], State | None]
 type Precondition = Callable[[State], None]
 type BoundaryHook = Callable[[DurabilityBoundary], None]
 
+LOCK_OPEN_ATTEMPTS = 16
+
 
 class StateError(Exception):
     """Base class for state-store failures."""
@@ -249,18 +251,31 @@ class StateStore:
                 os.close(directory)
 
     def _open_lock(self) -> int:
-        self._reject_aliased_artifact(self._lock_path, "state lock")
-        descriptor = os.open(
-            self._lock_path.name, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC,
-            0o600, dir_fd=self._directory_fd.get(),
-        )
-        try:
-            self._verify_open_artifact(self._lock_path, descriptor, "state lock")
-            os.fchmod(descriptor, 0o600)
-        except BaseException:
-            os.close(descriptor)
-            raise
-        return descriptor
+        # A peer creating this same name in the same instant makes the
+        # create-if-absent openat report ENOENT on this platform. That is a
+        # benign transient, so retry a bounded number of times with every
+        # guard repeated; a genuinely absent directory still surfaces.
+        attempt = 0
+        while True:
+            attempt += 1
+            self._reject_aliased_artifact(self._lock_path, "state lock")
+            try:
+                descriptor = os.open(
+                    self._lock_path.name,
+                    os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC,
+                    0o600, dir_fd=self._directory_fd.get(),
+                )
+            except FileNotFoundError:
+                if attempt >= LOCK_OPEN_ATTEMPTS:
+                    raise
+                continue
+            try:
+                self._verify_open_artifact(self._lock_path, descriptor, "state lock")
+                os.fchmod(descriptor, 0o600)
+            except BaseException:
+                os.close(descriptor)
+                raise
+            return descriptor
 
     def _verify_directory(self) -> None:
         opened = os.fstat(self._directory_fd.get())

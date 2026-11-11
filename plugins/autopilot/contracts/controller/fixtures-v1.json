@@ -2374,6 +2374,21 @@
       ]
     },
     {
+      "name": "recover-nonempty-evidence",
+      "setup": [
+        "kernel-owned state with an active owner",
+        "current authorized operator credential",
+        "no reconciled job exists"
+      ],
+      "action": "apply recover-nonempty-jobs",
+      "expected_error": "rejected_evidence",
+      "expected": [
+        "structurally valid request refused after binding, before any intent",
+        "owner, epoch, receipts and all private bytes unchanged",
+        "reconciled job evidence unchanged and never reconciled"
+      ]
+    },
+    {
       "name": "reserved-operation",
       "setup": [
         "every x-controller.reserved_operations entry",

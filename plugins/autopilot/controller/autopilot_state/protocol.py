@@ -90,12 +90,22 @@ def parse_request(raw: bytes, declared: dict) -> dict:
         if not isinstance(operation, str) or operation not in (
                 {"workflow.open"} | OWNER_OPERATIONS | set(declared["reserved_operations"])):
             raise schema.SchemaError("unknown operation")
+        if request["workflow_id"] is None:
+            if (operation != "workflow.open" or request["actor_id"] is not None
+                    or request["lease_epoch"] is not None
+                    or request["expected_revision"] != 0):
+                raise schema.SchemaError("unbound request must open at revision zero")
+        else:
+            schema._identity(request["actor_id"])
+            schema._counter(request["lease_epoch"])
         validate_payload(operation, request["payload"])
         actors.canonical(request)
     except (ValueError, UnicodeError, RecursionError, TypeError) as error:
         raise ProtocolError("invalid_request") from error
     if request["protocol_major"] != 1:
         raise ProtocolError("incompatible_contract")
+    if request["job_id"] is not None:
+        raise ProtocolError("wrong_binding")
     return request
 
 
@@ -155,6 +165,7 @@ def existing_open(request: dict, actor_file: Path | None, current: dict,
     candidate["receipts"][request["request_id"]] = {
         "request_digest": request_digest, "authorizing_actor": descriptor, "response": completed}
     actors.admit(candidate, completed)
+    actors.admit_staging(layout, [])
     store._transaction_locked(lambda unused: candidate, expected_revision=revision,
                               publication_guard=layout.verify)
     return completed

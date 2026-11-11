@@ -428,6 +428,7 @@ def verify_credential(layout: PrivateLayout, path: Path, intent: dict) -> None:
 def finish_bootstrap(intent: dict, layout: PrivateLayout, store: StateStore,
                      current: dict | None) -> dict:
     validate_intent(intent, layout)
+    admit_staging(layout, [])
     candidate = intent["candidate"]
     if current is not None and current != candidate:
         raise StateIOError("state does not match bootstrap intent")
