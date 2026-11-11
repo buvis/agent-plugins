@@ -116,3 +116,20 @@ Orchestrator (micro lane, Edit tool only — 2 findings, 1 file, none CRITICAL):
 - R20's fix line offered two options: "derive the exporter's lists from the protocol-side definition, or at minimum point a comment at it." Took the comment-only alternative rather than importing `autopilot_state.protocol`, since the exporter's docstring explicitly commits to being "self-contained stdlib" that "never reads live workflow state" — an import would contradict that stated design, and the finding itself sanctions the lighter fix.
 - R11's "add a sparse 16 MiB fixtures case for both export and --check" was read as: a 16 MiB+ existing committed bundle for `--check` (the actual unbounded-read path fixed here), and a 16 MiB+ schema/fixtures input for `export` (already bounded by the pre-existing `checked()` LIMIT enforcement, but untested before this task) — two tests rather than one, since `export` and `--check` read different files for different reasons and neither test can stand in for the other.
 - Pat (step-5.7 per-task review) was unavailable, same persistent `sonnet-run.sh` "OAuth token revoked" failure as tasks 12-14 — recorded `review: "failed:runner_auth"`; the mandatory PRD-level review cycle still covers this diff.
+
+## 16 (rework, cycle 2): [D2] tests/autopilot/
+
+Ivan (Claude Sonnet):
+
+- The PRD's "named acceptance scenarios" are the 14 snake_case ids in its Phase Acceptance lines and Critical Scenarios section; only the 8 missing ones were mapped.
+- For each of the 8, the closest existing test was picked as the proof target. `fresh_open_replay` maps to `test_concurrent_bootstrap_has_one_workflow_and_replays_same_request`; `unsupported_operation_refused` maps to `test_reserved_operations_reject_without_receipts_or_credentials`.
+- The "dead branch" finding referred to a stale message. The test already matched the runtime, so it was tightened to assert the final message plus its `__cause__` rather than rewritten.
+- A bare method name in a `test_map` target resolves against any class in the named module, to keep the existing bare-name targets working.
+- "Repeated crashes" was read as repeated refusals while the budget is exhausted, followed by a second crash and a final completion.
+- `GIT_CONFIG_GLOBAL` and `GIT_CONFIG_SYSTEM` point at `os.devnull` rather than a temp file.
+
+Orchestrator:
+
+- Ivan did not prove fail-first for three of the seven items (the R9 traceability resolver test, the R5 byte-ceiling and repeated-crash tests, and the generalised `test_map` resolver test). The recorded verification file states this explicitly; Pat judged all seven closures resolved on the committed code.
+- Pat's lane was recovered this cycle, not skipped: `sonnet-run.sh` still fails on the revoked shared Keychain OAuth login, so it is now run through a wrapper that exports `CLAUDE_CODE_OAUTH_TOKEN` from `~/.local/secrets/claude-setup-token`. The first dispatch consumed its `-S` session id before failing, so a fresh uuid was minted for the retry.
+- One of Pat's four LOW findings was fixed inline (b60eaf9) because it weakened the very mechanism finding 7 asked for: `resolve_test_target` accepted a non-test leaf name, so a `test_map` row could resolve to a helper. The other three LOWs were left for the review phase.
