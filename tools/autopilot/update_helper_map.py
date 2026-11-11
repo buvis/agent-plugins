@@ -22,15 +22,28 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
+import importlib.util
 import json
 import os
 import re
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
+# Loaded by path: tools/autopilot is not a package and is not on sys.path when
+# this file is itself loaded by path.
+SUCCESSOR_SPEC = importlib.util.spec_from_file_location(
+    "helper_map_successor", HERE / "helper_map_successor.py"
+)
+helper_map_successor = importlib.util.module_from_spec(SUCCESSOR_SPEC)
+SUCCESSOR_SPEC.loader.exec_module(helper_map_successor)
+refresh_listed_row = helper_map_successor.refresh_listed_row
+verify_listed_paths_match_revision = (
+    helper_map_successor.verify_listed_paths_match_revision
+)
+
 CLI = "skills/run-autopilot/cli/"
 SCRIPTS = "skills/run-autopilot/scripts/"
 TESTS = "tests/autopilot/"
@@ -578,30 +591,6 @@ def register_controller_asset(
     upsert(result["authored_file_owners"], "path", owner)
 
 
-def verify_listed_paths_match_revision(root: Path, revision: str, paths: set[str]) -> None:
-    """Refuse a successor whose listed paths changed since its package_revision.
-
-    Outside a real git checkout (the synthetic test fixtures under
-    tests/autopilot) there is no history to check against, so the verification
-    is a no-op there; production always runs inside a real checkout.
-    """
-    probe = subprocess.run(
-        ["git", "-C", str(root), "rev-parse", "--is-inside-work-tree"],
-        capture_output=True, text=True,
-    )
-    if probe.returncode != 0 or probe.stdout.strip() != "true":
-        return
-    for path in sorted(paths):
-        committed = subprocess.run(
-            ["git", "-C", str(root), "show", f"{revision}:{path}"], capture_output=True,
-        )
-        if committed.returncode != 0 or committed.stdout != (root / path).read_bytes():
-            raise ValueError(
-                f"successor package_revision {revision} is stale for {path!r}: "
-                "current bytes do not match that revision"
-            )
-
-
 def apply_successor(result: dict, root: Path, successor: dict, artifact: dict) -> None:
     revision = successor["package_revision"]
     cited = {"status": "passed", **artifact, "tested_package_revision": revision}
@@ -634,7 +623,7 @@ def apply_successor(result: dict, root: Path, successor: dict, artifact: dict) -
             continue
         sha = hashlib.sha256((root / path).read_bytes()).hexdigest()
         row["destination_blob_sha256"] = sha
-        row["evidence"] = dict(cited)
+        refresh_listed_row(row, path, cited)
         if path in REFRESHED[1:]:
             row["evidence"].update(artifact_id=path, artifact_sha256=sha)
 

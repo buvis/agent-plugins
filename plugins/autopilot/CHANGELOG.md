@@ -37,6 +37,8 @@
 
 ### Fixed
 
+- **autopilot**: stop the helper-map generator's successor check from failing open. Only a directory genuinely outside a git work tree skips verification; every other probe failure, an absent `git` executable, an unresolvable `package_revision` and an unreadable listed path are each refused with git's own message, and an unresolvable revision is no longer reported as stale bytes. Every listed path is compared byte for byte.
+- **autopilot**: stop the helper-map generator from writing a source-map row that contradicts itself. A row the successor receipt certifies no longer keeps acceptance statuses or prose claiming its delivery evidence is planned, pending or on hold, while a row the receipt does not list is left untouched.
 - **autopilot**: apply the retained-staging budget on the two controller publishing paths that still bypassed it, so a `workflow.open` against existing state and a bootstrap reconciliation of a pending credential intent both refuse with `recovery_required` under orphan pressure instead of publishing a revision.
 - **autopilot**: enforce the frozen request binding rule in the controller parser, so a request whose `workflow_id` is null is accepted only as a `workflow.open` at revision 0 with no actor or lease epoch, a bound request requires both, and a request carrying a `job_id` is refused as `wrong_binding` before admission.
 - **autopilot**: retry the controller state-lock open on a transient missing-file error, so a legitimate concurrent initializer loses the compare-and-set cleanly instead of surfacing an I/O failure, with the symlink, hard-link and regular-file guards applied on every attempt.
