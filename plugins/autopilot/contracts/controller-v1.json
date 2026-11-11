@@ -2,7 +2,7 @@
   "capabilities": [
     "workflow.core.v1"
   ],
-  "fixture_digest": "a76ebeb6227f49747d2a1e49ae11dbac4b75af2bcf4ace9f2a49681e0f81a292",
+  "fixture_digest": "d00b18e3e4ec6c6416252e73ba9996ce9200353348393ca865e1b9cd6f7d49db",
   "operations": [
     "workflow.open",
     "owner.acquire",
