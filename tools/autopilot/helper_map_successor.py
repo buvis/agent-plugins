@@ -62,7 +62,14 @@ def verify_listed_paths_match_revision(
                 f"cannot be read for {path!r}: "
                 f"{first_line(committed.stderr.decode(errors='replace'))}",
             )
-        if committed.stdout != (root / path).read_bytes():
+        try:
+            current = (root / path).read_bytes()
+        except OSError as error:
+            raise refusal(
+                revision,
+                f"cannot be read for {path!r} in the work tree: {error}",
+            ) from error
+        if committed.stdout != current:
             raise refusal(
                 revision,
                 f"is stale for {path!r}: current bytes do not match that revision",
