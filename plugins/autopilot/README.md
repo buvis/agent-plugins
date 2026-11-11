@@ -404,10 +404,18 @@ A crash can leave controller-owned staging, rollback and temporary files. These
 are credential `.stage` and `.rollback` files under `actors/`, plus
 `.intent-*.tmp` files and state publication `.state.json.autopilot-*.tmp` files
 in the private directory. The controller limits them to 64 files and 16777216
-bytes in total. It refuses a bootstrap or owner mutation with
-`recovery_required`, and changes nothing, when the full proposal would exceed
-either limit. It does the same when it finds an unsafe or unreadable owned
-artifact. The controller never deletes an orphan.
+bytes in total. It refuses the request with `recovery_required`, and changes
+nothing, when the limit would be exceeded. It does the same when it finds an
+unsafe or unreadable owned artifact. The controller never deletes an orphan.
+
+Every publishing path applies the limit, with two accounting shapes. A
+bootstrap or owner mutation that stages new credential bytes counts those bytes
+together with the retained files. A path that stages nothing counts the
+retained files alone. There are three such paths: a `workflow.open` against
+existing state, a bootstrap reconciliation of a pending credential intent, and
+a reconciliation of a pending owner intent. A pending intent together with
+over-budget orphans therefore refuses every request, the reconciliation
+included. Only the manual procedure below clears that state.
 
 The admitted proposal leaves out the transient state publication temporaries.
 A crash at a publication boundary can therefore keep up to two more
@@ -424,7 +432,10 @@ before retry. Follow these steps in order:
    hash.
 3. Move only the identified orphan files into that archive. Never delete them.
 4. Keep `state.json`, `state.json.bak`, the credentials and
-   `credential-intent.json` in place.
+   `credential-intent.json` in place. Keep every `stage`, `rollback` and
+   `final` file that `credential-intent.json` names. These files count against
+   the limit, but the reconciliation still needs them, so they are not
+   orphans.
 5. Run `snapshot` and verify that the state is unchanged.
 6. Resume the callers.
 

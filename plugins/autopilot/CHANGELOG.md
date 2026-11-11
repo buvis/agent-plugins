@@ -31,13 +31,17 @@
 - Add gated review policy foundation data with pinned source bindings and test-only dependencies. No host execution or certification is claimed.
 - Add the gated package README with preserved historical source sections, current local facade usage, delivery receipts, and a dedicated Python 3.12 integration CI job. No host execution or certification is claimed.
 
+### Changed
+
+- **autopilot**: relax the published controller schema so `owner.recover` accepts a non-empty `reconciled_job_ids` array, which the runtime already refused as rejected evidence rather than as an invalid request. `contracts/controller/workflow-v1.json` drops `maxItems: 0` from `recover_payload.reconciled_job_ids`, the `recover-nonempty-jobs` fixture now expects a valid request, and `contracts/controller-v1.json` carries the regenerated schema and fixture digests, so a pinned bundle must be re-pinned.
+
 ### Fixed
 
 - **autopilot**: apply the retained-staging budget on the two controller publishing paths that still bypassed it, so a `workflow.open` against existing state and a bootstrap reconciliation of a pending credential intent both refuse with `recovery_required` under orphan pressure instead of publishing a revision.
 - **autopilot**: enforce the frozen request binding rule in the controller parser, so a request whose `workflow_id` is null is accepted only as a `workflow.open` at revision 0 with no actor or lease epoch, a bound request requires both, and a request carrying a `job_id` is refused as `wrong_binding` before admission.
 - **autopilot**: retry the controller state-lock open on a transient missing-file error, so a legitimate concurrent initializer loses the compare-and-set cleanly instead of surfacing an I/O failure, with the symlink, hard-link and regular-file guards applied on every attempt.
 - **autopilot**: record the refused non-empty reconciliation evidence rule in the frozen controller fixtures, and correct the controller provenance document, which denied that a runtime had been extracted or certified and left eleven mapped runtime checks without a target test.
-- **autopilot**: bound retained controller staging, rollback, intent and state-publication temporaries to 64 files and 16777216 bytes, refusing bootstrap and owner mutations with `recovery_required` before staging when the full proposal would exceed either limit or a retained artifact is unsafe or unreadable; the state store no longer deletes crash-orphaned publication temporaries.
+- **autopilot**: bound retained controller staging, rollback, intent and state-publication temporaries to 64 files and 16777216 bytes, refusing a mutation with `recovery_required` before staging when either limit would be exceeded or a retained artifact is unsafe or unreadable. A path that stages new credential bytes counts them together with the retained files; a path that stages nothing counts the retained files alone, so a pending intent plus over-budget orphans also refuses its own reconciliation. The state store no longer deletes crash-orphaned publication temporaries.
 - **autopilot**: finish interrupted owner credential cleanup after state publication, while rejecting missing precommit evidence and corrupt remaining files.
 - **autopilot**: report the current durable revision when snapshots refuse pending credential intents, without reconciling them.
 - **autopilot**: rotate owner leases and operator credentials recoverably, retaining exact receipt replay without restoring retired mutation authority.
