@@ -1271,3 +1271,4 @@
 {"id":"09dd84fb","ended_at":1794368839,"elapsed_s":1546,"outcome":"ok","detail":"closed-by: commit 1bf7edcbf734b54f67b601e82857de52e534a779"}
 {"id":"612fd207","ended_at":1794368839,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
 {"kind":"handoff","site":"review","edge":"leave","at":1794368839,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794368878,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
