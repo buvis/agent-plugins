@@ -414,5 +414,133 @@
     "issue": "Rework tasks 13-15 had no independent test writer and tasks 12-15 no patch review (failed:runner_auth four times), against the PRD's do-not-omit-test/review-roles",
     "file": "docs/dev/project-management/meta/assumptions.md:171",
     "reason": "single-voice (EVE only, [1/5]) and not fixable after the fact: the passes are done. This PRD-level review cycle is the compensating control, and its consequences are raised as separate findings that are being fixed."
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The state-lock retry is an unrecorded divergence from the pinned StateStore: _open_lock now retries FileNotFoundError up to LOCK_OPEN_ATTEMPTS times and deliberate_divergences has no entry for it.",
+    "file": "plugins/autopilot/controller/autopilot_state/store.py:268",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The exporter hard-codes OPERATIONS and CAPABILITIES as a literal copy of protocol.py's lists. It never imports them, so drift is caught only by tests.",
+    "file": "tools/autopilot/export-controller-contract.py:32",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "A fresh-open replay returns the stored response without credential authentication, exposing workflow_id, actor_id and the credential path.",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:141",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "test_refreshed_listed_rows_drop_planned_pending_and_on_hold_prose asserts no claim word anywhere in a refreshed row, a rule the generator does not implement.",
+    "file": "tests/autopilot/test_helper_map_refresh_agreement.py:181",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "_open_lock retries the create-if-absent open up to 16 times with no yield or backoff, so under heavier contention the transient ENOENT can still escape.",
+    "file": "plugins/autopilot/controller/autopilot_state/store.py:253",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "Bootstrap reconciliation is refused under orphan pressure even when it publishes nothing, while the owner path admits the same case; README:416-418 and CHANGELOG:46 describe the owner path incorrectly.",
+    "file": "plugins/autopilot/controller/autopilot_state/actors.py:431",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Two new runtime tests re-test behaviour already pinned in test_controller_owner.py and test_controller_owner_v2.py, and both pass at base.",
+    "file": "tests/autopilot/test_controller_kernel_recover_jobs.py:55",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Anti-exploit scaffolding in the three new test files pins wording and document shape rather than contract, so any honest provenance or fixture edit breaks them.",
+    "file": "tests/autopilot/test_helper_map_refresh_agreement.py:52",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Fix commit e1ca894 (refuse an unreadable listed path) shipped without a test.",
+    "file": "tools/autopilot/helper_map_successor.py:65",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Prior R8's repeated-crashes half is still untested: the test named for it replays apply twice while refused, which cannot crash.",
+    "file": "tests/autopilot/test_controller_owner_recovery_staging_budget.py:88",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "[MECH] 1 touched test passes against the pre-change code: test_owner_recover_refuses_nonempty_job_evidence_and_admits_an_empty_list",
+    "file": "tests/autopilot/test_controller_contract_agreement.py",
+    "reason": "single-voice, and Eve's KNOWN bucket explains each as by design: the behaviour landed before this incremental base and the touched test pins it after the fact, or it is a positive control beside a refusal test that does fail at base"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "[MECH] 1 touched test passes against the pre-change code: test_controller_bundle_reproducible_check_rejects_an_oversized_committed_bundle",
+    "file": "tests/autopilot/test_controller_export.py",
+    "reason": "single-voice, and Eve's KNOWN bucket explains each as by design: the behaviour landed before this incremental base and the touched test pins it after the fact, or it is a positive control beside a refusal test that does fail at base"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "[MECH] 4 touched tests pass against the pre-change code: test_accepts_reconciled_job_ids_with_a_single_entry, test_accepts_reconciled_job_ids_with_multiple_entries, test_rejects_duplicate_reconciled_job_ids, test_controller_refuses_nonempty_reconciled_job_ids_with_rejected_evidence",
+    "file": "tests/autopilot/test_controller_kernel_recover_jobs.py",
+    "reason": "single-voice, and Eve's KNOWN bucket explains each as by design: the behaviour landed before this incremental base and the touched test pins it after the fact, or it is a positive control beside a refusal test that does fail at base"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "[MECH] 3 touched tests pass against the pre-change code: test_refuses_reconciliation_once_the_staging_budget_is_exhausted, test_refuses_reconciliation_once_the_staging_byte_ceiling_is_exceeded, test_repeated_crashes_stay_refused_while_exhausted_and_finish_once_freed",
+    "file": "tests/autopilot/test_controller_owner_recovery_staging_budget.py",
+    "reason": "single-voice, and Eve's KNOWN bucket explains each as by design: the behaviour landed before this incremental base and the touched test pins it after the fact, or it is a positive control beside a refusal test that does fail at base"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "[MECH] 5 touched tests pass against the pre-change code: test_bootstrap_reconciliation_publishes_revision_zero_without_owned_orphans, test_existing_open_still_publishes_with_large_orphans_under_both_budgets, test_existing_open_without_owned_orphans_advances_the_revision_by_one, test_near_miss_artifact_names_never_consume_the_existing_open_budget, test_a_corrupt_state_lock_sidecar_is_an_io_error_not_a_lost_race",
+    "file": "tests/autopilot/test_controller_staging_admission.py",
+    "reason": "single-voice, and Eve's KNOWN bucket explains each as by design: the behaviour landed before this incremental base and the touched test pins it after the fact, or it is a positive control beside a refusal test that does fail at base"
+  },
+  {
+    "cycle": 3,
+    "disposition": "settled-deferral",
+    "severity": "medium",
+    "issue": "R6 (CI proof) is still unproven at the reworked head: fetch-depth: 0 is on the autopilot job but no CI run exists at or after this head and master is 47 commits ahead of origin, because loop mode defers pushes.",
+    "file": ".github/workflows/validate.yml:63",
+    "reason": "already a settled deferral from cycle 2 (state.deferred_decisions); it cannot be closed from inside an unattended session, and its check is unqueueable because it needs a git push first"
   }
 ]
