@@ -133,3 +133,43 @@ Orchestrator:
 - Ivan did not prove fail-first for three of the seven items (the R9 traceability resolver test, the R5 byte-ceiling and repeated-crash tests, and the generalised `test_map` resolver test). The recorded verification file states this explicitly; Pat judged all seven closures resolved on the committed code.
 - Pat's lane was recovered this cycle, not skipped: `sonnet-run.sh` still fails on the revoked shared Keychain OAuth login, so it is now run through a wrapper that exports `CLAUDE_CODE_OAUTH_TOKEN` from `~/.local/secrets/claude-setup-token`. The first dispatch consumed its `-S` session id before failing, so a fresh uuid was minted for the retry.
 - One of Pat's four LOW findings was fixed inline (b60eaf9) because it weakened the very mechanism finding 7 asked for: `resolve_test_target` accepted a non-test leaf name, so a `test_map` row could resolve to a helper. The other three LOWs were left for the review phase.
+
+## 18 (rework, cycle 2): [D2] plugins/autopilot/
+
+Tess (Claude Opus, initial):
+
+- The budget refusal surfaces `error_code: "recovery_required"` on both new paths; this matches `admit_staging` raising `StateIOError` and every existing staging-budget test.
+- The "crashed-bootstrap shape" is produced with the existing `CRASH_DRIVER` at boundary `intent_dir_fsynced` (exit 97), the only boundary leaving a pending intent and no `state.json`.
+- The R1 existing-state open is built with `controller_cli_support.existing_request(...)` authorised by the current operator credential.
+- `parse_request`'s `declared` argument comes from `protocol.public_contract()[1]`, the same value the CLI passes.
+- The state lock sidecar name is `<state path>.lock`; R4 uses 5 creators and 12 rounds.
+- `MAPPED_ROWS = 17` is the current `test_map` length, asserted as a lower bound so rows cannot be dropped instead of mapped.
+
+Tess (Claude Opus, strengthen pass after the adversarial round):
+
+- The new fixtures scenario's `expected` prose requires the word "unchanged" plus "evidence" or "job", inferred from the existing refusal scenarios' convention rather than an exact sentence.
+- Minimum distinct `test_map` targets (8) and target files (3) are chosen floors; the requirement said only "a minimum distinct-target count".
+- Per-section minimum lengths equal the current document's counts, assuming the correction edits only `scope`, `unverified` and `test_map`.
+- The affirmative `scope` substring alternatives are a chosen wording set; any honest correction must hit one phrase per group.
+- Byte-budget orphans are created sparse with `truncate`, assuming `admit_staging` charges `st_size`.
+
+Ivan (Claude Opus):
+
+- `admit_staging` is called with an empty `proposed` list on both new call sites (retained-orphan accounting only), because neither path has its staged bytes in hand there; `finish_bootstrap`'s count is always <= the count `prepare_bootstrap` already admitted.
+- `LOCK_OPEN_ATTEMPTS = 16` is a chosen bound; the ENOENT transient resolves on the next attempt once the peer's create commits.
+- `job-authority` is refused at parse with `wrong_binding` (not `invalid_request`), because the frozen case declares that code and the frozen schema leaves `job_id` unconstrained.
+- `recover-nonempty-evidence` is a chosen scenario name and prose; the task fixed only its `action` and `expected_error`.
+- The provenance `test_map` target choices are a mapping of each source row to the closest existing runtime test.
+
+Orchestrator:
+
+- The fixtures-versus-runtime disagreement was adjudicated in favour of the runtime moving, not the frozen fixtures: a `cases[]` entry carries no `setup`, so its `expected_error` can only describe a state-independent (parse-time) rejection, and the apply-layer codes for the three named requests are state-dependent. Verified against `workflow-v1.json` `$defs.request` with a passing control.
+- Tess measured a fourth disagreeing case the decision gate had not listed (`job-authority`). Admitted on the same reasoning, and because it is behaviour-preserving end to end: `protocol.apply` already raised `wrong_binding` for a non-null `job_id` before reading state.
+- The four `mismatches` expectations in `test_controller_bootstrap.py` were changed from `revision_conflict`/`wrong_binding` to `invalid_request`. This is the one permitted existing-expectation change, authorised because the frozen schema contradicted the test; verified against the schema rather than assumed.
+- The store.py race was reproduced before the fix (3/25 runs) and measured after (0/25), and its cause was confirmed by direct probe: `openat(dirfd, name, O_CREAT|O_NOFOLLOW)` returns ENOENT under concurrent creation on this platform (253-302 hits per worker over 400 racing rounds, 4 workers).
+- Devon's cleanup contract was changed from the template's placeholder-overwrite to `git checkout --`, because every file he needed to edit was tracked and committed; a placeholder overwrite would have destroyed production modules. His clean-tree claim was verified independently.
+- Pat's diff was trimmed to fit the dispatch budget: the three test files written for this task (640 of 725 added lines) were excluded, and the exclusion was stated in his prompt. He correctly flagged the resulting blind spot.
+- Pat's LOW on the provenance row count was refuted with evidence: `test_map` has 17 rows and 0 null targets, and the sigkill row already carried a target before this diff, which is why 10 rows changed rather than 11.
+- Pat's MEDIUM was half refuted: lock-race tests do exist in the file he could not see (`test_concurrent_lock_creators_either_win_or_lose_without_an_io_error` and `test_a_corrupt_state_lock_sidecar_is_an_io_error_not_a_lost_race`). The surviving half stands and is carried to the review phase: the race pin is probabilistic, so a regression removing the retry would fail only about one run in eight, and there is no deterministic single-injection test.
+- Three of Pat's LOW findings are carried unfixed to the review phase: the retained-only staging accounting on the two new call sites (the state temp about to be written is not counted, so exactly 64 retained files still admits), the unbounded-contention retry shape, and `protocol.py` calling the private `schema._identity`/`schema._counter`.
+- Two stale `provenance.json` claims were left as Ivan found them, out of the task's directed scope and carried to the review phase: the `test_map` note reading "runtime injection pending" when the injection tests now exist, and the `deliberate_divergences` "evidence" entry still describing the tests as configuration-only.

@@ -1231,3 +1231,21 @@
 {"id":"926ba02f","kind":"pat","task":"16","queued_at":1794360535,"prompt_bytes":26253}
 {"id":"926ba02f","ended_at":1794360659,"elapsed_s":124,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1794360744,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794360794,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"809f5d33","kind":"tess","task":"18","queued_at":1794361166,"prompt_bytes":59292}
+{"id":"0c77d15c","kind":"tess","task":"18","queued_at":1794361184,"prompt_bytes":27155}
+{"id":"0c77d15c","ended_at":1794361927,"elapsed_s":743,"outcome":"ok","detail":null}
+{"id":"74a6bedf","kind":"devon","task":"18","queued_at":1794362042,"prompt_bytes":4984}
+{"id":"74a6bedf","ended_at":1794362583,"elapsed_s":541,"outcome":"ok","detail":null}
+{"id":"79778775","kind":"tess","task":"18","queued_at":1794362620,"prompt_bytes":22539}
+{"id":"79778775","ended_at":1794363078,"elapsed_s":458,"outcome":"ok","detail":null}
+{"id":"2bda23bf","kind":"ivan","task":"18","queued_at":1794363136,"prompt_bytes":45431}
+{"id":"2bda23bf","ended_at":1794363754,"elapsed_s":618,"outcome":"ok","detail":null}
+{"id":"bdfe3543","kind":"deslop","task":"18","queued_at":1794363903,"prompt_bytes":8652}
+{"id":"bdfe3543","ended_at":1794364057,"elapsed_s":154,"outcome":"ok","detail":null}
+{"id":"e292d162","kind":"pat","task":"18","queued_at":1794364152,"prompt_bytes":61681}
+{"id":"b18a6a2b","kind":"pat","task":"18","queued_at":1794364188,"prompt_bytes":28844}
+{"id":"809f5d33","ended_at":1794364456,"elapsed_s":1920,"outcome":"ok","detail":"closed-by: commit 81fe160a3ee17144740e3e2ea4487cc2d6580980"}
+{"id":"e292d162","ended_at":1794364456,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"b18a6a2b","ended_at":1794364456,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"kind":"handoff","site":"review","edge":"leave","at":1794364456,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
