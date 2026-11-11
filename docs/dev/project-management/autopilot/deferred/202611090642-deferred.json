@@ -1,0 +1,15 @@
+{
+  "batch_id": "202611090642",
+  "items": [
+    {
+      "type": "review-deferral",
+      "cycle": 2,
+      "ref": "R6",
+      "issue": "R6 (CI red on test_new_helper_files_are_owned_and_digested_from_current_bytes) is unproven at the reworked head: fetch-depth 0 is on the autopilot job, but master is 23 commits ahead of origin so no CI run exists at or after da79829",
+      "severity": "high",
+      "consensus": "2/5",
+      "reason": "Cannot be closed by local rework: the fix is already in .github/workflows/validate.yml:63 and only a push to origin plus a green autopilot job can prove it. Loop mode leaves commits local, so the proof belongs to the attended push at batch end. Its check is queued in the cycle-2 verification queue.",
+      "prd": "00018-autopilot-controller-kernel-v2.md"
+    }
+  ]
+}

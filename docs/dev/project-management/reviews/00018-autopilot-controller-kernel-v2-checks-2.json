@@ -1,0 +1,14 @@
+[
+  {
+    "source": "fable",
+    "finding": "R6's CI fix is unproven at the reworked head: master is 23 commits ahead of origin, so the autopilot job has never run with fetch-depth: 0",
+    "file": ".github/workflows/validate.yml:63",
+    "command": "gh run list --workflow validate.yml --branch master --limit 1 --json databaseId,headSha,conclusion"
+  },
+  {
+    "source": "codex",
+    "finding": "R6 is unproven at the reworked head; require a successful autopilot job at the pushed head sha",
+    "file": ".github/workflows/validate.yml:63",
+    "command": "gh run list --branch master --limit 1 --json headSha,conclusion,databaseId"
+  }
+]
