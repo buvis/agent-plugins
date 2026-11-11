@@ -171,5 +171,52 @@ Orchestrator:
 - Pat's diff was trimmed to fit the dispatch budget: the three test files written for this task (640 of 725 added lines) were excluded, and the exclusion was stated in his prompt. He correctly flagged the resulting blind spot.
 - Pat's LOW on the provenance row count was refuted with evidence: `test_map` has 17 rows and 0 null targets, and the sigkill row already carried a target before this diff, which is why 10 rows changed rather than 11.
 - Pat's MEDIUM was half refuted: lock-race tests do exist in the file he could not see (`test_concurrent_lock_creators_either_win_or_lose_without_an_io_error` and `test_a_corrupt_state_lock_sidecar_is_an_io_error_not_a_lost_race`). The surviving half stands and is carried to the review phase: the race pin is probabilistic, so a regression removing the retry would fail only about one run in eight, and there is no deterministic single-injection test.
+
+## 19 (rework, cycle 2): [D2] prose
+
+Orchestrator (micro lane, no subagent dispatch):
+
+- The README refusal wording is split into two accounting shapes (staged bytes plus retained files, versus retained files alone) rather than listing every call site, because `admit_staging(layout, [])` is what distinguishes the three no-stage paths.
+- The recovery procedure now names the `stage`, `rollback` and `final` files that `credential-intent.json` references as files the operator must keep. Those field names come from the intent shapes in `actors.validate_intent` and `owner.validate_intent`; the README states the rule by field name rather than by filename pattern, because the patterns accept only `operator`- and `owner`-prefixed stages and `operator`-prefixed rollbacks.
+- The published-contract change is recorded under a new `### Changed` heading, placed between `Added` and `Fixed` per Keep a Changelog ordering. The Unreleased block had no `Changed` section before.
+- The existing staging `Fixed` bullet was reworded in place rather than superseded by a new bullet, because the review named its wording as the defect.
+- `tests/autopilot/test_package.py` fails on two stale digests for `README.md` and `CHANGELOG.md` after this task. That is the expected hand-off to task 17, which regenerates the source map and the successor receipt last. (Resolved in task 17; `test_package.py` is 8/8 green there.)
+
+## 17 (rework, cycle 2): [D2] mixed
+
+Tess (Claude Opus, initial):
+
+- Refusals are `ValueError`, inferred from the module's existing refusals and the companion file's `INVALID` table; a custom exception class must subclass it.
+- The unresolvable-revision wording is pinned nowhere, so the rule was bound instead of a sentence: the message must differ from the stale message, must not contain "stale", and must contain the offending 40-hex revision.
+- "No field claims the delivery evidence is planned, pending or on hold" is enforced as a case-insensitive word-boundary regex over every string in the row, so "appended" and "depends" cannot false-hit.
+- For a listed row with an empty `acceptance_cases` list, only vacuous agreement is asserted, so an implementation may add a passed case there.
+- "Carries git's own stderr" is captured at test time rather than hard-coded, so git-version wording drift cannot break the test.
+- Absent `git` is simulated by pointing `PATH` at an empty directory.
+
+Tess (Claude Opus, strengthen pass after the adversarial round):
+
+- A refusal's required marker is the literal `package_revision` or the revision string, plus the absence of acceptance phrases; the requirements pin no sentence.
+- Weak point 5 was answered `in-contract` rather than strengthened: no input in the documented successor schema can give a listed row a non-`passed` evidence status, so hardcoding `"passed"` is not observably wrong through the public API. Verified against the accepted receipt shape and the `real_host` refusals rather than asserted.
+- A refreshed row's replacement prose must name its `destination_path` and `AP00018`, mirroring the existing fresh-row contract.
+- Claim-free prose is left alone by the refresh, pinned on one acceptance case only.
+- A refresh may add acceptance cases but may not drop one.
+
+Ivan (Claude Opus):
+
+- The sibling module is loaded with `importlib.util.spec_from_file_location` rather than a `sys.path` insert plus bare import, to avoid an E402 suppression marker; `tools/autopilot` is not a package and is absent from `sys.path` under the by-path load mode.
+- `git cat-file -e <rev>^{commit}` is the resolution probe. `git rev-parse --verify` succeeds on an unknown full hex and is useless here, and `git show <unknown-sha>:<path>` reports "exists on disk, but not in <rev>" rather than an invalid object name.
+- A probe that succeeds but prints something other than `true` (cwd inside a `.git` dir, or `GIT_DIR` set) is treated as outside a work tree and skips, matching the previous behaviour. No test exercises it; the de-slop pass and Pat both saw it and left it as a behaviour change rather than a deletion.
+- The skip keys on the substring `not a git repository` anywhere in the probe's stderr.
+
+Orchestrator:
+
+- Pat's five LOW findings were recorded rather than fixed, because a LOW-only result earns no dispatch. One was settled with evidence instead of being carried: dropping `import subprocess` cannot break a monkeypatch, since a repo-wide search for `.subprocess` on this module is empty.
+- Pat found a real conflict between two acceptance criteria I wrote: "claim-free prose survives verbatim" against "a refreshed reason names its path and AP00018". The implementation is correct and the tests are green because they only assert the naming rule for rows that carried claims; the criterion as written was loose. Recorded rather than papered over.
+- My own post-regeneration check for surviving claim prose was over-broad in the same way: it flagged `entry_point_gate.status: "planned"` on the README row. That field is a different axis from delivery evidence, is pre-existing, and the refresh is right to leave it untouched. Tess's equivalent assertion would also flag it if a fixture carried that shape; her fixtures do not, so the test passes. A latent test-breadth mismatch, not a defect.
+- `plugins/autopilot/contracts/controller-v1.json` was stale and outside this task's findings: task 18 added a fixtures scenario without regenerating the bundle, failing 11 `test_controller_export.py` tests. Regenerated it and the README's SHA-256 pin, because it blocked the phase's full suite and is the same mechanical artifact class as the task's own receipt finding. Verified not mine first: the bundle covers only the contract files, which neither of my tasks touched, and the bundle's last regeneration predates task 18's change to `fixtures-v1.json`.
+- The receipt's recollected counts (89/71/48) confirm the review's numbers against the receipt's recorded 92/69/46; each was measured at the pinned tree, not inferred.
+- `package_revision` is pinned to 46b0142, the commit that finalises every listed path's bytes. The receipt and the source map are not listed paths, so pinning to a commit that precedes their own commits is correct and the generator's own `--check` confirms it.
+- The nine rework test files that belonged to no receipt task became a fourth task "d" rather than being appended to an existing one, so the original three tasks' measured counts stay attributable.
+- Both queued verification checks ran and their findings STAND: the newest CI run on master is at 1b588a7 (failure), 43 commits behind the reworked head, because loop mode defers pushes. R6's `fetch-depth: 0` fix cannot be proven by a real run from inside an unattended session; carried to the cycle-3 review.
 - Three of Pat's LOW findings are carried unfixed to the review phase: the retained-only staging accounting on the two new call sites (the state temp about to be written is not counted, so exactly 64 retained files still admits), the unbounded-contention retry shape, and `protocol.py` calling the private `schema._identity`/`schema._counter`.
 - Two stale `provenance.json` claims were left as Ivan found them, out of the task's directed scope and carried to the review phase: the `test_map` note reading "runtime injection pending" when the injection tests now exist, and the `deliberate_divergences` "evidence" entry still describing the tests as configuration-only.

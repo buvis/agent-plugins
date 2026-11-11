@@ -1249,3 +1249,21 @@
 {"id":"e292d162","ended_at":1794364456,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
 {"id":"b18a6a2b","ended_at":1794364456,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
 {"kind":"handoff","site":"review","edge":"leave","at":1794364456,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794364552,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"17b04200","kind":"tess","task":"17","queued_at":1794365042,"prompt_bytes":33202}
+{"id":"09dd84fb","kind":"tess","task":"17","queued_at":1794365053,"prompt_bytes":56278}
+{"id":"ed6bfdd8","kind":"tess","task":"17","queued_at":1794365079,"prompt_bytes":35501}
+{"id":"ed6bfdd8","ended_at":1794365614,"elapsed_s":535,"outcome":"ok","detail":null}
+{"id":"93337724","kind":"devon","task":"17","queued_at":1794365693,"prompt_bytes":4770}
+{"id":"93337724","ended_at":1794366042,"elapsed_s":349,"outcome":"ok","detail":null}
+{"id":"ffef0a06","kind":"tess","task":"17","queued_at":1794366085,"prompt_bytes":18677}
+{"id":"ffef0a06","ended_at":1794366585,"elapsed_s":500,"outcome":"ok","detail":null}
+{"id":"345dbc57","kind":"ivan","task":"17","queued_at":1794366631,"prompt_bytes":29009}
+{"id":"345dbc57","ended_at":1794367030,"elapsed_s":399,"outcome":"ok","detail":null}
+{"id":"5f8888e3","kind":"deslop","task":"17","queued_at":1794367115,"prompt_bytes":8781}
+{"id":"5f8888e3","ended_at":1794367258,"elapsed_s":143,"outcome":"ok","detail":null}
+{"id":"612fd207","kind":"pat","task":"17","queued_at":1794367334,"prompt_bytes":20077}
+{"id":"ded26ef2","kind":"ivan","task":"17","queued_at":1794367415,"prompt_bytes":11209}
+{"id":"ded26ef2","ended_at":1794367448,"elapsed_s":33,"outcome":"ok","detail":null}
+{"id":"57136307","kind":"pat","task":"17","queued_at":1794367473,"prompt_bytes":3256}
+{"id":"57136307","ended_at":1794367486,"elapsed_s":13,"outcome":"ok","detail":null}
