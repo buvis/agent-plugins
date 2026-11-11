@@ -28,11 +28,14 @@ def resolve_test_target(target: str) -> bool:
     `path` is relative to the repository root and must stay inside
     tests/autopilot. `name` is a dotted qualified name (`Class.method`,
     `function`) from the module top level, or a bare method name found in any
-    class of that module.
+    class of that module. The leaf name must start with `test`, so a target can
+    never resolve to a helper.
     """
     path_text, _, name = target.partition("::")
     path = (TESTS.parents[1] / path_text).resolve()
     if not name or not path.is_file() or TESTS not in path.parents:
+        return False
+    if not name.rpartition(".")[2].startswith("test"):
         return False
     tree = ast.parse(path.read_text(encoding="utf-8"))
     qualified: set[str] = set()
