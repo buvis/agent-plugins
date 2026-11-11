@@ -10,6 +10,13 @@
       "consensus": "2/5",
       "reason": "Cannot be closed by local rework: the fix is already in .github/workflows/validate.yml:63 and only a push to origin plus a green autopilot job can prove it. Loop mode leaves commits local, so the proof belongs to the attended push at batch end. Its check is queued in the cycle-2 verification queue.",
       "prd": "00018-autopilot-controller-kernel-v2.md"
+    },
+    {
+      "type": "stall",
+      "site": "budget",
+      "detail": "budget: $335.97 > $300; parking 00018-autopilot-controller-kernel-v2.md; lane=full",
+      "op_id": "012ffb3c0653",
+      "prd": "00018-autopilot-controller-kernel-v2.md"
     }
   ]
 }
