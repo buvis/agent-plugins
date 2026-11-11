@@ -1,10 +1,4 @@
-"""Check an AP00018 successor's package_revision and refresh the rows it cites.
-
-The revision check refuses a successor whose listed paths changed since its
-package_revision, and skips its work only for a directory that is outside a git
-work tree. The row refresh keeps a certified row from claiming that its
-delivery evidence has not landed yet.
-"""
+"""Check an AP00018 successor's package_revision and refresh the rows it cites."""
 
 from __future__ import annotations
 
