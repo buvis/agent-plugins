@@ -10,11 +10,11 @@ from __future__ import annotations
 
 import copy
 import json
-import subprocess
 from pathlib import Path
 from types import ModuleType
 
 import pytest
+from controller_test_support import commit_all
 from test_helper_provenance import (
     REFRESHED,
     asset_row,
@@ -478,23 +478,11 @@ def test_without_a_successor_receipt_the_generator_behaves_as_today(
     assert (tmp_path / AP00013).read_bytes() == receipts
 
 
-def git(*args: str, cwd: Path) -> None:
-    subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True)
-
-
 def test_successor_is_refused_when_a_listed_file_changed_since_its_revision(
-    tool: ModuleType, tmp_path: Path
+    tool: ModuleType, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     mapping = build_repo(tmp_path, "stale")
-    git("init", "--quiet", cwd=tmp_path)
-    git("config", "user.email", "test@example.invalid", cwd=tmp_path)
-    git("config", "user.name", "test", cwd=tmp_path)
-    git("add", "-A", cwd=tmp_path)
-    git("commit", "--quiet", "-m", "initial", cwd=tmp_path)
-    committed_revision = subprocess.run(
-        ["git", "rev-parse", "HEAD"], cwd=tmp_path, check=True,
-        capture_output=True, text=True,
-    ).stdout.strip()
+    committed_revision = commit_all(tmp_path, monkeypatch)
     (tmp_path / CONTROLLER[0]).write_text("# edited after the receipt's revision\n")
 
     successor = valid_successor(tmp_path, revision=committed_revision)
@@ -503,18 +491,10 @@ def test_successor_is_refused_when_a_listed_file_changed_since_its_revision(
 
 
 def test_successor_is_accepted_when_listed_files_match_its_revision(
-    tool: ModuleType, tmp_path: Path
+    tool: ModuleType, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     mapping = build_repo(tmp_path, "fresh")
-    git("init", "--quiet", cwd=tmp_path)
-    git("config", "user.email", "test@example.invalid", cwd=tmp_path)
-    git("config", "user.name", "test", cwd=tmp_path)
-    git("add", "-A", cwd=tmp_path)
-    git("commit", "--quiet", "-m", "initial", cwd=tmp_path)
-    committed_revision = subprocess.run(
-        ["git", "rev-parse", "HEAD"], cwd=tmp_path, check=True,
-        capture_output=True, text=True,
-    ).stdout.strip()
+    committed_revision = commit_all(tmp_path, monkeypatch)
 
     successor = valid_successor(tmp_path, revision=committed_revision)
     document = generate(tool, tmp_path, mapping, successor)

@@ -18,6 +18,7 @@ CONTROLLER = ROOT / "plugins" / "autopilot" / "controller"
 sys.path.insert(0, str(CONTROLLER))
 
 from autopilot_state import actors, schema
+from controller_test_support import resolve_test_target
 
 VALID_SECRET_OPERATOR = "a" * 43
 VALID_SECRET_OWNER = "b" * 43
@@ -95,8 +96,40 @@ class AuthenticateTest(unittest.TestCase):
         # "credential required" raise and rewraps it as "credential
         # rejected" — the caller never observes the more specific message.
         descriptor = {"actor_id": "operator-" + "0" * 32}
-        with self.assertRaisesRegex(actors.BindingError, "credential rejected"):
+        with self.assertRaises(actors.BindingError) as raised:
             actors.authenticate(None, descriptor, layout=None)
+        self.assertEqual(str(raised.exception), "credential rejected")
+        self.assertEqual(str(raised.exception.__cause__), "credential required")
+
+
+# PRD 00018 names these acceptance scenarios; each id maps to the test that
+# proves it. test_every_prd_scenario_resolves_to_a_real_test keeps the map honest.
+PRD_SCENARIO_TESTS = {
+    "kernel_equivalence": "tests/autopilot/test_controller_kernel.py::StoreTest."
+        "test_transactions_copy_mutations_assign_revisions_and_preserve_last_good_backup",
+    "concurrent_cas": "tests/autopilot/test_controller_kernel.py::StoreTest."
+        "test_real_process_cas_allows_exactly_one_writer_for_the_same_revision",
+    "corrupt_state_recovery": "tests/autopilot/test_controller_kernel.py::StoreTest."
+        "test_corrupt_current_is_never_replaced_by_backup_or_restore",
+    "lease_exclusion": "tests/autopilot/test_controller_owner.py::OwnerTest."
+        "test_two_independent_subprocess_acquires_have_exactly_one_winner",
+    "wrong_actor": "tests/autopilot/test_controller_bootstrap.py::ControllerBootstrapTest."
+        "test_wrong_project_workflow_actor_epoch_and_job_never_change_bytes",
+    "epoch_revoked": "tests/autopilot/test_controller_owner_v2.py::OwnerV2Test."
+        "test_retired_intermediate_operator_cannot_borrow_another_epochs_receipt_authority",
+    "fresh_open_replay": "tests/autopilot/test_controller_bootstrap.py::ControllerBootstrapTest."
+        "test_concurrent_bootstrap_has_one_workflow_and_replays_same_request",
+    "unsupported_operation_refused": "tests/autopilot/test_controller_bootstrap.py::"
+        "ControllerBootstrapTest.test_reserved_operations_reject_without_receipts_or_credentials",
+}
+
+
+class PrdScenarioTraceabilityTest(unittest.TestCase):
+    def test_every_prd_scenario_resolves_to_a_real_test(self) -> None:
+        for scenario, target in PRD_SCENARIO_TESTS.items():
+            with self.subTest(scenario=scenario):
+                self.assertTrue(resolve_test_target(target),
+                                f"PRD scenario {scenario} has no test at {target}")
 
 
 if __name__ == "__main__":

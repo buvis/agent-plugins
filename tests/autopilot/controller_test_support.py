@@ -2,8 +2,14 @@
 
 from __future__ import annotations
 
+import ast
 import copy
 import json
+import os
+import subprocess
+from pathlib import Path
+
+TESTS = Path(__file__).resolve().parent
 
 WORKFLOW = {
     "batch": None, "work": None, "tasks": [],
@@ -14,6 +20,49 @@ WORKFLOW = {
 def canonical(value: object) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":"),
                       ensure_ascii=False).encode("utf-8")
+
+
+def resolve_test_target(target: str) -> bool:
+    """True when `path::name` names a real test under tests/autopilot.
+
+    `path` is relative to the repository root and must stay inside
+    tests/autopilot. `name` is a dotted qualified name (`Class.method`,
+    `function`) from the module top level, or a bare method name found in any
+    class of that module.
+    """
+    path_text, _, name = target.partition("::")
+    path = (TESTS.parents[1] / path_text).resolve()
+    if not name or not path.is_file() or TESTS not in path.parents:
+        return False
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    qualified: set[str] = set()
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            qualified.add(node.name)
+        elif isinstance(node, ast.ClassDef):
+            for member in node.body:
+                if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    qualified.update({member.name, f"{node.name}.{member.name}"})
+    return name in qualified
+
+
+def commit_all(root: Path, monkeypatch) -> str:
+    """Init a repo at `root`, commit everything, return HEAD.
+
+    Global and system git config are replaced by an empty file for the whole
+    test (the code under test also shells out to git), so user signing or hook
+    settings cannot leak in; identity is explicit.
+    """
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", os.devnull)
+    monkeypatch.setenv("HOME", str(root))
+    identity = ["-c", "user.name=test", "-c", "user.email=test@example.invalid",
+                "-c", "commit.gpgsign=false"]
+    for args in (["init", "--quiet"], ["add", "-A"],
+                 [*identity, "commit", "--quiet", "-m", "initial"]):
+        subprocess.run(["git", *args], cwd=root, check=True, capture_output=True)
+    return subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, check=True,
+                          capture_output=True, text=True).stdout.strip()
 
 
 def actor(*, actor_id: str = "operator-synthetic", role: str = "operator",

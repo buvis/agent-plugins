@@ -41,6 +41,11 @@ class OwnerRecoveryStagingBudgetTest(OwnerCLITest):
             path.write_bytes(b"orphan")
             path.chmod(0o600)
 
+    def seed_orphan_bytes(self, ceiling: int) -> None:
+        path = private_path(self.root) / f".state.json.autopilot-{secrets.token_hex(16)}.tmp"
+        path.write_bytes(b"x" * (ceiling + 1))
+        path.chmod(0o600)
+
     def result(self, completed) -> dict:
         payload = completed.stdout
         if isinstance(payload, bytes):
@@ -60,10 +65,44 @@ class OwnerRecoveryStagingBudgetTest(OwnerCLITest):
         result = self.result(completed)
         self.assertFalse(result["ok"],
                           "reconciliation must refuse once the staging budget is exhausted")
-        self.assertIsNotNone(result["error_code"])
+        self.assertEqual(result["error_code"], "recovery_required")
         after = sorted(p.name for p in private_path(self.root).iterdir())
         self.assertEqual(before, after,
                           "a refused reconciliation must not create a new publication temp file")
+
+    def test_refuses_reconciliation_once_the_staging_byte_ceiling_is_exceeded(self) -> None:
+        request, actor, _ = self.prepared("owner.acquire")
+        historical = self.retain(actor, "historical-budget-bytes.json")
+        self.crash(request, actor, "intent_dir_fsynced")
+        self.assertTrue(self.pending_intent().exists())
+        self.seed_orphan_bytes(actors.STAGING_BYTE_LIMIT)
+        before = sorted(p.name for p in private_path(self.root).iterdir())
+
+        result = self.result(self.apply(request, historical))
+
+        self.assertFalse(result["ok"], "orphan bytes above the ceiling must refuse reconciliation")
+        self.assertEqual(result["error_code"], "recovery_required")
+        self.assertEqual(before, sorted(p.name for p in private_path(self.root).iterdir()))
+        self.assertTrue(self.pending_intent().exists())
+
+    def test_repeated_crashes_stay_refused_while_exhausted_and_finish_once_freed(self) -> None:
+        request, actor, _ = self.prepared("owner.acquire")
+        historical = self.retain(actor, "historical-budget-repeat.json")
+        self.crash(request, actor, "intent_dir_fsynced")
+        self.seed_orphans(actors.STAGING_FILE_LIMIT)
+        orphans = [p for p in private_path(self.root).iterdir() if p.name.endswith(".tmp")]
+        before = sorted(p.name for p in private_path(self.root).iterdir())
+        for _ in range(2):
+            result = self.result(self.apply(request, historical))
+            self.assertEqual(result["error_code"], "recovery_required")
+            self.assertEqual(before, sorted(p.name for p in private_path(self.root).iterdir()))
+        for orphan in orphans:
+            orphan.unlink()
+        self.crash(request, historical, "state_published")
+        self.assertTrue(self.pending_intent().exists())
+        result = self.result(self.apply(request, historical))
+        self.assertTrue(result["ok"], "reconciliation must finish once the budget is freed")
+        self.assertFalse(self.pending_intent().exists())
 
     def test_reconciliation_succeeds_well_under_the_staging_budget(self) -> None:
         request, actor, _ = self.prepared("owner.acquire")

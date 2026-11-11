@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -12,6 +13,7 @@ import subprocess
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from controller_cli_support import (
     ControllerCLITest,
@@ -399,6 +401,14 @@ class ControllerBundleReproducibleTest(IsolatedCase):
         before = tree(self.plugin)
         self.assert_exit(self.export("--check"), 1)
         self.assertEqual(tree(self.plugin), before)
+        # The CLI exit alone also holds for an unbounded read, so pin the guard:
+        # an oversized bundle must be refused without being read at all.
+        spec = importlib.util.spec_from_file_location("export_controller_contract", EXPORTER)
+        exporter = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(exporter)
+        with mock.patch.object(Path, "read_bytes",
+                               side_effect=AssertionError("read an oversized bundle")):
+            self.assertFalse(exporter.matches(target, self.committed))
         target.write_bytes(self.committed)
         self.assert_exit(self.export("--check"), 0)
 

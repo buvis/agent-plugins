@@ -7,6 +7,7 @@ import json
 import unittest
 from pathlib import Path
 
+from controller_test_support import resolve_test_target
 from jsonschema import Draft202012Validator, FormatChecker
 
 CONTRACTS = Path(__file__).resolve().parents[2] / "plugins/autopilot/contracts/controller"
@@ -311,7 +312,8 @@ class ControllerProtocolTest(unittest.TestCase):
         for row in self.provenance["test_map"]:
             self.assertIn(row["source"].split("::")[0], files)
             if row["target"] is not None:
-                self.assertTrue(hasattr(self, row["target"].split("::")[1]))
+                self.assertTrue(resolve_test_target(row["target"]),
+                                f"test_map target does not resolve: {row['target']}")
         restore = next(row for row in self.provenance["deliberate_divergences"]
                        if row["topic"] == "restore")
         for invariant in ("exclusive lock", "lease_epoch/owner/actors/receipts",
