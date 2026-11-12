@@ -497,6 +497,95 @@ class Codex:
         self.model = model
         self.version = "not-started"
         self.instruction_files: list[str] = []
+        self.instruction_observations: dict[str, dict] = {}
+        self.instruction_measurement = "not-measured"
+        self.new_conversation()
+
+    def new_conversation(self) -> None:
+        self.conversation: str | None = None
+        self.usage: list[dict[str, int]] = []
+        self.instruction_files = []
+        self.instruction_observations = {}
+        self.instruction_measurement = "not-measured"
+
+    def accept_turn(self, result: subprocess.CompletedProcess) -> tuple[str, list[str]]:
+        """Reduce exec JSONL without running a host or asserting its isolation.
+
+        Source: https://learn.chatgpt.com/docs/non-interactive-mode
+        Exec reports thread identity and token usage, not a resolved model or a
+        complete instruction/read inventory. Raw streams never enter records or
+        error messages. Commit conversation state only after a complete turn.
+        """
+        if result.returncode:
+            raise runner.HostError("Codex turn failed")
+        try:
+            events = [
+                json.loads(line) for line in result.stdout.splitlines() if line.strip()
+            ]
+        except ValueError:
+            raise runner.HostError("Codex emitted invalid JSONL") from None
+        if (
+            len(events) < 4
+            or any(not isinstance(e, dict) for e in events)
+            or events[0].get("type") != "thread.started"
+            or events[1].get("type") != "turn.started"
+            or events[-1].get("type") != "turn.completed"
+        ):
+            raise runner.HostError("Codex omitted ordered turn evidence")
+        thread = events[0].get("thread_id")
+        if (
+            not isinstance(thread, str)
+            or not thread.strip()
+            or (self.conversation is not None and self.conversation != thread)
+        ):
+            raise runner.HostError("Codex omitted or changed conversation identity")
+        messages = []
+        for event in events[2:-1]:
+            if event.get("type") not in (
+                "item.started",
+                "item.updated",
+                "item.completed",
+            ):
+                raise runner.HostError(
+                    "Codex emitted unexpected or failed turn evidence"
+                )
+            item = event.get("item")
+            if not isinstance(item, dict) or not isinstance(item.get("type"), str):
+                raise runner.HostError("Codex emitted invalid item evidence")
+            if (
+                item["type"] == "error"
+                or ("status" in item and not isinstance(item["status"], str))
+                or item.get("status") in ("failed", "declined")
+            ):
+                raise runner.HostError("Codex reported a failed or denied operation")
+            if event["type"] == "item.completed" and item["type"] == "agent_message":
+                text = item.get("text")
+                if not isinstance(text, str) or not text.strip():
+                    raise runner.HostError("Codex omitted reply text")
+                messages.append(text)
+        usage = events[-1].get("usage")
+        if (
+            not messages
+            or not isinstance(usage, dict)
+            or not {"input_tokens", "cached_input_tokens", "output_tokens"}
+            <= usage.keys()
+            or any(
+                not isinstance(value, int) or isinstance(value, bool) or value < 0
+                for value in usage.values()
+            )
+            or usage["cached_input_tokens"] > usage["input_tokens"]
+        ):
+            raise runner.HostError("Codex omitted valid reply or token usage")
+        self.conversation = thread
+        self.usage.append(usage.copy())
+        self.instruction_files = []
+        self.instruction_observations = {}
+        self.instruction_measurement = "not-measured"
+        return messages[-1], []
+
+    def turn(self, prompt: str, workspace: Path) -> tuple[str, list[str]]:
+        self.preflight()
+        raise runner.HostError("Codex live transport is not implemented")
 
     def preflight(self) -> None:
         raise runner.HostError(

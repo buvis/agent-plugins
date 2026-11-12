@@ -5,9 +5,19 @@ T-056 is **incomplete**. Requirements, design, and tasks were approved on
 synthetic records under `fixtures/results/` are never release evidence.
 Claude and Codex entry points still record `notRun` and exit before a live host.
 Instruction classification and release-eligibility checks are implemented and
-tested with synthetic evidence. Codex conversation handling, the Kiro adapter,
+tested with synthetic evidence. Codex live conversation transport, the Kiro adapter,
 installed-host policies/instruction capture, independent-login integration, and
 the three-host live self-check remain.
+
+Codex now has an offline `accept_turn` reducer for the documented exec JSONL
+events. It requires ordered thread/start/completion evidence, the same thread
+for resumed turns, a final reply, and nonnegative token usage. Malformed streams,
+failed/denied items, and nonzero exits fail without advancing conversation state
+or persisting raw diagnostics. New sessions clear thread and usage state.
+Synthetic tests exercise this reducer only; it is not wired to a live transport.
+It supplies neither resolved-model/version evidence nor measured reads or a
+complete instruction inventory. `preflight`, `batch`, and direct `turn` calls
+remain blocked; no switch enables live execution.
 
 ## Approved environment and remaining proof
 

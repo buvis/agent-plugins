@@ -1343,6 +1343,146 @@ class RunnerTest(unittest.TestCase):
             )
 
 
+class CodexConversationTest(unittest.TestCase):
+    """Synthetic exec JSONL only; no host, authentication, or policy proof."""
+
+    def setUp(self) -> None:
+        self.adapter = run_codex.Codex("requested-model")
+        self.events = [
+            {"type": "thread.started", "thread_id": "synthetic-thread"},
+            {"type": "turn.started"},
+            {
+                "type": "item.completed",
+                "item": {"id": "comment", "type": "agent_message", "text": "Working"},
+            },
+            {
+                "type": "item.completed",
+                "item": {"id": "final", "type": "agent_message", "text": "Finished"},
+            },
+            {
+                "type": "turn.completed",
+                "usage": {
+                    "input_tokens": 12,
+                    "cached_input_tokens": 3,
+                    "output_tokens": 4,
+                },
+            },
+        ]
+
+    def accept(self) -> tuple[str, list[str]]:
+        return self.adapter.accept_turn(
+            subprocess.CompletedProcess(
+                [], 0, "\n".join(json.dumps(e) for e in self.events), ""
+            )
+        )
+
+    def test_final_reply_and_usage_without_invented_measurements(self) -> None:
+        self.assertEqual(self.accept(), ("Finished", []))
+        self.assertEqual(self.adapter.conversation, "synthetic-thread")
+        self.assertEqual(self.adapter.usage, [self.events[-1]["usage"]])
+        self.assertEqual(self.adapter.instruction_measurement, "not-measured")
+        self.assertEqual(self.adapter.instruction_observations, {})
+        self.assertEqual(self.adapter.version, "not-started")
+        self.assertEqual(self.adapter.model, "requested-model")
+
+    def test_resume_requires_same_thread_and_reset_starts_new_conversation(
+        self,
+    ) -> None:
+        self.accept()
+        self.accept()
+        self.assertEqual(len(self.adapter.usage), 2)
+        self.events[0]["thread_id"] = "wrong-thread"
+        with self.assertRaises(run_claude.HostError):
+            self.accept()
+        self.assertEqual(self.adapter.conversation, "synthetic-thread")
+        self.assertEqual(len(self.adapter.usage), 2)
+        self.adapter.new_conversation()
+        self.assertIsNone(self.adapter.conversation)
+        self.assertEqual(self.adapter.usage, [])
+        self.accept()
+        self.assertEqual(self.adapter.conversation, "wrong-thread")
+
+    def test_failed_or_malformed_stream_never_advances_state(self) -> None:
+        for bad in (
+            [],
+            [None],
+            [{"type": "unknown"}],
+            self.events[:-1],
+            self.events[1:],
+            self.events + [self.events[-1]],
+            self.events + [{"type": "error", "message": "private diagnostic"}],
+            self.events[:-1] + [{"type": "turn.failed"}],
+        ):
+            with self.subTest(events=bad):
+                self.events, original = bad, self.events
+                with self.assertRaises(run_claude.HostError) as caught:
+                    self.accept()
+                self.assertNotIn("private diagnostic", str(caught.exception))
+                self.assertIsNone(self.adapter.conversation)
+                self.assertEqual(self.adapter.usage, [])
+                self.events = original
+
+    def test_invalid_reply_identity_usage_or_event_order_is_rejected(self) -> None:
+        cases = [
+            (0, "thread_id", ""),
+            (0, "thread_id", 42),
+            (-1, "usage", {}),
+            (
+                -1,
+                "usage",
+                {"input_tokens": True, "cached_input_tokens": 0, "output_tokens": 1},
+            ),
+        ]
+        for index, key, value in cases:
+            with self.subTest(key=key, value=value):
+                original = copy.deepcopy(self.events)
+                self.events[index][key] = value
+                with self.assertRaises(run_claude.HostError):
+                    self.accept()
+                self.events = original
+        self.events[3]["item"]["text"] = None
+        with self.assertRaises(run_claude.HostError):
+            self.accept()
+        self.events[3]["item"]["text"] = "Finished"
+        self.events[0], self.events[1] = self.events[1], self.events[0]
+        with self.assertRaises(run_claude.HostError):
+            self.accept()
+
+    def test_nonzero_exit_and_invalid_json_discard_raw_streams(self) -> None:
+        for code, raw in ((7, "private output"), (0, "private invalid JSON")):
+            with self.subTest(code=code):
+                with self.assertRaises(run_claude.HostError) as caught:
+                    self.adapter.accept_turn(
+                        subprocess.CompletedProcess([], code, raw, "private stderr")
+                    )
+                self.assertNotIn("private", str(caught.exception))
+                self.assertIsNone(self.adapter.conversation)
+
+    def test_direct_turn_stays_blocked_before_any_command(self) -> None:
+        with (
+            mock.patch.object(run_claude, "command", autospec=True) as command,
+            self.assertRaises(run_claude.HostError),
+        ):
+            self.adapter.turn("request", ROOT)
+        command.assert_not_called()
+
+    def test_item_failures_and_invalid_nested_values_are_rejected(self) -> None:
+        for item in (
+            {"type": "error"},
+            {"type": "file_change", "status": "failed"},
+            {"type": "file_change", "status": "declined"},
+            {"type": "file_change", "status": []},
+            None,
+        ):
+            with self.subTest(item=item):
+                self.events[2]["item"] = item
+                with self.assertRaises(run_claude.HostError):
+                    self.accept()
+        self.events[2] = {"type": []}
+        with self.assertRaises(run_claude.HostError):
+            self.accept()
+
+
 class CodexHomeTest(unittest.TestCase):
     """Synthetic sign-in and installer; no installed host or real credential used."""
 
