@@ -4,8 +4,10 @@ T-056 is **incomplete**. Requirements, design, and tasks were approved on
 2026-11-10. The scorer and shared batch machinery have deterministic tests;
 synthetic records under `fixtures/results/` are never release evidence.
 Claude and Codex entry points still record `notRun` and exit before a live host.
-Codex conversation handling, the Kiro adapter, host policies/instruction capture,
-release-eligibility enforcement, and the three-host live self-check remain.
+Instruction classification and release-eligibility checks are implemented and
+tested with synthetic evidence. Codex conversation handling, the Kiro adapter,
+installed-host policies/instruction capture, independent-login integration, and
+the three-host live self-check remain.
 
 ## Approved environment and remaining proof
 
@@ -21,9 +23,12 @@ Synthetic tests cover installation, mismatch, errors, interruption, and cleanup.
 The approved scratch layout is an external private batch under the macOS system
 temporary root, containing `workspaces/`, `resources/`, and `control/`. The old
 repository-local root cannot support the required Git initialization under the
-active Seatbelt profile. The current blocked engine still uses that legacy root
-for synthetic checks; integration of the external layout into live runs and
-the remaining installed-host boundary proof are still outstanding. Do not remove the preflight refusal merely to try a session.
+active Seatbelt profile. The shared engine now creates the external layout,
+verifies the resource copy, and uses its helper for status capture. It refuses
+ancestor instructions and residual external or legacy private state. Tests use
+mocked host/Git boundaries; this is not installed-host isolation evidence.
+Host configuration and authentication integration remain unfinished. Do not
+remove the preflight refusal merely to try a session.
 
 The approved Claude route uses an isolated configuration home, setup-token auth,
 verified fixture settings, and an explicit plugin read directory with native-tool
@@ -84,6 +89,36 @@ The outer-profile agent still cannot launch the nested sandbox, and warrant
 refused its executable path. Do not retry either refused route. Earlier probe
 syntax/setup failures are preserved in the QA log, not repeated here.
 
+## Instruction-rendering diagnostic
+
+Installed Codex 0.167.0 exposes `debug prompt-input`; the
+[official command reference](https://learn.chatgpt.com/docs/developer-commands#codex-debug-prompt-input)
+describes its rendered input list. The separate `--probe-instructions` mode
+prepares synthetic instructions and an empty home, verifies Git and plugin
+setup, and invokes that renderer. It never invokes `sandbox`, `exec`, or
+`login`. Raw input and stderr are discarded; the report contains fingerprints,
+fixed diagnostic categories, input count, fixture-marker presence, and cleanup.
+Its 180-second deadline includes preparation and rendering.
+
+The agent-side diagnostic exited 1 before producing inputs. The instrumented
+report identified `permission-denied` and `temporary-home-aliases`; cleanup
+passed. The exact denied operation was not retained, so neither category proves
+that a particular path or sandbox operation was attempted. Do not retry this
+diagnostic in the agent profile. A developer terminal outside `run-agent` is
+the remaining route for this measurement:
+
+1. Open a developer terminal outside `run-agent`.
+2. Change to the `feature-specflow-00009` working directory.
+3. Run `/usr/bin/env -i HOME="$HOME" PATH="/usr/bin:/bin" "$(mise which python3)" -B tests/specflow/evals/runners/run_codex.py --probe-instructions --codex "$(mise which codex)" --git-executable /Library/Developer/CommandLineTools/usr/bin/git`.
+4. Preserve the diagnostic JSON for the next implementation session.
+
+Even exit 0 proves fixture inclusion only. The report always keeps
+`instructionMeasurement: not-measured` and `releaseEvidence: false`: a rendered
+input array has not been proven to enumerate every instruction source, import,
+or subsequent load. Native read/write denial, actual-home sentinel denial,
+effective configuration, tool environments, and network policy remain separate
+checks. The passing shell report remains tied to its original runner/configuration.
+
 ## Implemented resource controls
 
 The shared engine rejects more than 24 developer turns per session, including
@@ -143,6 +178,20 @@ The run schema allows `status: null`; this is unavailable status, never proof of
 cross-host equivalence. Binary files and symlinks are rejected by the current
 capture implementation instead of being omitted silently.
 
+The instruction collector must supply load-time SHA-256 values and an exhaustive
+import list for each loaded path, for every turn. It must not infer those values
+from a later disk snapshot or a model's own answer. `classify_instructions`
+resolves paths before normalization and compares them with the initial fixture
+or reconstructed parent plus explicit edits. Generated instructions in the same
+session are not added to that expected baseline. The verified plugin is checked
+separately and excluded from `instructionFiles`. Missing content or import
+observations remain unknown; unsupported adapters never claim measurement.
+
+Per-turn classifications are stored in one `specflow-evidence-v1: ` JSON line
+inside `notes`, together with `configurationSha256` and `boundarySha256`.
+These are source evidence, so changing them invalidates rubric reviews. The
+result schema and its existing fields are unchanged.
+
 ## Scoring
 
 ```sh
@@ -156,6 +205,31 @@ Exit 1 means a failed eval, broken session, not-run record, or unjudged rubric.
 Exit 2 means unavailable evidence or invalid input. Comparison checks session and
 revision identity before comparing each spec's `phase`, `artifacts`, `gates`,
 `hold`, and whether `nextTask` is null. It ignores task titles.
+
+Ordinary scoring clears any previous release claim. To recheck eligibility,
+supply both `--candidate <manifest.json>` and `--boundary-proof <proof.json>`.
+Scoring exit codes retain their original meaning; inspect `releaseEvidence`
+separately. Neither option enables a host or overrides its preflight.
+
+The maintainer's candidate manifest names `runtimeRevision`, `fixtureRevision`,
+`sessionRevision`, and `evalRevisions` (a map of rule IDs to Git blob IDs).
+The independently reviewed boundary proof names `scope: installed-host-boundary`,
+`host`, `hostVersion`, `runtimeRevision`, `configurationSha256`, and `checks`.
+Every name in `score.RELEASE_BOUNDARY_CHECKS` requires an object with literal
+`passed: true` and a nonempty `evidence` reference to the observed proof. Those
+references must be reviewed; the scorer cannot turn self-reported booleans into
+measurements. Use synthetic sentinel targets, never credentials. The inventory's
+`boundarySha256` is `score.evidence_digest` of that reviewed proof object.
+The configuration fingerprint must cover effective settings, installed versions,
+runtime executables, and the tool policy for the run; normalize only disposable
+roots, never policy content.
+
+`certify_release` rescans evals and judgments, checks frozen revisions, replays
+expected instruction content from immutable Git inputs, checks imports and each
+turn's inventory, verifies session completeness and status, and matches proof
+identity/configuration. Shell-only proof, missing reviews, stale inputs, unknown
+inventories, and taint remain ineligible. A failed parent prevents its dependent
+session from launching. No current live adapter supplies a complete proof.
 
 Unchanged files come from the recorded Git fixture tree, not the current fixture
 directory. Continuations reconstruct their exact parent record. Keep the Git

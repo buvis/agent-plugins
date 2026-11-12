@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import uuid
 from collections.abc import Callable, Iterator
 from pathlib import Path
 
@@ -93,6 +94,62 @@ def probe_passed(checks: dict) -> bool:
     )
 
 
+def prompt_summary(raw: str, marker: str) -> dict:
+    """Inspect rendering without publishing its contents or asserting completeness."""
+    try:
+        inputs = json.loads(raw)
+    except ValueError:
+        inputs = None
+    valid = isinstance(inputs, list) and all(isinstance(item, dict) for item in inputs)
+    return {
+        "scope": "instruction-rendering-only",
+        "releaseEvidence": False,
+        "instructionMeasurement": "not-measured",
+        "fixtureIncluded": valid
+        and any(
+            isinstance(block, dict)
+            and isinstance(block.get("text"), str)
+            and marker in block["text"]
+            for item in inputs
+            for block in (
+                item["content"] if isinstance(item.get("content"), list) else []
+            )
+        ),
+        "inputCount": len(inputs) if valid else 0,
+        "renderSha256": hashlib.sha256(raw.encode()).hexdigest(),
+    }
+
+
+def diagnostic_categories(text: str) -> list[str]:
+    """Publish only fixed failure labels, never arbitrary host diagnostic text."""
+    lower = text.lower()
+    categories = {
+        "permission-denied": (
+            "operation not permitted",
+            "permission denied",
+            "sandbox_apply",
+        ),
+        "authentication": ("authentication", "not logged in", "login", "auth.json"),
+        "configuration": (
+            "configuration",
+            "config.toml",
+            "unknown field",
+            "invalid value",
+        ),
+        "model": ("model",),
+        "network": ("network", "connect", "dns", "request"),
+        "missing-file": ("no such file", "not found"),
+        "temporary-home-aliases": (
+            "refusing to create helper binaries under temporary dir",
+        ),
+    }
+    return [
+        name
+        for name, patterns in categories.items()
+        if any(p in lower for p in patterns)
+    ]
+
+
 def prepare_probe(batch: Path) -> dict[str, str]:
     """Prepare disposable synthetic targets; never read a real credential."""
     for ancestor in (batch, *batch.parents):
@@ -172,7 +229,11 @@ def probe_config(payload: dict[str, str], *, git_executable: Path) -> str:
 
 @score.deadline(180)
 def boundary_probe(
-    codex: Path, *, git_executable: Path, scratch: Path = Path("/private/tmp")
+    codex: Path,
+    *,
+    git_executable: Path,
+    scratch: Path = Path("/private/tmp"),
+    inspect_instructions: bool = False,
 ) -> dict:
     """Developer-run macOS shell probe; deliberately separate from live preflight."""
     if any(key.startswith("GIT_") for key in os.environ):
@@ -190,6 +251,11 @@ def boundary_probe(
     with tempfile.TemporaryDirectory(prefix="specflow-evals-", dir=scratch) as folder:
         batch = Path(folder).resolve()
         payload = prepare_probe(batch)
+        marker = "specflow-fixture-" + uuid.uuid4().hex
+        if inspect_instructions:
+            Path(payload["instruction"]).write_text(
+                marker + "\nSynthetic fixture instructions.\n"
+            )
         workspace, home = Path(payload["workspace"]), Path(payload["codex_home"])
         config = probe_config(payload, git_executable=git_executable)
         (home / "config.toml").write_text(config)
@@ -245,8 +311,15 @@ def boundary_probe(
         )
         if git_version.returncode or not git_version.stdout.startswith("git version "):
             raise runner.HostError("could not identify selected Git")
-        result = runner.command(
+        args = (
             [
+                str(codex),
+                "debug",
+                "prompt-input",
+                "Synthetic instruction discovery check.",
+            ]
+            if inspect_instructions
+            else [
                 str(codex),
                 "sandbox",
                 "--permission-profile",
@@ -261,7 +334,10 @@ def boundary_probe(
                 "-c",
                 PROBE_SCRIPT,
                 json.dumps(payload),
-            ],
+            ]
+        )
+        result = runner.command(
+            args,
             workspace,
             env,
             90,
@@ -306,6 +382,30 @@ def boundary_probe(
                 },
             ),
         }
+        if inspect_instructions:
+            # This diagnostic is neither a tool-denial test nor a complete
+            # inventory. Keep raw prompt text and stderr out of public output.
+            summary = prompt_summary(result.stdout, marker)
+            report = {
+                **{
+                    k: report[k]
+                    for k in (
+                        "hostVersion",
+                        "pythonVersion",
+                        "gitVersion",
+                        "gitRuntimeSha256",
+                        "runtimeRevision",
+                        "generatedPolicy",
+                        "policySha256",
+                        "runnerSha256",
+                        "exitCode",
+                    )
+                },
+                **summary,
+                "passed": result.returncode == 0 and summary["fixtureIncluded"],
+                "diagnosticSha256": hashlib.sha256(result.stderr.encode()).hexdigest(),
+                "diagnosticCategories": diagnostic_categories(result.stderr),
+            }
     report["cleanup"] = not batch.exists()
     report["passed"] = report["passed"] and report["cleanup"]
     return report
@@ -313,13 +413,19 @@ def boundary_probe(
 
 def probe_main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Synthetic Codex shell boundary probe")
-    parser.add_argument("--probe-boundary", action="store_true", required=True)
+    modes = parser.add_mutually_exclusive_group(required=True)
+    modes.add_argument("--probe-boundary", action="store_true")
+    modes.add_argument("--probe-instructions", action="store_true")
     parser.add_argument("--codex", type=Path, required=True)
     parser.add_argument("--git-executable", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         with runner.interruption_signals():
-            report = boundary_probe(args.codex, git_executable=args.git_executable)
+            report = boundary_probe(
+                args.codex,
+                git_executable=args.git_executable,
+                inspect_instructions=args.probe_instructions,
+            )
         print(json.dumps(report, indent=2))
         return 0 if report["passed"] else 1
     except (runner.HostError, score.RecordError) as error:
@@ -413,6 +519,6 @@ class Codex:
 if __name__ == "__main__":
     raise SystemExit(
         probe_main(sys.argv[1:])
-        if "--probe-boundary" in sys.argv
+        if "--probe-boundary" in sys.argv or "--probe-instructions" in sys.argv
         else runner.main(adapter_type=Codex)
     )

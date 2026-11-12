@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import copy
+import hashlib
 import json
 import os
 import signal
@@ -23,6 +24,299 @@ import run_codex
 import score
 
 FIXTURES = ROOT / "tests/specflow/fixtures/results"
+
+
+class InstructionEvidenceTest(unittest.TestCase):
+    def test_fixture_imports_and_verified_plugin_are_allowed(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            workspace, plugin = root / "workspace", root / "plugin"
+            workspace.mkdir()
+            plugin.mkdir()
+            expected = {"AGENTS.md": "See rules.md", "rules.md": "Fixture rules"}
+            loaded = {
+                str(workspace / name): {
+                    "sha256": hashlib.sha256(text.encode()).hexdigest(),
+                    "imports": [str(workspace / "rules.md")]
+                    if name == "AGENTS.md"
+                    else [],
+                }
+                for name, text in expected.items()
+            }
+            loaded[str(plugin / "SKILL.md")] = {
+                "sha256": hashlib.sha256(b"Plugin rules").hexdigest(),
+                "imports": [],
+            }
+            report = run_claude.classify_instructions(
+                loaded,
+                complete=True,
+                workspace=workspace,
+                expected=expected,
+                plugin=plugin,
+                plugin_files={"SKILL.md": "Plugin rules"},
+            )
+            self.assertEqual(report["classification"], "clean")
+            self.assertEqual(
+                report["instructionFiles"], sorted(str(workspace / p) for p in expected)
+            )
+
+    def test_personal_ancestor_generated_and_changed_instructions_taint(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            workspace = root / "workspace"
+            workspace.mkdir()
+            for path in (
+                root / "AGENTS.md",
+                root / "home/CLAUDE.md",
+                workspace / "generated.md",
+                workspace / "AGENTS.md",
+            ):
+                with self.subTest(path=path):
+                    report = run_claude.classify_instructions(
+                        {
+                            str(path): {
+                                "sha256": hashlib.sha256(b"Changed").hexdigest(),
+                                "imports": [],
+                            }
+                        },
+                        complete=True,
+                        workspace=workspace,
+                        expected={"AGENTS.md": "Original"},
+                        plugin=root / "plugin",
+                        plugin_files={},
+                    )
+                    self.assertEqual(report["classification"], "tainted")
+
+    def test_missing_inventory_or_import_is_unknown(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            for loaded, complete in (
+                ({}, False),
+                (
+                    {
+                        str(root / "AGENTS.md"): {
+                            "sha256": hashlib.sha256(b"Rules").hexdigest(),
+                            "imports": [str(root / "missing.md")],
+                        }
+                    },
+                    True,
+                ),
+            ):
+                with self.subTest(complete=complete):
+                    report = run_claude.classify_instructions(
+                        loaded,
+                        complete=complete,
+                        workspace=root,
+                        expected={"AGENTS.md": "Rules"},
+                        plugin=root / "plugin",
+                        plugin_files={},
+                    )
+                    self.assertEqual(report["classification"], "unknown")
+
+    def test_symlink_escape_is_classified_before_normalization(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            workspace = root / "workspace"
+            workspace.mkdir()
+            (workspace / "AGENTS.md").symlink_to(root / "personal.md")
+            report = run_claude.classify_instructions(
+                {
+                    str(workspace / "AGENTS.md"): {
+                        "sha256": hashlib.sha256(b"Rules").hexdigest(),
+                        "imports": [],
+                    }
+                },
+                complete=True,
+                workspace=workspace,
+                expected={"AGENTS.md": "Rules"},
+                plugin=root / "plugin",
+                plugin_files={},
+            )
+            normalized = run_claude.normalize(report, {str(root): "<home>"})
+            self.assertEqual(normalized["classification"], "tainted")
+            self.assertIn("<home>/personal.md", json.dumps(normalized))
+
+    def test_continuation_and_explicit_edit_content_are_expected(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            for text in ("Finished parent rules", "Explicit edit rules"):
+                with self.subTest(text=text):
+                    report = run_claude.classify_instructions(
+                        {
+                            str(root / "AGENTS.md"): {
+                                "sha256": hashlib.sha256(text.encode()).hexdigest(),
+                                "imports": [],
+                            }
+                        },
+                        complete=True,
+                        workspace=root,
+                        expected={"AGENTS.md": text},
+                        plugin=root / "plugin",
+                        plugin_files={},
+                    )
+                    self.assertEqual(report["classification"], "clean")
+
+    def test_scoring_never_preserves_unverified_release_claim(self) -> None:
+        record = score.read_json(FIXTURES / "manual.json")
+        record["releaseEvidence"] = True
+        score.score_record(record, FIXTURES / "evals")
+        self.assertFalse(record["releaseEvidence"])
+
+
+class ReleaseEvidenceTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.record = score.read_json(FIXTURES / "manual.json")
+        self.candidate = {
+            key: self.record[key]
+            for key in ("runtimeRevision", "fixtureRevision", "sessionRevision")
+        }
+        self.candidate["evalRevisions"] = {
+            path.stem: score.object_id(path.read_bytes())
+            for path in (FIXTURES / "rubrics").glob("SR-*.json")
+        }
+        self.boundary = {
+            "scope": "installed-host-boundary",
+            "host": self.record["host"],
+            "hostVersion": self.record["hostVersion"],
+            "configurationSha256": "a" * 64,
+            "runtimeRevision": self.record["runtimeRevision"],
+            "checks": {
+                name: {"passed": True, "evidence": "synthetic-test:" + name}
+                for name in score.RELEASE_BOUNDARY_CHECKS
+            },
+        }
+        self.evidence = {
+            "configurationSha256": "a" * 64,
+            "boundarySha256": score.evidence_digest(self.boundary),
+            "instructions": [
+                {
+                    "classification": "clean",
+                    "complete": True,
+                    "instructionFiles": [],
+                    "entries": [],
+                }
+            ]
+            * 2,
+        }
+        self.record["notes"] = score.EVIDENCE_PREFIX + json.dumps(self.evidence)
+
+    def review(self) -> None:
+        score.score_record(self.record, FIXTURES / "rubrics")
+        score.score_record(
+            self.record,
+            FIXTURES / "rubrics",
+            reviews={
+                "evidenceSha256": self.record["rubricReview"]["evidenceSha256"],
+                "verdicts": {
+                    "SR-DLG-003:1": {
+                        "verdict": "PASS",
+                        "judge": "human:developer",
+                        "reason": "Synthetic check",
+                    }
+                },
+            },
+        )
+
+    def certify(self) -> bool:
+        return score.certify_release(
+            self.record, self.candidate, self.boundary, eval_dir=FIXTURES / "rubrics"
+        )
+
+    def test_complete_evidence_and_human_review_are_stable(self) -> None:
+        self.assertFalse(self.certify())
+        self.review()
+        digest = self.record["rubricReview"]["evidenceSha256"]
+        self.assertTrue(self.certify())
+        self.assertTrue(self.certify())
+        self.assertEqual(self.record["rubricReview"]["evidenceSha256"], digest)
+
+    def test_sample_cannot_be_emptied_to_skip_human_review(self) -> None:
+        with mock.patch.object(
+            score,
+            "model_judge",
+            autospec=True,
+            return_value={
+                "verdict": "PASS",
+                "judge": "model:judge",
+                "reason": "Synthetic",
+            },
+        ):
+            score.score_record(self.record, FIXTURES / "rubrics", judge_model="judge")
+        self.record["rubricReview"]["sample"] = []
+        self.assertFalse(self.certify())
+
+    def test_shell_only_or_mismatched_boundary_cannot_certify(self) -> None:
+        self.review()
+        for field, value in (
+            ("scope", "synthetic-shell-boundary-only"),
+            ("hostVersion", "different"),
+            ("configurationSha256", "b" * 64),
+            ("checks", {}),
+        ):
+            with self.subTest(field=field):
+                boundary = {**self.boundary, field: value}
+                self.assertFalse(
+                    score.certify_release(
+                        self.record,
+                        self.candidate,
+                        boundary,
+                        eval_dir=FIXTURES / "rubrics",
+                    )
+                )
+                self.assertFalse(self.record["releaseEvidence"])
+
+    def test_frozen_revision_or_incomplete_session_blocks_release(self) -> None:
+        self.review()
+        for key in (
+            "runtimeRevision",
+            "fixtureRevision",
+            "sessionRevision",
+            "evalRevisions",
+        ):
+            with self.subTest(key=key):
+                candidate = {
+                    **self.candidate,
+                    key: {} if key == "evalRevisions" else "b" * 40,
+                }
+                self.assertFalse(
+                    score.certify_release(
+                        self.record,
+                        candidate,
+                        self.boundary,
+                        eval_dir=FIXTURES / "rubrics",
+                    )
+                )
+        self.record["messages"].pop()
+        self.record["filesRead"].pop()
+        self.assertFalse(self.certify())
+
+    def test_unknown_inventory_or_changed_observations_invalidate_release(self) -> None:
+        self.review()
+        self.record["instructionMeasurement"] = "not-measured"
+        self.assertFalse(self.certify())
+        self.record["instructionMeasurement"] = "measured"
+        self.evidence["instructions"][0]["complete"] = False
+        self.record["notes"] = score.EVIDENCE_PREFIX + json.dumps(self.evidence)
+        self.assertFalse(self.certify())
+
+    def test_forged_clean_label_cannot_hide_generated_instruction(self) -> None:
+        self.evidence["instructions"][0]["entries"] = [
+            {
+                "path": "<workspace>/generated.md",
+                "sha256": hashlib.sha256(b"Rules").hexdigest(),
+                "imports": [],
+                "plugin": False,
+                "classification": "allowed",
+                "reason": "forged",
+            }
+        ]
+        self.evidence["instructions"][0]["instructionFiles"] = [
+            "<workspace>/generated.md"
+        ]
+        self.record["instructionFiles"] = ["<workspace>/generated.md"]
+        self.record["notes"] = score.EVIDENCE_PREFIX + json.dumps(self.evidence)
+        self.review()
+        self.assertFalse(self.certify())
 
 
 class ScoreTest(unittest.TestCase):
@@ -455,6 +749,81 @@ class ScoreTest(unittest.TestCase):
 
 
 class RunnerTest(unittest.TestCase):
+    def test_external_batch_exports_verified_resources_and_cleans_up(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            scratch = Path(folder).resolve()
+            revision = score.git("rev-parse", "HEAD:plugins/specflow").decode().strip()
+            with run_claude.external_batch(revision, scratch=scratch) as batch:
+                self.assertEqual(batch.parent, scratch)
+                self.assertEqual(batch.stat().st_mode & 0o777, 0o700)
+                self.assertTrue((batch / "control").is_dir())
+                self.assertTrue((batch / "workspaces").is_dir())
+                run_claude.verify_plugin(batch / "resources/specflow", revision)
+            self.assertFalse(batch.exists())
+
+    def test_external_batch_refuses_residue_and_ancestor_instructions(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            scratch = Path(folder).resolve()
+            residue = scratch / "specflow-evals-leftover"
+            residue.mkdir()
+            with (
+                self.assertRaisesRegex(run_claude.HostError, "residual"),
+                run_claude.external_batch("a" * 40, scratch=scratch),
+            ):
+                self.fail("must not yield")
+            residue.rmdir()
+            (scratch / "AGENTS.md").write_text("Unexpected ancestor")
+            with (
+                self.assertRaisesRegex(run_claude.HostError, "ancestor"),
+                run_claude.external_batch("a" * 40, scratch=scratch),
+            ):
+                self.fail("must not yield")
+            self.assertEqual(list(scratch.glob("specflow-evals-*")), [])
+
+    def test_instruction_inventory_is_captured_per_turn_before_generated_changes(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            workspace = Path(folder).resolve()
+            (workspace / "AGENTS.md").write_text("Baseline")
+            adapter = run_claude.Claude("tested-model")
+
+            def turn(prompt: str, workspace: Path) -> tuple[str, list[str]]:
+                if prompt == "Continue":
+                    return "Done", []
+                adapter.instruction_measurement = "measured"
+                adapter.instruction_observations = {
+                    str(workspace / "AGENTS.md"): {
+                        "sha256": hashlib.sha256(b"Generated").hexdigest(),
+                        "imports": [],
+                    }
+                }
+                (workspace / "AGENTS.md").write_text("Generated")
+                return "Done", []
+
+            record = score.read_json(FIXTURES / "manual.json")
+            record["messages"], record["filesRead"] = [], []
+            with (
+                mock.patch.object(adapter, "turn", side_effect=turn, autospec=True),
+                mock.patch.object(run_claude, "verify_workspace", autospec=True),
+                mock.patch.object(
+                    run_claude,
+                    "capture_status",
+                    return_value=record["status"],
+                    autospec=True,
+                ),
+            ):
+                run_claude.play_session(
+                    adapter,
+                    {"turns": [{"developer": "Work"}, {"developer": "Continue"}]},
+                    workspace,
+                    record,
+                )
+            evidence = json.loads(record["notes"].split(score.EVIDENCE_PREFIX)[1])
+            self.assertEqual(evidence["instructions"][0]["classification"], "tainted")
+            self.assertEqual(evidence["instructions"][1]["classification"], "unknown")
+            self.assertEqual(record["instructionMeasurement"], "not-measured")
+
     def test_batch_deadline_covers_setup_and_scoring(self) -> None:
         for phase, expected_code in [("setup", 2), ("scoring", 1)]:
             with self.subTest(phase=phase), tempfile.TemporaryDirectory() as folder:
@@ -796,6 +1165,30 @@ class RunnerTest(unittest.TestCase):
             self.assertIn("result.txt", child["unchanged"])
             self.assertTrue(child["scores"][0]["passed"])
             self.assertNotIn(str(root), json.dumps([parent, child]))
+            evaluation = score.read_json(evals / "SR-DLG-001.json")
+            evaluation["assertions"][0]["pattern"] = "deliberately broken"
+            score.write_json(evals / "SR-DLG-001.json", evaluation)
+            conversation_turns.clear()
+            with (
+                mock.patch.object(adapter, "preflight", autospec=True),
+                mock.patch.object(
+                    run_claude, "command", side_effect=cli, autospec=True
+                ),
+            ):
+                self.assertEqual(
+                    run_claude.run_batch(
+                        adapter,
+                        "continued",
+                        root / "results",
+                        session_dir=sessions,
+                        eval_dir=evals,
+                    ),
+                    2,
+                )
+            self.assertNotIn("continued", conversation_turns)
+            child = score.read_json(root / "results/claude-code/continued/2.json")
+            self.assertIn("parent", child["notRun"])
+            self.assertNotIn("scores", child)
 
     def test_claude_permission_denial_and_model_omission_are_failures(self) -> None:
         adapter = run_claude.Claude("tested-model")
@@ -809,6 +1202,7 @@ class RunnerTest(unittest.TestCase):
             )
             with (
                 self.subTest(final=final),
+                mock.patch.object(adapter, "preflight", autospec=True),
                 mock.patch.object(run_claude, "command", return_value=result),
                 self.assertRaises(run_claude.HostError),
             ):
@@ -1202,6 +1596,102 @@ class CodexHomeTest(unittest.TestCase):
 
 
 class CodexBoundaryTest(unittest.TestCase):
+    def test_instruction_probe_uses_only_rendering_and_cleans_private_state(
+        self,
+    ) -> None:
+        calls = []
+
+        def command(
+            args: list[str], cwd: Path, env: dict, timeout: float
+        ) -> subprocess.CompletedProcess:
+            calls.append(args)
+            self.assertFalse((Path(env["CODEX_HOME"]) / "auth.json").exists())
+            if "--show-toplevel" in args:
+                output = str(cwd)
+            elif "--absolute-git-dir" in args:
+                output = str(cwd / ".git")
+            elif "--version" in args:
+                output = (
+                    "git version synthetic"
+                    if args[0].endswith("/git")
+                    else "codex-cli synthetic"
+                )
+            elif "prompt-input" in args:
+                output = json.dumps(
+                    [
+                        {
+                            "role": "user",
+                            "content": [
+                                {
+                                    "type": "input_text",
+                                    "text": (cwd / "AGENTS.md").read_text(),
+                                }
+                            ],
+                        }
+                    ]
+                )
+            else:
+                output = ""
+            return subprocess.CompletedProcess(
+                args, 0, output, "synthetic private diagnostic"
+            )
+
+        with (
+            tempfile.TemporaryDirectory() as folder,
+            mock.patch.dict(os.environ, {}, clear=True),
+            mock.patch.object(sys, "platform", "darwin"),
+            mock.patch.object(
+                run_claude, "command", autospec=True, side_effect=command
+            ),
+        ):
+            report = run_codex.boundary_probe(
+                Path(sys.executable),
+                git_executable=Path("/usr/bin/git"),
+                scratch=Path(folder),
+                inspect_instructions=True,
+            )
+            self.assertEqual(list(Path(folder).iterdir()), [])
+        self.assertTrue(report["passed"])
+        self.assertTrue(report["cleanup"])
+        self.assertFalse(report["releaseEvidence"])
+        self.assertEqual(report["scope"], "instruction-rendering-only")
+        self.assertEqual(report["instructionMeasurement"], "not-measured")
+        self.assertNotIn("synthetic private diagnostic", json.dumps(report))
+        self.assertFalse(
+            any(
+                "sandbox" in args or "exec" in args or "login" in args for args in calls
+            )
+        )
+
+    def test_prompt_render_summary_keeps_text_private_and_inventory_unknown(
+        self,
+    ) -> None:
+        marker = "synthetic-fixture-marker"
+        raw = json.dumps(
+            [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "input_text", "text": marker + " private text"}
+                    ],
+                }
+            ]
+        )
+        report = run_codex.prompt_summary(raw, marker)
+        self.assertTrue(report["fixtureIncluded"])
+        self.assertEqual(report["instructionMeasurement"], "not-measured")
+        self.assertFalse(report["releaseEvidence"])
+        self.assertNotIn("private text", json.dumps(report))
+        self.assertFalse(run_codex.prompt_summary("[]", marker)["fixtureIncluded"])
+        self.assertFalse(
+            run_codex.prompt_summary("not json", marker)["fixtureIncluded"]
+        )
+        self.assertFalse(
+            run_codex.prompt_summary(
+                json.dumps({marker: "not an input array"}), marker
+            )["fixtureIncluded"]
+        )
+
     def test_probe_allows_only_the_selected_git_executable(self) -> None:
         selected = Path("/synthetic/developer-tools/usr/bin/git")
         policy = run_codex.probe_config(

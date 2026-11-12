@@ -9,9 +9,11 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import hashlib
 import json
 import os
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -24,6 +26,7 @@ import score
 
 ROOT = score.ROOT
 SCRATCH = ROOT / "docs/dev/tmp/specflow/evals"
+EXTERNAL_SCRATCH = Path("/private/tmp")
 TURN_TIMEOUT = 600
 MAX_SESSION_TURNS = 24
 SESSION_TIMEOUT = 1800
@@ -68,6 +71,11 @@ def command(
 
 def git_workspace(workspace: Path, *args: str) -> str:
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env.update(
+        GIT_CONFIG_NOSYSTEM="1",
+        GIT_CONFIG_GLOBAL="/dev/null",
+        GIT_CONFIG_SYSTEM="/dev/null",
+    )
     result = command(["git", *args], workspace, env, 30)
     if result.returncode:
         raise HostError(f"git {args[0]} failed: {result.stderr.strip()}")
@@ -150,10 +158,87 @@ def normalize(value: object, replacements: dict[str, str]) -> object:
     return value
 
 
+def classify_instructions(
+    loaded: dict[str, dict],
+    *,
+    complete: bool,
+    workspace: Path,
+    expected: dict[str, str],
+    plugin: Path,
+    plugin_files: dict[str, str],
+) -> dict:
+    """Classify observed load-time hashes/imports before any path normalization.
+
+    The supervisor supplies the immutable baseline plus explicit edits and the
+    verified plugin bytes. A later filesystem read cannot measure what a host
+    loaded. Adapters without load-time evidence must leave complete false.
+    """
+    workspace, plugin = workspace.resolve(), plugin.resolve()
+    entries, unknown = [], complete is not True
+    resolved = set()
+    for name, observation in loaded.items():
+        path = Path(name)
+        if not path.is_absolute():
+            raise HostError("instruction inventory paths must be absolute")
+        path = path.resolve()
+        resolved.add(str(path))
+        in_plugin = path.is_relative_to(plugin)
+        root, baseline = (plugin, plugin_files) if in_plugin else (workspace, expected)
+        content = (
+            baseline.get(path.relative_to(root).as_posix())
+            if path.is_relative_to(root)
+            else None
+        )
+        digest = observation.get("sha256")
+        if content is None:
+            classification, reason = "tainted", "outside expected inputs"
+        elif not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+            classification, reason = "unknown", "load-time content was not measured"
+        elif digest != hashlib.sha256(content.encode()).hexdigest():
+            classification, reason = "tainted", "loaded content differs from input"
+        else:
+            classification, reason = (
+                "allowed",
+                "matches verified plugin"
+                if in_plugin
+                else "matches baseline or explicit edit",
+            )
+        imports = observation.get("imports")
+        if not isinstance(imports, list) or any(
+            not isinstance(p, str) or not Path(p).is_absolute() for p in imports
+        ):
+            imports, unknown = [], True
+        entries.append(
+            {
+                "path": str(path),
+                "sha256": digest,
+                "imports": [str(Path(p).resolve()) for p in imports],
+                "plugin": in_plugin,
+                "classification": classification,
+                "reason": reason,
+            }
+        )
+    unknown = unknown or any(
+        e["classification"] == "unknown" or any(p not in resolved for p in e["imports"])
+        for e in entries
+    )
+    classification = (
+        "tainted"
+        if any(e["classification"] == "tainted" for e in entries)
+        else "unknown"
+        if unknown
+        else "clean"
+    )
+    return {
+        "classification": classification,
+        "complete": not unknown,
+        "instructionFiles": sorted({e["path"] for e in entries if not e["plugin"]}),
+        "entries": entries,
+    }
+
+
 def package_revision(plugin: Path) -> str:
     """Compute Git's tree hash without an index, writes, or trusting HEAD's bytes."""
-    import hashlib
-
     entries = []
     for path in plugin.iterdir():
         if path.is_symlink():
@@ -180,6 +265,48 @@ def package_revision(plugin: Path) -> str:
 def verify_plugin(plugin: Path, revision: str) -> None:
     if package_revision(plugin) != revision:
         raise HostError("installed plugin differs from runtimeRevision")
+
+
+@contextlib.contextmanager
+def external_batch(
+    revision: str, *, scratch: Path = EXTERNAL_SCRATCH
+) -> Iterator[Path]:
+    """Own disposable state and refuse remnants rather than deleting unknown work."""
+    scratch = scratch.resolve(strict=True)
+    if scratch.is_relative_to(ROOT.resolve()) or scratch.is_relative_to(
+        Path.home().resolve()
+    ):
+        raise HostError("batch scratch must be outside the checkout and home")
+    if list(scratch.glob("specflow-evals-*")) or (
+        SCRATCH.exists() and any(SCRATCH.iterdir())
+    ):
+        raise HostError(
+            "residual private evaluation directory; inspect and remove it before another batch"
+        )
+    for ancestor in (scratch, *scratch.parents):
+        for name in (
+            "AGENTS.md",
+            "AGENTS.override.md",
+            "CLAUDE.md",
+            ".claude/CLAUDE.md",
+            ".codex/config.toml",
+        ):
+            path = ancestor / name
+            if path.exists() or path.is_symlink():
+                raise HostError("unexpected ancestor instructions/configuration")
+    with tempfile.TemporaryDirectory(prefix="specflow-evals-", dir=scratch) as folder:
+        root = Path(folder).resolve()
+        for name in ("workspaces", "resources", "control"):
+            (root / name).mkdir(mode=0o700)
+        verify_plugin(score.PLUGIN, revision)
+        plugin = root / "resources/specflow"
+        shutil.copytree(score.PLUGIN, plugin, symlinks=True)
+        verify_plugin(plugin, revision)
+        if any(p.is_symlink() for p in plugin.rglob("*")):
+            raise HostError("evaluation resource tree contains a symlink")
+        yield root
+    if root.exists():
+        raise HostError("private evaluation directory remains after cleanup")
 
 
 def sessions_for(name: str, directory: Path = SESSIONS) -> list[tuple[Path, dict]]:
@@ -232,12 +359,12 @@ def reserve_record(out: Path, host: str, session: str) -> tuple[Path, int]:
             number += 1
 
 
-def capture_status(workspace: Path) -> dict | None:
+def capture_status(workspace: Path, *, plugin: Path = score.PLUGIN) -> dict | None:
     result = command(
         [
             sys.executable,
             "-B",
-            str(score.HELPER / "validate_spec.py"),
+            str(plugin / "skills/spec-workflow/scripts/validate_spec.py"),
             "status",
             "--json",
         ],
@@ -262,6 +389,9 @@ class Claude:
         self.conversation: str | None = None
         self.cost = 0.0
         self.instruction_files: list[str] = []
+        self.instruction_observations: dict[str, dict] = {}
+        self.instruction_measurement = "not-measured"
+        self.plugin = score.PLUGIN
 
     def preflight(self) -> None:
         raise HostError(
@@ -277,6 +407,7 @@ class Claude:
         self.cost = 0.0
 
     def turn(self, prompt: str, workspace: Path) -> tuple[str, list[str]]:
+        self.preflight()
         remaining = SESSION_BUDGET_USD - self.cost
         if remaining <= 0:
             raise HostError("session spending cap reached")
@@ -284,7 +415,7 @@ class Claude:
             "claude",
             "-p",
             "--plugin-dir",
-            str(score.PLUGIN),
+            str(self.plugin),
             "--setting-sources",
             "project,local",
             "--permission-mode",
@@ -356,6 +487,11 @@ class Claude:
 def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) -> None:
     adapter.new_conversation()
     baseline = snapshot(workspace)
+    expected = baseline.copy()
+    plugin = getattr(adapter, "plugin", score.PLUGIN)
+    verify_plugin(plugin, record["runtimeRevision"])
+    plugin_files = snapshot(plugin)
+    inventories = []
     try:
         for turn_number, turn in enumerate(session["turns"], 1):
             score.remaining_timeout(TURN_TIMEOUT)
@@ -367,6 +503,7 @@ def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) 
                 break
             if edit := turn.get("edit"):
                 write_files(workspace, {edit["path"]: edit["text"]})
+                expected[edit["path"]] = edit["text"]
             verify_workspace(workspace)
             prompt = turn["developer"]
             if turn_number == 1:
@@ -374,13 +511,28 @@ def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) 
                     "Use the installed specflow spec-workflow skill for this request.\n"
                     + prompt
                 )
+            adapter.instruction_observations = {}
+            adapter.instruction_measurement = "not-measured"
             message, reads = adapter.turn(prompt, workspace)
             record["messages"].append(message)
             record["filesRead"].append(
                 [p.removeprefix(str(workspace) + "/") for p in reads]
             )
+            inventories.append(
+                classify_instructions(
+                    getattr(adapter, "instruction_observations", {}),
+                    complete=getattr(adapter, "instruction_measurement", "not-measured")
+                    == "measured",
+                    workspace=workspace,
+                    expected=expected,
+                    plugin=plugin,
+                    plugin_files=plugin_files,
+                )
+            )
         score.remaining_timeout(TURN_TIMEOUT)
-        record["status"] = capture_status(workspace)
+        record["status"] = capture_status(
+            workspace, plugin=getattr(adapter, "plugin", score.PLUGIN)
+        )
         if record["status"] is None:
             record["notRun"] = "status helper could not run"
     except (HostError, OSError, ValueError, subprocess.SubprocessError) as error:
@@ -394,7 +546,29 @@ def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) 
         ]
         record["unchanged"] = [p for p in current if baseline.get(p) == current[p]]
         record["model"], record["hostVersion"] = adapter.model, adapter.version
-        record["instructionFiles"] = adapter.instruction_files
+        record["instructionFiles"] = sorted(
+            {p for i in inventories for p in i["instructionFiles"]}
+        )
+        record["instructionMeasurement"] = (
+            "measured"
+            if inventories and all(i["complete"] for i in inventories)
+            else "not-measured"
+        )
+        record["notes"] = (
+            record.get("notes", "")
+            + "\n"
+            + score.EVIDENCE_PREFIX
+            + json.dumps(
+                {
+                    "instructions": inventories,
+                    "configurationSha256": getattr(
+                        adapter, "configuration_sha256", None
+                    ),
+                    "boundarySha256": getattr(adapter, "boundary_sha256", None),
+                },
+                sort_keys=True,
+            )
+        )
 
 
 @score.deadline(BATCH_TIMEOUT)
@@ -421,13 +595,13 @@ def run_batch(
     initial = score.tree_files(fixture_revision)
     verify_plugin(fixture, fixture_revision)
     records, completed, code = {}, {}, 0
-    SCRATCH.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="batch-", dir=SCRATCH) as folder:
-        root = Path(folder)
+    with external_batch(revision) as root:
+        adapter.plugin = root / "resources/specflow"
         replacements = {
             str(root): "<batch>",
             str(ROOT): "<repository>",
             str(score.PLUGIN): "<plugin>",
+            str(adapter.plugin): "<plugin>",
             str(Path.home()): "<home>",
         }
         startup_error = None
@@ -464,7 +638,7 @@ def run_batch(
                         f"{SESSION_TIMEOUT}s per session; {BATCH_TIMEOUT}s per batch."
                     ),
                 }
-                workspace = root / session["name"]
+                workspace = root / "workspaces" / session["name"]
                 workspace.mkdir()
                 replacements[str(workspace)] = "<workspace>"
                 parent = session.get("continues")
@@ -519,9 +693,12 @@ def run_batch(
                 score.validate_record(normalized)
                 if "notRun" not in normalized:
                     try:
-                        code = max(
-                            code, score.score_record(normalized, eval_dir, results=out)
+                        session_code = score.score_record(
+                            normalized, eval_dir, results=out
                         )
+                        code = max(code, session_code)
+                        if session_code:
+                            completed.pop(session["name"], None)
                         score.remaining_timeout(TURN_TIMEOUT)
                     except (
                         score.RecordError,
