@@ -110,17 +110,25 @@ setup, and invokes that renderer. It never invokes `sandbox`, `exec`, or
 fixed diagnostic categories, input count, fixture-marker presence, and cleanup.
 Its 180-second deadline includes preparation and rendering.
 
-The agent-side diagnostic exited 1 before producing inputs. The instrumented
-report identified `permission-denied` and `temporary-home-aliases`; cleanup
-passed. The exact denied operation was not retained, so neither category proves
-that a particular path or sandbox operation was attempted. Do not retry this
-diagnostic in the agent profile. A developer terminal outside `run-agent` is
-the remaining route for this measurement:
+The developer-run diagnostic passed outside `run-agent` on 2026-11-13:
+exit 0, seven rendered inputs, fixture included, and cleanup true. Codex was
+0.167.0, Python 3.15.2, and Apple Git 2.54.0. Runner SHA-256
+`bccf8c232f2c71c56fd19ccb485a8874fdef12d61e8d09778291625cf7afd7fd`,
+plugin tree, Git binary, and normalized policy fingerprints matched the checkout.
+Only `temporary-home-aliases` remained in the diagnostic categories. The full
+normalized report is retained in 00009's QA log. No repeat is needed for these
+unchanged inputs.
+
+The earlier agent-side failure remains historical: exit 1, no inputs,
+`permission-denied` and `temporary-home-aliases`, cleanup true. Its exact denied
+operation was not retained; neither category identifies a particular attempted
+path or sandbox operation. Do not retry in the agent profile. If changed inputs
+require a repeat, use a developer terminal outside `run-agent`:
 
 1. Open a developer terminal outside `run-agent`.
 2. Change to the `feature-specflow-00009` working directory.
 3. Run `/usr/bin/env -i HOME="$HOME" PATH="/usr/bin:/bin" "$(mise which python3)" -B tests/specflow/evals/runners/run_codex.py --probe-instructions --codex "$(mise which codex)" --git-executable /Library/Developer/CommandLineTools/usr/bin/git`.
-4. Preserve the diagnostic JSON for the next implementation session.
+4. Preserve the diagnostic JSON with its tested fingerprints.
 
 Even exit 0 proves fixture inclusion only. The report always keeps
 `instructionMeasurement: not-measured` and `releaseEvidence: false`: a rendered
@@ -128,6 +136,13 @@ input array has not been proven to enumerate every instruction source, import,
 or subsequent load. Native read/write denial, actual-home sentinel denial,
 effective configuration, tool environments, and network policy remain separate
 checks. The passing shell report remains tied to its original runner/configuration.
+
+The next implementation prerequisite is a collector that supplies exhaustive
+load-time paths, content hashes, and imports for each actual turn, plus the
+remaining native-tool/effective-policy boundary checks. The renderer's successful
+fixture-marker check does not supply those observations. Independent login and
+live transport remain blocked by their existing prerequisites; this diagnostic
+does not authorize treating the current adapter as ready.
 
 ## Implemented resource controls
 

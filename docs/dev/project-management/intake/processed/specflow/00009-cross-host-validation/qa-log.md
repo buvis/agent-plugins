@@ -572,3 +572,37 @@ Review and validation:
 - Seven tests cover replies/usage, resumed identity/reset, missing/duplicate/out-of-order evidence, malformed nested values, failed/denied items, raw diagnostic suppression, nonzero exit, and direct launch refusal. The initial six tests failed before implementation. Skeptical inspection found unhashable malformed event/status fields could escape as TypeError; added a negative test and fixed validation. No additional abstraction or dependency was introduced.
 - All 87 instrument tests pass on Python 3.10.22 and 3.15.2. Concurrent interpreter runs briefly triggered the intentional global residual-directory refusal in two tests; the Python 3.15 suite passed in isolation afterward. Run these suites serially because they share the external scratch namespace. Ruff, repository validation (3 packages, 15 skills), unfiltered rule checks, and diff checks pass. Full repository suites and fresh coverage were not run for this reducer-only change.
 - Status verified with the shipped helper: standard implementation, requirements/design/tasks approved, 1/10 tasks complete, T-056 next, no stale artifacts, hold, gate blockers, or specs-folder problems. The directory-based baseline warning remains. No task or approval state changed. The next external prerequisite remains the developer-terminal instruction diagnostic in `tests/specflow/evals/runners/manual-run.md`; its success alone cannot establish a complete instruction inventory.
+
+## T-056 developer instruction-rendering diagnostic passed (2026-11-13)
+
+The developer supplied this normalized result from the documented terminal
+procedure outside `run-agent`:
+
+```json
+{
+  "hostVersion": "codex-cli 0.167.0",
+  "pythonVersion": "3.15.2",
+  "gitVersion": "git version 2.54.0 (Apple Git-157)",
+  "gitRuntimeSha256": "a73bf622a2e470d5d57a4b1d5aef1e8680e67278018d4858a2f93825b7d595c7",
+  "runtimeRevision": "402636e2b12f6cd34f2e9d54418e07233c61246f",
+  "generatedPolicy": "default_permissions = \"specflow-probe\"\n[permissions.specflow-probe]\nextends = \":workspace\"\n[permissions.specflow-probe.filesystem]\n\":root\" = \"deny\"\n\":minimal\" = \"read\"\n\":tmpdir\" = \"deny\"\n\":slash_tmp\" = \"deny\"\n\"<home>\" = \"deny\"\n\"<batch>/workspaces/probe\" = \"write\"\n\"<batch>/control/codex-home/plugins/specflow\" = \"read\"\n\"<python-runtime>\" = \"read\"\n\"<git-runtime>\" = \"read\"\n[permissions.specflow-probe.network]\nenabled = false\n",
+  "policySha256": "53a54b5b99edd7cd40b22105ab8a177518f06bed4a0a1f1bc934a455e179ddf5",
+  "runnerSha256": "bccf8c232f2c71c56fd19ccb485a8874fdef12d61e8d09778291625cf7afd7fd",
+  "exitCode": 0,
+  "scope": "instruction-rendering-only",
+  "releaseEvidence": false,
+  "instructionMeasurement": "not-measured",
+  "fixtureIncluded": true,
+  "inputCount": 7,
+  "renderSha256": "31b0bef253510b8b419df13151b962eb07f3bb44471018150359fd1bea6aa4b0",
+  "passed": true,
+  "diagnosticSha256": "46e78cf0e519d4e72959cd523ecc1c62124ba6b79d982ab11c297ba9b7f41b7d",
+  "diagnosticCategories": ["temporary-home-aliases"],
+  "cleanup": true
+}
+```
+
+- Matched the runner file SHA-256, committed plugin tree, and selected Git executable SHA-256 locally. Checked the normalized policy hash against the retained report. These match `f57deae`; no runner or policy changes were needed. Render/stderr digests cannot be reconstructed because the diagnostic deliberately discarded raw streams; the random fixture marker also changes between invocations. Do not claim independent reproduction of the developer's execution.
+- The reported result establishes fixture inclusion in seven rendered inputs, successful renderer exit, and cleanup for this invocation. The helper-alias warning persisted without preventing the check. The old agent-side denial remains recorded; no denied route was retried. Checked installed debug help and the [official developer-command reference](https://learn.chatgpt.com/docs/developer-commands?surface=cli#codex-debug-prompt-input): they describe prompt rendering, not exhaustive per-turn load-time path/hash/import observations or native-tool denial evidence.
+- Updated the manual guide to mark this diagnostic complete for unchanged inputs. Next implementation work is the actual load-time collector and remaining effective-policy/native-tool boundary evidence. The successful diagnostic does not remove preflight guards, enable login or live transport, prove imports or later loads, or certify release eligibility. No request to repeat the unchanged diagnostic is pending.
+- Documentation-only checkpoint: repository validation and diff checks pass; no runtime/test changes or test rerun. External and legacy evaluation scratch roots contain zero residual entries. T-056 remains unchecked; no approvals or task state changed.
