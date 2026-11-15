@@ -61,6 +61,8 @@ class ControllerSeam(Protocol):
 
     def evaluate_guard(self, duty: str, context: dict) -> dict: ...
 
+    def read_facts(self, duty: str, session: dict | None, project_root: str) -> dict: ...
+
 
 def _invalid(detail: str) -> JobRefused:
     return JobRefused("invalid_request", detail)
