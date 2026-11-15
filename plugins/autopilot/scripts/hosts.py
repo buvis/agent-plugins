@@ -16,12 +16,12 @@ UNAVAILABLE_NO_AUTH = "no_auth"
 CAPABILITY_STATUSES = ("supported", "unavailable", "unimplemented")
 
 # host_id -> sibling adapter module name.
-ADAPTERS = {"claude": "claude", "codex": "codex", "gemini": "gemini"}
+ADAPTERS: dict[str, str] = {"claude": "claude", "codex": "codex", "gemini": "gemini"}
 
-PROVIDER_HOSTS = {"anthropic": "claude", "openai": "codex", "google": "gemini"}
+PROVIDER_HOSTS: dict[str, str] = {"anthropic": "claude", "openai": "codex", "google": "gemini"}
 
 # review adapter kind -> (host_id, execution)
-ADAPTER_KINDS = {
+ADAPTER_KINDS: dict[str, tuple[str, str]] = {
     "native-subagent": ("claude", "in-session"),
     "native-fallback": ("claude", "in-session"),
     "review-fanout-workflow": ("claude", "in-session"),
@@ -71,7 +71,11 @@ class NativeSession:
             raise ValueError(f"unknown host_id: {self.host_id!r}")
         if not self.session_id:
             raise ValueError("session_id is empty")
-        if len(self.session_id.encode("utf-8")) > 256:
+        try:
+            session_id_bytes = self.session_id.encode("utf-8")
+        except UnicodeEncodeError:
+            raise ValueError("session_id is not valid UTF-8") from None
+        if len(session_id_bytes) > 256:
             raise ValueError("session_id exceeds 256 UTF-8 bytes")
         if any(ord(char) < 0x20 or ord(char) == 0x7F for char in self.session_id):
             raise ValueError("session_id contains an ASCII control character")
@@ -172,26 +176,8 @@ def statuses_from(
     return statuses
 
 
-def _lazy_probe(module_name: str):
-    def probe(*, project_root: Path) -> ProbeResult:
-        return importlib.import_module(module_name).probe(project_root=project_root)
-
-    return probe
-
-
-# Lazy import: each entry imports its sibling adapter module on first call, so hosts imports without claude/codex/gemini.
-_ADAPTERS = {
-    "claude": _lazy_probe("claude"),
-    "codex": _lazy_probe("codex"),
-    "gemini": _lazy_probe("gemini"),
-}
-
-
 def probe_host(host_id: str, *, project_root: Path) -> ProbeResult:
-    fn = _ADAPTERS.get(host_id)
-    if fn is None:
-        raise ValueError(f"unknown host_id: {host_id!r}")
-    return fn(project_root=project_root)
+    return adapter(host_id).probe(project_root=project_root)
 
 
 def adapter(host_id: str) -> ModuleType:
