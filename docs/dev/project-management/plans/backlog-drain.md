@@ -1,6 +1,6 @@
 # Backlog and hold drain
 
-Written 2026-11-15 at HEAD `c988f45`. Scope: 8 backlog PRDs and 51 files in
+Written 2026-11-15 at HEAD `c988f45`. Scope: 8 backlog PRDs and 48 files in
 `prds/hold/`. Not in scope: specflow 00001 and 00009 open tasks, three items
 in `intake/new/`.
 
