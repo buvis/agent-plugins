@@ -32,6 +32,10 @@ from test_helper_provenance_successor import (
     write_json,
 )
 
+# The authored sentence that says why a controller row has no pinned source.
+LEAD = (
+    "Newly authored AP00018 controller file; no pinned source asset or source sections."
+)
 # Prose that claims the delivery evidence has not landed yet.
 ON_HOLD = (
     "AP00018 is on hold: the digest records current packaged bytes, and each "
@@ -91,7 +95,7 @@ def contradictions() -> dict[str, dict]:
     """Rows authored while the delivery was still planned, pending or on hold."""
     return {
         CONTROLLER[0]: {
-            "adaptation_reason": ON_HOLD,
+            "adaptation_reason": f"{LEAD} {ON_HOLD}",
             "acceptance_cases": [
                 case(CONTROLLER[0], "planned", STILL_PLANNED),
                 case(CONTROLLER[0] + "#2", "planned", NO_CLAIM),
@@ -99,7 +103,7 @@ def contradictions() -> dict[str, dict]:
         },
         CONTROLLER[1]: {"adaptation_reason": PENDING, "acceptance_cases": []},
         SHARED[0]: {
-            "adaptation_reason": ON_HOLD,
+            "adaptation_reason": f"{LEAD} {ON_HOLD}",
             "acceptance_cases": [case(SHARED[0], "pending", STILL_PLANNED)],
         },
         NEAR_MISSES[0]: {
@@ -123,15 +127,21 @@ def stage(mapping: Path, edits: dict[str, dict]) -> dict:
     return json.loads(mapping.read_bytes())
 
 
-def git_stderr(*args: object) -> str:
-    """The first line git itself prints when the given invocation fails."""
-    done = subprocess.run(
+def run_plain_git(*args: object) -> subprocess.CompletedProcess:
+    """Run git in the C locale, as the module under test does."""
+    return subprocess.run(
         ["git", *map(str, args)],
         check=False,
         capture_output=True,
         text=True,
         timeout=300,
+        env={**os.environ, "LC_ALL": "C"},
     )
+
+
+def git_stderr(*args: object) -> str:
+    """The first line git itself prints when the given invocation fails."""
+    done = run_plain_git(*args)
     assert done.returncode != 0, done.stdout
     lines = done.stderr.strip().splitlines()
     assert lines and lines[0].strip(), done.stderr
@@ -195,6 +205,32 @@ def test_refreshed_listed_rows_drop_planned_pending_and_on_hold_prose(
     # Prose that claims nothing has nothing to contradict, so it survives.
     cases = by_key(new[CONTROLLER[0]]["acceptance_cases"], "case_id")
     assert cases[f"asset-{CONTROLLER[0]}#2"]["expected_outcome"] == NO_CLAIM
+
+
+def test_a_refresh_keeps_the_authored_leading_sentence_of_the_reason(
+    tool: ModuleType, tmp_path: Path
+) -> None:
+    mapping = build_repo(tmp_path, "lead")
+    stage(mapping, contradictions())
+    successor = valid_successor(tmp_path)
+    document = generate(tool, tmp_path, mapping, successor)
+    rows = by_key(document["assets"], "destination_path")
+    for path in (CONTROLLER[0], SHARED[0]):
+        reason = rows[path]["adaptation_reason"]
+        # The why-no-pinned-source sentence survives; the landed sentence follows.
+        assert reason.startswith(LEAD + " "), (path, reason)
+        landed = reason.removeprefix(LEAD + " ")
+        assert path in landed and "AP00018" in landed, (path, reason)
+        assert not CLAIMS.search(reason), (path, reason)
+    # A reason whose leading sentence is the claim itself keeps none of it.
+    reason = rows[CONTROLLER[1]]["adaptation_reason"]
+    assert PENDING not in reason and CONTROLLER[1] in reason, reason
+    # A second refresh of the refreshed map changes no reason.
+    mapping.write_bytes(encode(document))
+    regenerated = generate(tool, tmp_path, mapping, successor)
+    again = by_key(regenerated["assets"], "destination_path")
+    for path in (CONTROLLER[0], CONTROLLER[1], SHARED[0]):
+        assert again[path]["adaptation_reason"] == rows[path]["adaptation_reason"]
 
 
 def test_a_refresh_keeps_every_field_it_has_no_claim_to_rewrite(
@@ -376,9 +412,9 @@ def test_a_directory_outside_a_git_work_tree_skips_verification(
 ) -> None:
     build_repo(tmp_path, "nogit")
     absent = "plugins/autopilot/controller/absent.py"
-    assert "not a git repository" in git_stderr(
-        "-C", tmp_path, "rev-parse", "--is-inside-work-tree"
-    )
+    # The probe fails; the module decides "outside a work tree" from the file
+    # system, not from the wording of git's message.
+    git_stderr("-C", tmp_path, "rev-parse", "--is-inside-work-tree")
     listed = {SHARED[0], CONTROLLER[0], absent}
     assert (
         tool.verify_listed_paths_match_revision(tmp_path, REVISIONS[0], listed) is None
@@ -388,20 +424,64 @@ def test_a_directory_outside_a_git_work_tree_skips_verification(
     )
 
 
-def missing_directory(tmp_path: Path) -> Path:
+def test_a_localized_git_still_skips_outside_a_work_tree_and_refuses_in_english(
+    tool: ModuleType,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    plain_git_config: None,
+) -> None:
+    for name in ("LANGUAGE", "LANG", "LC_ALL", "LC_MESSAGES"):
+        monkeypatch.setenv(name, "de" if name == "LANGUAGE" else "de_DE.UTF-8")
+    outside = tmp_path / "outside"
+    build_repo(outside, "localized")
+    assert (
+        tool.verify_listed_paths_match_revision(outside, REVISIONS[0], {SHARED[0]})
+        is None
+    )
+    with pytest.raises(ValueError) as refused:
+        tool.verify_listed_paths_match_revision(
+            tmp_path / "gone", REVISIONS[0], {SHARED[0]}
+        )
+    assert "fatal:" in str(refused.value), str(refused.value)
+    assert_refusal(str(refused.value), REVISIONS[0])
+
+
+def missing_directory(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     return tmp_path / "gone"
 
 
-def file_instead_of_directory(tmp_path: Path) -> Path:
+def file_instead_of_directory(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     path = tmp_path / "root.txt"
     path.write_text("not a directory\n")
     return path
 
 
-def invalid_gitfile(tmp_path: Path) -> Path:
+def invalid_gitfile(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     root = tmp_path / "badgitfile"
     root.mkdir()
     (root / ".git").write_text("gitdir: \n")
+    return root
+
+
+def nonexistent_git_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    root = tmp_path / "plain"
+    root.mkdir()
+    monkeypatch.setenv("GIT_DIR", str(tmp_path / "nonexistent-git-dir"))
+    return root
+
+
+def git_dir_without_head(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    root = tmp_path / "headless"
+    root.mkdir()
+    run_plain_git("-C", root, "init", "--quiet")
+    (root / ".git" / "HEAD").unlink()
+    return root
+
+
+def bare_repository(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """A repository with no work tree: the probe answers `false` at exit 0."""
+    root = tmp_path / "bare.git"
+    run_plain_git("init", "--quiet", "--bare", root)
     return root
 
 
@@ -409,16 +489,27 @@ PROBE_FAILURES = {
     "missing-directory": missing_directory,
     "file-instead-of-directory": file_instead_of_directory,
     "invalid-gitfile": invalid_gitfile,
+    "nonexistent-git-dir": nonexistent_git_dir,
+    "git-dir-without-head": git_dir_without_head,
+    "probe-answers-false": bare_repository,
 }
 
 
 @pytest.mark.parametrize("build", PROBE_FAILURES.values(), ids=PROBE_FAILURES.keys())
 def test_a_probe_failure_that_is_not_an_absent_work_tree_is_refused(
-    tool: ModuleType, tmp_path: Path, plain_git_config: None, build
+    tool: ModuleType,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    plain_git_config: None,
+    build,
 ) -> None:
-    root = build(tmp_path)
-    expected = git_stderr("-C", root, "rev-parse", "--is-inside-work-tree")
-    assert "not a git repository" not in expected, expected
+    root = build(tmp_path, monkeypatch)
+    probe = run_plain_git("-C", root, "rev-parse", "--is-inside-work-tree")
+    if probe.returncode == 0:
+        expected = probe.stdout.strip()
+        assert expected == "false", expected
+    else:
+        expected = git_stderr("-C", root, "rev-parse", "--is-inside-work-tree")
     with pytest.raises(ValueError) as refused:
         tool.verify_listed_paths_match_revision(root, REVISIONS[0], {SHARED[0]})
     assert expected in str(refused.value), (expected, str(refused.value))

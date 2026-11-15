@@ -25,7 +25,6 @@ import hashlib
 import importlib.util
 import json
 import os
-import re
 import sys
 import tempfile
 from pathlib import Path
@@ -40,6 +39,8 @@ SUCCESSOR_SPEC = importlib.util.spec_from_file_location(
 helper_map_successor = importlib.util.module_from_spec(SUCCESSOR_SPEC)
 SUCCESSOR_SPEC.loader.exec_module(helper_map_successor)
 refresh_listed_row = helper_map_successor.refresh_listed_row
+validate_receipts = helper_map_successor.validate_receipts
+validate_successor_receipts = helper_map_successor.validate_successor_receipts
 verify_listed_paths_match_revision = (
     helper_map_successor.verify_listed_paths_match_revision
 )
@@ -55,11 +56,8 @@ DEFAULT_SUCCESSOR_RECEIPTS = (
     "docs/dev/project-management/autopilot/reports/"
     "00018-v2-controller-delivery-receipts.json"
 )
-CONTROLLER_PREFIXES = (
-    "plugins/autopilot/controller/",
-    "plugins/autopilot/contracts/controller/",
-)
-CONTROLLER_CONTRACT = "plugins/autopilot/contracts/controller-v1.json"
+CONTROLLER_PREFIXES = helper_map_successor.CONTROLLER_PREFIXES
+CONTROLLER_CONTRACT = helper_map_successor.CONTROLLER_CONTRACT
 CONTROLLER_SCENARIO = "controller_action_not_yet_wired"
 CONTROLLER_EVIDENCE = TESTS + "test_local_boundary.py"
 MIXED_EXCLUSION = (
@@ -302,8 +300,7 @@ HELPER_FILES = (
 HELPER_PATHS = tuple(f"plugins/autopilot/scripts/{name}.py" for name in HELPER_FILES)
 REFRESHED = (
     "plugins/autopilot/scripts/autopilot.py",
-    "plugins/autopilot/README.md",
-    "plugins/autopilot/CHANGELOG.md",
+    *helper_map_successor.SHARED_PATHS,
 )
 AP00014_DIGESTED = (
     "plugins/autopilot/compatibility/claude.json",
@@ -427,75 +424,6 @@ def build_dispositions(document: dict) -> dict:
         "functions": function_rows(),
         "regressions": regressions,
     }
-
-
-def validate_receipts(receipts: dict, prd: str = "00013") -> None:
-    def text(value: object) -> bool:
-        return isinstance(value, str) and bool(value.strip())
-
-    tasks = receipts.get("tasks")
-    if (
-        type(receipts.get("schema_version")) is not int
-        or receipts["schema_version"] != 1
-    ):
-        raise ValueError("receipts schema_version must be the integer 1")
-    if receipts.get("prd") != prd or not isinstance(tasks, list) or not tasks:
-        raise ValueError(f"receipts must be for PRD {prd} and list at least one task")
-    for task in tasks:
-        passed = task.get("passed")
-        if type(passed) is not int or passed <= 0:
-            raise ValueError(
-                f"receipt task needs a positive integer passed count: {task}"
-            )
-        if not text(task.get("tests")) or not text(task.get("command")):
-            raise ValueError(f"receipt task needs tests and command: {task}")
-    host = receipts.get("real_host")
-    if (
-        not isinstance(host, dict)
-        or host.get("status") != "unavailable"
-        or not text(host.get("reason"))
-    ):
-        raise ValueError(
-            "receipts real_host must be unavailable with a reason; never passed"
-        )
-    if "package_revision" in receipts:
-        revision = receipts["package_revision"]
-        if not isinstance(revision, str) or not re.fullmatch(r"[0-9a-f]{40}", revision):
-            raise ValueError("receipts package_revision must be 40 lowercase hex")
-
-
-def validate_successor_receipts(
-    successor: dict, supersedes_artifact: dict | None
-) -> None:
-    if not isinstance(successor, dict):
-        raise ValueError("successor receipts must be a JSON object")
-    validate_receipts(successor, prd="00018")
-    if "package_revision" not in successor:
-        raise ValueError("successor receipts need a package_revision")
-    if (
-        supersedes_artifact is None
-        or successor.get("supersedes") != supersedes_artifact
-    ):
-        raise ValueError(
-            "successor receipts must supersede the exact AP00013 receipts loaded"
-        )
-    paths = successor.get("paths")
-    if not isinstance(paths, list) or not paths:
-        raise ValueError("successor receipts must list at least one path")
-    for path in paths:
-        if (
-            not isinstance(path, str)
-            or {"", ".", ".."} & set(path.split("/"))
-            or not (
-                path in (*REFRESHED[1:], CONTROLLER_CONTRACT)
-                or path.startswith(CONTROLLER_PREFIXES)
-            )
-        ):
-            raise ValueError(
-                f"successor path is not README, CHANGELOG or a controller asset: {path!r}"
-            )
-    if len(set(paths)) != len(paths):
-        raise ValueError("successor paths must be unique")
 
 
 def asset_row(path: str, digest: str, evidence: dict) -> dict:
