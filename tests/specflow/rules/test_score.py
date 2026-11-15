@@ -1588,6 +1588,35 @@ class RunnerTest(unittest.TestCase):
                 with self.subTest(command=opaque):
                     self.assertFalse(run_claude.shell_reads(opaque, workspace)[1])
 
+    def test_codex_runtime_is_the_real_binary_folder_behind_a_mise_shim(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            real = root / "installs/0.1.0/bin"
+            real.mkdir(parents=True)
+            (real / "codex").write_text("binary")
+            (root / "installs/latest").symlink_to(root / "installs/0.1.0")
+            (root / "mise").write_text("manager")
+            (root / "shim").symlink_to(root / "mise")
+            via_link = root / "installs/latest/bin/codex"
+            self.assertEqual(
+                run_codex.codex_runtime(str(via_link)), [via_link.parent, real]
+            )
+            found = subprocess.CompletedProcess([], 0, f"{via_link}\n", "")
+            with mock.patch.object(run_claude, "command", return_value=found):
+                # The shim resolves to the manager; its folder is never granted.
+                self.assertEqual(
+                    run_codex.codex_runtime(str(root / "shim")), [via_link.parent, real]
+                )
+            missing = subprocess.CompletedProcess([], 1, "", "")
+            with (
+                mock.patch.object(run_claude, "command", return_value=missing),
+                self.assertRaises(run_claude.HostError),
+            ):
+                run_codex.codex_runtime(str(root / "shim"))
+            (root / "wrapper").write_text("not codex")
+            with self.assertRaises(run_claude.HostError):
+                run_codex.codex_runtime(str(root / "wrapper"))
+
     def test_codex_configuration_digest_is_the_same_on_every_turn(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder).resolve()
@@ -1599,6 +1628,9 @@ class RunnerTest(unittest.TestCase):
             with (
                 mock.patch.object(run_codex.shutil, "which", return_value="/bin/codex"),
                 mock.patch.object(run_codex, "find_git", return_value=Path(__file__)),
+                mock.patch.object(
+                    run_codex, "codex_runtime", return_value=[Path("/opt/codex/bin")]
+                ),
                 mock.patch.object(run_claude, "command", return_value=version),
             ):
                 adapter.identify()
@@ -1950,6 +1982,7 @@ class CodexConversationTest(unittest.TestCase):
             adapter = self.adapter
             adapter.root, adapter.home, adapter.version = root, home, "9.9.9"
             adapter.git = Path("/usr/bin/git")
+            adapter.runtime = [Path("/opt/codex/bin")]
             self.events[2]["item"] = {
                 "type": "command_execution",
                 "command": "bash -lc 'cat notes.md'",
@@ -2009,7 +2042,7 @@ class CodexConversationTest(unittest.TestCase):
             self.assertIn('":root" = "deny"', profile_text)
             self.assertIn("ignore_default_excludes = false", profile_text)
             # Codex re-executes its own binary inside the profile to load instructions.
-            self.assertIn('codex" = "read"\n[permissions', profile_text)
+            self.assertIn('"/opt/codex/bin" = "read"\n[permissions', profile_text)
             # A later delta replaces the text; different content is reported.
             changed = records("Fixture rule.\n")
             changed.append(
