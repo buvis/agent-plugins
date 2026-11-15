@@ -8,11 +8,14 @@ when a required key is absent or mistyped. No generic `ok` flag has meaning.
 
 from __future__ import annotations
 
+import re
+import shlex
 from dataclasses import dataclass
 from enum import StrEnum
 import posixpath
 from pathlib import PurePosixPath
 
+import jobs
 from jobs import ControllerSeam
 
 
@@ -36,11 +39,26 @@ class GuardOutcome:
     stateful: bool  # True -> this call hit `seam`; False -> pure/artifact-only
 
 
+def _malformed_verdict(duty: GuardDuty) -> GuardOutcome:
+    return GuardOutcome(duty=duty, allowed=False, reason="malformed_controller_verdict", stateful=True)
+
+
 def _relay(duty: GuardDuty, context: dict, seam: ControllerSeam) -> GuardOutcome:
-    verdict = seam.evaluate_guard(duty.value, context)
-    return GuardOutcome(
-        duty=duty, allowed=verdict["allowed"], reason=verdict["reason"], stateful=True
-    )
+    try:
+        verdict = seam.evaluate_guard(duty.value, context)
+    except Exception:
+        return _malformed_verdict(duty)
+    if not isinstance(verdict, dict) or set(verdict) != {"allowed", "reason"}:
+        return _malformed_verdict(duty)
+    allowed = verdict["allowed"]
+    reason = verdict["reason"]
+    if not isinstance(allowed, bool):
+        return _malformed_verdict(duty)
+    if reason is not None and not isinstance(reason, str):
+        return _malformed_verdict(duty)
+    if not allowed and not reason:
+        return _malformed_verdict(duty)
+    return GuardOutcome(duty=duty, allowed=allowed, reason=reason, stateful=True)
 
 
 _LIFECYCLE_DIRS = ("backlog", "wip", "hold", "done")
@@ -135,30 +153,87 @@ def _guard_review_completeness(context: dict, seam: ControllerSeam) -> GuardOutc
     return _relay(GuardDuty.REVIEW_COMPLETENESS, context, seam)
 
 
-def _guard_document_location(context: dict) -> GuardOutcome:
-    duty = GuardDuty.DOCUMENT_LOCATION
-    refused = _missing_input(duty, context, {"document_path": str})
-    if refused:
-        return refused
-    path = context["document_path"]
+def _normalize_rel(path: str, project_root: str | None) -> str:
+    if project_root:
+        prefix = project_root.rstrip("/") + "/"
+        if path.startswith(prefix):
+            return path[len(prefix) :]
+    return path
+
+
+def _store_path_verdict(path: str) -> tuple[bool, str | None]:
     parts = PurePosixPath(posixpath.normpath(path)).parts
     if ".." in parts:
-        return _deny(duty, f"path climbs above its root and cannot be resolved: {path}")
+        return False, f"path climbs above its root and cannot be resolved: {path}"
     rel = _store_rel(parts)
     if rel is None:
         if parts and parts[0] in _LIFECYCLE_DIRS:
-            return _deny(duty, f"lifecycle directory outside the store: {path}")
-        return _allow(duty)
+            return False, f"lifecycle directory outside the store: {path}"
+        return True, None
     if _store_rel_allowed(rel):
-        return _allow(duty)
-    return _deny(duty, f"path not allowed in the project-management store: {path}")
+        return True, None
+    return False, f"path not allowed in the project-management store: {path}"
+
+
+_REDIR_PREFIX = re.compile(r"^[0-9]*[<>&]+")
+_ASSIGNMENT_TOKEN = re.compile(r"^(--?[A-Za-z0-9_-]+|[A-Za-z_][A-Za-z0-9_]*)=(.*)$")
+
+
+def _clean_command_token(token: str) -> str:
+    token = _REDIR_PREFIX.sub("", token)
+    match = _ASSIGNMENT_TOKEN.match(token)
+    if match:
+        return match.group(2)
+    return token
+
+
+def _command_tokens(command: str) -> list[str]:
+    try:
+        lexer = shlex.shlex(command, posix=True, punctuation_chars=True)
+        return list(lexer)
+    except ValueError:
+        return command.split()
+
+
+def _guard_document_location(context: dict) -> GuardOutcome:
+    duty = GuardDuty.DOCUMENT_LOCATION
+    has_path = "document_path" in context and _is_type(context["document_path"], str)
+    has_command = "command" in context and _is_type(context["command"], str)
+    if has_path == has_command:
+        return _deny(
+            duty,
+            "missing or mistyped required input: exactly one of 'document_path', 'command' (str)",
+        )
+    if "project_root" in context and not _is_type(context["project_root"], str):
+        return _deny(duty, "missing or mistyped required input 'project_root' (str)")
+    project_root = context.get("project_root")
+
+    if has_path:
+        path = _normalize_rel(context["document_path"], project_root)
+        allowed, reason = _store_path_verdict(path)
+        if allowed:
+            return _allow(duty)
+        assert reason is not None
+        return _deny(duty, reason)
+
+    for token in _command_tokens(context["command"]):
+        cleaned = _clean_command_token(token)
+        if "/" not in cleaned:
+            continue
+        normalized = _normalize_rel(cleaned, project_root)
+        parts = PurePosixPath(posixpath.normpath(normalized)).parts
+        if parts and parts[0] in _LIFECYCLE_DIRS and _store_rel(parts) is None:
+            return _deny(duty, f"lifecycle directory outside the store: {normalized}")
+    return _allow(duty)
 
 
 def _guard_delegation(context: dict) -> GuardOutcome:
     duty = GuardDuty.DELEGATION
-    refused = _missing_input(duty, context, {"dispatch_skill": str})
+    refused = _missing_input(duty, context, {"dispatch_skill": str, "child_depth": int})
     if refused:
         return refused
+    if context["child_depth"] >= jobs.MAX_CHILD_DEPTH:
+        return _deny(duty, "recursion_depth")
     skill = context["dispatch_skill"]
     if skill in _PHASE_SKILLS:
         return _deny(duty, f"whole phase skill must not be dispatched: {skill}")
@@ -225,6 +300,33 @@ _PURE = {
     GuardDuty.DEPARTURE: _guard_departure,
     GuardDuty.CONTEXT_REINJECTION: _guard_context_reinjection,
 }
+
+
+_SEGMENT_SPLIT = re.compile(r"\n|&&|\|\||[;|&]")
+_PREFIX_CMDS = frozenset({"command", "exec", "env", "sudo", "nice", "time", "nohup"})
+_ASSIGNMENT_WORD = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
+_INDIRECT_MARKERS = ("$(", "`", "eval", "sh -c", "bash -c", "zsh -c", "xargs", "<<")
+_WORD_GIT = re.compile(r"\bgit\b")
+_WORD_PUSH = re.compile(r"\bpush\b")
+
+
+def is_git_push(command: str) -> bool:
+    """Conservative superset of the git-push grammar (§7): a false positive
+    only costs a seam consultation, so ambiguous forms fail closed to True."""
+    for segment in _SEGMENT_SPLIT.split(command):
+        tokens = segment.split()
+        i = 0
+        while i < len(tokens) and (_ASSIGNMENT_WORD.match(tokens[i]) or tokens[i] in _PREFIX_CMDS):
+            i += 1
+        if i < len(tokens) and PurePosixPath(tokens[i]).name == "git" and "push" in tokens[i + 1 :]:
+            return True
+    if (
+        any(marker in command for marker in _INDIRECT_MARKERS)
+        and _WORD_GIT.search(command)
+        and _WORD_PUSH.search(command)
+    ):
+        return True
+    return False
 
 
 def run_guard(duty: GuardDuty, context: dict, *, seam: ControllerSeam | None) -> GuardOutcome:
