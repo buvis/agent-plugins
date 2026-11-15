@@ -3,13 +3,33 @@
 from __future__ import annotations
 
 import importlib
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from types import ModuleType
 
 CAPABILITY_NAMES = ("identity", "delegation", "isolation", "interception")
 
 UNAVAILABLE_NO_BINARY = "no_binary"
 UNAVAILABLE_NO_AUTH = "no_auth"
+
+CAPABILITY_STATUSES = ("supported", "unavailable", "unimplemented")
+
+# host_id -> sibling adapter module name.
+ADAPTERS = {"claude": "claude", "codex": "codex", "gemini": "gemini"}
+
+PROVIDER_HOSTS = {"anthropic": "claude", "openai": "codex", "google": "gemini"}
+
+# review adapter kind -> (host_id, execution)
+ADAPTER_KINDS = {
+    "native-subagent": ("claude", "in-session"),
+    "native-fallback": ("claude", "in-session"),
+    "review-fanout-workflow": ("claude", "in-session"),
+    "codex-cli": ("codex", "cross-session"),
+    "gemini-cli": ("gemini", "cross-session"),
+}
+
+SESSION_SOURCES = ("environment", "hook_input")
 
 
 @dataclass(frozen=True)
@@ -18,6 +38,20 @@ class CapabilityStatus:
     status: str
     reason: str | None
 
+    def __post_init__(self) -> None:
+        # Each message names only its own field.
+        if self.name not in CAPABILITY_NAMES:
+            raise ValueError(f"unknown capability name: {self.name!r}")
+        if self.status not in CAPABILITY_STATUSES:
+            raise ValueError(f"unknown capability status: {self.status!r}")
+        if self.status == "unavailable":
+            if self.reason not in (UNAVAILABLE_NO_BINARY, UNAVAILABLE_NO_AUTH):
+                raise ValueError(
+                    f"unavailable needs reason {UNAVAILABLE_NO_BINARY!r} or {UNAVAILABLE_NO_AUTH!r}, got {self.reason!r}"
+                )
+        elif self.reason is not None:
+            raise ValueError(f"reason must be None unless unavailable, got {self.reason!r}")
+
 
 @dataclass(frozen=True)
 class HostCapability:
@@ -25,7 +59,24 @@ class HostCapability:
     statuses: dict[str, CapabilityStatus]
 
 
-CAPABILITY_STATUSES = ("supported", "unavailable", "unimplemented")
+@dataclass(frozen=True)
+class NativeSession:
+    host_id: str
+    session_id: str
+    source: str
+
+    def __post_init__(self) -> None:
+        # Each message names only its own field.
+        if self.host_id not in ADAPTERS:
+            raise ValueError(f"unknown host_id: {self.host_id!r}")
+        if not self.session_id:
+            raise ValueError("session_id is empty")
+        if len(self.session_id.encode("utf-8")) > 256:
+            raise ValueError("session_id exceeds 256 UTF-8 bytes")
+        if any(ord(char) < 0x20 or ord(char) == 0x7F for char in self.session_id):
+            raise ValueError("session_id contains an ASCII control character")
+        if self.source not in SESSION_SOURCES:
+            raise ValueError(f"unknown source: {self.source!r}")
 
 
 @dataclass(frozen=True)
@@ -141,3 +192,16 @@ def probe_host(host_id: str, *, project_root: Path) -> ProbeResult:
     if fn is None:
         raise ValueError(f"unknown host_id: {host_id!r}")
     return fn(project_root=project_root)
+
+
+def adapter(host_id: str) -> ModuleType:
+    """The sibling adapter module ADAPTERS names for host_id; nothing is
+    imported for an unknown host_id."""
+    module_name = ADAPTERS.get(host_id)
+    if module_name is None:
+        raise ValueError(f"unknown host_id: {host_id!r}")
+    return importlib.import_module(module_name)
+
+
+def current_session(host_id: str, env: Mapping[str, str]) -> NativeSession | None:
+    return adapter(host_id).session_from_environment(env)
