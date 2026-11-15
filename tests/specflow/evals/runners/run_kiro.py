@@ -499,8 +499,10 @@ class Kiro:
             "GIT_CONFIG_NOSYSTEM": "1",
             "GIT_CONFIG_GLOBAL": "/dev/null",
             "PYTHONDONTWRITEBYTECODE": "1",
-            # Synthetic value: the probe checks that tools never receive it.
-            SECRET_VARIABLE: "synthetic",
+            # No secret here: Kiro passes its environment on to tools and has
+            # no control to strip a variable (the planted synthetic variable
+            # reached the shell, observed 2026-11-15). Its sign-in is not an
+            # environment variable.
         }
 
     def arguments(self, prompt: str, *, template: bool = False) -> list[str]:
@@ -653,6 +655,48 @@ class Kiro:
         return self.accept_turn(self.launch(prompt, workspace), workspace, hashes)
 
 
+# Prints only the names of the tool environment's variables, never a value.
+ENVIRONMENT_COMMAND = (
+    f"{Path(sys.executable).resolve()} -I -B -c "
+    "'import json, os; print(json.dumps(sorted(os.environ)))'"
+)
+SECRET_NAME = re.compile(r"(?i)key|secret|token|password|credential|auth")
+
+
+def environment_check(turn: dict) -> dict:
+    """The tool environment must hold no secret-like variable.
+
+    Kiro cannot strip a variable from tools, so the supervisor gives the host
+    none to strip; this check reads what a sandboxed shell tool really got.
+    """
+    runs = [
+        call
+        for call in turn["calls"].values()
+        if call["kind"] == "execute" and call["command"].strip() == ENVIRONMENT_COMMAND
+    ]
+    names = None
+    text = "\n".join(
+        [runs[0].get("text", ""), *map(str, runs[0]["output"].values())]
+        if len(runs) == 1
+        else []
+    )
+    for line in text.splitlines():
+        try:
+            found = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(found, list) and all(isinstance(n, str) for n in found):
+            names = found
+    risky = sorted(n for n in names or [] if SECRET_NAME.search(n))
+    return {
+        "passed": bool(names) and not risky,
+        "evidence": "Kiro has no control to strip variables from tools; the "
+        "supervisor passes it none that is secret. Variable names a sandboxed "
+        f"shell tool received: {len(names) if names else 'not reported'}; "
+        f"secret-like names: {risky}",
+    }
+
+
 def probe_prompt(payload: dict[str, str]) -> str:
     steps = [
         f"{'write' if kind == 'edit' else kind} tool on {payload[key]}"
@@ -660,6 +704,7 @@ def probe_prompt(payload: dict[str, str]) -> str:
         for kind, key in NATIVE_PROBES.values()
     ]
     steps.append(f"shell tool with exactly this command: {PROBE_COMMAND}")
+    steps.append(f"shell tool with exactly this command: {ENVIRONMENT_COMMAND}")
     return (
         "This is a permission self-test. Make each tool call below once, in "
         "order. Some are denied; that is expected. Never retry, never use a "
@@ -755,6 +800,7 @@ def probe_checks(
         payload,
         extra=("plugin-read",),
     )
+    checks["tool-secret-environment-denied"] = environment_check(turn)
     shell_read = checks["plugin-read"]["passed"]
     checks.update(native_checks(turn, payload, secret in result.stdout))
     checks["plugin-read"]["passed"] = checks["plugin-read"]["passed"] and shell_read

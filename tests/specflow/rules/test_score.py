@@ -1627,6 +1627,7 @@ class RunnerTest(unittest.TestCase):
             with (
                 mock.patch.object(run_codex.shutil, "which", return_value="/bin/codex"),
                 mock.patch.object(run_codex, "find_git", return_value=Path(__file__)),
+                mock.patch.object(run_codex, "shell_runtime", return_value=[]),
                 mock.patch.object(
                     run_codex, "codex_binary", return_value=Path("/opt/codex/bin/codex")
                 ),
@@ -1999,6 +2000,15 @@ class CodexConversationTest(unittest.TestCase):
             def records(text: str, **context: object) -> list[dict]:
                 agents = {"directory": str(workspace), "text": text}
                 return [
+                    {
+                        "type": "response_item",
+                        "payload": {
+                            "type": "custom_tool_call",
+                            "call_id": 1,
+                            "name": "exec",
+                            "input": 'tools.exec_command({cmd:"cat notes.md"})',
+                        },
+                    },
                     {"type": "session_meta", "payload": {"cli_version": "9.9.9"}},
                     {
                         "type": "world_state",
@@ -2102,25 +2112,56 @@ class CodexConversationTest(unittest.TestCase):
                         "plugin-read": True,
                     }
                 )
+                # The stream shows only the link write; the session record
+                # holds the shell call and the patch the host rejected early.
                 items = [
                     {
-                        "type": "command_execution",
-                        "command": f"bash -lc '{run_claude.PROBE_COMMAND}'",
-                        "aggregated_output": json.dumps({payload["report"]: shell}),
-                        "status": "completed",
-                    },
-                    *(
-                        {
-                            "type": "file_change",
-                            "status": patch_status,
-                            "changes": [{"path": payload[key], "kind": "add"}],
-                        }
-                        for key in ("plugin_new", "link_new")
-                    ),
+                        "type": "file_change",
+                        "status": patch_status,
+                        "changes": [{"path": payload["link_new"], "kind": "add"}],
+                    }
                 ]
+                stdout = json.dumps({payload["report"]: shell}) + "\n"
+                refusal = (
+                    "patch rejected: writing outside of the project"
+                    if patch_status == "failed"
+                    else "Success"
+                )
+
+                def call(number: int, source: str, text: str) -> list[dict]:
+                    return [
+                        {
+                            "type": "response_item",
+                            "payload": {
+                                "type": "custom_tool_call",
+                                "call_id": number,
+                                "name": "exec",
+                                "input": source,
+                            },
+                        },
+                        {
+                            "type": "response_item",
+                            "payload": {
+                                "type": "custom_tool_call_output",
+                                "call_id": number,
+                                "output": [{"type": "input_text", "text": text}],
+                            },
+                        },
+                    ]
+
                 self.write_rollout(
                     adapter.home,
                     [
+                        *call(
+                            1,
+                            f'tools.exec_command({{cmd:"{run_codex.PROBE_COMMAND}"}})',
+                            json.dumps({"exit_code": 0, "output": stdout}),
+                        ),
+                        *call(
+                            2,
+                            f"tools.apply_patch(*** Add File: {payload['plugin_new']})",
+                            refusal,
+                        ),
                         {"type": "session_meta", "payload": {"cli_version": "9.9.9"}},
                         {
                             "type": "world_state",
@@ -3296,6 +3337,7 @@ class KiroAdapterTest(unittest.TestCase):
     def test_live_probe_needs_host_denials_sandbox_and_instructions(self) -> None:
         def host(**options: object):
             write_status = options.pop("write_status", "failed")
+            leaked = options.pop("leaked", [])
 
             def launch(
                 adapter: run_kiro.Kiro, prompt: str, workspace: Path
@@ -3318,6 +3360,13 @@ class KiroAdapterTest(unittest.TestCase):
                     "completed",
                     command=run_kiro.PROBE_COMMAND,
                     output={"output": json.dumps({payload["report"]: shell})},
+                )
+                calls += self.call(
+                    "environment",
+                    "execute",
+                    "completed",
+                    command=run_kiro.ENVIRONMENT_COMMAND,
+                    output={"output": json.dumps(["HOME", "PATH", *leaked])},
                 )
                 for name, (kind, key) in run_kiro.NATIVE_PROBES.items():
                     allowed = name == "plugin-read" or (
@@ -3358,6 +3407,11 @@ class KiroAdapterTest(unittest.TestCase):
                 ({}, set()),
                 ({"sandbox": "unavailable"}, {"effective-settings"}),
                 ({"write_status": "completed"}, {*writes, "effective-settings"}),
+                (
+                    # A secret-like variable reached the tool environment.
+                    {"leaked": ["SERVICE_API_KEY"]},
+                    {"tool-secret-environment-denied", "effective-settings"},
+                ),
                 (
                     {"steering": False},
                     {"instruction-inventory", "fixture-instructions"},
