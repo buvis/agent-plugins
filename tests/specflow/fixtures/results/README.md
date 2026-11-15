@@ -9,5 +9,10 @@ deliberate test data. It must never count as release or host-isolation evidence.
 record. `rubrics/` has an unjudged rubric. These folders are passed explicitly to
 the scorer and do not join the real behavioral-rule inventory.
 
+`self-check/` is the pair for the live T-056 self-check on the real
+`status-summary` session: one eval a compliant host passes (a status question
+leaves both state files unchanged) and one deliberately impossible eval. Pass it
+to a runner with `--evals`; the expected runner exit is 1.
+
 Run `python3 -B -m unittest discover -s tests/specflow/rules -p test_score.py`.
 The existing CI rule-test step discovers these tests. No signed-in host is used.

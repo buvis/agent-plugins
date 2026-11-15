@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DLG-001",
+  "session": "status-summary",
+  "assertions": [
+    {
+      "kind": "file_unchanged",
+      "path": ".kiro/specs/00001-gift-cards/.specflow.json"
+    },
+    {
+      "kind": "file_unchanged",
+      "path": ".kiro/specs/00002-cart-rounding/.specflow.json"
+    }
+  ]
+}

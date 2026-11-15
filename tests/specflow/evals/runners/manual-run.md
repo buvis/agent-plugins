@@ -3,21 +3,65 @@
 T-056 is **incomplete**. Requirements, design, and tasks were approved on
 2026-11-10. The scorer and shared batch machinery have deterministic tests;
 synthetic records under `fixtures/results/` are never release evidence.
-Claude and Codex entry points still record `notRun` and exit before a live host.
-Instruction classification and release-eligibility checks are implemented and
-tested with synthetic evidence. Codex live conversation transport, the Kiro adapter,
-installed-host policies/instruction capture, independent-login integration, and
-the three-host live self-check remain.
+The Claude and Codex adapters are implemented. Each stays blocked until a
+passing boundary proof for its exact host version, package revision, and
+generated configuration is supplied with `--boundary-proof`. No proof exists
+yet: the shell-sandbox half must run in a developer terminal outside
+`run-agent`, because a nested Seatbelt sandbox cannot start inside it.
 
-Codex now has an offline `accept_turn` reducer for the documented exec JSONL
-events. It requires ordered thread/start/completion evidence, the same thread
-for resumed turns, a final reply, and nonnegative token usage. Malformed streams,
-failed/denied items, and nonzero exits fail without advancing conversation state
-or persisting raw diagnostics. New sessions clear thread and usage state.
-Synthetic tests exercise this reducer only; it is not wired to a live transport.
-It supplies neither resolved-model/version evidence nor measured reads or a
-complete instruction inventory. `preflight`, `batch`, and direct `turn` calls
-remain blocked; no switch enables live execution.
+## Host telemetry and controls (measured 2026-11-15)
+
+Installed hosts: Claude Code 2.1.325, Codex 0.167.2, kiro-cli 2.35.1 with
+Kiro Agent Server 0.66.70. Codex moved from 0.167.0, so the recorded shell and
+instruction-rendering diagnostics below are historical for that version.
+
+| Host | Instruction telemetry | Read telemetry | Isolation controls |
+|---|---|---|---|
+| Claude Code | `InstructionsLoaded` hook: one event per loaded file, with `load_reason` and `parent_file_path` for imports. It fires on every resumed turn. Observed live for root, import, rule, and nested loads. | `Read`/`Grep` tool events and shell commands in the stream | Empty `CLAUDE_CONFIG_DIR`, `--setting-sources project,local`, generated `--settings` (default-deny permissions, mandatory shell sandbox, sign-in stripped from tool processes) |
+| Codex | Session record `world_state.agents_md` holds the merged instruction text and its directory, rewritten on a resumed turn when the file changes. No file paths. Nothing below the working directory loads. | `command_execution` items | Private `CODEX_HOME`, per-turn permission profile; the session record's `turn_context` reports the effective profile, model, and CLI version |
+| Kiro | Stream update `steering_inclusion` lists the URI of every loaded instruction file; `context_usage` lists context files | `tool_call` updates with `rawInput.path` | `KIRO_HOME` relocates settings, agents, Powers, and sessions while the sign-in stays valid; with `chat.disableInheritingDefaultResources` and a custom agent only fixture instructions load |
+
+The in-session checks behind this table used synthetic workspaces. Two of
+them, one Codex and one Kiro turn, ran under the normal profile to read the
+event format only; they are not isolation evidence.
+
+**Claude collector.** A supervisor hook hashes each file at its load event and
+appends the event to `<batch>/control/instructions.jsonl`. A `SessionStart`
+marker proves that the generated settings were read; a turn without it fails.
+A root `CLAUDE.md` that exists but was not reported leaves the turn unmeasured.
+
+**Codex collector (contract revision pending).** The host records loaded text,
+not paths. The adapter names the path from Codex's documented discovery rule
+(one `AGENTS.override.md` or `AGENTS.md` in the Git root, no imports) and accepts
+it only when the host-recorded text equals the file as it was before launch.
+The approved design asks for each loaded path, so `ROLLOUT_INVENTORY_APPROVED`
+in `run_codex.py` stays false and Codex records stay `not-measured` until the
+developer approves that reading (00009 QA log, 2026-11-15).
+
+## Live proof procedure
+
+Run each step in a developer terminal outside `run-agent`, from the
+repository root. A probe uses synthetic sentinels only and costs one short
+model turn.
+
+1. Make the scratch folder: `mkdir -p docs/dev/tmp/specflow/proofs`.
+2. Export the Claude setup sign-in: `export CLAUDE_CODE_OAUTH_TOKEN="$(<~/.local/secrets/claude-setup-token)"`.
+3. Run `python3 -B tests/specflow/evals/runners/run_claude.py --probe-boundary --model claude-haiku-5-5 > docs/dev/tmp/specflow/proofs/claude.json`. Exit 0 means every check passed.
+4. Run `python3 -B tests/specflow/evals/runners/run_codex.py --probe-live --model <codex-model> > docs/dev/tmp/specflow/proofs/codex.json`. Sign in when Codex asks. The sign-in lives only in the batch directory.
+5. Read both proof files. Each check names its evidence.
+6. Run the self-check session: `python3 -B tests/specflow/evals/runners/run_claude.py status-summary --model claude-haiku-5-5 --boundary-proof docs/dev/tmp/specflow/proofs/claude.json --evals tests/specflow/fixtures/results/self-check --out docs/dev/tmp/specflow/results`. The expected exit is 1: one eval passes and the impossible eval fails.
+7. Run the same session with `run_codex.py`, `<codex-model>`, and `proofs/codex.json`. Sign in again when Codex asks.
+8. Compare the records: `python3 -B tests/specflow/evals/runners/score.py --compare docs/dev/tmp/specflow/results/claude-code/status-summary/1.json docs/dev/tmp/specflow/results/codex/status-summary/1.json`. Exit 0 means equal status fields.
+
+A proof is bound to the host version, the committed package tree, and the
+generated configuration. Any change to one of them needs a new probe.
+
+Codex reduces the documented exec JSONL events: ordered thread, start, and
+completion evidence, the same thread on a resumed turn, a final reply, and
+nonnegative token usage. A shell command that exits nonzero is ordinary work.
+A failed or declined file change, an error item, a malformed stream, or a
+nonzero process exit fails the turn without advancing conversation state or
+storing raw output.
 
 ## Approved environment and remaining proof
 
@@ -26,8 +70,10 @@ isolated Codex home is decided; no personal-file move or tainted-evidence waiver
 exists. The approved revision replaces active-sign-in copying with independent
 login directly into the batch home. `temporary_home` accepts a supervisor
 provisioning callback, never an existing credential path; it checks private,
-regular, unlinked authentication state before installation. The live provisioner
-is deliberately unimplemented until the isolated launch route is verified.
+regular, unlinked authentication state before installation. The provisioner
+runs `codex login` in the developer's terminal with file storage inside the
+batch home; it refuses to start without a terminal. The sign-in happens inside
+the batch clock, so it shortens the batch budget instead of preceding it.
 Synthetic tests cover installation, mismatch, errors, interruption, and cleanup.
 
 The approved scratch layout is an external private batch under the macOS system
@@ -37,8 +83,7 @@ active Seatbelt profile. The shared engine now creates the external layout,
 verifies the resource copy, and uses its helper for status capture. It refuses
 ancestor instructions and residual external or legacy private state. Tests use
 mocked host/Git boundaries; this is not installed-host isolation evidence.
-Host configuration and authentication integration remain unfinished. Do not
-remove the preflight refusal merely to try a session.
+Do not remove the preflight refusal merely to try a session.
 
 The approved Claude route uses an isolated configuration home, setup-token auth,
 verified fixture settings, and an explicit plugin read directory with native-tool
@@ -137,12 +182,8 @@ or subsequent load. Native read/write denial, actual-home sentinel denial,
 effective configuration, tool environments, and network policy remain separate
 checks. The passing shell report remains tied to its original runner/configuration.
 
-The next implementation prerequisite is a collector that supplies exhaustive
-load-time paths, content hashes, and imports for each actual turn, plus the
-remaining native-tool/effective-policy boundary checks. The renderer's successful
-fixture-marker check does not supply those observations. Independent login and
-live transport remain blocked by their existing prerequisites; this diagnostic
-does not authorize treating the current adapter as ready.
+The renderer's fixture-marker check is superseded by the per-turn collectors
+described under "Host telemetry and controls". It never certified an adapter.
 
 ## Implemented resource controls
 
