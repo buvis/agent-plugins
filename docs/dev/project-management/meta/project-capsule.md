@@ -2,6 +2,10 @@
 
 Generated: 2026-11-05
 
+## 2026-11-15 backlog unblocked (read this first; older entries are history)
+
+AP00018 v2 is in `done/` after an attended close-out (`reviews/00018-autopilot-controller-kernel-v2-closeout.md`): its queued cycle 3 tail sweep ran, the delivery receipt pins `1d83b89`, the full suite is 1634 passed at `01fd160`, and master `Validate` is green (run 43707393873) with origin level with local. `prds/hold/` is empty (`reviews/2026-11-15-hold-triage.md`): the 27 AP00014 v1 stubs are input to AP00014 v2 Phase 0 task 2. Backlog order for one loop on master: 00014 v2, 00015, 00019, 00020, 00021, 00016, 00017; 00067 waits for `engram nudge`. 00019-00021 now list the pinned delivery files and end with a re-seal task; 00016, 00017 and 00021 carry `rework_cap: 3`. Run loops with `_AUTOPILOT_PRD_BUDGET_USD=450`. Plan: `plans/backlog-drain.md`. Carl (Gemini) is still unavailable on this host. Loupe reflows whole Python files at agent stops; revert any reflow outside your own hunks.
+
 ## Current AP 00012 handoff
 
 Completed and moved to done: 47/47 tasks, two review cycles and the completed Tail sweep. Model provenance and independent review receipts passed the host completion gate. AP00013 starts in a fresh build session. Earlier build and recovery notes below are historical.
