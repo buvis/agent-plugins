@@ -1282,3 +1282,16 @@
 {"kind":"handoff","site":"review","edge":"leave","at":1794371309,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
 {"kind":"handoff","site":"done","edge":"leave","at":1794371361,"phase":"done","prd":""}
 {"kind":"handoff","site":"build","edge":"resume","at":1794758796,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
+{"id":"ee2fed9a","kind":"ivan","task":"1","queued_at":1794761669,"prompt_bytes":10108}
+{"id":"259862d5","kind":"ivan","task":"1","queued_at":1794761692,"prompt_bytes":10788}
+{"id":"fdfa83d4","kind":"ivan","task":"1","queued_at":1794761714,"prompt_bytes":11020}
+{"id":"b61f1a8b","kind":"ivan","task":"1","queued_at":1794761717,"prompt_bytes":11020}
+{"id":"fdfa83d4","ended_at":1794762048,"elapsed_s":334,"outcome":"ok","detail":null}
+{"id":"b61f1a8b","ended_at":1794762054,"elapsed_s":337,"outcome":"ok","detail":null}
+{"id":"2db9967b","kind":"ivan","task":"1","queued_at":1794762092,"prompt_bytes":14217}
+{"id":"cbc1fd18","kind":"ivan","task":"1","queued_at":1794762096,"prompt_bytes":14217}
+{"id":"cbc1fd18","ended_at":1794762402,"elapsed_s":306,"outcome":"ok","detail":null}
+{"id":"ee2fed9a","ended_at":1794762519,"elapsed_s":756,"outcome":"ok","detail":"closed-by: commit 402043d1b93e069552bb41c3447ae5fdcafa099b"}
+{"id":"259862d5","ended_at":1794762519,"elapsed_s":733,"outcome":"ok","detail":"closed-by: commit 402043d1b93e069552bb41c3447ae5fdcafa099b"}
+{"id":"2db9967b","ended_at":1794762519,"elapsed_s":333,"outcome":"ok","detail":"closed-by: commit 402043d1b93e069552bb41c3447ae5fdcafa099b"}
+{"kind":"handoff","site":"build","edge":"leave","at":1794762519,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
