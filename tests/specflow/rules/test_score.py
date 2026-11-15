@@ -15,6 +15,7 @@ import time
 import unittest
 from collections.abc import Iterator
 from pathlib import Path
+from typing import ClassVar
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -1100,6 +1101,14 @@ class RunnerTest(unittest.TestCase):
                             (cwd / "result.txt").read_text(), "Status reported"
                         )
                     (cwd / "result.txt").write_text("Status reported")
+                    self.assertEqual(
+                        set(env) & {"HOME", "CLAUDE_CONFIG_DIR"},
+                        {"HOME", "CLAUDE_CONFIG_DIR"},
+                    )
+                    self.assertNotIn(str(Path.home()), env["HOME"])
+                    (cwd.parent.parent / "control/instructions.jsonl").write_text(
+                        json.dumps({"hook_event_name": "SessionStart"}) + "\n"
+                    )
                     conversation_turns[cwd.name] = count + 1
                     output = "\n".join(
                         json.dumps(e)
@@ -1141,6 +1150,12 @@ class RunnerTest(unittest.TestCase):
                 return subprocess.CompletedProcess(args, 0, output, "")
 
             adapter = run_claude.Claude("tested-model")
+            adapter.version = "fixture-version"
+            sign_in = mock.patch.dict(
+                os.environ, {run_claude.AUTH_VARIABLE: "synthetic"}
+            )
+            sign_in.start()
+            self.addCleanup(sign_in.stop)
             with (
                 mock.patch.object(adapter, "preflight"),
                 mock.patch.object(run_claude, "command", side_effect=cli),
@@ -1158,6 +1173,8 @@ class RunnerTest(unittest.TestCase):
             parent = score.read_json(root / "results/claude-code/status-summary/1.json")
             child = score.read_json(root / "results/claude-code/continued/1.json")
             self.assertEqual(len(parent["messages"]), 2)
+            self.assertEqual(parent["readMeasurement"], "measured")
+            self.assertEqual(parent["filesRead"], [["result.txt"], ["result.txt"]])
             self.assertEqual(
                 child["continuesRun"],
                 {"host": "claude-code", "session": "status-summary", "n": 1},
@@ -1190,23 +1207,352 @@ class RunnerTest(unittest.TestCase):
             self.assertIn("parent", child["notRun"])
             self.assertNotIn("scores", child)
 
+    INIT: ClassVar[dict] = {
+        "type": "system",
+        "subtype": "init",
+        "model": "tested-model",
+        "claude_code_version": "fixture-version",
+        "session_id": "conversation",
+        "skills": ["specflow:spec-workflow"],
+    }
+    DONE: ClassVar[dict] = {
+        "type": "result",
+        "subtype": "success",
+        "result": "ok",
+        "total_cost_usd": 0.1,
+    }
+
+    @contextlib.contextmanager
+    def claude_turn(
+        self, events: list[dict], log: list[dict]
+    ) -> Iterator[tuple[run_claude.Claude, Path, mock.Mock]]:
+        """Synthetic host process inside a real batch layout; no Claude runs."""
+        with tempfile.TemporaryDirectory() as folder:
+            batch = Path(folder).resolve()
+            workspace = batch / "workspaces/session"
+            for path in (workspace, batch / "control", batch / "resources/specflow"):
+                path.mkdir(parents=True)
+            adapter = run_claude.Claude("tested-model")
+            adapter.plugin = batch / "resources/specflow"
+            adapter.version = "fixture-version"
+
+            def cli(
+                args: list[str], cwd: Path, env: dict | None = None, timeout: int = 600
+            ) -> subprocess.CompletedProcess:
+                (batch / "control/instructions.jsonl").write_text(
+                    "".join(json.dumps(e) + "\n" for e in log)
+                )
+                return subprocess.CompletedProcess(
+                    args, 0, "\n".join(json.dumps(e) for e in events), ""
+                )
+
+            with (
+                mock.patch.object(adapter, "preflight"),
+                mock.patch.object(run_claude, "command", side_effect=cli) as command,
+                mock.patch.dict(os.environ, {run_claude.AUTH_VARIABLE: "synthetic"}),
+            ):
+                yield adapter, workspace, command
+
     def test_claude_permission_denial_and_model_omission_are_failures(self) -> None:
-        adapter = run_claude.Claude("tested-model")
+        started = [{"hook_event_name": "SessionStart"}]
         for final in [
             {"is_error": True},
             {"permission_denials": ["Read"]},
-            {"subtype": "success"},
+            {"subtype": "error_max_turns"},
         ]:
-            result = subprocess.CompletedProcess(
-                [], 0, json.dumps({"type": "result", **final}), ""
-            )
+            events = [self.INIT, {**self.DONE, **final}]
             with (
                 self.subTest(final=final),
-                mock.patch.object(adapter, "preflight", autospec=True),
-                mock.patch.object(run_claude, "command", return_value=result),
+                self.claude_turn(events, started) as (adapter, workspace, _),
+                self.assertRaisesRegex(run_claude.HostError, "did not succeed"),
+            ):
+                adapter.turn("Status", workspace)
+        for init in [{"model": ""}, {"claude_code_version": "other"}, {"skills": []}]:
+            events = [{**self.INIT, **init}, self.DONE]
+            with (
+                self.subTest(init=init),
+                self.claude_turn(events, started) as (adapter, workspace, _),
                 self.assertRaises(run_claude.HostError),
             ):
-                adapter.turn("Status", ROOT)
+                adapter.turn("Status", workspace)
+
+    def test_claude_launch_isolates_environment_and_denies_private_paths(self) -> None:
+        started = [{"hook_event_name": "SessionStart"}]
+        with (
+            self.claude_turn([self.INIT, self.DONE], started) as (
+                adapter,
+                workspace,
+                command,
+            ),
+            mock.patch.dict(os.environ, {"SYNTHETIC_SECRET": "leak"}),
+        ):
+            adapter.turn("Status", workspace)
+            args, _, env = command.call_args.args
+            batch = workspace.parent.parent
+            settings = json.loads((batch / "control/settings.json").read_text())
+        self.assertNotIn("SYNTHETIC_SECRET", env)
+        self.assertEqual(env["CLAUDE_CONFIG_DIR"], str(batch / "control/claude-home"))
+        self.assertEqual(args[args.index("--permission-mode") + 1], "dontAsk")
+        self.assertEqual(args[args.index("--setting-sources") + 1], "project,local")
+        sandbox = settings["sandbox"]
+        self.assertTrue(sandbox["enabled"] and sandbox["failIfUnavailable"])
+        self.assertFalse(sandbox["allowUnsandboxedCommands"])
+        self.assertEqual(
+            sandbox["credentials"]["envVars"],
+            [{"name": run_claude.AUTH_VARIABLE, "mode": "deny"}],
+        )
+        self.assertIn(str(batch / "control"), sandbox["filesystem"]["denyRead"])
+        self.assertIn(str(batch / "workspaces"), sandbox["filesystem"]["denyRead"])
+        self.assertIn(str(workspace), sandbox["filesystem"]["allowRead"])
+        deny = settings["permissions"]["deny"]
+        for rule in (
+            f"Read(/{batch / 'control'}/**)",
+            f"Read(/{Path.home().resolve()}/**)",
+            f"Edit(/{batch / 'resources/specflow'}/**)",
+        ):
+            self.assertIn(rule, deny)
+        self.assertFalse(settings["autoMemoryEnabled"])
+
+    def test_claude_load_hook_measures_imports_and_rejects_missing_evidence(
+        self,
+    ) -> None:
+        def load(path: Path, digest: str, parent: Path | None = None) -> dict:
+            return {
+                "hook_event_name": "InstructionsLoaded",
+                "file_path": str(path),
+                "sha256": digest,
+                "parent_file_path": str(parent) if parent else None,
+            }
+
+        events = [self.INIT, self.DONE]
+        with (
+            self.claude_turn(events, []) as (adapter, workspace, _),
+            self.assertRaisesRegex(run_claude.HostError, "ignored"),
+        ):
+            adapter.turn("Status", workspace)
+        started = {"hook_event_name": "SessionStart"}
+        with self.claude_turn(events, [started]) as (adapter, workspace, _):
+            (workspace / "CLAUDE.md").write_text("fixture")
+            adapter.turn("Status", workspace)
+            # The host reported no load for a root instruction that exists.
+            self.assertEqual(adapter.instruction_measurement, "not-measured")
+        with tempfile.TemporaryDirectory() as folder:
+            root, extra = Path(folder) / "CLAUDE.md", Path(folder) / "extra.md"
+            log = [started, load(extra, "b" * 64, root), load(root, "a" * 64)]
+            path = Path(folder) / "log.jsonl"
+            path.write_text("".join(json.dumps(e) + "\n" for e in log))
+            observations, hooked = run_claude.read_instruction_log(path)
+            self.assertTrue(hooked)
+            self.assertEqual(
+                observations[str(root)], {"sha256": "a" * 64, "imports": [str(extra)]}
+            )
+            self.assertEqual(observations[str(extra)]["imports"], [])
+            path.write_text(
+                "".join(
+                    json.dumps(e) + "\n"
+                    for e in [started, load(root, "a" * 64), load(root, "c" * 64)]
+                )
+            )
+            # Two contents for one path in a turn leave the hash unknown.
+            self.assertIsNone(
+                run_claude.read_instruction_log(path)[0][str(root)]["sha256"]
+            )
+            path.write_text("not json\n")
+            self.assertEqual(run_claude.read_instruction_log(path), ({}, False))
+
+    def test_claude_reads_name_shell_files_and_reject_opaque_commands(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            workspace = Path(folder)
+            (workspace / "notes.md").write_text("x")
+
+            def stream(name: str, data: dict) -> list[dict]:
+                block = {"type": "tool_use", "name": name, "input": data}
+                return [{"message": {"content": [block]}}]
+
+            named = stream("Bash", {"command": "cat notes.md"})
+            self.assertEqual(
+                run_claude.named_reads(named, workspace),
+                ([str(workspace / "notes.md")], True),
+            )
+            for opaque in (
+                stream("Bash", {"command": "cat *.md"}),
+                stream("Bash", {"command": "grep -r token ."}),
+                stream("Grep", {"pattern": "token"}),
+            ):
+                self.assertFalse(run_claude.named_reads(opaque, workspace)[1])
+
+    def test_claude_probe_passes_only_on_observed_denials_and_intact_plugin(
+        self,
+    ) -> None:
+        def host(leak: bool = False, allow: str = "", write: bool = False):
+            def launch(
+                adapter: run_claude.Claude, prompt: str, workspace: Path, budget: float
+            ) -> list[dict]:
+                payload = json.loads((workspace / "probe.json").read_text())
+                control = workspace.parent.parent / "control"
+                log = [{"hook_event_name": "SessionStart"}]
+                for name, parent in (("imported.md", "CLAUDE.md"), ("CLAUDE.md", "")):
+                    path = workspace / name
+                    log.append(
+                        {
+                            "hook_event_name": "InstructionsLoaded",
+                            "file_path": str(path),
+                            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                            "parent_file_path": str(workspace / parent)
+                            if parent
+                            else None,
+                        }
+                    )
+                (control / "instructions.jsonl").write_text(
+                    "".join(json.dumps(e) + "\n" for e in log)
+                )
+                if write:
+                    Path(payload["plugin_new"]).write_text("probe")
+                blocks = []
+                for number, (name, (tool, key)) in enumerate(
+                    run_claude.NATIVE_PROBES.items()
+                ):
+                    blocks.append(
+                        {
+                            "type": "tool_use",
+                            "id": str(number),
+                            "name": tool,
+                            "input": {"file_path": payload[key]},
+                        }
+                    )
+                    blocks.append(
+                        {
+                            "type": "tool_result",
+                            "tool_use_id": str(number),
+                            "is_error": name not in ("plugin-read", allow),
+                            "content": Path(payload["control"]).read_text()
+                            if leak
+                            else "denied",
+                        }
+                    )
+                shell = {
+                    name: True
+                    for name in score.RELEASE_BOUNDARY_CHECKS
+                    if name.startswith("shell-")
+                }
+                shell.update(
+                    {"helper-status": True, "tool-secret-environment-denied": True}
+                )
+                blocks.append(
+                    {
+                        "type": "tool_use",
+                        "id": "shell",
+                        "name": "Bash",
+                        "input": {"command": run_claude.PROBE_COMMAND},
+                    }
+                )
+                blocks.append(
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": "shell",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": json.dumps({payload["report"]: shell}),
+                            }
+                        ],
+                    }
+                )
+                return [{"message": "plain"}, {"message": {"content": blocks}}]
+
+            return launch
+
+        def identify(adapter: run_claude.Claude) -> None:
+            adapter.version, adapter.configuration_sha256 = "fixture-version", "c" * 64
+
+        def failed(proof: dict) -> set[str]:
+            return {n for n, c in proof["checks"].items() if c["passed"] is not True}
+
+        with tempfile.TemporaryDirectory() as folder:
+            scratch = Path(folder).resolve()
+            for options, expected in (
+                ({}, set()),
+                (
+                    {"allow": "native-control-read-denied"},
+                    {"native-control-read-denied", "effective-settings"},
+                ),
+                (
+                    {"write": True},
+                    {
+                        "native-plugin-write-denied",
+                        "native-symlink-write-denied",
+                        "shell-plugin-write-denied",
+                        "shell-symlink-write-denied",
+                        "effective-settings",
+                    },
+                ),
+            ):
+                with (
+                    self.subTest(options=options),
+                    mock.patch.object(run_claude.Claude, "identify", identify),
+                    mock.patch.object(run_claude.Claude, "launch", host(**options)),
+                ):
+                    proof = run_claude.boundary_probe("tested-model", scratch=scratch)
+                    self.assertEqual(failed(proof), expected)
+                    self.assertEqual(
+                        set(proof["checks"]), set(score.RELEASE_BOUNDARY_CHECKS)
+                    )
+                    self.assertNotIn(str(scratch), json.dumps(proof))
+            with (
+                mock.patch.object(run_claude.Claude, "identify", identify),
+                mock.patch.object(run_claude.Claude, "launch", host(leak=True)),
+            ):
+                leaked = failed(
+                    run_claude.boundary_probe("tested-model", scratch=scratch)
+                )
+            self.assertIn("native-home-read-denied", leaked)
+            self.assertEqual(list(scratch.iterdir()), [])
+
+    def test_claude_preflight_requires_proof_for_this_exact_configuration(self) -> None:
+        adapter = run_claude.Claude("tested-model")
+        revision = "a" * 40
+
+        def identify() -> None:
+            adapter.version = "fixture-version"
+            adapter.configuration_sha256 = "c" * 64
+
+        proof = {
+            "scope": "installed-host-boundary",
+            "host": "claude-code",
+            "hostVersion": "fixture-version",
+            "runtimeRevision": revision,
+            "configurationSha256": "c" * 64,
+            "checks": {
+                name: {"passed": True, "evidence": "observed"}
+                for name in score.RELEASE_BOUNDARY_CHECKS
+            },
+        }
+        with (
+            mock.patch.object(adapter, "identify", side_effect=identify),
+            mock.patch.object(run_claude, "package_revision", return_value=revision),
+        ):
+            for change in (
+                None,
+                {"scope": "synthetic-shell-boundary-only"},
+                {"hostVersion": "other"},
+                {"configurationSha256": "d" * 64},
+                {"runtimeRevision": "b" * 40},
+                {
+                    "checks": {
+                        **proof["checks"],
+                        "cleanup": {"passed": False, "evidence": "left"},
+                    }
+                },
+            ):
+                adapter.boundary = None if change is None else {**proof, **change}
+                with (
+                    self.subTest(change=change),
+                    self.assertRaisesRegex(run_claude.HostError, "boundary proof"),
+                ):
+                    adapter.preflight()
+            adapter.boundary = proof
+            adapter.preflight()
+        self.assertEqual(adapter.boundary_sha256, score.evidence_digest(proof))
 
     def test_command_timeout_kills_process_and_captures_failures(self) -> None:
         result = run_claude.command(
@@ -1290,14 +1636,18 @@ class RunnerTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             out = Path(folder)
             adapter = run_claude.Claude("test-model")
-            with mock.patch.object(
-                adapter, "turn", side_effect=AssertionError("must not launch")
+            with (
+                mock.patch.object(
+                    adapter, "turn", side_effect=AssertionError("must not launch")
+                ),
+                mock.patch.dict(os.environ),
             ):
+                os.environ.pop(run_claude.AUTH_VARIABLE, None)
                 self.assertEqual(
                     run_claude.run_batch(adapter, "status-summary", out), 2
                 )
             record = score.read_json(out / "claude-code/status-summary/1.json")
-            self.assertIn("isolation", record["notRun"])
+            self.assertIn("sign-in", record["notRun"])
             self.assertNotIn("scores", record)
             self.assertFalse(record["releaseEvidence"])
             self.assertEqual(record["model"], "test-model")

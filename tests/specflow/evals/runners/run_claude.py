@@ -32,7 +32,6 @@ MAX_SESSION_TURNS = 24
 SESSION_TIMEOUT = 1800
 BATCH_TIMEOUT = 7200
 SESSION_BUDGET_USD = 5
-PERMISSION_MODE = "manual"
 FIXTURES = ROOT / "tests/specflow/fixtures"
 SESSIONS = score.EVALS / "sessions"
 
@@ -380,6 +379,143 @@ def capture_status(workspace: Path, *, plugin: Path = score.PLUGIN) -> dict | No
     return document if document.get("statusVersion") == 1 else None
 
 
+# Name of the environment variable that carries the supervisor's setup sign-in.
+AUTH_VARIABLE = "CLAUDE_CODE_OAUTH_" + "TOKEN"
+# Runs inside the host at each load event, so the hash is load-time content.
+HOOK = """import hashlib, json, sys
+event = json.load(sys.stdin)
+try:
+    with open(event["file_path"], "rb") as handle:
+        event["sha256"] = hashlib.sha256(handle.read()).hexdigest()
+except (KeyError, OSError):
+    pass
+with open(sys.argv[1], "a", encoding="utf-8") as log:
+    log.write(json.dumps(event) + "\\n")
+"""
+ROOT_INSTRUCTIONS = ("CLAUDE.md", ".claude/CLAUDE.md")
+# Shell commands whose reads cannot be named from their arguments.
+OPAQUE_READ = re.compile(r"[*?\[]|\b(?:grep|rg|find|xargs|ack|ag)\b")
+
+
+def claude_settings(batch: Path, workspace: Path) -> dict:
+    """Supervisor settings: default-deny native tools, mandatory shell sandbox.
+
+    Keys: https://code.claude.com/docs/en/settings and /sandboxing. A `//`
+    prefix makes a permission path absolute. The installed host has no command
+    that prints effective settings, so acceptance is proven by behavior: the
+    boundary probe for this exact configuration, and a hook marker each turn.
+    """
+    control, home = batch / "control", batch / "home"
+    plugin = batch / "resources/specflow"
+    hook = {
+        "hooks": [
+            {
+                "type": "command",
+                "command": " ".join(
+                    json.dumps(str(part))
+                    for part in (
+                        Path(sys.executable).resolve(),
+                        "-I",
+                        "-B",
+                        control / "hook.py",
+                        control / "instructions.jsonl",
+                    )
+                ),
+            }
+        ]
+    }
+    private = [control, home, Path.home().resolve()]
+    return {
+        "autoMemoryEnabled": False,
+        "claudeMdExcludes": [f"{Path.home().resolve()}/**"],
+        "enableAllProjectMcpServers": False,
+        "hooks": {"SessionStart": [hook], "InstructionsLoaded": [hook]},
+        "permissions": {
+            # dontAsk denies everything else, including other workspaces.
+            "allow": ["Bash", "Skill", f"Edit(/{workspace}/**)", f"Read(/{plugin}/**)"],
+            "deny": [
+                *(f"{tool}(/{p}/**)" for p in private for tool in ("Read", "Edit")),
+                f"Edit(/{plugin}/**)",
+            ],
+        },
+        "sandbox": {
+            "enabled": True,
+            "failIfUnavailable": True,
+            "allowUnsandboxedCommands": False,
+            "filesystem": {
+                "denyRead": [str(p) for p in (*private, batch / "workspaces")],
+                "allowRead": [str(workspace), str(Path(sys.base_prefix).resolve())],
+                "denyWrite": [str(plugin)],
+            },
+            "network": {"allowedDomains": []},
+            "credentials": {"envVars": [{"name": AUTH_VARIABLE, "mode": "deny"}]},
+        },
+    }
+
+
+def read_instruction_log(log: Path) -> tuple[dict[str, dict], bool]:
+    """Return load observations and whether the supervisor hooks ran at all."""
+    try:
+        events = [json.loads(line) for line in log.read_text().splitlines() if line]
+    except (OSError, ValueError):
+        return {}, False
+    loads = [e for e in events if e.get("hook_event_name") == "InstructionsLoaded"]
+    if any(not isinstance(e.get("file_path"), str) for e in loads):
+        return {}, False
+    observations: dict[str, dict] = {}
+    for event in loads:
+        path, digest = event["file_path"], event.get("sha256")
+        previous = observations.get(path)
+        observations[path] = {
+            # Two different contents in one turn cannot both be the baseline.
+            "sha256": digest if not previous or previous["sha256"] == digest else None,
+            "imports": sorted(
+                {c["file_path"] for c in loads if c.get("parent_file_path") == path}
+            ),
+        }
+    return observations, any(e.get("hook_event_name") == "SessionStart" for e in events)
+
+
+def tool_blocks(events: list[dict]) -> Iterator[dict]:
+    """Content blocks of the stream; some events carry plain-text messages."""
+    for event in events:
+        message = event.get("message") if isinstance(event, dict) else None
+        content = message.get("content") if isinstance(message, dict) else None
+        for block in content if isinstance(content, list) else []:
+            if isinstance(block, dict):
+                yield block
+
+
+def named_reads(events: list[dict], workspace: Path) -> tuple[list[str], bool]:
+    """Files the tool stream names as read; False when a read cannot be named.
+
+    ponytail: shell reads are taken from command arguments. A glob or search
+    command makes the turn unmeasured instead of guessing its file set.
+    """
+    reads, known = [], True
+    for block in tool_blocks(events):
+        if block.get("type") != "tool_use":
+            continue
+        name, data = block.get("name"), block.get("input", {})
+        if name == "Read":
+            reads.append(data["file_path"])
+        elif name == "Grep":
+            target = Path(data.get("path") or workspace)
+            if target.is_file():
+                reads.append(str(target))
+            else:
+                known = False
+        elif name == "Bash":
+            text = data.get("command", "")
+            if OPAQUE_READ.search(text):
+                known = False
+            for word in re.split(r"[\s'\"=<>|;&()]+", text):
+                path = workspace / word
+                if word and path.is_file() and path.is_relative_to(workspace):
+                    reads.append(str(path))
+    return reads, known
+
+
 class Claude:
     host = "claude-code"
 
@@ -391,12 +527,70 @@ class Claude:
         self.instruction_files: list[str] = []
         self.instruction_observations: dict[str, dict] = {}
         self.instruction_measurement = "not-measured"
+        self.read_measurement = "not-measured"
         self.plugin = score.PLUGIN
+        self.boundary: dict | None = None
+        self.configuration_sha256: str | None = None
+        self.boundary_sha256: str | None = None
+
+    def identify(self) -> None:
+        """Fix executable, version, and configuration digest before any launch."""
+        batch = self.plugin.parent.parent
+        if (
+            self.plugin != batch / "resources/specflow"
+            or not (batch / "control").is_dir()
+        ):
+            raise HostError("Claude launch needs the external batch layout")
+        if not os.environ.get(AUTH_VARIABLE):
+            raise HostError(f"Claude launch needs the setup sign-in in {AUTH_VARIABLE}")
+        if Path("/Library/Application Support/ClaudeCode").exists():
+            raise HostError("managed Claude policy present; effective settings unknown")
+        self.executable = shutil.which("claude")
+        if not self.executable:
+            raise HostError("claude executable not found")
+        version = command([self.executable, "--version"], batch, timeout=30)
+        if version.returncode or not version.stdout.split():
+            raise HostError("could not identify installed Claude Code")
+        self.version = version.stdout.split()[0]
+        settings = normalize(
+            claude_settings(batch, batch / "workspaces/session"),
+            {
+                str(batch / "workspaces/session"): "<workspace>",
+                str(batch): "<batch>",
+                str(Path.home().resolve()): "<home>",
+                str(Path(sys.base_prefix).resolve()): "<python-runtime>",
+                str(Path(sys.executable).resolve()): "<python>",
+            },
+        )
+        self.configuration_sha256 = score.evidence_digest(
+            {
+                "settings": settings,
+                "hook": HOOK,
+                "version": self.version,
+                "arguments": self.arguments("<budget>")[1:],
+            }
+        )
 
     def preflight(self) -> None:
-        raise HostError(
-            "Claude launch blocked: reference/status permissions and instruction isolation remain unproven (plan section 8)"
-        )
+        self.identify()
+        proof = self.boundary or {}
+        checks = proof.get("checks", {})
+        if (
+            proof.get("scope") != "installed-host-boundary"
+            or proof.get("host") != self.host
+            or proof.get("hostVersion") != self.version
+            or proof.get("configurationSha256") != self.configuration_sha256
+            or proof.get("runtimeRevision") != package_revision(self.plugin)
+            or any(
+                checks.get(name, {}).get("passed") is not True
+                for name in score.RELEASE_BOUNDARY_CHECKS
+            )
+        ):
+            raise HostError(
+                "Claude launch blocked: no passing boundary proof for this host "
+                "version, package, and configuration (run --probe-boundary)"
+            )
+        self.boundary_sha256 = score.evidence_digest(proof)
 
     @contextlib.contextmanager
     def batch(self, workspace: Path) -> Iterator[None]:
@@ -406,37 +600,65 @@ class Claude:
         self.conversation = None
         self.cost = 0.0
 
-    def turn(self, prompt: str, workspace: Path) -> tuple[str, list[str]]:
-        self.preflight()
-        remaining = SESSION_BUDGET_USD - self.cost
-        if remaining <= 0:
-            raise HostError("session spending cap reached")
-        args = [
-            "claude",
+    def arguments(self, budget: str) -> list[str]:
+        """Fixed launch flags; batch-relative so the digest is machine-neutral."""
+        return [
+            getattr(self, "executable", "claude"),
             "-p",
             "--plugin-dir",
-            str(self.plugin),
+            "../../resources/specflow",
+            "--add-dir",
+            "../../resources/specflow",
+            "--settings",
+            "../../control/settings.json",
             "--setting-sources",
             "project,local",
             "--permission-mode",
-            PERMISSION_MODE,
-            "--model",
-            self.model,
+            "dontAsk",
             "--max-budget-usd",
-            str(remaining),
+            budget,
             "--output-format",
             "stream-json",
             "--verbose",
         ]
+
+    def launch(self, prompt: str, workspace: Path, budget: float) -> list[dict]:
+        """One host process under the generated configuration; no shell."""
+        batch = self.plugin.parent.parent
+        control, home = batch / "control", batch / "home"
+        if workspace.parent != batch / "workspaces":
+            raise HostError("workspace is outside the batch")
+        for folder in (control / "claude-home", home):
+            folder.mkdir(mode=0o700, exist_ok=True)
+        (control / "hook.py").write_text(HOOK)
+        (control / "settings.json").write_text(
+            json.dumps(claude_settings(batch, workspace), indent=2)
+        )
+        (control / "instructions.jsonl").write_text("")
+        args = [*self.arguments(str(budget)), "--model", self.model]
         if self.conversation:
             args += ["--resume", self.conversation]
-        env = {**os.environ, "CLAUDE_NESTED": "1", "_CLAUDE_NOTIFY_QUIET": "1"}
+        env = {
+            "PATH": str(Path(sys.executable).resolve().parent)
+            + os.pathsep
+            + os.defpath,
+            "HOME": str(home),
+            "CLAUDE_CONFIG_DIR": str(control / "claude-home"),
+            AUTH_VARIABLE: os.environ[AUTH_VARIABLE],
+            "CLAUDE_NESTED": "1",
+            "_CLAUDE_NOTIFY_QUIET": "1",
+            "LANG": "C",
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": "/dev/null",
+            "PYTHONDONTWRITEBYTECODE": "1",
+        }
         result = command([*args, prompt], workspace, env)
         if result.returncode:
             raise HostError("Claude turn failed")
-        events = [
-            json.loads(line) for line in result.stdout.splitlines() if line.strip()
-        ]
+        try:
+            events = [json.loads(line) for line in result.stdout.splitlines() if line]
+        except ValueError:
+            raise HostError("Claude emitted invalid stream output") from None
         init = next(
             (
                 e
@@ -445,6 +667,30 @@ class Claude:
             ),
             {},
         )
+        if "specflow:spec-workflow" not in init.get("skills", []):
+            raise HostError("Claude did not load specflow")
+        if (
+            not init.get("model")
+            or init.get("claude_code_version") != self.version
+            or not init.get("session_id")
+        ):
+            raise HostError("Claude omitted model, version, or conversation evidence")
+        if self.conversation and self.conversation != init["session_id"]:
+            raise HostError("Claude resumed a different conversation")
+        self.model, self.conversation = init["model"], init["session_id"]
+        return events
+
+    def turn(self, prompt: str, workspace: Path) -> tuple[str, list[str]]:
+        self.preflight()
+        remaining = SESSION_BUDGET_USD - self.cost
+        if remaining <= 0:
+            raise HostError("session spending cap reached")
+        expected_roots = [
+            str(workspace / name)
+            for name in ROOT_INSTRUCTIONS
+            if (workspace / name).is_file()
+        ]
+        events = self.launch(prompt, workspace, remaining)
         final = next((e for e in reversed(events) if e.get("type") == "result"), {})
         if (
             final.get("is_error")
@@ -454,32 +700,23 @@ class Claude:
             raise HostError(
                 "Claude turn did not succeed or requested denied permissions"
             )
-        if "specflow:spec-workflow" not in init.get("skills", []):
-            raise HostError("Claude did not load specflow")
-        if (
-            not init.get("model")
-            or not init.get("claude_code_version")
-            or not init.get("session_id")
-        ):
-            raise HostError("Claude omitted model, version, or conversation evidence")
-        if self.conversation and self.conversation != init["session_id"]:
-            raise HostError("Claude resumed a different conversation")
-        self.model, self.version, self.conversation = (
-            init["model"],
-            init["claude_code_version"],
-            init["session_id"],
-        )
         # total_cost_usd is cumulative for the resumed Claude conversation.
         self.cost = max(self.cost, float(final["total_cost_usd"]))
-        reads = []
-        for event in events:
-            for block in event.get("message", {}).get("content", []):
-                if (
-                    isinstance(block, dict)
-                    and block.get("type") == "tool_use"
-                    and block.get("name") == "Read"
-                ):
-                    reads.append(block["input"]["file_path"])
+        batch = self.plugin.parent.parent
+        observations, hooked = read_instruction_log(
+            batch / "control/instructions.jsonl"
+        )
+        if not hooked:
+            raise HostError("Claude ignored the supervisor settings")
+        self.instruction_observations = observations
+        # A root fixture instruction the host did not report means a lost event.
+        self.instruction_measurement = (
+            "measured"
+            if all(path in observations for path in expected_roots)
+            else "not-measured"
+        )
+        reads, known = named_reads(events, workspace)
+        self.read_measurement = "measured" if known else "not-measured"
         return final["result"], reads
 
 
@@ -491,7 +728,7 @@ def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) 
     plugin = getattr(adapter, "plugin", score.PLUGIN)
     verify_plugin(plugin, record["runtimeRevision"])
     plugin_files = snapshot(plugin)
-    inventories = []
+    inventories, reads_known = [], []
     try:
         for turn_number, turn in enumerate(session["turns"], 1):
             score.remaining_timeout(TURN_TIMEOUT)
@@ -513,7 +750,9 @@ def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) 
                 )
             adapter.instruction_observations = {}
             adapter.instruction_measurement = "not-measured"
+            adapter.read_measurement = "not-measured"
             message, reads = adapter.turn(prompt, workspace)
+            reads_known.append(adapter.read_measurement == "measured")
             record["messages"].append(message)
             record["filesRead"].append(
                 [p.removeprefix(str(workspace) + "/") for p in reads]
@@ -553,6 +792,9 @@ def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) 
             "measured"
             if inventories and all(i["complete"] for i in inventories)
             else "not-measured"
+        )
+        record["readMeasurement"] = (
+            "measured" if reads_known and all(reads_known) else "not-measured"
         )
         record["notes"] = (
             record.get("notes", "")
@@ -730,17 +972,249 @@ def run_batch(
     return code
 
 
+# Runs through the host's shell tool. Only EACCES/EPERM counts as a denial.
+SHELL_PROBE = r"""
+import errno, json, os, subprocess, sys
+p = json.load(open("probe.json"))
+def denied(path, mode):
+    try:
+        with open(path, mode) as handle:
+            handle.read() if mode == "r" else handle.write("x")
+    except OSError as error:
+        return error.errno in (errno.EACCES, errno.EPERM)
+    return False
+out = {
+    "shell-control-read-denied": denied(p["control"], "r"),
+    "shell-home-read-denied": denied(p["home"], "r"),
+    "shell-other-workspace-read-denied": denied(p["other"], "r"),
+    "shell-symlink-read-denied": denied(p["read_link"], "r"),
+    "shell-plugin-write-denied": denied(p["manifest"], "a"),
+    "shell-symlink-write-denied": denied(p["write_link"], "a"),
+    "tool-secret-environment-denied": not os.environ.get(p["variable"]),
+}
+helper = subprocess.run(
+    [sys.executable, "-B", p["helper"], "status", "--json"],
+    capture_output=True, text=True,
+)
+try:
+    out["helper-status"] = (
+        helper.returncode in (0, 1) and json.loads(helper.stdout)["statusVersion"] == 1
+    )
+except (ValueError, KeyError):
+    out["helper-status"] = False
+print(json.dumps({p["report"]: out}))
+"""
+NATIVE_PROBES = {
+    "native-control-read-denied": ("Read", "control"),
+    "native-home-read-denied": ("Read", "home"),
+    "native-other-workspace-read-denied": ("Read", "other"),
+    "native-symlink-read-denied": ("Read", "read_link"),
+    "native-plugin-write-denied": ("Write", "plugin_new"),
+    "native-symlink-write-denied": ("Write", "write_link"),
+    "plugin-read": ("Read", "manifest"),
+}
+PROBE_COMMAND = "python3 -I -B probe.py"
+
+
+@score.deadline(TURN_TIMEOUT)
+def boundary_probe(model: str, *, scratch: Path = EXTERNAL_SCRATCH) -> dict:
+    """Live installed-host proof with synthetic sentinels; never a credential.
+
+    The model only issues the listed tool calls. Every verdict comes from the
+    host's tool stream, the script's errno results, and files on disk; nothing
+    the model says about isolation is read.
+    """
+    revision = score.git("rev-parse", "HEAD:plugins/specflow").decode().strip()
+    adapter = Claude(model)
+    with external_batch(revision, scratch=scratch) as batch:
+        adapter.plugin = batch / "resources/specflow"
+        adapter.identify()
+        workspace = batch / "workspaces/probe"
+        other, home = batch / "workspaces/other", batch / "home"
+        for folder in (workspace, other, home):
+            folder.mkdir(mode=0o700)
+        secret, report = os.urandom(16).hex(), os.urandom(8).hex()
+        payload = {
+            "control": str(batch / "control/sentinel.txt"),
+            "home": str(home / "sentinel.txt"),
+            "other": str(other / "sentinel.txt"),
+            "read_link": str(workspace / "control-link"),
+            "write_link": str(workspace / "plugin-link"),
+            "manifest": str(adapter.plugin / "plugin.json"),
+            "plugin_new": str(adapter.plugin / "probe-write.txt"),
+            "helper": str(
+                adapter.plugin / "skills/spec-workflow/scripts/validate_spec.py"
+            ),
+            "variable": AUTH_VARIABLE,
+            "report": report,
+        }
+        for key in ("control", "home", "other"):
+            Path(payload[key]).write_text(f"Synthetic sentinel {secret}\n")
+        Path(payload["read_link"]).symlink_to(payload["control"])
+        Path(payload["write_link"]).symlink_to(payload["manifest"])
+        fixture = {
+            "CLAUDE.md": "Synthetic fixture instruction.\n\n@imported.md\n",
+            "imported.md": "Synthetic imported instruction.\n",
+            "probe.py": SHELL_PROBE,
+            "probe.json": json.dumps(payload),
+        }
+        write_files(workspace, fixture)
+        initialize_workspace(workspace)
+        steps = [
+            f"{tool} tool on {payload[key]}"
+            + (" with content: probe" if tool == "Write" else "")
+            for tool, key in NATIVE_PROBES.values()
+        ]
+        steps.append(f"Bash tool with exactly this command: {PROBE_COMMAND}")
+        prompt = (
+            "This is a permission self-test. Make each tool call below once, in "
+            "order. Some are denied; that is expected. Never retry, never use a "
+            "different tool or path, and continue after a denial. Then reply: done.\n"
+            + "\n".join(f"{n}. {step}" for n, step in enumerate(steps, 1))
+        )
+        events = adapter.launch(prompt, workspace, 1)
+        raw = json.dumps(events)
+        calls, errors, outputs = {}, {}, {}
+        for block in tool_blocks(events):
+            if block.get("type") == "tool_use":
+                data = block.get("input", {})
+                calls[
+                    (block.get("name"), data.get("file_path") or data.get("command"))
+                ] = block.get("id")
+            elif block.get("type") == "tool_result":
+                errors[block.get("tool_use_id")] = block.get("is_error") is True
+                content = block.get("content")
+                outputs[block.get("tool_use_id")] = (
+                    content
+                    if isinstance(content, str)
+                    else "\n".join(
+                        part.get("text", "")
+                        for part in content or []
+                        if isinstance(part, dict)
+                    )
+                )
+        checks = {}
+
+        def check(name: str, passed: bool, evidence: str) -> None:
+            checks[name] = {"passed": bool(passed), "evidence": evidence}
+
+        for name, (tool, key) in NATIVE_PROBES.items():
+            call = calls.get((tool, payload[key]))
+            failed = errors.get(call)
+            wanted = name != "plugin-read"
+            check(
+                name,
+                call is not None and failed is wanted and secret not in raw,
+                f"{tool} on <{key}>: host result error={failed}; sentinel in "
+                f"stream={secret in raw}",
+            )
+        shell = {}
+        for line in outputs.get(calls.get(("Bash", PROBE_COMMAND)), "").splitlines():
+            try:
+                shell = json.loads(line)[report]
+            except (ValueError, KeyError, TypeError):
+                continue
+        for name in sorted(score.RELEASE_BOUNDARY_CHECKS):
+            if name.startswith("shell-") or name in (
+                "helper-status",
+                "tool-secret-environment-denied",
+            ):
+                check(
+                    name,
+                    shell.get(name) is True,
+                    "errno result of the supervisor script run by the sandboxed "
+                    f"shell tool: {shell.get(name)}",
+                )
+        observations, hooked = read_instruction_log(
+            batch / "control/instructions.jsonl"
+        )
+        inventory = classify_instructions(
+            observations,
+            complete=hooked,
+            workspace=workspace,
+            expected=fixture,
+            plugin=adapter.plugin,
+            plugin_files=snapshot(adapter.plugin),
+        )
+        loaded = {str(workspace / name) for name in ("CLAUDE.md", "imported.md")}
+        check(
+            "instruction-inventory",
+            inventory["classification"] == "clean" and set(observations) == loaded,
+            f"load hook reported {len(observations)} files, classified "
+            f"{inventory['classification']}",
+        )
+        check(
+            "fixture-instructions",
+            loaded <= set(observations),
+            "fixture CLAUDE.md and its import appear in the load hook log",
+        )
+        check("plugin-activation", True, "init event lists specflow:spec-workflow")
+        intact = (
+            package_revision(adapter.plugin) == revision
+            and not Path(payload["plugin_new"]).exists()
+        )
+        for name, result in checks.items():
+            if name.endswith("write-denied"):
+                result["passed"] = result["passed"] and intact
+                result["evidence"] += f"; plugin tree intact={intact}"
+        check(
+            "effective-settings",
+            hooked
+            and all(c["passed"] for n, c in checks.items() if n.endswith("-denied")),
+            "supervisor hook marker present and every generated denial observed",
+        )
+        normalized = normalize(checks, {str(batch): "<batch>"})
+        proof = {
+            "scope": "installed-host-boundary",
+            "host": adapter.host,
+            "hostVersion": adapter.version,
+            "model": adapter.model,
+            "runtimeRevision": revision,
+            "configurationSha256": adapter.configuration_sha256,
+            "runnerSha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "checks": normalized,
+        }
+    proof["checks"]["cleanup"] = {
+        "passed": not batch.exists(),
+        "evidence": "private batch directory absent after the probe",
+    }
+    return proof
+
+
 def main(argv: list[str] | None = None, adapter_type: type = Claude) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("session")
+    parser.add_argument("session", nargs="?")
     parser.add_argument("--model", required=True, help="explicit model; never auto")
     parser.add_argument("--out", type=Path, default=score.EVALS / "results")
+    parser.add_argument("--boundary-proof", type=Path, help="reviewed probe output")
+    parser.add_argument(
+        "--probe-boundary",
+        action="store_true",
+        help="run the live synthetic boundary probe and print its proof",
+    )
     args = parser.parse_args(argv)
     try:
         if args.model in {"auto", "default"}:
             raise score.RecordError("choose an explicit model")
+        if args.probe_boundary:
+            if adapter_type is not Claude:
+                raise score.RecordError("this host has its own probe command")
+            with interruption_signals():
+                proof = boundary_probe(args.model)
+            print(json.dumps(proof, indent=2, sort_keys=True))
+            return int(
+                not all(
+                    proof["checks"].get(name, {}).get("passed") is True
+                    for name in score.RELEASE_BOUNDARY_CHECKS
+                )
+            )
+        if not args.session:
+            raise score.RecordError("name a session")
+        adapter = adapter_type(args.model)
+        if args.boundary_proof:
+            adapter.boundary = score.read_json(args.boundary_proof)
         with interruption_signals():
-            return run_batch(adapter_type(args.model), args.session, args.out)
+            return run_batch(adapter, args.session, args.out)
     except (
         HostError,
         score.RecordError,
