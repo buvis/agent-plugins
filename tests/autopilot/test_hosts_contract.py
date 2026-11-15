@@ -159,6 +159,9 @@ class NativeSessionInvariantTest(unittest.TestCase):
     def test_rejects_an_empty_session_id(self) -> None:
         self.assert_rejected_naming("session_id", session_id="")
 
+    def test_rejects_a_session_id_that_is_not_valid_utf8(self) -> None:
+        self.assert_rejected_naming("session_id", session_id="\udc80")
+
     def test_rejects_a_session_id_over_256_utf8_bytes(self) -> None:
         for session_id in ("x" * 257, "é" * 128 + "a", "会" * 86, "x" * 300, "x" * 10000, "会" * 4000):
             with self.subTest(length=len(session_id.encode("utf-8"))):

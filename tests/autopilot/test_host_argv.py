@@ -1,4 +1,4 @@
-"""probe_host dispatches by host_id through the _ADAPTERS table and passes adapter results through unchanged."""
+"""probe_host dispatches by host_id through adapter() and passes adapter results through unchanged."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import types
 import unittest
 import uuid
 from collections.abc import Callable
@@ -140,14 +141,24 @@ def _unavailable_result(host_id: str) -> object:
 
 
 class FakeAdapters:
-    """Keyword-only fake probe functions that record every call and return a prebuilt ProbeResult."""
+    """Keyword-only fake probe functions that record every call and return a prebuilt ProbeResult.
+
+    Installed as fake sibling modules under a unique name per host_id, so
+    `hosts.adapter()` (which imports `hosts.ADAPTERS[host_id]`) resolves to them."""
 
     def __init__(self, results: dict) -> None:
         self.results = results
         self.calls: list[tuple[str, dict]] = []
+        self.module_names = {host_id: f"_fake_adapter_{host_id}_{uuid.uuid4().hex}" for host_id in results}
 
     def table(self) -> dict:
-        return {host_id: self._make(host_id) for host_id in self.results}
+        return dict(self.module_names)
+
+    def install_modules(self) -> None:
+        for host_id, module_name in self.module_names.items():
+            module = types.ModuleType(module_name)
+            module.probe = self._make(host_id)
+            sys.modules[module_name] = module
 
     def _make(self, host_id: str):
         def fake_probe(*, project_root):
@@ -163,7 +174,10 @@ class FakeAdapters:
 class ProbeHostDispatchTest(unittest.TestCase):
     def install(self, results: dict) -> FakeAdapters:
         fakes = FakeAdapters(results)
-        patcher = mock.patch.object(hosts, "_ADAPTERS", fakes.table())
+        fakes.install_modules()
+        for module_name in fakes.module_names.values():
+            self.addCleanup(sys.modules.pop, module_name, None)
+        patcher = mock.patch.object(hosts, "ADAPTERS", fakes.table())
         patcher.start()
         self.addCleanup(patcher.stop)
         return fakes
