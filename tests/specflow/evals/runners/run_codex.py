@@ -1024,7 +1024,18 @@ def shell_runtime() -> list[Path]:
             library = line.split()[0] if line.split() else ""
             if library.startswith("/") and not library.startswith(system):
                 files.append(Path(library))
-    return list(dict.fromkeys(node for file in files for node in link_nodes(file)))
+    # A grant on a link's own path did not let Codex follow it (same failure
+    # with the link and its target both granted, 2026-11-15): the profile
+    # appears to resolve granted paths. A link is readable only through its
+    # real parent folder, so grant that folder; its other entries' targets
+    # stay ungranted.
+    return list(
+        dict.fromkeys(
+            node.parent if node.is_symlink() else node
+            for file in files
+            for node in link_nodes(file)
+        )
+    )
 
 
 def instruction_evidence(
