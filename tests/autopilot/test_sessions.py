@@ -284,22 +284,30 @@ class CodexGeminiRoleCapabilitiesTest(unittest.TestCase):
         )
         self.assertEqual(union, {"alice", "blake", "bob", "carl", "eve"})
 
-    def test_identity_jobs_resolve_to_no_non_claude_host_which_blocks_the_claude_free_profile(
+    def test_identity_jobs_resolve_to_a_non_claude_host_now_that_hosts_json_declares_it(
         self,
     ) -> None:
-        """AP00014 implements native session identity on no non-Claude host, so
-        the PRD's Claude-free profile is not certifiable yet. This is the
-        explicit blocker the PRD requires, recorded rather than papered over;
-        AP 00017 owns the certification that would change it."""
-        self.assertEqual(_resolve_candidate_hosts(("identity",), self.hosts_declared), [])
+        """AP00014 task 7 regenerates contracts/hosts.json from each adapter's
+        own IMPLEMENTED_CAPABILITIES, which already include identity for codex
+        and gemini (task 6). "declared" is still never "certified" -
+        hosts.json's capabilities carry no probe result, so a reader needing
+        a live guarantee still waits on AP 00017's certification - but the
+        claude-free profile is no longer blocked on the contract alone."""
+        self.assertEqual(
+            set(_resolve_candidate_hosts(("identity",), self.hosts_declared)), {"codex", "gemini"}
+        )
         self.assertEqual(
             _resolve_candidate_hosts(("identity", "delegation", "isolation"), self.hosts_declared),
             [],
         )
-        self.assertEqual(_resolve_candidate_hosts(("isolation",), self.hosts_declared), ["codex"])
+        self.assertEqual(
+            set(_resolve_candidate_hosts(("isolation",), self.hosts_declared)), {"codex", "gemini"}
+        )
 
     def test_resolver_rejects_a_capability_subset_neither_host_declares(self) -> None:
-        resolved = _resolve_candidate_hosts(("interception",), self.hosts_declared)
+        # delegation is claude-only (claude.py's in-session Agent-tool
+        # dispatch); neither codex nor gemini declares it.
+        resolved = _resolve_candidate_hosts(("delegation",), self.hosts_declared)
         self.assertEqual(resolved, [])
 
     def test_empty_required_capabilities_resolves_to_both_hosts(self) -> None:
@@ -337,7 +345,7 @@ class DeclaredCapabilitiesMatchImplementationTest(unittest.TestCase):
                 self.assertEqual(module.HOST_ID, host_id)
                 self.assertIsInstance(module.IMPLEMENTED_CAPABILITIES, frozenset)
                 self.assertEqual(set(module.IMPLEMENTED_CAPABILITIES), self.EXPECTED_IMPLEMENTED[host_id])
-                self.assertLessEqual(set(declared[host_id]["capabilities"]), self.EXPECTED_IMPLEMENTED[host_id])
+                self.assertEqual(set(declared[host_id]["capabilities"]), self.EXPECTED_IMPLEMENTED[host_id])
                 self.assertEqual(module.SESSION_ENV_VAR, self.EXPECTED_ENV_VAR[host_id])
                 self.assertIs("delegation" in module.IMPLEMENTED_CAPABILITIES, module.can_delegate())
 
