@@ -2008,6 +2008,8 @@ class CodexConversationTest(unittest.TestCase):
             self.assertIn(f'"{workspace}" = "write"', profile_text)
             self.assertIn('":root" = "deny"', profile_text)
             self.assertIn("ignore_default_excludes = false", profile_text)
+            # Codex re-executes its own binary inside the profile to load instructions.
+            self.assertIn('codex" = "read"\n[permissions', profile_text)
             # A later delta replaces the text; different content is reported.
             changed = records("Fixture rule.\n")
             changed.append(

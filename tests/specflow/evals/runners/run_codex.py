@@ -620,8 +620,15 @@ class Codex:
             raise runner.HostError("could not identify installed Codex")
         self.version = version.stdout.split()[-1]
         policy = runner.normalize(
-            eval_config(self.root / "workspaces/session", Path("<plugin>"), self.git),
+            eval_config(
+                self.root / "workspaces/session",
+                Path("<plugin>"),
+                self.git,
+                Path(executable),
+            ),
             {
+                str(Path(executable)): "<codex>",
+                str(Path(executable).resolve()): "<codex>",
                 str(self.root / "workspaces/session"): "<workspace>",
                 str(Path.home().resolve()): "<home>",
                 str(Path(sys.base_prefix).resolve()): "<python-runtime>",
@@ -707,9 +714,12 @@ class Codex:
 
     def effective_profile(self, profile: object, workspace: Path) -> object:
         """The host-recorded profile with this batch's paths made comparable."""
+        codex = Path(getattr(self, "executable", "codex"))
         return runner.normalize(
             profile,
             {
+                str(codex): "<codex>",
+                str(codex.resolve()): "<codex>",
                 str(workspace): "<workspace>",
                 str(self.plugin): "<plugin>",
                 str(self.root): "<batch>",
@@ -762,7 +772,14 @@ class Codex:
         if workspace.parent != self.root / "workspaces":
             raise runner.HostError("workspace is outside the batch")
         profile = self.home / "specflow.config.toml"
-        profile.write_text(eval_config(workspace, self.plugin, self.git))
+        profile.write_text(
+            eval_config(
+                workspace,
+                self.plugin,
+                self.git,
+                Path(getattr(self, "executable", "codex")),
+            )
+        )
         profile.chmod(0o600)
         return runner.command(self.arguments(prompt), workspace, self.environment())
 
@@ -833,12 +850,24 @@ def find_git() -> Path:
     return path
 
 
-def eval_config(workspace: Path, plugin: Path, git_executable: Path) -> str:
-    """Per-turn profile: the proven probe policy plus sign-in and tool settings."""
+def eval_config(
+    workspace: Path, plugin: Path, git_executable: Path, codex: Path
+) -> str:
+    """Per-turn profile: the proven probe policy plus sign-in and tool settings.
+
+    Codex loads instructions through a helper that re-executes its own binary
+    inside this profile, so that one file needs a read grant (as invoked and
+    resolved). Observed 2026-11-15: without it no session starts.
+    """
     lines = probe_config(
         {"workspace": str(workspace), "plugin": str(plugin)},
         git_executable=git_executable,
     ).splitlines()
+    network = lines.index("[permissions.specflow-probe.network]")
+    lines[network:network] = [
+        f'{json.dumps(str(path))} = "read"'
+        for path in dict.fromkeys((codex, codex.resolve()))
+    ]
     return "\n".join(
         [
             lines[0],
