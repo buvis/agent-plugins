@@ -25,6 +25,8 @@ HELPER_OPERATIONS = [
     "stage-review-v1", "group-findings-v1", "check-evidence-v1", "prepare-close-v1",
     "catchup-probe-v1", "verification-artifact-v1", "controller-required-v1",
     "hosts-v1", "guards-v1", "diagnose-v1",
+    "request-job-v1", "bind-job-v1", "close-child-v1", "resolve-roles-v1",
+    "record-session-v1",
 ]
 if str(PACKAGE / "scripts") not in sys.path:
     sys.path.insert(0, str(PACKAGE / "scripts"))
