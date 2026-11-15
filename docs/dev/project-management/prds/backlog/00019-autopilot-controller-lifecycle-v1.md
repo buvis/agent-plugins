@@ -58,6 +58,13 @@ plugins/autopilot/contracts/controller/fixtures-v1.json
 plugins/autopilot/contracts/controller/provenance.json
 tests/autopilot/test_controller_jobs.py
 plugins/autopilot/CHANGELOG.md
+plugins/autopilot/contracts/controller-v1.json
+tools/autopilot/export-controller-contract.py
+plugins/autopilot/README.md
+tools/autopilot/source-map.json
+tools/autopilot/update_helper_map.py
+tests/autopilot/test_package.py
+tests/autopilot/test_helper_provenance_real.py
 ```
 
 ### Module: Lifecycle
@@ -111,6 +118,7 @@ AP 00018 completed. Reuse source OVCAQ workflow modules and discovery 00003, not
 
 **Tasks**:
 - [ ] Export core/jobs capabilities and run a manual-session fake-host lifecycle. (depends on: Phase 1) — Acceptance: manual_session_handoff, false_success_no_advance and drained_vs_ineligible prove state-led continuation.
+- [ ] Refresh delivery evidence for final package bytes: the schema and fixture edits change the controller bundle digest, so regenerate `plugins/autopilot/contracts/controller-v1.json`, its README digest, the successor receipt and the source map, without changing historical receipts. (depends on: Phase 2 task 1) — Acceptance: tests/autopilot/test_helper_provenance_real.py and tests/autopilot/test_package.py pass against current bytes; no path exemption or test exclusion is introduced.
 
 **Exit Criteria**: Named integration scenarios, `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` and `python3 scripts/validate.py` pass. Record missing real-host capabilities as unavailable.
 
