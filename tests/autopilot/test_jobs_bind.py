@@ -8,6 +8,7 @@ import json
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 TESTS = Path(__file__).resolve().parent
 SCRIPTS = TESTS.parents[1] / "plugins" / "autopilot" / "scripts"
@@ -27,12 +28,19 @@ class BindJobSessionTest(fakes.ProjectCase):
         return path.relative_to(self.root).as_posix()
 
     def test_returns_the_binding_and_writes_exactly_one_lineage_record(self) -> None:
+        prior = (jobs.AncestryEntry(host_id="claude", job_id="first-job", session_id="s-1"),
+                 jobs.AncestryEntry(host_id="gemini", job_id="second-job", session_id="s-2"))
         cases = (
             ({}, fakes.native_session("codex", "cx-child-1", "environment")),
             (dict(job_id="blake-review", host_id="gemini", inputs=[fakes.PRD, fakes.DIFF],
                   requester=fakes.native_session("gemini", "gm-req-2")),
              fakes.native_session("gemini", "gm-child-2", "hook_input")),
+            (dict(job_id="carl-review", ancestry=prior),
+             fakes.native_session("codex", "cx-child-3")),
         )
+        patcher = mock.patch.object(jobs, "MAX_JOB_DEPTH", 3)
+        patcher.start()
+        self.addCleanup(patcher.stop)
         for override, child in cases:
             with self.subTest(child=child.session_id):
                 request = fakes.build(self.root, **override)
@@ -53,10 +61,12 @@ class BindJobSessionTest(fakes.ProjectCase):
                                                           "source": child.source})
                 self.assertEqual(bound["requester_session"], payload["requester"])
                 self.assertEqual(bound["verified_inputs"], payload["inputs"])
-                self.assertEqual(len(bound["ancestry"]), len(request.ancestry) + 1)
-                entry = bound["ancestry"][-1]
-                self.assertEqual(set(entry), {"host_id", "job_id", "session_id"})
-                self.assertEqual(entry["session_id"], request.requester.session_id)
+                requester = request.requester
+                self.assertEqual(bound["ancestry"], [
+                    *payload["ancestry"],
+                    {"host_id": requester.host_id, "job_id": request.job_id,
+                     "session_id": requester.session_id},
+                ])
 
     def test_refuses_a_payload_whose_request_id_changed(self) -> None:
         payload = fakes.build(self.root).to_payload()
@@ -107,7 +117,9 @@ class WriteBindingRecordTest(fakes.ProjectCase):
                 path = jobs.write_binding_record(host_id, session_id, record,
                                                  project_root=self.root)
                 expected = fakes.record_path(self.root, host_id, session_id)
-                self.assertEqual((self.root / path).resolve(), expected.resolve())
+                self.assertFalse(Path(path).is_absolute())
+                self.assertEqual(Path(path).as_posix(),
+                                 expected.relative_to(self.root).as_posix())
                 self.assertEqual(json.loads(expected.read_text(encoding="utf-8")), record)
         written = sorted(p.name for p in (self.root / fakes.LINEAGE_DIR).iterdir())
         self.assertEqual(written, sorted(fakes.record_path(self.root, h, s).name

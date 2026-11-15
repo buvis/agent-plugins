@@ -120,13 +120,48 @@ class JobRequestPayloadTest(fakes.ProjectCase):
             "uppercase digest": lambda p: p["inputs"][0].update(sha256="A" * 64),
             "parent path": lambda p: p["inputs"][0].update(path="../a.diff"),
             "unknown kind": lambda p: p["inputs"][0].update(kind="diffs"),
+            "unknown excluded kind": lambda p: p.update(excluded_input_kinds=["histories"]),
         }
         for name, mutate in mutations.items():
             with self.subTest(mutation=name):
-                payload = copy.deepcopy(base)
-                mutate(payload)
-                payload["request_id"] = fakes.canonical_request_id(payload)
-                self.assert_refused("invalid_request", jobs.JobRequest.from_payload, payload)
+                self.assert_rehashed_refused("invalid_request", base, mutate)
+        self.assert_rehashed_refused("recursion_depth", base, lambda p: p.update(
+            ancestry=[{"host_id": "claude", "job_id": "earlier-job", "session_id": "s-9"}]))
+        ancestry_cases = (
+            ("recursive_job", {"host_id": "codex", "job_id": "alice-review", "session_id": "s-9"}),
+            ("invalid_request", {"host_id": "claudex", "job_id": "earlier-job", "session_id": "s-9"}),
+            ("invalid_request", {"host_id": "claude", "job_id": "earlier-job"}),
+            ("invalid_request", {"host_id": "claude", "job_id": "earlier-job", "session_id": "s-9",
+                                 "depth": 1}),
+        )
+        with mock.patch.object(jobs, "MAX_JOB_DEPTH", 3):
+            fine = [{"host_id": "claude", "job_id": "earlier-job", "session_id": "s-9"}]
+            accepted = jobs.JobRequest.from_payload(
+                self.rehash(base, lambda p: p.update(ancestry=fine)))
+            self.assertEqual(accepted.ancestry, (jobs.AncestryEntry(**fine[0]),))
+            for code, entry in ancestry_cases:
+                with self.subTest(code=code, entry=entry):
+                    self.assert_rehashed_refused(code, base, lambda p: p.update(ancestry=[entry]))
+            with mock.patch.object(jobs, "MAX_JOB_DEPTH", 2):
+                self.assert_rehashed_refused("recursion_depth", base, lambda p: p.update(
+                    ancestry=[{**fine[0], "job_id": f"job-{n}"} for n in range(2)]))
+
+    def rehash(self, base: dict, mutate) -> dict:
+        payload = copy.deepcopy(base)
+        mutate(payload)
+        payload["request_id"] = fakes.canonical_request_id(payload)
+        return payload
+
+    def assert_rehashed_refused(self, code: str, base: dict, mutate) -> None:
+        """A re-hashed mutation is refused by from_payload and by bind_job_session,
+        and the refused bind writes no file."""
+        payload = self.rehash(base, mutate)
+        self.assert_refused(code, jobs.JobRequest.from_payload, payload)
+        before = fakes.files_under(self.root)
+        self.assert_refused(code, jobs.bind_job_session, payload,
+                            child=fakes.native_session("codex", "cx-child-1"),
+                            project_root=self.root)
+        self.assertEqual(fakes.files_under(self.root), before)
 
 
 class DeriveAncestryTest(fakes.ProjectCase):
@@ -153,14 +188,23 @@ class DeriveAncestryTest(fakes.ProjectCase):
                 self.assertEqual(jobs.derive_ancestry(env, self.root), ())
 
     def test_job_env_appends_the_job_host_job_and_current_session(self) -> None:
-        for host_id, job_id, session_id in (("codex", "alice-review", "cx-child-1"),
-                                            ("gemini", "blake-review", "gm-child-2")):
-            with self.subTest(host_id=host_id):
+        prior = (jobs.AncestryEntry(host_id="claude", job_id="first-job", session_id="s-1"),
+                 jobs.AncestryEntry(host_id="gemini", job_id="second-job", session_id="s-2"))
+        patcher = mock.patch.object(jobs, "MAX_JOB_DEPTH", 3)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        for host_id, job_id, session_id, ancestry in (
+            ("codex", "alice-review", "cx-child-1", ()),
+            ("gemini", "blake-review", "gm-child-2", ()),
+            ("codex", "carl-review", "cx-child-3", prior),
+        ):
+            with self.subTest(job_id=job_id):
                 calls = self.serve_session(host_id, session_id)
-                job_file = self.write_job(fakes.build(self.root, host_id=host_id, job_id=job_id),
-                                          f"{job_id}.json")
+                job_file = self.write_job(fakes.build(self.root, host_id=host_id, job_id=job_id,
+                                                      ancestry=ancestry), f"{job_id}.json")
                 env = {jobs.JOB_ENV: str(job_file), "MARKER": job_id}
                 self.assertEqual(jobs.derive_ancestry(env, self.root), (
+                    *ancestry,
                     jobs.AncestryEntry(host_id=host_id, job_id=job_id, session_id=session_id),
                 ))
                 self.assertTrue(calls)

@@ -311,10 +311,18 @@ class ReviewerIsolationTest(fakes.ProjectCase):
             with self.subTest(inputs=inputs):
                 self.assert_refused("invalid_request", fakes.build, self.root,
                                     inputs=inputs, excluded_input_kinds=excluded)
+        plan = {"kind": "plan", "path": "docs/dev/tmp/plan.md"}
+        fakes.seed(self.root, plan["path"], b"plan\n")
+        self.assertEqual([ref.kind for ref in fakes.build(self.root, inputs=[DIFF, plan]).inputs],
+                         ["diff", "plan"])
+        self.assert_refused("invalid_request", fakes.build, self.root, inputs=[DIFF, plan],
+                            excluded_input_kinds=["plan"])
 
     def test_controller_state_is_never_a_reviewer_input(self) -> None:
         for relative in ("docs/dev/project-management/autopilot/state.json",
-                         "docs/dev/project-management/autopilot/ledger/dispatch-metrics.jsonl"):
+                         "docs/dev/project-management/autopilot/ledger/dispatch-metrics.jsonl",
+                         "docs/dev/project-management/autopilot/ledger/other.jsonl",
+                         "docs/dev/project-management/autopilot/notes.md"):
             fakes.seed(self.root, relative, b"{}\n")
             with self.subTest(path=relative):
                 self.assert_refused("invalid_request", fakes.build, self.root,
@@ -394,7 +402,8 @@ class ChildCleanupTest(fakes.ProjectCase):
                 self.assertEqual(set(artifact), {"path", "sha256", "bytes"})
                 self.assertEqual((artifact["sha256"], artifact["bytes"]),
                                  (fakes.sha256_hex(raw), len(raw)))
-                self.assertEqual((self.root / artifact["path"]).resolve(), path.resolve())
+                self.assertFalse(Path(artifact["path"]).is_absolute())
+                self.assertEqual(artifact["path"], path.relative_to(self.root).as_posix())
                 self.assertEqual(path.read_bytes(), raw)
 
     def test_accepts_only_completed_cancelled_or_failed(self) -> None:
@@ -448,10 +457,13 @@ class ChildCleanupTest(fakes.ProjectCase):
         self.assertEqual(path.read_bytes(), b"first\n")
 
     def test_refuses_an_artifact_in_controller_state_or_outside_the_root(self) -> None:
-        state = self.root / "docs/dev/project-management/autopilot/children"
-        state.mkdir(parents=True)
-        for path in (state / "agent-1.log",
-                     self.root / "docs/dev/project-management/autopilot/agent-1.log"):
+        autopilot = self.root / "docs/dev/project-management/autopilot"
+        state = autopilot / "children"
+        for folder in (state, autopilot / "ledger", autopilot / "a/b"):
+            folder.mkdir(parents=True)
+        for path in (state / "agent-1.log", autopilot / "agent-1.log",
+                     autopilot / "ledger/agent-1.log", autopilot / "ledger/x.log",
+                     autopilot / "a/b/x.log"):
             with self.subTest(path=path):
                 with self.assertRaises(jobs.JobRefused):
                     self.close(path=path)
@@ -516,6 +528,13 @@ class StandaloneInstructionTest(fakes.ProjectCase):
                 self.assertIsInstance(steps, list)
                 self.assertTrue(steps)
                 self.assertTrue(all(isinstance(step, str) and step.strip() for step in steps))
+                request_file = self.root / "docs/dev/tmp" / f"{host_id}-job.json"
+                joined = "\n".join(steps)
+                self.assertIn(str(request_file), joined)
+                self.assertIn("--bind-job", joined)
+                self.assertTrue(request_file.is_file())
+                self.assertEqual(json.loads(request_file.read_text(encoding="utf-8")),
+                                 request.to_payload())
 
     def test_dispatch_depth_is_the_requester_ancestry_plus_one(self) -> None:
         self.install_argv("codex", ["fake-codex"])
