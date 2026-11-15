@@ -1,0 +1,24 @@
+{
+  "batch_id": "202611151706",
+  "items": [
+    {
+      "type": "test",
+      "prd": "00014-autopilot-host-execution-v2.md"
+    },
+    {
+      "type": "review-finding",
+      "source": "pat-task3",
+      "findings": [
+        "jobs.py: AUTOPILOT_DISPATCH_DEPTH is written into the standalone instruction env but never read back or validated by derive_ancestry or build_job_request - the second of the three lineage signals the design mandates is not enforced yet",
+        "jobs.py and claude.py/codex.py/gemini.py: real adapters still annotate build_job_argv with the removed JobIntent type and return None, so standalone mode is unreachable for real hosts until a later task gives them build_job_argv for JobRequest",
+        "autopilot.py has no --bind-job entry yet, a later task per this PRD - bind_job_session and write_binding_record exist as library calls but are not yet CLI-wired, so the lineage-record signal is currently inert end to end",
+        "jobs.py: JobRequest.__post_init__ does not reject duplicate kind/path input entries",
+        "jobs.py: _write_new lets a raw FileExistsError escape close_native_child and write_binding_record instead of a JobRefused",
+        "jobs.py: close_native_child accepts a non-positive depth and does not type-check parent",
+        "jobs.py: role_id and job_id identity checks do not reject control characters, which are interpolated unescaped into the standalone stdin prompt",
+        "jobs.py: write_binding_record and _lineage_path do not independently validate host_id against hosts.ADAPTERS; bind_job_session's own caller-side check covers the one caller that exists today"
+      ],
+      "prd": "00014-autopilot-host-execution-v2.md"
+    }
+  ]
+}

@@ -1295,3 +1295,21 @@
 {"id":"259862d5","ended_at":1794762519,"elapsed_s":733,"outcome":"ok","detail":"closed-by: commit 402043d1b93e069552bb41c3447ae5fdcafa099b"}
 {"id":"2db9967b","ended_at":1794762519,"elapsed_s":333,"outcome":"ok","detail":"closed-by: commit 402043d1b93e069552bb41c3447ae5fdcafa099b"}
 {"kind":"handoff","site":"build","edge":"leave","at":1794762519,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794762530,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
+{"id":"0604f34f","kind":"tess","task":"2","queued_at":1794762627,"prompt_bytes":41336}
+{"id":"b468cde4","kind":"devon","task":"2","queued_at":1794762864,"prompt_bytes":4794}
+{"id":"b468cde4","ended_at":1794763031,"elapsed_s":167,"outcome":"ok","detail":null}
+{"id":"cdb42a3d","kind":"ivan","task":"2","queued_at":1794763188,"prompt_bytes":49034}
+{"id":"065c7145","kind":"pat","task":"2","queued_at":1794763328,"prompt_bytes":31445}
+{"id":"f8e6420a","kind":"tess","task":"3","queued_at":1794763784,"prompt_bytes":55814}
+{"id":"de963882","kind":"tess","task":"3","queued_at":1794763792,"prompt_bytes":49119}
+{"id":"8b170ff7","kind":"devon","task":"3","queued_at":1794764833,"prompt_bytes":5086}
+{"id":"8b170ff7","ended_at":1794765196,"elapsed_s":363,"outcome":"ok","detail":null}
+{"id":"be9bbd3e","kind":"ivan","task":"3","queued_at":1794765497,"prompt_bytes":24131}
+{"id":"0604f34f","ended_at":1794766197,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
+{"id":"cdb42a3d","ended_at":1794766197,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
+{"id":"065c7145","ended_at":1794766197,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
+{"id":"f8e6420a","ended_at":1794766197,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
+{"id":"de963882","ended_at":1794766197,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
+{"id":"be9bbd3e","ended_at":1794766197,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
+{"kind":"handoff","site":"build","edge":"leave","at":1794766197,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
