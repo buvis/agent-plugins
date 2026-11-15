@@ -1,13 +1,17 @@
 # Scenario records and manual runs
 
-T-056 is **incomplete**. Requirements, design, and tasks were approved on
-2026-11-10. The scorer and shared batch machinery have deterministic tests;
-synthetic records under `fixtures/results/` are never release evidence.
-The Claude, Codex, and Kiro adapters are implemented. Each stays blocked until a
-passing boundary proof for its exact host version, package revision, and
-generated configuration is supplied with `--boundary-proof`. No proof exists
-yet: the shell-sandbox half must run in a developer terminal outside
-`run-agent`, because a nested Seatbelt sandbox cannot start inside it.
+T-056 is **complete** (2026-11-15): all three adapters passed their live
+boundary probe and the live self-check; see the 00009 QA log. Synthetic records
+under `fixtures/results/` are never release evidence. Each adapter stays
+blocked until a passing boundary proof for its exact host version, package
+revision, generated configuration, and runner code is supplied with
+`--boundary-proof`. A proof must be made in a developer terminal outside
+`run-agent`, because a nested Seatbelt sandbox cannot start inside it, and it
+goes stale when the host upgrades or a runner file changes.
+
+Open for T-057: Codex records are not yet `measured` (two host instruction
+fields differ between probe and session), and no live session had measured
+reads.
 
 ## Host telemetry and controls (measured 2026-11-15)
 

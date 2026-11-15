@@ -713,4 +713,9 @@ These are implementation readings of the approved design, decided by the develop
 
 Points 1 and 2 changed the Codex and Kiro runner files after their final proofs, so those two proofs and self-checks must be repeated. The Claude runner file is unchanged; its 20:46 proof and final record stand. 110 instrument tests pass on Python 3.15.2 and 3.10.22; Ruff passes.
 
-T-056 stays unchecked until the Codex and Kiro proofs and self-checks are repeated on this code. Both need a terminal outside `run-agent`; the steps are in `manual-run.md`, "Live proof procedure".
+### T-056 checked (2026-11-15, runner at `b207fc6`)
+
+- Kiro, 21:35 to 21:39: probe passed all 20 checks with `contextInventoryVerified: true` (the instruction file added before turn two appeared in that turn's context list); the self-check record reports `instructionMeasurement: measured`.
+- Codex 0.169.0, two rounds: probe and self-check passed each time, but the record stayed `not-measured`. After normalizing the private home, the record names the fields whose fingerprints differ from the probe: `permissions.instructions` on both turns and `host_skills.body` on the second. Both vary for ordinary reasons between a probe and a session, so exact equality with the probe is the wrong test for them. This is a defect in how decision 1 was implemented, not in the decision. It is carried to T-057: capture the normalized text of those fields once, then design the comparison from what they contain, instead of guessing between developer runs.
+- T-056's Verify list is met on all three hosts and the task is checked with its Outcome. The developer observed that the repeated rerun rounds had stopped paying for themselves; the remaining Codex item needs no further run until its comparison is redesigned.
+- Status after the edit: implementation, gates open, next T-054. Both need a terminal outside `run-agent`; the steps are in `manual-run.md`, "Live proof procedure".
