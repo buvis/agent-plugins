@@ -1,4 +1,5 @@
 {
+  "schema_version": 2,
   "host_id": "claude",
   "capabilities": [
     "delegation",
@@ -6,5 +7,22 @@
     "interception",
     "isolation"
   ],
-  "probe_kind": "static"
+  "probe_kind": "static",
+  "certified": false,
+  "registration": {
+    "asset": "compatibility/claude/hooks.json",
+    "activation": "client-manifest-hooks-field"
+  },
+  "duty_coverage": {
+    "document_location": "intercepted",
+    "custody_push": "intercepted",
+    "delegation": "intercepted",
+    "post_handoff": "intercepted",
+    "departure": "intercepted",
+    "context_reinjection": "intercepted",
+    "state_integrity": "intercepted",
+    "review_completeness": "intercepted",
+    "live_job": "intercepted"
+  },
+  "blockers": {}
 }

@@ -1,8 +1,27 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "hosts": {
-    "claude": {"capabilities": ["delegation", "identity", "interception", "isolation"]},
-    "codex": {"capabilities": ["isolation"]},
-    "gemini": {"capabilities": []}
-  }
+    "claude": {
+      "capabilities": ["delegation", "identity", "interception", "isolation"],
+      "session_env_var": "CLAUDE_CODE_SESSION_ID",
+      "registration": {"asset": "compatibility/claude/hooks.json", "activation": "client-manifest-hooks-field"}
+    },
+    "codex": {
+      "capabilities": ["identity", "interception", "isolation"],
+      "session_env_var": "CODEX_SESSION_ID",
+      "registration": {"asset": "compatibility/codex/hooks.json", "activation": "client-manifest-hooks-field"}
+    },
+    "gemini": {
+      "capabilities": ["identity", "isolation"],
+      "session_env_var": "GEMINI_SESSION_ID",
+      "registration": null,
+      "blockers": {"interception": "no_package_local_registration_surface"}
+    }
+  },
+  "role_requirements": {
+    "implementor": ["identity", "interception", "isolation"],
+    "reviewer-cross-session": ["identity", "isolation"],
+    "reviewer-in-session": ["delegation", "identity", "isolation"]
+  },
+  "implementor_duties": ["custody_push", "document_location", "state_integrity"]
 }

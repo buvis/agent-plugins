@@ -1,7 +1,27 @@
 {
+  "schema_version": 2,
   "host_id": "codex",
   "capabilities": [
+    "identity",
+    "interception",
     "isolation"
   ],
-  "probe_kind": "static"
+  "probe_kind": "static",
+  "certified": false,
+  "registration": {
+    "asset": "compatibility/codex/hooks.json",
+    "activation": "client-manifest-hooks-field"
+  },
+  "duty_coverage": {
+    "document_location": "intercepted",
+    "custody_push": "intercepted",
+    "delegation": "not_applicable_on_host",
+    "post_handoff": "not_applicable_on_host",
+    "departure": "intercepted",
+    "context_reinjection": "intercepted",
+    "state_integrity": "intercepted",
+    "review_completeness": "intercepted",
+    "live_job": "intercepted"
+  },
+  "blockers": {}
 }

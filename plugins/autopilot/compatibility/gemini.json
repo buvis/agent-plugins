@@ -1,5 +1,25 @@
 {
+  "schema_version": 2,
   "host_id": "gemini",
-  "capabilities": [],
-  "probe_kind": "static"
+  "capabilities": [
+    "identity",
+    "isolation"
+  ],
+  "probe_kind": "static",
+  "certified": false,
+  "registration": null,
+  "duty_coverage": {
+    "document_location": "blocked:no_package_local_registration_surface",
+    "custody_push": "blocked:no_package_local_registration_surface",
+    "delegation": "blocked:no_package_local_registration_surface",
+    "post_handoff": "blocked:no_package_local_registration_surface",
+    "departure": "blocked:no_package_local_registration_surface",
+    "context_reinjection": "blocked:no_package_local_registration_surface",
+    "state_integrity": "blocked:no_package_local_registration_surface",
+    "review_completeness": "blocked:no_package_local_registration_surface",
+    "live_job": "blocked:no_package_local_registration_surface"
+  },
+  "blockers": {
+    "interception": "no_package_local_registration_surface"
+  }
 }
