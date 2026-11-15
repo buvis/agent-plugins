@@ -185,6 +185,33 @@ def run_live(host_id: str, run_dir: Path, project_root: Path, timeout: float) ->
     }
 
 
+def reserve_evidence(probes_dir: Path, project_root: Path, host_id: str,
+                     static_only: bool) -> tuple[int, str]:
+    """Exclusively create `<stem>.json` (and the `<stem>` run dir for a live
+    probe) under the pinned probes dir; return the open fd and the stem."""
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    parent_fd = _pinned_parent_fd(probes_dir, project_root)
+    try:
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW
+        for attempt in range(1, 11):
+            stem = (
+                f"{host_id}-{timestamp}"
+                if attempt == 1
+                else f"{host_id}-{timestamp}-{attempt}"
+            )
+            try:
+                fd = os.open(f"{stem}.json", flags, 0o666, dir_fd=parent_fd)
+                break
+            except FileExistsError:
+                if attempt == 10:
+                    raise
+        if not static_only:
+            os.mkdir(stem, dir_fd=parent_fd)
+    finally:
+        os.close(parent_fd)
+    return fd, stem
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("host_id")
@@ -199,28 +226,8 @@ def main() -> None:
     if not args.static_only and (args.host_id not in LIVE_HOSTS or binary_path is None):
         parser.error(f"no live probe for {args.host_id!r} here; use --static-only")
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     probes_dir = project_root / PROBES_REL
-
-    parent_fd = _pinned_parent_fd(probes_dir, project_root)
-    try:
-        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW
-        for attempt in range(1, 11):
-            stem = (
-                f"{args.host_id}-{timestamp}"
-                if attempt == 1
-                else f"{args.host_id}-{timestamp}-{attempt}"
-            )
-            try:
-                fd = os.open(f"{stem}.json", flags, 0o666, dir_fd=parent_fd)
-                break
-            except FileExistsError:
-                if attempt == 10:
-                    raise
-        if not args.static_only:
-            os.mkdir(stem, dir_fd=parent_fd)
-    finally:
-        os.close(parent_fd)
+    fd, stem = reserve_evidence(probes_dir, project_root, args.host_id, args.static_only)
 
     relative = (PROBES_REL / f"{stem}.json").as_posix()
     if args.static_only:
