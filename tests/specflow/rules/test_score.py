@@ -3119,6 +3119,12 @@ class KiroAdapterTest(unittest.TestCase):
         self.accept(other)
         self.assertEqual(self.adapter.conversation, "sess_two")
 
+    def test_failed_lookup_without_a_denial_does_not_stop_the_turn(self) -> None:
+        missing = {"message": "Steering file 'x.md' not found for power 'specflow'"}
+        events = self.events(*self.call("p", "other", "failed", output=missing))
+        self.accept(events)
+        self.assertEqual(self.adapter.conversation, "sess_one")
+
     def test_generated_policy_denies_private_paths_and_power_writes(self) -> None:
         home = self.root / "control/kiro-home"
         power = home / "powers/installed/specflow"

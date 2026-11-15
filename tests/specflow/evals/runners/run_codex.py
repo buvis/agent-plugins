@@ -903,6 +903,13 @@ def eval_config(
             "[shell_environment_policy]",
             'inherit = "core"',
             "ignore_default_excludes = false",
+            # Tools do not inherit these from the host process. Without them
+            # Git reads its system configuration, which the profile denies,
+            # and the status helper fails (observed 2026-11-15).
+            (
+                'set = { GIT_CONFIG_NOSYSTEM = "1", GIT_CONFIG_GLOBAL = "/dev/null", '
+                'PYTHONDONTWRITEBYTECODE = "1" }'
+            ),
             "",
         ]
     )

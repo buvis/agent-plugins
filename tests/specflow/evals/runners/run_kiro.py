@@ -347,15 +347,17 @@ def sandbox_active(turn: dict, stderr: str) -> bool:
 
 
 def reject_failures(turn: dict) -> None:
-    """A shell command that exits nonzero is ordinary work; nothing else is."""
+    """Stop on a permission denial or an unfinished call.
+
+    A call that fails for another reason is ordinary work, as on the other
+    hosts: a command that exits nonzero, or a lookup of a file that does not
+    exist (observed 2026-11-15: a Power steering-file lookup by a wrong path
+    stopped a whole session).
+    """
     for call in turn["calls"].values():
         code = call["output"].get("exitCode")
-        ordinary = (
-            call["kind"] == "execute"
-            and isinstance(code, int)
-            and not isinstance(code, bool)
-        )
-        if call["status"] == "completed" or (call["status"] == "failed" and ordinary):
+        denied = DENIAL in f"{call['output'].get('message')} {call.get('text', '')}"
+        if call["status"] == "completed" or (call["status"] == "failed" and not denied):
             continue
         # Names the call so a stopped session can be diagnosed; the record
         # normalizes batch and home paths before it is stored.
