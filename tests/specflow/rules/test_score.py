@@ -2087,6 +2087,8 @@ class CodexConversationTest(unittest.TestCase):
             )
             self.assertEqual(adapter.model, "resolved-model")
             self.assertEqual(adapter.read_measurement, "measured")
+            self.assertIn("cat notes.md", json.dumps(adapter.usage[-1]["toolCalls"]))
+            self.assertNotIn(str(root), json.dumps(adapter.usage[-1]["toolCalls"]))
             digest = hashlib.sha256(b"Fixture rule.\n").hexdigest()
             self.assertEqual(
                 adapter.instruction_observations,
@@ -2101,6 +2103,16 @@ class CodexConversationTest(unittest.TestCase):
             drifted = records("Fixture rule.\n")
             drifted[2]["payload"]["state"]["plugins_instructions"] = "Other plugin."
             run(drifted)
+            self.assertEqual(adapter.instruction_measurement, "not-measured")
+            skills_drifted = records("Fixture rule.\n")
+            skills_drifted[2]["payload"]["state"]["host_skills"] = {
+                "body": f"Changed skills at {workspace}"
+            }
+            run(skills_drifted)
+            self.assertEqual(
+                adapter.usage[-1]["differingHostSkillsBody"],
+                "Changed skills at <workspace>",
+            )
             self.assertEqual(adapter.instruction_measurement, "not-measured")
             profile_text = (home / "specflow.config.toml").read_text()
             self.assertIn(f'"{workspace}" = "write"', profile_text)

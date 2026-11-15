@@ -94,7 +94,7 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
     - The review file gives each item of its scope a finding or "no finding", with what was read; each finding names its regression test; `tests/specflow/security/` passes in CI on Python 3.10, `test_stdlib_only.py` included.
 
 - [ ] T-053 Test concurrent edit protection
-  - Outcome: 2026-11-15 session and synthetic fixture prepared; provisional eval at `tests/specflow/evals/provisional/concurrent-edit/`. No live host result yet. The rubric requires the actual first-turn read/hash, second-turn conflict detection and intact intervening edit; no helper-only test counts as agent evidence.
+  - Outcome: 2026-11-15 session and synthetic fixture prepared; provisional eval at `tests/specflow/evals/provisional/concurrent-edit/`. Developer's Codex record 2 completed both turns: all deterministic assertions pass, the second writer's complete text survives, and the agent reports changed hashes and stops without writing. Exit 1 is the unjudged rubric. The record lacks retained tool-call evidence of the first read/hash; its reads are unmeasured, and turn 2 differs in host_skills.body. The rubric remains unjudged and the task unchecked. Future Codex records retain normalized tool calls and differing skill text; no helper-only test counts as agent evidence.
   - Requirements: 00004 WF-006 criteria 1, 2
   - Depends on: T-050, T-056
   - Location: `tests/specflow/evals/sessions/concurrent-edit.json`, its eval record and fixture, `tests/specflow/evals/results/<host>/<session>/<n>.json` for the session `concurrent-edit`

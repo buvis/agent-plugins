@@ -730,6 +730,12 @@ Points 1 and 2 changed the Codex and Kiro runner files after their final proofs,
 
 ### Permission rendering comparison and fix (2026-11-15)
 
+Live follow-up at `b12dfc5`: developer's `policy-proof.json` passed all 20 checks on Codex 0.169.0, with all nine instruction channels fingerprinted and no permission diagnostic. This proves the permission renderer fix under that boundary; it does not prove later-turn skill inventory stability.
+
+Developer's concurrent-edit record 2 completed both turns and passed all deterministic assertions. It preserves the exact intervening replacement, reports original and changed raw hashes, and stops without applying the pending edit. Exit 1 is solely rubric assertion 4, unjudged. The first turn's instruction inventory is clean/measured; turn 2 differs in host_skills.body. Read measurement is not-measured, and neither turn's read list names a file. The record does not retain the underlying calls, so a claim of an actual read/hash operation cannot be verified from the agent's prose alone. No rubric PASS, checked task, or release evidence is granted.
+
+The adapter now retains normalized per-turn calls in usage notes and the differing host_skills.body when present. These are data for review and diagnosis, not a new measurement rule. This is necessary observability for the next real session; no separate paid capture session is requested. The changed adapter stales the Codex proof. Claude/Kiro results and the shell-read measurement problem remain outstanding.
+
 Follow-up: the developer's normalized probe exited 1 on instruction-inventory only (rendered permission text did not reproduce the recorded hash). The attempted concurrent-edit run was blocked before any model turn; its record has no messages or scores. It is not T-053 evidence.
 
 Source investigation found a renderer/exec mismatch: `rust-v0.169.0/codex-rs/exec/src/lib.rs` sets `approval_policy: Some(AskForApproval::Never)` for headless exec, while the renderer used its ordinary approval policy. The adapter now passes the live turn context's recorded approval policy and model into rendering, refusing measurement if either is absent. Regression checks those exact arguments and absence handling. Hash verification remains mandatory; failed proofs also retain normalized permission text and fixed context fields for diagnosis, so another paid capture round is unnecessary. This source-supported fix still needs a live proof; no live success is claimed.

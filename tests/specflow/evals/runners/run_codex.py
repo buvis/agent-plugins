@@ -842,16 +842,24 @@ class Codex:
             and channels != proven
             and self.usage
         ):
-            # Field names only, kept with the turn's reported usage in the
-            # record's notes, so an unmeasured run says which field differed.
+            # Keep normalized differing text as well as names: disposable
+            # host state is removed at cleanup and cannot be recovered later.
             self.usage[-1]["instructionFieldsDiffering"] = sorted(
                 name
                 for name in {*channels, *proven}
                 if channels.get(name) != proven.get(name)
             )
+            if "host_skills.body" in self.usage[-1]["instructionFieldsDiffering"]:
+                self.usage[-1]["differingHostSkillsBody"] = self.effective_profile(
+                    state_body(record["state"]), workspace
+                )
         # Calls come from the session record: the exec stream does not show
         # every shell call. A patch is a write; any other call is unnameable.
         calls = rollout_calls(self.home, self.conversation)
+        if self.usage:
+            self.usage[-1]["toolCalls"] = self.effective_profile(
+                calls[self.calls_seen :], workspace
+            )
         reads, known = [], True
         for call in calls[self.calls_seen :]:
             if PATCH_CALL.fullmatch(call["input"]):
@@ -932,6 +940,12 @@ class Codex:
 
 # Name of a synthetic variable; the tool environment policy must strip it.
 SECRET_VARIABLE = "SPECFLOW_SYNTHETIC_" + "TOKEN"
+
+
+def state_body(state: dict) -> object:
+    """The recorded skills body, kept as data for instruction-drift diagnosis."""
+    skills = state.get("host_skills")
+    return skills.get("body") if isinstance(skills, dict) else None
 
 
 def permission_text(items: list[dict], expected: str) -> str | None:
