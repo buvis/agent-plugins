@@ -11,6 +11,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import test_controller_kernel as kernel
 from controller_cli_support import (
@@ -24,7 +25,9 @@ CONTROLLER = ROOT / "plugins" / "autopilot" / "controller"
 sys.path.insert(0, str(CONTROLLER))
 
 from autopilot_state import actors
-from autopilot_state.store import StateExistsError, StateIOError, StateStore
+from autopilot_state.store import (
+    LOCK_OPEN_ATTEMPTS, StateExistsError, StateIOError, StateStore,
+)
 
 CREATORS = 5
 ROUNDS = 12
@@ -45,6 +48,7 @@ candidate = json.loads(sys.argv[7])
 lock = path.with_name(path.name + '.lock')
 real_open = os.open
 arrived = []
+met = []
 
 def coordinated_open(file, flags, *args, **kwargs):
     if not arrived and os.fspath(file) in (str(lock), lock.name) and flags & os.O_CREAT:
@@ -54,6 +58,8 @@ def coordinated_open(file, flags, *args, **kwargs):
         waiting = [rendezvous.parent / ('creation-' + str(index)) for index in range(peers)]
         while not all(peer.exists() for peer in waiting) and time.monotonic() < deadline:
             pass
+        if all(peer.exists() for peer in waiting):
+            met.append(True)
     return real_open(file, flags, *args, **kwargs)
 
 os.open = coordinated_open
@@ -65,11 +71,12 @@ while not gate.exists():
     time.sleep(0.005)
 try:
     result = StateStore(path).initialize(candidate)
-    print(json.dumps({'outcome': 'initialized', 'raced': len(arrived), 'state': result}))
+    print(json.dumps({'outcome': 'initialized', 'raced': len(arrived), 'met': len(met),
+                      'state': result}))
 except StateExistsError:
-    print(json.dumps({'outcome': 'exists', 'raced': len(arrived)}))
+    print(json.dumps({'outcome': 'exists', 'raced': len(arrived), 'met': len(met)}))
 except StateIOError as error:
-    print(json.dumps({'outcome': 'io_error', 'raced': len(arrived),
+    print(json.dumps({'outcome': 'io_error', 'raced': len(arrived), 'met': len(met),
                       'exception': type(error).__name__}))
 """
 
@@ -336,6 +343,9 @@ class StateLockRaceTest(unittest.TestCase):
                 self.assertEqual([item.get("exception") for item in results
                                   if item["outcome"] == "io_error"], [],
                                  "a concurrent initializer surfaced StateIOError")
+                if [item["met"] for item in results] != [1] * CREATORS:
+                    self.skipTest("creators did not all meet inside the 1.5 s "
+                                  "rendezvous, so this round proved no race")
                 self.assertEqual(set(outcomes), {"initialized", "exists"})
                 self.assertEqual(outcomes.count("initialized"), 1)
                 self.assertEqual(outcomes.count("exists"), CREATORS - 1)
@@ -345,6 +355,51 @@ class StateLockRaceTest(unittest.TestCase):
                 path = round_base / "state.json"
                 self.assertEqual(json.loads(path.read_bytes()), winner)
                 self.assertEqual(kernel.StateStore(path).read(), winner)
+
+
+class StateLockRetryTest(unittest.TestCase):
+    """`_open_lock` retries a transient ENOENT a bounded number of times."""
+
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.store = StateStore(Path(self.temporary.name) / "state.json")
+
+    def lock_with_transients(self, transients: int) -> tuple[int, int]:
+        """Take the lock after `transients` injected ENOENTs.
+
+        Returns the lock-open attempts and the alias-guard runs, counted for
+        the state lock only.
+        """
+        real_open = os.open
+        opens = []
+
+        def flaky_open(file, flags, *args, **kwargs):
+            if file == self.store._lock_path.name and flags & os.O_CREAT:
+                opens.append(file)
+                if len(opens) <= transients:
+                    raise FileNotFoundError(2, "injected transient", file)
+            return real_open(file, flags, *args, **kwargs)
+
+        guard = mock.Mock(wraps=self.store._reject_aliased_artifact)
+        with mock.patch.object(os, "open", flaky_open), \
+                mock.patch.object(self.store, "_reject_aliased_artifact", guard):
+            with self.store._locked(exclusive=True):
+                pass
+        guarded = [call for call in guard.call_args_list if call.args[1] == "state lock"]
+        return len(opens), len(guarded)
+
+    def test_retries_one_transient_and_repeats_the_alias_guard(self) -> None:
+        self.assertEqual(self.lock_with_transients(1), (2, 2))
+
+    def test_retries_up_to_the_last_allowed_attempt_with_a_guard_per_attempt(self) -> None:
+        transients = LOCK_OPEN_ATTEMPTS - 1
+        self.assertEqual(self.lock_with_transients(transients),
+                         (transients + 1, transients + 1))
+
+    def test_gives_up_with_an_io_error_after_the_attempt_limit(self) -> None:
+        with self.assertRaises(StateIOError):
+            self.lock_with_transients(LOCK_OPEN_ATTEMPTS)
 
 
 if __name__ == "__main__":
