@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import dataclasses
+import hashlib
 import importlib
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -16,6 +18,8 @@ from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest import mock
+
+from probe_host_support import FAKE_STDOUT_MARK, install_fake_hosts
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = ROOT / "plugins" / "autopilot" / "scripts"
@@ -29,6 +33,21 @@ _DECOY_SENTINEL = "ap00014-decoy-sentinel-9b3d7a"
 PROBES_REL = Path("docs") / "dev" / "tmp" / "autopilot" / "probes"
 RECORD_KEYS = frozenset(
     {
+        "schema_version",
+        "static",
+        "run_dir",
+        "registration_surface",
+        "invocations",
+        "trace_lines",
+        "observed",
+        "resource_check",
+        "certified",
+        "evidence_path",
+        "binary_path",
+    }
+)
+STATIC_KEYS = frozenset(
+    {
         "host_id",
         "available",
         "capability",
@@ -38,9 +57,13 @@ RECORD_KEYS = frozenset(
         "unavailable_reason",
         "authenticated",
         "certified",
-        "binary_path",
     }
 )
+TRACE_REL = Path("docs") / "dev" / "tmp" / "autopilot" / "hook-trace.jsonl"
+SOURCE_PLUGIN = (ROOT / "plugins" / "autopilot").resolve()
+RUNS = ("bound-1", "bound-2", "control")
+PROBE_REFS = frozenset(f"refs/heads/probe-{run}" for run in RUNS)
+OBSERVED = {"status": "observed", "reason": None}
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
@@ -424,9 +447,10 @@ def _probe_env(**overrides: str) -> dict:
     return env | seeded | overrides
 
 
-def _run_probe(host_id: str, project_root: Path, *, cwd: Path, env: dict):
+def _run_probe(host_id: str, project_root: Path, *extra: str, cwd: Path, env: dict):
     return subprocess.run(
-        [sys.executable, str(PROBE_HOST), host_id, "--project-root", str(project_root)],
+        [sys.executable, str(PROBE_HOST), host_id, "--project-root", str(project_root), *extra],
+        check=False,
         cwd=str(cwd),
         env=env,
         capture_output=True,
@@ -458,7 +482,9 @@ class ProbeHostEvidenceRecordTest(unittest.TestCase):
             cwd = root / "elsewhere"
             cwd.mkdir()
             before = datetime.now(timezone.utc).replace(microsecond=0)
-            completed = _run_probe("claude", project_root, cwd=cwd, env=_probe_env())
+            completed = _run_probe(
+                "claude", project_root, "--static-only", cwd=cwd, env=_probe_env()
+            )
             after = datetime.now(timezone.utc)
             self.assertEqual(completed.returncode, 0, completed.stderr)
             self.assertEqual(sorted(cwd.iterdir()), [], "evidence landed beside cwd, not --project-root")
@@ -466,15 +492,20 @@ class ProbeHostEvidenceRecordTest(unittest.TestCase):
             text = evidence_file.read_text(encoding="utf-8")
             record = json.loads(text)
             self.assertEqual(frozenset(record), RECORD_KEYS)
-            self.assertEqual(record["host_id"], "claude")
+            self.assertEqual(record["schema_version"], 2)
+            self.assertEqual(record["invocations"], [])
+            static = record["static"]
+            self.assertEqual(frozenset(static), STATIC_KEYS)
+            self.assertEqual(static["host_id"], "claude")
             self.assertEqual(
                 record["evidence_path"], evidence_file.relative_to(project_root).as_posix()
             )
-            self.assertEqual(record["probe_kind"], "static")
+            self.assertEqual(static["probe_kind"], "static")
             self.assertIs(record["certified"], False)
-            self.assertIsInstance(record["available"], bool)
-            self.assertEqual(record["capability"] is None, not record["available"])
-            probed_at = _parse_utc(record["probed_at"])
+            self.assertIs(static["certified"], False)
+            self.assertIsInstance(static["available"], bool)
+            self.assertEqual(static["capability"] is None, not static["available"])
+            probed_at = _parse_utc(static["probed_at"])
             self.assertEqual(probed_at.utcoffset(), timedelta(0))
             self.assertGreaterEqual(probed_at, before)
             self.assertLessEqual(probed_at, after)
@@ -487,8 +518,8 @@ class ProbeHostEvidenceRecordTest(unittest.TestCase):
             self.assertNotIn(_DECOY_SENTINEL, text)
 
     def test_probe_host_launches_no_host_process(self) -> None:
-        """A `claude` on PATH that marks its own execution must stay unexecuted:
-        this package observes PATH and auth presence, it never runs a host."""
+        """A `claude` on PATH that marks its own execution must stay unexecuted
+        under --static-only: that mode observes PATH and auth presence only."""
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw).resolve()
             project_root = root / "project"
@@ -500,13 +531,15 @@ class ProbeHostEvidenceRecordTest(unittest.TestCase):
             fake.write_text(f'#!/bin/sh\n: > "{marker}"\n', encoding="utf-8")
             fake.chmod(0o755)
             completed = _run_probe(
-                "claude", project_root, cwd=root, env=_probe_env(PATH=str(bin_dir))
+                "claude", project_root, "--static-only", cwd=root,
+                env=_probe_env(PATH=str(bin_dir)),
             )
             self.assertEqual(completed.returncode, 0, completed.stderr)
             self.assertFalse(marker.exists(), "probe-host.py executed the host binary")
             record = json.loads(self.sole_evidence(project_root).read_text(encoding="utf-8"))
-            self.assertEqual(record["probe_kind"], "static")
+            self.assertEqual(record["static"]["probe_kind"], "static")
             self.assertIs(record["certified"], False)
+            self.assertEqual(record["invocations"], [])
             if record["binary_path"] is not None:
                 self.assertEqual(Path(record["binary_path"]).name, "claude")
 
@@ -535,7 +568,9 @@ class ProbeHostEvidenceRecordTest(unittest.TestCase):
             link = root / "project" / PROBES_REL
             link.parent.mkdir(parents=True)
             link.symlink_to(outside, target_is_directory=True)
-            completed = _run_probe("claude", root / "project", cwd=root, env=_probe_env())
+            completed = _run_probe(
+                "claude", root / "project", "--static-only", cwd=root, env=_probe_env()
+            )
             self.assertNotEqual(completed.returncode, 0, completed.stdout)
             self.assertEqual(sorted(outside.iterdir()), [])
             self.assertTrue(link.is_symlink())
@@ -557,7 +592,9 @@ class ProbeHostEvidenceRecordTest(unittest.TestCase):
             }
             for name in taken:
                 (probes_dir / name).symlink_to(decoy)
-            completed = _run_probe("claude", project_root, cwd=root, env=_probe_env())
+            completed = _run_probe(
+                "claude", project_root, "--static-only", cwd=root, env=_probe_env()
+            )
             self.assertEqual(completed.returncode, 0, completed.stderr)
             fresh = [path for path in sorted(probes_dir.iterdir()) if path.name not in taken]
             self.assertEqual(len(fresh), 1, fresh)
@@ -565,9 +602,179 @@ class ProbeHostEvidenceRecordTest(unittest.TestCase):
             self.assertFalse(fresh[0].is_symlink())
             self.assertEqual(decoy.read_text(encoding="utf-8"), "untouched")
             record = json.loads(fresh[0].read_text(encoding="utf-8"))
+            self.assertEqual(record["schema_version"], 2)
+            self.assertEqual(record["static"]["host_id"], "claude")
             self.assertEqual(
                 record["evidence_path"], fresh[0].relative_to(project_root).as_posix()
             )
+
+
+def _git(*args: str) -> str:
+    return subprocess.run(
+        ["git", *args], capture_output=True, text=True, check=True, timeout=60
+    ).stdout.strip()
+
+
+def _refs(remote: Path) -> set[str]:
+    return set(_git("--git-dir", str(remote), "for-each-ref", "--format=%(refname)").split())
+
+
+def _trace(path: Path) -> list[dict]:
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
+
+
+def _resolve_in(base: Path, value: str) -> Path:
+    """An evidence path, absolute or relative to the project root."""
+    return (base / value).resolve()
+
+
+class LiveProbeCase(unittest.TestCase):
+    """Real isolated runs against fake claude/codex binaries that execute the
+    hook command the probe registered, so every observation comes from a real
+    trace and a real bare remote. Holds no tests of its own."""
+
+    def setUp(self) -> None:
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name).resolve()
+        self.bin_dir = self.root / "bin"
+        self.bin_dir.mkdir()
+        install_fake_hosts(self.bin_dir)
+
+    def probe(self, host_id: str, mode: str = "honest", *, bound_source: bool = False) -> dict:
+        project_root = self.root / f"source-{host_id}-{mode}-{int(bound_source)}"
+        project_root.mkdir()
+        if bound_source:
+            _git("init", "-q", str(project_root))
+            (project_root / ".autopilot" / "controller").mkdir(parents=True)
+        log = self.root / f"{project_root.name}.calls.jsonl"
+        env = _probe_env(
+            PATH=f"{self.bin_dir}{os.pathsep}{os.environ['PATH']}", FAKE_HOST_LOG=str(log),
+            FAKE_HOST_MODE=mode, FAKE_FOREIGN_ROOT=str(SOURCE_PLUGIN),
+        )
+        completed = _run_probe(host_id, project_root, "--timeout", "60", cwd=self.root, env=env)
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        probes = project_root / PROBES_REL
+        files = [path for path in probes.iterdir() if path.is_file()]
+        dirs = [path for path in probes.iterdir() if path.is_dir()]
+        self.assertEqual((len(files), len(dirs)), (1, 1), sorted(probes.iterdir()))
+        self.assertTrue(dirs[0].name.startswith(f"{host_id}-"), dirs[0].name)
+        text = files[0].read_text(encoding="utf-8")
+        calls = _trace(log) if log.exists() else []
+        return {"record": json.loads(text), "text": text, "run_dir": dirs[0], "calls": calls,
+                "root": project_root}
+
+    def assert_invocations(self, host_id: str, run: dict) -> None:
+        run_dir = run["run_dir"].resolve()
+        cwds = (run_dir / "project", run_dir / "project", run_dir / "control")
+        invocations = run["record"]["invocations"]
+        self.assertEqual(len(invocations), 3)
+        for invocation, cwd in zip(invocations, cwds):
+            argv = invocation["argv"]
+            if host_id == "claude":
+                self.assertEqual(argv[:3] + argv[4:], ["claude", "-p", "--plugin-dir", "--output-format", "json"])
+                self.assertEqual(Path(argv[3]).resolve(), run_dir / "plugin")
+            else:
+                self.assertEqual(argv[:4] + argv[5:], ["codex", "exec", "--dangerously-bypass-hook-trust", "-C", "-"])
+                self.assertEqual(Path(argv[4]).resolve(), cwd)
+            self.assertEqual((invocation["exit_code"], invocation["timed_out"]), (0, False))
+            for stream in ("stdout", "stderr"):
+                path = _resolve_in(run["root"], invocation[f"{stream}_path"])
+                self.assertTrue(path.is_relative_to(run_dir), path)
+                self.assertEqual(invocation[f"{stream}_sha256"], hashlib.sha256(path.read_bytes()).hexdigest())
+            self.assertIn(FAKE_STDOUT_MARK, _resolve_in(run["root"], invocation["stdout_path"]).read_text())
+        self.assertEqual(len({invocation["stdout_sha256"] for invocation in invocations}), 3)
+
+    def assert_launches(self, host_id: str, run: dict) -> None:
+        """cwd, trace env var, prompt and HOME reached each host launch."""
+        run_dir = run["run_dir"].resolve()
+        self.assertEqual(len(run["calls"]), 3)
+        for call, name in zip(run["calls"], RUNS):
+            cwd = run_dir / ("control" if name == "control" else "project")
+            self.assertEqual(Path(call["cwd"]).resolve(), cwd)
+            self.assertEqual(Path(call["trace"]).resolve(), (cwd / TRACE_REL).resolve())
+            self.assertEqual(call["home"], os.environ.get("HOME"))
+            prompt = call["prompt"]
+            self.assertIn(f"git push probe-remote HEAD:refs/heads/probe-{name}", prompt)
+            self.assertEqual(re.findall(r"refs/heads/probe-[a-z0-9-]+", prompt), [f"refs/heads/probe-{name}"])
+            self.assertGreater(prompt.find(f"--record-session {host_id}"), prompt.find("git push"))
+
+    def assert_trace(self, host_id: str, run: dict) -> None:
+        run_dir = run["run_dir"]
+        bound = _trace(run_dir / "project" / TRACE_REL)
+        control = _trace(run_dir / "control" / TRACE_REL)
+        self.assertTrue(control)
+        for line in bound + control:
+            self.assertEqual(line["plugin_root"], os.path.realpath(run_dir / "plugin"))
+            self.assertEqual(line["host_id"], host_id)
+        self.assertNotEqual(os.path.realpath(run_dir / "plugin"), str(SOURCE_PLUGIN))
+        self.assertEqual(len({line["session_id"] for line in bound}), 2)
+        refusal = {"duty": "custody_push", "allowed": False, "reason": "missing_controller_seam"}
+        self.assertIn(refusal, [outcome for line in bound for outcome in line["outcomes"]])
+        self.assertNotIn(refusal, [outcome for line in control for outcome in line["outcomes"]])
+
+
+class ProbeHostLiveRunTest(LiveProbeCase):
+    def test_relocated_host_probe_observes_identity_isolation_interception(self) -> None:
+        source_manifest = SOURCE_PLUGIN / ".claude-plugin" / "plugin.json"
+        manifest_before = source_manifest.read_bytes() if source_manifest.exists() else None
+        runs = {}
+        for host_id in ("claude", "codex"):
+            with self.subTest(host_id=host_id):
+                run = runs[host_id] = self.probe(host_id)
+                record, run_dir = run["record"], run["run_dir"]
+                self.assertEqual((record["schema_version"], record["certified"]), (2, False))
+                self.assertEqual(record["static"]["host_id"], host_id)
+                self.assertEqual(record["resource_check"], "passed")
+                self.assertEqual(_resolve_in(run["root"], record["run_dir"]), run_dir.resolve())
+                for capability in ("identity", "isolation", "interception", "resources"):
+                    self.assertEqual(record["observed"][capability], OBSERVED, capability)
+                self.assert_invocations(host_id, run)
+                self.assert_launches(host_id, run)
+                self.assert_trace(host_id, run)
+                self.assertEqual(_refs(run_dir / "remote.git") & PROBE_REFS, {"refs/heads/probe-control"})
+                for leaked in (_SENTINEL, _DECOY_SENTINEL, FAKE_STDOUT_MARK):
+                    self.assertNotIn(leaked, run["text"])
+        manifest = runs["claude"]["run_dir"] / "plugin" / ".claude-plugin" / "plugin.json"
+        self.assertEqual(
+            json.loads(manifest.read_text(encoding="utf-8")),
+            {"name": "autopilot", "hooks": "./compatibility/claude/hooks.json"},
+        )
+        after = source_manifest.read_bytes() if source_manifest.exists() else None
+        self.assertEqual(after, manifest_before, "the probe edited the source package")
+        codex_dir = runs["codex"]["run_dir"].resolve()
+        self.assertEqual(runs["codex"]["record"]["registration_surface"], "project-layer")
+        rendered = [
+            (codex_dir / repo / ".codex" / "hooks.json").read_bytes()
+            for repo in ("project", "control")
+        ]
+        self.assertEqual(rendered[0], rendered[1])
+        self.assertIn(str(codex_dir / "plugin").encode(), rendered[0])
+        self.assertNotIn(b"${CLAUDE_PLUGIN_ROOT}", rendered[0])
+
+    def test_probe_control_is_unbound_inside_a_bound_source_repo(self) -> None:
+        for host_id, bound_source in (("claude", True), ("codex", True), ("claude", False)):
+            with self.subTest(host_id=host_id, bound_source=bound_source):
+                run = self.probe(host_id, bound_source=bound_source)
+                run_dir = run["run_dir"]
+                project, control, remote = (run_dir / name for name in ("project", "control", "remote.git"))
+                self.assertTrue((project / ".autopilot" / "controller").is_dir())
+                self.assertFalse((project / ".autopilot" / "controller").is_symlink())
+                self.assertFalse((control / ".autopilot").exists())
+                self.assertEqual(_git("--git-dir", str(remote), "rev-parse", "--is-bare-repository"), "true")
+                for repo in (project, control):
+                    self.assertTrue((repo / ".git").is_dir(), repo)
+                    self.assertTrue((repo / TRACE_REL).parent.is_dir(), repo)
+                    self.assertEqual(_git("-C", str(repo), "rev-list", "--count", "HEAD"), "1")
+                    url = _git("-C", str(repo), "remote", "get-url", "probe-remote")
+                    self.assertEqual((repo / url).resolve(), remote.resolve())
+                control_lines = _trace(control / TRACE_REL)
+                self.assertTrue(control_lines)
+                self.assertEqual({line["bound"] for line in control_lines}, {False})
+                self.assertEqual({line["bound"] for line in _trace(project / TRACE_REL)}, {True})
+                self.assertEqual(_refs(remote) & PROBE_REFS, {"refs/heads/probe-control"})
+                self.assertEqual(run["record"]["observed"]["interception"], OBSERVED)
+                self.assertEqual((run["root"] / ".autopilot" / "controller").is_dir(), bound_source)
 
 
 if __name__ == "__main__":

@@ -27,6 +27,68 @@ HELPER_OPERATIONS = [
 ]
 
 
+PROBES = Path("docs") / "dev" / "tmp" / "autopilot" / "probes"
+CAPS = ("identity", "isolation", "interception", "resources")
+CLAUDE_IN = ["claude:delegation", "claude:identity", "claude:isolation"]
+CLAUDE_IMPL = ["claude:identity", "claude:interception", "claude:isolation"]
+GEMINI_X = ["gemini:identity", "gemini:isolation"]
+STATEFUL_DUTIES = {"custody_push", "state_integrity", "live_job", "review_completeness"}
+ALL_DUTIES = STATEFUL_DUTIES | {"document_location", "delegation", "post_handoff", "departure",
+                                "context_reinjection"}
+
+
+def probe_evidence(observed: tuple[str, ...], *, resource_check: str = "passed",
+                   exit_codes: tuple[int, ...] = (0,)) -> dict:
+    """A schema_version 2 probe record: capabilities in `observed` were seen,
+    every other one was not."""
+    return {
+        "schema_version": 2, "static": {}, "run_dir": "docs/dev/tmp/autopilot/probes/run",
+        "registration_surface": "none", "trace_lines": 0, "certified": False,
+        "invocations": [{"argv": ["host"], "exit_code": code, "timed_out": False,
+                         "duration_seconds": 1.0, "stdout_sha256": "0" * 64,
+                         "stderr_sha256": "0" * 64, "stdout_path": "o", "stderr_path": "e"}
+                        for code in exit_codes],
+        "observed": {cap: {"status": "observed", "reason": None} if cap in observed
+                     else {"status": "not_observed", "reason": "host_did_not_enforce"}
+                     for cap in CAPS},
+        "resource_check": resource_check,
+    }
+
+
+# Run A: newest codex lacks interception; gemini ran (exit 0) but escaped its resources.
+EVIDENCE_A = {
+    "codex-20261101T080000Z.json": probe_evidence(CAPS),
+    "codex-20261102T080000Z.json": probe_evidence(("identity", "isolation")),
+    "codexx-20261109T080000Z.json": probe_evidence(CAPS),
+    "gemini-20261102T080000Z.json": probe_evidence(CAPS, resource_check="failed"),
+}
+ROLES_A = {
+    "source-parity": [("alice", "claude", CLAUDE_IN), ("blake", "claude", CLAUDE_IN),
+                      ("bob", "codex", []), ("carl", "gemini", GEMINI_X),
+                      ("eve", "claude", CLAUDE_IN), ("implementor:anthropic", "claude", CLAUDE_IMPL),
+                      ("implementor:openai", "codex", ["codex:interception"])],
+    "codex-gemini": [("alice", "codex", []), ("blake", "codex", []), ("bob", "codex", []),
+                     ("carl", "gemini", GEMINI_X), ("eve", "gemini", GEMINI_X),
+                     ("implementor:openai", "codex", ["codex:interception"])],
+}
+# Run B: newest codex observed everything; newest gemini never exited 0, so no Carl.
+EVIDENCE_B = {
+    "codex-20261101T080000Z.json": probe_evidence(("identity",)),
+    "codex-20261103T080000Z.json": probe_evidence(CAPS),
+    "codex-20261109T080000Z.json.bak": probe_evidence(()),
+    "gemini-20261101T080000Z.json": probe_evidence((), exit_codes=(0,)),
+    "gemini-20261104T080000Z.json": probe_evidence(("identity", "isolation"), exit_codes=(1, 1)),
+}
+ROLES_B = {
+    "source-parity": [("alice", "claude", CLAUDE_IN), ("blake", "claude", CLAUDE_IN),
+                      ("bob", "codex", []), ("eve", "claude", CLAUDE_IN),
+                      ("implementor:anthropic", "claude", CLAUDE_IMPL),
+                      ("implementor:openai", "codex", [])],
+    "codex-gemini": [("alice", "codex", []), ("blake", "codex", []), ("bob", "codex", []),
+                     ("eve", "gemini", []), ("implementor:openai", "codex", [])],
+}
+
+
 def canonical(value: object) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":"),
                       ensure_ascii=True).encode("utf-8")
@@ -291,6 +353,59 @@ class LocalFacadeTest(unittest.TestCase):
         self.assertEqual((self.package / POLICY).read_bytes(), self.original)
         self.assertEqual(list(self.home.iterdir()), [])
         self.assertEqual(set(self.cwd.iterdir()), {output})
+
+    def diagnose(self, name: str, evidence: dict[str, dict]) -> dict:
+        project = self.base / name
+        (project / PROBES / "codex-20261109T080000Z").mkdir(parents=True)  # a run dir, not evidence
+        for filename, record in evidence.items():
+            (project / PROBES / filename).write_text(json.dumps(record), encoding="utf-8")
+        result = self.run_cli(self.facade, "--diagnose", "--project-root", str(project))
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        return json.loads(result.stdout)
+
+    def assert_profiles(self, report: dict, expected: dict, certifiable_gemini: bool) -> None:
+        profiles = {profile["profile_id"]: profile for profile in report["profiles"]}
+        self.assertEqual(len(report["profiles"]), 2)
+        self.assertEqual(set(profiles), {"source-parity", "codex-gemini"})
+        for profile_id, rows in expected.items():
+            with self.subTest(profile=profile_id):
+                profile = profiles[profile_id]
+                self.assertEqual((profile["lane"], profile["certified"]), ("full", False))
+                self.assertIs(profile["claude_free"], profile_id == "codex-gemini")
+                actual = [(row["role"], row["host_id"], row["unobserved"]) for row in profile["roles"]]
+                self.assertEqual(actual, rows)
+        self.assertIs(profiles["source-parity"]["certifiable"], False)
+        self.assertIs(profiles["codex-gemini"]["certifiable"], certifiable_gemini)
+        if certifiable_gemini:
+            self.assertEqual(profiles["codex-gemini"]["status"], "resolvable")
+
+    def test_diagnose_reports_simulation_apart_from_observation(self) -> None:
+        for name, evidence, roles, certifiable in (("project a", EVIDENCE_A, ROLES_A, False),
+                                                   ("project b", EVIDENCE_B, ROLES_B, True)):
+            with self.subTest(project=name):
+                report = self.diagnose(name, evidence)
+                self.assertEqual(set(report), {"schema_version", "hosts", "observed", "profiles",
+                                               "simulation", "certified", "generated_at"})
+                self.assertEqual((report["schema_version"], report["certified"]), (2, False))
+                self.assertEqual(sorted(host["host_id"] for host in report["hosts"]),
+                                 ["claude", "codex", "gemini"])
+                for host in report["hosts"]:
+                    self.assertEqual((host["probe_kind"], host["certified"], host["available"],
+                                      host["unavailable_reason"]), ("static", False, False, "no_binary"))
+                self.assertEqual(set(report["observed"]), {"claude", "codex", "gemini"})
+                self.assertEqual(report["observed"]["claude"], {"status": "not_probed"})
+                for host_id in ("codex", "gemini"):
+                    self.assertNotEqual(report["observed"][host_id], {"status": "not_probed"})
+                simulation = report["simulation"]
+                self.assertEqual(set(simulation), {"simulated", "guards"})
+                self.assertIs(simulation["simulated"], True)
+                duties = [guard["duty"] for guard in simulation["guards"]]
+                self.assertEqual(sorted(duties), sorted(ALL_DUTIES))
+                for guard in simulation["guards"]:
+                    self.assertEqual((guard["allowed"], guard["reason"]), (True, None), guard)
+                    self.assertIs(guard["stateful"], guard["duty"] in STATEFUL_DUTIES, guard)
+                self.assert_profiles(report, roles, certifiable)
+        self.assert_failure(self.run_cli(self.facade, "--diagnose"))
 
     def test_output_filesystem_failure_is_reported_without_policy_mutation(self) -> None:
         for script in (self.facade, self.exporter):
