@@ -30,7 +30,7 @@ _CAPABILITIES = [
 _MODES = (
     "list_capabilities", "export_policy", "stage_review", "group_findings",
     "check_evidence", "prepare_close", "catchup_probe", "verify",
-    "controller_action", "probe_host", "run_guard", "diagnose",
+    "controller_action", "probe_host", "run_guard", "diagnose", "hook",
 )
 _COMPANIONS = {
     "out": ("export_policy",),
@@ -42,6 +42,7 @@ _COMPANIONS = {
     "artifact": ("verify",),
     "log": ("verify",),
     "timeout": ("verify",),
+    "event": ("hook",),
 }
 _REQUIRED = {
     "check_evidence": ("expected_context",),
@@ -50,6 +51,7 @@ _REQUIRED = {
     "probe_host": ("project_root",),
     "run_guard": ("context",),
     "diagnose": ("project_root",),
+    "hook": ("event",),
 }
 _INPUTS = ("stage_review", "group_findings", "check_evidence",
            "expected_context", "policy", "prepare_close", "context")
@@ -74,11 +76,13 @@ def _parser() -> argparse.ArgumentParser:
     modes.add_argument("--probe-host")
     modes.add_argument("--run-guard")
     modes.add_argument("--diagnose", action="store_true")
+    modes.add_argument("--hook")
     for flag in ("--out", "--expected-context", "--policy", "--project-root",
                  "--artifact", "--log", "--context"):
         parser.add_argument(flag, type=Path)
     parser.add_argument("--head-sha")
     parser.add_argument("--timeout", type=float)
+    parser.add_argument("--event")
     return parser
 
 
@@ -189,6 +193,25 @@ def _diagnose(args: argparse.Namespace) -> tuple[dict, int]:
     return asdict(_helper("doctor").diagnose(project_root=args.project_root)), 0
 
 
+def _hook(args: argparse.Namespace) -> int:
+    """Dispatch a registered host hook event to `interception.run_hook` and
+    relay its reply verbatim: the adapter already encodes allow/deny in
+    `reply.stdout`, so this prints that text as-is and exits `reply.exit_code`
+    rather than wrapping it in this CLI's usual JSON-report envelope."""
+    interception = _helper("interception")
+    stdin = sys.stdin.buffer.read()
+    try:
+        reply = interception.run_hook(args.hook, args.event, stdin, env=os.environ)
+    except SystemExit as error:
+        return error.code if isinstance(error.code, int) else 2
+    except ValueError as error:
+        print(f"autopilot: {error}", file=sys.stderr)
+        return 2
+    if reply.stdout:
+        print(reply.stdout)
+    return reply.exit_code
+
+
 def _verify(args: argparse.Namespace) -> tuple[dict, int]:
     kwargs = {
         "argv": args.argv, "project_root": args.project_root,
@@ -250,6 +273,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"autopilot: {args.out} is inside live autopilot state", file=sys.stderr)
             return 2
         return _export_policy(args.out)
+    if args.hook is not None:
+        return _hook(args)
     args.argv = rest
     return _run_operation(mode, args)
 
