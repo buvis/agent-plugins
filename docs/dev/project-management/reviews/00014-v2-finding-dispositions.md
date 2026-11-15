@@ -148,3 +148,69 @@ carry a non-null divergence naming v1c2-R14 as the corrected target.
 | 00062 | v1c1-R22 | F | AP00014 v2 |
 | 00063 | v1c1-R23 | F | AP00014 v2 |
 | 00064 | v1c1-R24 | F | AP00014 v2 |
+
+## Phase 2 gate (final verification, task 13)
+
+Named bug-fix scenarios re-confirmed passing on current master (commit
+`36d4bfbddd263f2ae67cacb90eb4b9e02430b8b0`, after task 12's receipt mint):
+`test_claude_identity_reads_claude_code_session_id`,
+`test_absolute_and_relative_spellings_decide_alike`,
+`test_malformed_verdict_refuses`, `test_unknown_host_executes_no_module`,
+`test_capability_status_rejects_unknown_status`,
+`test_undeclared_host_bundle_is_removed`,
+`test_diagnose_reports_simulation_apart_from_observation` — 7 passed, 0
+failed, 1841 deselected (`-k` filtered run).
+
+Gate commands:
+
+```
+uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q
+```
+Final summary line: **5 failed, 1843 passed in 738.73s (0:12:18)**, exit code 1.
+
+```
+python3 scripts/validate.py
+```
+Final summary line: **Validated 3 plugin package(s) and 15 skill(s).**, exit code 0.
+
+`tests/autopilot/test_package.py` and `tests/autopilot/test_helper_provenance_real.py`
+both pass with zero AP00014 exclusions beyond §12's documented scoped skip set
+(`AP00014_TARGETS` skipped from `OTHER_ASSETS_SHA`, positively asserted
+instead by `test_ap00014_rows_cite_the_host_receipt_and_digest_current_bytes`)
+— `test_package.py`'s own 2 failures below are unrelated to any AP00014
+exclusion; they are genuine, newly surfaced drift, not a relabeled or
+exempted requirement.
+
+### Real-host-unavailability summary (from the §12 receipt, verbatim)
+
+> Only static host probes exist in this package: each adapter observes a
+> binary on PATH plus auth presence, and never invokes the host. On
+> 2026-11-15 the probes reported claude available without auth, codex
+> available with auth, and gemini available without auth; every probe was
+> static and certified is False. No live host invocation ran, so no host is
+> certified; live certification is AP 00017's work.
+
+No unsupported capability is advertised: every `--list-capabilities` ID this
+PRD added (`hosts-v1`, `guards-v1`, `diagnose-v1`, `hook-v1`, `request-job-v1`,
+`bind-job-v1`, `close-child-v1`, `resolve-roles-v1`, `record-session-v1`) maps
+to a real, implemented CLI mode; none claims live host execution or
+certification.
+
+### Open items discovered at the Phase 2 gate (not in task 13's scope to fix)
+
+The full-gate run above surfaces 5 failures, all outside task 13's
+`Location:` (this doc only) and all outside task 12's `files:` list too.
+Recorded as open, with owner, per the "no genuinely unfixed finding is
+silently dropped" rule — neither is a relabeling of a required behavior as
+certification-only:
+
+| Finding | Disp. | Owner | Evidence test(s) |
+|---|---|---|---|
+| The two generated `compatibility/{claude,codex}/hooks.json` assets' embedded `${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py` references have no resource edges in `tools/autopilot/source-map.json` (12 defects) | D | `/autopilot:work` step 7 final-verification regression loop (already flagged once, in task 7's own assumption-ledger entry, as deferred to this exact backstop — fixing it earlier would also force re-pinning `FROZEN["resource_edges"]` in `test_helper_provenance_real.py`, itself a provenance safety pin outside any single task's declared files) | `test_package.py::test_resource_closure_declares_inside_resources_and_external_failure_rules`, `test_resource_closure.py::test_whole_tree_closure` |
+| Task 10's eight new `--list-capabilities` IDs are not reflected in three pre-existing tests' expected-capability-list fixtures | D | `/autopilot:work` step 7 final-verification regression loop (mechanical fixture update; none of the three files is in task 10's, 11's or 12's declared `files:`) | `test_facade.py::test_capabilities_are_exact_contract_formats_without_runtime_side_effects`, `test_local_boundary.py::test_list_capabilities_keeps_legacy_array_and_adds_exactly_the_implemented_operations`, `test_package.py::test_target_only_checkout_denies_source_home_and_network_but_exports_policy` |
+
+Per this task's own acceptance criteria ("if false, skip/report affected
+edits without forcing them" / "a genuinely unfixed finding stays recorded as
+open ... not silently dropped from the doc"): these two items are reported
+here rather than fixed under task 13, whose `Location:` is this document
+only.
