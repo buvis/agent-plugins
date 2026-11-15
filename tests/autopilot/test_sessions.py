@@ -17,6 +17,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest import mock
@@ -33,6 +34,7 @@ if str(TESTS_DIR) not in sys.path:
 hosts = importlib.import_module("hosts")
 jobs = importlib.import_module("jobs")
 interception = importlib.import_module("interception")
+guards = importlib.import_module("guards")
 host_fakes = importlib.import_module("host_fakes")
 claude = importlib.import_module("claude")
 codex = importlib.import_module("codex")
@@ -46,20 +48,35 @@ EXPECTED_ARGV = {
 }
 
 
+def _which_only(binary: str):
+    """A shutil.which that finds exactly `binary` and nothing else."""
+    return mock.patch.object(
+        shutil, "which", side_effect=lambda name, *a, **k: f"/usr/bin/{binary}" if name == binary else None
+    )
+
+
+def _which_all_but(binary: str):
+    """A shutil.which that finds every executable except `binary`."""
+    return mock.patch.object(
+        shutil, "which", side_effect=lambda name, *a, **k: None if name == binary else f"/usr/bin/{name}"
+    )
+
+
 class GeminiCapabilityContractTest(unittest.TestCase):
     """gemini.py implements identity and isolation only; its probe must say so,
     and must obey the ProbeResult invariant in both branches."""
 
     def test_missing_binary_yields_no_capability_and_a_recorded_reason(self) -> None:
-        with mock.patch.object(shutil, "which", return_value=None):
-            result = gemini.probe(project_root=ROOT)
+        with _which_all_but("gemini"):
+            with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "k"}, clear=True):
+                result = gemini.probe(project_root=ROOT)
         self.assertFalse(result.available)
         self.assertIsNone(result.capability)
         self.assertEqual(result.unavailable_reason, hosts.UNAVAILABLE_NO_BINARY)
         self.assertIsNone(result.authenticated)
 
     def test_present_binary_supports_identity_and_isolation_only(self) -> None:
-        with mock.patch.object(shutil, "which", return_value="/usr/bin/gemini"):
+        with _which_only("gemini"):
             with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "k"}, clear=True):
                 result = gemini.probe(project_root=ROOT)
         self.assertTrue(result.available)
@@ -76,16 +93,20 @@ class GeminiCapabilityContractTest(unittest.TestCase):
                 self.assertEqual(result.capability.statuses[name].status, status)
 
     def test_auth_presence_decides_whether_identity_is_supported(self) -> None:
-        with mock.patch.object(shutil, "which", return_value="/usr/bin/gemini"):
+        with _which_only("gemini"):
             with mock.patch.dict(os.environ, {"GEMINI_API_KEY": "k"}, clear=True):
                 with_auth = gemini.probe(project_root=ROOT)
-            with mock.patch.dict(os.environ, {}, clear=True):
-                without_auth = gemini.probe(project_root=ROOT)
+            unauthenticated = []
+            # An unrelated variable is not auth: "any env var set" must not count.
+            for env in ({}, {"PATH": "/bin"}):
+                with mock.patch.dict(os.environ, env, clear=True):
+                    unauthenticated.append(gemini.probe(project_root=ROOT))
         self.assertIs(with_auth.authenticated, True)
-        self.assertIs(without_auth.authenticated, False)
         self.assertEqual(with_auth.capability.statuses["identity"].status, "supported")
-        identity = without_auth.capability.statuses["identity"]
-        self.assertEqual((identity.status, identity.reason), ("unavailable", hosts.UNAVAILABLE_NO_AUTH))
+        for without_auth in unauthenticated:
+            self.assertIs(without_auth.authenticated, False)
+            identity = without_auth.capability.statuses["identity"]
+            self.assertEqual((identity.status, identity.reason), ("unavailable", hosts.UNAVAILABLE_NO_AUTH))
 
     def test_can_delegate_is_unconditionally_false(self) -> None:
         self.assertIs(gemini.can_delegate(), False)
@@ -127,7 +148,7 @@ class SharedCoreWithoutClaudeTest(unittest.TestCase):
     def test_probe_host_succeeds_for_codex_and_gemini(self) -> None:
         for host_id in ("codex", "gemini"):
             with self.subTest(host_id=host_id):
-                with mock.patch.object(shutil, "which", return_value=f"/usr/bin/{host_id}"):
+                with _which_only(host_id):
                     with mock.patch.dict(os.environ, {}, clear=True):
                         result = hosts.probe_host(host_id, project_root=ROOT)
                         again = hosts.probe_host(host_id, project_root=ROOT)
@@ -187,6 +208,47 @@ class SharedCoreWithoutClaudeTest(unittest.TestCase):
                 reply = self.codex.render_hook_reply("PreToolUse", decision, stop_active=False)
                 self.assertEqual(reply.exit_code, 0)
                 self.assertIs('"deny"' in reply.stdout, not allowed)
+
+    def test_codex_translates_every_non_bash_event_without_claude(self) -> None:
+        session_id = f"cx-{uuid.uuid4().hex}"
+        self.assertEqual(
+            self.codex.session_from_hook_input({"session_id": session_id, "cwd": "/r"}),
+            hosts.NativeSession("codex", session_id, "hook_input"),
+        )
+        base = {"session_id": session_id, "cwd": "/r"}
+        patch = "*** Begin Patch\n*** Add File: docs/a.md\n+x\n*** End Patch\n"
+        table = (
+            ("Stop", base, ["departure", "live_job", "review_completeness"]),
+            ("SessionStart", {**base, "source": "compact"}, ["context_reinjection"]),
+            ("PostToolUse", {**base, "tool_name": "apply_patch", "tool_input": {"patch": patch}},
+             ["state_integrity"]),
+        )
+        for event, payload, duties in table:
+            with self.subTest(event=event):
+                calls = self.codex.translate_hook(event, payload)
+                self.assertEqual(sorted({call.duty.value for call in calls}), duties)
+
+    def test_codex_renders_every_non_bash_reply_without_claude(self) -> None:
+        def decision(event: str, allowed: bool, context: str | None = None):
+            outcome = guards.GuardOutcome(duty=guards.GuardDuty.LIVE_JOB, allowed=allowed,
+                                          reason=None if allowed else "lane L9 live", stateful=False)
+            return interception.HookDecision(
+                host_id="codex", event=event, session=None, project_root="/r", bound=True,
+                outcomes=(outcome,), skipped=(), allowed=allowed, additional_context=context,
+            )
+
+        def body(reply) -> dict:
+            self.assertEqual(reply.exit_code, 0)
+            return json.loads(reply.stdout) if reply.stdout.strip() else {}
+
+        stop = body(self.codex.render_hook_reply("Stop", decision("Stop", False), stop_active=False))
+        self.assertEqual(stop["decision"], "block")
+        self.assertIn("lane L9 live", stop["reason"])
+        start = body(self.codex.render_hook_reply(
+            "SessionStart", decision("SessionStart", True, "card body"), stop_active=False))
+        self.assertEqual(start["hookSpecificOutput"]["additionalContext"], "card body")
+        post = body(self.codex.render_hook_reply("PostToolUse", decision("PostToolUse", False), stop_active=False))
+        self.assertIn("lane L9 live", post["systemMessage"])
 
 
 def _resolve_candidate_hosts(required_capabilities: tuple[str, ...], hosts_declared: dict) -> list[str]:
@@ -289,6 +351,10 @@ class DeclaredCapabilitiesMatchImplementationTest(unittest.TestCase):
                 others = {var: "s-x" for other, var in self.EXPECTED_ENV_VAR.items() if other != host_id}
                 self.assertIsNone(module.session_from_environment(others))
                 self.assertIsNone(module.session_from_environment({}))
+            with self.subTest(host=host_id, case="process env never leaks in"):
+                with mock.patch.dict(os.environ, {module.SESSION_ENV_VAR: "leak"}):
+                    self.assertIsNone(module.session_from_environment({}))
+                    self.assertIsNone(module.session_from_environment(others))
 
     def test_claude_identity_reads_claude_code_session_id(self) -> None:
         session = claude.session_from_environment({"CLAUDE_CODE_SESSION_ID": "cc-42"})
@@ -412,7 +478,8 @@ class IsolationAndJobArgvTest(host_fakes.ProjectCase):
                 self.assertEqual(argv, EXPECTED_ARGV[host_id])
                 self.assertEqual(module.build_job_argv(high), EXPECTED_ARGV[host_id])
                 for out_of_band in ("haiku", "low", "opus", "max", "req-1", "bob-review"):
-                    self.assertFalse(any(out_of_band in arg for arg in argv), out_of_band)
+                    # Whole tokens: gemini's fixed prompt "Follow ..." merely contains "low".
+                    self.assertNotIn(out_of_band, argv)
 
 
 class ClaudeCodexProbeContractTest(unittest.TestCase):
@@ -428,7 +495,7 @@ class ClaudeCodexProbeContractTest(unittest.TestCase):
     def test_missing_binary_yields_no_capability_and_a_recorded_reason(self) -> None:
         for host_id, module in self.MODULES:
             with self.subTest(host=host_id):
-                with mock.patch.object(shutil, "which", return_value=None):
+                with _which_all_but(host_id):
                     with mock.patch.dict(os.environ, self.AUTH_ENV[host_id], clear=True):
                         result = module.probe(project_root=ROOT)
                 self.assertFalse(result.available)
@@ -437,39 +504,44 @@ class ClaudeCodexProbeContractTest(unittest.TestCase):
                 self.assertIsNone(result.authenticated)
 
     def test_present_binary_with_auth_reports_implemented_capabilities_supported(self) -> None:
+        # Each auth variable on its own must authenticate.
         for host_id, module in self.MODULES:
-            with self.subTest(host=host_id):
-                with mock.patch.object(shutil, "which", return_value=f"/usr/bin/{host_id}"):
-                    with mock.patch.dict(os.environ, self.AUTH_ENV[host_id], clear=True):
-                        result = module.probe(project_root=ROOT)
-                self.assertTrue(result.available)
-                self.assertIsNone(result.unavailable_reason)
-                self.assertIs(result.authenticated, True)
-                self.assertEqual(
-                    result.capability.statuses,
-                    hosts.statuses_from(
-                        module.IMPLEMENTED_CAPABILITIES, authenticated=True
-                    ),
-                )
+            for var in self.AUTH_ENV[host_id]:
+                with self.subTest(host=host_id, auth=var):
+                    with _which_only(host_id):
+                        with mock.patch.dict(os.environ, {var: "t"}, clear=True):
+                            result = module.probe(project_root=ROOT)
+                    self._assert_supported(module, result)
+
+    def _assert_supported(self, module, result) -> None:
+        self.assertTrue(result.available)
+        self.assertIsNone(result.unavailable_reason)
+        self.assertIs(result.authenticated, True)
+        self.assertEqual(
+            result.capability.statuses,
+            hosts.statuses_from(module.IMPLEMENTED_CAPABILITIES, authenticated=True),
+        )
 
     def test_claude_without_auth_marks_every_implemented_capability_unavailable(self) -> None:
-        with mock.patch.object(shutil, "which", return_value="/usr/bin/claude"):
-            with mock.patch.dict(os.environ, {}, clear=True):
-                result = claude.probe(project_root=ROOT)
-        self.assertTrue(result.available)
-        self.assertIs(result.authenticated, False)
-        self.assertEqual(tuple(result.capability.statuses), hosts.CAPABILITY_NAMES)
-        for name in claude.IMPLEMENTED_CAPABILITIES:
-            with self.subTest(capability=name):
-                status = result.capability.statuses[name]
-                self.assertEqual(status.status, "unavailable")
-                self.assertEqual(status.reason, hosts.UNAVAILABLE_NO_AUTH)
+        # An unrelated variable is not auth: "any env var set" must not count.
+        for env in ({}, {"PATH": "/bin"}):
+            with _which_only("claude"):
+                with mock.patch.dict(os.environ, env, clear=True):
+                    result = claude.probe(project_root=ROOT)
+            self.assertTrue(result.available)
+            self.assertIs(result.authenticated, False, env)
+            self.assertEqual(tuple(result.capability.statuses), hosts.CAPABILITY_NAMES)
+            for name in claude.IMPLEMENTED_CAPABILITIES:
+                with self.subTest(env=env, capability=name):
+                    status = result.capability.statuses[name]
+                    self.assertEqual(status.status, "unavailable")
+                    self.assertEqual(status.reason, hosts.UNAVAILABLE_NO_AUTH)
 
     def test_codex_statuses_follow_the_auth_presence_it_recorded(self) -> None:
         """codex auth also lives in a file under the user's home, which patching
         os.environ cannot clear, so bind its statuses to the auth it reports
         instead of to a machine-dependent expectation."""
-        with mock.patch.object(shutil, "which", return_value="/usr/bin/codex"):
+        with _which_only("codex"):
             with mock.patch.dict(os.environ, {}, clear=True):
                 result = codex.probe(project_root=ROOT)
         self.assertTrue(result.available)

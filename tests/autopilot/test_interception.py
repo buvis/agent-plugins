@@ -16,9 +16,12 @@ from __future__ import annotations
 import importlib
 import json
 import os
+import random
+import string
 import sys
 import tempfile
 import unittest
+import uuid
 from pathlib import Path
 from unittest import mock
 
@@ -339,6 +342,35 @@ def _mentions(calls: tuple, path: str) -> bool:
     return False
 
 
+def _random_skill() -> str:
+    """A per-run autopilot skill name no implementation can have memorised."""
+    left, right = ("".join(random.choices(string.ascii_lowercase, k=8)) for _ in range(2))
+    return f"autopilot:{left}-{right}"
+
+
+def _filler() -> str:
+    """Zero to four random hex words: a random offset for an embedded skill."""
+    return " ".join(uuid.uuid4().hex for _ in range(random.randint(0, 4)))
+
+
+def _fresh(prefix: str) -> str:
+    return f"{prefix}-{uuid.uuid4().hex}"
+
+
+def _assert_payload_sourced(case: unittest.TestCase, calls: tuple, cwd: str, session_id: str, *subject) -> None:
+    """Every context value is the call's subject (path, command, skill) or comes
+    from this payload: project_root is cwd, session is the payload session_id."""
+    for call in calls:
+        context = dict(call.context)
+        if "project_root" in context:
+            case.assertEqual(context["project_root"], cwd)
+        if "session" in context:
+            case.assertEqual(context["session"], session_id)
+        for key, value in context.items():
+            for item in value if isinstance(value, (list, tuple)) else (value,):
+                case.assertIn(item, {cwd, session_id, *subject}, key)
+
+
 def _agent(prompt: str, **extra) -> dict:
     tool_input = {"description": "d", "prompt": prompt, "subagent_type": "general-purpose"}
     return {"tool_name": "Agent", "tool_input": tool_input, "cwd": UNBOUND_CWD, **extra}
@@ -392,9 +424,13 @@ class ClaudeTranslateHookTest(unittest.TestCase):
         self.assertGreater(len(skills), 1)
         for case in cases:
             with self.subTest(case_id=case["case_id"]):
-                calls = claude_adapter.translate_hook(case["event"], case["payload"])
+                cwd, session_id = _fresh("/w"), _fresh("s")
+                payload = {**case["payload"], "cwd": cwd, "session_id": session_id}
+                calls = claude_adapter.translate_hook(case["event"], payload)
                 self.assertEqual(_duties(calls), ["post_handoff"])
-                self.assertEqual(calls[0].context["requested_skill"], case["payload"]["tool_input"]["skill"])
+                skill = case["payload"]["tool_input"]["skill"]
+                self.assertEqual(calls[0].context["requested_skill"], skill)
+                _assert_payload_sourced(self, calls, cwd, session_id, skill)
 
     def test_agent_dispatch_names_the_first_explicit_skill_in_its_prompt(self) -> None:
         table = (
@@ -409,8 +445,15 @@ class ClaudeTranslateHookTest(unittest.TestCase):
             ("Autopilot:Work", ""),
             ("see claude-autopilot/hooks and run-autopilot/cli", ""),
         )
+        first, second = _random_skill(), _random_skill()
+        built = (  # per-run prompts: no table of literal prompts can pass these
+            (f"{_filler()} autopilot:work {_filler()}", "autopilot:work"),
+            (f"{_filler()} /{first} {_filler()} {second}", first),
+            (f"{_filler()} git-ferry:catchup {_filler()} {first}", "git-ferry:catchup"),
+            (_filler(), ""),
+        )
         with _child_env(None):
-            for prompt, expected in table:
+            for prompt, expected in table + built:
                 with self.subTest(prompt=prompt):
                     calls = claude_adapter.translate_hook("PreToolUse", _agent(prompt))
                     self.assertEqual(_duties(calls), ["delegation"])
@@ -431,16 +474,18 @@ class ClaudeTranslateHookTest(unittest.TestCase):
                 self.assertEqual(calls[0].context["child_depth"], depth)
 
     def test_post_tool_file_edits_check_state_integrity_for_the_written_path(self) -> None:
-        paths = ("/w/docs/a.md", "/w/src/b.py")
-        for path in paths:
+        for name in ("docs/a.md", "src/b.py"):
             for tool in ("Edit", "Write", "MultiEdit"):
+                cwd, session_id = _fresh("/w"), _fresh("s")
+                path = f"{cwd}/{name}"
                 with self.subTest(tool=tool, path=path):
-                    payload = {"tool_name": tool, "tool_input": {"file_path": path}, "cwd": "/w"}
+                    payload = {"tool_name": tool, "tool_input": {"file_path": path}, "cwd": cwd,
+                               "session_id": session_id}
                     calls = claude_adapter.translate_hook("PostToolUse", payload)
                     self.assertTrue(calls)
                     self.assertEqual(set(_duties(calls)), {"state_integrity"})
                     self.assertTrue(_mentions(calls, path))
-                    self.assertFalse(_mentions(calls, next(p for p in paths if p != path)))
+                    _assert_payload_sourced(self, calls, cwd, session_id, path)
 
 
 class SharedTranslateHookTest(unittest.TestCase):
@@ -449,11 +494,15 @@ class SharedTranslateHookTest(unittest.TestCase):
         self.assertTrue(any(guards.is_git_push(c) for c in commands))
         self.assertFalse(all(guards.is_git_push(c) for c in commands))
         for host_id, module in INTERCEPTING:
-            for cwd in ("/w1", "/w2"):
+            for _ in range(2):
                 for command in commands:
+                    cwd, session_id = _fresh("/w"), _fresh("s")
                     with self.subTest(host=host_id, cwd=cwd, command=command):
-                        payload = {"tool_name": "Bash", "tool_input": {"command": command}, "cwd": cwd}
-                        calls = _calls(module.translate_hook("PreToolUse", payload))
+                        payload = {"tool_name": "Bash", "tool_input": {"command": command}, "cwd": cwd,
+                                   "session_id": session_id}
+                        raw = module.translate_hook("PreToolUse", payload)
+                        _assert_payload_sourced(self, raw, cwd, session_id, command)
+                        calls = _calls(raw)
                         docs = [ctx for duty, ctx in calls if duty is GuardDuty.DOCUMENT_LOCATION]
                         self.assertEqual(docs, [{"command": command, "project_root": cwd}])
                         pushes = [ctx for duty, ctx in calls if duty is GuardDuty.CUSTODY_PUSH]
@@ -497,13 +546,27 @@ class CodexTranslateHookTest(unittest.TestCase):
     def _payload(self, patch: str, cwd: str) -> dict:
         return {"tool_name": "apply_patch", "tool_input": {"patch": patch}, "cwd": cwd}
 
+    def _patches(self) -> tuple:
+        """(patch, checked paths): the literal PATCH plus per-run random ones."""
+        add, update, moved, update_only, deleted = (f"{_fresh('d')}/{_fresh('f')}.md" for _ in range(5))
+        random_patch = (f"*** Begin Patch\n*** Update File: {update}\n*** Move to: {moved}\n@@\n-a\n+b\n"
+                        f"*** Add File: {add}\n+x\n*** End Patch\n")
+        return (
+            (PATCH, PATCH_PATHS),
+            (random_patch, (update, moved, add)),
+            (f"*** Begin Patch\n*** Update File: {update_only}\n@@\n-a\n+b\n*** End Patch\n", (update_only,)),
+            (f"*** Begin Patch\n*** Delete File: {deleted}\n*** End Patch\n", ()),
+        )
+
     def test_apply_patch_checks_every_added_updated_and_moved_path(self) -> None:
-        for cwd in ("/w1", "/w2"):
-            with self.subTest(cwd=cwd):
-                calls = codex_adapter.translate_hook("PreToolUse", self._payload(PATCH, cwd))
-                expected = [{"document_path": path, "project_root": cwd} for path in PATCH_PATHS]
-                self.assertEqual(_duties(calls), ["document_location"] * 3)
-                self.assertEqual(sorted((c for _, c in _calls(calls)), key=lambda c: c["document_path"]), expected)
+        for patch, paths in self._patches():
+            cwd = _fresh("/w")
+            with self.subTest(cwd=cwd, paths=paths):
+                calls = codex_adapter.translate_hook("PreToolUse", self._payload(patch, cwd))
+                expected = [{"document_path": path, "project_root": cwd} for path in sorted(paths)]
+                docs = [c for duty, c in _calls(calls) if duty is GuardDuty.DOCUMENT_LOCATION]
+                self.assertEqual(len(docs), len(calls))
+                self.assertEqual(sorted(docs, key=lambda c: c["document_path"]), expected)
 
     def test_apply_patch_without_file_headers_checks_no_document(self) -> None:
         calls = codex_adapter.translate_hook("PreToolUse", self._payload("*** Begin Patch\n*** End Patch\n", "/w"))
@@ -515,6 +578,16 @@ class CodexTranslateHookTest(unittest.TestCase):
         for path in PATCH_PATHS:
             self.assertTrue(_mentions(calls, path), path)
         self.assertFalse(_mentions(calls, "smuggled.md"))
+        for patch, paths in self._patches()[1:3]:
+            cwd, session_id = _fresh("/w"), _fresh("s")
+            with self.subTest(cwd=cwd, paths=paths):
+                payload = {**self._payload(patch, cwd), "session_id": session_id}
+                calls = codex_adapter.translate_hook("PostToolUse", payload)
+                self.assertEqual(set(_duties(calls)), {"state_integrity"})
+                for path in paths:
+                    self.assertTrue(_mentions(calls, path), path)
+                # exactly its paths: no other path, no hardcoded root or session
+                _assert_payload_sourced(self, calls, cwd, session_id, *paths)
 
 
 class RenderHookReplyTest(unittest.TestCase):
@@ -557,6 +630,20 @@ class RenderHookReplyTest(unittest.TestCase):
             self.assertEqual(reply.exit_code, 0)
             self.assertNotIn("systemMessage", _body(reply))
 
+    def _assert_block_names_a_denied_reason(self, module, host_id: str) -> None:
+        """The deny need not be the last outcome, and an allow's None reason never leaks."""
+        first, second = _fresh("review missing"), _fresh("lane live")
+        for outcomes, reasons in (
+            ([_deny(GuardDuty.LIVE_JOB, first), _allow(GuardDuty.DEPARTURE)], (first,)),
+            ([_deny(GuardDuty.REVIEW_COMPLETENESS, first), _deny(GuardDuty.LIVE_JOB, second),
+              _allow(GuardDuty.DEPARTURE)], (first, second)),
+        ):
+            with self.subTest(host=host_id, reasons=reasons):
+                body = _body(module.render_hook_reply("Stop", _decision(host_id, "Stop", outcomes), stop_active=False))
+                self.assertEqual(body["decision"], "block")
+                self.assertTrue(any(reason in body["reason"] for reason in reasons), body["reason"])
+                self.assertNotIn("None", body["reason"])
+
     def test_stop_blocks_once_then_lets_the_stop_through(self) -> None:
         for host_id, module in INTERCEPTING:
             for reason in ("lane L1 live", "review missing"):
@@ -570,6 +657,7 @@ class RenderHookReplyTest(unittest.TestCase):
                     released = module.render_hook_reply("Stop", denied, stop_active=True)
                     self.assertEqual(released.exit_code, 0)
                     self.assertNotEqual(_body(released).get("decision"), "block")
+            self._assert_block_names_a_denied_reason(module, host_id)
             allowed = _decision(host_id, "Stop", [_allow(GuardDuty.LIVE_JOB)])
             self.assertNotEqual(_body(module.render_hook_reply("Stop", allowed, stop_active=False)).get("decision"),
                                 "block")
@@ -622,7 +710,11 @@ class RealAdapterEvaluateHookTest(unittest.TestCase):
 
     def test_dispatching_a_whole_phase_skill_in_the_prompt_is_denied(self) -> None:
         table = (("Call /autopilot:plan-tasks", False), ("Run autopilot:work", False),
-                 ("Call /autopilot:plan-tasks-notes", True), ("Summarize the diff", True))
+                 ("Call /autopilot:plan-tasks-notes", True), ("Summarize the diff", True),
+                 # per-run prompts, the phase skill at a random offset
+                 (f"{_filler()} /autopilot:plan-tasks {_filler()}", False),
+                 (f"{_filler()} autopilot:work {_filler()} {_random_skill()}", False),
+                 (f"{_filler()} {_random_skill()} {_filler()} autopilot:work", True))
         with _child_env(None):
             for prompt, allowed in table:
                 with self.subTest(prompt=prompt):
@@ -639,7 +731,22 @@ class RealAdapterEvaluateHookTest(unittest.TestCase):
                     )
                 self.assertIs(decision.allowed, allowed)
                 if not allowed:
-                    self.assertEqual(decision.outcomes[0].reason, "recursion_depth")
+                    self.assertIn("recursion_depth", decision.outcomes[0].reason)
+
+    def test_a_skill_is_refused_only_after_this_sessions_own_leave(self) -> None:
+        """skill-denies-autopilot-skill-after-own-leave and
+        skill-allows-another-sessions-leave-marker: the decision needs the
+        payload's session, so translate_hook must carry it."""
+        root = self._bound_root()
+        session_id = _fresh("s")
+        for leave_session, allowed in ((session_id, False), (_fresh("s"), True)):
+            with self.subTest(leave_session=leave_session):
+                seam = host_fakes.FakeSeam(guard_rules={}, facts={"post_handoff": {
+                    "leave_recorded": True, "leave_session": leave_session}})
+                payload = {"tool_name": "Skill", "tool_input": {"skill": "autopilot:run-autopilot"},
+                           "session_id": session_id, "cwd": str(root)}
+                decision = interception.evaluate_hook("claude", "PreToolUse", payload, env={}, seam=seam)
+                self.assertIs(decision.allowed, allowed, msg=decision.outcomes)
 
     def test_bound_stop_without_seam_blocks_then_releases(self) -> None:
         (case,) = [c for c in _cases("stop-bound-session-without-controller-seam-is-denied")]
