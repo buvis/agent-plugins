@@ -396,7 +396,10 @@ with open(sys.argv[1], "a", encoding="utf-8") as log:
 """
 ROOT_INSTRUCTIONS = ("CLAUDE.md", ".claude/CLAUDE.md")
 # Shell commands whose reads cannot be named from their arguments.
-OPAQUE_READ = re.compile(r"[*?\[$`]|\b(?:grep|rg|find|xargs|ack|ag|cd|pushd)\b")
+OPAQUE_READ = re.compile(
+    r"[*?\[$`{}\\~]|\b(?:grep|rg|find|xargs|ack|ag|cd|pushd)\b"
+    r"|\b(?:python[\d.]*|perl|ruby|node|sh|bash|zsh)\s+-[ce]\b"
+)
 # Workspace files the host loads as configuration on the next launch.
 HOST_SETTINGS = (".claude/settings.json", ".claude/settings.local.json", ".mcp.json")
 
@@ -542,8 +545,10 @@ def shell_reads(
     """
     reads = []
     roots = [workspace, *([plugin] if plugin else [])]
+    roots = [root.resolve() for root in roots]
     for word in re.split(r"[\s'\"=<>|;&()]+", text):
-        path = workspace / word
+        # Resolved, so `docs/../AGENTS.md` is recorded as the file it reads.
+        path = (workspace / word).resolve()
         if word and path.is_file() and any(path.is_relative_to(r) for r in roots):
             reads.append(str(path))
     return reads, not OPAQUE_READ.search(text)
@@ -570,7 +575,7 @@ def accept_boundary(adapter: Claude, revision: str) -> None:
     ):
         raise HostError(
             f"{adapter.host} launch blocked: no passing boundary proof for this "
-            "host version, package, and configuration (run --probe-boundary)"
+            "host version, package, configuration, and runner (run its live probe)"
         )
     adapter.boundary_sha256 = score.evidence_digest(proof)
 
@@ -758,9 +763,10 @@ class Claude:
         cost = final.get("total_cost_usd")
         if not isinstance(cost, (int, float)) or isinstance(cost, bool):
             raise HostError("Claude omitted cost evidence")
-        # ponytail: treats a smaller value as per-process and adds it, so the
-        # cap holds whether the host reports cumulative or per-launch cost.
-        self.cost = cost if cost >= self.cost else self.cost + cost
+        # ponytail: always adds. If the host reports a cumulative figure on a
+        # resumed conversation this over-counts and stops a session early;
+        # the other reading could let a session exceed its cap.
+        self.cost += cost
         batch = self.plugin.parent.parent
         observations, hooked = read_instruction_log(
             batch / "control/instructions.jsonl"
@@ -1265,10 +1271,20 @@ def boundary_probe(model: str, *, scratch: Path = EXTERNAL_SCRATCH) -> dict:
                 f"stream={secret in raw}",
             )
         exact = calls.get(("Bash", PROBE_COMMAND))
+        # The report token is readable by the model, so the script's report
+        # counts only when the turn made the instructed calls and no other:
+        # nothing could then replace the script or change the shell's folder.
+        instructed = {
+            *((tool, payload[key]) for tool, key in NATIVE_PROBES.values()),
+            ("Bash", PROBE_COMMAND),
+        }
+        made = sum(1 for b in tool_blocks(events) if b.get("type") == "tool_use")
         checks.update(
             shell_probe_checks(
                 [outputs.get(run, "") for run in shell_runs]
                 if shell_runs == [exact]
+                and set(calls) == instructed
+                and made == len(instructed)
                 else [],
                 workspace,
                 payload,

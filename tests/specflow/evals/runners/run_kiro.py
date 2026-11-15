@@ -95,7 +95,7 @@ def deny_around(root: Path, keep: list[Path], expand: bool) -> list[str]:
         try:
             # An entry the supervisor cannot inspect is denied like any other.
             target = entry.resolve() if entry.is_symlink() else None
-        except OSError:
+        except (OSError, RuntimeError):  # RuntimeError: a link loop before 3.13
             target = None
         # The sandbox resolves a denied link to its target. An alias of a
         # kept path (mise's `3.15` beside `3.15.2`) would hide that path
@@ -343,7 +343,8 @@ def sandbox_active(turn: dict, stderr: str) -> bool:
         )
         and not SANDBOX_WARNING.search(stderr)
         and not any(
-            SANDBOX_START_FAILURE in str(call["output"].get("output", ""))
+            SANDBOX_START_FAILURE
+            in f"{call['output'].get('output', '')} {call.get('text', '')}"
             for call in turn["calls"].values()
         )
     )
@@ -359,20 +360,16 @@ def reject_failures(turn: dict) -> None:
     """
     for call in turn["calls"].values():
         code = call["output"].get("exitCode")
-        denied = DENIAL in f"{call['output'].get('message')} {call.get('text', '')}"
+        # The host's own message field only: a command's output may quote the
+        # denial phrase without having been denied.
+        denied = DENIAL in str(call["output"].get("message"))
         if call["status"] == "completed" or (call["status"] == "failed" and not denied):
             continue
-        # Names the call so a stopped session can be diagnosed; the record
-        # normalizes batch and home paths before it is stored.
-        reason = " ".join(
-            str(value)[:200]
-            for value in (call["output"].get("message"), call.get("text"))
-            if value
-        )
+        # Enough to diagnose a stopped session, and nothing a record must not
+        # hold: no path, command text, or host output.
         raise runner.HostError(
-            "Kiro reported a failed, denied, or unfinished call: "
-            f"kind={call['kind']} status={call['status']} exit={code} "
-            f"target={call['path'] or call['command'][:200]!r} reason={reason!r}"
+            "Kiro reported a denied or unfinished call: "
+            f"kind={call['kind']} status={call['status']} exit={code} denied={denied}"
         )
 
 
@@ -609,6 +606,11 @@ class Kiro:
             if path.exists() or path.is_symlink():
                 # For example, a workspace agent would replace the generated one.
                 raise runner.HostError(f"workspace carries Kiro configuration: {name}")
+        # includePowers loads every installed Power: only specflow may be there.
+        powers = self.home / "powers/installed"
+        installed = sorted(p.name for p in powers.iterdir()) if powers.is_dir() else []
+        if installed != ["specflow"]:
+            raise runner.HostError("an unrelated Kiro Power is installed")
         write_configuration(self.home, self.root, workspace, self.plugin)
         self.require_setting()
         return runner.command(self.arguments(prompt), workspace, self.environment())
@@ -798,7 +800,21 @@ def probe_checks(
         for call in turn["calls"].values()
         if call["kind"] == "execute" and "probe.py" in call["command"]
     ]
-    exact = all(call["command"].strip() == PROBE_COMMAND for call in runs)
+    # The report token is readable by the model, so the script's report counts
+    # only when the turn made the instructed calls and no other: nothing could
+    # then replace the script or run it from another folder.
+    instructed = sorted(
+        [
+            *((kind, payload[key]) for kind, key in NATIVE_PROBES.values()),
+            ("execute", PROBE_COMMAND),
+            ("execute", ENVIRONMENT_COMMAND),
+        ]
+    )
+    made = sorted(
+        (str(call["kind"]), call["path"] or call["command"].strip())
+        for call in turn["calls"].values()
+    )
+    exact = made == instructed
     checks = runner.shell_probe_checks(
         [
             "\n".join(

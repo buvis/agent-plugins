@@ -1369,7 +1369,7 @@ class RunnerTest(unittest.TestCase):
 
     def test_claude_reads_name_shell_files_and_reject_opaque_commands(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
-            workspace = Path(folder)
+            workspace = Path(folder).resolve()
             (workspace / "notes.md").write_text("x")
 
             def stream(name: str, data: dict) -> list[dict]:
@@ -1396,6 +1396,7 @@ class RunnerTest(unittest.TestCase):
             allow: str = "",
             write: bool = False,
             unrelated: bool = False,
+            extra: bool = False,
         ):
             def launch(
                 adapter: run_claude.Claude, prompt: str, workspace: Path, budget: float
@@ -1470,6 +1471,16 @@ class RunnerTest(unittest.TestCase):
                         ],
                     }
                 )
+                if extra:
+                    # An uninstructed write could have replaced the script.
+                    blocks.append(
+                        {
+                            "type": "tool_use",
+                            "id": "extra",
+                            "name": "Write",
+                            "input": {"file_path": str(workspace / "probe.py")},
+                        }
+                    )
                 denials = [
                     {"tool_use_id": str(number)}
                     for number, name in enumerate(run_claude.NATIVE_PROBES)
@@ -1504,6 +1515,19 @@ class RunnerTest(unittest.TestCase):
                         "native-symlink-write-denied",
                         "shell-plugin-write-denied",
                         "shell-symlink-write-denied",
+                        "effective-settings",
+                    },
+                ),
+                (
+                    {"extra": True},
+                    {
+                        *(
+                            name
+                            for name in score.RELEASE_BOUNDARY_CHECKS
+                            if name.startswith("shell-")
+                        ),
+                        "helper-status",
+                        "tool-secret-environment-denied",
                         "effective-settings",
                     },
                 ),
@@ -1575,16 +1599,32 @@ class RunnerTest(unittest.TestCase):
 
     def test_shell_reads_are_unmeasured_when_a_read_cannot_be_named(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
-            workspace, plugin = Path(folder) / "ws", Path(folder) / "plugin"
+            root = Path(folder).resolve()
+            workspace, plugin = root / "ws", root / "plugin"
             for path in (workspace / "docs", plugin):
                 path.mkdir(parents=True)
             (workspace / "docs/a.md").write_text("x")
+            (workspace / "AGENTS.md").write_text("x")
             (plugin / "reference.md").write_text("x")
             self.assertEqual(
                 run_claude.shell_reads(f"cat {plugin}/reference.md", workspace, plugin),
                 ([str(plugin / "reference.md")], True),
             )
-            for opaque in ("cd docs && cat a.md", 'cat "$f"', "cat `ls`", "cat docs/*"):
+            # A roundabout path is recorded as the file it reads.
+            self.assertEqual(
+                run_claude.shell_reads("cat docs/../AGENTS.md", workspace),
+                ([str(workspace / "AGENTS.md")], True),
+            )
+            for opaque in (
+                "cd docs && cat a.md",
+                'cat "$f"',
+                "cat `ls`",
+                "cat docs/*",
+                "cat {AGENTS,notes}.md",
+                "cat AGENTS\\.md",
+                "cat ~/x",
+                "python3 -c 'open(1)'",
+            ):
                 with self.subTest(command=opaque):
                     self.assertFalse(run_claude.shell_reads(opaque, workspace)[1])
 
@@ -1623,20 +1663,26 @@ class RunnerTest(unittest.TestCase):
                 (root / name).mkdir(parents=True)
             adapter = run_codex.Codex("requested-model")
             adapter.plugin = root / "resources/specflow"
+            binary = root / "install/bin/codex"
+            binary.parent.mkdir(parents=True)
+            binary.write_text("binary")
             version = subprocess.CompletedProcess([], 0, "codex-cli 9.9.9\n", "")
             with (
                 mock.patch.object(run_codex.shutil, "which", return_value="/bin/codex"),
                 mock.patch.object(run_codex, "find_git", return_value=Path(__file__)),
                 mock.patch.object(run_codex, "shell_runtime", return_value=[]),
-                mock.patch.object(
-                    run_codex, "codex_binary", return_value=Path("/opt/codex/bin/codex")
-                ),
+                mock.patch.object(run_codex, "codex_binary", return_value=binary),
                 mock.patch.object(run_claude, "command", return_value=version),
             ):
                 adapter.identify()
-                self.assertEqual(adapter.executable, "/opt/codex/bin/codex")
-                self.assertEqual(adapter.runtime, [Path("/opt/codex/bin")])
+                self.assertEqual(adapter.executable, str(binary))
+                self.assertEqual(adapter.runtime, [binary.parent])
                 first = adapter.configuration_sha256
+                # A folder with anything beside Codex's binaries is not granted.
+                (binary.parent / "other-tool").write_text("x")
+                with self.assertRaisesRegex(run_claude.HostError, "other files"):
+                    adapter.identify()
+                (binary.parent / "other-tool").unlink()
                 # State a finished first turn leaves behind.
                 adapter.conversation, adapter.model = "thread", "resolved-model"
                 adapter.identify()
@@ -2006,7 +2052,8 @@ class CodexConversationTest(unittest.TestCase):
                             "type": "custom_tool_call",
                             "call_id": 1,
                             "name": "exec",
-                            "input": 'tools.exec_command({cmd:"cat notes.md"})',
+                            "input": "text(await tools.exec_command("
+                            '{cmd:"cat notes.md"}));\n',
                         },
                     },
                     {"type": "session_meta", "payload": {"cli_version": "9.9.9"}},
@@ -2095,7 +2142,9 @@ class CodexConversationTest(unittest.TestCase):
     def test_live_probe_needs_host_recorded_policy_denials_and_instructions(
         self,
     ) -> None:
-        def host(profile: str = "managed", patch_status: str = "failed"):
+        def host(
+            profile: str = "managed", patch_status: str = "failed", forged: str = ""
+        ):
             def launch(
                 adapter: run_codex.Codex, prompt: str, workspace: Path
             ) -> subprocess.CompletedProcess:
@@ -2154,13 +2203,29 @@ class CodexConversationTest(unittest.TestCase):
                     [
                         *call(
                             1,
-                            f'tools.exec_command({{cmd:"{run_codex.PROBE_COMMAND}"}})',
+                            "text(await tools.exec_command({cmd:"
+                            f'"{run_codex.PROBE_COMMAND}{forged}",'
+                            "max_output_tokens:1000}));\n",
                             json.dumps({"exit_code": 0, "output": stdout}),
                         ),
                         *call(
                             2,
-                            f"tools.apply_patch(*** Add File: {payload['plugin_new']})",
+                            'text(await tools.apply_patch("*** Add File: '
+                            f'{payload["plugin_new"]}"));\n',
                             refusal,
+                        ),
+                        *call(
+                            3,
+                            'text(await tools.apply_patch("*** Add File: '
+                            f'{payload["link_new"]}"));\n',
+                            refusal,
+                        ),
+                        *call(
+                            4,
+                            "text(await tools.exec_command({cmd:"
+                            f'"{Path(sys.executable).resolve()} -B '
+                            f'{payload["helper"]} status"}}));\n',
+                            "ok",
                         ),
                         {"type": "session_meta", "payload": {"cli_version": "9.9.9"}},
                         {
@@ -2215,6 +2280,24 @@ class CodexConversationTest(unittest.TestCase):
             for options, expected in (
                 ({}, set()),
                 ({"profile": "disabled"}, {"effective-settings"}),
+                (
+                    # The command carries more than the instructed text: its
+                    # report could be forged, so no shell check may pass.
+                    {"forged": "; echo forged"},
+                    {
+                        name
+                        for name in score.RELEASE_BOUNDARY_CHECKS
+                        if name.startswith("shell-")
+                        or name.endswith("read-denied")
+                        or name
+                        in (
+                            "helper-status",
+                            "plugin-read",
+                            "tool-secret-environment-denied",
+                            "effective-settings",
+                        )
+                    },
+                ),
                 (
                     {"patch_status": "completed"},
                     {
@@ -3063,9 +3146,9 @@ class KiroAdapterTest(unittest.TestCase):
             "denied read": {
                 "events": self.events(
                     # The error names the failed call and its target, nothing else.
-                    *self.call("r", "read", "failed", path="/batch/x", output=blocked)
+                    *self.call("r", "read", "failed", path="/private", output=blocked)
                 ),
-                "names": "kind=read status=failed exit=None target='/batch/x'",
+                "names": "kind=read status=failed exit=None denied=True",
             },
             "denied shell": {
                 "events": self.events(
@@ -3224,6 +3307,15 @@ class KiroAdapterTest(unittest.TestCase):
         ):
             self.adapter.launch("request", self.workspace)
         (self.workspace / ".kiro/agents").rmdir()
+        powers = self.adapter.home / "powers/installed"
+        (powers / "other").mkdir(parents=True)
+        (powers / "specflow").mkdir()
+        with (
+            mock.patch.object(run_claude, "command") as command,
+            self.assertRaisesRegex(run_claude.HostError, "unrelated Kiro Power"),
+        ):
+            self.adapter.launch("request", self.workspace)
+        (powers / "other").rmdir()
         with (
             mock.patch.object(run_claude, "command") as command,
             self.assertRaisesRegex(run_claude.HostError, "inheritance setting"),

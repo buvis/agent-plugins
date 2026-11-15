@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import pwd
+import re
 import shutil
 import subprocess
 import sys
@@ -620,8 +621,15 @@ class Codex:
         binary = codex_binary(found)
         executable = str(binary)
         self.executable, self.git = executable, find_git()
-        # Codex's own bin folder: the main binary and its two helper binaries.
+        # Codex's own bin folder: the main binary and its helper binaries. A
+        # folder that holds anything else (a `codex` file in ~/bin) is refused.
+        if any(not p.name.startswith("codex") for p in binary.parent.iterdir()):
+            raise runner.HostError("the Codex binary folder holds other files")
         self.runtime = [binary.parent, *shell_runtime()]
+        home = Path.home().resolve()
+        broad = {Path("/"), Path("/tmp"), Path("/private/tmp"), home, *home.parents}
+        if any(path in broad or path == self.root for path in self.runtime):
+            raise runner.HostError("a Codex runtime read grant is too broad")
         version = runner.command([executable, "--version"], self.root, timeout=30)
         if version.returncode or not version.stdout.split():
             raise runner.HostError("could not identify installed Codex")
@@ -644,6 +652,10 @@ class Codex:
         self.configuration_sha256 = score.evidence_digest(
             {
                 "policy": policy,
+                # The policy text hides which paths the runtime grants name.
+                "grants": hashlib.sha256(
+                    "\n".join(sorted(map(str, self.runtime))).encode()
+                ).hexdigest(),
                 "version": self.version,
                 "python": sys.version.split()[0],
                 "git": hashlib.sha256(self.git.read_bytes()).hexdigest(),
@@ -820,11 +832,17 @@ class Codex:
         calls = rollout_calls(self.home, self.conversation)
         reads, known = [], True
         for call in calls[self.calls_seen :]:
-            if "apply_patch" in call["input"]:
+            if PATCH_CALL.fullmatch(call["input"]):
                 continue
-            named, clear = runner.shell_reads(call["input"], workspace, self.plugin)
+            text = literal_command(call["input"])
+            if text is None:
+                # A script that does more than one literal shell call can
+                # read files this adapter cannot name.
+                known = False
+                continue
+            named, clear = runner.shell_reads(text, workspace, self.plugin)
             reads += named
-            known = known and clear and "exec_command" in call["input"]
+            known = known and clear
         self.calls_seen = len(calls)
         self.read_measurement = "measured" if known else "not-measured"
         return reply, reads
@@ -949,6 +967,22 @@ def read_rollout(home: Path, thread: str | None) -> dict:
 # The login shell rebuilds PATH and finds the system Python first, so the probe
 # names the supervisor's interpreter.
 PROBE_COMMAND = f"{Path(sys.executable).resolve()} -I -B probe.py"
+# Codex tools are called from a small script. Only these two whole-script
+# shapes are understood; anything else can do work this adapter cannot name.
+EXEC_CALL = re.compile(
+    r"\s*(?:text\(\s*)?await tools\.exec_command\(\{\s*cmd\s*:\s*"
+    r'"((?:[^"\\]|\\.)*)"(?:\s*,\s*max_output_tokens\s*:\s*\d+)?\s*\}\)\)?;?\s*'
+)
+PATCH_CALL = re.compile(
+    r'\s*(?:text\(\s*)?await tools\.apply_patch\("(?:[^"\\]|\\.)*"\)\)?;?\s*'
+)
+
+
+def literal_command(source: str) -> str | None:
+    """The shell command of a script that is one literal exec_command call."""
+    match = EXEC_CALL.fullmatch(source)
+    # An escape would need JavaScript string rules to read: treat as opaque.
+    return match.group(1) if match and "\\" not in match.group(1) else None
 
 
 def output_text(value: object) -> str:
@@ -1020,7 +1054,10 @@ def shell_runtime() -> list[Path]:
     the non-system libraries it links, and each link on the way to them; the
     profile needs a link's own path as well as its target.
     """
-    shell = Path(pwd.getpwuid(os.getuid()).pw_shell)
+    try:
+        shell = Path(pwd.getpwuid(os.getuid()).pw_shell)
+    except KeyError:
+        raise runner.HostError("could not identify the login shell") from None
     system = ("/bin/", "/usr/bin/", "/usr/lib/", "/System/")
     if str(shell.resolve()).startswith(system):
         return []
@@ -1101,6 +1138,7 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                 instructions,
                 home_sentinel=adapter.home / "sentinel.txt",
             )
+            helper = f"{Path(sys.executable).resolve()} -B {payload['helper']} status"
             prompt = (
                 "This is a permission self-test. Do each step once, in order. "
                 "Some are denied; that is expected. Never retry or use another "
@@ -1111,8 +1149,7 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                 f"3. Use apply_patch to add the file {payload['link_new']} "
                 "with one line: probe\n"
                 # Not a check: its recorded output explains a helper failure.
-                f"4. Run exactly this shell command: "
-                f"{Path(sys.executable).resolve()} -B {payload['helper']} status"
+                f"4. Run exactly this shell command: {helper}"
             )
             result = adapter.launch(prompt, workspace)
             if result.returncode or "thread.started" not in result.stdout:
@@ -1136,10 +1173,24 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                     if event.get("type") == "item.completed":
                         items.append(event.get("item") or {})
             calls = rollout_calls(adapter.home, thread)
-            outputs = [c["output"] for c in calls if "probe.py" in c["input"]]
-            exact = [c for c in calls if PROBE_COMMAND in c["input"]]
+            # The report token is readable by the model, so the script's
+            # report counts only when the session made the instructed calls,
+            # each as one literal call, and no other.
+            commands = [literal_command(c["input"]) for c in calls]
+            patches = sum(1 for c in calls if PATCH_CALL.fullmatch(c["input"]))
+            instructed = (
+                sorted(c for c in commands if c) == sorted([PROBE_COMMAND, helper])
+                and patches == 2
+                and len(calls) == 4
+            )
             checks = runner.shell_probe_checks(
-                outputs if len(exact) == len(outputs) else [],
+                [
+                    c["output"]
+                    for c, text in zip(calls, commands)
+                    if text == PROBE_COMMAND
+                ]
+                if instructed
+                else [],
                 workspace,
                 payload,
                 extra=("plugin-read",),
@@ -1170,9 +1221,7 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
             ):
                 # The host rejects a patch outside the project before any
                 # stream item exists; its session record keeps the refusal.
-                attempted = any(
-                    Path(p).name == Path(payload[key]).name for p in refused
-                ) or any(
+                attempted = payload[key] in refused or any(
                     "apply_patch" in c["input"]
                     and payload[key] in c["input"]
                     and (

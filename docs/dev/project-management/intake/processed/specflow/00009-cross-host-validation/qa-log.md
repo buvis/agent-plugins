@@ -670,4 +670,21 @@ Resumed at clean `8e2cb65`. Installed hosts: Claude Code 2.1.325, Codex 0.167.2,
 - A Python 3.10 defect surfaced in the last test run: `Path.is_symlink` raises on an entry the process may not inspect. The Kiro deny-list builder now denies such an entry like any other. This changed the Kiro adapter after its proof and self-check, so both must be repeated before T-056 is checked.
 - 110 instrument tests pass on Python 3.15.2 and 3.10.22; Ruff passes.
 
-No approval, task state, or acceptance criterion changed. T-056 stays unchecked until the changed adapters are reviewed, the final proofs and self-checks are repeated on the reviewed code, and a live interruption is exercised. Both need a terminal outside `run-agent`; the steps are in `manual-run.md`, "Live proof procedure".
+### Second independent review (2026-11-15, commits `02a001e..0948d06`)
+
+Two HIGH and five MEDIUM findings, all fixed with tests:
+
+- **Probe report could be forged (HIGH).** The report token sits in a file the model can read. A shell report now counts only when the turn made exactly the instructed calls: on Codex each as one literal call with no extra argument, on Claude and Kiro the instructed set and nothing else.
+- **Codex reads marked measured with reads dropped (HIGH).** A Codex tool script counts as nameable only when it is one literal shell call or one patch; anything else makes the turn's reads unmeasured.
+- Shell reads are recorded by resolved path; brace, backslash, tilde, and inline-interpreter forms count as unnameable.
+- A stopped Kiro turn reports only the call kind, status, exit code, and whether it was a denial; no path, command, or host text reaches a record. Only the host's own message field marks a denial.
+- A Kiro launch refuses any installed Power other than specflow.
+- The Claude spending cap always adds the reported cost, so it cannot undercount; if the host reports a cumulative figure it stops a session early.
+- Codex refuses a binary folder that holds other files and a runtime grant at or above the home, batch, or temporary folder; the configuration digest covers the granted paths.
+- Small: link loops and a missing account entry raise the runner's own error; the sandbox start failure is also searched in call text; a native-write refusal is matched by full path.
+
+Not changed: a never-started Kiro record takes its agent-server version from the proof (LOW). Left for live runs: whether Kiro's sandbox denies paths created after the deny list is built, whether Claude's cost figure is cumulative on resume, and whether Kiro loads legacy workspace configuration.
+
+110 instrument tests pass on Python 3.15.2 and 3.10.22; Ruff and the repository validator (3 packages, 15 skills) pass. The full repository suite was not rerun.
+
+All three runner files changed, so every earlier proof is stale. No approval, task state, or acceptance criterion changed. T-056 stays unchecked until the final proofs and self-checks are repeated on this code and a live interruption is exercised. Both need a terminal outside `run-agent`; the steps are in `manual-run.md`, "Live proof procedure".
