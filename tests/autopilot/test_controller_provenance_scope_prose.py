@@ -30,6 +30,33 @@ DISTINCT_TARGETS = 8
 DISTINCT_TARGET_FILES = 3
 CONTROL = ("tests/autopilot/test_provenance_staging_divergence.py"
            "::test_deliberate_divergences_names_the_dropped_stale_temp_cleanup")
+# Prose that says the mapped runtime checks are configuration-only or not yet
+# executed contradicts the scope.
+CONTRADICTIONS = DENIALS + ("pending", "planned", "configuration only",
+                            "validate configuration", "future runtime",
+                            "not executed")
+GAP_PREFIX = "gap: "
+
+
+def mapping_problems(entry: dict, unverified: list[str]) -> list[str]:
+    """Return why a test_map row is neither a real test nor an explicit gap."""
+    target, note = entry["target"], str(entry["note"])
+    if target is None:
+        problems = []
+        if not note.startswith(GAP_PREFIX) or len(note.split()) < 4:
+            problems.append("null target without an explicit gap note")
+        if not any(entry["source"] in item for item in unverified):
+            problems.append("null target whose source is not listed in unverified")
+        return problems
+    if not resolve_test_target(target):
+        return [f"target does not name an existing test: {target}"]
+    if len(note.split()) < 2:
+        return [f"mapped target carries no note: {target}"]
+    if note.startswith(GAP_PREFIX):
+        return [f"a mapped target carries a gap note: {target}"]
+    if Path(target.partition("::")[0]).name == Path(__file__).name:
+        return ["a mapped obligation points at this test module"]
+    return []
 
 
 class ProvenanceScopeProseTest(unittest.TestCase):
@@ -89,21 +116,40 @@ class ProvenanceScopeProseTest(unittest.TestCase):
         for entry in test_map:
             with self.subTest(source=entry["source"]):
                 self.assertEqual(set(entry), {"source", "target", "note"})
-                target = entry["target"]
-                self.assertIsNotNone(target, "mapped runtime check has no target test")
-                self.assertTrue(resolve_test_target(target),
-                                f"target does not name an existing test: {target}")
-                self.assertGreater(len(str(entry["note"]).split()), 1,
-                                   f"mapped target carries no note: {target}")
-                self.assertNotEqual(Path(target.partition("::")[0]).name,
-                                    Path(__file__).name,
-                                    "a mapped obligation points at this test module")
-        self.assertGreaterEqual(len({entry["target"] for entry in test_map}),
-                                DISTINCT_TARGETS,
+                self.assertEqual(mapping_problems(entry, self.provenance["unverified"]), [])
+        targets = [entry["target"] for entry in test_map if entry["target"] is not None]
+        self.assertGreaterEqual(len(set(targets)), DISTINCT_TARGETS,
                                 "mapped obligations collapse onto too few tests")
         self.assertGreaterEqual(
-            len({entry["target"].partition("::")[0] for entry in test_map}),
+            len({target.partition("::")[0] for target in targets}),
             DISTINCT_TARGET_FILES, "mapped obligations collapse onto too few modules")
+
+    def test_null_target_is_allowed_only_as_an_explicit_listed_gap(self) -> None:
+        source = "tests/state/test_store.py::test_example"
+        gap = {"source": source, "target": None,
+               "note": "gap: no tests/autopilot test exercises this"}
+        listed = [f"test_map gap: {source}"]
+        self.assertEqual(mapping_problems(gap, listed), [])
+        for name, entry, unverified in (
+                ("silent null", dict(gap, note="runtime lock modes serialize"), listed),
+                ("bare gap prefix", dict(gap, note="gap: none"), listed),
+                ("unlisted gap", gap, []),
+                ("gap note on a real target", dict(gap, target=CONTROL), listed)):
+            with self.subTest(case=name):
+                self.assertTrue(mapping_problems(entry, unverified))
+
+    def test_divergences_and_test_map_notes_do_not_contradict_the_scope(self) -> None:
+        texts = [(f"deliberate_divergences[{entry['topic']}].{key}", value)
+                 for entry in self.provenance["deliberate_divergences"]
+                 for key, value in entry.items()]
+        texts += [(f"test_map[{entry['source']}].note", entry["note"])
+                  for entry in self.provenance["test_map"]]
+        self.assertGreaterEqual(len(texts), MAPPED_ROWS)
+        for where, text in texts:
+            for phrase in CONTRADICTIONS:
+                with self.subTest(where=where, phrase=phrase):
+                    self.assertNotIn(phrase, str(text).lower(),
+                                     "prose contradicts the executed-tests scope")
 
 
 if __name__ == "__main__":

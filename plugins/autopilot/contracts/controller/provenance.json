@@ -75,7 +75,7 @@
       "requirement": "Preserve this copyright and the complete MIT permission/warranty notice in extracted source distributions."
     }
   },
-  "scope": "The controller runtime is extracted and ships under plugins/autopilot/controller; every mapped runtime check is covered by tests/autopilot, which are executed tests, not plans. Configuration characterization is included. Not a full legacy schema equivalence claim.",
+  "scope": "The controller runtime is extracted and ships under plugins/autopilot/controller; every mapped runtime check is covered by tests/autopilot, which are executed tests, not plans. A test_map row with a null target is an explicit gap, also listed under unverified. Configuration characterization is included. Not a full legacy schema equivalence claim.",
   "symbol_map": [
     {
       "source": "src/ovcaq/state/schema.py",
@@ -1059,7 +1059,7 @@
     {
       "topic": "evidence",
       "source": "tests characterize OVCAQ runtime",
-      "target": "these portable JSON Schema tests validate configuration only; fixtures declare future runtime scenarios, not executed durability/auth evidence"
+      "target": "tests/autopilot runs the extracted controller (kernel, CLI and crash-injection tests) and also checks the portable JSON Schema contract and fixtures; test_map rows with a null target name the source checks that still have no counterpart"
     },
     {
       "topic": "staging cleanup",
@@ -1125,13 +1125,13 @@
     },
     {
       "source": "tests/state/test_store_concurrency.py::test_read_uses_the_shared_sidecar_and_transaction_uses_it_exclusively",
-      "target": "tests/autopilot/test_controller_kernel.py::test_real_process_writers_serialize_all_revision_increments_without_lost_updates",
-      "note": "runtime lock modes serialize real writers on the shared lock sidecar"
+      "target": null,
+      "note": "gap: no tests/autopilot test holds the shared LOCK_SH read lock while a writer waits; writer-only serialization is covered by test_controller_kernel.py::test_real_process_writers_serialize_all_revision_increments_without_lost_updates"
     },
     {
       "source": "tests/state/test_durability.py::test_sigkill_at_each_locked_mutation_boundary_preserves_recoverable_state",
-      "target": "tests/autopilot/test_controller_protocol.py::test_frozen_durability_and_credential_scenarios",
-      "note": "configuration enumerates source six boundaries; runtime injection pending"
+      "target": "tests/autopilot/test_controller_bootstrap_recovery.py::test_bootstrap_recovers_exactly_once_at_every_declared_crash_boundary",
+      "note": "runtime kills the CLI process with os._exit at each declared bootstrap crash boundary and recovers exactly once; transaction boundary faults are raised in-process by test_controller_kernel.py::test_all_six_boundaries_surface_errors_and_interrupts_and_repair_the_pair"
     },
     {
       "source": "tests/state/test_durability.py::test_directory_fsync_failures_are_translated_and_never_swallowed",
@@ -1150,8 +1150,8 @@
     },
     {
       "source": "tests/runtime/test_paths.py::test_layout_rejects_directory_inode_replacement_during_open_validation",
-      "target": "tests/autopilot/test_controller_paths.py::test_refuses_symlinked_private_components_and_aliased_fixed_artifacts",
-      "note": "runtime dir_fd and O_NOFOLLOW creation refuses aliased private components"
+      "target": null,
+      "note": "gap: no tests/autopilot test swaps a directory inode during open validation; static aliases are refused by test_controller_paths.py::test_refuses_symlinked_private_components_and_aliased_fixed_artifacts and a swap after resolution by test_controller_kernel.py::test_directory_identity_substitution_cannot_redirect_publication"
     }
   ],
   "new_protocol_obligations": [
@@ -1163,6 +1163,8 @@
   ],
   "unverified": [
     "host support or certification",
-    "installation, publication, package version changes"
+    "installation, publication, package version changes",
+    "test_map gap: tests/state/test_store_concurrency.py::test_read_uses_the_shared_sidecar_and_transaction_uses_it_exclusively (no reader holds the shared lock against a waiting writer)",
+    "test_map gap: tests/runtime/test_paths.py::test_layout_rejects_directory_inode_replacement_during_open_validation (no directory inode swap during open validation)"
   ]
 }
