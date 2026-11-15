@@ -394,7 +394,18 @@ with open(sys.argv[1], "a", encoding="utf-8") as log:
 """
 ROOT_INSTRUCTIONS = ("CLAUDE.md", ".claude/CLAUDE.md")
 # Shell commands whose reads cannot be named from their arguments.
-OPAQUE_READ = re.compile(r"[*?\[]|\b(?:grep|rg|find|xargs|ack|ag)\b")
+OPAQUE_READ = re.compile(r"[*?\[$`]|\b(?:grep|rg|find|xargs|ack|ag|cd|pushd)\b")
+# Workspace files the host loads as configuration on the next launch.
+HOST_SETTINGS = (".claude/settings.json", ".claude/settings.local.json", ".mcp.json")
+
+
+def runner_digest(adapter: object) -> str:
+    """Hash of the shared runner and the adapter's own module: proofs bind to both."""
+    files = {Path(__file__), Path(sys.modules[type(adapter).__module__].__file__)}
+    digest = hashlib.sha256()
+    for path in sorted(files):
+        digest.update(path.read_bytes())
+    return digest.hexdigest()
 
 
 def claude_settings(batch: Path, workspace: Path) -> dict:
@@ -436,6 +447,8 @@ def claude_settings(batch: Path, workspace: Path) -> dict:
             "deny": [
                 *(f"{tool}(/{p}/**)" for p in private for tool in ("Read", "Edit")),
                 f"Edit(/{plugin}/**)",
+                # A turn must not write configuration the next launch would load.
+                *(f"Edit(/{workspace / name})" for name in HOST_SETTINGS),
             ],
         },
         "sandbox": {
@@ -445,7 +458,10 @@ def claude_settings(batch: Path, workspace: Path) -> dict:
             "filesystem": {
                 "denyRead": [str(p) for p in (*private, batch / "workspaces")],
                 "allowRead": [str(workspace), str(Path(sys.base_prefix).resolve())],
-                "denyWrite": [str(plugin)],
+                "denyWrite": [
+                    str(plugin),
+                    *(str(workspace / name) for name in HOST_SETTINGS),
+                ],
             },
             "network": {"allowedDomains": []},
             "credentials": {"envVars": [{"name": AUTH_VARIABLE, "mode": "deny"}]},
@@ -486,7 +502,9 @@ def tool_blocks(events: list[dict]) -> Iterator[dict]:
                 yield block
 
 
-def named_reads(events: list[dict], workspace: Path) -> tuple[list[str], bool]:
+def named_reads(
+    events: list[dict], workspace: Path, plugin: Path | None = None
+) -> tuple[list[str], bool]:
     """Files the tool stream names as read; False when a read cannot be named.
 
     ponytail: shell reads are taken from command arguments. A glob or search
@@ -506,34 +524,45 @@ def named_reads(events: list[dict], workspace: Path) -> tuple[list[str], bool]:
             else:
                 known = False
         elif name == "Bash":
-            named, clear = shell_reads(data.get("command", ""), workspace)
+            named, clear = shell_reads(data.get("command", ""), workspace, plugin)
             reads += named
             known = known and clear
     return reads, known
 
 
-def shell_reads(text: str, workspace: Path) -> tuple[list[str], bool]:
-    """Workspace files a shell command names; False for globs and searches."""
+def shell_reads(
+    text: str, workspace: Path, plugin: Path | None = None
+) -> tuple[list[str], bool]:
+    """Workspace and plugin files a shell command names.
+
+    False when the command can read a file it does not name from the workspace
+    root: a glob, a search tool, a directory change, or shell expansion.
+    """
     reads = []
+    roots = [workspace, *([plugin] if plugin else [])]
     for word in re.split(r"[\s'\"=<>|;&()]+", text):
         path = workspace / word
-        if word and path.is_file() and path.is_relative_to(workspace):
+        if word and path.is_file() and any(path.is_relative_to(r) for r in roots):
             reads.append(str(path))
     return reads, not OPAQUE_READ.search(text)
 
 
 def accept_boundary(adapter: Claude, revision: str) -> None:
     """Keep a host blocked until a passing proof matches it exactly."""
-    proof = getattr(adapter, "boundary", None) or {}
-    checks = proof.get("checks", {})
+    proof = getattr(adapter, "boundary", None)
+    proof = proof if isinstance(proof, dict) else {}
+    checks = proof.get("checks")
+    checks = checks if isinstance(checks, dict) else {}
     if (
         proof.get("scope") != "installed-host-boundary"
         or proof.get("host") != adapter.host
         or proof.get("hostVersion") != adapter.version
         or proof.get("configurationSha256") != adapter.configuration_sha256
         or proof.get("runtimeRevision") != revision
+        or proof.get("runnerSha256") != runner_digest(adapter)
         or any(
-            checks.get(name, {}).get("passed") is not True
+            not isinstance(checks.get(name), dict)
+            or checks[name].get("passed") is not True
             for name in score.RELEASE_BOUNDARY_CHECKS
         )
     ):
@@ -639,6 +668,19 @@ class Claude:
         control, home = batch / "control", batch / "home"
         if workspace.parent != batch / "workspaces":
             raise HostError("workspace is outside the batch")
+        # Project and local settings load on every launch: only the committed
+        # fixture bytes are admitted, never something an earlier turn wrote.
+        for name in HOST_SETTINGS:
+            path = workspace / name
+            current = path.read_text() if path.is_file() else None
+            try:
+                committed = git_workspace(workspace, "show", f"HEAD:{name}")
+            except HostError:
+                committed = None
+            if (current is None) != (committed is None) or (
+                current is not None and current.strip() != committed
+            ):
+                raise HostError(f"workspace host settings differ from fixture: {name}")
         for folder in (control / "claude-home", home):
             folder.mkdir(mode=0o700, exist_ok=True)
         (control / "hook.py").write_text(HOOK)
@@ -711,8 +753,12 @@ class Claude:
             raise HostError(
                 "Claude turn did not succeed or requested denied permissions"
             )
-        # total_cost_usd is cumulative for the resumed Claude conversation.
-        self.cost = max(self.cost, float(final["total_cost_usd"]))
+        cost = final.get("total_cost_usd")
+        if not isinstance(cost, (int, float)) or isinstance(cost, bool):
+            raise HostError("Claude omitted cost evidence")
+        # ponytail: treats a smaller value as per-process and adds it, so the
+        # cap holds whether the host reports cumulative or per-launch cost.
+        self.cost = cost if cost >= self.cost else self.cost + cost
         batch = self.plugin.parent.parent
         observations, hooked = read_instruction_log(
             batch / "control/instructions.jsonl"
@@ -726,8 +772,10 @@ class Claude:
             if all(path in observations for path in expected_roots)
             else "not-measured"
         )
-        reads, known = named_reads(events, workspace)
+        reads, known = named_reads(events, workspace, self.plugin)
         self.read_measurement = "measured" if known else "not-measured"
+        if not isinstance(final.get("result"), str):
+            raise HostError("Claude omitted the final reply")
         return final["result"], reads
 
 
@@ -807,8 +855,13 @@ def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) 
         record["readMeasurement"] = (
             "measured" if reads_known and all(reads_known) else "not-measured"
         )
+        reported = {
+            "costUsd": getattr(adapter, "cost", None),
+            "tokensPerTurn": getattr(adapter, "usage", None),
+        }
         record["notes"] = (
             record.get("notes", "")
+            + f" Reported usage: {json.dumps(reported, sort_keys=True)}."
             + "\n"
             + score.EVIDENCE_PREFIX
             + json.dumps(
@@ -920,6 +973,8 @@ def run_batch(
                     if not batch_started:
                         try:
                             resources.enter_context(adapter.batch(workspace))
+                            # A host may install its own verified plugin copy.
+                            replacements[str(adapter.plugin)] = "<plugin>"
                         except (
                             HostError,
                             OSError,
@@ -1022,16 +1077,24 @@ NATIVE_PROBES = {
     "native-other-workspace-read-denied": ("Read", "other"),
     "native-symlink-read-denied": ("Read", "read_link"),
     "native-plugin-write-denied": ("Write", "plugin_new"),
-    "native-symlink-write-denied": ("Write", "write_link"),
+    "native-symlink-write-denied": ("Write", "link_new"),
     "plugin-read": ("Read", "manifest"),
 }
 PROBE_COMMAND = "python3 -I -B probe.py"
 
 
 def prepare_probe(
-    batch: Path, plugin: Path, variable: str, instructions: dict[str, str]
+    batch: Path,
+    plugin: Path,
+    variable: str,
+    instructions: dict[str, str],
+    home_sentinel: Path | None = None,
 ) -> tuple[Path, dict[str, str], dict[str, str], str]:
-    """Build the probe workspace: sentinels, symlinks, and the shell script."""
+    """Build the probe workspace: sentinels, symlinks, and the shell script.
+
+    Native writes create new files, one through a symlinked folder, so a
+    refusal cannot come from a missing prior read or a patch context mismatch.
+    """
     workspace = batch / "workspaces/probe"
     other, home = batch / "workspaces/other", batch / "home"
     for folder in (workspace, other, home):
@@ -1039,10 +1102,11 @@ def prepare_probe(
     secret = os.urandom(16).hex()
     payload = {
         "control": str(batch / "control/sentinel.txt"),
-        "home": str(home / "sentinel.txt"),
+        "home": str(home_sentinel or home / "sentinel.txt"),
         "other": str(other / "sentinel.txt"),
         "read_link": str(workspace / "control-link"),
         "write_link": str(workspace / "plugin-link"),
+        "link_new": str(workspace / "plugin-folder-link/probe-link-write.txt"),
         "manifest": str(plugin / "plugin.json"),
         "plugin_new": str(plugin / "probe-write.txt"),
         "helper": str(plugin / "skills/spec-workflow/scripts/validate_spec.py"),
@@ -1053,6 +1117,7 @@ def prepare_probe(
         Path(payload[key]).write_text(f"Synthetic sentinel {secret}\n")
     Path(payload["read_link"]).symlink_to(payload["control"])
     Path(payload["write_link"]).symlink_to(payload["manifest"])
+    Path(payload["link_new"]).parent.symlink_to(plugin, target_is_directory=True)
     fixture = {
         **instructions,
         "probe.py": SHELL_PROBE,
@@ -1064,15 +1129,28 @@ def prepare_probe(
 
 
 def shell_probe_checks(
-    output: str, report: str, extra: tuple[str, ...] = ()
+    outputs: list[str],
+    workspace: Path,
+    payload: dict[str, str],
+    extra: tuple[str, ...] = (),
 ) -> dict[str, dict]:
-    """Checks decided by the supervisor script's own errno report."""
+    """Checks decided by the supervisor script's own errno report.
+
+    The script and its report token sit in the model-writable workspace, so the
+    report counts only when both files are unchanged and the command ran once.
+    """
     shell = {}
-    for line in output.splitlines():
+    trusted = (
+        len(outputs) == 1
+        and (workspace / "probe.py").read_text() == SHELL_PROBE
+        and (workspace / "probe.json").read_text() == json.dumps(payload)
+    )
+    for line in outputs[0].splitlines() if trusted else []:
         try:
-            shell = json.loads(line)[report]
+            found = json.loads(line)[payload["report"]]
         except (ValueError, KeyError, TypeError):
             continue
+        shell = found if isinstance(found, dict) else {}
     return {
         name: {
             "passed": shell.get(name) is True,
@@ -1121,13 +1199,25 @@ def boundary_probe(model: str, *, scratch: Path = EXTERNAL_SCRATCH) -> dict:
         )
         events = adapter.launch(prompt, workspace, 1)
         raw = json.dumps(events)
-        calls, errors, outputs = {}, {}, {}
+        final = next((e for e in reversed(events) if e.get("type") == "result"), {})
+        # Only the host's own permission-denial list counts as a denial: a tool
+        # can also fail for reasons that say nothing about the generated rules.
+        refused = {
+            d.get("tool_use_id")
+            for d in final.get("permission_denials") or []
+            if isinstance(d, dict)
+        }
+        calls, errors, outputs, shell_runs = {}, {}, {}, []
         for block in tool_blocks(events):
             if block.get("type") == "tool_use":
                 data = block.get("input", {})
                 calls[
                     (block.get("name"), data.get("file_path") or data.get("command"))
                 ] = block.get("id")
+                if block.get("name") == "Bash" and "probe.py" in str(
+                    data.get("command")
+                ):
+                    shell_runs.append(block.get("id"))
             elif block.get("type") == "tool_result":
                 errors[block.get("tool_use_id")] = block.get("is_error") is True
                 content = block.get("content")
@@ -1151,13 +1241,22 @@ def boundary_probe(model: str, *, scratch: Path = EXTERNAL_SCRATCH) -> dict:
             wanted = name != "plugin-read"
             check(
                 name,
-                call is not None and failed is wanted and secret not in raw,
-                f"{tool} on <{key}>: host result error={failed}; sentinel in "
+                call is not None
+                and failed is wanted
+                and (call in refused) is wanted
+                and secret not in raw,
+                f"{tool} on <{key}>: host result error={failed}; in the host's "
+                f"permission denials={call in refused}; sentinel in "
                 f"stream={secret in raw}",
             )
+        exact = calls.get(("Bash", PROBE_COMMAND))
         checks.update(
             shell_probe_checks(
-                outputs.get(calls.get(("Bash", PROBE_COMMAND)), ""), payload["report"]
+                [outputs.get(run, "") for run in shell_runs]
+                if shell_runs == [exact]
+                else [],
+                workspace,
+                payload,
             )
         )
         observations, hooked = read_instruction_log(
@@ -1206,7 +1305,7 @@ def boundary_probe(model: str, *, scratch: Path = EXTERNAL_SCRATCH) -> dict:
             "model": adapter.model,
             "runtimeRevision": revision,
             "configurationSha256": adapter.configuration_sha256,
-            "runnerSha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "runnerSha256": runner_digest(adapter),
             "checks": normalized,
         }
     proof["checks"]["cleanup"] = {
@@ -1222,6 +1321,9 @@ def main(argv: list[str] | None = None, adapter_type: type = Claude) -> int:
     parser.add_argument("--model", required=True, help="explicit model; never auto")
     parser.add_argument("--out", type=Path, default=score.EVALS / "results")
     parser.add_argument("--boundary-proof", type=Path, help="reviewed probe output")
+    parser.add_argument(
+        "--evals", type=Path, default=score.EVALS, help="folder of evals to score"
+    )
     parser.add_argument(
         "--probe-boundary",
         action="store_true",
@@ -1249,7 +1351,7 @@ def main(argv: list[str] | None = None, adapter_type: type = Claude) -> int:
         if args.boundary_proof:
             adapter.boundary = score.read_json(args.boundary_proof)
         with interruption_signals():
-            return run_batch(adapter, args.session, args.out)
+            return run_batch(adapter, args.session, args.out, eval_dir=args.evals)
     except (
         HostError,
         score.RecordError,

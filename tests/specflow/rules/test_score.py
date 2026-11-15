@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "tests/specflow/evals/runners"))
 import run_claude
 import run_codex
+import run_kiro
 import score
 
 FIXTURES = ROOT / "tests/specflow/fixtures/results"
@@ -1082,6 +1083,9 @@ class RunnerTest(unittest.TestCase):
                 args: list[str], cwd: Path, env: dict | None = None, timeout: int = 600
             ) -> subprocess.CompletedProcess:
                 output = ""
+                if args[:2] == ["git", "show"]:
+                    # The fixture commits no host settings file.
+                    return subprocess.CompletedProcess(args, 128, "", "")
                 if args[:2] == ["git", "init"]:
                     (cwd / ".git").mkdir()
                 elif args[:2] == ["git", "rev-parse"]:
@@ -1239,6 +1243,9 @@ class RunnerTest(unittest.TestCase):
             def cli(
                 args: list[str], cwd: Path, env: dict | None = None, timeout: int = 600
             ) -> subprocess.CompletedProcess:
+                if args[0] == "git":
+                    # No host settings file is committed in this workspace.
+                    return subprocess.CompletedProcess(args, 128, "", "")
                 (batch / "control/instructions.jsonl").write_text(
                     "".join(json.dumps(e) + "\n" for e in log)
                 )
@@ -1384,7 +1391,12 @@ class RunnerTest(unittest.TestCase):
     def test_claude_probe_passes_only_on_observed_denials_and_intact_plugin(
         self,
     ) -> None:
-        def host(leak: bool = False, allow: str = "", write: bool = False):
+        def host(
+            leak: bool = False,
+            allow: str = "",
+            write: bool = False,
+            unrelated: bool = False,
+        ):
             def launch(
                 adapter: run_claude.Claude, prompt: str, workspace: Path, budget: float
             ) -> list[dict]:
@@ -1458,7 +1470,16 @@ class RunnerTest(unittest.TestCase):
                         ],
                     }
                 )
-                return [{"message": "plain"}, {"message": {"content": blocks}}]
+                denials = [
+                    {"tool_use_id": str(number)}
+                    for number, name in enumerate(run_claude.NATIVE_PROBES)
+                    if name not in ("plugin-read", allow) and not unrelated
+                ]
+                return [
+                    {"message": "plain"},
+                    {"message": {"content": blocks}},
+                    {"type": "result", "permission_denials": denials},
+                ]
 
             return launch
 
@@ -1486,6 +1507,18 @@ class RunnerTest(unittest.TestCase):
                         "effective-settings",
                     },
                 ),
+                (
+                    # Tool errors the host did not list as permission denials.
+                    {"unrelated": True},
+                    {
+                        *(
+                            name
+                            for name in run_claude.NATIVE_PROBES
+                            if name != "plugin-read"
+                        ),
+                        "effective-settings",
+                    },
+                ),
             ):
                 with (
                     self.subTest(options=options),
@@ -1508,6 +1541,74 @@ class RunnerTest(unittest.TestCase):
             self.assertIn("native-home-read-denied", leaked)
             self.assertEqual(list(scratch.iterdir()), [])
 
+    def test_claude_refuses_host_settings_an_earlier_turn_wrote(self) -> None:
+        started = [{"hook_event_name": "SessionStart"}]
+        for name in run_claude.HOST_SETTINGS:
+            with (
+                self.subTest(name=name),
+                self.claude_turn([self.INIT, self.DONE], started) as (
+                    adapter,
+                    workspace,
+                    command,
+                ),
+            ):
+                path = workspace / name
+                path.parent.mkdir(exist_ok=True)
+                path.write_text('{"hooks": {}}')
+                with self.assertRaisesRegex(
+                    run_claude.HostError, "differ from fixture"
+                ):
+                    adapter.turn("Status", workspace)
+                self.assertFalse(
+                    any(call.args[0][0] != "git" for call in command.call_args_list)
+                )
+        with self.claude_turn([self.INIT, self.DONE], started) as (_, workspace, _):
+            settings = run_claude.claude_settings(workspace.parent.parent, workspace)
+        # Literal expectation: an absolute permission path needs two slashes.
+        self.assertIn(
+            f"Edit(//{str(workspace).lstrip('/')}/.claude/settings.local.json)",
+            settings["permissions"]["deny"],
+        )
+        self.assertIn(
+            str(workspace / ".mcp.json"), settings["sandbox"]["filesystem"]["denyWrite"]
+        )
+
+    def test_shell_reads_are_unmeasured_when_a_read_cannot_be_named(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            workspace, plugin = Path(folder) / "ws", Path(folder) / "plugin"
+            for path in (workspace / "docs", plugin):
+                path.mkdir(parents=True)
+            (workspace / "docs/a.md").write_text("x")
+            (plugin / "reference.md").write_text("x")
+            self.assertEqual(
+                run_claude.shell_reads(f"cat {plugin}/reference.md", workspace, plugin),
+                ([str(plugin / "reference.md")], True),
+            )
+            for opaque in ("cd docs && cat a.md", 'cat "$f"', "cat `ls`", "cat docs/*"):
+                with self.subTest(command=opaque):
+                    self.assertFalse(run_claude.shell_reads(opaque, workspace)[1])
+
+    def test_codex_configuration_digest_is_the_same_on_every_turn(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            for name in ("control", "workspaces", "resources/specflow"):
+                (root / name).mkdir(parents=True)
+            adapter = run_codex.Codex("requested-model")
+            adapter.plugin = root / "resources/specflow"
+            version = subprocess.CompletedProcess([], 0, "codex-cli 9.9.9\n", "")
+            with (
+                mock.patch.object(run_codex.shutil, "which", return_value="/bin/codex"),
+                mock.patch.object(run_codex, "find_git", return_value=Path(__file__)),
+                mock.patch.object(run_claude, "command", return_value=version),
+            ):
+                adapter.identify()
+                first = adapter.configuration_sha256
+                # State a finished first turn leaves behind.
+                adapter.conversation, adapter.model = "thread", "resolved-model"
+                adapter.identify()
+            self.assertEqual(adapter.configuration_sha256, first)
+            self.assertEqual(adapter.version, "9.9.9")
+
     def test_claude_preflight_requires_proof_for_this_exact_configuration(self) -> None:
         adapter = run_claude.Claude("tested-model")
         revision = "a" * 40
@@ -1522,6 +1623,7 @@ class RunnerTest(unittest.TestCase):
             "hostVersion": "fixture-version",
             "runtimeRevision": revision,
             "configurationSha256": "c" * 64,
+            "runnerSha256": run_claude.runner_digest(adapter),
             "checks": {
                 name: {"passed": True, "evidence": "observed"}
                 for name in score.RELEASE_BOUNDARY_CHECKS
@@ -1537,6 +1639,8 @@ class RunnerTest(unittest.TestCase):
                 {"hostVersion": "other"},
                 {"configurationSha256": "d" * 64},
                 {"runtimeRevision": "b" * 40},
+                {"runnerSha256": "e" * 64},
+                {"checks": ["not a mapping"]},
                 {
                     "checks": {
                         **proof["checks"],
@@ -1852,7 +1956,11 @@ class CodexConversationTest(unittest.TestCase):
                 "status": "completed",
             }
             stream = "\n".join(json.dumps(e) for e in self.events)
-            profile = {"type": "managed", "name": "specflow-probe"}
+            profile = {"type": "managed", "writable": [str(workspace)]}
+            # The proof holds the proven profile with batch paths normalized.
+            adapter.boundary = {
+                "effectiveProfile": {"type": "managed", "writable": ["<workspace>"]}
+            }
 
             def records(text: str, **context: object) -> list[dict]:
                 agents = {"directory": str(workspace), "text": text}
@@ -1917,6 +2025,8 @@ class CodexConversationTest(unittest.TestCase):
                 observed["sha256"], hashlib.sha256(b"Personal rule.").hexdigest()
             )
             for context in (
+                # Not disabled, yet not the profile the proof covers.
+                {"permission_profile": {"type": "managed", "writable": ["/"]}},
                 {"permission_profile": {"type": "disabled"}},
                 {"sandbox_policy": {"type": "danger-full-access"}},
                 {"model": ""},
@@ -1969,7 +2079,7 @@ class CodexConversationTest(unittest.TestCase):
                             "status": patch_status,
                             "changes": [{"path": payload[key], "kind": "add"}],
                         }
-                        for key in ("plugin_new", "write_link")
+                        for key in ("plugin_new", "link_new")
                     ),
                 ]
                 self.write_rollout(
@@ -2012,6 +2122,7 @@ class CodexConversationTest(unittest.TestCase):
         def identify(adapter: run_codex.Codex) -> None:
             adapter.root = adapter.plugin.parent.parent
             adapter.version, adapter.configuration_sha256 = "9.9.9", "c" * 64
+            adapter.git = Path("/usr/bin/git")
 
         @contextlib.contextmanager
         def install(adapter: run_codex.Codex, workspace: Path) -> Iterator[None]:
@@ -2611,6 +2722,602 @@ class CodexBoundaryTest(unittest.TestCase):
                 {"workspace": "/synthetic/workspace", "plugin": "/synthetic/plugin"},
                 git_executable=Path("/synthetic/git"),
             )
+
+
+class KiroAdapterTest(unittest.TestCase):
+    """Synthetic stream-json only; no host, sign-in, or policy proof."""
+
+    SERVER = '[INFO] kas.server.starting {"product":"KAS","version":"0.1.2"}\n'
+
+    def setUp(self) -> None:
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        self.root = Path(folder.name).resolve()
+        self.workspace = self.root / "workspaces/session"
+        for name in ("control", "resources/specflow", "workspaces/session/.kiro"):
+            (self.root / name).mkdir(parents=True)
+        run_claude.write_files(
+            self.workspace,
+            {
+                "AGENTS.md": "Fixture rule.\n",
+                ".kiro/steering/rule.md": "Steering rule.\n",
+                "notes.md": "Notes.\n",
+            },
+        )
+        self.adapter = run_kiro.Kiro("requested-model")
+        self.adapter.cli = "kiro-cli 9.9.9"
+        self.adapter.plugin = self.root / "resources/specflow"
+
+    @staticmethod
+    def update(**update: object) -> dict:
+        return {
+            "type": "sessionUpdate",
+            "data": {"sessionId": "sess_one", "update": update},
+        }
+
+    def call(self, name: str, kind: str, status: str, **details: object) -> list[dict]:
+        """A tool call and its final update; details: path, command, output."""
+        raw = {k: v for k, v in details.items() if k in ("path", "command")}
+        first = {"toolCallId": name, "kind": kind, "rawInput": raw}
+        if "path" in details:
+            first["locations"] = [{"path": details["path"]}]
+        return [
+            self.update(sessionUpdate="tool_call", **first),
+            self.update(
+                sessionUpdate="tool_call_update",
+                toolCallId=name,
+                status=status,
+                rawOutput=details.get("output", {}),
+            ),
+        ]
+
+    def context(self, *uris: str) -> dict:
+        items = [{"uri": uri, "matched": True} for uri in uris]
+        items.append({"uri": ".kiro/steering/**/*.md", "matched": False})
+        usage = {
+            "kind": "context_usage",
+            "breakdown": {"contextFiles": {"items": items}},
+        }
+        return self.update(sessionUpdate="session_info_update", _meta={"kiro": usage})
+
+    def events(
+        self,
+        *extra: dict,
+        workspace: Path | None = None,
+        model: str | None = "resolved-model",
+        steering: bool = True,
+        sandbox: str = "active",
+    ) -> list[dict]:
+        workspace = workspace or self.workspace
+        loaded = [
+            f"file://{workspace}/AGENTS.md",
+            f"file://{workspace}/.kiro/steering/rule.md",
+        ]
+        inclusion = {"kind": "steering_inclusion", "steeringDocuments": loaded}
+        models = ["auto", *([model] if model else [])]
+        skill = {
+            "name": "spec-workflow",
+            "_meta": {
+                "kiro": {
+                    "type": "skill",
+                    "resource": {
+                        "source": {"origin": "power", "power": {"name": "specflow"}}
+                    },
+                }
+            },
+        }
+        return [
+            {"type": "runStarted", "data": {"payloadSchema": "acp", "engine": "v3"}},
+            {
+                "type": "sandboxStatus",
+                "data": {
+                    "sessionId": "sess_one",
+                    "status": sandbox,
+                    "backend": "seatbelt",
+                    "networkMode": "default_blocked",
+                },
+            },
+            self.update(availableCommands=[skill]),
+            *(
+                self.update(
+                    configOptions=[{"id": "mode"}, {"id": "model", "currentValue": m}]
+                )
+                for m in models
+                if model
+            ),
+            *(
+                [
+                    self.update(
+                        sessionUpdate="session_info_update", _meta={"kiro": inclusion}
+                    )
+                ]
+                if steering
+                else []
+            ),
+            *extra,
+            {
+                "type": "runFinished",
+                "data": {
+                    "sessionId": "sess_one",
+                    "status": "success",
+                    "finalText": "Finished",
+                    "finalTextTruncated": False,
+                },
+            },
+        ]
+
+    def accept(
+        self,
+        events: list[dict] | str,
+        *,
+        stderr: str = SERVER,
+        code: int = 0,
+        hashes: dict[str, str] | None = None,
+    ) -> tuple[str, list[str]]:
+        stdout = (
+            events
+            if isinstance(events, str)
+            else "\n".join(json.dumps(e) for e in events)
+        )
+        if hashes is None:
+            hashes = run_kiro.instruction_hashes(self.workspace, self.adapter.plugin)
+        return self.adapter.accept_turn(
+            subprocess.CompletedProcess([], code, stdout, stderr),
+            self.workspace,
+            hashes,
+        )
+
+    def test_turn_reports_identity_reads_and_pre_launch_instruction_hashes(
+        self,
+    ) -> None:
+        hashes = run_kiro.instruction_hashes(self.workspace, self.adapter.plugin)
+        # A later edit must not change what the turn is said to have loaded.
+        (self.workspace / "AGENTS.md").write_text("Edited after launch.\n")
+        events = self.events(
+            *self.call("r", "read", "completed", path=str(self.workspace / "notes.md")),
+            *self.call(
+                "s",
+                "execute",
+                "failed",
+                command="cat AGENTS.md",
+                output={"exitCode": 1},
+            ),
+            *self.call("w", "edit", "completed", path=str(self.workspace / "new.md")),
+            self.context("/elsewhere/personal.md"),
+        )
+        self.assertEqual(
+            self.accept(events, hashes=hashes),
+            (
+                "Finished",
+                [str(self.workspace / "notes.md"), str(self.workspace / "AGENTS.md")],
+            ),
+        )
+        self.assertEqual(self.adapter.conversation, "sess_one")
+        self.assertEqual(self.adapter.model, "resolved-model")
+        self.assertEqual(self.adapter.version, "kiro-cli 9.9.9; KAS 0.1.2")
+        self.assertEqual(self.adapter.host, "kiro-ide")
+        self.assertEqual(self.adapter.read_measurement, "measured")
+        self.assertEqual(self.adapter.instruction_measurement, "measured")
+        digest = hashlib.sha256(b"Fixture rule.\n").hexdigest()
+        self.assertEqual(
+            self.adapter.instruction_observations,
+            {
+                str(self.workspace / "AGENTS.md"): {"sha256": digest, "imports": []},
+                str(self.workspace / ".kiro/steering/rule.md"): {
+                    "sha256": hashlib.sha256(b"Steering rule.\n").hexdigest(),
+                    "imports": [],
+                },
+                # Not in the pre-launch snapshot: reported, never given a hash.
+                "/elsewhere/personal.md": {"sha256": None, "imports": []},
+            },
+        )
+
+    def test_turn_without_steering_telemetry_is_not_measured(self) -> None:
+        events = self.events(
+            self.context(str(self.workspace / "AGENTS.md")), steering=False
+        )
+        self.accept(events)
+        # The context list is a proposed inventory: reported, not yet trusted.
+        self.assertFalse(run_kiro.CONTEXT_INVENTORY_APPROVED)
+        self.assertEqual(self.adapter.instruction_measurement, "not-measured")
+        self.assertEqual(
+            list(self.adapter.instruction_observations),
+            [str(self.workspace / "AGENTS.md")],
+        )
+
+    def test_unnameable_reads_leave_reads_unmeasured(self) -> None:
+        for call in (
+            self.call("s", "execute", "completed", command="grep -r rule ."),
+            self.call("x", "search", "completed", path=str(self.workspace)),
+            self.call("d", "read", "completed", path=str(self.workspace)),
+        ):
+            with self.subTest(call=call[0]["data"]["update"]["kind"]):
+                self.adapter.new_conversation()
+                self.accept(self.events(*call))
+                self.assertEqual(self.adapter.read_measurement, "not-measured")
+
+    def test_failed_or_unproven_turn_never_advances_state(self) -> None:
+        good = self.events()
+        blocked = {"message": run_kiro.DENIAL + " (deny fs_read)"}
+        lost = {"output": "sandbox-exec: sandbox_apply: Operation not permitted\n"}
+        finished = dict(good[-1]["data"])
+        cases = {
+            "nonzero exit": {"events": good, "code": 1},
+            "invalid JSON": {"events": "private diagnostic {"},
+            "no final event": {"events": good[:-1]},
+            "run error": {
+                "events": [*good[:-1], {"type": "runError", "data": {}}, good[-1]]
+            },
+            "failed status": {
+                "events": [
+                    *good[:-1],
+                    {"type": "runFinished", "data": {**finished, "status": "error"}},
+                ]
+            },
+            "truncated reply": {
+                "events": [
+                    *good[:-1],
+                    {
+                        "type": "runFinished",
+                        "data": {**finished, "finalTextTruncated": True},
+                    },
+                ]
+            },
+            "automatic model": {"events": self.events(model="auto")},
+            "missing model": {"events": self.events(model=None)},
+            "missing server version": {"events": good, "stderr": ""},
+            "sandbox unavailable": {"events": self.events(sandbox="unavailable")},
+            "sandbox not reported": {"events": [good[0], *good[2:]]},
+            "sandbox warning": {
+                "events": good,
+                "stderr": self.SERVER + "[WARN] sandbox.unavailable private\n",
+            },
+            "sandbox could not start": {
+                "events": self.events(
+                    *self.call(
+                        "s",
+                        "execute",
+                        "failed",
+                        command="true",
+                        output={**lost, "exitCode": 71},
+                    )
+                )
+            },
+            "denied read": {
+                "events": self.events(
+                    *self.call("r", "read", "failed", path="/private", output=blocked)
+                )
+            },
+            "denied shell": {
+                "events": self.events(
+                    *self.call("s", "execute", "failed", command="ls", output=blocked)
+                )
+            },
+            "unfinished call": {
+                "events": self.events(
+                    *self.call("s", "execute", "in_progress", command="sleep 9")
+                )
+            },
+            "invalid inventory": {
+                "events": self.events(
+                    self.update(
+                        _meta={
+                            "kiro": {
+                                "kind": "steering_inclusion",
+                                "steeringDocuments": [None],
+                            }
+                        }
+                    )
+                )
+            },
+        }
+        for label, case in cases.items():
+            with self.subTest(case=label):
+                with self.assertRaises(run_claude.HostError) as caught:
+                    self.accept(
+                        case["events"],
+                        stderr=case.get("stderr", self.SERVER),
+                        code=case.get("code", 0),
+                    )
+                self.assertNotIn("private", str(caught.exception))
+                self.assertIsNone(self.adapter.conversation)
+                self.assertEqual(self.adapter.version, "not-started")
+                self.assertEqual(self.adapter.model, "requested-model")
+
+    def test_resume_requires_same_session_and_server_version(self) -> None:
+        self.accept(self.events())
+        self.assertIn("--resume-id", self.adapter.arguments("next"))
+        self.assertNotIn("--resume-id", self.adapter.arguments("next", template=True))
+        other = json.loads(json.dumps(self.events()).replace("sess_one", "sess_two"))
+        with self.assertRaises(run_claude.HostError):
+            self.accept(other)
+        with self.assertRaises(run_claude.HostError):
+            self.accept(self.events(), stderr=self.SERVER.replace("0.1.2", "0.1.3"))
+        self.assertEqual(self.adapter.conversation, "sess_one")
+        self.assertEqual(self.adapter.version, "kiro-cli 9.9.9; KAS 0.1.2")
+        self.adapter.new_conversation()
+        self.accept(other)
+        self.assertEqual(self.adapter.conversation, "sess_two")
+
+    def test_generated_policy_denies_private_paths_and_power_writes(self) -> None:
+        home = self.root / "control/kiro-home"
+        power = home / "powers/installed/specflow"
+        agent = run_kiro.kiro_agent(self.root, self.workspace, power)
+        self.assertEqual(agent["tools"], ["read", "write", "shell"])
+        self.assertEqual(agent["resources"], run_kiro.RESOURCES)
+        self.assertIs(agent["includeMcpJson"], False)
+        self.assertEqual(agent["mcpServers"], {})
+        self.assertIs(agent["includePowers"], True)
+        rules = agent["permissions"]["rules"]
+
+        def matching(capability: str, effect: str) -> list[dict]:
+            return [
+                r
+                for r in rules
+                if r["capability"] == capability and r["effect"] == effect
+            ]
+
+        (read_deny,) = matching("fs_read", "deny")
+        private = [self.root / "control", self.root / "home", Path.home().resolve()]
+        for path in (*private, self.root / "workspaces"):
+            self.assertIn(str(path), read_deny["match"])
+        self.assertIn(str(self.workspace), read_deny["exclude"])
+        self.assertIn(str(power), read_deny["exclude"])
+        (write_allow,) = matching("fs_write", "allow")
+        self.assertEqual(write_allow["match"], [str(self.workspace)])
+        write_deny, configuration = matching("fs_write", "deny")
+        # The Power sits below control and is not excepted from the write denial.
+        self.assertIn(str(self.root / "control"), write_deny["match"])
+        self.assertIn(str(self.root / "resources"), write_deny["match"])
+        self.assertEqual(write_deny["exclude"], [str(self.workspace)])
+        self.assertIn(str(self.workspace / ".kiro/agents"), configuration["match"])
+        self.assertEqual(
+            {r["capability"] for r in rules if r["effect"] == "allow"},
+            {"fs_read", "fs_write", "shell", "skill", "power"},
+        )
+        self.assertEqual(
+            matching("mcp", "deny"), [{"capability": "mcp", "effect": "deny"}]
+        )
+        self.assertEqual(
+            run_kiro.SANDBOX,
+            {
+                "enabled": True,
+                "networkAccess": "DEFAULT_BLOCKED",
+                "mcpSandboxing": True,
+            },
+        )
+        home.mkdir(mode=0o700)
+        run_kiro.write_configuration(home, self.root, self.workspace, power)
+        for name in ("agents/specflow-eval.json", "settings/sandbox.json"):
+            self.assertEqual((home / name).stat().st_mode & 0o777, 0o600)
+        self.assertEqual(score.read_json(home / "agents/specflow-eval.json"), agent)
+        self.assertEqual(
+            score.read_json(home / "settings/sandbox.json"), run_kiro.SANDBOX
+        )
+
+    def test_launch_refuses_missing_batch_and_workspace_host_configuration(
+        self,
+    ) -> None:
+        with (
+            mock.patch.object(run_claude, "command") as command,
+            self.assertRaisesRegex(run_claude.HostError, "not started"),
+        ):
+            self.adapter.turn("request", self.workspace)
+        self.adapter.root = self.root
+        self.adapter.home = self.root / "control/kiro-home"
+        self.adapter.home.mkdir()
+        (self.workspace / ".kiro/agents").mkdir()
+        with (
+            mock.patch.object(run_claude, "command") as command,
+            self.assertRaisesRegex(run_claude.HostError, "Kiro configuration"),
+        ):
+            self.adapter.launch("request", self.workspace)
+        (self.workspace / ".kiro/agents").rmdir()
+        with (
+            mock.patch.object(run_claude, "command") as command,
+            self.assertRaisesRegex(run_claude.HostError, "inheritance setting"),
+        ):
+            self.adapter.launch("request", self.workspace)
+        command.assert_not_called()
+
+    def proof(self, **changes: object) -> dict:
+        return {
+            "scope": "installed-host-boundary",
+            "host": "kiro-ide",
+            "hostVersion": "kiro-cli 9.9.9; KAS 0.1.2",
+            "configurationSha256": self.adapter.configuration_sha256,
+            "runtimeRevision": score.git("rev-parse", "HEAD:plugins/specflow")
+            .decode()
+            .strip(),
+            "runnerSha256": run_claude.runner_digest(self.adapter),
+            "checks": {
+                name: {"passed": True, "evidence": "synthetic"}
+                for name in score.RELEASE_BOUNDARY_CHECKS
+            },
+            **changes,
+        }
+
+    def test_preflight_stays_blocked_without_a_matching_proof(self) -> None:
+        version = subprocess.CompletedProcess([], 0, "kiro-cli 9.9.9\n", "")
+        with (
+            mock.patch.object(run_kiro.shutil, "which", return_value="/synthetic/kiro"),
+            mock.patch.object(run_claude, "command", return_value=version),
+        ):
+            with self.assertRaisesRegex(run_claude.HostError, "launch blocked"):
+                self.adapter.preflight()
+            self.assertEqual(self.adapter.version, "kiro-cli 9.9.9")
+            digest = self.adapter.configuration_sha256
+            for changes in (
+                {"hostVersion": "kiro-cli 1.0.0; KAS 0.1.2"},
+                {"hostVersion": "kiro-cli 9.9.9"},
+                {"configurationSha256": "0" * 64},
+                {"runnerSha256": "0" * 64},
+                {"checks": {}},
+            ):
+                with (
+                    self.subTest(changes=changes),
+                    self.assertRaisesRegex(run_claude.HostError, "launch blocked"),
+                ):
+                    self.adapter.boundary = self.proof(**changes)
+                    self.adapter.preflight()
+            self.adapter.boundary = self.proof()
+            self.adapter.preflight()
+            # The proven server version is adopted until a turn reports its own.
+            self.assertEqual(self.adapter.version, "kiro-cli 9.9.9; KAS 0.1.2")
+            self.assertIsNotNone(self.adapter.boundary_sha256)
+            with self.assertRaisesRegex(run_claude.HostError, "proven"):
+                self.accept(self.events(), stderr=self.SERVER.replace("0.1.2", "0.1.3"))
+            self.accept(self.events())
+            self.adapter.model = "another-model"
+            self.adapter.preflight()
+            self.assertEqual(self.adapter.configuration_sha256, digest)
+
+    def test_install_verifies_setting_power_tree_sign_in_and_clean_home(self) -> None:
+        def host(signed_in: int = 0, extra: str | None = None):
+            def run(adapter: run_kiro.Kiro, *args: str) -> subprocess.CompletedProcess:
+                code = 0
+                if args[0] == "settings":
+                    score.write_json(
+                        adapter.home / "settings/cli.json", {args[1]: True}
+                    )
+                elif args[0] == "powers":
+                    target = adapter.home / "powers/installed/specflow"
+                    run_kiro.shutil.copytree(args[2], target)
+                    if extra:
+                        (adapter.home / extra).parent.mkdir(exist_ok=True)
+                        (adapter.home / extra).write_text("Synthetic.\n")
+                elif args[0] == "whoami":
+                    code = signed_in
+                return subprocess.CompletedProcess([], code, "private account", "")
+
+            return run
+
+        def install(**options: object) -> Path:
+            with tempfile.TemporaryDirectory() as folder:
+                root = Path(folder).resolve()
+                (root / "control").mkdir()
+                seed = root / "workspaces/seed"
+                seed.mkdir(parents=True)
+                source = root / "resources/specflow"
+                run_kiro.shutil.copytree(score.PLUGIN, source)
+                adapter = run_kiro.Kiro("requested-model")
+                adapter.plugin = source
+                with mock.patch.object(run_kiro.Kiro, "run", host(**options)):
+                    with adapter.install(seed):
+                        home = adapter.home
+                        self.assertEqual(home.stat().st_mode & 0o777, 0o700)
+                        self.assertEqual(
+                            adapter.plugin, home / "powers/installed/specflow"
+                        )
+                        self.assertTrue((home / "agents/specflow-eval.json").is_file())
+                        self.assertEqual(adapter.environment()["KIRO_HOME"], str(home))
+                        self.assertNotIn(
+                            "TOKEN=", json.dumps(sorted(adapter.environment()))
+                        )
+                    self.assertIsNone(adapter.home)
+                    self.assertEqual(adapter.plugin, source)
+                return root
+
+        install()
+        for options, message in (
+            ({"signed_in": 1}, "not signed in"),
+            ({"extra": "powers/installed/specflow/added.md"}, "differs"),
+            ({"extra": "steering/personal.md"}, "global Kiro instructions"),
+            ({"extra": "AGENTS.md"}, "global Kiro instructions"),
+        ):
+            with (
+                self.subTest(options=options),
+                self.assertRaisesRegex(run_claude.HostError, message) as caught,
+            ):
+                install(**options)
+            self.assertNotIn("private account", str(caught.exception))
+
+    def test_live_probe_needs_host_denials_sandbox_and_instructions(self) -> None:
+        def host(**options: object):
+            write_status = options.pop("write_status", "failed")
+
+            def launch(
+                adapter: run_kiro.Kiro, prompt: str, workspace: Path
+            ) -> subprocess.CompletedProcess:
+                payload = json.loads((workspace / "probe.json").read_text())
+                shell = {
+                    name: True
+                    for name in score.RELEASE_BOUNDARY_CHECKS
+                    if name.startswith("shell-")
+                }
+                for name in (
+                    "helper-status",
+                    "tool-secret-environment-denied",
+                    "plugin-read",
+                ):
+                    shell[name] = True
+                calls = self.call(
+                    "shell",
+                    "execute",
+                    "completed",
+                    command=run_claude.PROBE_COMMAND,
+                    output={"output": json.dumps({payload["report"]: shell})},
+                )
+                for name, (kind, key) in run_kiro.NATIVE_PROBES.items():
+                    allowed = name == "plugin-read" or (
+                        kind == "edit" and write_status == "completed"
+                    )
+                    calls += self.call(
+                        name,
+                        kind,
+                        "completed" if allowed else "failed",
+                        path=payload[key],
+                        output={} if allowed else {"message": run_kiro.DENIAL + " (x)"},
+                    )
+                events = self.events(*calls, workspace=workspace, **options)
+                return subprocess.CompletedProcess(
+                    [], 0, "\n".join(json.dumps(e) for e in events), self.SERVER
+                )
+
+            return launch
+
+        def identify(adapter: run_kiro.Kiro) -> None:
+            adapter.root = adapter.plugin.parent.parent
+            adapter.cli = adapter.version = "kiro-cli 9.9.9"
+            adapter.configuration_sha256 = "c" * 64
+
+        @contextlib.contextmanager
+        def install(adapter: run_kiro.Kiro, workspace: Path) -> Iterator[None]:
+            adapter.home = adapter.root / "control/kiro-home"
+            adapter.home.mkdir()
+            yield
+
+        def failed(proof: dict) -> set[str]:
+            return {n for n, c in proof["checks"].items() if c["passed"] is not True}
+
+        writes = {"native-plugin-write-denied", "native-symlink-write-denied"}
+        with tempfile.TemporaryDirectory() as folder:
+            scratch = Path(folder).resolve()
+            for options, expected in (
+                ({}, set()),
+                ({"sandbox": "unavailable"}, {"effective-settings"}),
+                ({"write_status": "completed"}, {*writes, "effective-settings"}),
+                (
+                    {"steering": False},
+                    {"instruction-inventory", "fixture-instructions"},
+                ),
+            ):
+                with (
+                    self.subTest(options=options),
+                    mock.patch.object(run_kiro.Kiro, "identify", identify),
+                    mock.patch.object(run_kiro.Kiro, "install", install),
+                    mock.patch.object(run_kiro.Kiro, "launch", host(**options)),
+                ):
+                    proof = run_kiro.live_probe("tested-model", scratch=scratch)
+                    self.assertEqual(failed(proof), expected)
+                    self.assertEqual(
+                        set(proof["checks"]), set(score.RELEASE_BOUNDARY_CHECKS)
+                    )
+                    self.assertEqual(proof["host"], "kiro-ide")
+                    self.assertEqual(proof["model"], "resolved-model")
+                    self.assertEqual(proof["hostVersion"], "kiro-cli 9.9.9; KAS 0.1.2")
+                    self.assertNotIn(str(scratch), json.dumps(proof))
+            self.assertEqual(list(scratch.iterdir()), [])
 
 
 if __name__ == "__main__":

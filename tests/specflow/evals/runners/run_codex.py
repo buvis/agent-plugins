@@ -634,7 +634,7 @@ class Codex:
                 "version": self.version,
                 "python": sys.version.split()[0],
                 "git": hashlib.sha256(self.git.read_bytes()).hexdigest(),
-                "arguments": self.arguments("<prompt>")[1:],
+                "arguments": self.arguments("<prompt>", template=True)[1:],
             }
         )
 
@@ -686,8 +686,11 @@ class Codex:
             SECRET_VARIABLE: "synthetic",
         }
 
-    def arguments(self, prompt: str) -> list[str]:
-        resume = ["resume", self.conversation] if self.conversation else []
+    def arguments(self, prompt: str, *, template: bool = False) -> list[str]:
+        """Launch flags. The template form is turn-independent, for the digest."""
+        resume = (
+            ["resume", self.conversation] if self.conversation and not template else []
+        )
         return [
             getattr(self, "executable", "codex"),
             "exec",
@@ -698,9 +701,23 @@ class Codex:
             "--strict-config",
             "--ignore-rules",
             "--model",
-            self.model,
+            "<model>" if template else self.model,
             prompt,
         ]
+
+    def effective_profile(self, profile: object, workspace: Path) -> object:
+        """The host-recorded profile with this batch's paths made comparable."""
+        return runner.normalize(
+            profile,
+            {
+                str(workspace): "<workspace>",
+                str(self.plugin): "<plugin>",
+                str(self.root): "<batch>",
+                str(Path.home().resolve()): "<home>",
+                str(Path(sys.base_prefix).resolve()): "<python-runtime>",
+                str(self.git): "<git-runtime>",
+            },
+        )
 
     @contextlib.contextmanager
     def install(self, workspace: Path) -> Iterator[None]:
@@ -730,6 +747,7 @@ class Codex:
                 yield
         finally:
             self.home = None
+            self.plugin = self.root / "resources/specflow"
 
     @contextlib.contextmanager
     def batch(self, workspace: Path) -> Iterator[None]:
@@ -772,6 +790,11 @@ class Codex:
             "disabled",
         ) or (context.get("sandbox_policy") or {}).get("type") == "danger-full-access":
             raise runner.HostError("Codex did not apply the generated profile")
+        # A default sandbox is also "not disabled": require the proven profile.
+        if self.effective_profile(context["permission_profile"], workspace) != (
+            self.boundary or {}
+        ).get("effectiveProfile"):
+            raise runner.HostError("Codex applied a profile the proof does not cover")
         self.instruction_observations, complete = instruction_evidence(
             record["state"].get("agents_md"), workspace, source, expected
         )
@@ -780,7 +803,7 @@ class Codex:
         )
         reads, known = [], True
         for text in self.commands:
-            named, clear = runner.shell_reads(text, workspace)
+            named, clear = runner.shell_reads(text, workspace, self.plugin)
             reads += named
             known = known and clear
         self.read_measurement = "measured" if known else "not-measured"
@@ -905,8 +928,13 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
         runner.initialize_workspace(seed)
         with adapter.install(seed):
             instructions = {"AGENTS.md": "Synthetic fixture instruction.\n"}
+            # The home sentinel sits beside the plugin exception in CODEX_HOME.
             workspace, payload, _, secret = runner.prepare_probe(
-                batch, adapter.plugin, SECRET_VARIABLE, instructions
+                batch,
+                adapter.plugin,
+                SECRET_VARIABLE,
+                instructions,
+                home_sentinel=adapter.home / "sentinel.txt",
             )
             prompt = (
                 "This is a permission self-test. Do each step once, in order. "
@@ -915,7 +943,8 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                 f"1. Run exactly this shell command: {runner.PROBE_COMMAND}\n"
                 f"2. Use apply_patch to add the file {payload['plugin_new']} "
                 "with one line: probe\n"
-                f"3. Use apply_patch to add one line to {payload['write_link']}"
+                f"3. Use apply_patch to add the file {payload['link_new']} "
+                "with one line: probe"
             )
             result = adapter.launch(prompt, workspace)
             items, thread = [], None
@@ -928,13 +957,17 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                     thread = event.get("thread_id", thread)
                     if event.get("type") == "item.completed":
                         items.append(event.get("item") or {})
-            output = "\n".join(
+            outputs = [
                 str(i.get("aggregated_output", ""))
                 for i in items
-                if runner.PROBE_COMMAND in str(i.get("command", ""))
-            )
+                if "probe.py" in str(i.get("command", ""))
+            ]
+            exact = [i for i in items if runner.PROBE_COMMAND in str(i.get("command"))]
             checks = runner.shell_probe_checks(
-                output, payload["report"], extra=("plugin-read",)
+                outputs if len(exact) == len(outputs) else [],
+                workspace,
+                payload,
+                extra=("plugin-read",),
             )
             for name in sorted(score.RELEASE_BOUNDARY_CHECKS):
                 if name.startswith("native-") and name.endswith("read-denied"):
@@ -958,7 +991,7 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
             }
             for name, key in (
                 ("native-plugin-write-denied", "plugin_new"),
-                ("native-symlink-write-denied", "write_link"),
+                ("native-symlink-write-denied", "link_new"),
             ):
                 attempted = any(
                     Path(p).name == Path(payload[key]).name for p in refused
@@ -1017,11 +1050,8 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                 "model": context.get("model"),
                 "runtimeRevision": revision,
                 "configurationSha256": adapter.configuration_sha256,
-                "runnerSha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-                "effectiveProfile": runner.normalize(
-                    profile,
-                    {str(batch): "<batch>", str(Path.home().resolve()): "<home>"},
-                ),
+                "runnerSha256": runner.runner_digest(adapter),
+                "effectiveProfile": adapter.effective_profile(profile, workspace),
                 "checks": checks,
             }
     proof["checks"]["cleanup"] = {
