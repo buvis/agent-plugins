@@ -40,7 +40,7 @@ INVENTORY_SHA = "f55c98bba2b4b3c94ce588b6c616258186dd0bb2164800b2d34271acc25dfb5
 # json.dumps(value, sort_keys=True) digests of the pre-generation committed map.
 FROZEN = {
     "behaviors": "8c49f9a1b77d83fa1c9ef4ed711aa1ef9e6fa62b825309ad7e23e9cff30a7763",
-    "resource_edges": "39382053172cf854eb107c631d41b84d6fa77913123b56b8c09bc5f7047bce2b",
+    "resource_edges": "b1a1e9e23c7413241e0d91f9117f8c943226b3b7068aa6a37fa245640ea73a75",
     "evidence_policy": "661002b2cf3e89314a8da8c45cf8c9642a91a6e4429d24ff2ab349f8d8485339",
     "owner_bindings": "bbc225221cb8cdc514c1abddaa6e5cfd5aa69a5442103cd4b74f46b9f3b07e46",
     "regression_cases": "e7331e78365b23d430469e0edbcd4be456b1fffe69ca16e2e27411c59dca3648",

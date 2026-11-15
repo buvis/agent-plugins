@@ -283940,6 +283940,114 @@
       "classification_reason": "Required host/project test-target capability template; path/to/test_file.py is a consumer-project placeholder, not a shipped or upstream helper file.",
       "failure_rule": "Refuse the work entry point before execution until the host supplies and resolves the task Contract-named Python test targets in the consumer project; no source checkout fallback.",
       "gate_entry_point": "plugins/autopilot/skills/work/SKILL.md"
+    },
+    {
+      "source_path": "compatibility/claude/hooks.json",
+      "source_line": 9,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "compatibility/claude/hooks.json",
+      "source_line": 19,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "compatibility/claude/hooks.json",
+      "source_line": 29,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "compatibility/claude/hooks.json",
+      "source_line": 39,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "compatibility/claude/hooks.json",
+      "source_line": 51,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "compatibility/claude/hooks.json",
+      "source_line": 62,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "compatibility/claude/hooks.json",
+      "source_line": 74,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "compatibility/codex/hooks.json",
+      "source_line": 9,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "compatibility/codex/hooks.json",
+      "source_line": 19,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "compatibility/codex/hooks.json",
+      "source_line": 31,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "compatibility/codex/hooks.json",
+      "source_line": 42,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
+    },
+    {
+      "source_path": "compatibility/codex/hooks.json",
+      "source_line": 53,
+      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "kind": "packaged-resource",
+      "status": "planned",
+      "destination_path": "plugins/autopilot/scripts/autopilot.py",
+      "failure_rule": "Refuse the affected entry point when the installed resource is missing or resolves outside the distributed root; no source checkout fallback."
     }
   ],
   "evidence_policy": "Assignments are planned, not certification. Missing assets, unavailable hosts and missing receipts remain incomplete; no source retirement or profile release is authorized by this map.",
