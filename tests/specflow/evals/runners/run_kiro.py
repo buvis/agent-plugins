@@ -357,7 +357,18 @@ def reject_failures(turn: dict) -> None:
         )
         if call["status"] == "completed" or (call["status"] == "failed" and ordinary):
             continue
-        raise runner.HostError("Kiro reported a failed, denied, or unfinished call")
+        # Names the call so a stopped session can be diagnosed; the record
+        # normalizes batch and home paths before it is stored.
+        reason = " ".join(
+            str(value)[:200]
+            for value in (call["output"].get("message"), call.get("text"))
+            if value
+        )
+        raise runner.HostError(
+            "Kiro reported a failed, denied, or unfinished call: "
+            f"kind={call['kind']} status={call['status']} exit={code} "
+            f"target={call['path'] or call['command'][:200]!r} reason={reason!r}"
+        )
 
 
 def instruction_evidence(

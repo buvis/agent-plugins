@@ -3062,8 +3062,10 @@ class KiroAdapterTest(unittest.TestCase):
             },
             "denied read": {
                 "events": self.events(
-                    *self.call("r", "read", "failed", path="/private", output=blocked)
-                )
+                    # The error names the failed call and its target, nothing else.
+                    *self.call("r", "read", "failed", path="/batch/x", output=blocked)
+                ),
+                "names": "kind=read status=failed exit=None target='/batch/x'",
             },
             "denied shell": {
                 "events": self.events(
@@ -3097,6 +3099,7 @@ class KiroAdapterTest(unittest.TestCase):
                         code=case.get("code", 0),
                     )
                 self.assertNotIn("private", str(caught.exception))
+                self.assertIn(case.get("names", ""), str(caught.exception))
                 self.assertIsNone(self.adapter.conversation)
                 self.assertEqual(self.adapter.version, "not-started")
                 self.assertEqual(self.adapter.model, "requested-model")

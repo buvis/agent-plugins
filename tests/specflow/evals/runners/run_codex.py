@@ -895,6 +895,10 @@ def eval_config(
             lines[0],
             'cli_auth_credentials_store = "file"',
             "project_doc_fallback_filenames = []",
+            # A login shell rebuilds PATH from the system profile and then
+            # finds macOS's Git launcher, which fails in the sandbox: the
+            # status helper returned no result (observed 2026-11-15).
+            "allow_login_shell = false",
             *lines[1:],
             "[shell_environment_policy]",
             'inherit = "core"',
@@ -1098,7 +1102,10 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                 f"2. Use apply_patch to add the file {payload['plugin_new']} "
                 "with one line: probe\n"
                 f"3. Use apply_patch to add the file {payload['link_new']} "
-                "with one line: probe"
+                "with one line: probe\n"
+                # Not a check: its recorded output explains a helper failure.
+                f"4. Run exactly this shell command: "
+                f"{Path(sys.executable).resolve()} -B {payload['helper']} status"
             )
             result = adapter.launch(prompt, workspace)
             if result.returncode or "thread.started" not in result.stdout:
