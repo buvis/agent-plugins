@@ -19,6 +19,24 @@
         "jobs.py: write_binding_record and _lineage_path do not independently validate host_id against hosts.ADAPTERS; bind_job_session's own caller-side check covers the one caller that exists today"
       ],
       "prd": "00014-autopilot-host-execution-v2.md"
+    },
+    {
+      "type": "assumed-ambiguity",
+      "question": "Task 6 contract specifies translate_hook(event, payload, *, project_root: Path) but interception.py (landed in task 5, call site immutable for this task) calls adapter.translate_hook(event, payload) with no project_root kwarg, and the existing passing test_interception.py fixtures use lambda event, payload: ... with no third arg.",
+      "assumption": "translate_hook keeps the real, already-tested two-arg signature (event, payload); any context value needing a project_root-ish hint (document_location) is derived from payload[\"cwd\"] directly, since guards.py treats project_root as optional context for that duty.",
+      "prd": "00014-autopilot-host-execution-v2.md"
+    },
+    {
+      "type": "autonomous-fix",
+      "question": "interception.run_hook checked event not in registrations, which worked only when HOOK_REGISTRATIONS was a dict (test fakes); real adapters (task 6) export it as a tuple of HookRegistration dataclasses, so every real hook call would raise SystemExit(2) in production despite tests passing (evaluate_hook is tested directly, run_hook with real tuples was not).",
+      "assumption": "Fixed run_hook to build the allowed-event set from either shape (dict keys, or HookRegistration.event attributes) so both the existing fake-dict tests and the real tuple-shaped adapters work. interception.py is outside task 6s file list but this is a necessary production-correctness fix for the feature task 6 delivers, not a scope expansion.",
+      "prd": "00014-autopilot-host-execution-v2.md"
+    },
+    {
+      "type": "reviewer-unavailable",
+      "question": "Task 6 per-task review (Pat via sonnet-run.sh) failed twice: OAuth token revoked for the sonnet CLI runner.",
+      "assumption": "Recorded review: failed:runner_auth on the task 6 attempt entry and proceeded to step 6 without a per-task review; the mandatory PRD-level review lenses (consensus/blind/doubt) will still cover this diff.",
+      "prd": "00014-autopilot-host-execution-v2.md"
     }
   ]
 }
