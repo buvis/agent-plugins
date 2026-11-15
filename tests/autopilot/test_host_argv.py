@@ -72,8 +72,8 @@ def _statuses_for(host_id: str) -> dict:
     """Two distinct per-host capability maps so a hardcoded map cannot pass."""
     if host_id == "claude":
         rows = {
-            "identity": ("available", None),
-            "delegation": ("available", None),
+            "identity": ("supported", None),
+            "delegation": ("supported", None),
             "isolation": ("unavailable", hosts.UNAVAILABLE_NO_AUTH),
             "interception": ("unimplemented", None),
         }
@@ -81,8 +81,8 @@ def _statuses_for(host_id: str) -> dict:
         rows = {
             "identity": ("unavailable", hosts.UNAVAILABLE_NO_BINARY),
             "delegation": ("unimplemented", None),
-            "isolation": ("available", None),
-            "interception": ("available", None),
+            "isolation": ("supported", None),
+            "interception": ("supported", None),
         }
     return {name: _status(name, *rows[name]) for name in hosts.CAPABILITY_NAMES}
 
@@ -330,6 +330,19 @@ class ProbeResultImmutabilityTest(unittest.TestCase):
                 with self.assertRaises(dataclasses.FrozenInstanceError):
                     setattr(instance, field, value)
                 self.assertEqual(getattr(instance, field), before)
+
+
+class CapabilityStatusValidationTest(unittest.TestCase):
+    def test_capability_status_rejects_unknown_status(self) -> None:
+        for status in hosts.CAPABILITY_STATUSES:
+            reason = hosts.UNAVAILABLE_NO_AUTH if status == "unavailable" else None
+            with self.subTest(status=status):
+                self.assertEqual(_status("identity", status, reason).status, status)
+        for status in ("available", "Supported", "", "unsupported"):
+            with self.subTest(status=status):
+                with self.assertRaises(ValueError) as caught:
+                    _status("identity", status, None)
+                self.assertIn("status", str(caught.exception))
 
 
 class ProbeResultInvariantTest(unittest.TestCase):
