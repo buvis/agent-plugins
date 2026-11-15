@@ -248,7 +248,10 @@ def _parse_hook_input(stdin: bytes) -> dict | None:
 def run_hook(host_id: str, event: str, stdin: bytes, *, env: Mapping[str, str]) -> HookReply:
     adapter = hosts.adapter(host_id)
     registrations = getattr(adapter, "HOOK_REGISTRATIONS", {})
-    if event not in registrations:
+    registered_events = set(registrations) if isinstance(registrations, dict) else {
+        registration.event for registration in registrations
+    }
+    if event not in registered_events:
         raise SystemExit(2)
 
     payload = _parse_hook_input(stdin)
