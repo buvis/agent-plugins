@@ -1313,3 +1313,4 @@
 {"id":"de963882","ended_at":1794766197,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
 {"id":"be9bbd3e","ended_at":1794766197,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
 {"kind":"handoff","site":"build","edge":"leave","at":1794766197,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794766206,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
