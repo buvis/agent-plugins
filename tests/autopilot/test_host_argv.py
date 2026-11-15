@@ -228,7 +228,7 @@ class ProbeHostDispatchTest(unittest.TestCase):
         codex = hosts.probe_host("codex", project_root=PROJECT_ROOTS["codex"])
         self.assertEqual(claude.capability.statuses["isolation"].status, "unavailable")
         self.assertEqual(claude.capability.statuses["isolation"].reason, "no_auth")
-        self.assertEqual(codex.capability.statuses["isolation"].status, "available")
+        self.assertEqual(codex.capability.statuses["isolation"].status, "supported")
         self.assertIsNone(codex.capability.statuses["isolation"].reason)
         self.assertEqual(codex.capability.statuses["identity"].reason, "no_binary")
         self.assertEqual(codex.capability.statuses["delegation"].status, "unimplemented")
@@ -342,7 +342,10 @@ class CapabilityStatusValidationTest(unittest.TestCase):
             with self.subTest(status=status):
                 with self.assertRaises(ValueError) as caught:
                     _status("identity", status, None)
-                self.assertIn("status", str(caught.exception))
+                message = str(caught.exception)
+                self.assertIn("status", message)
+                self.assertNotIn("name", message)
+                self.assertNotIn("reason", message)
 
 
 class ProbeResultInvariantTest(unittest.TestCase):

@@ -3,6 +3,7 @@ invariants, adapter() resolution, and current_session() delegation."""
 
 from __future__ import annotations
 
+import dataclasses
 import importlib
 import sys
 import tempfile
@@ -29,6 +30,17 @@ VALID_PAIRS = (
     ("unavailable", "no_binary"),
     ("unavailable", "no_auth"),
 )
+CAPABILITY_FIELDS = ("name", "status", "reason")
+SESSION_FIELDS = ("host_id", "session_id", "source")
+
+
+def _assert_names_only(case: unittest.TestCase, message: str, field: str, fields: tuple) -> None:
+    """The message names the failing field and no other field, so a check that
+    blames the wrong field, or one generic message for every field, fails."""
+    case.assertIn(field, message)
+    for other in fields:
+        if other != field:
+            case.assertNotIn(other, message)
 
 
 def _session(**override) -> object:
@@ -78,7 +90,7 @@ class CapabilityStatusInvariantTest(unittest.TestCase):
         hosts.CapabilityStatus(name="identity", status="supported", reason=None)
         with self.assertRaises(ValueError) as caught:
             hosts.CapabilityStatus(**kwargs)
-        self.assertIn(field, str(caught.exception))
+        _assert_names_only(self, str(caught.exception), field, CAPABILITY_FIELDS)
 
     def test_accepts_every_valid_name_status_reason_combination(self) -> None:
         for name in hosts.CAPABILITY_NAMES:
@@ -106,7 +118,7 @@ class CapabilityStatusInvariantTest(unittest.TestCase):
 
     def test_rejects_a_reason_on_any_status_other_than_unavailable(self) -> None:
         for status in ("supported", "unimplemented"):
-            for reason in ("no_binary", "no_auth", "because"):
+            for reason in ("no_binary", "no_auth", "because", ""):
                 with self.subTest(status=status, reason=reason):
                     self.assert_rejected_naming(
                         "reason", name="interception", status=status, reason=reason
@@ -118,7 +130,7 @@ class NativeSessionInvariantTest(unittest.TestCase):
         _session()  # control: the baseline constructs
         with self.assertRaises(ValueError) as caught:
             _session(**override)
-        self.assertIn(field, str(caught.exception))
+        _assert_names_only(self, str(caught.exception), field, SESSION_FIELDS)
 
     def test_accepts_every_host_source_and_boundary_session_id(self) -> None:
         session_ids = ("a", "sess-1", "0f9e" * 64, "é" * 128, "会話-42")
@@ -137,11 +149,18 @@ class NativeSessionInvariantTest(unittest.TestCase):
             with self.subTest(host_id=host_id):
                 self.assert_rejected_naming("host_id", host_id=host_id)
 
+    def test_host_id_check_follows_the_live_adapters_registry(self) -> None:
+        patched = {"claude": "claude", "codex": "codex", "nope": "claude"}
+        with mock.patch.dict(hosts.ADAPTERS, patched, clear=True):
+            built = _session(host_id="nope")
+            self.assertEqual(built.host_id, "nope")
+            self.assert_rejected_naming("host_id", host_id="gemini")
+
     def test_rejects_an_empty_session_id(self) -> None:
         self.assert_rejected_naming("session_id", session_id="")
 
     def test_rejects_a_session_id_over_256_utf8_bytes(self) -> None:
-        for session_id in ("x" * 257, "é" * 128 + "a", "会" * 86):
+        for session_id in ("x" * 257, "é" * 128 + "a", "会" * 86, "x" * 300, "x" * 10000, "会" * 4000):
             with self.subTest(length=len(session_id.encode("utf-8"))):
                 self.assert_rejected_naming("session_id", session_id=session_id)
 
@@ -149,11 +168,27 @@ class NativeSessionInvariantTest(unittest.TestCase):
         for session_id in ("\x00", "abc\x00", "a\tb", "sess\n", "\x1fsess", "s\x7fs", "\rx"):
             with self.subTest(session_id=session_id):
                 self.assert_rejected_naming("session_id", session_id=session_id)
+        for code in (*range(0x20), 0x7F):
+            char = chr(code)
+            for session_id in (char, f"{char}sess", f"sess{char}1", f"sess{char}"):
+                with self.subTest(code=hex(code), session_id=session_id):
+                    self.assert_rejected_naming("session_id", session_id=session_id)
 
     def test_rejects_a_source_outside_session_sources(self) -> None:
         for source in ("environ", "Environment", "hook", "hook_input ", "", "env", "hook-input"):
             with self.subTest(source=source):
                 self.assert_rejected_naming("source", source=source)
+
+
+class NativeSessionImmutabilityTest(unittest.TestCase):
+    def test_native_session_rejects_field_assignment(self) -> None:
+        session = _session(host_id="claude", session_id="sess-1", source="environment")
+        for field, value in (("host_id", "codex"), ("session_id", "\x00"), ("source", "bogus")):
+            with self.subTest(field=field):
+                before = getattr(session, field)
+                with self.assertRaises(dataclasses.FrozenInstanceError):
+                    setattr(session, field, value)
+                self.assertEqual(getattr(session, field), before)
 
 
 class AdapterResolutionTest(unittest.TestCase):
@@ -246,11 +281,18 @@ class CurrentSessionDelegationTest(unittest.TestCase):
                 self.assertIs(calls[1][2], envs[host_id])
 
     def test_propagates_an_adapter_session_error(self) -> None:
-        failure = RuntimeError("env unreadable")
-        self.install({"codex": failure})
-        with self.assertRaises(RuntimeError) as caught:
-            hosts.current_session("codex", {"A": "1"})
-        self.assertIs(caught.exception, failure)
+        failures = (
+            RuntimeError("env unreadable"),
+            OSError("env unreadable"),
+            KeyError("CODEX_SESSION_ID"),
+            TypeError("env is not a mapping"),
+        )
+        for failure in failures:
+            with self.subTest(error=type(failure).__name__):
+                self.install({"codex": failure})
+                with self.assertRaises(type(failure)) as caught:
+                    hosts.current_session("codex", {"A": "1"})
+                self.assertIs(caught.exception, failure)
 
     def test_unknown_host_id_raises_value_error(self) -> None:
         for host_id in ("nope", "claudex", ""):
