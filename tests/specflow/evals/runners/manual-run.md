@@ -34,9 +34,10 @@ A root `CLAUDE.md` that exists but was not reported leaves the turn unmeasured.
 not paths. The adapter names the path from Codex's documented discovery rule
 (one `AGENTS.override.md` or `AGENTS.md` in the Git root, no imports) and accepts
 it only when the host-recorded text equals the file as it was before launch.
-The approved design asks for each loaded path, so `ROLLOUT_INVENTORY_APPROVED`
-in `run_codex.py` stays false and Codex records stay `not-measured` until the
-developer approves that reading (00009 QA log, 2026-11-15).
+The developer accepted that reading on 2026-11-15 with one addition: every
+other instruction field the host records must have the fingerprint the
+boundary probe saw (`instructionChannels` in the proof). A turn that differs
+stays `not-measured`.
 
 ## Live proof procedure
 
@@ -60,9 +61,10 @@ so the Kiro process keeps the real `HOME`; `KIRO_HOME` and the agent's deny
 rules carry the isolation. `steering_inclusion` appears only on the first turn
 of a conversation and not at all for an agent without instruction files. Every
 turn reports `context_usage` with the matched context files; the adapter adds
-them to its observations, but `CONTEXT_INVENTORY_APPROVED` in `run_kiro.py`
-stays false, so a multi-turn Kiro record is `not-measured` until the developer
-approves that source. No documented Kiro control strips environment variables
+them to its observations. That list counts as the inventory of a later turn
+only under a proof with `contextInventoryVerified: true`: the probe adds an
+instruction file before a second turn and requires the list to show it
+(decided 2026-11-15). No documented Kiro control strips environment variables
 from tools; the probe's `tool-secret-environment-denied` check decides. Inside
 `run-agent` Kiro reports its sandbox as active while every shell command fails
 with `sandbox_apply: Operation not permitted`; the adapter treats that as a

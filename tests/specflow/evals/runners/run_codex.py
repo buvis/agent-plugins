@@ -824,8 +824,15 @@ class Codex:
         self.instruction_observations, complete = instruction_evidence(
             record["state"].get("agents_md"), workspace, source, expected
         )
+        # Approved 2026-11-15: the documented discovery path counts when the
+        # host-recorded text matches, and every other instruction field the
+        # host recorded has the fingerprint the probe saw.
+        channels = instruction_channels(
+            record["state"], lambda value: self.effective_profile(value, workspace)
+        )
+        proven = (self.boundary or {}).get("instructionChannels")
         self.instruction_measurement = (
-            "measured" if complete and ROLLOUT_INVENTORY_APPROVED else "not-measured"
+            "measured" if complete and channels == proven else "not-measured"
         )
         # Calls come from the session record: the exec stream does not show
         # every shell call. A patch is a write; any other call is unnameable.
@@ -850,12 +857,30 @@ class Codex:
 
 # Name of a synthetic variable; the tool environment policy must strip it.
 SECRET_VARIABLE = "SPECFLOW_SYNTHETIC_" + "TOKEN"
-# The host records the merged instruction text it loaded, not file paths. The
-# path comes from Codex's documented discovery rule (one file in the Git root,
-# no imports, nothing below the working directory). Treating that pair as a
-# measured inventory is a proposed contract revision; it stays off until the
-# developer approves it (00009 QA log, 2026-11-15).
-ROLLOUT_INVENTORY_APPROVED = False
+
+
+def instruction_channels(state: dict, normalize: Callable) -> dict[str, str]:
+    """Fingerprint every instruction-bearing field the host recorded.
+
+    AGENTS.md text is checked against the fixture elsewhere. The host also
+    records plugin, developer, model, permission, and skill instructions; a
+    run counts only when these equal what the boundary probe saw.
+    """
+    found: dict[str, str] = {}
+
+    def visit(name: str, value: object) -> None:
+        if isinstance(value, dict):
+            for key, inner in value.items():
+                visit(f"{name}.{key}" if name else str(key), inner)
+        elif "instructions" in name.lower() or name.split(".")[0] in (
+            "skills",
+            "host_skills",
+        ):
+            text = json.dumps(normalize(value), sort_keys=True)
+            found[name] = hashlib.sha256(text.encode()).hexdigest()
+
+    visit("", {key: value for key, value in state.items() if key != "agents_md"})
+    return found
 
 
 def find_git() -> Path:
@@ -1286,6 +1311,10 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                 "configurationSha256": adapter.configuration_sha256,
                 "runnerSha256": runner.runner_digest(adapter),
                 "effectiveProfile": adapter.effective_profile(profile, workspace),
+                "instructionChannels": instruction_channels(
+                    record["state"],
+                    lambda value: adapter.effective_profile(value, workspace),
+                ),
                 # Not evidence: what the host did, so a failed probe can be read.
                 "observed": runner.normalize(
                     [

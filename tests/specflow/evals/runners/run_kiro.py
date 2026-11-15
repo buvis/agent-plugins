@@ -41,10 +41,9 @@ SANDBOX_WARNING = re.compile(r"(?im)^\[(?:WARN|ERROR)\][^\n]*sandbox")
 # Prefix of the host's own result for a call stopped by a permission rule.
 DENIAL = "Blocked by a permission rule"
 # Resumed turns and agents without instruction files emit no steering_inclusion
-# update. Every turn does report matched context files. Treating that list as a
-# measured inventory is a proposed contract revision; it stays off until the
-# developer approves it. The files are still reported, so taint is detected.
-CONTEXT_INVENTORY_APPROVED = False
+# update. Every turn does report matched context files. Approved 2026-11-15:
+# that list is the inventory of such a turn, but only under a proof whose
+# probe saw a second turn's list pick up a newly added instruction file.
 # Workspace folders the host loads as configuration on the next launch
 # (--trust-workspace admits them without asking). No fixture needs them, so a
 # turn may not write them and a launch refuses a workspace that has them.
@@ -374,7 +373,7 @@ def reject_failures(turn: dict) -> None:
 
 
 def instruction_evidence(
-    turn: dict, workspace: Path, hashes: dict[str, str]
+    turn: dict, workspace: Path, hashes: dict[str, str], context_verified: bool = False
 ) -> tuple[dict[str, dict], bool]:
     """Host-reported loaded files, each with its pre-launch hash when known."""
     observations = {}
@@ -383,7 +382,7 @@ def instruction_evidence(
         path = path if path.is_absolute() else workspace / path
         observations[str(path)] = {"sha256": hashes.get(str(path)), "imports": []}
     measured = turn["steering"] is not None or (
-        CONTEXT_INVENTORY_APPROVED and turn["context"] is not None
+        context_verified and turn["context"] is not None
     )
     return observations, measured
 
@@ -658,7 +657,10 @@ class Kiro:
         reject_failures(turn)
         self.commit(turn)
         self.instruction_observations, measured = instruction_evidence(
-            turn, workspace, hashes
+            turn,
+            workspace,
+            hashes,
+            (self.boundary or {}).get("contextInventoryVerified") is True,
         )
         self.instruction_measurement = "measured" if measured else "not-measured"
         reads, known = named_reads(turn, workspace, self.plugin)
@@ -891,7 +893,25 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
             turn = adapter.identity(result)
             adapter.commit(turn)
             checks = probe_checks(adapter, turn, result, probe, hashes, revision)
+            # Second turn: the supervisor adds an instruction file, then the
+            # resumed conversation must list it among its context files. That
+            # shows the per-turn list is live, not a copy of the first turn's.
+            added = workspace / ".kiro/steering/added-for-turn-two.md"
+            added.parent.mkdir(parents=True, exist_ok=True)
+            added.write_text("Synthetic instruction added before turn two.\n")
+            second = adapter.identity(
+                adapter.launch("Reply with the single word: done.", workspace)
+            )
+            before = instruction_evidence(turn, workspace, {}, True)[0]
+            after = instruction_evidence(second, workspace, {}, True)[0]
+            verified = (
+                second["context"] is not None
+                and str(added) in after
+                and str(added) not in before
+                and set(before) <= set(after)
+            )
             proof = {
+                "contextInventoryVerified": verified,
                 "scope": "installed-host-boundary",
                 "host": adapter.host,
                 "hostVersion": adapter.version,

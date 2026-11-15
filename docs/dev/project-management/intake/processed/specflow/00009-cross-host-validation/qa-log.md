@@ -687,4 +687,30 @@ Not changed: a never-started Kiro record takes its agent-server version from the
 
 110 instrument tests pass on Python 3.15.2 and 3.10.22; Ruff and the repository validator (3 packages, 15 skills) pass. The full repository suite was not rerun.
 
-All three runner files changed, so every earlier proof is stale. No approval, task state, or acceptance criterion changed. T-056 stays unchecked until the final proofs and self-checks are repeated on this code and a live interruption is exercised. Both need a terminal outside `run-agent`; the steps are in `manual-run.md`, "Live proof procedure".
+All three runner files changed, so every earlier proof is stale.
+
+### Final round on the reviewed code (2026-11-15, 20:46 to 21:17, runner at `0b94957`)
+
+- All three boundary probes passed all 20 checks: Claude Code 2.1.325, Kiro (kiro-cli 2.35.1, agent server 0.66.70), Codex 0.167.2.
+- Self-check sessions: Claude Code and Kiro ran both turns; the passing eval passed and the impossible eval failed, exit 1 as expected.
+- Codex upgraded itself from 0.167.2 to 0.169.0 at 20:55, between its probe and its session. The runner refused the session with "no passing boundary proof for this host version" and exit 2, as designed. The developer repeated the probe on 0.169.0 (all 20 checks passed) and the session (expected result, exit 1).
+- `score.py --compare` on the three final records exited 0.
+- Live interruption: Ctrl-C during a Claude session left a `notRun: runner interrupted` record without scores, exit 2, and no `specflow-evals-*` folder under `/private/tmp`.
+
+### Developer decisions on the seven contract points (2026-11-15)
+
+Asked one at a time; the developer chose:
+
+1. Codex instruction inventory: **accepted, with the stronger check.** The documented discovery path counts when the host-recorded text matches the fixture file, and every other instruction field the host records (plugin, developer, model, permission, and skill instructions) must have the fingerprint the boundary probe saw. Implemented: the proof carries `instructionChannels`; a turn whose fingerprints differ stays `not-measured`.
+2. Kiro multi-turn inventory: **verify first.** The per-turn context-file list counts only under a proof whose probe saw a second turn's list pick up an instruction file added between turns. Implemented: the Kiro probe runs that second turn and records `contextInventoryVerified`. Not yet run live.
+3. Kiro tool environment by observation: **accepted.**
+4. Codex native read checks restate the shell result: **accepted.**
+5. Codex sign-in inside the batch clock: **accepted.**
+6. Claude shell allowed as a whole inside the proven sandbox: **accepted.**
+7. Kiro keeps the real `HOME`, protected by deny rules proven on a synthetic folder only: **accepted, with that limit known.**
+
+These are implementation readings of the approved design, decided by the developer; the design and task artifacts were not edited, and no approval hash changed.
+
+Points 1 and 2 changed the Codex and Kiro runner files after their final proofs, so those two proofs and self-checks must be repeated. The Claude runner file is unchanged; its 20:46 proof and final record stand. 110 instrument tests pass on Python 3.15.2 and 3.10.22; Ruff passes.
+
+T-056 stays unchecked until the Codex and Kiro proofs and self-checks are repeated on this code. Both need a terminal outside `run-agent`; the steps are in `manual-run.md`, "Live proof procedure".

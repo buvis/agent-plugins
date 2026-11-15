@@ -2092,8 +2092,15 @@ class CodexConversationTest(unittest.TestCase):
                 adapter.instruction_observations,
                 {str(workspace / "AGENTS.md"): {"sha256": digest, "imports": []}},
             )
-            # The inventory rule is a proposed revision: never measured before approval.
-            self.assertFalse(run_codex.ROLLOUT_INVENTORY_APPROVED)
+            # Measured only when the host's other instruction fields equal the
+            # fingerprints in the proof; this proof names none yet.
+            self.assertEqual(adapter.instruction_measurement, "not-measured")
+            adapter.boundary["instructionChannels"] = {}
+            run(records("Fixture rule.\n"))
+            self.assertEqual(adapter.instruction_measurement, "measured")
+            drifted = records("Fixture rule.\n")
+            drifted[2]["payload"]["state"]["plugins_instructions"] = "Other plugin."
+            run(drifted)
             self.assertEqual(adapter.instruction_measurement, "not-measured")
             profile_text = (home / "specflow.config.toml").read_text()
             self.assertIn(f'"{workspace}" = "write"', profile_text)
@@ -3077,9 +3084,13 @@ class KiroAdapterTest(unittest.TestCase):
             self.context(str(self.workspace / "AGENTS.md")), steering=False
         )
         self.accept(events)
-        # The context list is a proposed inventory: reported, not yet trusted.
-        self.assertFalse(run_kiro.CONTEXT_INVENTORY_APPROVED)
+        # The context list counts only under a proof whose probe verified it.
         self.assertEqual(self.adapter.instruction_measurement, "not-measured")
+        self.adapter.boundary = {"contextInventoryVerified": True}
+        self.adapter.new_conversation()
+        self.accept(events)
+        self.assertEqual(self.adapter.instruction_measurement, "measured")
+        self.adapter.boundary = None
         self.assertEqual(
             list(self.adapter.instruction_observations),
             [str(self.workspace / "AGENTS.md")],
