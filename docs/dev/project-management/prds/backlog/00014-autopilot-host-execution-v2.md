@@ -113,7 +113,7 @@ Plugin 00012/00013 and controller-kernel recovery 00018-v2 completed. The kernel
 
 **Tasks**:
 - [ ] Characterize source hook decisions and runner argv/effort; define local versus controller-bound guard applicability. (depends on: declared prerequisites) — Acceptance: hook_behavior_equivalence and effort_forwarding preserve source invariants while exposing the known effort mismatch as a corrected target case.
-- [ ] Map all v1 cycle-2 findings to concrete repair tests or evidence-backed rejection. (depends on: declared prerequisites) — Acceptance: every retained finding has a disposition and owner; host support, registration, identity, isolation and real probing cannot be closed by a capability constant or test-local resolver.
+- [ ] Map all v1 cycle-2 findings to concrete repair tests or evidence-backed rejection. (depends on: declared prerequisites) — Acceptance: every retained finding has a disposition and owner; host support, registration, identity, isolation and real probing cannot be closed by a capability constant or test-local resolver. Input: the 27 triage stubs 00038-00064 minted from v1, removed from `prds/hold/` on 2026-11-15 (`docs/dev/project-management/reviews/2026-11-15-hold-triage.md`; text at `git show e6f9f31:docs/dev/project-management/prds/hold/<file>`).
 
 **Exit Criteria**: The named task tests pass. Recheck changed-content premises; if false, skip/report affected edits without forcing them.
 
