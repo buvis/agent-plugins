@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import importlib
 import json
 import shutil
 import subprocess
@@ -25,6 +26,9 @@ HELPER_OPERATIONS = [
     "catchup-probe-v1", "verification-artifact-v1", "controller-required-v1",
     "hosts-v1", "guards-v1", "diagnose-v1",
 ]
+if str(PACKAGE / "scripts") not in sys.path:
+    sys.path.insert(0, str(PACKAGE / "scripts"))
+guards = importlib.import_module("guards")
 
 
 PROBES = Path("docs") / "dev" / "tmp" / "autopilot" / "probes"
@@ -87,6 +91,25 @@ ROLES_B = {
     "codex-gemini": [("alice", "codex", []), ("blake", "codex", []), ("bob", "codex", []),
                      ("eve", "gemini", []), ("implementor:openai", "codex", [])],
 }
+# Run C: newest gemini exited 0 once and passed its resource check, so Carl is back.
+GEMINI_RAN = probe_evidence(("identity", "isolation"), exit_codes=(1, 0))
+EVIDENCE_C = {
+    "codex-20261103T080000Z.json": probe_evidence(CAPS),
+    "gemini-20261101T080000Z.json": probe_evidence((), exit_codes=(1,)),
+    "gemini-20261105T080000Z.json": GEMINI_RAN,
+}
+ROLES_C = {
+    "source-parity": [("alice", "claude", CLAUDE_IN), ("blake", "claude", CLAUDE_IN),
+                      ("bob", "codex", []), ("carl", "gemini", []),
+                      ("eve", "claude", CLAUDE_IN), ("implementor:anthropic", "claude", CLAUDE_IMPL),
+                      ("implementor:openai", "codex", [])],
+    "codex-gemini": [("alice", "codex", []), ("blake", "codex", []), ("bob", "codex", []),
+                     ("carl", "gemini", []), ("eve", "gemini", []),
+                     ("implementor:openai", "codex", [])],
+}
+_SENTINEL = "facade-auth-sentinel-2c7e"
+# Run D: no codex evidence at all.
+EVIDENCE_D = {"gemini-20261105T080000Z.json": GEMINI_RAN}
 
 
 def canonical(value: object) -> bytes:
@@ -129,9 +152,9 @@ class LocalFacadeTest(unittest.TestCase):
         self.original = (PACKAGE / POLICY).read_bytes()
 
     def run_cli(self, script: Path, *arguments: str, cwd: Path | None = None,
-                home: Path | None = None) -> subprocess.CompletedProcess:
+                home: Path | None = None, extra_env: dict | None = None) -> subprocess.CompletedProcess:
         self.assertTrue(script.is_file(), f"Public CLI executable is missing: {script}")
-        env = dict(self.env)
+        env = dict(self.env) | (extra_env or {})
         if home is not None:
             for key in ("HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME"):
                 env[key] = str(home)
@@ -354,12 +377,21 @@ class LocalFacadeTest(unittest.TestCase):
         self.assertEqual(list(self.home.iterdir()), [])
         self.assertEqual(set(self.cwd.iterdir()), {output})
 
-    def diagnose(self, name: str, evidence: dict[str, dict]) -> dict:
+    def diagnose(self, name: str, evidence: dict[str, dict], on_path: str | None = None) -> dict:
+        """`on_path` names a host whose fake binary sits on PATH, its auth var set."""
         project = self.base / name
         (project / PROBES / "codex-20261109T080000Z").mkdir(parents=True)  # a run dir, not evidence
         for filename, record in evidence.items():
             (project / PROBES / filename).write_text(json.dumps(record), encoding="utf-8")
-        result = self.run_cli(self.facade, "--diagnose", "--project-root", str(project))
+        extra_env = None
+        if on_path is not None:
+            bin_dir = self.base / f"{name} bin"
+            bin_dir.mkdir()
+            (bin_dir / on_path).write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+            (bin_dir / on_path).chmod(0o755)
+            extra_env = {"PATH": str(bin_dir)} | dict.fromkeys(("CODEX_API_KEY",), _SENTINEL)
+        result = self.run_cli(self.facade, "--diagnose", "--project-root", str(project),
+                              extra_env=extra_env)
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
         return json.loads(result.stdout)
 
@@ -379,32 +411,58 @@ class LocalFacadeTest(unittest.TestCase):
         if certifiable_gemini:
             self.assertEqual(profiles["codex-gemini"]["status"], "resolvable")
 
+    def assert_simulation(self, simulation: dict) -> None:
+        self.assertEqual(set(simulation), {"simulated", "guards"})
+        self.assertIs(simulation["simulated"], True)
+        duties = [guard["duty"] for guard in simulation["guards"]]
+        self.assertEqual(sorted(duties), sorted(ALL_DUTIES))
+        for guard in simulation["guards"]:
+            self.assertEqual((guard["allowed"], guard["reason"]), (True, None), guard)
+            self.assertIs(guard["stateful"], guard["duty"] in STATEFUL_DUTIES, guard)
+            # The real guard refuses an empty context with no seam, so the allow
+            # above needs doctor's own valid context and simulation seam.
+            bare = guards.run_guard(guard["duty"], {}, seam=None)
+            self.assertEqual((bare.allowed, bare.stateful), (False, guard["stateful"]), guard)
+            if bare.stateful:
+                self.assertEqual(bare.reason, "missing_controller_seam")
+
+    def assert_codex_free_project(self) -> None:
+        """Without codex evidence the policy's openai implementor stays, unobserved."""
+        with self.subTest(project="project d"):
+            report = self.diagnose("project d", EVIDENCE_D)
+            self.assertEqual(report["observed"]["codex"], {"status": "not_probed"})
+            profile = next(p for p in report["profiles"] if p["profile_id"] == "codex-gemini")
+            rows = {row["role"]: row for row in profile["roles"]}
+            self.assertEqual(rows["implementor:openai"]["host_id"], "codex")
+            self.assertIn("codex:interception", rows["implementor:openai"]["unobserved"])
+            self.assertEqual((rows["carl"]["host_id"], rows["carl"]["unobserved"]), ("gemini", []))
+            self.assertIs(profile["certifiable"], False)
+
     def test_diagnose_reports_simulation_apart_from_observation(self) -> None:
-        for name, evidence, roles, certifiable in (("project a", EVIDENCE_A, ROLES_A, False),
-                                                   ("project b", EVIDENCE_B, ROLES_B, True)):
+        for name, evidence, roles, certifiable, on_path in (
+            ("project a", EVIDENCE_A, ROLES_A, False, None),
+            ("project b", EVIDENCE_B, ROLES_B, True, None),
+            ("project c", EVIDENCE_C, ROLES_C, True, "codex"),
+        ):
             with self.subTest(project=name):
-                report = self.diagnose(name, evidence)
+                report = self.diagnose(name, evidence, on_path)
                 self.assertEqual(set(report), {"schema_version", "hosts", "observed", "profiles",
                                                "simulation", "certified", "generated_at"})
                 self.assertEqual((report["schema_version"], report["certified"]), (2, False))
                 self.assertEqual(sorted(host["host_id"] for host in report["hosts"]),
                                  ["claude", "codex", "gemini"])
                 for host in report["hosts"]:
+                    found = host["host_id"] == on_path
                     self.assertEqual((host["probe_kind"], host["certified"], host["available"],
-                                      host["unavailable_reason"]), ("static", False, False, "no_binary"))
+                                      host["unavailable_reason"]),
+                                     ("static", False, found, None if found else "no_binary"), host)
                 self.assertEqual(set(report["observed"]), {"claude", "codex", "gemini"})
                 self.assertEqual(report["observed"]["claude"], {"status": "not_probed"})
                 for host_id in ("codex", "gemini"):
                     self.assertNotEqual(report["observed"][host_id], {"status": "not_probed"})
-                simulation = report["simulation"]
-                self.assertEqual(set(simulation), {"simulated", "guards"})
-                self.assertIs(simulation["simulated"], True)
-                duties = [guard["duty"] for guard in simulation["guards"]]
-                self.assertEqual(sorted(duties), sorted(ALL_DUTIES))
-                for guard in simulation["guards"]:
-                    self.assertEqual((guard["allowed"], guard["reason"]), (True, None), guard)
-                    self.assertIs(guard["stateful"], guard["duty"] in STATEFUL_DUTIES, guard)
+                self.assert_simulation(report["simulation"])
                 self.assert_profiles(report, roles, certifiable)
+        self.assert_codex_free_project()
         self.assert_failure(self.run_cli(self.facade, "--diagnose"))
 
     def test_output_filesystem_failure_is_reported_without_policy_mutation(self) -> None:

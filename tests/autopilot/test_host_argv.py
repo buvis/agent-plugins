@@ -11,6 +11,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 import types
 import unittest
 import uuid
@@ -19,7 +20,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest import mock
 
-from probe_host_support import FAKE_STDOUT_MARK, install_fake_hosts
+from probe_host_support import FAKE_STDOUT_MARK, install_fake_hosts, pre_tool_use_commands
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = ROOT / "plugins" / "autopilot" / "scripts"
@@ -540,8 +541,8 @@ class ProbeHostEvidenceRecordTest(unittest.TestCase):
             self.assertEqual(record["static"]["probe_kind"], "static")
             self.assertIs(record["certified"], False)
             self.assertEqual(record["invocations"], [])
-            if record["binary_path"] is not None:
-                self.assertEqual(Path(record["binary_path"]).name, "claude")
+            self.assertEqual((record["static"]["available"], record["static"]["authenticated"]), (True, True))
+            self.assertEqual(record["binary_path"], str(fake))
 
     def test_undispatchable_host_id_exits_nonzero_and_writes_no_evidence(self) -> None:
         """An unknown or traversal-shaped host_id fails loudly and leaves no
@@ -641,7 +642,7 @@ class LiveProbeCase(unittest.TestCase):
         self.bin_dir.mkdir()
         install_fake_hosts(self.bin_dir)
 
-    def probe(self, host_id: str, mode: str = "honest", *, bound_source: bool = False) -> dict:
+    def probe(self, host_id: str, mode: str = "honest", *, bound_source: bool = False, timeout: str = "60") -> dict:
         project_root = self.root / f"source-{host_id}-{mode}-{int(bound_source)}"
         project_root.mkdir()
         if bound_source:
@@ -652,7 +653,8 @@ class LiveProbeCase(unittest.TestCase):
             PATH=f"{self.bin_dir}{os.pathsep}{os.environ['PATH']}", FAKE_HOST_LOG=str(log),
             FAKE_HOST_MODE=mode, FAKE_FOREIGN_ROOT=str(SOURCE_PLUGIN),
         )
-        completed = _run_probe(host_id, project_root, "--timeout", "60", cwd=self.root, env=env)
+        started = time.monotonic()
+        completed = _run_probe(host_id, project_root, "--timeout", timeout, cwd=self.root, env=env)
         self.assertEqual(completed.returncode, 0, completed.stderr)
         probes = project_root / PROBES_REL
         files = [path for path in probes.iterdir() if path.is_file()]
@@ -662,7 +664,7 @@ class LiveProbeCase(unittest.TestCase):
         text = files[0].read_text(encoding="utf-8")
         calls = _trace(log) if log.exists() else []
         return {"record": json.loads(text), "text": text, "run_dir": dirs[0], "calls": calls,
-                "root": project_root}
+                "root": project_root, "elapsed": time.monotonic() - started}
 
     def assert_invocations(self, host_id: str, run: dict) -> None:
         run_dir = run["run_dir"].resolve()
@@ -709,9 +711,24 @@ class LiveProbeCase(unittest.TestCase):
             self.assertEqual(line["host_id"], host_id)
         self.assertNotEqual(os.path.realpath(run_dir / "plugin"), str(SOURCE_PLUGIN))
         self.assertEqual(len({line["session_id"] for line in bound}), 2)
+        sessions = [call["session"] for call in run["calls"]]  # minted by the host, not the probe
+        self.assertEqual({line["session_id"] for line in bound}, set(sessions[:2]))
+        self.assertEqual({line["session_id"] for line in control}, {sessions[2]})
         refusal = {"duty": "custody_push", "allowed": False, "reason": "missing_controller_seam"}
         self.assertIn(refusal, [outcome for line in bound for outcome in line["outcomes"]])
         self.assertNotIn(refusal, [outcome for line in control for outcome in line["outcomes"]])
+
+    def assert_registration(self, host_id: str, run: dict) -> None:
+        """The hook the host loads is the package's own `autopilot.py --hook <host>`."""
+        run_dir = run["run_dir"].resolve()
+        source = (SOURCE_PLUGIN / "compatibility" / host_id / "hooks.json").read_text(encoding="utf-8")
+        registered = run_dir / "plugin" / "compatibility" / "claude" / "hooks.json"
+        if host_id == "codex":
+            registered = run_dir / "project" / ".codex" / "hooks.json"
+            source = source.replace("${CLAUDE_PLUGIN_ROOT}", str(run_dir / "plugin"))
+        self.assertEqual(registered.read_text(encoding="utf-8"), source)
+        commands = pre_tool_use_commands(json.loads(source))
+        self.assertTrue(any(re.search(rf"autopilot\.py\b.*--hook[ =]{host_id}\b", c) for c in commands), commands)
 
 
 class ProbeHostLiveRunTest(LiveProbeCase):
@@ -732,6 +749,7 @@ class ProbeHostLiveRunTest(LiveProbeCase):
                 self.assert_invocations(host_id, run)
                 self.assert_launches(host_id, run)
                 self.assert_trace(host_id, run)
+                self.assert_registration(host_id, run)
                 self.assertEqual(_refs(run_dir / "remote.git") & PROBE_REFS, {"refs/heads/probe-control"})
                 for leaked in (_SENTINEL, _DECOY_SENTINEL, FAKE_STDOUT_MARK):
                     self.assertNotIn(leaked, run["text"])

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import unittest
 
+from probe_host_support import FAKE_HANG_SECONDS
 from test_host_argv import OBSERVED, LiveProbeCase
 
 CAPABILITIES = ("identity", "isolation", "interception", "resources")
@@ -17,6 +18,8 @@ class ProbeHostFailedRunTest(LiveProbeCase):
             ("ignore_deny", {"interception": {"status": "not_observed", "reason": "host_did_not_enforce"}}),
             ("no_push", {"interception": {"status": "not_observed", "reason": "control_did_not_execute"}}),
             ("escape", dict.fromkeys(CAPABILITIES, escape)),
+            # One more control line, all naming the copy: plugin_root decides an escape, not a line count.
+            ("extra_line", dict.fromkeys(CAPABILITIES, OBSERVED)),
         )
         for mode, expected in cases:
             with self.subTest(mode=mode):
@@ -35,6 +38,36 @@ class ProbeHostFailedRunTest(LiveProbeCase):
             for capability in CAPABILITIES:
                 self.assertEqual(record["observed"][capability]["status"], "not_observed", capability)
                 self.assertTrue(record["observed"][capability]["reason"], capability)
+
+    def test_relocated_host_probe_derives_isolation_and_interception_from_the_trace(self) -> None:
+        """One session id across both bound runs is no isolation; a push that never
+        reached the remote without a traced `missing_controller_seam` refusal is no
+        interception, whatever the remote refs say."""
+        with self.subTest(mode="same_session"):
+            record = self.probe("claude", "same_session")["record"]
+            self.assertEqual(record["observed"]["isolation"]["status"], "not_observed")
+            for capability in ("identity", "interception", "resources"):
+                self.assertEqual(record["observed"][capability], OBSERVED, capability)
+            self.assertEqual((record["resource_check"], record["certified"]), ("passed", False))
+        with self.subTest(mode="silent_refusal"):
+            record = self.probe("claude", "silent_refusal")["record"]
+            self.assertEqual(record["observed"]["interception"]["status"], "not_observed")
+            for capability in ("identity", "isolation"):
+                self.assertEqual(record["observed"][capability], OBSERVED, capability)
+            self.assertEqual((record["resource_check"], record["certified"]), ("passed", False))
+
+    def test_relocated_host_probe_kills_a_host_that_outlives_the_timeout(self) -> None:
+        """--timeout bounds every launch: a hung host is cut off, marked timed out,
+        and observes nothing."""
+        run = self.probe("claude", "hang", timeout="2")
+        self.assertLess(run["elapsed"], FAKE_HANG_SECONDS - 10, "probe waited for the hung host")
+        record = run["record"]
+        self.assertTrue(record["invocations"])
+        self.assertEqual({invocation["timed_out"] for invocation in record["invocations"]}, {True})
+        for capability in CAPABILITIES:
+            self.assertEqual(record["observed"][capability]["status"], "not_observed", capability)
+            self.assertTrue(record["observed"][capability]["reason"], capability)
+        self.assertIs(record["certified"], False)
 
 
 if __name__ == "__main__":
