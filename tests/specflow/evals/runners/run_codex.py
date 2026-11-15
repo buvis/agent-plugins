@@ -738,6 +738,8 @@ class Codex:
                 **{str(path): "<codex-runtime>" for path in self.runtime},
                 str(workspace): "<workspace>",
                 str(self.plugin): "<plugin>",
+                # The private home has a random name in every batch.
+                **({str(self.home): "<codex-home>"} if self.home else {}),
                 str(self.root): "<batch>",
                 str(Path.home().resolve()): "<home>",
                 str(Path(sys.base_prefix).resolve()): "<python-runtime>",
@@ -834,6 +836,14 @@ class Codex:
         self.instruction_measurement = (
             "measured" if complete and channels == proven else "not-measured"
         )
+        if isinstance(proven, dict) and channels != proven and self.usage:
+            # Field names only, kept with the turn's reported usage in the
+            # record's notes, so an unmeasured run says which field differed.
+            self.usage[-1]["instructionFieldsDiffering"] = sorted(
+                name
+                for name in {*channels, *proven}
+                if channels.get(name) != proven.get(name)
+            )
         # Calls come from the session record: the exec stream does not show
         # every shell call. A patch is a write; any other call is unnameable.
         calls = rollout_calls(self.home, self.conversation)
