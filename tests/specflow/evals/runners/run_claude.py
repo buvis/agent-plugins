@@ -506,14 +506,42 @@ def named_reads(events: list[dict], workspace: Path) -> tuple[list[str], bool]:
             else:
                 known = False
         elif name == "Bash":
-            text = data.get("command", "")
-            if OPAQUE_READ.search(text):
-                known = False
-            for word in re.split(r"[\s'\"=<>|;&()]+", text):
-                path = workspace / word
-                if word and path.is_file() and path.is_relative_to(workspace):
-                    reads.append(str(path))
+            named, clear = shell_reads(data.get("command", ""), workspace)
+            reads += named
+            known = known and clear
     return reads, known
+
+
+def shell_reads(text: str, workspace: Path) -> tuple[list[str], bool]:
+    """Workspace files a shell command names; False for globs and searches."""
+    reads = []
+    for word in re.split(r"[\s'\"=<>|;&()]+", text):
+        path = workspace / word
+        if word and path.is_file() and path.is_relative_to(workspace):
+            reads.append(str(path))
+    return reads, not OPAQUE_READ.search(text)
+
+
+def accept_boundary(adapter: Claude, revision: str) -> None:
+    """Keep a host blocked until a passing proof matches it exactly."""
+    proof = getattr(adapter, "boundary", None) or {}
+    checks = proof.get("checks", {})
+    if (
+        proof.get("scope") != "installed-host-boundary"
+        or proof.get("host") != adapter.host
+        or proof.get("hostVersion") != adapter.version
+        or proof.get("configurationSha256") != adapter.configuration_sha256
+        or proof.get("runtimeRevision") != revision
+        or any(
+            checks.get(name, {}).get("passed") is not True
+            for name in score.RELEASE_BOUNDARY_CHECKS
+        )
+    ):
+        raise HostError(
+            f"{adapter.host} launch blocked: no passing boundary proof for this "
+            "host version, package, and configuration (run --probe-boundary)"
+        )
+    adapter.boundary_sha256 = score.evidence_digest(proof)
 
 
 class Claude:
@@ -573,24 +601,7 @@ class Claude:
 
     def preflight(self) -> None:
         self.identify()
-        proof = self.boundary or {}
-        checks = proof.get("checks", {})
-        if (
-            proof.get("scope") != "installed-host-boundary"
-            or proof.get("host") != self.host
-            or proof.get("hostVersion") != self.version
-            or proof.get("configurationSha256") != self.configuration_sha256
-            or proof.get("runtimeRevision") != package_revision(self.plugin)
-            or any(
-                checks.get(name, {}).get("passed") is not True
-                for name in score.RELEASE_BOUNDARY_CHECKS
-            )
-        ):
-            raise HostError(
-                "Claude launch blocked: no passing boundary proof for this host "
-                "version, package, and configuration (run --probe-boundary)"
-            )
-        self.boundary_sha256 = score.evidence_digest(proof)
+        accept_boundary(self, package_revision(self.plugin))
 
     @contextlib.contextmanager
     def batch(self, workspace: Path) -> Iterator[None]:
@@ -991,6 +1002,7 @@ out = {
     "shell-plugin-write-denied": denied(p["manifest"], "a"),
     "shell-symlink-write-denied": denied(p["write_link"], "a"),
     "tool-secret-environment-denied": not os.environ.get(p["variable"]),
+    "plugin-read": os.access(p["manifest"], os.R_OK) and bool(open(p["manifest"]).read()),
 }
 helper = subprocess.run(
     [sys.executable, "-B", p["helper"], "status", "--json"],
@@ -1016,6 +1028,63 @@ NATIVE_PROBES = {
 PROBE_COMMAND = "python3 -I -B probe.py"
 
 
+def prepare_probe(
+    batch: Path, plugin: Path, variable: str, instructions: dict[str, str]
+) -> tuple[Path, dict[str, str], dict[str, str], str]:
+    """Build the probe workspace: sentinels, symlinks, and the shell script."""
+    workspace = batch / "workspaces/probe"
+    other, home = batch / "workspaces/other", batch / "home"
+    for folder in (workspace, other, home):
+        folder.mkdir(mode=0o700, exist_ok=True)
+    secret = os.urandom(16).hex()
+    payload = {
+        "control": str(batch / "control/sentinel.txt"),
+        "home": str(home / "sentinel.txt"),
+        "other": str(other / "sentinel.txt"),
+        "read_link": str(workspace / "control-link"),
+        "write_link": str(workspace / "plugin-link"),
+        "manifest": str(plugin / "plugin.json"),
+        "plugin_new": str(plugin / "probe-write.txt"),
+        "helper": str(plugin / "skills/spec-workflow/scripts/validate_spec.py"),
+        "variable": variable,
+        "report": os.urandom(8).hex(),
+    }
+    for key in ("control", "home", "other"):
+        Path(payload[key]).write_text(f"Synthetic sentinel {secret}\n")
+    Path(payload["read_link"]).symlink_to(payload["control"])
+    Path(payload["write_link"]).symlink_to(payload["manifest"])
+    fixture = {
+        **instructions,
+        "probe.py": SHELL_PROBE,
+        "probe.json": json.dumps(payload),
+    }
+    write_files(workspace, fixture)
+    initialize_workspace(workspace)
+    return workspace, payload, fixture, secret
+
+
+def shell_probe_checks(
+    output: str, report: str, extra: tuple[str, ...] = ()
+) -> dict[str, dict]:
+    """Checks decided by the supervisor script's own errno report."""
+    shell = {}
+    for line in output.splitlines():
+        try:
+            shell = json.loads(line)[report]
+        except (ValueError, KeyError, TypeError):
+            continue
+    return {
+        name: {
+            "passed": shell.get(name) is True,
+            "evidence": "errno result of the supervisor script run by the "
+            f"sandboxed shell tool: {shell.get(name)}",
+        }
+        for name in sorted(score.RELEASE_BOUNDARY_CHECKS)
+        if name.startswith("shell-")
+        or name in ("helper-status", "tool-secret-environment-denied", *extra)
+    }
+
+
 @score.deadline(TURN_TIMEOUT)
 def boundary_probe(model: str, *, scratch: Path = EXTERNAL_SCRATCH) -> dict:
     """Live installed-host proof with synthetic sentinels; never a credential.
@@ -1029,37 +1098,15 @@ def boundary_probe(model: str, *, scratch: Path = EXTERNAL_SCRATCH) -> dict:
     with external_batch(revision, scratch=scratch) as batch:
         adapter.plugin = batch / "resources/specflow"
         adapter.identify()
-        workspace = batch / "workspaces/probe"
-        other, home = batch / "workspaces/other", batch / "home"
-        for folder in (workspace, other, home):
-            folder.mkdir(mode=0o700)
-        secret, report = os.urandom(16).hex(), os.urandom(8).hex()
-        payload = {
-            "control": str(batch / "control/sentinel.txt"),
-            "home": str(home / "sentinel.txt"),
-            "other": str(other / "sentinel.txt"),
-            "read_link": str(workspace / "control-link"),
-            "write_link": str(workspace / "plugin-link"),
-            "manifest": str(adapter.plugin / "plugin.json"),
-            "plugin_new": str(adapter.plugin / "probe-write.txt"),
-            "helper": str(
-                adapter.plugin / "skills/spec-workflow/scripts/validate_spec.py"
-            ),
-            "variable": AUTH_VARIABLE,
-            "report": report,
-        }
-        for key in ("control", "home", "other"):
-            Path(payload[key]).write_text(f"Synthetic sentinel {secret}\n")
-        Path(payload["read_link"]).symlink_to(payload["control"])
-        Path(payload["write_link"]).symlink_to(payload["manifest"])
-        fixture = {
-            "CLAUDE.md": "Synthetic fixture instruction.\n\n@imported.md\n",
-            "imported.md": "Synthetic imported instruction.\n",
-            "probe.py": SHELL_PROBE,
-            "probe.json": json.dumps(payload),
-        }
-        write_files(workspace, fixture)
-        initialize_workspace(workspace)
+        workspace, payload, fixture, secret = prepare_probe(
+            batch,
+            adapter.plugin,
+            AUTH_VARIABLE,
+            {
+                "CLAUDE.md": "Synthetic fixture instruction.\n\n@imported.md\n",
+                "imported.md": "Synthetic imported instruction.\n",
+            },
+        )
         steps = [
             f"{tool} tool on {payload[key]}"
             + (" with content: probe" if tool == "Write" else "")
@@ -1108,23 +1155,11 @@ def boundary_probe(model: str, *, scratch: Path = EXTERNAL_SCRATCH) -> dict:
                 f"{tool} on <{key}>: host result error={failed}; sentinel in "
                 f"stream={secret in raw}",
             )
-        shell = {}
-        for line in outputs.get(calls.get(("Bash", PROBE_COMMAND)), "").splitlines():
-            try:
-                shell = json.loads(line)[report]
-            except (ValueError, KeyError, TypeError):
-                continue
-        for name in sorted(score.RELEASE_BOUNDARY_CHECKS):
-            if name.startswith("shell-") or name in (
-                "helper-status",
-                "tool-secret-environment-denied",
-            ):
-                check(
-                    name,
-                    shell.get(name) is True,
-                    "errno result of the supervisor script run by the sandboxed "
-                    f"shell tool: {shell.get(name)}",
-                )
+        checks.update(
+            shell_probe_checks(
+                outputs.get(calls.get(("Bash", PROBE_COMMAND)), ""), payload["report"]
+            )
+        )
         observations, hooked = read_instruction_log(
             batch / "control/instructions.jsonl"
         )

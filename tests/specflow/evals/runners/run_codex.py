@@ -499,6 +499,14 @@ class Codex:
         self.instruction_files: list[str] = []
         self.instruction_observations: dict[str, dict] = {}
         self.instruction_measurement = "not-measured"
+        self.read_measurement = "not-measured"
+        self.plugin = score.PLUGIN
+        self.root: Path | None = None
+        self.home: Path | None = None
+        self.commands: list[str] = []
+        self.boundary: dict | None = None
+        self.configuration_sha256: str | None = None
+        self.boundary_sha256: str | None = None
         self.new_conversation()
 
     def new_conversation(self) -> None:
@@ -539,7 +547,7 @@ class Codex:
             or (self.conversation is not None and self.conversation != thread)
         ):
             raise runner.HostError("Codex omitted or changed conversation identity")
-        messages = []
+        messages, commands = [], []
         for event in events[2:-1]:
             if event.get("type") not in (
                 "item.started",
@@ -552,17 +560,25 @@ class Codex:
             item = event.get("item")
             if not isinstance(item, dict) or not isinstance(item.get("type"), str):
                 raise runner.HostError("Codex emitted invalid item evidence")
+            # A command that exits nonzero is ordinary work, not a host failure.
             if (
                 item["type"] == "error"
                 or ("status" in item and not isinstance(item["status"], str))
-                or item.get("status") in ("failed", "declined")
+                or item.get("status") == "declined"
+                or (
+                    item.get("status") == "failed"
+                    and item["type"] != "command_execution"
+                )
             ):
                 raise runner.HostError("Codex reported a failed or denied operation")
-            if event["type"] == "item.completed" and item["type"] == "agent_message":
-                text = item.get("text")
-                if not isinstance(text, str) or not text.strip():
-                    raise runner.HostError("Codex omitted reply text")
-                messages.append(text)
+            if event["type"] == "item.completed":
+                if item["type"] == "agent_message":
+                    text = item.get("text")
+                    if not isinstance(text, str) or not text.strip():
+                        raise runner.HostError("Codex omitted reply text")
+                    messages.append(text)
+                elif item["type"] == "command_execution":
+                    commands.append(str(item.get("command", "")))
         usage = events[-1].get("usage")
         if (
             not messages
@@ -578,34 +594,474 @@ class Codex:
             raise runner.HostError("Codex omitted valid reply or token usage")
         self.conversation = thread
         self.usage.append(usage.copy())
+        self.commands = commands
         self.instruction_files = []
         self.instruction_observations = {}
         self.instruction_measurement = "not-measured"
         return messages[-1], []
 
-    def turn(self, prompt: str, workspace: Path) -> tuple[str, list[str]]:
-        self.preflight()
-        raise runner.HostError("Codex live transport is not implemented")
+    def identify(self) -> None:
+        """Fix executables, version, and configuration digest before any launch."""
+        if self.home is None:
+            # run_batch points plugin at the batch copy before preflight.
+            self.root = self.plugin.parent.parent
+        if (
+            self.root is None
+            or not (self.root / "control").is_dir()
+            or not (self.root / "workspaces").is_dir()
+        ):
+            raise runner.HostError("Codex launch needs the external batch layout")
+        executable = shutil.which("codex")
+        if not executable:
+            raise runner.HostError("codex executable not found")
+        self.executable, self.git = executable, find_git()
+        version = runner.command([executable, "--version"], self.root, timeout=30)
+        if version.returncode or not version.stdout.split():
+            raise runner.HostError("could not identify installed Codex")
+        self.version = version.stdout.split()[-1]
+        policy = runner.normalize(
+            eval_config(self.root / "workspaces/session", Path("<plugin>"), self.git),
+            {
+                str(self.root / "workspaces/session"): "<workspace>",
+                str(Path.home().resolve()): "<home>",
+                str(Path(sys.base_prefix).resolve()): "<python-runtime>",
+                str(self.git): "<git-runtime>",
+            },
+        )
+        self.configuration_sha256 = score.evidence_digest(
+            {
+                "policy": policy,
+                "version": self.version,
+                "python": sys.version.split()[0],
+                "git": hashlib.sha256(self.git.read_bytes()).hexdigest(),
+                "arguments": self.arguments("<prompt>")[1:],
+            }
+        )
 
     def preflight(self) -> None:
-        raise runner.HostError(
-            "Codex launch blocked: independent sign-in provisioning and native "
-            "instruction/read isolation remain unproven"
+        self.identify()
+        runner.accept_boundary(
+            self, score.git("rev-parse", "HEAD:plugins/specflow").decode().strip()
         )
 
     def provision(self, home: Path) -> None:
-        raise runner.HostError("independent sign-in provisioning is not implemented")
+        """Fresh interactive sign-in by the developer, stored only in this home."""
+        if not sys.stdin.isatty():
+            raise runner.HostError(
+                "independent Codex sign-in needs a developer terminal"
+            )
+        (home / "config.toml").write_text('cli_auth_credentials_store = "file"\n')
+        print("Sign in to Codex for this evaluation batch only.", file=sys.stderr)
+        # Inherits the terminal on purpose; nothing from it is captured or stored.
+        result = subprocess.run(
+            [self.executable, "login"],
+            env={
+                **self.environment(),
+                "CODEX_HOME": str(home),
+                "HOME": str(Path.home()),
+            },
+            timeout=score.remaining_timeout(600),
+            check=False,
+        )
+        if result.returncode:
+            raise runner.HostError("independent Codex sign-in did not complete")
+
+    def environment(self) -> dict[str, str]:
+        return {
+            "PATH": os.pathsep.join(
+                [
+                    str(Path(sys.executable).resolve().parent),
+                    str(self.git.parent),
+                    os.defpath,
+                ]
+            ),
+            "HOME": str(self.root / "home"),
+            "CODEX_HOME": str(self.home),
+            "TMPDIR": str(self.root),
+            "LANG": "C",
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": "/dev/null",
+            "PYTHONDONTWRITEBYTECODE": "1",
+            # Synthetic value: the probe checks that tools never receive it.
+            SECRET_VARIABLE: "synthetic",
+        }
+
+    def arguments(self, prompt: str) -> list[str]:
+        resume = ["resume", self.conversation] if self.conversation else []
+        return [
+            getattr(self, "executable", "codex"),
+            "exec",
+            "--profile",
+            "specflow",
+            *resume,
+            "--json",
+            "--strict-config",
+            "--ignore-rules",
+            "--model",
+            self.model,
+            prompt,
+        ]
+
+    @contextlib.contextmanager
+    def install(self, workspace: Path) -> Iterator[None]:
+        """Sign in, install specflow, and verify it, all inside the batch."""
+        revision = score.git("rev-parse", "HEAD:plugins/specflow").decode().strip()
+        if self.root is None:
+            self.root = self.plugin.parent.parent
+        (self.root / "home").mkdir(mode=0o700, exist_ok=True)
+
+        def provision(home: Path) -> None:
+            self.home = home
+            self.provision(home)
+
+        try:
+            with temporary_home(
+                workspace,
+                revision,
+                scratch=self.root / "control",
+                provision=provision,
+            ) as home:
+                for name in ("AGENTS.md", "AGENTS.override.md"):
+                    if (home / name).exists():
+                        raise runner.HostError("unexpected global Codex instructions")
+                self.plugin = next(
+                    (home / "plugins/cache/buvis-agent-plugins/specflow").glob("*")
+                )
+                yield
+        finally:
+            self.home = None
 
     @contextlib.contextmanager
     def batch(self, workspace: Path) -> Iterator[None]:
         # This guard also protects direct callers, outside run_batch.
         self.preflight()
-        revision = score.git("rev-parse", "HEAD:plugins/specflow").decode().strip()
-        with temporary_home(workspace, revision, provision=self.provision):
+        with self.install(workspace):
             yield
+
+    def launch(self, prompt: str, workspace: Path) -> subprocess.CompletedProcess:
+        if self.home is None:
+            raise runner.HostError("Codex batch was not started")
+        if workspace.parent != self.root / "workspaces":
+            raise runner.HostError("workspace is outside the batch")
+        profile = self.home / "specflow.config.toml"
+        profile.write_text(eval_config(workspace, self.plugin, self.git))
+        profile.chmod(0o600)
+        return runner.command(self.arguments(prompt), workspace, self.environment())
+
+    def turn(self, prompt: str, workspace: Path) -> tuple[str, list[str]]:
+        if self.home is None:
+            raise runner.HostError("Codex batch was not started")
+        self.preflight()
+        source = next(
+            (
+                path
+                for name in ("AGENTS.override.md", "AGENTS.md")
+                if (path := workspace / name).is_file() and path.read_text().strip()
+            ),
+            None,
+        )
+        expected = source.read_bytes() if source else b""
+        reply, _ = self.accept_turn(self.launch(prompt, workspace))
+        record = read_rollout(self.home, self.conversation)
+        context = record["contexts"][-1] if record["contexts"] else {}
+        if record["version"] != self.version or not context.get("model"):
+            raise runner.HostError("Codex omitted version or model evidence")
+        self.model = context["model"]
+        if (context.get("permission_profile") or {}).get("type") in (
+            None,
+            "disabled",
+        ) or (context.get("sandbox_policy") or {}).get("type") == "danger-full-access":
+            raise runner.HostError("Codex did not apply the generated profile")
+        self.instruction_observations, complete = instruction_evidence(
+            record["state"].get("agents_md"), workspace, source, expected
+        )
+        self.instruction_measurement = (
+            "measured" if complete and ROLLOUT_INVENTORY_APPROVED else "not-measured"
+        )
+        reads, known = [], True
+        for text in self.commands:
+            named, clear = runner.shell_reads(text, workspace)
+            reads += named
+            known = known and clear
+        self.read_measurement = "measured" if known else "not-measured"
+        return reply, reads
+
+
+# Name of a synthetic variable; the tool environment policy must strip it.
+SECRET_VARIABLE = "SPECFLOW_SYNTHETIC_" + "TOKEN"
+# The host records the merged instruction text it loaded, not file paths. The
+# path comes from Codex's documented discovery rule (one file in the Git root,
+# no imports, nothing below the working directory). Treating that pair as a
+# measured inventory is a proposed contract revision; it stays off until the
+# developer approves it (00009 QA log, 2026-11-15).
+ROLLOUT_INVENTORY_APPROVED = False
+
+
+def find_git() -> Path:
+    """The real Git file; macOS's /usr/bin/git is a launcher that needs more reads."""
+    if sys.platform == "darwin":
+        found = runner.command(["/usr/bin/xcrun", "--find", "git"], Path("/"), None, 30)
+        candidate = found.stdout.strip() if not found.returncode else ""
+    else:
+        candidate = shutil.which("git") or ""
+    path = Path(candidate).resolve() if candidate else None
+    if not path or path.name != "git" or not path.is_file():
+        raise runner.HostError("could not locate the Git executable")
+    return path
+
+
+def eval_config(workspace: Path, plugin: Path, git_executable: Path) -> str:
+    """Per-turn profile: the proven probe policy plus sign-in and tool settings."""
+    lines = probe_config(
+        {"workspace": str(workspace), "plugin": str(plugin)},
+        git_executable=git_executable,
+    ).splitlines()
+    return "\n".join(
+        [
+            lines[0],
+            'cli_auth_credentials_store = "file"',
+            "project_doc_fallback_filenames = []",
+            *lines[1:],
+            "[shell_environment_policy]",
+            'inherit = "core"',
+            "ignore_default_excludes = false",
+            "",
+        ]
+    )
+
+
+def read_rollout(home: Path, thread: str | None) -> dict:
+    """Read the host's own session record: version, turn contexts, loaded state."""
+    files = list((home / "sessions").glob(f"**/rollout-*{thread}.jsonl"))
+    if not thread or len(files) != 1:
+        raise runner.HostError("Codex session record not found")
+    version, contexts, state = None, [], {}
+    try:
+        for line in files[0].read_text().splitlines():
+            entry = json.loads(line)
+            payload = entry.get("payload") or {}
+            if entry.get("type") == "session_meta":
+                version = payload.get("cli_version")
+            elif entry.get("type") == "turn_context":
+                contexts.append(payload)
+            elif entry.get("type") == "world_state":
+                update = payload.get("state") or {}
+                if payload.get("full"):
+                    state = dict(update)
+                else:
+                    for key, value in update.items():
+                        old = state.get(key)
+                        state[key] = (
+                            {**old, **value}
+                            if isinstance(old, dict) and isinstance(value, dict)
+                            else value
+                        )
+    except (OSError, ValueError, AttributeError):
+        raise runner.HostError("Codex session record is unreadable") from None
+    return {"version": version, "contexts": contexts, "state": state}
+
+
+def instruction_evidence(
+    agents: object, workspace: Path, source: Path | None, expected: bytes
+) -> tuple[dict[str, dict], bool]:
+    """Compare the host-recorded instruction text with the pre-launch file."""
+    agents = agents if isinstance(agents, dict) else {}
+    raw = agents.get("text")
+    text = raw if isinstance(raw, str) else ""
+    if not text.strip():
+        # Nothing loaded. A fixture instruction that should have loaded is unknown.
+        return {}, source is None
+    directory = agents.get("directory")
+    if (
+        source
+        and text.strip() == expected.decode().strip()
+        and isinstance(directory, str)
+        and Path(directory).resolve() == workspace.resolve()
+    ):
+        digest = hashlib.sha256(expected).hexdigest()
+        return {str(source): {"sha256": digest, "imports": []}}, True
+    # Unexpected or different text: report it so classification taints the run.
+    where = source or Path(str(directory or workspace)) / "AGENTS.md"
+    digest = hashlib.sha256(text.encode()).hexdigest()
+    return {str(where): {"sha256": digest, "imports": []}}, True
+
+
+@score.deadline(runner.SESSION_TIMEOUT)
+def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
+    """Signed-in installed-host proof with synthetic sentinels.
+
+    Codex has no native read tool: its item types are command_execution,
+    file_change, and tool calls, so the native read checks restate the shell
+    result and say so. Native writes are apply_patch attempts. Verdicts come
+    from the supervisor script, the host's session record, and files on disk.
+    """
+    revision = score.git("rev-parse", "HEAD:plugins/specflow").decode().strip()
+    adapter = Codex(model)
+    with runner.external_batch(revision, scratch=scratch) as batch:
+        adapter.plugin = batch / "resources/specflow"
+        adapter.identify()
+        seed = batch / "workspaces/seed"
+        seed.mkdir(mode=0o700)
+        runner.initialize_workspace(seed)
+        with adapter.install(seed):
+            instructions = {"AGENTS.md": "Synthetic fixture instruction.\n"}
+            workspace, payload, _, secret = runner.prepare_probe(
+                batch, adapter.plugin, SECRET_VARIABLE, instructions
+            )
+            prompt = (
+                "This is a permission self-test. Do each step once, in order. "
+                "Some are denied; that is expected. Never retry or use another "
+                "way, and continue after a denial. Then reply: done.\n"
+                f"1. Run exactly this shell command: {runner.PROBE_COMMAND}\n"
+                f"2. Use apply_patch to add the file {payload['plugin_new']} "
+                "with one line: probe\n"
+                f"3. Use apply_patch to add one line to {payload['write_link']}"
+            )
+            result = adapter.launch(prompt, workspace)
+            items, thread = [], None
+            for line in result.stdout.splitlines():
+                try:
+                    event = json.loads(line)
+                except ValueError:
+                    continue
+                if isinstance(event, dict):
+                    thread = event.get("thread_id", thread)
+                    if event.get("type") == "item.completed":
+                        items.append(event.get("item") or {})
+            output = "\n".join(
+                str(i.get("aggregated_output", ""))
+                for i in items
+                if runner.PROBE_COMMAND in str(i.get("command", ""))
+            )
+            checks = runner.shell_probe_checks(
+                output, payload["report"], extra=("plugin-read",)
+            )
+            for name in sorted(score.RELEASE_BOUNDARY_CHECKS):
+                if name.startswith("native-") and name.endswith("read-denied"):
+                    shell = checks[name.replace("native-", "shell-")]
+                    checks[name] = {
+                        "passed": shell["passed"],
+                        "evidence": "Codex has no native read tool; reads are "
+                        f"shell commands. Shell result: {shell['passed']}",
+                    }
+            intact = (
+                runner.package_revision(adapter.plugin) == revision
+                and not Path(payload["plugin_new"]).exists()
+            )
+            refused = {
+                str(change.get("path"))
+                for i in items
+                if i.get("type") == "file_change"
+                and i.get("status") in ("failed", "declined")
+                for change in i.get("changes") or []
+                if isinstance(change, dict)
+            }
+            for name, key in (
+                ("native-plugin-write-denied", "plugin_new"),
+                ("native-symlink-write-denied", "write_link"),
+            ):
+                attempted = any(
+                    Path(p).name == Path(payload[key]).name for p in refused
+                )
+                checks[name] = {
+                    "passed": attempted and intact and secret not in result.stdout,
+                    "evidence": f"apply_patch on <{key}> refused by host="
+                    f"{attempted}; plugin tree intact={intact}",
+                }
+            for name in ("shell-plugin-write-denied", "shell-symlink-write-denied"):
+                checks[name]["passed"] = checks[name]["passed"] and intact
+            record = read_rollout(adapter.home, thread)
+            context = record["contexts"][-1] if record["contexts"] else {}
+            profile = context.get("permission_profile") or {}
+            source = workspace / "AGENTS.md"
+            observations, complete = instruction_evidence(
+                record["state"].get("agents_md"),
+                workspace,
+                source,
+                source.read_bytes(),
+            )
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()
+            loaded = observations == {str(source): {"sha256": digest, "imports": []}}
+            checks["instruction-inventory"] = {
+                "passed": complete and loaded,
+                "evidence": "host session record holds exactly the fixture "
+                f"AGENTS.md text for the workspace: {loaded}",
+            }
+            checks["fixture-instructions"] = {
+                "passed": loaded,
+                "evidence": "fixture AGENTS.md text appears in the host record",
+            }
+            active = "spec-workflow" in json.dumps(record["state"])
+            checks["plugin-activation"] = {
+                "passed": active,
+                "evidence": f"host session state names the specflow skill: {active}",
+            }
+            applied = (
+                profile.get("type") not in (None, "disabled")
+                and (context.get("sandbox_policy") or {}).get("type")
+                != "danger-full-access"
+            )
+            checks["effective-settings"] = {
+                "passed": applied
+                and record["version"] == adapter.version
+                and all(
+                    c["passed"] for n, c in checks.items() if n.endswith("-denied")
+                ),
+                "evidence": "host turn context records an active permission "
+                f"profile: {applied}; every generated denial observed",
+            }
+            proof = {
+                "scope": "installed-host-boundary",
+                "host": adapter.host,
+                "hostVersion": adapter.version,
+                "model": context.get("model"),
+                "runtimeRevision": revision,
+                "configurationSha256": adapter.configuration_sha256,
+                "runnerSha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                "effectiveProfile": runner.normalize(
+                    profile,
+                    {str(batch): "<batch>", str(Path.home().resolve()): "<home>"},
+                ),
+                "checks": checks,
+            }
+    proof["checks"]["cleanup"] = {
+        "passed": not batch.exists(),
+        "evidence": "private batch directory absent after the probe",
+    }
+    return proof
+
+
+def live_main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description="Signed-in Codex boundary probe")
+    parser.add_argument("--probe-live", action="store_true", required=True)
+    parser.add_argument("--model", required=True, help="explicit model; never auto")
+    args = parser.parse_args(argv)
+    try:
+        with runner.interruption_signals():
+            proof = live_probe(args.model)
+    except (runner.HostError, score.RecordError) as error:
+        print(f"live probe stopped: {error}", file=sys.stderr)
+        return 2
+    except (
+        OSError,
+        ValueError,
+        KeyboardInterrupt,
+        subprocess.SubprocessError,
+    ) as error:
+        print(f"live probe stopped: {type(error).__name__}", file=sys.stderr)
+        return 2
+    print(json.dumps(proof, indent=2, sort_keys=True))
+    return int(
+        not all(
+            proof["checks"].get(name, {}).get("passed") is True
+            for name in score.RELEASE_BOUNDARY_CHECKS
+        )
+    )
 
 
 if __name__ == "__main__":
+    if "--probe-live" in sys.argv:
+        raise SystemExit(live_main(sys.argv[1:]))
     raise SystemExit(
         probe_main(sys.argv[1:])
         if "--probe-boundary" in sys.argv or "--probe-instructions" in sys.argv

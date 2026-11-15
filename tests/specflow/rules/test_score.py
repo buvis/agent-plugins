@@ -1816,6 +1816,241 @@ class CodexConversationTest(unittest.TestCase):
             self.adapter.turn("request", ROOT)
         command.assert_not_called()
 
+    def test_failing_command_is_work_and_its_named_files_are_reads(self) -> None:
+        self.events[2]["item"] = {
+            "type": "command_execution",
+            "command": "bash -lc 'cat notes.md'",
+            "status": "failed",
+            "exit_code": 1,
+        }
+        self.assertEqual(self.accept()[0], "Finished")
+        self.assertEqual(self.adapter.commands, ["bash -lc 'cat notes.md'"])
+
+    def write_rollout(self, home: Path, records: list[dict]) -> None:
+        folder = home / "sessions/2026/01/01"
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / "rollout-2026-01-01-synthetic-thread.jsonl").write_text(
+            "".join(json.dumps(r) + "\n" for r in records)
+        )
+
+    def test_live_turn_takes_identity_policy_and_instructions_from_host_record(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            workspace, home = root / "workspaces/session", root / "control/home"
+            for path in (workspace, home):
+                path.mkdir(parents=True)
+            (workspace / "AGENTS.md").write_text("Fixture rule.\n")
+            (workspace / "notes.md").write_text("x")
+            adapter = self.adapter
+            adapter.root, adapter.home, adapter.version = root, home, "9.9.9"
+            adapter.git = Path("/usr/bin/git")
+            self.events[2]["item"] = {
+                "type": "command_execution",
+                "command": "bash -lc 'cat notes.md'",
+                "status": "completed",
+            }
+            stream = "\n".join(json.dumps(e) for e in self.events)
+            profile = {"type": "managed", "name": "specflow-probe"}
+
+            def records(text: str, **context: object) -> list[dict]:
+                agents = {"directory": str(workspace), "text": text}
+                return [
+                    {"type": "session_meta", "payload": {"cli_version": "9.9.9"}},
+                    {
+                        "type": "world_state",
+                        "payload": {"full": True, "state": {"agents_md": agents}},
+                    },
+                    {
+                        "type": "turn_context",
+                        "payload": {
+                            "model": "resolved-model",
+                            "permission_profile": profile,
+                            "sandbox_policy": {"type": "workspace-write"},
+                            **context,
+                        },
+                    },
+                ]
+
+            def run(rollout: list[dict]) -> tuple[str, list[str]]:
+                self.write_rollout(home, rollout)
+                done = subprocess.CompletedProcess([], 0, stream, "")
+                with (
+                    mock.patch.object(adapter, "preflight"),
+                    mock.patch.object(run_claude, "command", return_value=done),
+                ):
+                    return adapter.turn("request", workspace)
+
+            self.assertEqual(
+                run(records("Fixture rule.\n")),
+                ("Finished", [str(workspace / "notes.md")]),
+            )
+            self.assertEqual(adapter.model, "resolved-model")
+            self.assertEqual(adapter.read_measurement, "measured")
+            digest = hashlib.sha256(b"Fixture rule.\n").hexdigest()
+            self.assertEqual(
+                adapter.instruction_observations,
+                {str(workspace / "AGENTS.md"): {"sha256": digest, "imports": []}},
+            )
+            # The inventory rule is a proposed revision: never measured before approval.
+            self.assertFalse(run_codex.ROLLOUT_INVENTORY_APPROVED)
+            self.assertEqual(adapter.instruction_measurement, "not-measured")
+            profile_text = (home / "specflow.config.toml").read_text()
+            self.assertIn(f'"{workspace}" = "write"', profile_text)
+            self.assertIn('":root" = "deny"', profile_text)
+            self.assertIn("ignore_default_excludes = false", profile_text)
+            # A later delta replaces the text; different content is reported.
+            changed = records("Fixture rule.\n")
+            changed.append(
+                {
+                    "type": "world_state",
+                    "payload": {
+                        "full": False,
+                        "state": {"agents_md": {"text": "Personal rule."}},
+                    },
+                }
+            )
+            run(changed)
+            observed = adapter.instruction_observations[str(workspace / "AGENTS.md")]
+            self.assertEqual(
+                observed["sha256"], hashlib.sha256(b"Personal rule.").hexdigest()
+            )
+            for context in (
+                {"permission_profile": {"type": "disabled"}},
+                {"sandbox_policy": {"type": "danger-full-access"}},
+                {"model": ""},
+            ):
+                with (
+                    self.subTest(context=context),
+                    self.assertRaises(run_claude.HostError),
+                ):
+                    run(records("Fixture rule.\n", **context))
+            self.assertEqual(
+                run_codex.instruction_evidence(None, workspace, None, b""), ({}, True)
+            )
+            self.assertEqual(
+                run_codex.instruction_evidence(
+                    None, workspace, workspace / "AGENTS.md", b"Fixture rule.\n"
+                ),
+                ({}, False),
+            )
+
+    def test_live_probe_needs_host_recorded_policy_denials_and_instructions(
+        self,
+    ) -> None:
+        def host(profile: str = "managed", patch_status: str = "failed"):
+            def launch(
+                adapter: run_codex.Codex, prompt: str, workspace: Path
+            ) -> subprocess.CompletedProcess:
+                payload = json.loads((workspace / "probe.json").read_text())
+                shell = {
+                    name: True
+                    for name in score.RELEASE_BOUNDARY_CHECKS
+                    if name.startswith("shell-")
+                }
+                shell.update(
+                    {
+                        "helper-status": True,
+                        "tool-secret-environment-denied": True,
+                        "plugin-read": True,
+                    }
+                )
+                items = [
+                    {
+                        "type": "command_execution",
+                        "command": f"bash -lc '{run_claude.PROBE_COMMAND}'",
+                        "aggregated_output": json.dumps({payload["report"]: shell}),
+                        "status": "completed",
+                    },
+                    *(
+                        {
+                            "type": "file_change",
+                            "status": patch_status,
+                            "changes": [{"path": payload[key], "kind": "add"}],
+                        }
+                        for key in ("plugin_new", "write_link")
+                    ),
+                ]
+                self.write_rollout(
+                    adapter.home,
+                    [
+                        {"type": "session_meta", "payload": {"cli_version": "9.9.9"}},
+                        {
+                            "type": "world_state",
+                            "payload": {
+                                "full": True,
+                                "state": {
+                                    "agents_md": {
+                                        "directory": str(workspace),
+                                        "text": (workspace / "AGENTS.md").read_text(),
+                                    },
+                                    "skills": "specflow:spec-workflow",
+                                },
+                            },
+                        },
+                        {
+                            "type": "turn_context",
+                            "payload": {
+                                "model": "resolved-model",
+                                "permission_profile": {"type": profile},
+                                "sandbox_policy": {"type": "workspace-write"},
+                            },
+                        },
+                    ],
+                )
+                events = [
+                    {"type": "thread.started", "thread_id": "synthetic-thread"},
+                    *({"type": "item.completed", "item": item} for item in items),
+                ]
+                return subprocess.CompletedProcess(
+                    [], 0, "\n".join(json.dumps(e) for e in events), ""
+                )
+
+            return launch
+
+        def identify(adapter: run_codex.Codex) -> None:
+            adapter.root = adapter.plugin.parent.parent
+            adapter.version, adapter.configuration_sha256 = "9.9.9", "c" * 64
+
+        @contextlib.contextmanager
+        def install(adapter: run_codex.Codex, workspace: Path) -> Iterator[None]:
+            adapter.home = adapter.root / "control/codex-home"
+            adapter.home.mkdir()
+            yield
+
+        def failed(proof: dict) -> set[str]:
+            return {n for n, c in proof["checks"].items() if c["passed"] is not True}
+
+        with tempfile.TemporaryDirectory() as folder:
+            scratch = Path(folder).resolve()
+            for options, expected in (
+                ({}, set()),
+                ({"profile": "disabled"}, {"effective-settings"}),
+                (
+                    {"patch_status": "completed"},
+                    {
+                        "native-plugin-write-denied",
+                        "native-symlink-write-denied",
+                        "effective-settings",
+                    },
+                ),
+            ):
+                with (
+                    self.subTest(options=options),
+                    mock.patch.object(run_codex.Codex, "identify", identify),
+                    mock.patch.object(run_codex.Codex, "install", install),
+                    mock.patch.object(run_codex.Codex, "launch", host(**options)),
+                ):
+                    proof = run_codex.live_probe("tested-model", scratch=scratch)
+                    self.assertEqual(failed(proof), expected)
+                    self.assertEqual(
+                        set(proof["checks"]), set(score.RELEASE_BOUNDARY_CHECKS)
+                    )
+                    self.assertEqual(proof["model"], "resolved-model")
+                    self.assertNotIn(str(scratch), json.dumps(proof))
+            self.assertEqual(list(scratch.iterdir()), [])
+
     def test_item_failures_and_invalid_nested_values_are_rejected(self) -> None:
         for item in (
             {"type": "error"},
@@ -2071,7 +2306,10 @@ class CodexHomeTest(unittest.TestCase):
 
     def test_codex_entry_point_records_blockers_without_setup(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
-            with mock.patch.object(run_codex, "temporary_home", autospec=True) as setup:
+            with (
+                mock.patch.object(run_codex, "temporary_home", autospec=True) as setup,
+                mock.patch.object(run_codex.Codex, "identify", autospec=True),
+            ):
                 self.assertEqual(
                     run_claude.main(
                         ["status-summary", "--model", "tested-model", "--out", folder],
@@ -2081,7 +2319,7 @@ class CodexHomeTest(unittest.TestCase):
                 )
             setup.assert_not_called()
             record = score.read_json(Path(folder) / "codex/status-summary/1.json")
-            self.assertIn("independent sign-in", record["notRun"])
+            self.assertIn("boundary proof", record["notRun"])
             self.assertFalse(record["releaseEvidence"])
 
 
