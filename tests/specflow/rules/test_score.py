@@ -3078,6 +3078,11 @@ class KiroAdapterTest(unittest.TestCase):
     def test_generated_policy_denies_private_paths_and_power_writes(self) -> None:
         home = self.root / "control/kiro-home"
         power = home / "powers/installed/specflow"
+        power.mkdir(parents=True)
+        (self.root / "control/sentinel.txt").write_text("private")
+        (home / "sessions").mkdir()
+        other = self.root / "workspaces/other"
+        other.mkdir(exist_ok=True)
         agent = run_kiro.kiro_agent(self.root, self.workspace, power)
         self.assertEqual(agent["tools"], ["read", "write", "shell"])
         self.assertEqual(agent["resources"], run_kiro.RESOURCES)
@@ -3094,18 +3099,34 @@ class KiroAdapterTest(unittest.TestCase):
             ]
 
         (read_deny,) = matching("fs_read", "deny")
-        private = [self.root / "control", self.root / "home", Path.home().resolve()]
-        for path in (*private, self.root / "workspaces"):
+        # The sandbox ignores `exclude`: a deny names the private entries beside
+        # a readable path, never a folder that holds one.
+        for path in (
+            self.root / "home",
+            self.root / "control/sentinel.txt",
+            home / "sessions",
+            other,
+        ):
             self.assertIn(str(path), read_deny["match"])
-        self.assertIn(str(self.workspace), read_deny["exclude"])
-        self.assertIn(str(power), read_deny["exclude"])
+        runtime = Path(sys.base_prefix).resolve()
+        for kept in (self.workspace, power, runtime):
+            for denied in read_deny["match"]:
+                self.assertFalse(
+                    kept == Path(denied) or kept.is_relative_to(denied),
+                    f"{denied} hides {kept}",
+                )
+        self.assertNotIn("exclude", read_deny)
         (write_allow,) = matching("fs_write", "allow")
         self.assertEqual(write_allow["match"], [str(self.workspace)])
         write_deny, configuration = matching("fs_write", "deny")
         # The Power sits below control and is not excepted from the write denial.
         self.assertIn(str(self.root / "control"), write_deny["match"])
         self.assertIn(str(self.root / "resources"), write_deny["match"])
-        self.assertEqual(write_deny["exclude"], [str(self.workspace)])
+        self.assertIn(str(other), write_deny["match"])
+        self.assertNotIn(str(self.root / "workspaces"), write_deny["match"])
+        # The digest form does not depend on which entries exist today.
+        stable = run_kiro.kiro_agent(self.root, self.workspace, power, expand=False)
+        self.assertNotIn(str(other), json.dumps(stable))
         self.assertIn(str(self.workspace / ".kiro/agents"), configuration["match"])
         self.assertEqual(
             {r["capability"] for r in rules if r["effect"] == "allow"},
@@ -3122,7 +3143,7 @@ class KiroAdapterTest(unittest.TestCase):
                 "mcpSandboxing": True,
             },
         )
-        home.mkdir(mode=0o700)
+        home.mkdir(mode=0o700, exist_ok=True)
         run_kiro.write_configuration(home, self.root, self.workspace, power)
         for name in ("agents/specflow-eval.json", "settings/sandbox.json"):
             self.assertEqual((home / name).stat().st_mode & 0o777, 0o600)
@@ -3291,7 +3312,7 @@ class KiroAdapterTest(unittest.TestCase):
                     "shell",
                     "execute",
                     "completed",
-                    command=run_claude.PROBE_COMMAND,
+                    command=run_kiro.PROBE_COMMAND,
                     output={"output": json.dumps({payload["report"]: shell})},
                 )
                 for name, (kind, key) in run_kiro.NATIVE_PROBES.items():

@@ -1105,6 +1105,27 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                 "configurationSha256": adapter.configuration_sha256,
                 "runnerSha256": runner.runner_digest(adapter),
                 "effectiveProfile": adapter.effective_profile(profile, workspace),
+                # Not evidence: what the host did, so a failed probe can be read.
+                "observed": runner.normalize(
+                    [
+                        {
+                            "type": i.get("type"),
+                            "status": i.get("status"),
+                            "command": i.get("command"),
+                            "exitCode": i.get("exit_code"),
+                            "changes": i.get("changes"),
+                            "text": str(
+                                i.get("aggregated_output") or i.get("text") or ""
+                            )[-300:],
+                        }
+                        for i in items
+                    ],
+                    {
+                        str(batch): "<batch>",
+                        str(Path.home().resolve()): "<home>",
+                        secret: "<sentinel>",
+                    },
+                ),
                 "checks": checks,
             }
     proof["checks"]["cleanup"] = {

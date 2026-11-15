@@ -69,7 +69,39 @@ PROBE_INSTRUCTIONS = {
 }
 
 
-def kiro_agent(batch: Path, workspace: Path, plugin: Path) -> dict:
+# Kiro's shell is a login shell with its own PATH (it found the system Python,
+# observed 2026-11-15), so the probe names the supervisor's interpreter.
+PROBE_COMMAND = f"{Path(sys.executable).resolve()} -I -B probe.py"
+
+
+def deny_around(root: Path, keep: list[Path], expand: bool) -> list[str]:
+    """Paths under root to deny so that no kept path, or its parents, is denied.
+
+    The shell sandbox did not honour a rule's `exclude` (observed 2026-11-15: a
+    deny on the workspaces folder made the workspace itself unreadable, even
+    for getcwd). So a deny never names a folder that holds a readable path;
+    it names that folder's other entries instead. Unexpanded, it returns one
+    stable placeholder, for the configuration digest.
+    """
+    inside = [path for path in keep if path.is_relative_to(root)]
+    if not inside:
+        return [str(root)]
+    if not expand:
+        return [f"<entries of {root} around {sorted(str(p) for p in inside)}>"]
+    denied = []
+    for entry in sorted(root.iterdir()) if root.is_dir() else []:
+        if entry in inside:
+            continue
+        if any(path.is_relative_to(entry) for path in inside):
+            denied += deny_around(entry, inside, expand)
+        else:
+            denied.append(str(entry))
+    return denied
+
+
+def kiro_agent(
+    batch: Path, workspace: Path, plugin: Path, *, expand: bool = True
+) -> dict:
     """Custom agent with V3 permission rules; a deny always beats an allow.
 
     Schema: https://kiro.dev/docs/custom-agents/configuration-reference/ and
@@ -78,26 +110,33 @@ def kiro_agent(batch: Path, workspace: Path, plugin: Path) -> dict:
     denial, so anything not allowed here is denied. The shell is allowed
     because the Seatbelt sandbox, shaped by these file rules, is its boundary.
     """
-    control, others = batch / "control", batch / "workspaces"
     real, runtime = Path.home().resolve(), Path(sys.base_prefix).resolve()
-    private = [str(control), str(batch / "home"), str(real), str(others)]
-    readable = [str(workspace), str(plugin), str(runtime)]
+    private = [batch / "control", batch / "home", real, batch / "workspaces"]
+    readable = [workspace, plugin, runtime]
     rules = [
-        {"capability": "fs_read", "match": readable, "effect": "allow"},
+        {
+            "capability": "fs_read",
+            "match": [str(path) for path in readable],
+            "effect": "allow",
+        },
         {"capability": "fs_write", "match": [str(workspace)], "effect": "allow"},
         {"capability": "shell", "effect": "allow"},
         {"capability": "skill", "effect": "allow"},
         {"capability": "power", "effect": "allow"},
         {
             "capability": "fs_read",
-            "match": private,
-            "exclude": readable,
+            "match": [
+                path for root in private for path in deny_around(root, readable, expand)
+            ],
             "effect": "deny",
         },
         {
             "capability": "fs_write",
-            "match": [*private, str(batch / "resources")],
-            "exclude": [str(workspace)],
+            "match": [
+                path
+                for root in (*private, batch / "resources")
+                for path in deny_around(root, [workspace], expand)
+            ],
             "effect": "deny",
         },
         {
@@ -408,7 +447,7 @@ class Kiro:
         session = self.root / "workspaces/session"
         installed = self.root / "control/kiro-home/powers/installed/specflow"
         agent = runner.normalize(
-            kiro_agent(self.root, session, installed),
+            kiro_agent(self.root, session, installed, expand=False),
             {
                 str(session): "<workspace>",
                 str(self.root): "<batch>",
@@ -613,7 +652,7 @@ def probe_prompt(payload: dict[str, str]) -> str:
         + (" with content: probe" if kind == "edit" else "")
         for kind, key in NATIVE_PROBES.values()
     ]
-    steps.append(f"shell tool with exactly this command: {runner.PROBE_COMMAND}")
+    steps.append(f"shell tool with exactly this command: {PROBE_COMMAND}")
     return (
         "This is a permission self-test. Make each tool call below once, in "
         "order. Some are denied; that is expected. Never retry, never use a "
@@ -691,7 +730,7 @@ def probe_checks(
         for call in turn["calls"].values()
         if call["kind"] == "execute" and "probe.py" in call["command"]
     ]
-    exact = all(call["command"].strip() == runner.PROBE_COMMAND for call in runs)
+    exact = all(call["command"].strip() == PROBE_COMMAND for call in runs)
     checks = runner.shell_probe_checks(
         [
             "\n".join(
