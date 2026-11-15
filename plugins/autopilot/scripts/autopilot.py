@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict
+from dataclasses import asdict, replace
 import errno
 import hashlib
 import importlib
@@ -26,6 +26,7 @@ _CAPABILITIES = [
     "stage-review-v1", "group-findings-v1", "check-evidence-v1",
     "prepare-close-v1", "catchup-probe-v1", "verification-artifact-v1",
     "controller-required-v1", "hosts-v1", "guards-v1", "diagnose-v1",
+    "hook-v1",
     "request-job-v1", "bind-job-v1", "close-child-v1", "resolve-roles-v1",
     "record-session-v1",
 ]
@@ -289,6 +290,10 @@ def _resolve_roles(args: argparse.Namespace) -> tuple[dict, int]:
                 and isinstance(facts.implementor_codex_present, bool)
                 and (facts.doubt_reviewer is None or isinstance(facts.doubt_reviewer, str))):
             raise _Usage(f"{args.facts} holds a fact of the wrong type")
+    # Gemini role eve is resolvable for the full lane of codex-gemini, the
+    # same way --diagnose lists it unconditionally for that profile.
+    if args.profile == "codex-gemini" and args.lane == "full":
+        facts = replace(facts, gemini_cli_available=True)
     implemented = {host_id: hosts.adapter(host_id).IMPLEMENTED_CAPABILITIES
                    for host_id in hosts.ADAPTERS}
     resolved = _call(roles.resolve_profile, {

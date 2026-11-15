@@ -657,7 +657,8 @@ class StandaloneInstructionTest(fakes.ProjectCase):
         self.install_argv("claude", argv)
         for effort in ("xhigh", "max", "medium"):
             with self.subTest(effort=effort):
-                result = self.standalone(fakes.build(self.root, host_id="claude", effort=effort))
+                result = self.standalone(fakes.build(self.root, host_id="claude", effort=effort),
+                                          f"job-{effort}.json")
                 instruction = result["instruction"]
                 self.assertEqual(instruction["argv"], argv)
                 for token in instruction["argv"]:

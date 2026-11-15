@@ -248,7 +248,8 @@ class SharedCoreWithoutClaudeTest(unittest.TestCase):
             "SessionStart", decision("SessionStart", True, "card body"), stop_active=False))
         self.assertEqual(start["hookSpecificOutput"]["additionalContext"], "card body")
         post = body(self.codex.render_hook_reply("PostToolUse", decision("PostToolUse", False), stop_active=False))
-        self.assertIn("lane L9 live", post["systemMessage"])
+        self.assertEqual(post["decision"], "block")
+        self.assertIn("lane L9 live", post["reason"])
 
 
 def _resolve_candidate_hosts(required_capabilities: tuple[str, ...], hosts_declared: dict) -> list[str]:

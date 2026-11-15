@@ -299,7 +299,15 @@ def build_job_request(
 
 def derive_ancestry(env: Mapping[str, str], project_root: Path) -> tuple[AncestryEntry, ...]:
     """The current session's ancestry: empty without JOB_ENV, else the job
-    file's ancestry plus this job's host, job and current native session."""
+    file's ancestry plus this job's host, job and current native session.
+    DEPTH_ENV alone, without JOB_ENV, still backstops recursion depth even
+    when the job file's env was stripped."""
+    if DEPTH_ENV in env:
+        value = env[DEPTH_ENV]
+        if not isinstance(value, str) or not re.fullmatch(r"[0-9]+", value):
+            raise _invalid(f"{DEPTH_ENV} must be a non-negative integer")
+        if int(value) >= MAX_JOB_DEPTH:
+            raise JobRefused("recursion_depth", f"dispatch depth {value}")
     if JOB_ENV not in env:
         return ()
     try:
@@ -465,12 +473,11 @@ def request_job(request: JobRequest, *, seam: ControllerSeam | None, project_roo
     _check_relative_path(relative)
     data = json.dumps(payload).encode("utf-8")
     try:
-        fd = os.open(resolved_file, os.O_CREAT | os.O_WRONLY | os.O_NOFOLLOW, 0o666)
+        fd = os.open(resolved_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o666)
     except FileNotFoundError:
         resolved_file.parent.mkdir(parents=True, exist_ok=True)
-        fd = os.open(resolved_file, os.O_CREAT | os.O_WRONLY | os.O_NOFOLLOW, 0o666)
+        fd = os.open(resolved_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o666)
     with os.fdopen(fd, "wb") as stream:
-        stream.truncate(0)
         stream.write(data)
     depth = str(len(request.ancestry) + 1)
     script = Path(__file__).resolve().parent / "autopilot.py"

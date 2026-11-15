@@ -28,6 +28,9 @@ HOST_ID = "gemini"
 IMPLEMENTED_CAPABILITIES = frozenset({"identity", "isolation"})
 SESSION_ENV_VAR = "GEMINI_SESSION_ID"
 INTERCEPTION_BLOCKER = "no_package_local_registration_surface"
+# Declared explicitly, the same way claude.py and codex.py declare their own
+# non-empty tuples: no local surface to register Gemini hooks on.
+HOOK_REGISTRATIONS: tuple = ()
 
 
 def probe(*, project_root: Path) -> ProbeResult:

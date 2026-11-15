@@ -851,15 +851,20 @@ class RealAdapterEvaluateHookTest(unittest.TestCase):
         (root / ".autopilot" / "controller").mkdir(parents=True)
         return root
 
-    def test_unbound_push_skips_custody_push_only_for_git_pushes(self) -> None:
+    def test_unbound_push_refuses_custody_push_only_for_git_pushes(self) -> None:
         for host_id, _ in INTERCEPTING:
             for command in _push_commands():
                 with self.subTest(host=host_id, command=command):
                     payload = {"tool_name": "Bash", "tool_input": {"command": command}, "cwd": UNBOUND_CWD}
                     decision = interception.evaluate_hook(host_id, "PreToolUse", payload, env={}, seam=None)
-                    expected = (("custody_push", "unbound"),) if guards.is_git_push(command) else ()
-                    self.assertEqual(decision.skipped, expected)
-                    self.assertEqual([o.duty for o in decision.outcomes], [GuardDuty.DOCUMENT_LOCATION])
+                    self.assertEqual(decision.skipped, ())
+                    outcomes = {o.duty: o for o in decision.outcomes}
+                    if guards.is_git_push(command):
+                        self.assertEqual(set(outcomes), {GuardDuty.DOCUMENT_LOCATION, GuardDuty.CUSTODY_PUSH})
+                        self.assertFalse(outcomes[GuardDuty.CUSTODY_PUSH].allowed)
+                        self.assertEqual(outcomes[GuardDuty.CUSTODY_PUSH].reason, "missing_controller_seam")
+                    else:
+                        self.assertEqual(set(outcomes), {GuardDuty.DOCUMENT_LOCATION})
 
     def test_phase_fixtures_match_their_recorded_verdict(self) -> None:
         cases = _cases("phase-")

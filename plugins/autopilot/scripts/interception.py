@@ -147,14 +147,14 @@ def _evaluate_duty_call(
     seam: ControllerSeam | None,
 ) -> tuple[GuardOutcome, dict]:
     """The outcome for one duty call and the context it decided from (facts
-    merged in, when controller-keyed). The caller filters out the
-    unbound-skip case before reaching here."""
+    merged in, when controller-keyed). A controller-keyed duty refuses
+    outright, rather than being skipped, when unbound or seamless."""
     duty = call.duty
     context = dict(call.context)
     controller_keyed = duty in _STATEFUL_DUTIES or duty in _FACTS_SCHEMA
 
-    if bound and controller_keyed:
-        if seam is None:
+    if controller_keyed:
+        if not bound or seam is None:
             outcome = GuardOutcome(
                 duty=duty, allowed=False, reason="missing_controller_seam", stateful=True
             )
@@ -193,10 +193,6 @@ def evaluate_hook(
     additional_context: str | None = None
 
     for call in duty_calls:
-        controller_keyed = call.duty in _STATEFUL_DUTIES or call.duty in _FACTS_SCHEMA
-        if not bound and controller_keyed:
-            skipped.append((call.duty.value, "unbound"))
-            continue
         outcome, decided_context = _evaluate_duty_call(
             call, bound=bound, session=session, project_root=project_root, seam=seam
         )
@@ -258,7 +254,10 @@ def run_hook(host_id: str, event: str, stdin: bytes, *, env: Mapping[str, str]) 
     if payload is None:
         return _invalid_input_reply(event)
 
-    decision = evaluate_hook(host_id, event, payload, env=env, seam=None)
+    try:
+        decision = evaluate_hook(host_id, event, payload, env=env, seam=None)
+    except (TypeError, AttributeError, KeyError, IndexError):
+        return _invalid_input_reply(event)
     stop_active = bool(payload.get("stop_hook_active"))
     reply = adapter.render_hook_reply(event, decision, stop_active=stop_active)
     _write_trace(decision, env)

@@ -52,7 +52,9 @@ class _AlwaysAllowSeam:
 
 
 def _newest_evidence(project_root: Path, host_id: str) -> tuple[str, dict] | None:
-    """The newest `<host_id>-<ts>[-n].json` evidence file and its record."""
+    """The newest `<host_id>-<ts>[-n].json` evidence file whose content is
+    valid JSON with schema_version 2; an older or malformed candidate is
+    skipped rather than trusted, never crashing the diagnosis."""
     probes = project_root / _PROBES
     pattern = re.compile(rf"{re.escape(host_id)}-(\d{{8}}T\d{{6}}Z)(?:-(\d+))?\.json")
     found = []
@@ -60,10 +62,16 @@ def _newest_evidence(project_root: Path, host_id: str) -> tuple[str, dict] | Non
         match = pattern.fullmatch(path.name)
         if match and path.is_file():
             found.append(((match[1], int(match[2] or 1)), path))
-    if not found:
-        return None
-    path = max(found)[1]
-    return (_PROBES / path.name).as_posix(), json.loads(path.read_text(encoding="utf-8"))
+    found.sort(key=lambda item: item[0], reverse=True)
+    for _, path in found:
+        try:
+            record = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(record, dict) or record.get("schema_version") != 2:
+            continue
+        return (_PROBES / path.name).as_posix(), record
+    return None
 
 
 def _observed_capabilities(record: dict) -> frozenset[str]:

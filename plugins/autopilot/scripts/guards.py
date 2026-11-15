@@ -154,11 +154,24 @@ def _guard_review_completeness(context: dict, seam: ControllerSeam) -> GuardOutc
 
 
 def _normalize_rel(path: str, project_root: str | None) -> str:
-    if project_root:
-        prefix = project_root.rstrip("/") + "/"
-        if path.startswith(prefix):
-            return path[len(prefix) :]
-    return path
+    """`path` relative to `project_root`, walking up to an ancestor of
+    `project_root` when it is not an exact prefix (e.g. a sub-cwd), and
+    normalizing away a double slash; an unrelated absolute path still loses
+    its leading slash so the whole-path store scan still runs on it."""
+    if not isinstance(project_root, str) or not project_root:
+        return path
+    norm = posixpath.normpath(path)
+    root = posixpath.normpath(project_root)
+    while True:
+        if norm == root:
+            return ""
+        prefix = root.rstrip("/") + "/"
+        if norm.startswith(prefix):
+            return norm[len(prefix):]
+        parent = posixpath.dirname(root)
+        if parent == root:
+            return path
+        root = parent
 
 
 def _store_path_verdict(path: str) -> tuple[bool, str | None]:
@@ -303,7 +316,11 @@ _PURE = {
 
 
 _SEGMENT_SPLIT = re.compile(r"\n|&&|\|\||[;|&]")
-_PREFIX_CMDS = frozenset({"command", "exec", "env", "sudo", "nice", "time", "nohup"})
+_PREFIX_CMDS = frozenset({"command", "exec", "env", "sudo", "nice", "time", "nohup", "timeout"})
+_SKIP_KEYWORDS = frozenset({"if", "then", "else", "elif", "fi", "do", "done", "while", "until"})
+_FLAG_WITH_VALUE = frozenset({"-u", "-g", "-n", "-C"})
+_PREFIX_POSITIONAL = {"timeout": 1}
+_BRACKET_CHARS = re.compile(r"[(){}!]")
 _ASSIGNMENT_WORD = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
 _INDIRECT_MARKERS = ("$(", "`", "eval", "sh -c", "bash -c", "zsh -c", "xargs", "<<")
 _WORD_GIT = re.compile(r"\bgit\b")
@@ -312,12 +329,31 @@ _WORD_PUSH = re.compile(r"\bpush\b")
 
 def is_git_push(command: str) -> bool:
     """Conservative superset of the git-push grammar (§7): a false positive
-    only costs a seam consultation, so ambiguous forms fail closed to True."""
+    only costs a seam consultation, so ambiguous forms fail closed to True.
+    Grouping/negation punctuation and bare quoting are stripped before
+    tokenizing; wrapper commands (sudo, env, nice, timeout, ...) and their
+    options are skipped to find the actual command token."""
     for segment in _SEGMENT_SPLIT.split(command):
-        tokens = segment.split()
+        tokens = [token.strip("'\"") for token in _BRACKET_CHARS.sub(" ", segment).split()]
         i = 0
-        while i < len(tokens) and (_ASSIGNMENT_WORD.match(tokens[i]) or tokens[i] in _PREFIX_CMDS):
-            i += 1
+        while i < len(tokens):
+            token = tokens[i]
+            if _ASSIGNMENT_WORD.match(token):
+                i += 1
+                continue
+            if token in _SKIP_KEYWORDS:
+                i += 1
+                continue
+            if token in _PREFIX_CMDS:
+                i += 1
+                while i < len(tokens) and tokens[i].startswith("-"):
+                    flag = tokens[i]
+                    i += 1
+                    if flag in _FLAG_WITH_VALUE and i < len(tokens):
+                        i += 1
+                i += _PREFIX_POSITIONAL.get(token, 0)
+                continue
+            break
         if i < len(tokens) and PurePosixPath(tokens[i]).name == "git" and "push" in tokens[i + 1 :]:
             return True
     if (

@@ -145,22 +145,28 @@ def translate_hook(event: str, payload: Mapping[str, object]) -> tuple[DutyCall,
 
 
 def render_hook_reply(event: str, decision, *, stop_active: bool) -> HookReply:
-    """A pre-tool deny names the first denied reason; a post-tool failure is
-    reported, never blocked; a Stop blocks once (not while stop_active)."""
+    """A pre-tool deny names every denied reason; a post-tool refusal blocks;
+    a Stop or SessionStart refusal always surfaces a systemMessage, blocking
+    once for Stop when it is not already stop_active."""
     denied = [outcome.reason for outcome in decision.outcomes if not outcome.allowed]
+    reason = "; ".join(denied)
     body: dict | None = None
     if event == "PreToolUse" and denied:
         body = {
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
                 "permissionDecision": "deny",
-                "permissionDecisionReason": denied[0],
+                "permissionDecisionReason": reason,
             }
         }
     elif event == "PostToolUse" and denied:
-        body = {"systemMessage": "autopilot: " + "; ".join(denied)}
+        body = {"decision": "block", "reason": reason}
     elif event == "Stop" and denied and not stop_active:
-        body = {"decision": "block", "reason": "; ".join(denied)}
+        body = {"decision": "block", "reason": reason}
+    elif event == "Stop" and denied:
+        body = {"systemMessage": f"autopilot: {reason}"}
+    elif event == "SessionStart" and denied:
+        body = {"systemMessage": f"autopilot: {reason}"}
     elif event == "SessionStart" and decision.additional_context:
         body = {
             "hookSpecificOutput": {
