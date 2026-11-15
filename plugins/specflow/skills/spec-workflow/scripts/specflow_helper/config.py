@@ -29,7 +29,14 @@ def refuse_reason(repo: Path, value: str) -> str | None:
         return "holds a .. segment"
     if "\x00" in value:  # no path holds one, and resolve() raises on it
         return "holds a NUL character"
-    if not (repo / value).resolve().is_relative_to(repo.resolve()):
+    try:
+        try:
+            resolved = (repo / value).resolve(strict=True)
+        except FileNotFoundError:
+            resolved = (repo / value).resolve()
+    except (OSError, RuntimeError):
+        return "cannot be resolved safely"
+    if not resolved.is_relative_to(repo.resolve()):
         return "resolves outside the repository"
     return None
 
