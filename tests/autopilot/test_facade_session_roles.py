@@ -4,6 +4,7 @@ all five job, child, role and session modes, driven only through the CLI."""
 from __future__ import annotations
 
 import json
+import os
 import unittest
 import uuid
 from pathlib import Path
@@ -14,6 +15,22 @@ from facade_modes_support import STATE_TREE, FacadeModesMixin, snapshot
 PROFILES = ("source-parity", "codex-gemini")
 FACTS_FALSE = {"gemini_cli_available": False, "doubt_reviewer": None, "implementor_codex_present": False}
 FACTS_GEMINI = FACTS_FALSE | {"gemini_cli_available": True}
+# (role, role_id, host_id) under default facts, from review-policy-v1.json role_bindings,
+# reviewer_jobs and implementor_providers.
+ROSTERS = {
+    ("source-parity", "full"): [("alice", "consensus", "claude"), ("blake", "blind", "claude"),
+                                ("bob", "doubt", "codex"), ("implementor:anthropic", "implementor", "claude"),
+                                ("implementor:openai", "implementor", "codex")],
+    ("codex-gemini", "full"): [("alice", "consensus", "codex"), ("blake", "blind", "codex"),
+                               ("bob", "doubt", "codex"), ("implementor:openai", "implementor", "codex")],
+    ("source-parity", "solo"): [("alice", "consensus", "claude"),
+                                ("implementor:anthropic", "implementor", "claude"),
+                                ("implementor:openai", "implementor", "codex")],
+    ("codex-gemini", "solo"): [("alice", "consensus", "codex"), ("implementor:openai", "implementor", "codex")],
+}
+EVE = {"source-parity": ("eve", "doubt", "claude"), "codex-gemini": ("eve", "doubt", "gemini")}
+CARL = ("carl", "ui", "gemini")
+GEMINI_CAPABILITIES = 'IMPLEMENTED_CAPABILITIES = frozenset({"identity", "isolation"})'
 SESSIONS = {"CLAUDE_CODE_SESSION_ID": "sess-claude-1", "CODEX_SESSION_ID": "sess-codex-2",
             "GEMINI_SESSION_ID": "sess-gemini-3"}
 RECORD_KEYS = {"schema_version", "host_id", "session", "plugin_root", "traced"}
@@ -34,14 +51,20 @@ class RoleAndSessionModesTest(FacadeModesMixin, unittest.TestCase):
         self.assertIsInstance(reply["roles"], list)
         return reply
 
+    def roster(self, result) -> list[tuple]:
+        """The sorted (role, role_id, host_id) rows of a resolvable reply."""
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        return sorted((row["role"], row["role_id"], row["host_id"])
+                      for row in self.resolved(result)["roles"])
+
     def record(self, host: str, project: Path, env: dict | None = None) -> dict:
         result = self.run_facade("--record-session", host, "--project-root", str(project), env=env)
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
         reply = self.one_json(result)
         self.assertEqual(set(reply), RECORD_KEYS)
         self.assertEqual((reply["schema_version"], reply["host_id"]), (1, host))
-        self.assertIsInstance(reply["plugin_root"], str)
-        self.assertTrue(reply["plugin_root"])
+        # The relocated copy, not the source tree or a constant.
+        self.assertEqual(reply["plugin_root"], os.path.realpath(self.package))
         return reply
 
     def project(self, name: str = "project") -> Path:
@@ -50,16 +73,52 @@ class RoleAndSessionModesTest(FacadeModesMixin, unittest.TestCase):
         return project
 
     def test_resolve_roles_reports_each_real_profile_and_lane(self) -> None:
-        for profile in PROFILES:
-            counts = {}
-            for lane in ("full", "solo"):
-                with self.subTest(profile=profile, lane=lane):
-                    reply = self.resolved(self.resolve(profile, lane))
-                    self.assertEqual((reply["profile_id"], reply["lane"]), (profile, lane))
-                    counts[lane] = len(reply["roles"])
-            self.assertGreater(counts["full"], counts["solo"])
-            self.assertGreater(counts["solo"], 0)
+        for (profile, lane), expected in ROSTERS.items():
+            with self.subTest(profile=profile, lane=lane):
+                result = self.resolve(profile, lane)
+                self.assertEqual(self.roster(result), sorted(expected))
+                reply = json.loads(result.stdout)
+                self.assertEqual((reply["profile_id"], reply["lane"]), (profile, lane))
         self.assertEqual(self.resolve("codex-gemini", "full").returncode, 0)
+
+    def test_resolve_roles_adds_eve_for_a_fable_doubt_reviewer_or_a_codex_implementor(self) -> None:
+        for profile in PROFILES:
+            base = ROSTERS[(profile, "full")]
+            with_eve = sorted([*base, EVE[profile]])
+            for facts, expected in (
+                (FACTS_FALSE | {"doubt_reviewer": "fable"}, with_eve),
+                (FACTS_FALSE | {"implementor_codex_present": True}, with_eve),
+                (FACTS_FALSE | {"doubt_reviewer": "fable", "implementor_codex_present": True}, with_eve),
+                (FACTS_FALSE | {"doubt_reviewer": "Fable"}, sorted(base)),
+                (FACTS_FALSE | {"doubt_reviewer": "fable-2"}, sorted(base)),
+                (FACTS_FALSE | {"doubt_reviewer": "sonnet"}, sorted(base)),
+                (FACTS_GEMINI | {"implementor_codex_present": True}, sorted([*base, EVE[profile], CARL])),
+            ):
+                with self.subTest(profile=profile, facts=facts):
+                    result = self.resolve(profile, "full", "--facts", str(self.facts(facts)))
+                    self.assertEqual(self.roster(result), expected)
+
+    def test_resolve_roles_reports_blocked_when_a_host_lacks_a_required_capability(self) -> None:
+        # Real policy; the relocated gemini adapter loses `isolation`, which cross-session Carl needs.
+        adapter = self.package / "scripts" / "gemini.py"
+        source = adapter.read_text(encoding="utf-8")
+        self.assertIn(GEMINI_CAPABILITIES, source)
+        adapter.write_text(source.replace(GEMINI_CAPABILITIES,
+                                          'IMPLEMENTED_CAPABILITIES = frozenset({"identity"})'),
+                           encoding="utf-8")
+        gemini = str(self.facts(FACTS_GEMINI))
+        for profile in PROFILES:
+            with self.subTest(profile=profile):
+                result = self.resolve(profile, "full", "--facts", gemini)
+                self.assertEqual(result.returncode, 1, result.stderr.decode(errors="replace"))
+                rows = {row["role"]: row for row in self.resolved(result)["roles"]}
+                self.assertEqual((rows["carl"]["status"], rows["carl"]["missing"]),
+                                 ("blocked", ["gemini:isolation"]))
+                self.assertEqual({role for role, row in rows.items() if row["status"] != "resolved"},
+                                 {"carl"})
+                # Without Carl nothing needs gemini isolation, so the same profile resolves.
+                self.assertEqual(self.roster(self.resolve(profile, "full")),
+                                 sorted(ROSTERS[(profile, "full")]))
 
     def test_resolve_roles_defaults_equal_all_false_facts(self) -> None:
         false_file, gemini_file = self.facts(FACTS_FALSE), self.facts(FACTS_GEMINI)
@@ -89,7 +148,16 @@ class RoleAndSessionModesTest(FacadeModesMixin, unittest.TestCase):
                  for profile in ("codex-gemini-x", "codex", "Source-Parity", "")]
         cases += [("--profile", "codex-gemini", "--lane", lane) for lane in ("ful", "fullx", "Full", "")]
         cases += [("--profile", "codex-gemini"),
-                  ("--profile", "codex-gemini", "--lane", "full", "--facts", str(bad_facts))]
+                  ("--profile", "codex-gemini", "--lane", "full", "--facts", str(bad_facts)),
+                  ("--profile", "codex-gemini", "--lane", "full", "--facts",
+                   str(self.base / "facts" / "absent.json"))]
+        renamed = {"gemini_cli": False, "doubt_reviewer": None, "implementor_codex_present": False}
+        for facts in (FACTS_FALSE | {"extra": False}, renamed, [], None,
+                      FACTS_FALSE | {"gemini_cli_available": "false"},
+                      FACTS_FALSE | {"gemini_cli_available": 0},
+                      FACTS_FALSE | {"implementor_codex_present": None},
+                      FACTS_FALSE | {"doubt_reviewer": False}, FACTS_FALSE | {"doubt_reviewer": 7}):
+            cases.append(("--profile", "codex-gemini", "--lane", "full", "--facts", str(self.facts(facts))))
         for arguments in cases:
             with self.subTest(arguments=arguments):
                 self.assert_usage_error(self.run_facade("--resolve-roles", *arguments))
@@ -114,8 +182,7 @@ class RoleAndSessionModesTest(FacadeModesMixin, unittest.TestCase):
         ):
             with self.subTest(host=host, expected=expected):
                 session = self.record(host, project, env)["session"]
-                self.assertIsInstance(session, dict)
-                self.assertIn(expected, session.values())
+                self.assertEqual(session, {"host_id": host, "session_id": expected, "source": "environment"})
                 text = json.dumps(session)
                 for other in set(SESSIONS.values()) - {expected}:
                     self.assertNotIn(f'"{other}"', text)
@@ -139,6 +206,29 @@ class RoleAndSessionModesTest(FacadeModesMixin, unittest.TestCase):
                 self.assertEqual((last["event"], last["host_id"]), ("record_session", host))
         self.assertEqual(sorted(path.name for path in trace_dir.iterdir()),
                          ["other.jsonl", "session.jsonl"])
+
+    def test_record_session_never_traces_outside_the_project_trace_dir(self) -> None:
+        project, other = self.project(), self.project("other project")
+        trace_dir = project / TRACE_DIR
+        (trace_dir / "link.jsonl").symlink_to(self.base / "linked.jsonl")
+        refused = (trace_dir.with_name("autopilot-x") / "t.jsonl", trace_dir.parent / "t.jsonl",
+                   project / "t.jsonl", other / TRACE_DIR / "t.jsonl", self.base / "t.jsonl",
+                   trace_dir / ".." / "escape.jsonl", trace_dir / "link.jsonl")
+        env = {"CLAUDE_CODE_SESSION_ID": "sess-claude-1"}
+        for trace in refused:
+            trace.parent.mkdir(parents=True, exist_ok=True)
+            with self.subTest(trace=trace):
+                reply = self.record("claude", project, env | {"AUTOPILOT_HOOK_TRACE": str(trace)})
+                self.assertIs(reply["traced"], False)
+                self.assertFalse(Path(os.path.normpath(trace)).exists())
+        self.assertFalse((self.base / "linked.jsonl").exists())
+        self.assertEqual(list(trace_dir.iterdir()), [trace_dir / "link.jsonl"])
+        accepted = trace_dir / "ok.jsonl"
+        self.assertIs(self.record("claude", project, env | {"AUTOPILOT_HOOK_TRACE": str(accepted)})
+                      ["traced"], True)
+        last = json.loads(accepted.read_text(encoding="utf-8").splitlines()[-1])
+        self.assertEqual((last["session_id"], last["plugin_root"]),
+                         ("sess-claude-1", os.path.realpath(self.package)))
 
     def test_record_session_rejects_unknown_host_or_missing_root_as_usage_error(self) -> None:
         project = self.project()

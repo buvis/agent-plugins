@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import os
 import unittest
 import uuid
 from pathlib import Path
 
-from facade_modes_support import MISSING_SESSION, FacadeModesMixin, snapshot
+from facade_modes_support import MISSING_SESSION, STATE_TREE, FacadeModesMixin, snapshot
 
 
 JOB_A = {"schema_version": 1, "job_id": "job-alpha", "role_id": "alice", "host_id": "claude",
@@ -28,6 +29,14 @@ CHILD_B = {"schema_version": 1,
                      "parent_session_id": "parent-beta", "depth": 0},
            "outcome": "failed", "artifact_path": "child-beta.txt"}
 REQUESTER = {"CLAUDE_CODE_SESSION_ID": "requester-session"}
+
+
+def canonical_request_id(payload: dict) -> str:
+    """The stated request_id: sha256 of the canonical payload without request_id."""
+    body = {key: value for key, value in payload.items() if key != "request_id"}
+    text = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+                      allow_nan=False)
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def malformed_jobs() -> list[dict]:
@@ -62,6 +71,12 @@ def malformed_children() -> list[dict]:
         changed = copy.deepcopy(CHILD_A)
         changed["child"][key] = value
         children.append(changed)
+    for value in ("1", True, None, 1.5):
+        changed = copy.deepcopy(CHILD_A)
+        changed["child"]["depth"] = value
+        children.append(changed)
+    children += [CHILD_A | {"outcome": value}
+                 for value in ("bogus", "Completed", "complete", "", 1, None)]
     return [*children, CHILD_A | {"extra": True}]
 
 
@@ -99,6 +114,18 @@ class JobModesTest(FacadeModesMixin, unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stderr.decode(errors="replace"))
         self.assertIs(self.one_json(result)["ok"], False)
 
+    def assert_bound(self, result, job_file: Path, host: str, child_id: str) -> None:
+        """Exit 0 with the binding record for `job_file` and this child session."""
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        reply = self.one_json(result)
+        payload = json.loads(job_file.read_text(encoding="utf-8"))
+        self.assertEqual([reply[key] for key in ("schema_version", "request_id", "job_id", "host_id")],
+                         [1, payload["request_id"], payload["job_id"], payload["host_id"]])
+        self.assertEqual(reply["child_session"],
+                         {"host_id": host, "session_id": child_id, "source": "environment"})
+        self.assertEqual(reply["requester_session"], payload["requester"])
+        self.assertEqual(reply["verified_inputs"], payload["inputs"])
+
     def test_request_job_refuses_without_a_native_session_variable(self) -> None:
         project = self.make_project("project")
         for env in ({}, {"CLAUDE_SESSION_ID": "s"}, {"CLAUDE_CODE_SESSION": "s"},
@@ -112,31 +139,82 @@ class JobModesTest(FacadeModesMixin, unittest.TestCase):
     def test_request_job_writes_the_payload_for_the_first_set_session_variable(self) -> None:
         cases = (
             (JOB_A, {"CLAUDE_CODE_SESSION_ID": "requester-claude", "CODEX_SESSION_ID": "requester-codex",
-                     "GEMINI_SESSION_ID": "requester-gemini"}, "requester-claude"),
+                     "GEMINI_SESSION_ID": "requester-gemini"}, "claude", "requester-claude"),
             (JOB_B, {"CODEX_SESSION_ID": "requester-codex", "GEMINI_SESSION_ID": "requester-gemini"},
-             "requester-codex"),
-            (JOB_A, {"GEMINI_SESSION_ID": "requester-gemini-2"}, "requester-gemini-2"),
+             "codex", "requester-codex"),
+            (JOB_A, {"GEMINI_SESSION_ID": "requester-gemini-2"}, "gemini", "requester-gemini-2"),
         )
         all_ids = {"requester-claude", "requester-codex", "requester-gemini", "requester-gemini-2"}
-        for index, (job, env, requester) in enumerate(cases):
+        request_ids = set()
+        for index, (job, env, host, requester) in enumerate(cases):
             with self.subTest(job=job["job_id"], requester=requester):
-                result, out = self.request(self.make_project(f"project {index}"), job, env)
+                project = self.make_project(f"project {index}")
+                result, out = self.request(project, job, env)
                 self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
                 reply = self.one_json(result)
-                self.assertEqual((reply["schema_version"], reply["mode"]), (1, "standalone"))
                 text = out.read_text(encoding="utf-8")
                 payload = json.loads(text)
-                self.assertIsInstance(payload["request_id"], str)
-                self.assertTrue(payload["request_id"])
+                self.assertEqual((reply["schema_version"], reply["mode"], reply["request"]),
+                                 (1, "standalone", payload))
+                self.assertEqual(payload["request_id"], canonical_request_id(payload))
+                request_ids.add(payload["request_id"])
                 fields = ("job_id", "role_id", "host_id", "tier", "effort")
                 self.assertEqual([payload[key] for key in fields], [job[key] for key in fields])
-                self.assertEqual([(item["kind"], item["path"]) for item in payload["inputs"]],
-                                 [(item["kind"], item["path"]) for item in job["inputs"]])
-                self.assertIn(f'"{requester}"', text)
+                # Inputs come back sorted by (kind, path), each with its file's digest.
+                self.assertEqual(
+                    [(item["kind"], item["path"], item["sha256"]) for item in payload["inputs"]],
+                    sorted((item["kind"], item["path"],
+                            hashlib.sha256((project / item["path"]).read_bytes()).hexdigest())
+                           for item in job["inputs"]))
+                self.assertEqual(payload["requester"],
+                                 {"host_id": host, "session_id": requester, "source": "environment"})
                 for other in all_ids - {requester}:
                     self.assertNotIn(f'"{other}"', text)
+        # The same job from another requester is another request.
+        self.assertEqual(len(request_ids), len(cases))
         self.assertEqual(list(self.cwd.iterdir()), [])
         self.assertEqual(list(self.home.iterdir()), [])
+
+    def test_request_job_accepts_every_valid_host_tier_and_effort(self) -> None:
+        project = self.make_project("project")
+        variants = [("host_id", value) for value in ("claude", "codex", "gemini")]
+        variants += [("tier", value) for value in ("haiku", "sonnet", "opus", "fable")]
+        variants += [("effort", value) for value in ("low", "medium", "high", "xhigh", "max")]
+        for index, (key, value) in enumerate(variants):
+            with self.subTest(**{key: value}):
+                result, out = self.request(project, JOB_B | {key: value}, REQUESTER, f"job-{index}.json")
+                self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+                self.assertEqual(json.loads(out.read_text(encoding="utf-8"))[key], value)
+
+    def test_request_job_refuses_inputs_outside_the_project_or_of_an_excluded_kind(self) -> None:
+        project = self.make_project(os.path.join("outer", "project"))
+        (project.parent / "outside.md").write_text("# outside\n", encoding="utf-8")
+        (project / "docs" / "link.md").symlink_to(project.parent / "outside.md")
+        (project / STATE_TREE).mkdir(parents=True)
+        (project / STATE_TREE / "notes.md").write_text("# live\n", encoding="utf-8")
+        prd = {"kind": "prd", "path": "docs/prd.md"}
+        bad_inputs = (
+            [{"kind": "prd", "path": "docs/missing.md"}], [{"kind": "prd", "path": "../outside.md"}],
+            [{"kind": "prd", "path": "docs/../../outside.md"}],
+            [{"kind": "prd", "path": str(project / "docs" / "prd.md")}],
+            [{"kind": "prd", "path": "docs/link.md"}], [{"kind": "prd", "path": "docs"}],
+            [{"kind": "prd", "path": (STATE_TREE / "notes.md").as_posix()}],
+            [{"kind": "prd-x", "path": "docs/prd.md"}], [prd | {"sha256": "0" * 64}],
+            [prd, {"kind": "diff", "path": "docs/missing.diff"}],
+        )
+        jobs = [JOB_A | {"inputs": inputs} for inputs in bad_inputs]
+        jobs += [JOB_A | {"excluded_input_kinds": kinds}
+                 for kinds in (["diff"], ["plan", "prd"], ["bogus-kind"])]
+        for index, job in enumerate(jobs):
+            with self.subTest(inputs=job["inputs"], excluded=job["excluded_input_kinds"]):
+                result, out = self.request(project, job, REQUESTER, f"job-{index}.json")
+                self.assert_usage_error(result)
+                self.assertFalse(out.exists())
+        result, out = self.request(project, JOB_A | {"excluded_input_kinds": ["plan", "history"]},
+                                   REQUESTER, "accepted.json")
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        self.assertEqual(sorted(json.loads(out.read_text(encoding="utf-8"))["excluded_input_kinds"]),
+                         ["history", "plan"])
 
     def test_request_job_never_overwrites_an_existing_out_file(self) -> None:
         project = self.make_project("project")
@@ -192,12 +270,11 @@ class JobModesTest(FacadeModesMixin, unittest.TestCase):
             with self.subTest(job=job_file.name, env=env):
                 self.assert_refusal(self.bind(project, job_file, env))
         # The refusals bound nothing: the same child id still binds under its own host.
-        for job_file, env in ((job_a, {"CLAUDE_CODE_SESSION_ID": "child-session"}),
-                              (job_b, {"CODEX_SESSION_ID": "child-session"})):
-            with self.subTest(job=job_file.name, accepted=env):
-                result = self.bind(project, job_file, env)
-                self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
-                self.assertEqual(self.one_json(result)["schema_version"], 1)
+        for job_file, host, variable in ((job_a, "claude", "CLAUDE_CODE_SESSION_ID"),
+                                         (job_b, "codex", "CODEX_SESSION_ID")):
+            with self.subTest(job=job_file.name, accepted=host):
+                self.assert_bound(self.bind(project, job_file, {variable: "child-session"}),
+                                  job_file, host, "child-session")
 
     def test_bind_job_binds_a_child_session_to_one_job_only(self) -> None:
         project = self.make_project("project")
@@ -205,18 +282,50 @@ class JobModesTest(FacadeModesMixin, unittest.TestCase):
         job_c = self.make_job(project, JOB_A | {"job_id": "job-gamma", "inputs": []}, "job-c.json")
         job_b = self.make_job(project, JOB_B, "job-b.json")
         claude_child = {"CLAUDE_CODE_SESSION_ID": "child-session"}
-        for job_file, env in ((job_a, claude_child), (job_b, {"CODEX_SESSION_ID": "codex-child"})):
+        for job_file, env, host, child_id in ((job_a, claude_child, "claude", "child-session"),
+                                              (job_b, {"CODEX_SESSION_ID": "codex-child"}, "codex",
+                                               "codex-child")):
             with self.subTest(job=job_file.name):
-                result = self.bind(project, job_file, env)
-                self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
-                self.assertEqual(self.one_json(result)["schema_version"], 1)
+                self.assert_bound(self.bind(project, job_file, env), job_file, host, child_id)
                 self.assert_not_ok(self.bind(project, job_file, env))
         self.assert_not_ok(self.bind(project, job_c, claude_child))
-        result = self.bind(project, job_c, {"CLAUDE_CODE_SESSION_ID": "child-session-2"})
-        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
-        self.assertEqual(self.one_json(result)["schema_version"], 1)
+        self.assert_bound(self.bind(project, job_c, {"CLAUDE_CODE_SESSION_ID": "child-session-2"}),
+                          job_c, "claude", "child-session-2")
         self.assertEqual(list(self.cwd.iterdir()), [])
         self.assertEqual(list(self.home.iterdir()), [])
+
+    def test_bind_job_binds_two_requests_that_share_a_job_id(self) -> None:
+        project = self.make_project("project")
+        job_files = []
+        for requester in ("requester-1", "requester-2"):
+            result, out = self.request(project, JOB_A, {"CLAUDE_CODE_SESSION_ID": requester},
+                                       f"{requester}.json")
+            self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+            job_files.append(out)
+        payloads = [json.loads(path.read_text(encoding="utf-8")) for path in job_files]
+        self.assertEqual({payload["job_id"] for payload in payloads}, {"job-alpha"})
+        self.assertEqual(len({payload["request_id"] for payload in payloads}), 2)
+        for job_file, child_id in zip(job_files, ("child-1", "child-2")):
+            with self.subTest(job=job_file.name):
+                self.assert_bound(self.bind(project, job_file, {"CLAUDE_CODE_SESSION_ID": child_id}),
+                                  job_file, "claude", child_id)
+
+    def test_bind_job_refuses_a_job_file_that_no_longer_matches_its_request_id(self) -> None:
+        project = self.make_project("project")
+        job_file = self.make_job(project, JOB_A, "job-a.json")
+        payload = json.loads(job_file.read_text(encoding="utf-8"))
+        forged = [payload | {"request_id": "f" * 64},
+                  payload | {"request_id": payload["request_id"].upper()},
+                  payload | {"inputs": payload["inputs"][:1]}]
+        forged += [payload | {key: value} for key, value in (
+            ("role_id", "mallory"), ("tier", "haiku"), ("effort", "max"), ("job_id", "job-alpha-2"))]
+        child = {"CLAUDE_CODE_SESSION_ID": "child-session"}
+        for index, value in enumerate(forged):
+            with self.subTest(forged={key: value[key] for key in value if value[key] != payload.get(key)}):
+                self.assert_usage_error(self.bind(project, self.write_json(
+                    project / f"forged-{index}.json", value), child))
+        # No forged file bound the child: it still binds to the genuine request.
+        self.assert_bound(self.bind(project, job_file, child), job_file, "claude", "child-session")
 
     def test_bind_job_rejects_a_malformed_job_file_as_usage_error(self) -> None:
         project = self.make_project("project")
@@ -309,6 +418,42 @@ class JobModesTest(FacadeModesMixin, unittest.TestCase):
         result = self.close(project, CHILD_A, {"CLAUDE_CODE_SESSION_ID": "parent-alpha"}, b"x")
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
         self.assertEqual((project / CHILD_A["artifact_path"]).read_bytes(), b"x")
+
+    def test_close_child_refuses_an_artifact_reached_through_a_symlink(self) -> None:
+        outside = self.base / "outside"
+        outside.mkdir()
+        project = self.base / "project"
+        (project / "docs").mkdir(parents=True)
+        (project / "out").symlink_to(outside, target_is_directory=True)
+        (project / "dangling.bin").symlink_to(outside / "dangling-target.bin")
+        env = {"CLAUDE_CODE_SESSION_ID": "parent-alpha"}
+        for artifact_path in ("out/child-alpha.bin", "dangling.bin"):
+            with self.subTest(artifact_path=artifact_path):
+                result = self.close(project, CHILD_A | {"artifact_path": artifact_path}, env, b"x")
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(list(outside.iterdir()), [])
+        result = self.close(project, CHILD_A | {"artifact_path": "child-alpha.bin"}, env, b"x")
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        self.assertEqual((project / "child-alpha.bin").read_bytes(), b"x")
+        self.assertEqual(list(outside.iterdir()), [])
+
+    def test_close_child_refuses_a_child_deeper_than_one_level(self) -> None:
+        project = self.make_project("project")
+        env = {"CLAUDE_CODE_SESSION_ID": "parent-alpha"}
+        artifact = project / CHILD_A["artifact_path"]
+        for depth in (2, 3):
+            with self.subTest(depth=depth):
+                request = copy.deepcopy(CHILD_A)
+                request["child"]["depth"] = depth
+                result = self.close(project, request, env, b"x")
+                self.assert_not_ok(result)
+                self.assertEqual(self.one_json(result)["error"], "recursion_depth")
+                self.assertFalse(artifact.exists())
+        result = self.close(project, CHILD_A | {"outcome": "cancelled"}, env, b"x")
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        reply = self.one_json(result)
+        self.assertEqual((reply["child_id"], reply["outcome"]), ("child-alpha", "cancelled"))
+        self.assertEqual(artifact.read_bytes(), b"x")
 
 
 if __name__ == "__main__":
