@@ -12,8 +12,9 @@ import json
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT =Path(__file__).resolve().parents[2]
 CONTROLLER = ROOT / "plugins" / "autopilot" / "controller"
 sys.path.insert(0, str(CONTROLLER))
 
@@ -90,16 +91,41 @@ class CredentialDescriptorTest(unittest.TestCase):
 
 
 class AuthenticateTest(unittest.TestCase):
-    def test_a_missing_path_is_reported_as_credential_rejected_not_credential_required(self) -> None:
-        # BindingError subclasses ValueError, so the function's own
-        # `except (..., ValueError, ...)` clause catches its own
-        # "credential required" raise and rewraps it as "credential
-        # rejected" — the caller never observes the more specific message.
+    def authenticate_against(self, stored: bytes, supplied: bytes) -> None:
+        descriptor = actors.credential_descriptor(stored)
+        layout = mock.Mock()
+        layout.read.return_value = supplied
+        actors.authenticate(Path("/credential.json"), descriptor, layout)
+
+    def test_a_missing_path_is_reported_as_credential_required(self) -> None:
         descriptor = {"actor_id": "operator-" + "0" * 32}
         with self.assertRaises(actors.BindingError) as raised:
             actors.authenticate(None, descriptor, layout=None)
+        self.assertEqual(str(raised.exception), "credential required")
+
+    def test_a_matching_credential_authenticates(self) -> None:
+        raw = credential_bytes(role="operator", native_session_id=None,
+                               secret=VALID_SECRET_OPERATOR)
+        self.authenticate_against(raw, raw)
+
+    def test_a_wrong_secret_is_rejected(self) -> None:
+        stored = credential_bytes(role="operator", native_session_id=None,
+                                  secret=VALID_SECRET_OPERATOR)
+        supplied = credential_bytes(role="operator", native_session_id=None,
+                                    secret="c" * 43)
+        with self.assertRaises(actors.BindingError) as raised:
+            self.authenticate_against(stored, supplied)
         self.assertEqual(str(raised.exception), "credential rejected")
-        self.assertEqual(str(raised.exception.__cause__), "credential required")
+
+    def test_a_wrong_binding_is_rejected(self) -> None:
+        stored = credential_bytes(role="operator", native_session_id=None,
+                                  secret=VALID_SECRET_OPERATOR)
+        supplied = credential_bytes(role="operator", native_session_id=None,
+                                    secret=VALID_SECRET_OPERATOR,
+                                    workflow_id="workflow-" + "5" * 32)
+        with self.assertRaises(actors.BindingError) as raised:
+            self.authenticate_against(stored, supplied)
+        self.assertEqual(str(raised.exception), "credential rejected")
 
 
 # PRD 00018 names these acceptance scenarios; each id maps to the test that

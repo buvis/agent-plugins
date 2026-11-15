@@ -287,9 +287,9 @@ def credential_descriptor(raw: bytes) -> dict:
 
 
 def authenticate(path: Path | None, descriptor: dict, layout: PrivateLayout) -> None:
+    if path is None:
+        raise BindingError("credential required")
     try:
-        if path is None:
-            raise BindingError("credential required")
         supplied = credential_descriptor(layout.read(path.absolute(), 65536))
         expected = dict(descriptor)
         supplied_digest = supplied.pop("secret_digest")

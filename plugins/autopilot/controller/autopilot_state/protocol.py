@@ -178,7 +178,7 @@ def apply_locked(request: dict, actor_file: Path | None, layout: actors.PrivateL
     try:
         if current is not None:
             state_binding(current, layout.root)
-        if request["project_id"] != project_identity(layout.root) or request["job_id"] is not None:
+        if request["project_id"] != project_identity(layout.root):
             raise ProtocolError("wrong_binding", revision)
         if current is not None and request["workflow_id"] not in (None, current["workflow_id"]):
             raise ProtocolError("wrong_binding", revision)
@@ -199,8 +199,6 @@ def apply_locked(request: dict, actor_file: Path | None, layout: actors.PrivateL
         if current is not None:
             return existing_open(request, actor_file, current, layout, store)
         fresh_binding(request, revision)
-        if request["expected_revision"] != 0:
-            raise ProtocolError("revision_conflict", revision)
         layout.prepare_ignores()
         result = {"workflow_id": "workflow-" + secrets.token_hex(16),
                   "actor_id": "operator-" + secrets.token_hex(16),
@@ -231,7 +229,7 @@ def apply(root: Path, request_file: Path, actor_file: Path | None) -> dict:
         root = resolve_project_root(root)
         with actors.PrivateLayout(root) as layout:
             store = StateStore(layout.private / "state.json")
-            if request["project_id"] != project_identity(root) or request["job_id"] is not None:
+            if request["project_id"] != project_identity(root):
                 raise ProtocolError("wrong_binding")
             initialized = layout.exists(store.path) or layout.exists(
                 layout.private / "credential-intent.json")
@@ -239,10 +237,6 @@ def apply(root: Path, request_file: Path, actor_file: Path | None) -> dict:
                 raise ProtocolError("recovery_required")
             if not initialized:
                 fresh_binding(request)
-                if request["operation"] != "workflow.open":
-                    raise ProtocolError("missing_capability")
-                if request["expected_revision"] != 0:
-                    raise ProtocolError("revision_conflict")
                 layout.prepare()
             with store._locked(exclusive=True):
                 layout.verify()
