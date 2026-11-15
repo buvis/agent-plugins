@@ -3,7 +3,7 @@
 T-056 is **incomplete**. Requirements, design, and tasks were approved on
 2026-11-10. The scorer and shared batch machinery have deterministic tests;
 synthetic records under `fixtures/results/` are never release evidence.
-The Claude and Codex adapters are implemented. Each stays blocked until a
+The Claude, Codex, and Kiro adapters are implemented. Each stays blocked until a
 passing boundary proof for its exact host version, package revision, and
 generated configuration is supplied with `--boundary-proof`. No proof exists
 yet: the shell-sandbox half must run in a developer terminal outside
@@ -51,7 +51,22 @@ model turn.
 5. Read both proof files. Each check names its evidence.
 6. Run the self-check session: `python3 -B tests/specflow/evals/runners/run_claude.py status-summary --model claude-haiku-5-5 --boundary-proof docs/dev/tmp/specflow/proofs/claude.json --evals tests/specflow/fixtures/results/self-check --out docs/dev/tmp/specflow/results`. The expected exit is 1: one eval passes and the impossible eval fails.
 7. Run the same session with `run_codex.py`, `<codex-model>`, and `proofs/codex.json`. Sign in again when Codex asks.
-8. Compare the records: `python3 -B tests/specflow/evals/runners/score.py --compare docs/dev/tmp/specflow/results/claude-code/status-summary/1.json docs/dev/tmp/specflow/results/codex/status-summary/1.json`. Exit 0 means equal status fields.
+8. Run `python3 -B tests/specflow/evals/runners/run_kiro.py --probe-live --model claude-haiku-5.5 > docs/dev/tmp/specflow/proofs/kiro.json`. Kiro uses its existing sign-in; nothing is copied.
+9. Run the same session with `run_kiro.py`, `claude-haiku-5.5`, and `proofs/kiro.json`.
+10. Compare the records: `python3 -B tests/specflow/evals/runners/score.py --compare docs/dev/tmp/specflow/results/claude-code/status-summary/1.json docs/dev/tmp/specflow/results/codex/status-summary/1.json docs/dev/tmp/specflow/results/kiro-ide/status-summary/1.json`. Exit 0 means equal status fields.
+
+**Kiro limits found on 2.35.1.** The sign-in does not survive an empty `HOME`,
+so the Kiro process keeps the real `HOME`; `KIRO_HOME` and the agent's deny
+rules carry the isolation. `steering_inclusion` appears only on the first turn
+of a conversation and not at all for an agent without instruction files. Every
+turn reports `context_usage` with the matched context files; the adapter adds
+them to its observations, but `CONTEXT_INVENTORY_APPROVED` in `run_kiro.py`
+stays false, so a multi-turn Kiro record is `not-measured` until the developer
+approves that source. No documented Kiro control strips environment variables
+from tools; the probe's `tool-secret-environment-denied` check decides. Inside
+`run-agent` Kiro reports its sandbox as active while every shell command fails
+with `sandbox_apply: Operation not permitted`; the adapter treats that as a
+failure.
 
 A proof is bound to the host version, the committed package tree, and the
 generated configuration. Any change to one of them needs a new probe.
