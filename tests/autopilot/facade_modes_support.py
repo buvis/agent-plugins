@@ -10,8 +10,6 @@ from pathlib import Path
 import test_facade
 
 
-SESSION_VARS = {"claude": "CLAUDE_CODE_SESSION_ID", "codex": "CODEX_SESSION_ID",
-                "gemini": "GEMINI_SESSION_ID"}
 MISSING_SESSION = {"schema_version": 1, "ok": False, "error": "missing_native_session"}
 STATE_TREE = Path("docs") / "dev" / "project-management" / "autopilot"
 
