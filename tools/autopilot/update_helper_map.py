@@ -15,6 +15,13 @@ when that file exists. A valid AP00018 successor supersedes the exact AP00013
 receipts loaded, never rewrites them, and certifies exactly the paths it lists:
 README.md and CHANGELOG.md get self-referential evidence pinned to its
 package_revision, and controller assets cite the successor itself.
+
+Without --host-receipts it uses DEFAULT_HOST_RECEIPTS under the root when that
+file exists. Valid AP00014 host receipts supersede the exact AP00018 successor
+loaded and certify exactly the paths they list: README.md and CHANGELOG.md get
+self-referential evidence pinned to their package_revision, and autopilot.py
+and AP00014 assets cite the host receipts. Every run registers missing AP00014
+asset rows with planned evidence.
 """
 
 from __future__ import annotations
@@ -41,6 +48,7 @@ SUCCESSOR_SPEC.loader.exec_module(helper_map_successor)
 refresh_listed_row = helper_map_successor.refresh_listed_row
 validate_receipts = helper_map_successor.validate_receipts
 validate_successor_receipts = helper_map_successor.validate_successor_receipts
+validate_host_receipts = helper_map_successor.validate_host_receipts
 verify_listed_paths_match_revision = (
     helper_map_successor.verify_listed_paths_match_revision
 )
@@ -56,6 +64,10 @@ DEFAULT_SUCCESSOR_RECEIPTS = (
     "docs/dev/project-management/autopilot/reports/"
     "00018-v2-controller-delivery-receipts.json"
 )
+DEFAULT_HOST_RECEIPTS = (
+    "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json"
+)
+HOST_RECEIPT_PRD = helper_map_successor.HOST_RECEIPT_PRD
 CONTROLLER_PREFIXES = helper_map_successor.CONTROLLER_PREFIXES
 CONTROLLER_CONTRACT = helper_map_successor.CONTROLLER_CONTRACT
 CONTROLLER_SCENARIO = "controller_action_not_yet_wired"
@@ -302,19 +314,7 @@ REFRESHED = (
     "plugins/autopilot/scripts/autopilot.py",
     *helper_map_successor.SHARED_PATHS,
 )
-AP00014_DIGESTED = (
-    "plugins/autopilot/compatibility/claude.json",
-    "plugins/autopilot/compatibility/codex.json",
-    "plugins/autopilot/compatibility/gemini.json",
-    "plugins/autopilot/contracts/hosts.json",
-    "plugins/autopilot/scripts/claude.py",
-    "plugins/autopilot/scripts/codex.py",
-    "plugins/autopilot/scripts/doctor.py",
-    "plugins/autopilot/scripts/gemini.py",
-    "plugins/autopilot/scripts/guards.py",
-    "plugins/autopilot/scripts/hosts.py",
-    "plugins/autopilot/scripts/jobs.py",
-)
+AP00014_DIGESTED = helper_map_successor.AP00014_ASSET_PATHS
 CONTROLLER_KEYS = {f"{m}:{f}" for m, row in TABLE.items() for f in row[4]}
 
 
@@ -519,11 +519,70 @@ def register_controller_asset(
     upsert(result["authored_file_owners"], "path", owner)
 
 
-def apply_successor(result: dict, root: Path, successor: dict, artifact: dict) -> None:
+def register_ap00014_assets(result: dict, root: Path) -> None:
+    known = {row["destination_path"] for row in result["assets"]}
+    planned = {
+        "status": "planned",
+        "artifact_id": None,
+        "artifact_sha256": None,
+        "tested_package_revision": None,
+    }
+    for path in AP00014_DIGESTED:
+        if path in known or not (root / path).is_file():
+            continue
+        digest = hashlib.sha256((root / path).read_bytes()).hexdigest()
+        row = asset_row(path, digest, dict(planned))
+        row["adaptation_reason"] = (
+            "Newly authored AP00014 host-execution file; no pinned source asset or "
+            "source sections. The digest records current packaged bytes."
+        )
+        row["acceptance_cases"][0]["expected_outcome"] = (
+            "The packaged AP00014 host-execution file exists at the recorded digest; "
+            "AP00014 delivery evidence is planned."
+        )
+        owner = owner_row(path)
+        owner["delivery_prd"] = HOST_RECEIPT_PRD
+        owner["acceptance_cases"][0]["expected_outcome"] = (
+            "The packaged AP00014 host-execution file exists at the recorded digest; "
+            "its delivery is owned by AP00014."
+        )
+        upsert(result["assets"], "destination_path", row)
+        upsert(result["authored_file_owners"], "path", owner)
+
+
+def refresh_listed_rows(
+    assets: list[dict], root: Path, listed: set[str], cited: dict, prd: str
+) -> None:
+    for row in assets:
+        path = row["destination_path"]
+        if path not in listed:
+            continue
+        sha = hashlib.sha256((root / path).read_bytes()).hexdigest()
+        row["destination_blob_sha256"] = sha
+        refresh_listed_row(row, path, cited, prd=prd)
+        if path in REFRESHED[1:]:
+            row["evidence"].update(artifact_id=path, artifact_sha256=sha)
+
+
+def apply_host_receipt(result: dict, root: Path, receipts: dict, artifact: dict) -> None:
+    revision = receipts["package_revision"]
+    cited = {"status": "passed", **artifact, "tested_package_revision": revision}
+    listed = set(receipts["paths"])
+    verify_listed_paths_match_revision(root, revision, listed)
+    refresh_listed_rows(result["assets"], root, listed, cited, HOST_RECEIPT_PRD)
+
+
+def apply_successor(
+    result: dict,
+    root: Path,
+    successor: dict,
+    artifact: dict,
+    host_listed: frozenset[str] = frozenset(),
+) -> None:
     revision = successor["package_revision"]
     cited = {"status": "passed", **artifact, "tested_package_revision": revision}
     listed = set(successor["paths"])
-    verify_listed_paths_match_revision(root, revision, listed)
+    verify_listed_paths_match_revision(root, revision, listed - host_listed)
     if CONTROLLER_CONTRACT in listed:
         register_controller_asset(
             result, root, CONTROLLER_CONTRACT, cited,
@@ -545,15 +604,7 @@ def apply_successor(result: dict, root: Path, successor: dict, artifact: dict) -
     for path in sorted(listed - known):
         if path.startswith(CONTROLLER_PREFIXES):
             register_controller_asset(result, root, path, cited)
-    for row in result["assets"]:
-        path = row["destination_path"]
-        if path not in listed:
-            continue
-        sha = hashlib.sha256((root / path).read_bytes()).hexdigest()
-        row["destination_blob_sha256"] = sha
-        refresh_listed_row(row, path, cited)
-        if path in REFRESHED[1:]:
-            row["evidence"].update(artifact_id=path, artifact_sha256=sha)
+    refresh_listed_rows(result["assets"], root, listed, cited, "00018")
 
 
 def refresh_shared_evidence(
@@ -589,6 +640,8 @@ def apply(
     artifact: dict | None = None,
     successor: dict | None = None,
     successor_artifact: dict | None = None,
+    host: dict | None = None,
+    host_artifact: dict | None = None,
 ) -> dict:
     if "helper_dispositions" in document:
         validate(document["helper_dispositions"], document)
@@ -597,6 +650,9 @@ def apply(
     has_successor = successor is not None or successor_artifact is not None
     if has_successor:
         validate_successor_receipts(successor, artifact)
+    has_host = host is not None or host_artifact is not None
+    if has_host:
+        validate_host_receipts(host, successor_artifact)
     result = copy.deepcopy(document)
     result["helper_dispositions"] = build_dispositions(document)
     unavailable = {
@@ -619,7 +675,11 @@ def apply(
     revision = (receipts or {}).get("package_revision")
     refresh_shared_evidence(result["assets"], root, evidence, unavailable, revision)
     if has_successor:
-        apply_successor(result, root, successor, successor_artifact)
+        host_listed = frozenset(host["paths"]) if has_host else frozenset()
+        apply_successor(result, root, successor, successor_artifact, host_listed)
+    register_ap00014_assets(result, root)
+    if has_host:
+        apply_host_receipt(result, root, host, host_artifact)
     refresh_ap00014_digests(result["assets"], root)
     return result
 
@@ -660,6 +720,9 @@ def run(arguments: argparse.Namespace) -> int:
     successor, successor_artifact = load_artifact(
         arguments.successor_receipts, DEFAULT_SUCCESSOR_RECEIPTS, root
     )
+    host, host_artifact = load_artifact(
+        arguments.host_receipts, DEFAULT_HOST_RECEIPTS, root
+    )
     rendered = encode(
         apply(
             json.loads(raw),
@@ -668,6 +731,8 @@ def run(arguments: argparse.Namespace) -> int:
             artifact,
             successor=successor,
             successor_artifact=successor_artifact,
+            host=host,
+            host_artifact=host_artifact,
         )
     )
     if arguments.check:
@@ -700,6 +765,12 @@ def main() -> int:
         type=Path,
         help="AP00018 successor receipts JSON; defaults to "
         f"ROOT/{DEFAULT_SUCCESSOR_RECEIPTS} when that file exists",
+    )
+    parser.add_argument(
+        "--host-receipts",
+        type=Path,
+        help="AP00014 host receipts JSON; defaults to "
+        f"ROOT/{DEFAULT_HOST_RECEIPTS} when that file exists",
     )
     parser.add_argument(
         "--check", action="store_true", help="Exit 0 only if the map is generated"

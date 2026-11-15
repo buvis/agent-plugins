@@ -54,19 +54,27 @@ SUCCESSOR_RECEIPTS = (
     "docs/dev/project-management/autopilot/reports/"
     "00018-v2-controller-delivery-receipts.json"
 )
-AP00014_TARGETS = frozenset({
-    "plugins/autopilot/scripts/hosts.py",
+HOST_RECEIPTS = (
+    "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json"
+)
+AP00014_ASSET_PATHS = (
+    "plugins/autopilot/compatibility/claude.json",
+    "plugins/autopilot/compatibility/claude/hooks.json",
+    "plugins/autopilot/compatibility/codex.json",
+    "plugins/autopilot/compatibility/codex/hooks.json",
+    "plugins/autopilot/compatibility/gemini.json",
+    "plugins/autopilot/contracts/hosts.json",
     "plugins/autopilot/scripts/claude.py",
     "plugins/autopilot/scripts/codex.py",
-    "plugins/autopilot/scripts/gemini.py",
-    "plugins/autopilot/scripts/jobs.py",
-    "plugins/autopilot/scripts/guards.py",
     "plugins/autopilot/scripts/doctor.py",
-    "plugins/autopilot/contracts/hosts.json",
-    "plugins/autopilot/compatibility/claude.json",
-    "plugins/autopilot/compatibility/gemini.json",
-    "plugins/autopilot/compatibility/codex.json",
-})
+    "plugins/autopilot/scripts/gemini.py",
+    "plugins/autopilot/scripts/guards.py",
+    "plugins/autopilot/scripts/hosts.py",
+    "plugins/autopilot/scripts/interception.py",
+    "plugins/autopilot/scripts/jobs.py",
+    "plugins/autopilot/scripts/roles.py",
+)
+AP00014_TARGETS = frozenset(AP00014_ASSET_PATHS)
 AP00014_OWNED = AP00014_TARGETS | frozenset({
     "tools/autopilot/probe-host.py",
     "tools/autopilot/build-compatibility.py",
@@ -340,19 +348,50 @@ def successor_evidence(successor: dict) -> dict:
     }
 
 
+def load_host_receipt() -> dict | None:
+    """Validate the default AP00014 host receipt and return it, or None if absent."""
+    if not (ROOT / HOST_RECEIPTS).is_file():
+        return None
+    host = json.loads((ROOT / HOST_RECEIPTS).read_bytes())
+    superseded = {
+        "artifact_id": SUCCESSOR_RECEIPTS,
+        "artifact_sha256": digest((ROOT / SUCCESSOR_RECEIPTS).read_bytes()),
+    }
+    load_tool().validate_host_receipts(host, superseded)
+    return host
+
+
+def host_evidence(host: dict) -> dict:
+    return {
+        "status": "passed",
+        "artifact_id": HOST_RECEIPTS,
+        "artifact_sha256": digest((ROOT / HOST_RECEIPTS).read_bytes()),
+        "tested_package_revision": host["package_revision"],
+    }
+
+
 def assert_refreshed_evidence(assets: dict) -> None:
     receipts_evidence = assets[sorted(HELPER_TARGETS)[0]]["evidence"]
-    # The historical AP00013 receipt stays cited by the helpers and autopilot.py.
+    # The historical AP00013 receipt stays cited by the helpers.
     assert receipts_evidence["artifact_id"] == AP00013_RECEIPTS
-    assert assets[REFRESHED[0]]["evidence"] == receipts_evidence
     receipts = json.loads((ROOT / receipts_evidence["artifact_id"]).read_bytes())
     assert re.fullmatch(r"[0-9a-f]{40}", receipts["package_revision"])
-    # README and CHANGELOG changed after AP00013, so the successor receipt owns them.
     successor = load_successor_receipt()
-    revision = successor["package_revision"]
+    host = load_host_receipt()
+    # autopilot.py cites AP00013 until a host receipt lists it.
+    if host is not None and REFRESHED[0] in host["paths"]:
+        assert assets[REFRESHED[0]]["evidence"] == host_evidence(host)
+    else:
+        assert assets[REFRESHED[0]]["evidence"] == receipts_evidence
     for path in REFRESHED[1:]:
-        # The successor certifies only the paths it lists.
-        assert path in successor["paths"], path
+        # The latest receipt in the chain that lists the path certifies it.
+        if host is not None and path in host["paths"]:
+            latest = host
+        elif path in successor["paths"]:
+            latest = successor
+        else:
+            latest = receipts
+        revision = latest["package_revision"]
         sha = digest((ROOT / path).read_bytes())
         assert assets[path]["evidence"] == {
             "status": "passed",
@@ -454,16 +493,30 @@ def test_controller_assets_digest_current_bytes_and_cite_the_successor(
     assert owners[CONTROLLER_CONTRACT]["acceptance_cases"]
 
 
-def test_ap00014_rows_are_owned_and_digested_from_current_bytes(mapping: dict) -> None:
-    """Every AP00014 asset row digests its current bytes, and every AP00014
+def test_ap00014_rows_cite_the_host_receipt_and_digest_current_bytes(
+    mapping: dict,
+) -> None:
+    """Every AP00014 asset row digests its current bytes and cites the host
+    receipt once it lists the path, planned evidence otherwise; every AP00014
     owner row is owned by 00014 - including the two maintainer tools, which
     are owned but deliberately not packaged assets."""
+    host = load_host_receipt()
+    planned = {
+        "status": "planned",
+        "artifact_id": None,
+        "artifact_sha256": None,
+        "tested_package_revision": None,
+    }
     assets = single_assets(mapping, sorted(AP00014_TARGETS))
     owners = by_key(mapping["authored_file_owners"], "path")
     for path in sorted(AP00014_TARGETS):
         assert assets[path]["destination_blob_sha256"] == digest(
             (ROOT / path).read_bytes()
         ), path
+        if host is not None and path in host["paths"]:
+            assert assets[path]["evidence"] == host_evidence(host), path
+        else:
+            assert assets[path]["evidence"] == planned, path
     asset_paths = {row["destination_path"] for row in mapping["assets"]}
     for path in sorted(AP00014_OWNED):
         assert owners[path]["delivery_prd"] == "00014", path

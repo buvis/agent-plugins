@@ -34,7 +34,9 @@ GATE_SIZE = 742
 GATE_SHA = "2ea4600b2ec6756640e2e23a8d761160afc889c0a3c6af0caa6fac6d0edaec75"
 AP00014_OWNED = frozenset({
     "plugins/autopilot/compatibility/claude.json",
+    "plugins/autopilot/compatibility/claude/hooks.json",
     "plugins/autopilot/compatibility/codex.json",
+    "plugins/autopilot/compatibility/codex/hooks.json",
     "plugins/autopilot/compatibility/gemini.json",
     "plugins/autopilot/contracts/hosts.json",
     "plugins/autopilot/scripts/claude.py",
@@ -43,7 +45,9 @@ AP00014_OWNED = frozenset({
     "plugins/autopilot/scripts/gemini.py",
     "plugins/autopilot/scripts/guards.py",
     "plugins/autopilot/scripts/hosts.py",
+    "plugins/autopilot/scripts/interception.py",
     "plugins/autopilot/scripts/jobs.py",
+    "plugins/autopilot/scripts/roles.py",
     "tools/autopilot/build-compatibility.py",
     "tools/autopilot/probe-host.py",
 })

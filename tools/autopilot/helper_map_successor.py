@@ -1,4 +1,4 @@
-"""Validate delivery receipts and an AP00018 successor.
+"""Validate delivery receipts, an AP00018 successor and AP00014 host receipts.
 
 Check the successor's package_revision and refresh the rows it cites.
 """
@@ -17,6 +17,25 @@ CONTROLLER_PREFIXES = (
     "plugins/autopilot/contracts/controller/",
 )
 CONTROLLER_CONTRACT = "plugins/autopilot/contracts/controller-v1.json"
+HOST_RECEIPT_PRD = "00014"
+AP00014_ASSET_PATHS = (
+    "plugins/autopilot/compatibility/claude.json",
+    "plugins/autopilot/compatibility/claude/hooks.json",
+    "plugins/autopilot/compatibility/codex.json",
+    "plugins/autopilot/compatibility/codex/hooks.json",
+    "plugins/autopilot/compatibility/gemini.json",
+    "plugins/autopilot/contracts/hosts.json",
+    "plugins/autopilot/scripts/claude.py",
+    "plugins/autopilot/scripts/codex.py",
+    "plugins/autopilot/scripts/doctor.py",
+    "plugins/autopilot/scripts/gemini.py",
+    "plugins/autopilot/scripts/guards.py",
+    "plugins/autopilot/scripts/hosts.py",
+    "plugins/autopilot/scripts/interception.py",
+    "plugins/autopilot/scripts/jobs.py",
+    "plugins/autopilot/scripts/roles.py",
+)
+HOST_PATHS = (*SHARED_PATHS, "plugins/autopilot/scripts/autopilot.py", *AP00014_ASSET_PATHS)
 # Prose that claims the delivery evidence has not landed yet.
 CLAIMS = re.compile(r"(?i)\b(planned|pending|on[\s-]hold)\b")
 SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
@@ -91,6 +110,32 @@ def validate_successor_receipts(
             )
     if len(set(paths)) != len(paths):
         raise ValueError("successor paths must be unique")
+
+
+def validate_host_receipts(receipts: dict, supersedes_artifact: dict | None) -> None:
+    if not isinstance(receipts, dict):
+        raise ValueError("host receipts must be a JSON object")
+    validate_receipts(receipts, prd=HOST_RECEIPT_PRD)
+    if "package_revision" not in receipts:
+        raise ValueError("host receipts need a package_revision")
+    if (
+        supersedes_artifact is None
+        or receipts.get("supersedes") != supersedes_artifact
+    ):
+        raise ValueError(
+            "host receipts must supersede the exact AP00018 successor receipts loaded"
+        )
+    paths = receipts.get("paths")
+    if not isinstance(paths, list) or not paths:
+        raise ValueError("host receipts must list at least one path")
+    for path in paths:
+        if not isinstance(path, str) or path not in HOST_PATHS:
+            raise ValueError(
+                "host path is not README, CHANGELOG, autopilot.py or an AP00014 "
+                f"asset: {path!r}"
+            )
+    if len(set(paths)) != len(paths):
+        raise ValueError("host paths must be unique")
 
 
 def refusal(revision: str, detail: str) -> ValueError:
@@ -186,8 +231,8 @@ def verify_listed_paths_match_revision(
             )
 
 
-def refresh_listed_row(row: dict, path: str, cited: dict) -> None:
-    """Make a certified row agree with the evidence the successor gives it.
+def refresh_listed_row(row: dict, path: str, cited: dict, prd: str = "00018") -> None:
+    """Make a certified row agree with the evidence the AP{prd} receipt gives it.
 
     Acceptance statuses follow the refreshed evidence, and prose that claims the
     delivery has not landed yet is replaced with prose about this row. A
@@ -201,7 +246,7 @@ def refresh_listed_row(row: dict, path: str, cited: dict) -> None:
         sentences = SENTENCE_END.split(reason.strip())
         kept = [sentence for sentence in sentences if not CLAIMS.search(sentence)]
         landed = (
-            f"AP00018 delivery evidence for {path} has landed: the digest "
+            f"AP{prd} delivery evidence for {path} has landed: the digest "
             "records the packaged bytes at the tested package_revision, not "
             "host certification."
         )
@@ -211,6 +256,6 @@ def refresh_listed_row(row: dict, path: str, cited: dict) -> None:
         if CLAIMS.search(case["expected_outcome"]):
             case["expected_outcome"] = (
                 f"The packaged bytes of {path} exist at the recorded digest, "
-                "certified by the AP00018 successor receipt at its "
+                f"certified by the AP{prd} successor receipt at its "
                 "package_revision."
             )

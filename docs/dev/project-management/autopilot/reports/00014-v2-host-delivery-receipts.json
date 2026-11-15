@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "prd": "00014",
+  "supersedes": {
+    "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+    "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909"
+  },
+  "package_revision": "d6f014f95d510d3714f6e6351919989320ccfd63",
+  "paths": [
+    "plugins/autopilot/README.md",
+    "plugins/autopilot/CHANGELOG.md",
+    "plugins/autopilot/scripts/autopilot.py",
+    "plugins/autopilot/compatibility/claude.json",
+    "plugins/autopilot/compatibility/claude/hooks.json",
+    "plugins/autopilot/compatibility/codex.json",
+    "plugins/autopilot/compatibility/codex/hooks.json",
+    "plugins/autopilot/compatibility/gemini.json",
+    "plugins/autopilot/contracts/hosts.json",
+    "plugins/autopilot/scripts/claude.py",
+    "plugins/autopilot/scripts/codex.py",
+    "plugins/autopilot/scripts/doctor.py",
+    "plugins/autopilot/scripts/gemini.py",
+    "plugins/autopilot/scripts/guards.py",
+    "plugins/autopilot/scripts/hosts.py",
+    "plugins/autopilot/scripts/interception.py",
+    "plugins/autopilot/scripts/jobs.py",
+    "plugins/autopilot/scripts/roles.py"
+  ],
+  "tasks": [
+    {
+      "task": "12",
+      "tests": "tests/autopilot",
+      "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q --tb=line -p no:cacheprovider",
+      "passed": 1841,
+      "failed": 7,
+      "skipped": 0,
+      "exit_code": 1,
+      "duration_seconds": 726.31
+    }
+  ],
+  "real_host": {
+    "status": "unavailable",
+    "reason": "Only static host probes exist in this package: each adapter observes a binary on PATH plus auth presence, and never invokes the host. On 2026-11-15 the probes reported claude available without auth, codex available with auth, and gemini available without auth; every probe was static and certified is False. No live host invocation ran, so no host is certified; live certification is AP 00017's work."
+  }
+}
