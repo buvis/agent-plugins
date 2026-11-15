@@ -327,6 +327,7 @@ class StateLockRaceTest(unittest.TestCase):
                 self.assertFalse(path.exists(), "a refused initialize published state")
 
     def test_concurrent_lock_creators_either_win_or_lose_without_an_io_error(self) -> None:
+        met_rounds = 0
         for attempt in range(ROUNDS):
             with self.subTest(round=attempt):
                 round_base = self.base / f"round-{attempt}"
@@ -343,9 +344,7 @@ class StateLockRaceTest(unittest.TestCase):
                 self.assertEqual([item.get("exception") for item in results
                                   if item["outcome"] == "io_error"], [],
                                  "a concurrent initializer surfaced StateIOError")
-                if [item["met"] for item in results] != [1] * CREATORS:
-                    self.skipTest("creators did not all meet inside the 1.5 s "
-                                  "rendezvous, so this round proved no race")
+                met_rounds += [item["met"] for item in results] == [1] * CREATORS
                 self.assertEqual(set(outcomes), {"initialized", "exists"})
                 self.assertEqual(outcomes.count("initialized"), 1)
                 self.assertEqual(outcomes.count("exists"), CREATORS - 1)
@@ -355,6 +354,9 @@ class StateLockRaceTest(unittest.TestCase):
                 path = round_base / "state.json"
                 self.assertEqual(json.loads(path.read_bytes()), winner)
                 self.assertEqual(kernel.StateStore(path).read(), winner)
+        if not met_rounds:
+            self.skipTest("no round had every creator meet inside the 1.5 s "
+                          "rendezvous, so this run proved no race")
 
 
 class StateLockRetryTest(unittest.TestCase):
@@ -398,8 +400,9 @@ class StateLockRetryTest(unittest.TestCase):
                          (transients + 1, transients + 1))
 
     def test_gives_up_with_an_io_error_after_the_attempt_limit(self) -> None:
-        with self.assertRaises(StateIOError):
+        with self.assertRaises(StateIOError) as caught:
             self.lock_with_transients(LOCK_OPEN_ATTEMPTS)
+        self.assertIsInstance(caught.exception.__cause__, FileNotFoundError)
 
 
 if __name__ == "__main__":

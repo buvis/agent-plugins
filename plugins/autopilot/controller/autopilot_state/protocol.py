@@ -118,6 +118,8 @@ def state_binding(state: dict, root: Path) -> None:
         raise ProtocolError("wrong_binding", state["revision"])
 
 
+# parse_request already refuses a job_id; the job_id clauses in fresh_binding
+# and actor_binding are defence in depth for a caller that skips the parser.
 def fresh_binding(request: dict, revision: int = 0) -> None:
     if any(request[key] is not None for key in ("workflow_id", "actor_id", "lease_epoch", "job_id")):
         raise ProtocolError("wrong_binding", revision)

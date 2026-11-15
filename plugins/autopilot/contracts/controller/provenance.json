@@ -1131,7 +1131,7 @@
     {
       "source": "tests/state/test_durability.py::test_sigkill_at_each_locked_mutation_boundary_preserves_recoverable_state",
       "target": "tests/autopilot/test_controller_bootstrap_recovery.py::test_bootstrap_recovers_exactly_once_at_every_declared_crash_boundary",
-      "note": "runtime kills the CLI process with os._exit at each declared bootstrap crash boundary and recovers exactly once; transaction boundary faults are raised in-process by test_controller_kernel.py::test_all_six_boundaries_surface_errors_and_interrupts_and_repair_the_pair"
+      "note": "runtime kills the CLI process with os._exit at each declared bootstrap crash boundary and recovers exactly once; the six transaction boundaries are faulted in-process, without a process kill, by test_controller_kernel.py::test_all_six_boundaries_surface_errors_and_interrupts_and_repair_the_pair"
     },
     {
       "source": "tests/state/test_durability.py::test_directory_fsync_failures_are_translated_and_never_swallowed",
@@ -1165,6 +1165,7 @@
     "host support or certification",
     "installation, publication, package version changes",
     "test_map gap: tests/state/test_store_concurrency.py::test_read_uses_the_shared_sidecar_and_transaction_uses_it_exclusively (no reader holds the shared lock against a waiting writer)",
-    "test_map gap: tests/runtime/test_paths.py::test_layout_rejects_directory_inode_replacement_during_open_validation (no directory inode swap during open validation)"
+    "test_map gap: tests/runtime/test_paths.py::test_layout_rejects_directory_inode_replacement_during_open_validation (no directory inode swap during open validation)",
+    "test_map partial gap: tests/state/test_durability.py::test_sigkill_at_each_locked_mutation_boundary_preserves_recoverable_state (a process is killed at the bootstrap boundaries only; the six transaction boundaries are faulted in-process)"
   ]
 }

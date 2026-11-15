@@ -191,15 +191,15 @@ def refresh_listed_row(row: dict, path: str, cited: dict) -> None:
 
     Acceptance statuses follow the refreshed evidence, and prose that claims the
     delivery has not landed yet is replaced with prose about this row. A
-    reason keeps its authored leading sentence, unless that sentence is itself
-    the claim, and gains a sentence saying the evidence has landed. Prose that
-    claims nothing has nothing to contradict, so it survives.
+    reason keeps every authored sentence that makes no such claim and gains a
+    sentence saying the evidence has landed. Prose that claims nothing has
+    nothing to contradict, so it survives.
     """
     row["evidence"] = dict(cited)
     reason = row["adaptation_reason"]
     if CLAIMS.search(reason):
-        lead = SENTENCE_END.split(reason.strip(), maxsplit=1)[0]
-        kept = [] if CLAIMS.search(lead) else [lead]
+        sentences = SENTENCE_END.split(reason.strip())
+        kept = [sentence for sentence in sentences if not CLAIMS.search(sentence)]
         landed = (
             f"AP00018 delivery evidence for {path} has landed: the digest "
             "records the packaged bytes at the tested package_revision, not "

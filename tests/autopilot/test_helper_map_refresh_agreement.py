@@ -72,9 +72,11 @@ def tool() -> ModuleType:
 
 @pytest.fixture
 def plain_git_config(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Keep git's messages free of user and system configuration."""
+    """Keep git free of user, system and inherited repository configuration."""
     monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
     monkeypatch.setenv("GIT_CONFIG_SYSTEM", os.devnull)
+    monkeypatch.delenv("GIT_DIR", raising=False)
+    monkeypatch.delenv("GIT_WORK_TREE", raising=False)
 
 
 def strings(value: object) -> list[str]:
@@ -231,6 +233,19 @@ def test_a_refresh_keeps_the_authored_leading_sentence_of_the_reason(
     again = by_key(regenerated["assets"], "destination_path")
     for path in (CONTROLLER[0], CONTROLLER[1], SHARED[0]):
         assert again[path]["adaptation_reason"] == rows[path]["adaptation_reason"]
+
+
+def test_a_refresh_drops_only_the_sentences_that_make_the_claim(
+    tool: ModuleType,
+) -> None:
+    row = {
+        "adaptation_reason": "First fact. Delivery is on hold. Last fact.",
+        "acceptance_cases": [],
+    }
+    tool.refresh_listed_row(row, CONTROLLER[0], {"status": "passed"})
+    reason = row["adaptation_reason"]
+    assert reason.startswith("First fact. Last fact. "), reason
+    assert not CLAIMS.search(reason) and CONTROLLER[0] in reason, reason
 
 
 def test_a_refresh_keeps_every_field_it_has_no_claim_to_rewrite(
@@ -446,6 +461,48 @@ def test_a_localized_git_still_skips_outside_a_work_tree_and_refuses_in_english(
     assert_refusal(str(refused.value), REVISIONS[0])
 
 
+def test_every_git_call_of_the_check_runs_in_the_c_locale(
+    tool: ModuleType,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    plain_git_config: None,
+) -> None:
+    build_repo(tmp_path, "locale")
+    run_plain_git("-C", tmp_path, "init", "--quiet")
+    real_run, seen = subprocess.run, []
+
+    def spy(command, **options):
+        seen.append(options.get("env", {}).get("LC_ALL"))
+        return real_run(command, **options)
+
+    monkeypatch.setattr(subprocess, "run", spy)
+    with pytest.raises(ValueError):
+        tool.verify_listed_paths_match_revision(tmp_path, REVISIONS[0], {SHARED[0]})
+    assert len(seen) >= 2 and set(seen) == {"C"}, seen
+
+
+def git_work_tree_alone(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    root = tmp_path / "plain"
+    root.mkdir()
+    monkeypatch.setenv("GIT_WORK_TREE", str(root))
+    return root
+
+
+def empty_git_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    root = tmp_path / "plain"
+    root.mkdir()
+    monkeypatch.setenv("GIT_DIR", "")
+    return root
+
+
+def repository_in_a_parent(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """A `.git` entry above the root, not at it: the parent walk must see it."""
+    parent = git_dir_without_head(tmp_path, monkeypatch)
+    root = parent / "nested" / "root"
+    root.mkdir(parents=True)
+    return root
+
+
 def missing_directory(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     return tmp_path / "gone"
 
@@ -492,6 +549,9 @@ PROBE_FAILURES = {
     "nonexistent-git-dir": nonexistent_git_dir,
     "git-dir-without-head": git_dir_without_head,
     "probe-answers-false": bare_repository,
+    "git-work-tree-alone": git_work_tree_alone,
+    "empty-git-dir": empty_git_dir,
+    "repository-in-a-parent": repository_in_a_parent,
 }
 
 
