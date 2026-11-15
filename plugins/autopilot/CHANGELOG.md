@@ -4,6 +4,11 @@
 
 ### Added
 
+- **autopilot**: Add host adapters that read each host's real native session variable, with `--probe-host`, `--record-session` and the `--run-guard` guard duties, which always pass `seam=None`, so every stateful duty refuses there. No host execution or certification is claimed.
+- **autopilot**: Add `--request-job`, `--bind-job` and `--close-child` for job requests, child session bindings and in-session child closes, refusing with `missing_native_session` when no native host session is present. No host execution or certification is claimed.
+- **autopilot**: Add generated Claude and Codex hook assets that call `--hook`; they are not activated.
+- **autopilot**: Add `--resolve-roles` role resolution against each adapter's implemented capabilities and the read-only `--diagnose` doctor.
+- **autopilot**: Document the per-client unavailable duties: Codex's `delegation` and `post_handoff` are not applicable, Gemini has every duty blocked (`no_package_local_registration_surface`), and every stateful duty refuses in a bound session until the controller seam lands (AP 00016). No host is certified.
 - **autopilot**: Add the committed controller contract bundle `contracts/controller-v1.json`, its deterministic exporter with `--check` (which refuses symlinked or oversized inputs and a symlinked bundle path), and the README pin of its SHA-256 and installed controller argv.
 - **autopilot**: Add explicit AP00018 successor delivery receipts to the helper map generator. A successor supersedes the exact AP00013 receipts without rewriting them and certifies only the README, CHANGELOG and controller assets it lists, bound to its package revision and the current file bytes, and registers a listed controller asset that has no map row yet. A successor file that is not a valid JSON object, including `null`, is refused. No host execution or certification is claimed.
 - **autopilot**: Document the controller's Python 3.12 floor, commands, implemented operations, private store, receipt capacity, the manual sealed-workflow exit, and bounded-orphan recovery. No host execution or certification is claimed.

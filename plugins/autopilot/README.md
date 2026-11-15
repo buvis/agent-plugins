@@ -322,6 +322,59 @@ yet; the historical Install and Update sections describe the source plugin.
 Real-host evidence is unavailable: the helpers are tested in a sandbox only, and
 no host profile is certified.
 
+## Host adapters and guards
+
+The facade also carries host adapter, guard and job operations. Run them the
+same way as the helper operations above:
+
+```text
+--hook HOST --event EVENT
+--probe-host HOST --project-root PATH
+--run-guard DUTY --context CONTEXT.json
+--diagnose --project-root PATH
+--request-job REQUEST.json --project-root PATH --out PATH
+--bind-job REQUEST.json --project-root PATH
+--close-child REQUEST.json --project-root PATH
+--resolve-roles --profile ID --lane LANE [--facts FACTS.json]
+--record-session HOST --project-root PATH
+```
+
+`--list-capabilities` prints their IDs after the helper operation IDs:
+`hosts-v1`, `guards-v1`, `diagnose-v1`, `request-job-v1`, `bind-job-v1`,
+`close-child-v1`, `resolve-roles-v1` and `record-session-v1`.
+
+`--hook` reads a host hook payload from standard input, prints the adapter's
+reply as-is instead of a JSON report, and exits with the adapter's code. The
+generated Claude and Codex hook assets call it; they are not activated.
+`--probe-host` reports a static observation of one host, never a live
+invocation. `--diagnose` reports read-only doctor findings for the project
+root. `--run-guard` runs one guard duty against a context file.
+
+`--request-job` reads the current host session from that host's native session
+variable and refuses with `missing_native_session` when none is set. `--out`
+names the job request file and must not exist yet. `--bind-job` binds the
+current session of the request's host to a job request as its child.
+`--close-child` closes an in-session child under a Claude parent session,
+reads the child's raw output from standard input, and resolves its
+`artifact_path` against the project root. `--resolve-roles` resolves a review
+profile for one lane against each adapter's implemented capabilities and
+optional profile facts; it exits with `0` when the profile is resolvable and
+`1` otherwise. `--record-session` reports the host's current session and the
+plugin root, always exits with `0`, and writes a trace only under
+`AUTOPILOT_HOOK_TRACE`. A job refusal prints
+`{"schema_version": 1, "ok": false, "error": CODE}` and exits with `1`; a usage
+error exits with `2`.
+
+`--run-guard` always passes `seam=None`, so every stateful guard duty refuses
+there: the stateful duties need the controller's state, and the CLI has no
+controller to reach it through.
+
+Some duties are unavailable on each client. Codex's `delegation` and
+`post_handoff` are not applicable. Gemini has every duty blocked
+(`no_package_local_registration_surface`). Every stateful duty refuses in a
+bound session until the controller seam lands (AP 00016). No host is
+certified, and no host execution is claimed.
+
 ## Controller contract bundle
 
 `contracts/controller-v1.json` pins the controller protocol, package version,
