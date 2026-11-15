@@ -1340,3 +1340,5 @@
 {"id":"abfbf4f5","ended_at":1794769935,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
 {"id":"95d750d4","ended_at":1794769935,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
 {"kind":"handoff","site":"build","edge":"leave","at":1794769935,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794769943,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
+{"kind":"handoff","site":"build","edge":"leave","at":1794770937,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
