@@ -927,6 +927,36 @@ def read_rollout(home: Path, thread: str | None) -> dict:
     return {"version": version, "contexts": contexts, "state": state}
 
 
+def rollout_calls(home: Path, thread: str | None) -> list[dict]:
+    """Tool calls and their results from the session record, for diagnosis only.
+
+    The exec stream omits a call the host rejects before it runs; the session
+    record keeps it. Never used as evidence for a check.
+    """
+    calls = []
+    for path in (home / "sessions").glob(f"**/rollout-*{thread}.jsonl"):
+        for line in path.read_text().splitlines():
+            try:
+                entry = json.loads(line)
+            except ValueError:
+                continue
+            payload = entry.get("payload") if isinstance(entry, dict) else None
+            if isinstance(payload, dict) and "call" in str(payload.get("type")):
+                detail = {
+                    key: payload[key]
+                    for key in ("arguments", "input", "output", "action", "status")
+                    if key in payload
+                }
+                calls.append(
+                    {
+                        "type": payload.get("type"),
+                        "name": payload.get("name"),
+                        "detail": json.dumps(detail)[-500:],
+                    }
+                )
+    return calls
+
+
 def instruction_evidence(
     agents: object, workspace: Path, source: Path | None, expected: bytes
 ) -> tuple[dict[str, dict], bool]:
@@ -1119,7 +1149,8 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                             )[-300:],
                         }
                         for i in items
-                    ],
+                    ]
+                    + rollout_calls(adapter.home, thread),
                     {
                         str(batch): "<batch>",
                         str(Path.home().resolve()): "<home>",

@@ -3083,6 +3083,8 @@ class KiroAdapterTest(unittest.TestCase):
         (home / "sessions").mkdir()
         other = self.root / "workspaces/other"
         other.mkdir(exist_ok=True)
+        alias = home / "powers/installed/latest"
+        alias.symlink_to(power)
         agent = run_kiro.kiro_agent(self.root, self.workspace, power)
         self.assertEqual(agent["tools"], ["read", "write", "shell"])
         self.assertEqual(agent["resources"], run_kiro.RESOURCES)
@@ -3115,6 +3117,8 @@ class KiroAdapterTest(unittest.TestCase):
                     kept == Path(denied) or kept.is_relative_to(denied),
                     f"{denied} hides {kept}",
                 )
+        # A denied link would hide the readable folder it points at.
+        self.assertNotIn(str(alias), read_deny["match"])
         self.assertNotIn("exclude", read_deny)
         (write_allow,) = matching("fs_write", "allow")
         self.assertEqual(write_allow["match"], [str(self.workspace)])

@@ -92,6 +92,13 @@ def deny_around(root: Path, keep: list[Path], expand: bool) -> list[str]:
     for entry in sorted(root.iterdir()) if root.is_dir() else []:
         if entry in inside:
             continue
+        if entry.is_symlink():
+            # The sandbox resolves a denied link to its target. An alias of a
+            # kept path (mise's `3.15` beside `3.15.2`) would hide that path
+            # (observed 2026-11-15: Python could not read its own library).
+            target = entry.resolve()
+            if any(p == target or p.is_relative_to(target) for p in inside):
+                continue
         if any(path.is_relative_to(entry) for path in inside):
             denied += deny_around(entry, inside, expand)
         else:
