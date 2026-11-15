@@ -34,6 +34,9 @@ CODEX_GEMINI_HOSTS = {
     "alice": "codex", "blake": "codex", "bob": "codex",
     "carl": "gemini", "eve": "gemini", "implementor:openai": "codex",
 }
+ALL_CAPABILITIES = frozenset({"delegation", "identity", "interception", "isolation"})
+FULLY_OBSERVED = {host: ALL_CAPABILITIES for host in ("claude", "codex", "gemini")}
+CLAUDE_IN_SESSION = ("claude:delegation", "claude:identity", "claude:isolation")
 
 
 def make_facts(*, gemini_cli: bool = True, doubt: str | None = None, codex_impl: bool = True):
@@ -139,6 +142,19 @@ def test_lane_selects_its_own_required_and_conditional_jobs(lane, gemini_cli, ex
     assert set(by_role(profile)) == expected
 
 
+def test_roster_and_role_ids_follow_an_edited_policy():
+    policy = copy.deepcopy(POLICY)
+    policy["procedure"]["lanes"]["full"]["required_reviewer_jobs"] = ["alice", "bob", "carl"]
+    for job in policy["reviewer_jobs"]:
+        if job["job_id"] == "alice":
+            job["role_id"] = "consensus-edited"
+    rows = by_role(resolve(policy, facts=make_facts(gemini_cli=False, codex_impl=False)))
+    assert set(rows) == {"alice", "bob", "carl", "implementor:openai"}
+    assert rows["alice"].role_id == "consensus-edited"
+    assert rows["bob"].role_id == "doubt"
+    assert rows["carl"].host_id == "gemini"
+
+
 def test_source_parity_uses_first_adapter_and_keeps_claude_rows_resolved():
     profile = resolve(profile_id="source-parity")
     rows = by_role(profile)
@@ -156,6 +172,13 @@ def test_source_parity_uses_first_adapter_and_keeps_claude_rows_resolved():
     assert rows["implementor:openai"].host_id == "codex"
     for row in profile.roles:
         assert (row.status, row.missing) == ("resolved", ())
+    assert alice.unobserved == CLAUDE_IN_SESSION
+    assert profile.certifiable is False
+    without_claude = resolve(profile_id="source-parity",
+                             observed={"codex": ALL_CAPABILITIES, "gemini": ALL_CAPABILITIES})
+    assert by_role(without_claude)["alice"].unobserved == CLAUDE_IN_SESSION
+    assert without_claude.certifiable is False
+    assert resolve(profile_id="source-parity", observed=FULLY_OBSERVED).certifiable is True
 
 
 def test_reviewer_takes_the_first_adapter_not_a_later_one():
@@ -167,16 +190,17 @@ def test_reviewer_takes_the_first_adapter_not_a_later_one():
 
 @pytest.mark.parametrize(("variant", "claude_free"), [
     ({}, True),
+    ({"description": "Mentions anthropic and Anthropic only in prose."}, True),
     ({"bob": binding("openai", "codex-cli", fallback=binding("anthropic", "native-fallback"))}, False),
     ({"carl": binding("anthropic", "gemini-cli")}, False),
     ({"implementor_providers": ["openai", "anthropic"]}, False),
-], ids=["no-anthropic", "anthropic-fallback", "anthropic-binding", "anthropic-implementor"])
+], ids=["no-anthropic", "anthropic-in-description", "anthropic-fallback", "anthropic-binding",
+        "anthropic-implementor"])
 def test_any_anthropic_provider_makes_the_profile_not_claude_free(variant, claude_free):
     variant = dict(variant)
-    providers = variant.pop("implementor_providers", None)
+    top_level = {key: variant.pop(key) for key in ("implementor_providers", "description") if key in variant}
     profile_def = codex_gemini_variant(**variant)
-    if providers is not None:
-        profile_def["implementor_providers"] = providers
+    profile_def.update(top_level)
     profile = resolve(policy_with_profile("variant", profile_def), profile_id="variant")
     assert profile.claude_free is claude_free
     rows = by_role(profile)
@@ -218,6 +242,49 @@ def test_host_lacking_a_required_capability_blocks_its_roles(gemini_caps, expect
         assert rows[job].status == "blocked"
     for role in ("alice", "blake", "bob", "implementor:openai"):
         assert (rows[role].status, rows[role].missing) == ("resolved", ())
+    assert profile.status == "blocked"
+    assert profile.certifiable is False
+
+
+def test_host_absent_from_implemented_is_not_treated_as_capable():
+    implemented = {host: caps for host, caps in IMPLEMENTED.items() if host != "gemini"}
+    try:
+        profile = resolve(implemented=implemented)
+    except (KeyError, ValueError):
+        return
+    rows = by_role(profile)
+    for job in ("carl", "eve"):
+        assert (rows[job].status, rows[job].missing) == ("blocked", ("gemini:identity", "gemini:isolation"))
+    assert profile.status == "blocked"
+
+
+def test_unknown_implementor_provider_never_resolves_to_a_real_host():
+    profile_def = codex_gemini_variant()
+    profile_def["implementor_providers"] = ["mistral"]
+    policy = policy_with_profile("mistral", profile_def)
+    try:
+        profile = resolve(policy, profile_id="mistral", observed=FULLY_OBSERVED)
+    except ValueError:
+        return
+    row = by_role(profile)["implementor:mistral"]
+    assert row.host_id not in IMPLEMENTED
+    assert row.status == "blocked"
+    assert row.missing != ()
+    assert profile.status == "blocked"
+    assert profile.certifiable is False
+
+
+def test_mandatory_job_without_a_role_binding_is_not_silently_dropped():
+    profile_def = codex_gemini_variant()
+    del profile_def["role_bindings"]["bob"]
+    policy = policy_with_profile("no-bob", profile_def)
+    try:
+        profile = resolve(policy, profile_id="no-bob", observed=FULLY_OBSERVED)
+    except ValueError:
+        return
+    bob = by_role(profile)["bob"]
+    assert bob.status == "blocked"
+    assert bob.missing != ()
     assert profile.status == "blocked"
     assert profile.certifiable is False
 
@@ -285,3 +352,13 @@ def test_certifiable_needs_every_role_observed_but_certified_stays_false(observe
     assert profile.certified is False
     if certifiable:
         assert all(row.unobserved == () for row in profile.roles)
+
+
+def test_blocked_profile_is_not_certifiable_even_when_fully_observed():
+    policy = policy_with_profile("claude-reviewer", codex_gemini_variant(alice=binding("openai", "native-subagent")))
+    profile = resolve(policy, profile_id="claude-reviewer", observed=FULLY_OBSERVED)
+    assert by_role(profile)["alice"].missing == ("claude_excluded",)
+    assert all(row.unobserved == () for row in profile.roles)
+    assert profile.status == "blocked"
+    assert profile.certifiable is False
+    assert profile.certified is False
