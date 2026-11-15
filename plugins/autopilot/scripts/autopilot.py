@@ -190,7 +190,7 @@ def _run_guard(args: argparse.Namespace) -> tuple[dict, int]:
 
 
 def _diagnose(args: argparse.Namespace) -> tuple[dict, int]:
-    return asdict(_helper("doctor").diagnose(project_root=args.project_root)), 0
+    return _helper("doctor").diagnose(project_root=args.project_root), 0
 
 
 def _hook(args: argparse.Namespace) -> int:

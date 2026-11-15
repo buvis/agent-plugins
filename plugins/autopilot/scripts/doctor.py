@@ -1,21 +1,38 @@
-"""Aggregate host probes and guard library checks into one report.
+"""Aggregate static host probes, observed probe evidence, profile resolution
+and a guard simulation into one schema_version 2 report.
 
-Guards run against a FakeSeam that always allows, so `guards_simulated` is
-True: the report proves only that each library call succeeds end to end,
-never that a real controller is reachable (AP 00016 ships the real seam).
+`observed` comes only from the newest `<host_id>-<ts>.json` evidence under
+docs/dev/tmp/autopilot/probes/ (written by tools/autopilot/probe-host.py); a
+record whose resource check did not pass observes nothing. The guard
+`simulation` runs every duty against valid contexts and a seam that always
+allows, so it proves only that each library call succeeds end to end, never
+that a real controller is reachable (AP 00016 ships the real seam). The
+report is never `certified`.
 """
 
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+import re
+from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from guards import GuardDuty, GuardOutcome, run_guard
-from hosts import ProbeResult, probe_host
+import hosts
+from guards import GuardDuty, run_guard
+from review_evidence import load_policy
+from roles import ProfileFacts, resolve_profile
 
-_HOSTS_CONTRACT = Path(__file__).resolve().parents[1] / "contracts" / "hosts.json"
+_PROBES = Path("docs") / "dev" / "tmp" / "autopilot" / "probes"
+# Pure duties decide from their own context; these allow by construction.
+_SIMULATION_CONTEXTS = {
+    GuardDuty.DOCUMENT_LOCATION: {"command": "true"},
+    GuardDuty.DELEGATION: {"dispatch_skill": "doctor-simulation", "child_depth": 0},
+    GuardDuty.POST_HANDOFF: {"requested_skill": "doctor-simulation", "leave_recorded": False},
+    GuardDuty.DEPARTURE: {"leave_row_written": True, "last_store_write_at": 0, "leave_row_at": 0},
+    GuardDuty.CONTEXT_REINJECTION: {"contract_card_present": True,
+                                    "contract_card_body": "doctor simulation card"},
+}
 
 
 class _AlwaysAllowSeam:
@@ -34,24 +51,66 @@ class _AlwaysAllowSeam:
         return {}
 
 
-@dataclass(frozen=True)
-class DoctorReport:
-    hosts: list[ProbeResult]
-    guards: list[GuardOutcome]
-    guards_simulated: bool
-    profile: str  # "claude-free" | "mixed", derived from contracts/hosts.json
-    generated_at: str
+def _newest_evidence(project_root: Path, host_id: str) -> tuple[str, dict] | None:
+    """The newest `<host_id>-<ts>[-n].json` evidence file and its record."""
+    probes = project_root / _PROBES
+    pattern = re.compile(rf"{re.escape(host_id)}-(\d{{8}}T\d{{6}}Z)(?:-(\d+))?\.json")
+    found = []
+    for path in probes.iterdir() if probes.is_dir() else ():
+        match = pattern.fullmatch(path.name)
+        if match and path.is_file():
+            found.append(((match[1], int(match[2] or 1)), path))
+    if not found:
+        return None
+    path = max(found)[1]
+    return (_PROBES / path.name).as_posix(), json.loads(path.read_text(encoding="utf-8"))
 
 
-def diagnose(*, project_root: Path) -> DoctorReport:
+def _observed_capabilities(record: dict) -> frozenset[str]:
+    if record.get("resource_check") != "passed":
+        return frozenset()
+    return frozenset(cap for cap, verdict in record["observed"].items()
+                     if verdict["status"] == "observed")
+
+
+def diagnose(*, project_root: Path) -> dict:
+    policy = load_policy()
+    evidence = {host_id: _newest_evidence(project_root, host_id) for host_id in hosts.ADAPTERS}
+    observed = {host_id: _observed_capabilities(found[1])
+                for host_id, found in evidence.items() if found}
+    implemented = {host_id: hosts.adapter(host_id).IMPLEMENTED_CAPABILITIES
+                   for host_id in hosts.ADAPTERS}
+    gemini = evidence.get("gemini")
+    gemini_ran = gemini is not None and any(
+        invocation["exit_code"] == 0 for invocation in gemini[1]["invocations"])
+    profiles = []
+    for profile_id, profile in policy["execution_profiles"].items():
+        facts = ProfileFacts(
+            gemini_cli_available=gemini_ran, doubt_reviewer=None,
+            implementor_codex_present="openai" in profile["implementor_providers"],
+        )
+        profiles.append(asdict(resolve_profile(
+            policy, profile_id=profile_id, lane="full", facts=facts,
+            implemented=implemented, observed=observed,
+        )))
     seam = _AlwaysAllowSeam()
-    declared = json.loads(_HOSTS_CONTRACT.read_text(encoding="utf-8"))["hosts"]
-    covered = set(declared["codex"]["capabilities"]) | set(declared["gemini"]["capabilities"])
-    return DoctorReport(
-        hosts=[probe_host(host_id, project_root=project_root)
-               for host_id in ("claude", "codex", "gemini")],
-        guards=[run_guard(duty, {}, seam=seam) for duty in GuardDuty],
-        guards_simulated=True,
-        profile="claude-free" if "identity" in covered else "mixed",
-        generated_at=datetime.now(timezone.utc).isoformat(),
-    )
+    return {
+        "schema_version": 2,
+        "hosts": [asdict(hosts.probe_host(host_id, project_root=project_root))
+                  for host_id in hosts.ADAPTERS],
+        "observed": {
+            host_id: {"status": "not_probed"} if found is None else {
+                "status": "probed", "evidence_path": found[0],
+                "capabilities": sorted(observed[host_id]),
+            }
+            for host_id, found in evidence.items()
+        },
+        "profiles": profiles,
+        "simulation": {
+            "simulated": True,
+            "guards": [asdict(run_guard(duty, _SIMULATION_CONTEXTS.get(duty, {}), seam=seam))
+                       for duty in GuardDuty],
+        },
+        "certified": False,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
