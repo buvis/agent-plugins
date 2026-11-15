@@ -1281,3 +1281,4 @@
 {"id":"7f8291fa","ended_at":1794371232,"elapsed_s":1449,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1794371309,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
 {"kind":"handoff","site":"done","edge":"leave","at":1794371361,"phase":"done","prd":""}
+{"kind":"handoff","site":"build","edge":"resume","at":1794758796,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
