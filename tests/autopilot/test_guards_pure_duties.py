@@ -212,6 +212,69 @@ class DocumentLocationTest(_DutyTestCase):
         self.assertDenied({"document_path": f"{STORE}/./x.md"})
         self.assertDenied({"document_path": f"{STORE}/prds/./x.md"})
 
+    def test_absolute_and_relative_spellings_decide_alike(self) -> None:
+        pairs = (
+            (f"/repo/{STORE}/prds/wip/00014-x.md", f"{STORE}/prds/wip/00014-x.md", True),
+            (f"/repo/{STORE}/prds/00014-x.md", f"{STORE}/prds/00014-x.md", False),
+            ("/repo/backlog/x.md", "backlog/x.md", False),
+            ("/repo/src/app.py", "src/app.py", True),
+        )
+        for absolute, relative, allowed in pairs:
+            with self.subTest(path=absolute):
+                outcome = guards.run_guard(
+                    self.duty,
+                    {"document_path": absolute, "project_root": "/repo"},
+                    seam=None,
+                )
+                self.assertIs(outcome.allowed, allowed)
+                if allowed:
+                    self.assertAllowed({"document_path": relative})
+                else:
+                    self.assertDenied({"document_path": relative})
+
+    def test_an_absolute_path_outside_the_root_keeps_the_whole_path_check(self) -> None:
+        self.assertDenied(
+            {"document_path": f"/elsewhere/{STORE}/prds/00014-x.md", "project_root": "/repo"}
+        )
+        self.assertAllowed(
+            {"document_path": f"/elsewhere/{STORE}/prds/wip/00014-x.md", "project_root": "/repo"}
+        )
+
+    def test_fails_closed_when_project_root_is_mistyped(self) -> None:
+        self.assertFailsClosed(
+            {"document_path": "src/app.py", "project_root": 5}, "project_root"
+        )
+
+    def test_fails_closed_when_both_document_path_and_command_are_given(self) -> None:
+        self.assertDenied({"document_path": "src/app.py", "command": "echo hi"})
+
+    def test_fails_closed_when_neither_document_path_nor_command_is_given(self) -> None:
+        self.assertFailsClosed({}, "document_path")
+        self.assertFailsClosed({"ok": True}, "document_path")
+
+    def test_command_mode_allows_a_command_that_touches_no_lifecycle_path(self) -> None:
+        for command in ("echo hi", "cat src/app.py", "echo text >README.md"):
+            with self.subTest(command=command):
+                self.assertAllowed({"command": command})
+
+    def test_command_mode_denies_a_bare_lifecycle_path_outside_the_store(self) -> None:
+        for command in (
+            "echo text >backlog/x.md",
+            "cp a.md --target-directory=wip/",
+            "mv x.md\ndone/x.md",
+        ):
+            with self.subTest(command=command):
+                self.assertDenied({"command": command})
+
+    def test_command_mode_allows_a_lifecycle_path_inside_the_store(self) -> None:
+        self.assertAllowed({"command": f"echo text >{STORE}/prds/wip/x.md"})
+
+    def test_command_mode_normalizes_an_absolute_token_with_project_root(self) -> None:
+        self.assertDenied({"command": "echo text >/repo/backlog/x.md", "project_root": "/repo"})
+        self.assertAllowed(
+            {"command": f"echo text >/repo/{STORE}/prds/wip/x.md", "project_root": "/repo"}
+        )
+
 
 class DelegationTest(_DutyTestCase):
     duty = GuardDuty.DELEGATION
@@ -226,12 +289,12 @@ class DelegationTest(_DutyTestCase):
             "git-ferry:catchup",
         ):
             with self.subTest(skill=skill):
-                self.assertDenied({"dispatch_skill": skill})
+                self.assertDenied({"dispatch_skill": skill, "child_depth": 0})
 
     def test_allows_any_other_skill_and_persona_dispatch(self) -> None:
         for skill in ("autopilot:use-codex", "persona:devon", "tess", "git-ferry:status"):
             with self.subTest(skill=skill):
-                self.assertAllowed({"dispatch_skill": skill})
+                self.assertAllowed({"dispatch_skill": skill, "child_depth": 0})
 
     def test_matches_the_exact_skill_name_only(self) -> None:
         for skill in (
@@ -244,14 +307,34 @@ class DelegationTest(_DutyTestCase):
             "",
         ):
             with self.subTest(skill=skill):
-                self.assertAllowed({"dispatch_skill": skill})
+                self.assertAllowed({"dispatch_skill": skill, "child_depth": 0})
 
     def test_fails_closed_when_dispatch_skill_is_absent_or_mistyped(self) -> None:
-        self.assertFailsClosed({}, "dispatch_skill")
-        self.assertFailsClosed({"ok": True}, "dispatch_skill")
+        self.assertFailsClosed({"child_depth": 0}, "dispatch_skill")
+        self.assertFailsClosed({"ok": True, "child_depth": 0}, "dispatch_skill")
         for value in (None, 7, ["autopilot:use-codex"]):
             with self.subTest(value=value):
-                self.assertFailsClosed({"dispatch_skill": value}, "dispatch_skill")
+                self.assertFailsClosed(
+                    {"dispatch_skill": value, "child_depth": 0}, "dispatch_skill"
+                )
+
+    def test_fails_closed_when_child_depth_is_absent_or_mistyped(self) -> None:
+        self.assertFailsClosed({"dispatch_skill": "persona:devon"}, "child_depth")
+        for value in (None, "0", 1.0, True):
+            with self.subTest(value=value):
+                self.assertFailsClosed(
+                    {"dispatch_skill": "persona:devon", "child_depth": value}, "child_depth"
+                )
+
+    def test_denies_recursion_at_or_beyond_max_child_depth_whatever_the_skill(self) -> None:
+        for skill in ("persona:devon", "autopilot:work"):
+            with self.subTest(skill=skill):
+                self.assertDenied(
+                    {"dispatch_skill": skill, "child_depth": 1}, names="recursion_depth"
+                )
+
+    def test_allows_a_non_phase_skill_below_max_child_depth(self) -> None:
+        self.assertAllowed({"dispatch_skill": "persona:devon", "child_depth": 0})
 
 
 class PostHandoffTest(_DutyTestCase):
@@ -452,6 +535,54 @@ class ContextReinjectionTest(_DutyTestCase):
                     {"contract_card_present": True, "contract_card_body": value},
                     "contract_card_body",
                 )
+
+
+class IsGitPushTest(unittest.TestCase):
+    DENY_CASES = (
+        "git push",
+        "git push origin HEAD",
+        "git push --force",
+        "git status\ngit push origin HEAD",
+        "FOO=1 git -C x push",
+        "sh -c 'git push'",
+        "echo $(git push)",
+        "/usr/bin/git push origin HEAD",
+        "git --git-dir .git push origin HEAD",
+        "nohup env A=1 git push",
+        # Tolerated false positive (§7): git option spellings are not parsed.
+        "git log --grep push",
+    )
+
+    ALLOW_CASES = (
+        "git status",
+        "git pushd-notes",
+        "echo git push",
+    )
+
+    def test_denies_every_push_fixture(self) -> None:
+        for command in self.DENY_CASES:
+            with self.subTest(command=command):
+                self.assertTrue(guards.is_git_push(command))
+
+    def test_allows_every_non_push_fixture(self) -> None:
+        for command in self.ALLOW_CASES:
+            with self.subTest(command=command):
+                self.assertFalse(guards.is_git_push(command))
+
+    def test_denial_fixtures_reach_the_seam_or_refuse_without_one(self) -> None:
+        import host_fakes
+
+        for command in self.DENY_CASES:
+            with self.subTest(command=command):
+                self.assertTrue(guards.is_git_push(command))
+                seam = host_fakes.FakeSeam(
+                    guard_rules={"custody_push": (False, "pending_critical")}
+                )
+                outcome = guards.run_guard(GuardDuty.CUSTODY_PUSH, {"command": command}, seam=seam)
+                self.assertIs(outcome.allowed, False)
+                self.assertEqual(outcome.reason, "pending_critical")
+                refused = guards.run_guard(GuardDuty.CUSTODY_PUSH, {"command": command}, seam=None)
+                self.assertEqual(refused.reason, "missing_controller_seam")
 
 
 if __name__ == "__main__":

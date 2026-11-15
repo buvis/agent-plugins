@@ -65,7 +65,7 @@ PASSING = {
     GuardDuty.DOCUMENT_LOCATION: {
         "document_path": "docs/dev/project-management/prds/wip/00014-x.md"
     },
-    GuardDuty.DELEGATION: {"dispatch_skill": "autopilot:use-codex"},
+    GuardDuty.DELEGATION: {"dispatch_skill": "autopilot:use-codex", "child_depth": 0},
     GuardDuty.POST_HANDOFF: {"requested_skill": "autopilot:work", "leave_recorded": False},
     GuardDuty.DEPARTURE: {
         "leave_row_written": True,
@@ -83,7 +83,7 @@ FAILING = {
     GuardDuty.DOCUMENT_LOCATION: {
         "document_path": "docs/dev/project-management/prds/00014-x.md"
     },
-    GuardDuty.DELEGATION: {"dispatch_skill": "autopilot:work"},
+    GuardDuty.DELEGATION: {"dispatch_skill": "autopilot:work", "child_depth": 0},
     GuardDuty.POST_HANDOFF: {"requested_skill": "autopilot:work", "leave_recorded": True},
     GuardDuty.DEPARTURE: {
         "leave_row_written": True,
@@ -216,6 +216,64 @@ class CustodyPushDeniedTest(unittest.TestCase):
                     outcome,
                     GuardOutcome(duty=duty, allowed=True, reason=None, stateful=True),
                 )
+
+
+class _MalformedSeam:
+    def __init__(self, reply: object) -> None:
+        self.reply = reply
+        self.calls = 0
+
+    def submit_job(self, intent):
+        raise AssertionError("submit_job reached")
+
+    def evaluate_guard(self, duty, context):
+        self.calls += 1
+        if isinstance(self.reply, BaseException):
+            raise self.reply
+        return self.reply
+
+    def read_facts(self, duty, session, project_root):
+        raise AssertionError("read_facts reached")
+
+
+class MalformedVerdictTest(unittest.TestCase):
+    def test_malformed_verdict_refuses(self) -> None:
+        malformed_replies = (
+            {"allowed": "yes", "reason": None},
+            {"allowed": True},
+            {"allowed": False, "reason": None},
+            {"allowed": False, "reason": ""},
+            {"allowed": False},
+            {"allowed": True, "reason": None, "extra": 1},
+            [],
+            None,
+            "allowed",
+            RuntimeError("seam exploded"),
+            KeyError("boom"),
+        )
+        for reply in malformed_replies:
+            with self.subTest(reply=reply):
+                seam = _MalformedSeam(reply)
+                outcome = guards.run_guard(GuardDuty.CUSTODY_PUSH, {}, seam=seam)
+                _assert_outcome(
+                    self,
+                    outcome,
+                    GuardOutcome(
+                        duty=GuardDuty.CUSTODY_PUSH,
+                        allowed=False,
+                        reason="malformed_controller_verdict",
+                        stateful=True,
+                    ),
+                )
+                self.assertEqual(seam.calls, 1)
+
+    def test_well_formed_verdicts_still_relay(self) -> None:
+        for reply in ({"allowed": True, "reason": None}, {"allowed": False, "reason": "x"}):
+            with self.subTest(reply=reply):
+                seam = _MalformedSeam(reply)
+                outcome = guards.run_guard(GuardDuty.LIVE_JOB, {}, seam=seam)
+                self.assertEqual(outcome.allowed, reply["allowed"])
+                self.assertEqual(outcome.reason, reply["reason"])
 
 
 class MissingControllerSeamRefusedTest(unittest.TestCase):
