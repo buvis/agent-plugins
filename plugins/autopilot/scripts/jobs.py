@@ -447,6 +447,48 @@ def _valid_reply(reply: object) -> bool:
         and _one_of(reply["error"], _controller_error_codes())
 
 
+def _write_request_file(resolved_file: Path, root: Path, payload: dict) -> None:
+    try:
+        relative = resolved_file.relative_to(root).as_posix()
+    except ValueError:
+        raise _invalid("request_file must be inside project_root") from None
+    _check_relative_path(relative)
+    data = json.dumps(payload).encode("utf-8")
+    try:
+        fd = os.open(resolved_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o666)
+    except FileNotFoundError:
+        resolved_file.parent.mkdir(parents=True, exist_ok=True)
+        fd = os.open(resolved_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o666)
+    with os.fdopen(fd, "wb") as stream:
+        stream.write(data)
+
+
+def _standalone_instruction(request: JobRequest, argv: list[str], request_file: Path,
+                             root: Path) -> dict:
+    depth = str(len(request.ancestry) + 1)
+    script = Path(__file__).resolve().parent / "autopilot.py"
+    bind = (f'python3 {shlex.quote(str(script))} --bind-job "${JOB_ENV}" '
+            f"--project-root {shlex.quote(str(root))}")
+    listed = "\n".join(f"- {ref.kind}: {ref.path}" for ref in request.inputs)
+    stdin = (f"You are {request.role_id} for job {request.job_id}.\n"
+             f"Before anything else, bind this session to the job:\n{bind}\n"
+             f"Then read only these inputs:\n{listed}\n")
+    return {
+        "host_id": request.host_id,
+        "argv": argv,
+        "stdin": stdin,
+        "env": {JOB_ENV: str(request_file), DEPTH_ENV: depth},
+        "manual_settings": {"tier": request.tier, "effort": request.effort},
+        "steps": [
+            f"Start a fresh {request.host_id} session with {JOB_ENV}={request_file} "
+            f"and {DEPTH_ENV}={depth} in its environment.",
+            f"Set the model tier to {request.tier} and effort to {request.effort} by hand.",
+            "Run the argv and pass the stdin text to it.",
+            f"The child runs --bind-job on {request_file} before it reads any input.",
+        ],
+    }
+
+
 def request_job(request: JobRequest, *, seam: ControllerSeam | None, project_root: Path,
                 request_file: Path | None) -> dict:
     """Standalone mode (seam None) writes the request file and returns a
@@ -466,43 +508,6 @@ def request_job(request: JobRequest, *, seam: ControllerSeam | None, project_roo
     payload = request.to_payload()
     root = Path(project_root).resolve()
     resolved_file = Path(request_file).resolve()
-    try:
-        relative = resolved_file.relative_to(root).as_posix()
-    except ValueError:
-        raise _invalid("request_file must be inside project_root") from None
-    _check_relative_path(relative)
-    data = json.dumps(payload).encode("utf-8")
-    try:
-        fd = os.open(resolved_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o666)
-    except FileNotFoundError:
-        resolved_file.parent.mkdir(parents=True, exist_ok=True)
-        fd = os.open(resolved_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o666)
-    with os.fdopen(fd, "wb") as stream:
-        stream.write(data)
-    depth = str(len(request.ancestry) + 1)
-    script = Path(__file__).resolve().parent / "autopilot.py"
-    bind = (f'python3 {shlex.quote(str(script))} --bind-job "${JOB_ENV}" '
-            f"--project-root {shlex.quote(str(root))}")
-    listed = "\n".join(f"- {ref.kind}: {ref.path}" for ref in request.inputs)
-    stdin = (f"You are {request.role_id} for job {request.job_id}.\n"
-             f"Before anything else, bind this session to the job:\n{bind}\n"
-             f"Then read only these inputs:\n{listed}\n")
-    return {
-        "schema_version": 1,
-        "mode": "standalone",
-        "request": payload,
-        "instruction": {
-            "host_id": request.host_id,
-            "argv": argv,
-            "stdin": stdin,
-            "env": {JOB_ENV: str(request_file), DEPTH_ENV: depth},
-            "manual_settings": {"tier": request.tier, "effort": request.effort},
-            "steps": [
-                f"Start a fresh {request.host_id} session with {JOB_ENV}={request_file} "
-                f"and {DEPTH_ENV}={depth} in its environment.",
-                f"Set the model tier to {request.tier} and effort to {request.effort} by hand.",
-                "Run the argv and pass the stdin text to it.",
-                f"The child runs --bind-job on {request_file} before it reads any input.",
-            ],
-        },
-    }
+    _write_request_file(resolved_file, root, payload)
+    instruction = _standalone_instruction(request, argv, request_file, root)
+    return {"schema_version": 1, "mode": "standalone", "request": payload, "instruction": instruction}
