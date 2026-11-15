@@ -18,8 +18,9 @@ the host's permissions remain the execution boundary.
 | Python files in package, maintainer tools and eval runners | Required AST dependency test `test_shipped_and_maintainer_scripts_import_only_the_standard_library` checks every absolute import, skips relative imports, and permits stdlib and repository-local modules only. This checks declared imports, not dynamic execution or host binaries. |
 | Runner changes `2e8816e`, `b207fc6` | No new finding in the changes: Codex compares instruction fingerprints and fails closed on differences; private-home normalization removes batch randomness. Kiro later-turn context inventory requires the proof's verified flag. Pending Codex field comparison and unnamed shell-read measurement remain unresolved release-evidence limitations; this review does not waive either. |
 
-Verification: security suite (3 tests) passes on Python 3.10.22 and 3.15.2;
+Verification: security suite (4 tests) passes on Python 3.10.22 and 3.15.2;
 contract suite (390) and review suite (41) pass on Python 3.15.2.
 CI runs the security suite including the dependency scan on Python 3.10 and
-3.15. Remote CI execution is pending push. Rule tests require the shipped
-package to be committed before their revision-bound checks can pass.
+3.15. Remote CI execution is pending push. After committing the package and
+updating the explicitly synthetic manual record's revision, all 168 rule tests
+pass. Validator tests (59), release tests (54), and repository validation pass.

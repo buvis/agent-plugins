@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "name": "concurrent-edit",
+  "fixture": "sessions/concurrent-edit",
+  "turns": [
+    {
+      "developer": "Prepare to change the Purpose sentence in .kiro/specs/00001-gift-cards/requirements.md to 'Customers redeem gift cards at checkout.' Read that artifact and record its raw hash for this edit operation. Do not write yet; wait for my next turn."
+    },
+    {
+      "edit": {
+        "path": ".kiro/specs/00001-gift-cards/requirements.md",
+        "text": "# Requirements: Gift cards\n\nSources: .kiro/specflow/intake/processed/00001-gift-cards/\n\n## Purpose\n\nGift cards. Second writer: preserve this intervening edit.\n\n## Requirements\n\n### REQ-001: Gift cards\n\nSource: the idea\n\n**User story:** As a user, I want gift cards, so that the numbers are right.\n\n#### Acceptance criteria\n\n1. WHEN a customer uses gift cards THE SYSTEM SHALL apply it to the total.\n"
+      },
+      "developer": "Continue the pending edit operation now."
+    }
+  ]
+}
