@@ -176,6 +176,11 @@ def reduce_call(calls: dict[str, dict], update: dict) -> None:
         call["path"] = path
     if isinstance(update.get("rawOutput"), dict):
         call["output"] = update["rawOutput"]
+    # Shell output arrives as text content; its raw-output key is not documented.
+    for part in update["content"] if isinstance(update.get("content"), list) else []:
+        inner = part.get("content") if isinstance(part, dict) else None
+        if isinstance(inner, dict) and isinstance(inner.get("text"), str):
+            call["text"] = call.get("text", "") + inner["text"] + "\n"
 
 
 def reduce_update(turn: dict, update: dict) -> None:
@@ -688,7 +693,18 @@ def probe_checks(
     ]
     exact = all(call["command"].strip() == runner.PROBE_COMMAND for call in runs)
     checks = runner.shell_probe_checks(
-        [str(call["output"].get("output", "")) for call in runs] if exact else [],
+        [
+            "\n".join(
+                [
+                    call.get("text", ""),
+                    *(v for v in call["output"].values() if isinstance(v, str)),
+                    f"exit code: {call['output'].get('exitCode')}",
+                ]
+            )
+            for call in runs
+        ]
+        if exact
+        else [],
         workspace,
         payload,
         extra=("plugin-read",),

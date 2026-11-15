@@ -49,6 +49,8 @@ def command(
         args,
         cwd=cwd,
         env=env,
+        # A host must never read the supervisor's terminal as extra prompt text.
+        stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -1139,23 +1141,36 @@ def shell_probe_checks(
     The script and its report token sit in the model-writable workspace, so the
     report counts only when both files are unchanged and the command ran once.
     """
-    shell = {}
-    trusted = (
-        len(outputs) == 1
-        and (workspace / "probe.py").read_text() == SHELL_PROBE
-        and (workspace / "probe.json").read_text() == json.dumps(payload)
-    )
+    shell, reported = {}, False
+    intact = (workspace / "probe.py").read_text() == SHELL_PROBE and (
+        workspace / "probe.json"
+    ).read_text() == json.dumps(payload)
+    trusted = len(outputs) == 1 and intact
     for line in outputs[0].splitlines() if trusted else []:
         try:
             found = json.loads(line)[payload["report"]]
         except (ValueError, KeyError, TypeError):
             continue
-        shell = found if isinstance(found, dict) else {}
+        shell, reported = (found if isinstance(found, dict) else {}), True
+    # A missing report must say why, or a failed probe cannot be diagnosed.
+    why = ""
+    if not reported:
+        tail = normalize(
+            outputs[0][-400:] if len(outputs) == 1 else "",
+            {
+                str(workspace.parent.parent): "<batch>",
+                str(Path.home().resolve()): "<home>",
+            },
+        )
+        why = (
+            f" (no report: probe command ran {len(outputs)} time(s) as "
+            f"instructed; script files unchanged={intact}; output tail: {tail!r})"
+        )
     return {
         name: {
             "passed": shell.get(name) is True,
             "evidence": "errno result of the supervisor script run by the "
-            f"sandboxed shell tool: {shell.get(name)}",
+            f"sandboxed shell tool: {shell.get(name)}{why}",
         }
         for name in sorted(score.RELEASE_BOUNDARY_CHECKS)
         if name.startswith("shell-")

@@ -947,6 +947,16 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                 "with one line: probe"
             )
             result = adapter.launch(prompt, workspace)
+            if result.returncode or "thread.started" not in result.stdout:
+                # Developer terminal only: say why, with batch paths removed.
+                tail = runner.normalize(
+                    (result.stderr or result.stdout)[-1500:],
+                    {str(batch): "<batch>", str(Path.home().resolve()): "<home>"},
+                )
+                raise runner.HostError(
+                    f"Codex exited {result.returncode} before a session started: "
+                    f"{diagnostic_categories(result.stderr)}\n{tail}"
+                )
             items, thread = [], None
             for line in result.stdout.splitlines():
                 try:
