@@ -14,9 +14,24 @@ from pathlib import Path
 
 from guards import GuardDuty, GuardOutcome, run_guard
 from hosts import ProbeResult, probe_host
-from jobs import FakeSeam
 
 _HOSTS_CONTRACT = Path(__file__).resolve().parents[1] / "contracts" / "hosts.json"
+
+
+class _AlwaysAllowSeam:
+    """Doctor-only stand-in: every evaluate_guard call is allowed. The
+    package ships no ControllerSeam implementation (design §4); FakeSeam is
+    a test double that lives under tests/, never imported by production
+    code."""
+
+    def submit_job(self, intent: dict) -> dict:
+        raise AssertionError("doctor never submits a job")
+
+    def evaluate_guard(self, duty: str, context: dict) -> dict:
+        return {"allowed": True, "reason": None}
+
+    def read_facts(self, duty: str, session: dict | None, project_root: str) -> dict:
+        return {}
 
 
 @dataclass(frozen=True)
@@ -29,7 +44,7 @@ class DoctorReport:
 
 
 def diagnose(*, project_root: Path) -> DoctorReport:
-    seam = FakeSeam(guard_rules={duty.value: (True, None) for duty in GuardDuty})
+    seam = _AlwaysAllowSeam()
     declared = json.loads(_HOSTS_CONTRACT.read_text(encoding="utf-8"))["hosts"]
     covered = set(declared["codex"]["capabilities"]) | set(declared["gemini"]["capabilities"])
     return DoctorReport(
