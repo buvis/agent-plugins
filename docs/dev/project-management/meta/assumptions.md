@@ -53,3 +53,21 @@ Ivan (implementor):
 - Updated three `tests/autopilot/test_sessions.py` assertions (identity/isolation resolving to codex/gemini, and the "neither host declares" control case moved from `interception` to `delegation`) because the regenerated, schema-v2-accurate hosts.json now truthfully declares capabilities task 6's adapters already implement; the old assertions encoded the v1 contract's deliberate under-declaration, not a design invariant.
 - Did not edit `tools/autopilot/source-map.json` (a 280k-line checksum-tracked provenance ledger for an unrelated packaging concern) to add edges for the two new `compatibility/{claude,codex}/hooks.json` assets' embedded `${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py` references, even though `tests/autopilot/test_resource_closure.py::test_whole_tree_closure` now fails over it — out of scope for this task's declared files; flagged for the phase-7 final-verification regression loop instead of a blind hand-edit to a generated, checksum-tracked file.
 - This task's tests and implementation were written directly by the orchestrating session rather than via separate Tess/Devon/Ivan/Pat subagent dispatches, to fit the session's effort budget; `state.tasks[].attempts[].notes` on this task records the deviation. The self-deslop and per-task style-limit steps were satisfied by manual review rather than running their dedicated gate scripts.
+
+## Task 8: Create roles.py §6 policy-driven role resolution
+
+Tess (test author):
+- `RoleResolution`/`ProfileResolution` field order and the exact dataclass construction kwargs are inferred from how the contract text's own verbatim dataclass block names them; tests assert via keyword access on the returned objects, not positional construction, so an implementation using different internal class names (e.g. `RoleRow`, `ResolvedProfile`) still satisfies the tests.
+- A reviewer job whose two conditional predicates both hold produces exactly one role row (dedup by job_id), not two. The contract describes a set of mandatory jobs but does not state the dedupe explicitly.
+- A row blocked by `claude_excluded` still reports `host_id == "claude"` ("resolves to claude" per the contract's wording), not `None`.
+- For an unknown adapter, only `"unknown_adapter:<id>" in missing` is asserted, not that it is the sole entry, nor `host_id`/`adapter`/`execution` — the contract pins none of those for this case.
+- `required_capabilities` is compared order-free (sorted); the contract types it as `tuple[str, ...]` without pinning element order.
+- `ProfileResolution.roles` order is not asserted; rows are compared as a role-keyed set.
+- The predicate-check mechanism is the literal, per-predicate-id hardcoded comparison the Rules text states (`doubt_reviewer_fable -> facts.doubt_reviewer == "fable"`, etc.), not a generic runtime lookup against `policy["procedure"]["conditional_predicates"][...]["expected_value"]`. An early strengthening round added two tests requiring the latter; they were removed as contract-inventing once the conflict with the pinned Rules text was found, and Devon's corresponding exploit was marked in-contract.
+- Behavior for a host absent from `implemented`, an unknown implementor provider, and a mandatory job with no `role_bindings` entry is left to the implementation (ValueError or a blocked row with a named blocker) since the contract pins none of the three.
+
+Ivan (implementor):
+- Where the tests accept either `ValueError` or a blocked row, the implementation returns a blocked row: a dropped `role_bindings` entry gets `missing=("no_role_binding:<job>",)`, an unknown implementor provider gets `missing=("unknown_provider:<p>",)`, both with `host_id=None`; a host missing from `implemented` is treated as implementing nothing (full `missing`), not as an error.
+- Implementor rows always carry `adapter=None` — the contract leaves this field open.
+- `claude_free` is computed from every provider string reachable via `implementor_providers`, every binding's `provider`, and every binding's `fallback.provider`, ignoring free-text fields (e.g. `description`) entirely.
+- Delta review passes (`delta_reviewer_jobs`) are not handled — `resolve_profile` takes no review-pass argument, so this part of the policy schema is unused by this module.
