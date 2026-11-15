@@ -126,6 +126,51 @@ def _session_dict(session: NativeSession | None) -> dict | None:
     return {"host_id": session.host_id, "session_id": session.session_id, "source": session.source}
 
 
+def _resolve_controller_facts(
+    duty: GuardDuty, session: NativeSession | None, project_root: str, seam: ControllerSeam
+) -> dict | None:
+    """The validated facts dict to merge into context, or None when the
+    seam's reply is malformed."""
+    try:
+        facts = seam.read_facts(duty.value, _session_dict(session), project_root)
+    except Exception:
+        facts = None
+    return _validate_facts(duty, facts)
+
+
+def _evaluate_duty_call(
+    call: DutyCall,
+    *,
+    bound: bool,
+    session: NativeSession | None,
+    project_root: str,
+    seam: ControllerSeam | None,
+) -> tuple[GuardOutcome, dict]:
+    """The outcome for one duty call and the context it decided from (facts
+    merged in, when controller-keyed). The caller filters out the
+    unbound-skip case before reaching here."""
+    duty = call.duty
+    context = dict(call.context)
+    controller_keyed = duty in _STATEFUL_DUTIES or duty in _FACTS_SCHEMA
+
+    if bound and controller_keyed:
+        if seam is None:
+            outcome = GuardOutcome(
+                duty=duty, allowed=False, reason="missing_controller_seam", stateful=True
+            )
+            return outcome, context
+        if duty in _FACTS_SCHEMA:
+            validated = _resolve_controller_facts(duty, session, project_root, seam)
+            if validated is None:
+                outcome = GuardOutcome(
+                    duty=duty, allowed=False, reason="malformed_controller_facts", stateful=True
+                )
+                return outcome, context
+            context.update(validated)
+
+    return guards.run_guard(duty, context, seam=seam), context
+
+
 def evaluate_hook(
     host_id: str,
     event: str,
@@ -148,44 +193,16 @@ def evaluate_hook(
     additional_context: str | None = None
 
     for call in duty_calls:
-        duty = call.duty
-        context = dict(call.context)
-        controller_keyed = duty in _STATEFUL_DUTIES or duty in _FACTS_SCHEMA
-
+        controller_keyed = call.duty in _STATEFUL_DUTIES or call.duty in _FACTS_SCHEMA
         if not bound and controller_keyed:
-            skipped.append((duty.value, "unbound"))
+            skipped.append((call.duty.value, "unbound"))
             continue
-
-        if bound and controller_keyed:
-            if seam is None:
-                outcomes.append(
-                    GuardOutcome(
-                        duty=duty, allowed=False, reason="missing_controller_seam", stateful=True
-                    )
-                )
-                continue
-            if duty in _FACTS_SCHEMA:
-                try:
-                    facts = seam.read_facts(duty.value, _session_dict(session), project_root)
-                except Exception:
-                    facts = None
-                validated = _validate_facts(duty, facts)
-                if validated is None:
-                    outcomes.append(
-                        GuardOutcome(
-                            duty=duty,
-                            allowed=False,
-                            reason="malformed_controller_facts",
-                            stateful=True,
-                        )
-                    )
-                    continue
-                context.update(validated)
-
-        outcome = guards.run_guard(duty, context, seam=seam)
+        outcome, decided_context = _evaluate_duty_call(
+            call, bound=bound, session=session, project_root=project_root, seam=seam
+        )
         outcomes.append(outcome)
-        if duty is GuardDuty.CONTEXT_REINJECTION and outcome.allowed:
-            additional_context = context.get("contract_card_body")
+        if call.duty is GuardDuty.CONTEXT_REINJECTION and outcome.allowed:
+            additional_context = decided_context.get("contract_card_body")
 
     return HookDecision(
         host_id=host_id,
@@ -245,23 +262,24 @@ def run_hook(host_id: str, event: str, stdin: bytes, *, env: Mapping[str, str]) 
     return reply
 
 
-def _write_trace(decision: HookDecision, env: Mapping[str, str]) -> None:
-    trace_path = env.get(TRACE_ENV)
-    if not trace_path:
-        return
-    project_root = Path(decision.project_root)
+def _resolve_trace_path(trace_path: str, project_root: Path) -> Path | None:
+    """`trace_path` resolved inside `<project_root>/docs/dev/tmp/autopilot`,
+    or None (with a stderr line) when it does not resolve there."""
     candidate = Path(trace_path)
     try:
         allowed_dir = (project_root / "docs" / "dev" / "tmp" / "autopilot").resolve()
         resolved = candidate.resolve() if candidate.is_absolute() else (project_root / candidate).resolve()
-        if not resolved.is_relative_to(allowed_dir):
-            print("autopilot: trace write refused: outside docs/dev/tmp/autopilot", file=sys.stderr)
-            return
     except OSError as exc:
         print(f"autopilot: trace write refused: {exc}", file=sys.stderr)
-        return
+        return None
+    if not resolved.is_relative_to(allowed_dir):
+        print("autopilot: trace write refused: outside docs/dev/tmp/autopilot", file=sys.stderr)
+        return None
+    return resolved
 
-    line = {
+
+def _trace_line(decision: HookDecision) -> dict:
+    return {
         "ts": time.time(),
         "host_id": decision.host_id,
         "event": decision.event,
@@ -274,26 +292,40 @@ def _write_trace(decision: HookDecision, env: Mapping[str, str]) -> None:
             for outcome in decision.outcomes
         ],
     }
+
+
+def _append_trace_line(resolved: Path, project_root: Path, line: dict) -> None:
+    parent_fd = _pinned_parent_fd(resolved.parent, project_root)
     try:
-        parent_fd = _pinned_parent_fd(resolved.parent, project_root)
-        try:
-            fd = os.open(
-                resolved.name,
-                os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW,
-                0o666,
-                dir_fd=parent_fd,
-            )
-        finally:
-            os.close(parent_fd)
-        try:
-            info = os.fstat(fd)
-            if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
-                print("autopilot: trace write refused: not a plain regular file", file=sys.stderr)
-                return
-            if info.st_size >= MAX_TRACE_BYTES:
-                return
-            os.write(fd, (json.dumps(line) + "\n").encode("utf-8"))
-        finally:
-            os.close(fd)
+        fd = os.open(
+            resolved.name,
+            os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_NOFOLLOW,
+            0o666,
+            dir_fd=parent_fd,
+        )
+    finally:
+        os.close(parent_fd)
+    try:
+        info = os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+            print("autopilot: trace write refused: not a plain regular file", file=sys.stderr)
+            return
+        if info.st_size >= MAX_TRACE_BYTES:
+            return
+        os.write(fd, (json.dumps(line) + "\n").encode("utf-8"))
+    finally:
+        os.close(fd)
+
+
+def _write_trace(decision: HookDecision, env: Mapping[str, str]) -> None:
+    trace_path = env.get(TRACE_ENV)
+    if not trace_path:
+        return
+    project_root = Path(decision.project_root)
+    resolved = _resolve_trace_path(trace_path, project_root)
+    if resolved is None:
+        return
+    try:
+        _append_trace_line(resolved, project_root, _trace_line(decision))
     except OSError as exc:
         print(f"autopilot: trace write refused: {exc}", file=sys.stderr)
