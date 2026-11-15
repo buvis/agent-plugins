@@ -829,7 +829,7 @@ class Codex:
         # Approved 2026-11-15: the documented discovery path counts when the
         # host-recorded text matches, and every other instruction field the
         # host recorded has the fingerprint the probe saw.
-        channels = self.measured_channels(record["state"], workspace)
+        channels = self.measured_channels(record["state"], workspace, context)
         proven = (self.boundary or {}).get("instructionChannels")
         self.instruction_measurement = (
             "measured"
@@ -869,10 +869,16 @@ class Codex:
         self.read_measurement = "measured" if known else "not-measured"
         return reply, reads
 
-    def measured_channels(self, state: dict, workspace: Path) -> dict[str, str] | None:
+    def measured_channels(
+        self, state: dict, workspace: Path, context: dict | None = None
+    ) -> dict[str, str] | None:
         """Normalize permission text only after proving it is the recorded fragment."""
         permissions = state.get("permissions")
         if isinstance(permissions, dict) and "instructions" in permissions:
+            context = context or {}
+            policy = context.get("approval_policy")
+            if policy is None or not context.get("model"):
+                return None
             result = runner.command(
                 [
                     self.executable,
@@ -881,7 +887,9 @@ class Codex:
                     "debug",
                     "prompt-input",
                     "-c",
-                    "model=" + json.dumps(self.model),
+                    "model=" + json.dumps(context["model"]),
+                    "-c",
+                    "approval_policy=" + json.dumps(policy),
                 ],
                 workspace,
                 self.environment(),
@@ -892,6 +900,29 @@ class Codex:
             except (ValueError, TypeError, AttributeError):
                 return None
             if text is None:
+                # Keep a failed probe actionable without retaining raw paths
+                # or requiring another paid turn to capture the mismatch.
+                self.permission_diagnostic = {
+                    "recordedHash": permissions["instructions"],
+                    "approvalPolicy": policy,
+                    "model": context["model"],
+                    "rendererExit": result.returncode,
+                    "renderedPermissions": self.effective_profile(
+                        [
+                            match[0]
+                            for item in items
+                            if isinstance(item, dict)
+                            and item.get("role") == "developer"
+                            for content in item.get("content", [])
+                            for match in re.finditer(
+                                r"<permissions instructions>.*?</permissions instructions>",
+                                content.get("text", ""),
+                                re.DOTALL,
+                            )
+                        ],
+                        workspace,
+                    ),
+                }
                 return None
             state = {**state, "permissions": {**permissions, "instructions": text}}
         return instruction_channels(
@@ -1372,7 +1403,7 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                 "evidence": "host turn context records an active permission "
                 f"profile: {applied}; every generated denial observed",
             }
-            channels = adapter.measured_channels(record["state"], workspace)
+            channels = adapter.measured_channels(record["state"], workspace, context)
             if channels is None:
                 checks["instruction-inventory"] = {
                     "passed": False,
@@ -1388,6 +1419,7 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                 "runnerSha256": runner.runner_digest(adapter),
                 "effectiveProfile": adapter.effective_profile(profile, workspace),
                 "instructionChannels": channels,
+                "permissionDiagnostic": getattr(adapter, "permission_diagnostic", None),
                 # Not evidence: what the host did, so a failed probe can be read.
                 "observed": runner.normalize(
                     [

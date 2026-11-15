@@ -12,6 +12,16 @@ from capture_codex_fields import permission_text, selected_fields
 
 
 class CaptureTests(unittest.TestCase):
+    def test_missing_live_policy_prevents_rendering(self) -> None:
+        adapter = run_codex.Codex("synthetic")
+        with patch.object(run_codex.runner, "command") as command:
+            self.assertIsNone(
+                adapter.measured_channels(
+                    {"permissions": {"instructions": "0" * 40}}, Path("/synthetic")
+                )
+            )
+            command.assert_not_called()
+
     def test_unverified_permission_text_never_produces_channels(self) -> None:
         from subprocess import CompletedProcess
 
@@ -20,6 +30,9 @@ class CaptureTests(unittest.TestCase):
         with (
             patch.object(adapter, "environment", return_value={}),
             patch.object(
+                adapter, "effective_profile", side_effect=lambda value, workspace: value
+            ),
+            patch.object(
                 run_codex.runner,
                 "command",
                 return_value=CompletedProcess([], 0, "[]", ""),
@@ -27,9 +40,12 @@ class CaptureTests(unittest.TestCase):
         ):
             self.assertIsNone(
                 adapter.measured_channels(
-                    {"permissions": {"instructions": "0" * 40}}, Path("/synthetic")
+                    {"permissions": {"instructions": "0" * 40}},
+                    Path("/synthetic"),
+                    {"approval_policy": "never", "model": "recorded-model"},
                 )
             )
+            self.assertEqual(adapter.permission_diagnostic["rendererExit"], 0)
 
     def test_permission_text_requires_host_hash_and_developer_role(self) -> None:
         text = (
@@ -57,14 +73,21 @@ class CaptureTests(unittest.TestCase):
                 run_codex.runner,
                 "command",
                 return_value=CompletedProcess([], 0, json.dumps(items), ""),
-            ),
+            ) as command,
         ):
             self.assertEqual(
-                adapter.measured_channels(state, Path("/synthetic")),
+                adapter.measured_channels(
+                    state,
+                    Path("/synthetic"),
+                    {"approval_policy": "never", "model": "recorded-model"},
+                ),
                 run_codex.instruction_channels(
                     {"permissions": {"instructions": text}}, lambda value: value
                 ),
             )
+            arguments = command.call_args.args[0]
+            self.assertIn('approval_policy="never"', arguments)
+            self.assertIn('model="recorded-model"', arguments)
         self.assertEqual(state["permissions"]["instructions"], digest.hexdigest())
         self.assertIsNone(permission_text(items, "0" * 40))
         items[0]["role"] = "user"

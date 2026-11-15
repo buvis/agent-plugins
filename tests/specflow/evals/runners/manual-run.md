@@ -49,6 +49,9 @@ original bytes against the host-recorded hash, then fingerprints the normalized
 text. Missing text or a hash mismatch fails the probe's instruction-inventory
 check and leaves session instructions unmeasured. No instruction channel is
 excluded. This rendering makes no model call. A runner change stales the proof.
+The renderer receives the live turn's recorded model and approval policy:
+`exec` defaults to `never`, whereas `debug prompt-input` otherwise uses its
+ordinary approval policy. Missing live policy/model leaves instructions unmeasured.
 
 ## Live proof procedure
 
