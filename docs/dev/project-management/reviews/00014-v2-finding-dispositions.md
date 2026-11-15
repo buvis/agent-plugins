@@ -196,21 +196,20 @@ PRD added (`hosts-v1`, `guards-v1`, `diagnose-v1`, `hook-v1`, `request-job-v1`,
 to a real, implemented CLI mode; none claims live host execution or
 certification.
 
-### Open items discovered at the Phase 2 gate (not in task 13's scope to fix)
+### Items found at the Phase 2 gate, closed by the step-7 regression loop
 
-The full-gate run above surfaces 5 failures, all outside task 13's
-`Location:` (this doc only) and all outside task 12's `files:` list too.
-Recorded as open, with owner, per the "no genuinely unfixed finding is
-silently dropped" rule — neither is a relabeling of a required behavior as
-certification-only:
+The full-gate run first surfaced 5 failures, all outside task 13's
+`Location:` (this doc only) and task 12's `files:` list. Both were fixed
+immediately after, in `/autopilot:work`'s mandatory step-7 final-verification
+regression loop (2 fix cycles, reopening tasks 7 and 10 respectively — never
+reopening or editing anything under task 13's own scope):
 
-| Finding | Disp. | Owner | Evidence test(s) |
-|---|---|---|---|
-| The two generated `compatibility/{claude,codex}/hooks.json` assets' embedded `${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py` references have no resource edges in `tools/autopilot/source-map.json` (12 defects) | D | `/autopilot:work` step 7 final-verification regression loop (already flagged once, in task 7's own assumption-ledger entry, as deferred to this exact backstop — fixing it earlier would also force re-pinning `FROZEN["resource_edges"]` in `test_helper_provenance_real.py`, itself a provenance safety pin outside any single task's declared files) | `test_package.py::test_resource_closure_declares_inside_resources_and_external_failure_rules`, `test_resource_closure.py::test_whole_tree_closure` |
-| Task 10's eight new `--list-capabilities` IDs are not reflected in three pre-existing tests' expected-capability-list fixtures | D | `/autopilot:work` step 7 final-verification regression loop (mechanical fixture update; none of the three files is in task 10's, 11's or 12's declared `files:`) | `test_facade.py::test_capabilities_are_exact_contract_formats_without_runtime_side_effects`, `test_local_boundary.py::test_list_capabilities_keeps_legacy_array_and_adds_exactly_the_implemented_operations`, `test_package.py::test_target_only_checkout_denies_source_home_and_network_but_exports_policy` |
+| Finding | Disp. | Owner | Repair commit | Evidence test(s) |
+|---|---|---|---|---|
+| The two generated `compatibility/{claude,codex}/hooks.json` assets' embedded `${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py` references had no resource edges in `tools/autopilot/source-map.json` (12 defects) | F | AP00014 v2 (task 7, reopened at step 7) | `f6a58a9` — adds the 12 missing `resource_edges` rows and refreshes `FROZEN["resource_edges"]` in `test_helper_provenance_real.py` | `test_package.py::test_resource_closure_declares_inside_resources_and_external_failure_rules`, `test_resource_closure.py::test_whole_tree_closure` |
+| Task 10's five new `--list-capabilities` IDs were not reflected in three pre-existing tests' expected-capability-list fixtures | F | AP00014 v2 (task 10, reopened at step 7) | `7c10f5d` — adds `request-job-v1`, `bind-job-v1`, `close-child-v1`, `resolve-roles-v1`, `record-session-v1` to the three fixtures' expected lists | `test_facade.py::test_capabilities_are_exact_contract_formats_without_runtime_side_effects`, `test_local_boundary.py::test_list_capabilities_keeps_legacy_array_and_adds_exactly_the_implemented_operations`, `test_package.py::test_target_only_checkout_denies_source_home_and_network_but_exports_policy` |
 
-Per this task's own acceptance criteria ("if false, skip/report affected
-edits without forcing them" / "a genuinely unfixed finding stays recorded as
-open ... not silently dropped from the doc"): these two items are reported
-here rather than fixed under task 13, whose `Location:` is this document
-only.
+Neither fix relabeled a required behavior as certification-only or weakened
+an assertion; both are additive (new resource-edge rows, new capability IDs
+appended to existing expected-value lists). The full gate is confirmed green
+after both commits (re-run below).
