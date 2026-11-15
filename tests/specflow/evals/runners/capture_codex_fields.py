@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import re
@@ -11,31 +10,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 import run_codex
-
-
-def permission_text(items: list[dict], expected: str) -> str | None:
-    """Accept rendered text only when it reproduces Codex 0.169's stored hash.
-
-    Source: rust-v0.169.0 core/src/context/world_state/mod.rs,
-    WorldStateHash::from_fragment and hash_component. A path cannot be
-    normalized until after this check against the original fragment bytes.
-    """
-    for item in items:
-        if item.get("role") != "developer":
-            continue
-        for content in item.get("content", []):
-            for match in re.finditer(
-                r"<permissions instructions>.*?</permissions instructions>",
-                content.get("text", ""), re.DOTALL,
-            ):
-                text = match[0].replace("\r\n", "\n")
-                digest = hashlib.sha1(b"codex-world-state-fragment-v1\0")
-                for value in (b"developer", text.encode()):
-                    digest.update(len(value).to_bytes(8, "big"))
-                    digest.update(value)
-                if digest.hexdigest() == expected:
-                    return text
-    return None
+from run_codex import permission_text
 
 
 def selected_fields(state: dict, normalize: Callable) -> dict:
@@ -51,7 +26,9 @@ def selected_fields(state: dict, normalize: Callable) -> dict:
 
 def render_only(model: str, out: Path) -> int:
     """Render two fresh eval profiles without sign-in, model calls or live evidence."""
-    revision = run_codex.score.git("rev-parse", "HEAD:plugins/specflow").decode().strip()
+    revision = (
+        run_codex.score.git("rev-parse", "HEAD:plugins/specflow").decode().strip()
+    )
     samples = []
     for name in ("probe", "session"):
         with run_codex.runner.external_batch(revision) as batch:
@@ -63,13 +40,27 @@ def render_only(model: str, out: Path) -> int:
             workspace = batch / "workspaces" / name
             workspace.mkdir(mode=0o700)
             run_codex.runner.initialize_workspace(workspace)
-            (adapter.home / "specflow.config.toml").write_text(run_codex.eval_config(
-                workspace, adapter.plugin, adapter.git, adapter.runtime,
-            ))
-            result = run_codex.runner.command([
-                adapter.executable, "--profile", "specflow", "debug", "prompt-input",
-                "-c", "model=" + json.dumps(model),
-            ], workspace, adapter.environment())
+            (adapter.home / "specflow.config.toml").write_text(
+                run_codex.eval_config(
+                    workspace,
+                    adapter.plugin,
+                    adapter.git,
+                    adapter.runtime,
+                )
+            )
+            result = run_codex.runner.command(
+                [
+                    adapter.executable,
+                    "--profile",
+                    "specflow",
+                    "debug",
+                    "prompt-input",
+                    "-c",
+                    "model=" + json.dumps(model),
+                ],
+                workspace,
+                adapter.environment(),
+            )
             if result.returncode:
                 raise run_codex.runner.HostError(
                     f"renderer stopped with exit {result.returncode}; no model was called"
@@ -79,17 +70,28 @@ def render_only(model: str, out: Path) -> int:
             for item in items:
                 if item.get("role") == "developer":
                     for content in item.get("content", []):
-                        fragments.extend(re.findall(
-                            r"<permissions instructions>.*?</permissions instructions>",
-                            content.get("text", ""), re.DOTALL,
-                        ))
+                        fragments.extend(
+                            re.findall(
+                                r"<permissions instructions>.*?</permissions instructions>",
+                                content.get("text", ""),
+                                re.DOTALL,
+                            )
+                        )
             if not fragments:
-                raise run_codex.runner.HostError("renderer supplied no permission fragment")
-            samples.append({
-                "case": name,
-                "permissions.renderedText": adapter.effective_profile(fragments, workspace),
-            })
-    descriptor = os.open(out / "render-fields.json", os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+                raise run_codex.runner.HostError(
+                    "renderer supplied no permission fragment"
+                )
+            samples.append(
+                {
+                    "case": name,
+                    "permissions.renderedText": adapter.effective_profile(
+                        fragments, workspace
+                    ),
+                }
+            )
+    descriptor = os.open(
+        out / "render-fields.json", os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600
+    )
     with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
         json.dump({"diagnosticOnly": True, "samples": samples}, stream, indent=2)
     return 0
@@ -123,10 +125,19 @@ def main() -> int:
         # The snapshot stores an opaque hash here. Render with the same
         # private home/profile; no model request, login, or permission change.
         adapter, workspace = active
-        rendered = run_codex.runner.command([
-            adapter.executable, "--profile", "specflow", "debug", "prompt-input",
-            "-c", "model=" + json.dumps(adapter.model),
-        ], workspace, adapter.environment())
+        rendered = run_codex.runner.command(
+            [
+                adapter.executable,
+                "--profile",
+                "specflow",
+                "debug",
+                "prompt-input",
+                "-c",
+                "model=" + json.dumps(adapter.model),
+            ],
+            workspace,
+            adapter.environment(),
+        )
         try:
             items = json.loads(rendered.stdout) if rendered.returncode == 0 else []
         except ValueError:
@@ -146,16 +157,26 @@ def main() -> int:
                 proof_path = args.out / "codex-proof.json"
                 with proof_path.open("x", encoding="utf-8") as stream:
                     json.dump(proof, stream, indent=2)
-                return int(not all(
-                    proof["checks"].get(name, {}).get("passed") is True
-                    for name in run_codex.score.RELEASE_BOUNDARY_CHECKS
-                ))
-            return run_codex.runner.main([
-                "status-summary", "--model", args.model,
-                "--boundary-proof", str(args.out / "codex-proof.json"),
-                "--evals", "tests/specflow/fixtures/results/self-check",
-                "--out", str(args.out / "records"),
-            ], adapter_type=run_codex.Codex)
+                return int(
+                    not all(
+                        proof["checks"].get(name, {}).get("passed") is True
+                        for name in run_codex.score.RELEASE_BOUNDARY_CHECKS
+                    )
+                )
+            return run_codex.runner.main(
+                [
+                    "status-summary",
+                    "--model",
+                    args.model,
+                    "--boundary-proof",
+                    str(args.out / "codex-proof.json"),
+                    "--evals",
+                    "tests/specflow/fixtures/results/self-check",
+                    "--out",
+                    str(args.out / "records"),
+                ],
+                adapter_type=run_codex.Codex,
+            )
     finally:
         run_codex.instruction_channels = original
         run_codex.Codex.launch = original_launch

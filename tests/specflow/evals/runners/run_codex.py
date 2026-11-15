@@ -829,14 +829,19 @@ class Codex:
         # Approved 2026-11-15: the documented discovery path counts when the
         # host-recorded text matches, and every other instruction field the
         # host recorded has the fingerprint the probe saw.
-        channels = instruction_channels(
-            record["state"], lambda value: self.effective_profile(value, workspace)
-        )
+        channels = self.measured_channels(record["state"], workspace)
         proven = (self.boundary or {}).get("instructionChannels")
         self.instruction_measurement = (
-            "measured" if complete and channels == proven else "not-measured"
+            "measured"
+            if complete and channels is not None and channels == proven
+            else "not-measured"
         )
-        if isinstance(proven, dict) and channels != proven and self.usage:
+        if (
+            isinstance(proven, dict)
+            and channels is not None
+            and channels != proven
+            and self.usage
+        ):
             # Field names only, kept with the turn's reported usage in the
             # record's notes, so an unmeasured run says which field differed.
             self.usage[-1]["instructionFieldsDiffering"] = sorted(
@@ -864,9 +869,64 @@ class Codex:
         self.read_measurement = "measured" if known else "not-measured"
         return reply, reads
 
+    def measured_channels(self, state: dict, workspace: Path) -> dict[str, str] | None:
+        """Normalize permission text only after proving it is the recorded fragment."""
+        permissions = state.get("permissions")
+        if isinstance(permissions, dict) and "instructions" in permissions:
+            result = runner.command(
+                [
+                    self.executable,
+                    "--profile",
+                    "specflow",
+                    "debug",
+                    "prompt-input",
+                    "-c",
+                    "model=" + json.dumps(self.model),
+                ],
+                workspace,
+                self.environment(),
+            )
+            try:
+                items = json.loads(result.stdout) if result.returncode == 0 else []
+                text = permission_text(items, permissions["instructions"])
+            except (ValueError, TypeError, AttributeError):
+                return None
+            if text is None:
+                return None
+            state = {**state, "permissions": {**permissions, "instructions": text}}
+        return instruction_channels(
+            state, lambda value: self.effective_profile(value, workspace)
+        )
+
 
 # Name of a synthetic variable; the tool environment policy must strip it.
 SECRET_VARIABLE = "SPECFLOW_SYNTHETIC_" + "TOKEN"
+
+
+def permission_text(items: list[dict], expected: str) -> str | None:
+    """Accept rendered text only when it reproduces Codex 0.169's stored hash.
+
+    Source: rust-v0.169.0 core/src/context/world_state/mod.rs,
+    WorldStateHash::from_fragment and hash_component. A path cannot be
+    normalized until after this check against the original fragment bytes.
+    """
+    for item in items:
+        if item.get("role") != "developer":
+            continue
+        for content in item.get("content", []):
+            for match in re.finditer(
+                r"<permissions instructions>.*?</permissions instructions>",
+                content.get("text", ""),
+                re.DOTALL,
+            ):
+                text = match[0].replace("\r\n", "\n")
+                digest = hashlib.sha1(b"codex-world-state-fragment-v1\0")
+                for value in (b"developer", text.encode()):
+                    digest.update(len(value).to_bytes(8, "big"))
+                    digest.update(value)
+                if digest.hexdigest() == expected:
+                    return text
+    return None
 
 
 def instruction_channels(state: dict, normalize: Callable) -> dict[str, str]:
@@ -1312,6 +1372,12 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                 "evidence": "host turn context records an active permission "
                 f"profile: {applied}; every generated denial observed",
             }
+            channels = adapter.measured_channels(record["state"], workspace)
+            if channels is None:
+                checks["instruction-inventory"] = {
+                    "passed": False,
+                    "evidence": "rendered permission text did not reproduce the host-recorded hash",
+                }
             proof = {
                 "scope": "installed-host-boundary",
                 "host": adapter.host,
@@ -1321,10 +1387,7 @@ def live_probe(model: str, *, scratch: Path = runner.EXTERNAL_SCRATCH) -> dict:
                 "configurationSha256": adapter.configuration_sha256,
                 "runnerSha256": runner.runner_digest(adapter),
                 "effectiveProfile": adapter.effective_profile(profile, workspace),
-                "instructionChannels": instruction_channels(
-                    record["state"],
-                    lambda value: adapter.effective_profile(value, workspace),
-                ),
+                "instructionChannels": channels,
                 # Not evidence: what the host did, so a failed probe can be read.
                 "observed": runner.normalize(
                     [

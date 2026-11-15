@@ -43,6 +43,13 @@ other instruction field the host records must have the fingerprint the
 boundary probe saw (`instructionChannels` in the proof). A turn that differs
 stays `not-measured`.
 
+Codex 0.169 stores `permissions.instructions` as a hash of rendered text.
+The adapter renders that text with the same private home/profile, verifies its
+original bytes against the host-recorded hash, then fingerprints the normalized
+text. Missing text or a hash mismatch fails the probe's instruction-inventory
+check and leaves session instructions unmeasured. No instruction channel is
+excluded. This rendering makes no model call. A runner change stales the proof.
+
 ## Live proof procedure
 
 Run each step in a developer terminal outside `run-agent`, from the
