@@ -1588,7 +1588,7 @@ class RunnerTest(unittest.TestCase):
                 with self.subTest(command=opaque):
                     self.assertFalse(run_claude.shell_reads(opaque, workspace)[1])
 
-    def test_codex_runtime_is_the_real_binary_folder_behind_a_mise_shim(self) -> None:
+    def test_codex_launches_the_resolved_binary_behind_links_and_shims(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder).resolve()
             real = root / "installs/0.1.0/bin"
@@ -1598,24 +1598,23 @@ class RunnerTest(unittest.TestCase):
             (root / "mise").write_text("manager")
             (root / "shim").symlink_to(root / "mise")
             via_link = root / "installs/latest/bin/codex"
-            self.assertEqual(
-                run_codex.codex_runtime(str(via_link)), [via_link.parent, real]
-            )
+            # No link may remain on the launched path.
+            self.assertEqual(run_codex.codex_binary(str(via_link)), real / "codex")
             found = subprocess.CompletedProcess([], 0, f"{via_link}\n", "")
             with mock.patch.object(run_claude, "command", return_value=found):
-                # The shim resolves to the manager; its folder is never granted.
+                # The shim resolves to the manager, never to Codex itself.
                 self.assertEqual(
-                    run_codex.codex_runtime(str(root / "shim")), [via_link.parent, real]
+                    run_codex.codex_binary(str(root / "shim")), real / "codex"
                 )
             missing = subprocess.CompletedProcess([], 1, "", "")
             with (
                 mock.patch.object(run_claude, "command", return_value=missing),
                 self.assertRaises(run_claude.HostError),
             ):
-                run_codex.codex_runtime(str(root / "shim"))
+                run_codex.codex_binary(str(root / "shim"))
             (root / "wrapper").write_text("not codex")
             with self.assertRaises(run_claude.HostError):
-                run_codex.codex_runtime(str(root / "wrapper"))
+                run_codex.codex_binary(str(root / "wrapper"))
 
     def test_codex_configuration_digest_is_the_same_on_every_turn(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
@@ -1629,11 +1628,13 @@ class RunnerTest(unittest.TestCase):
                 mock.patch.object(run_codex.shutil, "which", return_value="/bin/codex"),
                 mock.patch.object(run_codex, "find_git", return_value=Path(__file__)),
                 mock.patch.object(
-                    run_codex, "codex_runtime", return_value=[Path("/opt/codex/bin")]
+                    run_codex, "codex_binary", return_value=Path("/opt/codex/bin/codex")
                 ),
                 mock.patch.object(run_claude, "command", return_value=version),
             ):
                 adapter.identify()
+                self.assertEqual(adapter.executable, "/opt/codex/bin/codex")
+                self.assertEqual(adapter.runtime, [Path("/opt/codex/bin")])
                 first = adapter.configuration_sha256
                 # State a finished first turn leaves behind.
                 adapter.conversation, adapter.model = "thread", "resolved-model"

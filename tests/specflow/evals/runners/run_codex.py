@@ -612,11 +612,14 @@ class Codex:
             or not (self.root / "workspaces").is_dir()
         ):
             raise runner.HostError("Codex launch needs the external batch layout")
-        executable = shutil.which("codex")
-        if not executable:
+        found = shutil.which("codex")
+        if not found:
             raise runner.HostError("codex executable not found")
+        binary = codex_binary(found)
+        executable = str(binary)
         self.executable, self.git = executable, find_git()
-        self.runtime = codex_runtime(executable)
+        # Codex's own bin folder: the main binary and its two helper binaries.
+        self.runtime = [binary.parent]
         version = runner.command([executable, "--version"], self.root, timeout=30)
         if version.returncode or not version.stdout.split():
             raise runner.HostError("could not identify installed Codex")
@@ -842,11 +845,13 @@ def find_git() -> Path:
     return path
 
 
-def codex_runtime(executable: str) -> list[Path]:
-    """Folders holding Codex's own binaries, as launched and as resolved.
+def codex_binary(executable: str) -> Path:
+    """The real Codex file, with every symbolic link resolved.
 
     A mise shim resolves to the `mise` binary, not to Codex, so ask mise for
-    the real file. Only the `bin` folder of the Codex install is returned.
+    the real file. Codex re-executes the path it was launched by inside the
+    generated profile; a link in a denied folder on that path stops the launch
+    (observed 2026-11-15 with mise's `latest` link), so launch the resolved file.
     """
     binary = Path(executable)
     if binary.resolve().name == "mise":
@@ -856,9 +861,10 @@ def codex_runtime(executable: str) -> list[Path]:
         if found.returncode or not found.stdout.strip():
             raise runner.HostError("could not resolve the Codex executable")
         binary = Path(found.stdout.strip())
-    if binary.resolve().name != "codex" or not binary.resolve().is_file():
+    binary = binary.resolve()
+    if binary.name != "codex" or not binary.is_file():
         raise runner.HostError("could not resolve the Codex executable")
-    return list(dict.fromkeys((binary.parent, binary.resolve().parent)))
+    return binary
 
 
 def eval_config(
