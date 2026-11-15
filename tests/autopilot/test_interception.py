@@ -128,7 +128,11 @@ class FindBindingTest(unittest.TestCase):
 
 
 class EvaluateHookUnboundTest(unittest.TestCase):
-    def test_unbound_skips_stateful_and_controller_keyed_pure_duties(self) -> None:
+    def test_unbound_controller_keyed_duties_refuse_instead_of_being_skipped(self) -> None:
+        """custody_push and post_handoff are controller-keyed: with no
+        `.autopilot/controller` found they must still run and refuse, not be
+        silently skipped. document_location needs no controller, so it is
+        still evaluated and allowed."""
         host_fakes.install_adapter(
             self,
             "claude",
@@ -143,12 +147,42 @@ class EvaluateHookUnboundTest(unittest.TestCase):
             "claude", "PreToolUse", {"cwd": "/does/not/exist"}, env={}, seam=None
         )
         self.assertFalse(decision.bound)
-        self.assertEqual(
-            set(decision.skipped), {("custody_push", "unbound"), ("post_handoff", "unbound")}
+        self.assertEqual(decision.skipped, ())
+        outcomes = {outcome.duty: outcome for outcome in decision.outcomes}
+        self.assertEqual(set(outcomes), {GuardDuty.CUSTODY_PUSH, GuardDuty.POST_HANDOFF,
+                                         GuardDuty.DOCUMENT_LOCATION})
+        self.assertFalse(outcomes[GuardDuty.CUSTODY_PUSH].allowed)
+        self.assertEqual(outcomes[GuardDuty.CUSTODY_PUSH].reason, "missing_controller_seam")
+        self.assertFalse(outcomes[GuardDuty.POST_HANDOFF].allowed)
+        self.assertEqual(outcomes[GuardDuty.POST_HANDOFF].reason, "missing_controller_seam")
+        self.assertTrue(outcomes[GuardDuty.DOCUMENT_LOCATION].allowed)
+        self.assertFalse(decision.allowed)
+
+    def test_unbound_other_controller_keyed_duties_also_refuse(self) -> None:
+        """The remaining controller-keyed duties named by the finding:
+        state_integrity, review_completeness, live_job, departure and
+        context_reinjection must refuse, not skip, when unbound."""
+        duties = (
+            DutyCall(GuardDuty.STATE_INTEGRITY, {"path": "src/app.py"}),
+            DutyCall(GuardDuty.REVIEW_COMPLETENESS, {}),
+            DutyCall(GuardDuty.LIVE_JOB, {}),
+            DutyCall(GuardDuty.DEPARTURE, {}),
+            DutyCall(GuardDuty.CONTEXT_REINJECTION, {}),
         )
-        self.assertEqual(len(decision.outcomes), 1)
-        self.assertTrue(decision.outcomes[0].allowed)
-        self.assertTrue(decision.allowed)
+        host_fakes.install_adapter(
+            self, "claude", translate_hook=lambda event, payload: duties,
+            session_from_environment=lambda env: None,
+        )
+        decision = interception.evaluate_hook(
+            "claude", "PreToolUse", {"cwd": "/does/not/exist"}, env={}, seam=None
+        )
+        self.assertFalse(decision.bound)
+        self.assertEqual(decision.skipped, ())
+        self.assertEqual(len(decision.outcomes), len(duties))
+        for outcome in decision.outcomes:
+            with self.subTest(duty=outcome.duty):
+                self.assertFalse(outcome.allowed)
+        self.assertFalse(decision.allowed)
 
 
 class EvaluateHookBoundTest(unittest.TestCase):
@@ -175,6 +209,47 @@ class EvaluateHookBoundTest(unittest.TestCase):
         self.assertFalse(decision.outcomes[0].allowed)
         self.assertEqual(decision.outcomes[0].reason, "missing_controller_seam")
         self.assertFalse(decision.allowed)
+
+    def test_document_location_normalizes_against_the_binding_root_not_a_sub_cwd(self) -> None:
+        """A bound session whose cwd is a subdirectory of the binding root
+        must still normalize an absolute document_path against the binding
+        root, even when the adapter's own DutyCall context copies cwd into
+        project_root (the bug this finding fixes)."""
+        sub = self.root / "sub"
+        sub.mkdir()
+        absolute_path = str(self.root / "backlog" / "x.md")
+        host_fakes.install_adapter(
+            self,
+            "claude",
+            translate_hook=lambda event, payload: (
+                DutyCall(GuardDuty.DOCUMENT_LOCATION,
+                        {"document_path": absolute_path, "project_root": payload["cwd"]}),
+            ),
+            session_from_environment=lambda env: None,
+        )
+        decision = interception.evaluate_hook(
+            "claude", "PreToolUse", {"cwd": str(sub)}, env={}, seam=None
+        )
+        self.assertTrue(decision.bound)
+        self.assertEqual(len(decision.outcomes), 1)
+        # Normalized against self.root ("backlog/x.md" is a lifecycle dir at
+        # the repo root, so it is denied); against the wrong sub root the
+        # path falls outside the whole-path check and would be allowed.
+        self.assertFalse(decision.outcomes[0].allowed)
+
+    def test_env_argument_not_os_environ_resolves_session_identity(self) -> None:
+        received: list = []
+        host_fakes.install_adapter(
+            self,
+            "claude",
+            translate_hook=lambda event, payload: (),
+            session_from_environment=lambda env: received.append(dict(env)) or None,
+        )
+        with mock.patch.dict(os.environ, {"MARKER_NOT_PASSED_IN": "from-os-environ"}):
+            interception.evaluate_hook(
+                "claude", "PreToolUse", {"cwd": str(self.root)}, env={}, seam=None
+            )
+        self.assertEqual(received, [{}])
 
     def test_bound_controller_keyed_pure_duty_refuses_without_seam(self) -> None:
         host_fakes.install_adapter(
@@ -282,6 +357,32 @@ class RunHookTest(unittest.TestCase):
         reply = interception.run_hook("claude", "Stop", b"not json", env={})
         self.assertIn("systemMessage", reply.stdout)
         self.assertEqual(reply.exit_code, 0)
+
+    def test_codex_malformed_apply_patch_tool_input_never_crashes(self) -> None:
+        """tool_input: null, a non-dict tool_input, and a non-str patch field
+        must each produce a structured reply, never an uncaught exception."""
+        for tool_input in (None, "not-a-dict", {"patch": 123}):
+            with self.subTest(tool_input=tool_input):
+                payload = json.dumps(
+                    {"tool_name": "apply_patch", "tool_input": tool_input, "cwd": "/tmp"}
+                ).encode("utf-8")
+                reply = interception.run_hook("codex", "PreToolUse", payload, env={})
+                self.assertNotEqual(reply.exit_code, 1)
+                self.assertIn("hook_input_invalid", reply.stdout)
+
+    def test_claude_agent_malformed_tool_input_never_crashes(self) -> None:
+        """tool_input: null, a non-dict tool_input, and a non-str prompt field
+        must each render hook_input_invalid, never raise AttributeError/TypeError."""
+        for tool_input in (
+            None, "not-a-dict", {"description": "d", "prompt": 123, "subagent_type": "x"}
+        ):
+            with self.subTest(tool_input=tool_input):
+                payload = json.dumps(
+                    {"tool_name": "Agent", "tool_input": tool_input, "cwd": "/tmp"}
+                ).encode("utf-8")
+                reply = interception.run_hook("claude", "PreToolUse", payload, env={})
+                self.assertNotEqual(reply.exit_code, 1)
+                self.assertIn("hook_input_invalid", reply.stdout)
 
 
 class HookBehaviorEquivalenceTest(unittest.TestCase):
@@ -592,7 +693,9 @@ class CodexTranslateHookTest(unittest.TestCase):
 
 class RenderHookReplyTest(unittest.TestCase):
     def test_pre_tool_deny_carries_the_first_denied_reason(self) -> None:
-        for host_id, module in INTERCEPTING:
+        # Claude only: codex's PreToolUse deny joins every reason (see
+        # CodexRenderHookReplyContractTest.test_pre_tool_deny_joins_every_reason).
+        for host_id, module in (("claude", claude_adapter),):
             for first, second in (("r-alpha", "r-beta"), ("r-beta", "r-alpha")):
                 with self.subTest(host=host_id, first=first):
                     outcomes = [_allow(GuardDuty.DOCUMENT_LOCATION), _deny(GuardDuty.DOCUMENT_LOCATION, first),
@@ -617,7 +720,9 @@ class RenderHookReplyTest(unittest.TestCase):
                     self.assertIn(output.get("permissionDecision"), ("allow", None))
 
     def test_post_tool_failure_is_reported_without_blocking(self) -> None:
-        for host_id, module in INTERCEPTING:
+        # Claude only: codex's PostToolUse refusal blocks instead (see
+        # CodexRenderHookReplyContractTest.test_post_tool_refused_blocks_with_a_reason).
+        for host_id, module in (("claude", claude_adapter),):
             for reason in ("store-a broken", "store-b broken"):
                 with self.subTest(host=host_id, reason=reason):
                     denied = _decision(host_id, "PostToolUse", [_deny(GuardDuty.STATE_INTEGRITY, reason)])
@@ -676,6 +781,66 @@ class RenderHookReplyTest(unittest.TestCase):
             reply = module.render_hook_reply("SessionStart", empty, stop_active=False)
             self.assertEqual(reply.exit_code, 0)
             self.assertNotIn("additionalContext", reply.stdout)
+
+
+class CodexRenderHookReplyContractTest(unittest.TestCase):
+    """codex.py:147's reply shapes diverge from claude's: PostToolUse refusal
+    blocks, Stop/SessionStart refusal always surfaces a systemMessage, and a
+    PreToolUse deny names every reason, not just the first."""
+
+    def test_pre_tool_deny_joins_every_reason(self) -> None:
+        for first, second in (("r-alpha", "r-beta"), ("r-beta", "r-alpha")):
+            with self.subTest(first=first):
+                outcomes = [_allow(GuardDuty.DOCUMENT_LOCATION), _deny(GuardDuty.DOCUMENT_LOCATION, first),
+                            _deny(GuardDuty.CUSTODY_PUSH, second)]
+                reply = codex_adapter.render_hook_reply(
+                    "PreToolUse", _decision("codex", "PreToolUse", outcomes), stop_active=False
+                )
+                self.assertEqual(reply.exit_code, 0)
+                self.assertEqual(_body(reply), {"hookSpecificOutput": {
+                    "hookEventName": "PreToolUse", "permissionDecision": "deny",
+                    "permissionDecisionReason": f"{first}; {second}"}})
+
+    def test_pre_tool_deny_with_a_single_reason_does_not_add_a_separator(self) -> None:
+        outcomes = [_allow(GuardDuty.DOCUMENT_LOCATION), _deny(GuardDuty.DOCUMENT_LOCATION, "r-solo")]
+        reply = codex_adapter.render_hook_reply(
+            "PreToolUse", _decision("codex", "PreToolUse", outcomes), stop_active=False
+        )
+        self.assertEqual(
+            _body(reply)["hookSpecificOutput"]["permissionDecisionReason"], "r-solo"
+        )
+
+    def test_post_tool_refused_blocks_with_a_reason(self) -> None:
+        for reason in ("store-a broken", "store-b broken"):
+            with self.subTest(reason=reason):
+                denied = _decision("codex", "PostToolUse", [_deny(GuardDuty.STATE_INTEGRITY, reason)])
+                reply = codex_adapter.render_hook_reply("PostToolUse", denied, stop_active=False)
+                self.assertEqual(reply.exit_code, 0)
+                self.assertEqual(_body(reply), {"decision": "block", "reason": reason})
+        allowed = _decision("codex", "PostToolUse", [_allow(GuardDuty.STATE_INTEGRITY)])
+        reply = codex_adapter.render_hook_reply("PostToolUse", allowed, stop_active=False)
+        self.assertEqual(reply.exit_code, 0)
+        self.assertNotEqual(_body(reply).get("decision"), "block")
+
+    def test_stop_refused_with_stop_active_still_surfaces_a_system_message(self) -> None:
+        reason = _fresh("review missing")
+        denied = _decision("codex", "Stop", [_deny(GuardDuty.LIVE_JOB, reason)])
+        reply = codex_adapter.render_hook_reply("Stop", denied, stop_active=True)
+        self.assertEqual(reply.exit_code, 0)
+        self.assertNotEqual(reply.stdout.strip(), "")
+        body = _body(reply)
+        self.assertIn("systemMessage", body)
+        self.assertIn(reason, body["systemMessage"])
+        self.assertTrue(body["systemMessage"].startswith("autopilot: "))
+
+    def test_session_start_refused_surfaces_a_system_message(self) -> None:
+        reason = _fresh("no card")
+        denied = _decision("codex", "SessionStart", [_deny(GuardDuty.CONTEXT_REINJECTION, reason)])
+        reply = codex_adapter.render_hook_reply("SessionStart", denied, stop_active=False)
+        self.assertEqual(reply.exit_code, 0)
+        body = _body(reply)
+        self.assertIn("systemMessage", body)
+        self.assertIn(reason, body["systemMessage"])
 
 
 class RealAdapterEvaluateHookTest(unittest.TestCase):

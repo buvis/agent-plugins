@@ -423,6 +423,12 @@ class DeclaredCapabilitiesMatchImplementationTest(unittest.TestCase):
             reg("SessionStart", None, 5),
         ))
 
+    def test_gemini_exports_an_explicit_empty_hook_registrations_tuple(self) -> None:
+        # Not a getattr(..., ()) default: the module itself must declare it,
+        # the same way claude and codex declare their own non-empty tuples.
+        self.assertIn("HOOK_REGISTRATIONS", vars(gemini))
+        self.assertEqual(gemini.HOOK_REGISTRATIONS, ())
+
     def test_no_static_probe_ever_claims_availability_or_certification(self) -> None:
         """"supported" is the strongest claim a static probe may make."""
         self.assertEqual(

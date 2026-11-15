@@ -240,6 +240,14 @@ class DocumentLocationTest(_DutyTestCase):
             {"document_path": f"/elsewhere/{STORE}/prds/wip/00014-x.md", "project_root": "/repo"}
         )
 
+    def test_an_equivalent_project_root_subdirectory_still_denies(self) -> None:
+        for project_root in ("/r", "/r/sub"):
+            with self.subTest(project_root=project_root):
+                self.assertDenied({"document_path": "/r/backlog/x.md", "project_root": project_root})
+
+    def test_a_double_slash_does_not_escape_the_store_check(self) -> None:
+        self.assertDenied({"document_path": "/r//backlog/x.md", "project_root": "/r"})
+
     def test_fails_closed_when_project_root_is_mistyped(self) -> None:
         self.assertFailsClosed(
             {"document_path": "src/app.py", "project_root": 5}, "project_root"
@@ -549,6 +557,16 @@ class IsGitPushTest(unittest.TestCase):
         "/usr/bin/git push origin HEAD",
         "git --git-dir .git push origin HEAD",
         "nohup env A=1 git push",
+        "sudo -u x git push",
+        "env -i git push",
+        "nice -n 5 git push",
+        "timeout 5 git push",
+        "(git push)",
+        "{ git push; }",
+        "if true; then git push; fi",
+        "! git push",
+        "git 'push'",
+        '"git" push',
         # Tolerated false positive (§7): git option spellings are not parsed.
         "git log --grep push",
     )

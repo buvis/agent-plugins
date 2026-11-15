@@ -277,6 +277,36 @@ class RecursionBoundTest(fakes.ProjectCase):
                 request = fakes.build(self.root, job_id="nested-review", requester=near)
                 self.assertEqual(request.requester, near)
 
+    def test_a_non_integer_dispatch_depth_env_value_refuses_invalid_request(self) -> None:
+        for value in ("abc", "", "1.5", "1e2", "1 1", "1x", "null"):
+            with self.subTest(value=value):
+                self.assert_refused("invalid_request", jobs.derive_ancestry,
+                                    {"AUTOPILOT_DISPATCH_DEPTH": value}, self.root)
+
+    def test_a_dispatch_depth_env_value_at_or_beyond_max_job_depth_refuses_recursion_depth(self) -> None:
+        for value in ("1", "2", "10"):
+            with self.subTest(value=value):
+                self.assert_refused("recursion_depth", jobs.derive_ancestry,
+                                    {"AUTOPILOT_DISPATCH_DEPTH": value}, self.root)
+
+    def test_a_dispatch_depth_env_value_below_max_job_depth_is_not_refused(self) -> None:
+        self.assertEqual(jobs.derive_ancestry({"AUTOPILOT_DISPATCH_DEPTH": "0"}, self.root), ())
+
+    def test_dispatch_depth_boundary_tracks_max_job_depth_not_a_hardcoded_one(self) -> None:
+        """The boundary moves with MAX_JOB_DEPTH, proving the env value is
+        actually compared against it rather than a hardcoded threshold."""
+        with mock.patch.object(jobs, "MAX_JOB_DEPTH", 3):
+            self.assertEqual(jobs.derive_ancestry({"AUTOPILOT_DISPATCH_DEPTH": "2"}, self.root), ())
+            self.assert_refused("recursion_depth", jobs.derive_ancestry,
+                                {"AUTOPILOT_DISPATCH_DEPTH": "3"}, self.root)
+
+    def test_stripped_job_env_with_only_dispatch_depth_still_refuses(self) -> None:
+        """No AUTOPILOT_JOB_REQUEST at all (JOB_ENV stripped): the depth env
+        var alone must still backstop recursion."""
+        self.assertNotIn(jobs.JOB_ENV, {"AUTOPILOT_DISPATCH_DEPTH": "1"})
+        self.assert_refused("recursion_depth", jobs.derive_ancestry,
+                            {"AUTOPILOT_DISPATCH_DEPTH": "1"}, self.root)
+
     def test_lineage_record_is_looked_up_under_the_given_project_root(self) -> None:
         other = self.temp / "other"
         for relative, data in fakes.BASE_INPUTS.items():
@@ -563,6 +593,44 @@ class StandaloneInstructionTest(fakes.ProjectCase):
         self.assert_refused("invalid_request", jobs.request_job, request, seam=None,
                             project_root=self.root, request_file=None)
         self.assertEqual(self.standalone(request)["mode"], "standalone")
+
+    def test_standalone_never_overwrites_an_existing_request_file(self) -> None:
+        self.install_argv("codex", ["fake-codex"])
+        request = fakes.build(self.root)
+        target = self.root / "docs/dev/tmp" / "existing.json"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text('{"kept": true}', encoding="utf-8")
+        with self.assertRaises((OSError, jobs.JobRefused)):
+            jobs.request_job(request, seam=None, project_root=self.root, request_file=target)
+        self.assertEqual(target.read_text(encoding="utf-8"), '{"kept": true}')
+
+    def test_standalone_never_writes_through_an_existing_symlink(self) -> None:
+        self.install_argv("codex", ["fake-codex"])
+        request = fakes.build(self.root)
+        outside = self.temp / "elsewhere.json"
+        outside.write_text('{"outside": true}', encoding="utf-8")
+        target = self.root / "docs/dev/tmp" / "linked.json"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.symlink_to(outside)
+        with self.assertRaises((OSError, jobs.JobRefused)):
+            jobs.request_job(request, seam=None, project_root=self.root, request_file=target)
+        self.assertEqual(outside.read_text(encoding="utf-8"), '{"outside": true}')
+
+    def test_two_independent_standalone_calls_do_not_interfere(self) -> None:
+        """request_job's observable behavior (schema_version 1, mode
+        standalone, matching request and a per-call request file) stays
+        correct whether or not it is internally split into helpers."""
+        self.install_argv("codex", ["fake-codex"])
+        first = fakes.build(self.root, job_id="alice-review")
+        second = fakes.build(self.root, job_id="blake-review")
+        first_result = self.standalone(first, "first.json")
+        second_result = self.standalone(second, "second.json")
+        self.assertEqual(first_result["request"]["job_id"], "alice-review")
+        self.assertEqual(second_result["request"]["job_id"], "blake-review")
+        first_file = self.root / "docs/dev/tmp/first.json"
+        second_file = self.root / "docs/dev/tmp/second.json"
+        self.assertEqual(json.loads(first_file.read_text(encoding="utf-8"))["job_id"], "alice-review")
+        self.assertEqual(json.loads(second_file.read_text(encoding="utf-8"))["job_id"], "blake-review")
 
     def test_an_adapter_without_build_job_argv_is_refused(self) -> None:
         request = fakes.build(self.root, host_id="gemini")
