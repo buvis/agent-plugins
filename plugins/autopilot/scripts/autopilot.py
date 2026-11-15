@@ -26,23 +26,30 @@ _CAPABILITIES = [
     "stage-review-v1", "group-findings-v1", "check-evidence-v1",
     "prepare-close-v1", "catchup-probe-v1", "verification-artifact-v1",
     "controller-required-v1", "hosts-v1", "guards-v1", "diagnose-v1",
+    "request-job-v1", "bind-job-v1", "close-child-v1", "resolve-roles-v1",
+    "record-session-v1",
 ]
 _MODES = (
     "list_capabilities", "export_policy", "stage_review", "group_findings",
     "check_evidence", "prepare_close", "catchup_probe", "verify",
     "controller_action", "probe_host", "run_guard", "diagnose", "hook",
+    "request_job", "bind_job", "close_child", "resolve_roles", "record_session",
 )
 _COMPANIONS = {
-    "out": ("export_policy",),
+    "out": ("export_policy", "request_job"),
     "expected_context": ("check_evidence",),
     "policy": ("check_evidence",),
     "context": ("run_guard",),
-    "project_root": ("catchup_probe", "verify", "probe_host", "diagnose"),
+    "project_root": ("catchup_probe", "verify", "probe_host", "diagnose",
+                     "request_job", "bind_job", "close_child", "record_session"),
     "head_sha": ("verify",),
     "artifact": ("verify",),
     "log": ("verify",),
     "timeout": ("verify",),
     "event": ("hook",),
+    "profile": ("resolve_roles",),
+    "lane": ("resolve_roles",),
+    "facts": ("resolve_roles",),
 }
 _REQUIRED = {
     "check_evidence": ("expected_context",),
@@ -52,14 +59,25 @@ _REQUIRED = {
     "run_guard": ("context",),
     "diagnose": ("project_root",),
     "hook": ("event",),
+    "request_job": ("project_root", "out"),
+    "bind_job": ("project_root",),
+    "close_child": ("project_root",),
+    "resolve_roles": ("profile", "lane"),
+    "record_session": ("project_root",),
 }
 _INPUTS = ("stage_review", "group_findings", "check_evidence",
-           "expected_context", "policy", "prepare_close", "context")
+           "expected_context", "policy", "prepare_close", "context", "out", "facts")
 _LIVE_STATE = ("docs", "dev", "project-management", "autopilot")
+_JOB_KEYS = {"job_id", "role_id", "host_id", "tier", "effort", "inputs", "excluded_input_kinds"}
 
 
 class _Usage(Exception):
     """A usage, input or path error: exit 2 with a stderr diagnostic."""
+
+
+class _Refused(Exception):
+    """A jobs.JobRefused refusal: exit 1 with one `ok: false` JSON line and a
+    silent stderr; the message is the refusal code."""
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -68,7 +86,7 @@ def _parser() -> argparse.ArgumentParser:
     modes.add_argument("--list-capabilities", action="store_true")
     modes.add_argument("--export-policy", action="store_true")
     for flag in ("--stage-review", "--group-findings", "--check-evidence",
-                 "--prepare-close"):
+                 "--prepare-close", "--request-job", "--bind-job", "--close-child"):
         modes.add_argument(flag, type=Path)
     modes.add_argument("--catchup-probe", action="store_true")
     modes.add_argument("--verify", action="store_true")
@@ -77,12 +95,16 @@ def _parser() -> argparse.ArgumentParser:
     modes.add_argument("--run-guard")
     modes.add_argument("--diagnose", action="store_true")
     modes.add_argument("--hook")
+    modes.add_argument("--resolve-roles", action="store_true")
+    modes.add_argument("--record-session")
     for flag in ("--out", "--expected-context", "--policy", "--project-root",
-                 "--artifact", "--log", "--context"):
+                 "--artifact", "--log", "--context", "--facts"):
         parser.add_argument(flag, type=Path)
     parser.add_argument("--head-sha")
     parser.add_argument("--timeout", type=float)
     parser.add_argument("--event")
+    parser.add_argument("--profile")
+    parser.add_argument("--lane")
     return parser
 
 
@@ -143,6 +165,19 @@ def _call(function, kwargs: dict) -> dict:
         raise _Usage(str(error)) from error
 
 
+def _job_call(function, kwargs: dict):
+    """`_call` for jobs.py: an invalid_request refusal or a path error is a
+    usage error, any other JobRefused is a refusal."""
+    try:
+        return function(**kwargs)
+    except _helper("jobs").JobRefused as refused:
+        if refused.code == "invalid_request":
+            raise _Usage(str(refused)) from refused
+        raise _Refused(refused.code) from refused
+    except (OSError, TypeError, ValueError) as error:
+        raise _Usage(str(error)) from error
+
+
 def _stage_review(args: argparse.Namespace) -> tuple[dict, int]:
     report = _call(_helper("review_stage").stage_review, _request(args.stage_review))
     if report["ok"]:
@@ -193,6 +228,96 @@ def _diagnose(args: argparse.Namespace) -> tuple[dict, int]:
     return _helper("doctor").diagnose(project_root=args.project_root), 0
 
 
+def _request_job(args: argparse.Namespace) -> tuple[dict, int]:
+    jobs, hosts = _helper("jobs"), _helper("hosts")
+    body = _request(args.request_job, _JOB_KEYS)
+    if os.path.lexists(args.out):
+        raise _Usage(f"{args.out} already exists")
+    host_id = next((host for host in hosts.ADAPTERS
+                    if hosts.adapter(host).SESSION_ENV_VAR in os.environ), None)
+    if host_id is None:
+        raise _Refused("missing_native_session")
+    ancestry = _job_call(jobs.derive_ancestry,
+                         {"env": os.environ, "project_root": args.project_root})
+    request = _job_call(jobs.build_job_request, {
+        **body, "requester": hosts.current_session(host_id, os.environ),
+        "ancestry": ancestry, "project_root": args.project_root})
+    return _job_call(jobs.request_job, {"request": request, "seam": None,
+                                        "project_root": args.project_root,
+                                        "request_file": args.out}), 0
+
+
+def _bind_job(args: argparse.Namespace) -> tuple[dict, int]:
+    jobs, hosts = _helper("jobs"), _helper("hosts")
+    payload = _read_json(args.bind_job)
+    request = _job_call(jobs.JobRequest.from_payload, {"payload": payload})
+    child = hosts.current_session(request.host_id, os.environ)
+    if child is None:
+        raise _Refused("missing_native_session")
+    record = _job_call(jobs.bind_job_session, {"payload": payload, "child": child,
+                                               "project_root": args.project_root})
+    return {"schema_version": 1, "ok": True, **record}, 0
+
+
+def _close_child(args: argparse.Namespace) -> tuple[dict, int]:
+    jobs, hosts = _helper("jobs"), _helper("hosts")
+    body = _request(args.close_child, {"child", "outcome", "artifact_path"})
+    if not isinstance(body["child"], dict) or body["child"].get("kind") != "in-session" \
+            or not isinstance(body["artifact_path"], str):
+        raise _Usage(f"{args.close_child} must carry an in-session child and a string artifact_path")
+    parent = hosts.current_session("claude", os.environ)
+    if parent is None:
+        raise _Refused("missing_native_session")
+    root = Path(args.project_root).resolve()
+    record = _job_call(jobs.close_native_child, {
+        "parent": parent, "child": body["child"], "outcome": body["outcome"],
+        "raw_output": sys.stdin.buffer.read(), "artifact_path": root / body["artifact_path"],
+        "project_root": root})
+    return {"schema_version": 1, "ok": True, **record}, 0
+
+
+def _resolve_roles(args: argparse.Namespace) -> tuple[dict, int]:
+    roles, hosts = _helper("roles"), _helper("hosts")
+    facts = roles.ProfileFacts(gemini_cli_available=False, doubt_reviewer=None,
+                               implementor_codex_present=False)
+    if args.facts is not None:
+        body = _read_json(args.facts)
+        if not isinstance(body, dict):
+            raise _Usage(f"{args.facts} must be a JSON object")
+        facts = _call(roles.ProfileFacts, body)
+        if not (isinstance(facts.gemini_cli_available, bool)
+                and isinstance(facts.implementor_codex_present, bool)
+                and (facts.doubt_reviewer is None or isinstance(facts.doubt_reviewer, str))):
+            raise _Usage(f"{args.facts} holds a fact of the wrong type")
+    implemented = {host_id: hosts.adapter(host_id).IMPLEMENTED_CAPABILITIES
+                   for host_id in hosts.ADAPTERS}
+    resolved = _call(roles.resolve_profile, {
+        "policy": _helper("review_evidence").load_policy(), "profile_id": args.profile,
+        "lane": args.lane, "facts": facts, "implemented": implemented, "observed": None})
+    return asdict(resolved), 0 if resolved.status == "resolvable" else 1
+
+
+def _record_session(args: argparse.Namespace) -> tuple[dict, int]:
+    """Always exits 0; traces through interception's own writer under the
+    same AUTOPILOT_HOOK_TRACE gate and trace-directory confinement."""
+    hosts, interception = _helper("hosts"), _helper("interception")
+    if args.record_session not in hosts.ADAPTERS:
+        raise _Usage(f"unknown host: {args.record_session!r}")
+    session = hosts.current_session(args.record_session, os.environ)
+    root = Path(args.project_root).resolve()
+    decision = interception.HookDecision(
+        host_id=args.record_session, event="record_session", session=session,
+        project_root=str(root), bound=False, outcomes=(), skipped=(), allowed=True,
+        additional_context=None)
+    trace = os.environ.get(interception.TRACE_ENV)
+    traced = bool(trace) and interception._resolve_trace_path(trace, root) is not None
+    if traced:
+        interception._write_trace(decision, os.environ)
+    return {"schema_version": 1, "host_id": args.record_session,
+            "session": interception._session_dict(session),
+            "plugin_root": str(Path(__file__).resolve().parents[1]), "traced": traced}, 0
+
+
 def _hook(args: argparse.Namespace) -> int:
     """Dispatch a registered host hook event to `interception.run_hook` and
     relay its reply verbatim: the adapter already encodes allow/deny in
@@ -231,6 +356,8 @@ _OPERATIONS = {
     "check_evidence": _check_evidence, "prepare_close": _prepare_close,
     "catchup_probe": _catchup_probe, "verify": _verify,
     "probe_host": _probe_host, "run_guard": _run_guard, "diagnose": _diagnose,
+    "request_job": _request_job, "bind_job": _bind_job, "close_child": _close_child,
+    "resolve_roles": _resolve_roles, "record_session": _record_session,
 }
 
 
@@ -244,6 +371,9 @@ def _run_operation(mode: str, args: argparse.Namespace) -> int:
     except _Usage as error:
         print(f"autopilot: {error}", file=sys.stderr)
         return 2
+    except _Refused as refused:
+        print(json.dumps({"schema_version": 1, "ok": False, "error": str(refused)}))
+        return 1
     if code:
         print(f"autopilot: {mode.replace('_', '-')} failed: {report.get('error', 'non-reusable result')}",
               file=sys.stderr)
