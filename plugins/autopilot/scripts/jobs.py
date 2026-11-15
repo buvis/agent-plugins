@@ -93,7 +93,8 @@ def _check_relative_path(path: object) -> None:
     pure = PurePosixPath(path)
     if pure.is_absolute() or ".." in pure.parts:
         raise _invalid(f"path {path!r} must be relative without parent steps")
-    if pure.parts[: len(_STATE_PARTS)] == _STATE_PARTS:
+    casefolded = tuple(part.casefold() for part in pure.parts[: len(_STATE_PARTS)])
+    if casefolded == _STATE_PARTS:
         raise _invalid(f"path {path!r} is controller state")
 
 
@@ -453,8 +454,22 @@ def request_job(request: JobRequest, *, seam: ControllerSeam | None, project_roo
         raise _invalid("standalone mode needs a request file")
     argv = _build_job_argv(hosts.adapter(request.host_id), request)
     payload = request.to_payload()
-    Path(request_file).write_text(json.dumps(payload), encoding="utf-8")
     root = Path(project_root).resolve()
+    resolved_file = Path(request_file).resolve()
+    try:
+        relative = resolved_file.relative_to(root).as_posix()
+    except ValueError:
+        raise _invalid("request_file must be inside project_root") from None
+    _check_relative_path(relative)
+    data = json.dumps(payload).encode("utf-8")
+    try:
+        fd = os.open(resolved_file, os.O_CREAT | os.O_WRONLY | os.O_NOFOLLOW, 0o666)
+    except FileNotFoundError:
+        resolved_file.parent.mkdir(parents=True, exist_ok=True)
+        fd = os.open(resolved_file, os.O_CREAT | os.O_WRONLY | os.O_NOFOLLOW, 0o666)
+    with os.fdopen(fd, "wb") as stream:
+        stream.truncate(0)
+        stream.write(data)
     depth = str(len(request.ancestry) + 1)
     script = Path(__file__).resolve().parent / "autopilot.py"
     bind = (f'python3 {shlex.quote(str(script))} --bind-job "${JOB_ENV}" '
