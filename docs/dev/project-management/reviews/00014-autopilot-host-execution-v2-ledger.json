@@ -1,0 +1,210 @@
+[
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`_write_new` re-implements `log_sink_refusal._pinned_parent_fd` and `_descend`. The same mkdir-then-`O_DIRECTORY|O_NOFOLLOW` descent loop is duplicated. Task 3 names these two as the required reuse for the job file and close-child artifact. Replace the loop with `parent_fd = _pinned_parent_fd(root / relative.parent, root)`.",
+    "file": "plugins/autopilot/scripts/jobs.py:324",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Relative `request_file` handling is inconsistent. `request_job` resolves it against the cwd (jobs.py:460). The child env var and the steps carry the unresolved `str(request_file)` (jobs.py:491, 494). `derive_ancestry` joins the env value to `project_root` (jobs.py:306), while `--bind-job` reads it relative to the child cwd (autopilot.py:252). With `--out` relative and cwd different from `--project-root`, the child cannot find or ancestry-check the file. Emit the resolved path in `env`, `stdin` and `steps`.",
+    "file": "plugins/autopilot/scripts/jobs.py:491",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`derive_ancestry` opens the `JOB_ENV` file without confirming it is a regular file. The contract says regular file, at most 2 MiB. Opening a FIFO blocks the hook or CLI.",
+    "file": "plugins/autopilot/scripts/jobs.py:306",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`roles.py` names its dataclasses `RoleRow` and `ResolvedProfile`. The design §6 contract (verbatim) and later consumers (design lines 911 and 1283 reference `ProfileResolution`) name them `RoleResolution` and `ProfileResolution`. Rename to match the contract.",
+    "file": "plugins/autopilot/scripts/roles.py:38",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`--hook` reads stdin before `run_hook` rejects an unregistered event. The §8 contract says an event outside `HOOK_REGISTRATIONS` is a usage error (exit 2) before stdin is read. `run_hook` raising `SystemExit` from a library function is a second smell. Validate the event in `_hook` before reading stdin, or have `run_hook` raise `ValueError`.",
+    "file": "plugins/autopilot/scripts/autopilot.py:327",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`_request_job` picks the requester host as the first adapter whose `SESSION_ENV_VAR` is set. A codex session launched from a claude session inherits `CLAUDE_CODE_SESSION_ID`, so the requester is recorded as claude. Resolve it from the adapter whose session env is set and whose `source` matches the host, or refuse when more than one is set.",
+    "file": "plugins/autopilot/scripts/autopilot.py:236",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`session_from_hook_input` is exported by both intercepting adapters and unit-tested, but `evaluate_hook` only calls `hosts.current_session(host_id, env)`. The `hook_input` session source is unreachable on the real hook path. If the hook process lacks the session env var, the trace and `read_facts` record no session. Fall back to `session_from_hook_input(payload)` in `evaluate_hook`.",
+    "file": "plugins/autopilot/scripts/interception.py:184",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`bind_job_session` writes the lineage record itself (jobs.py:386). The Task 3 contract says it writes nothing and the CLI caller records it. This is a harmless deviation but should be documented or aligned.",
+    "file": "plugins/autopilot/scripts/jobs.py:386",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The shipped Codex hook asset uses the Claude-only variable `${CLAUDE_PLUGIN_ROOT}`. The probe replaces it by string substitution (`hooks.replace(\"${CLAUDE_PLUGIN_ROOT}\", …)`). The live Codex probe therefore does not exercise the variable resolution of the asset that actually ships. This also conflicts with the rule that shared assets must not require Claude-only variables.",
+    "file": "plugins/autopilot/compatibility/codex/hooks.json:9",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Role resolution looks only at the adapters' `IMPLEMENTED_CAPABILITIES` constants, never at the static probe results. In `--diagnose` with no Claude or Gemini auth, `hosts[]` shows those hosts' capabilities as `unavailable: no_auth`. The profiles still show `status: resolvable` with every role `resolved`. A missing binary would resolve the same way. The spec asks for resolution \"to supported isolated hosts\" and for specific role/capability blockers. `certifiable` is false, but `status` says resolvable.",
+    "file": "plugins/autopilot/scripts/roles.py:79",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Role resolution ignores the policy's per-role input requirements and exclusions. `JobRequest` accepts whatever `excluded_input_kinds` the caller supplies. It never applies `policy.input_exclusions` for the role, so a `blind` job can be built with a `diff` input and an empty exclusion list. `role_id` is not checked against the policy role ids either. `contracts/hosts.json` `role_requirements` and `implementor_duties` are read by no code or test; `roles.REQUIRED_CAPABILITIES` duplicates the capability rows and nothing checks that the duties are covered. The spec asks roles to resolve \"with their input/guard requirements\".",
+    "file": "plugins/autopilot/scripts/jobs.py:147",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`_check_relative_path` blocks only the `docs/dev/project-management/autopilot` tree. A job input or child artifact can name `.autopilot/controller/...` (state, 0600 credential files), which would be digested and listed to the reviewer. `request_job` opens an existing project file with O_CREAT and truncates it, with no exclusive create; only the CLI pre-checks existence.",
+    "file": "plugins/autopilot/scripts/jobs.py:90",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The Phase 2 probe requirement is only partly met. `probe-host.py` allows a live probe only for claude and codex (`LIVE_HOSTS`) and rejects gemini. Doctor's `gemini_ran` therefore can never be true, and the codex-gemini profile can never become certifiable. The delivery receipt records \"No live host invocation ran\". That is honest unavailability, but the spec's \"verify real invocation/resources/identity/interception for the selected roles\" has no Gemini coverage. The receipt text also says probes \"never invoke the host\", which contradicts the live mode in `probe-host.py`, and it records 1841 tests against the 1848 in the gate.",
+    "file": "tools/autopilot/probe-host.py:41",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The source-map behaviors owned by 00014 (8 rows) all remain `evidence.status: planned`, with null artifacts and no recorded supported or unavailable duty split. Phase 2 task 2 asks the source map to be updated for supported and still-unavailable client duties. The duty status lives only in README, CHANGELOG and the bundles. The dispositions doc also lists a `hook-v1` capability ID that does not exist in `_CAPABILITIES`.",
+    "file": "tools/autopilot/source-map.json",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Hook stdin is read without a bound and before host/event validation. The later length check cannot prevent unlimited allocation or waiting on stdin for an invalid event. Validate registration first, then read at most `MAX_HOOK_INPUT_BYTES + 1`.",
+    "file": "plugins/autopilot/scripts/autopilot.py:321",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Probe timeout defaults to 600 instead of 120 and accepts values above 600, non-positive values, and non-finite floats. Validate the documented range before creating evidence or launching hosts.",
+    "file": "tools/autopilot/probe-host.py:215",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Delivery evidence is promoted to `passed` while its cited receipt records seven failures and exit 1. The supplied final green gate does not repair that receipt, whose real-host explanation also incorrectly says only static probes exist. Record successful final verification and actual probe outcomes before promoting evidence.",
+    "file": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json:29",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Role capability requirements duplicate `contracts/hosts.json` instead of reading it. Contract changes can therefore leave role resolution reporting an unsupported profile as resolvable. Load the contract’s `role_requirements` and add a contract-change regression.",
+    "file": "plugins/autopilot/scripts/roles.py:23",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`_validate` resolves the same adapter twice through a single-caller `_implemented` wrapper. Resolve the module once and read `IMPLEMENTED_CAPABILITIES` directly; remove the wrapper.",
+    "file": "tools/autopilot/build-compatibility.py:88",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Mechanical replay identifies two touched compatibility tests passing against base: `test_scrubbed_and_authenticated_envs_reach_the_child_process` and `test_aborting_build_leaves_no_bundle_behind_for_any_declared_host`. Retain preservation controls, but add assertions binding the new hooks assets and schema-2 behavior.",
+    "file": "tests/autopilot/test_compatibility.py:187",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Mechanical replay identifies eight touched pure-duty tests passing against base. These preservation cases do not establish the new normalization/depth behavior; pair them with discriminating contract cases, including dispatch-depth enforcement and project-root normalization from a subdirectory.",
+    "file": "tests/autopilot/test_guards_pure_duties.py:235",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Mechanical replay identifies `test_accepts_every_valid_name_status_reason_combination` passing against base. Keep it as a construction control and pair it with rejection cases covering invalid field types as well as invalid strings.",
+    "file": "tests/autopilot/test_hosts_contract.py:95",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "`doctor._newest_evidence` calls `json.loads` unguarded (doctor.py:66), and `_observed_capabilities` indexes `record[\"observed\"]` unguarded (doctor.py:72). A corrupt or v1-shaped evidence file crashes `--diagnose` with a traceback. Treat it as not probed and report the reason.",
+    "file": "plugins/autopilot/scripts/doctor.py:66",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "A stale, contradictory CHANGELOG bullet remains: \"Codex declares isolation only; Gemini declares none, because neither host implements native session identity\". The code and `hosts.json` now declare Codex identity, isolation and interception, and Gemini identity and isolation.",
+    "file": "plugins/autopilot/CHANGELOG.md:15",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "`--diagnose` crashes with a traceback on a corrupt or hand-edited probe evidence JSON or a missing key; there is no error path for `json.loads` or `record[\"observed\"]`. A forged evidence file with `resource_check: passed` makes a profile read `certifiable: true`, since the evidence is not authenticated.",
+    "file": "plugins/autopilot/scripts/doctor.py:66",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "Claude's static probe reports every implemented capability as `unavailable: no_auth` unless `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` is in the environment. A Keychain-logged-in user is misreported. `CODEX_SESSION_ID`, `CLAUDE_CODE_CHILD_SESSION` and `GEMINI_SESSION_ID` are asserted as host variables without any recorded real-host confirmation.",
+    "file": "plugins/autopilot/scripts/claude.py:58",
+    "reason": "single-voice"
+  }
+]

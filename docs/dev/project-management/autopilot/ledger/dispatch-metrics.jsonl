@@ -1412,3 +1412,11 @@
 {"id":"51c466ba","ended_at":1794781931,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
 {"id":"f5dde3fc","ended_at":1794781931,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
 {"kind":"handoff","site":"build","edge":"leave","at":1794781931,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794781962,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
+{"id":"912357b6","kind":"bob","task":"review-ap00014-v2-c1","queued_at":1794782874,"prompt_bytes":13454}
+{"id":"1c1a859a","kind":"carl","task":"review-ap00014-v2-c1","queued_at":1794782874,"prompt_bytes":6618}
+{"id":"912357b6","ended_at":1794784413,"elapsed_s":1539,"outcome":"ok","detail":null}
+{"id":"1c1a859a","ended_at":1794784416,"elapsed_s":1542,"outcome":"ok","detail":null}
+{"id":"912357b6","ended_at":1794784555,"elapsed_s":1681,"outcome":"ok","detail":null}
+{"id":"1c1a859a","ended_at":1794784555,"elapsed_s":1681,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1794784584,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
