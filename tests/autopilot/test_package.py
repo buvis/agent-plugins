@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import os
@@ -497,6 +498,20 @@ print("55 fixtures validated")
                             and "pip install" in c for c in commands))
         self.assertTrue(any(shlex.split(c) == ["python", "-m", "pytest", "tests/autopilot", "-q"]
                             for c in commands))
+
+
+def top_level_classes(path: Path) -> set[str]:
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    return {node.name for node in tree.body if isinstance(node, ast.ClassDef)}
+
+
+class SeamFakeRosterTest(unittest.TestCase):
+    def test_package_jobs_defines_no_seam_fake_and_the_tests_own_them(self) -> None:
+        fakes = {"FakeSeam", "TripwireSeam"}
+        jobs_classes = top_level_classes(ROOT / "plugins/autopilot/scripts/jobs.py")
+        self.assertIn("JobRequest", jobs_classes)  # control: the parse sees jobs.py classes
+        self.assertEqual(jobs_classes & fakes, set())
+        self.assertTrue(fakes <= top_level_classes(ROOT / "tests/autopilot/host_fakes.py"))
 
 
 if __name__ == "__main__":

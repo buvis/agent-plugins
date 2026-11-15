@@ -24,7 +24,11 @@ if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
 guards = importlib.import_module("guards")
-jobs = importlib.import_module("jobs")
+
+TESTS_DIR = ROOT / "tests" / "autopilot"
+if str(TESTS_DIR) not in sys.path:
+    sys.path.insert(0, str(TESTS_DIR))
+host_fakes = importlib.import_module("host_fakes")
 
 GuardDuty = guards.GuardDuty
 GuardOutcome = guards.GuardOutcome
@@ -93,7 +97,7 @@ FAILING = {
 }
 
 
-class _RecordingFakeSeam(jobs.FakeSeam):
+class _RecordingFakeSeam(host_fakes.FakeSeam):
     """The real FakeSeam, plus a log of every evaluate_guard call it answers."""
 
     def __init__(self, *, guard_rules: dict) -> None:
@@ -162,7 +166,7 @@ class CustodyPushDeniedTest(unittest.TestCase):
     def test_custody_push_denied_relays_pending_critical(self) -> None:
         for reason in ("pending_critical", "unsigned_commit"):
             with self.subTest(reason=reason):
-                seam = jobs.FakeSeam(guard_rules={"custody_push": (False, reason)})
+                seam = host_fakes.FakeSeam(guard_rules={"custody_push": (False, reason)})
                 outcome = guards.run_guard(GuardDuty.CUSTODY_PUSH, {}, seam=seam)
                 _assert_outcome(
                     self,
@@ -174,7 +178,7 @@ class CustodyPushDeniedTest(unittest.TestCase):
 
     def test_custody_push_allowed_with_empty_rules(self) -> None:
         outcome = guards.run_guard(
-            GuardDuty.CUSTODY_PUSH, {}, seam=jobs.FakeSeam(guard_rules={})
+            GuardDuty.CUSTODY_PUSH, {}, seam=host_fakes.FakeSeam(guard_rules={})
         )
         _assert_outcome(
             self,
@@ -183,7 +187,7 @@ class CustodyPushDeniedTest(unittest.TestCase):
         )
 
     def test_near_miss_rule_names_do_not_deny_custody_push(self) -> None:
-        seam = jobs.FakeSeam(
+        seam = host_fakes.FakeSeam(
             guard_rules={
                 "custody": (False, "a"),
                 "custody_push_extra": (False, "b"),
@@ -196,7 +200,7 @@ class CustodyPushDeniedTest(unittest.TestCase):
         self.assertIsNone(outcome.reason)
 
     def test_ok_key_in_context_does_not_override_seam_denial(self) -> None:
-        seam = jobs.FakeSeam(guard_rules={"custody_push": (False, "pending_critical")})
+        seam = host_fakes.FakeSeam(guard_rules={"custody_push": (False, "pending_critical")})
         outcome = guards.run_guard(GuardDuty.CUSTODY_PUSH, {"ok": True}, seam=seam)
         self.assertIs(outcome.allowed, False)
         self.assertEqual(outcome.reason, "pending_critical")
@@ -205,7 +209,7 @@ class CustodyPushDeniedTest(unittest.TestCase):
         for duty in STATEFUL:
             with self.subTest(duty=duty.value):
                 outcome = guards.run_guard(
-                    duty, {"ok": False}, seam=jobs.FakeSeam(guard_rules={})
+                    duty, {"ok": False}, seam=host_fakes.FakeSeam(guard_rules={})
                 )
                 _assert_outcome(
                     self,
@@ -255,7 +259,7 @@ class StatefulRelayTest(unittest.TestCase):
 
     def test_each_stateful_duty_relays_its_own_rule_verbatim(self) -> None:
         for rules in (self.RULES, self.OTHER_RULES):
-            seam = jobs.FakeSeam(guard_rules=dict(rules))
+            seam = host_fakes.FakeSeam(guard_rules=dict(rules))
             for duty in STATEFUL:
                 allowed, reason = rules[duty.value]
                 with self.subTest(duty=duty.value, reason=reason):
@@ -266,7 +270,7 @@ class StatefulRelayTest(unittest.TestCase):
                     )
 
     def test_a_rule_for_one_duty_does_not_leak_into_another(self) -> None:
-        seam = jobs.FakeSeam(guard_rules={"state_integrity": (False, "torn_state_file")})
+        seam = host_fakes.FakeSeam(guard_rules={"state_integrity": (False, "torn_state_file")})
         denied = guards.run_guard(GuardDuty.STATE_INTEGRITY, {}, seam=seam)
         self.assertEqual((denied.allowed, denied.reason), (False, "torn_state_file"))
         for duty in (GuardDuty.CUSTODY_PUSH, GuardDuty.LIVE_JOB, GuardDuty.REVIEW_COMPLETENESS):
@@ -298,7 +302,7 @@ class StatefulRelayTest(unittest.TestCase):
     def test_never_mutates_the_callers_context(self) -> None:
         context = {"ok": True, "prd": "00014", "nested": {"a": [1]}}
         for duty in GuardDuty:
-            for seam in (None, jobs.FakeSeam(guard_rules={duty.value: (False, "x")})):
+            for seam in (None, host_fakes.FakeSeam(guard_rules={duty.value: (False, "x")})):
                 with self.subTest(duty=duty.value, seam=type(seam).__name__):
                     passed = copy.deepcopy(context)
                     guards.run_guard(duty, passed, seam=seam)
@@ -385,7 +389,7 @@ class RunGuardSignatureTest(unittest.TestCase):
         for duty in (GuardDuty.CUSTODY_PUSH, GuardDuty.DOCUMENT_LOCATION):
             with self.subTest(duty=duty.value):
                 with self.assertRaises(TypeError):
-                    guards.run_guard(duty, {}, jobs.FakeSeam(guard_rules={}))
+                    guards.run_guard(duty, {}, host_fakes.FakeSeam(guard_rules={}))
 
 
 class UnknownDutyTest(unittest.TestCase):
@@ -402,7 +406,7 @@ class UnknownDutyTest(unittest.TestCase):
             "DOCUMENT_LOCATION",
         )
         for duty in rejects:
-            for seam in (None, jobs.FakeSeam(guard_rules={})):
+            for seam in (None, host_fakes.FakeSeam(guard_rules={})):
                 with self.subTest(duty=duty, seam=type(seam).__name__):
                     with self.assertRaises((ValueError, KeyError)):
                         guards.run_guard(duty, {}, seam=seam)
