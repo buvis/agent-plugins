@@ -5,7 +5,7 @@
     "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
     "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e"
   },
-  "package_revision": "46b0142db21219ac51237b56d5e2d9a1f712db53",
+  "package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d",
   "paths": [
     "plugins/autopilot/README.md",
     "plugins/autopilot/CHANGELOG.md",
@@ -31,7 +31,7 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 243.82
+      "duration_seconds": 297.34
     },
     {
       "task": "b",
@@ -41,7 +41,7 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 9.09
+      "duration_seconds": 9.91
     },
     {
       "task": "c",
@@ -51,17 +51,17 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 4.51
+      "duration_seconds": 5.43
     },
     {
       "task": "d",
       "tests": "tests/autopilot/test_actors_read_intent_dispatch.py, tests/autopilot/test_controller_actors.py, tests/autopilot/test_controller_contract_agreement.py, tests/autopilot/test_controller_kernel_recover_jobs.py, tests/autopilot/test_controller_owner_recovery_staging_budget.py, tests/autopilot/test_controller_provenance_scope_prose.py, tests/autopilot/test_controller_staging_admission.py, tests/autopilot/test_provenance_staging_divergence.py, tests/autopilot/test_helper_map_refresh_agreement.py",
       "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_actors_read_intent_dispatch.py tests/autopilot/test_controller_actors.py tests/autopilot/test_controller_contract_agreement.py tests/autopilot/test_controller_kernel_recover_jobs.py tests/autopilot/test_controller_owner_recovery_staging_budget.py tests/autopilot/test_controller_provenance_scope_prose.py tests/autopilot/test_controller_staging_admission.py tests/autopilot/test_provenance_staging_divergence.py tests/autopilot/test_helper_map_refresh_agreement.py -q --tb=line -p no:cacheprovider",
-      "passed": 60,
+      "passed": 79,
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 6.35
+      "duration_seconds": 8.54
     }
   ],
   "real_host": {

@@ -76,27 +76,21 @@ No stub becomes a new PRD. Record each disposition in
 
 All review lenses stay. Nothing here thins a review.
 
-### 4. Drain in two lanes
+### 4. Drain with one loop on master
 
-| Lane | Where | PRDs |
-|---|---|---|
-| C | master | 00019, 00020, 00021 |
-| H | `~/git/src/worktrees/agent-plugins/host-chain`, branch `feature/autopilot-host-chain` | 00014 v2, 00015 |
+Revised 2026-11-15 during execution. One loop runs the PRDs in their natural
+order: 00014 v2, 00015, 00019, 00020, 00021, 00016, 00017.
 
-1. Start lane C with the normal loop on master.
-2. Start lane H with a second loop in the worktree. Unverified: that a loop
-   runs from a linked worktree. Check with a status call first; if it fails,
-   run H after C on master.
-3. When both lanes are done, merge H into master. Expect conflicts only in the
-   pin files (README digest, `source-map.json`, receipt, CHANGELOG). Resolve by
-   re-running the generators, then run the full suite.
-4. Run 00016, then 00017, on master.
+Two lanes were dropped for now. The wave tool refuses lanes that share a path,
+and every controller PRD shares the pin files; it also puts worktrees beside
+the repo. A hand-made second lane needs a scoping commit per branch, a union
+merge of the append-only metrics files, and a loop that runs from a linked
+worktree, none of which is proven. A failed overnight start costs more than
+the two slots saved. Add the second lane (00019-00021 in a worktree) only
+after an attended test shows a loop starts there.
 
-The wave tool is not used: with the pin files listed, it cuts one lane, and it
-puts worktrees beside the repo.
-
-Critical path: 5 PRD slots (3 + 2) instead of 7. One slot was 6-7 h metered.
-Estimate, from 3 samples: about $300 per PRD, $2,100 for the seven.
+Seven PRD slots; one slot was 6-7 h metered. Estimate, from 3 samples: about
+$300 per PRD, $2,100 for the seven.
 
 ### 5. Engram plugin (00067)
 
