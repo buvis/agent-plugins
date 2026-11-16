@@ -910,3 +910,15 @@ Verification: the four tests that encoded the old rule failed against the new
 scorer (6 failures) before they were replaced. Full rules suite: 175 tests pass
 on Python 3.15.2; Ruff check and format pass; repository validator passes
 (3 plugins, 15 skills). Python 3.10 not run. No live host run, no remote CI.
+
+### Scope decisions and artifact approvals (2026-11-16)
+
+The developer selected option A separately for all five decisions after reviewing
+the proposed requirements/design/tasks diff: full Claude matrix and nine-session
+Codex/kiro-cli smoke sets with ancestors; all model FAILs plus up to ten PASS
+samples per host with disagreement escalation; parity deferred with retirement
+blocked; one handoff/coexistence order through kiro-cli with IDE checks unverified;
+Claude-only context observations, other hosts not measured. These explicit
+answers approve the revised requirements, design, and task plan together.
+Approval hashes, UTC times, commit and upstream values come from the helper.
+No live evidence or task completion is claimed by these approvals.

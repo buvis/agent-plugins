@@ -2,7 +2,21 @@
 
 ## Overview
 
-This spec produces the evidence the first release rests on. It builds the canonical fixtures, runs a full handoff across the three hosts, proves native-Kiro coexistence and concurrent-edit protection, reviews security, measures what a phase loads, builds the eval runners, runs every behavioral rule's eval on every supported host, judges the parity gate for each retiring skill, and checks the conversion skill against the one conversion that was done for real.
+This spec produces canonical fixtures, a cross-host handoff, external-edit coexistence, concurrent-edit protection, security review, context measurements, and conversion acceptance. Every behavioral eval runs on Claude Code; Codex and kiro-cli run the smoke set below. Parity moves to a new backlog spec and no skill retires here.
+
+## Scoped evidence matrix (approved 2026-11-16)
+
+This section replaces the broader host, IDE, sampling, and parity obligations in carried source passages below. All other evidence and security gates remain mandatory.
+
+- Claude Code: every session and every behavioral eval.
+- Codex and kiro-cli: `status-summary`, `concurrent-edit`, `conversion-calcard`, plus `intake-all-supplied` (intake), `requirements-review` (requirements), `design-review` (design), `tasks-planning` (tasks), `implementation-failed-check` (implementation), and `completion-success` (verification/completion). Include any required continuation ancestors; never run a child without its parent evidence.
+- Compare status across hosts only for shared smoke sessions. Other host/session cells are not measured, never passing evidence.
+- T-051: one order, requirements in kiro-cli, design in Codex, tasks in Claude Code, implementation in Codex, verification in kiro-cli. Retain the Claude requirements-edit/stale-approval step and all per-step state/hash evidence. Do not claim order independence.
+- T-052: one kiro-cli artifact edit without updating `.specflow.json`, followed by Codex resume; verify stale approvals and preservation. This proves external-edit coexistence, not the IDE native Spec workflow.
+- IDE-only type checks: a short developer checklist for opening Bug Fix and Design-First artifacts. Unexecuted items remain explicitly unverified and do not block this spec.
+- T-055: derive loading measurements from Claude Code records only; label Codex and Kiro not measured. Preserve passage-level and incomplete-read limitations.
+- T-058: create a new backlog spec carrying the full parity gate and retirement restrictions. Completing that transfer closes T-058 here; six passing parity reports are not required here or for the first release. No personal skill retires.
+- Freeze runner, package, fixture, session, eval, and judge inputs after offline work. Then one batch command probes each host and runs its matrix, continuing independent sessions after failures, blocking descendants of failed parents, and printing one summary. No automatic retries. A runner/package change invalidates its bound proofs and results.
 
 ## Context and constraints
 
@@ -182,7 +196,7 @@ A release result requires `instructionMeasurement: measured`, no tainted instruc
 - The scorer implements every assertion kind of the eval schema of 00005 and fails on a kind it does not know; a test compares the two lists.
 - File kinds read `files` and `unchanged`. Read kinds read `filesRead`. `one_question_per_message` passes when no entry of `messages` has more than one sentence that ends in a question mark outside fenced code and outside its list of options. `recommended_option_first` passes when, in every entry that marks an option as recommended, that option is the first one listed.
 - The status comparison across hosts is a second command, `score.py --compare <record> <record> ...`, given one session's latest record per host. It compares the named fields of each record's `status` only: `phase`, `artifacts`, `gates`, `hold`, and whether `nextTask` is null. Text a model wrote, such as a task title, is not compared.
-- A `rubric` assertion is scored by a model judge through `claude -p` with a fixed prompt. Store `judge: model:<id>`, verdict, and reason. When testing Claude Code, use a judge model different from the model under test. The developer judges every model FAIL. For `P` model PASS verdicts per host/session, uniformly sample without replacement `S = min(P, max(10, ceil(P / 10)))`; if `P = 0`, sample none. Thus three passes require three reviews, eleven require ten, and 101 require eleven. Persist the sample so rescoring cannot reroll it. If `10 * wrong > S`, require human review of every rubric in that session; one disagreement among three escalates, one among ten does not, two among ten do. Bind reviews and samples to the evidence digest; changed evidence invalidates them. This proposed R2 clarification adds a minimum sample of ten (or all available); current code rounds up but samples as few as one. Until required judgments are complete, use the Error handling exit table.
+- A `rubric` assertion uses a text-only model judge with a fixed prompt and a model different from the host model. Store the actual model, verdict, and reason. Human review covers every model FAIL plus one uniform sample without replacement of `min(P, 10)` PASS verdicts per host across the entire frozen run. Persist that sample and bind it to the aggregate evidence digest and each record's digest; rescoring cannot reroll it. If more than 10% of sampled verdicts are wrong, require human review of all rubrics for that host's run. Changed source evidence invalidates the affected reviews and aggregate selection. One review file carries all hosts' required verdicts with record identity, evidence digest, assertion key, human verdict, and reason. Pending review cannot supply release evidence.
 
 ### Conversion acceptance of T-081
 
@@ -190,9 +204,9 @@ The fixture folder has two parts. `input/` is the session's workspace: the PRD a
 
 The session `conversion-calcard` gives the shipped `convert-prd` skill that `idea.md` as its source and answers its questions as the developer did. A run on a host is equivalent to the proven set when all of these hold: the same file set; the bugfix headings; the same clause numbers under each behavior section; four top-level tasks in Kiro's order; a `Sources:` line that names the processed intake item; every obligation of `idea.md` cited by a clause or by a recorded decision; and every task that is checked in the expected set checked in the run. Hashes, the `.config.kiro` UUID, timestamps, and prose are not compared. The receipt is checked by the `conversion-receipt` check of 00007, since the proven set has none. The regression for unchecked completed work cannot run on the proven set, which has no completed work; it runs on a seeded variant whose first two tasks are checked with outcomes. The developer accepted this on 2026-10-04 (ruling D9). T-081 runs after T-056, since its host runs need the runners.
 
-### Parity gate
+### Deferred parity gate
 
-Before release 0.1, per source skill covered by RULE-001.6:
+Carried intact into the new backlog spec; required before any skill retirement, not before completing 00009 or release 0.1: per source skill covered by RULE-001.6:
 
 1. Collect the inputs: the fixture and the developer turns of each session whose evals carry the skill's rules.
 
@@ -285,7 +299,7 @@ This spec is testing, so its own tests guard the instruments.
 - T-053 (provisional until the T-057 revision check): the `concurrent-edit` session's eval passes on each host: a conflict is reported and the second writer's edit is intact.
 - T-054: the security tests and `test_stdlib_only.py` pass.
 - T-056, `tests/specflow/rules/test_score.py`, in CI, on stored run records: a passing eval and a deliberately broken eval on one record are scored correctly; a manual record goes through the scorer and back without loss; a record validates against its schema; the scorer's kinds equal the eval schema's; an unjudged rubric exits 1. The live self-check, one session on each automated runner, needs signed-in hosts, so it runs once by hand and its result goes in the task's `Outcome:` line.
-- T-056 boundary/limit tests (RULE-001.4): verify allowed fixture instructions and imports versus personal/ancestor/generated taint, unknown inventories, credential/plugin denial, deadline expiry between turns and during setup/scoring/continuations, hung descendants, cancellation cleanup, and residual-directory refusal. Sampling cases include P=0, 3, 10, 11, 101; one versus two disagreements out of ten; evidence-change invalidation and stable rescoring. Distinguish synthetic policy tests from installed-host enforcement.
+- T-056 boundary/limit tests (RULE-001.4): verify allowed fixture instructions and imports versus personal/ancestor/generated taint, unknown inventories, credential/plugin denial, deadline expiry between turns and during setup/scoring/continuations, hung descendants, cancellation cleanup, and residual-directory refusal. Host-wide sampling cases include P=0, 3, 10, 11, 101 across multiple sessions; one versus two disagreements out of ten; evidence-change invalidation and stable rescoring. Distinguish synthetic policy tests from installed-host enforcement.
 - T-057: `python3 tools/specflow/check_rules.py` passes with no filter, so every behavioral rule has an eval; every eval passes on every supported host; the results are stored per host.
 - T-058: each report lists every rule mapped from the skill with the source result and specflow's result per host; a skill is marked ready to retire only when every specflow result passes.
 - T-081 (host records provisional until the T-057 revision check), `test_conversion_fixture.py`: the comparison passes for a faithful run and fails for a seeded obligation drop and for an unchecked completed task.

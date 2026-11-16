@@ -9,36 +9,36 @@
     "requirements": {
       "path": "requirements.md",
       "status": "approved",
-      "sha256": "c6b28b5cecc45af746957cc9e107c6f73d887de4cb999646c27ff64949dd2758",
-      "approvedSha256": "c6b28b5cecc45af746957cc9e107c6f73d887de4cb999646c27ff64949dd2758",
-      "approvedAt": "2026-11-09T22:16:31Z",
-      "approvedCommit": "0190d03fbc505686252851e062ea9c902b60e903"
+      "sha256": "b38225827c04aa572e6810515b4e0f9572c1ec3c62a0e0b99c0d2bebdb6a56ca",
+      "approvedSha256": "b38225827c04aa572e6810515b4e0f9572c1ec3c62a0e0b99c0d2bebdb6a56ca",
+      "approvedAt": "2026-11-16T18:47:04Z",
+      "approvedCommit": "88734c3eeec855a28d036a81ed360001e85efd25"
     },
     "design": {
       "path": "design.md",
       "status": "approved",
-      "sha256": "ed014231188f62affbf6de35a1e4638d2f7f2bc47cdd970ead1aab24162e1223",
-      "approvedSha256": "ed014231188f62affbf6de35a1e4638d2f7f2bc47cdd970ead1aab24162e1223",
-      "approvedAt": "2026-11-16T13:12:47Z",
-      "approvedCommit": "139f72546d68350020cf7117f1574e9333e33cd1",
+      "sha256": "ea843947c3936f829fc938adffb6845d829b4112ea8d544bd27d9720e2ea9d5e",
+      "approvedSha256": "ea843947c3936f829fc938adffb6845d829b4112ea8d544bd27d9720e2ea9d5e",
+      "approvedAt": "2026-11-16T18:47:04Z",
+      "approvedCommit": "88734c3eeec855a28d036a81ed360001e85efd25",
       "upstreamSha256": {
-        "requirements": "c6b28b5cecc45af746957cc9e107c6f73d887de4cb999646c27ff64949dd2758"
+        "requirements": "b38225827c04aa572e6810515b4e0f9572c1ec3c62a0e0b99c0d2bebdb6a56ca"
       },
       "approvedCode": {
         "status": "not_checked",
-        "reason": "tests/specflow/evals/sessions/ is a directory; tests/specflow/fixtures/results/ is a directory; tests/specflow/fixtures/workflow/ is a directory"
+        "reason": "Placement includes directories, wildcard eval paths, future reports and a not-yet-numbered backlog spec; no complete explicit file baseline is available."
       }
     },
     "tasks": {
       "path": "tasks.md",
       "status": "approved",
-      "sha256": "229f978542901eee0ea80265533708464593f32ea25db19c5bfa4946991f8970",
-      "approvedSha256": "229f978542901eee0ea80265533708464593f32ea25db19c5bfa4946991f8970",
-      "approvedAt": "2026-11-16T13:12:54Z",
-      "approvedCommit": "139f72546d68350020cf7117f1574e9333e33cd1",
+      "sha256": "e21dc63fde26e3100b1609a2d0e73ead4e48ff54611b67252d7ccc06adc26b34",
+      "approvedSha256": "e21dc63fde26e3100b1609a2d0e73ead4e48ff54611b67252d7ccc06adc26b34",
+      "approvedAt": "2026-11-16T18:47:16Z",
+      "approvedCommit": "88734c3eeec855a28d036a81ed360001e85efd25",
       "upstreamSha256": {
-        "requirements": "c6b28b5cecc45af746957cc9e107c6f73d887de4cb999646c27ff64949dd2758",
-        "design": "ed014231188f62affbf6de35a1e4638d2f7f2bc47cdd970ead1aab24162e1223"
+        "requirements": "b38225827c04aa572e6810515b4e0f9572c1ec3c62a0e0b99c0d2bebdb6a56ca",
+        "design": "ea843947c3936f829fc938adffb6845d829b4112ea8d544bd27d9720e2ea9d5e"
       }
     }
   }
