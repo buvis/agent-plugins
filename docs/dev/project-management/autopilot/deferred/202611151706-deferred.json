@@ -264,6 +264,13 @@
       "reason": "rework cap reached with this finding unresolved",
       "prd": "00014-autopilot-host-execution-v2.md",
       "op_id": "eb9e7d070d06-dd15"
+    },
+    {
+      "type": "stall",
+      "site": "premise_check",
+      "detail": "task 2 Premise claims OVCAQ records.py stall() performs no file move; actual source (ovcaq/src/ovcaq/workflow/records.py:753-774, via _execute_operation/_prepare_operation/_move_operation) moves wip-to-hold for stall exactly like park -- no kind branch anywhere skips the move for stall. Design doc 00019 section Module placement / prd.stall-prd.park repeats the false claim as the basis for files.py's three-move-shape architecture. Needs a design rework before task 2 can be implemented.",
+      "op_id": "ba020915a012",
+      "prd": "00019-autopilot-controller-lifecycle-v1.md"
     }
   ]
 }
