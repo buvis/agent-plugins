@@ -95,6 +95,37 @@ class DiagnoseEvidenceSchemaTest(unittest.TestCase):
         row = self.openai_implementor_row(report)
         self.assertNotIn("codex:interception", row["unobserved"])
 
+    def test_an_invalid_schema_version_newer_than_a_valid_evidence_file_does_not_fall_back(self) -> None:
+        """Regression: only the single newest record may ever be consulted.
+        An older, fully valid record must never be resurrected to paper over
+        an invalid newest one."""
+        self.write("codex-20261101T070000Z.json", probe_evidence(CAPS, schema_version=2))
+        self.write("codex-20261101T080000Z.json", probe_evidence(CAPS, schema_version=99))
+        report = doctor.diagnose(project_root=self.root)
+        row = self.openai_implementor_row(report)
+        self.assertEqual(row["host_id"], "codex")
+        self.assertIn("codex:interception", row["unobserved"])
+
+    def test_malformed_json_newer_than_a_valid_evidence_file_does_not_fall_back(self) -> None:
+        """Same regression, via the malformed-JSON path instead of a bad
+        schema_version."""
+        self.write("codex-20261101T070000Z.json", probe_evidence(CAPS, schema_version=2))
+        self.write_bytes("codex-20261101T080000Z.json", b"{not valid json")
+        report = doctor.diagnose(project_root=self.root)
+        row = self.openai_implementor_row(report)
+        self.assertEqual(row["host_id"], "codex")
+        self.assertIn("codex:interception", row["unobserved"])
+
+    def test_a_valid_newest_evidence_file_clears_the_gap_even_with_an_older_malformed_file(self) -> None:
+        """Accept-side control for the two tests above: the newest-file rule
+        is not "any malformed file anywhere blocks the gap" - an older
+        malformed file must not block a valid newest one either."""
+        self.write_bytes("codex-20261101T070000Z.json", b"{not valid json")
+        self.write("codex-20261101T080000Z.json", probe_evidence(CAPS, schema_version=2))
+        report = doctor.diagnose(project_root=self.root)
+        row = self.openai_implementor_row(report)
+        self.assertNotIn("codex:interception", row["unobserved"])
+
 
 if __name__ == "__main__":
     unittest.main()

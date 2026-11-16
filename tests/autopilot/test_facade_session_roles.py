@@ -140,6 +140,25 @@ class RoleAndSessionModesTest(FacadeModesMixin, unittest.TestCase):
                     else:
                         self.assertGreater(len(roles_on), len(roles_off))
 
+    def test_resolve_roles_full_lane_never_overrides_an_explicit_gemini_cli_available_false(self) -> None:
+        # Regression: codex-gemini/full must not force gemini_cli_available=True over a
+        # caller's explicit facts file. The same false facts, on a profile that has no
+        # special-case to force, is the reference: the two must match role-for-role.
+        false_file = str(self.facts(FACTS_FALSE))
+        codex_gemini = self.roster(self.resolve("codex-gemini", "full", "--facts", false_file))
+        source_parity = self.roster(self.resolve("source-parity", "full", "--facts", false_file))
+        self.assertEqual(codex_gemini, sorted(ROSTERS[("codex-gemini", "full")]))
+        self.assertEqual(source_parity, sorted(ROSTERS[("source-parity", "full")]))
+        self.assertNotIn("carl", {role for role, _, _ in codex_gemini})
+        self.assertNotIn("carl", {role for role, _, _ in source_parity})
+        # The accept-side control: the same profile/lane with gemini_cli_available=True
+        # and a codex implementor present does add Carl (already pinned above for both
+        # profiles), so the false-facts result above is not simply "Carl never appears".
+        gemini_true = self.roster(self.resolve(
+            "codex-gemini", "full", "--facts",
+            str(self.facts(FACTS_GEMINI | {"implementor_codex_present": True}))))
+        self.assertIn("carl", {role for role, _, _ in gemini_true})
+
     def test_resolve_roles_rejects_unknown_profile_lane_or_facts_as_usage_error(self) -> None:
         bad_facts = self.base / "facts" / "broken.json"
         bad_facts.parent.mkdir(parents=True)

@@ -818,9 +818,10 @@ class CodexTranslateHookTest(unittest.TestCase):
 
 
 class RenderHookReplyTest(unittest.TestCase):
-    def test_pre_tool_deny_carries_the_first_denied_reason(self) -> None:
-        # Claude only: codex's PreToolUse deny joins every reason (see
-        # CodexRenderHookReplyContractTest.test_pre_tool_deny_joins_every_reason).
+    def test_pre_tool_deny_joins_every_reason(self) -> None:
+        # Claude's shapes are identical to codex's (see
+        # CodexRenderHookReplyContractTest.test_pre_tool_deny_joins_every_reason):
+        # a multi-reason deny must name every reason, not just the first.
         for host_id, module in (("claude", claude_adapter),):
             for first, second in (("r-alpha", "r-beta"), ("r-beta", "r-alpha")):
                 with self.subTest(host=host_id, first=first):
@@ -832,7 +833,7 @@ class RenderHookReplyTest(unittest.TestCase):
                     self.assertEqual(reply.exit_code, 0)
                     self.assertEqual(_body(reply), {"hookSpecificOutput": {
                         "hookEventName": "PreToolUse", "permissionDecision": "deny",
-                        "permissionDecisionReason": first}})
+                        "permissionDecisionReason": f"{first}; {second}"}})
 
     def test_pre_tool_allow_never_denies(self) -> None:
         for host_id, module in INTERCEPTING:
@@ -845,21 +846,21 @@ class RenderHookReplyTest(unittest.TestCase):
                     output = _body(reply).get("hookSpecificOutput", {})
                     self.assertIn(output.get("permissionDecision"), ("allow", None))
 
-    def test_post_tool_failure_is_reported_without_blocking(self) -> None:
-        # Claude only: codex's PostToolUse refusal blocks instead (see
-        # CodexRenderHookReplyContractTest.test_post_tool_refused_blocks_with_a_reason).
+    def test_post_tool_refusal_blocks_with_a_reason(self) -> None:
+        # Claude's shapes are identical to codex's (see
+        # CodexRenderHookReplyContractTest.test_post_tool_refused_blocks_with_a_reason):
+        # a refusal blocks, it does not merely report a systemMessage.
         for host_id, module in (("claude", claude_adapter),):
             for reason in ("store-a broken", "store-b broken"):
                 with self.subTest(host=host_id, reason=reason):
                     denied = _decision(host_id, "PostToolUse", [_deny(GuardDuty.STATE_INTEGRITY, reason)])
                     reply = module.render_hook_reply("PostToolUse", denied, stop_active=False)
                     self.assertEqual(reply.exit_code, 0)
-                    self.assertIn(reason, _body(reply)["systemMessage"])
-                    self.assertNotEqual(_body(reply).get("decision"), "block")
+                    self.assertEqual(_body(reply), {"decision": "block", "reason": reason})
             allowed = _decision(host_id, "PostToolUse", [_allow(GuardDuty.STATE_INTEGRITY)])
             reply = module.render_hook_reply("PostToolUse", allowed, stop_active=False)
             self.assertEqual(reply.exit_code, 0)
-            self.assertNotIn("systemMessage", _body(reply))
+            self.assertNotEqual(_body(reply).get("decision"), "block")
 
     def _assert_block_names_a_denied_reason(self, module, host_id: str) -> None:
         """The deny need not be the last outcome, and an allow's None reason never leaks."""
@@ -907,6 +908,32 @@ class RenderHookReplyTest(unittest.TestCase):
             reply = module.render_hook_reply("SessionStart", empty, stop_active=False)
             self.assertEqual(reply.exit_code, 0)
             self.assertNotIn("additionalContext", reply.stdout)
+
+    def test_stop_refused_with_stop_active_still_surfaces_a_system_message(self) -> None:
+        # Claude's shapes are identical to codex's (see
+        # CodexRenderHookReplyContractTest.test_stop_refused_with_stop_active_still_surfaces_a_system_message).
+        for reason in (_fresh("review missing"), _fresh("lane live")):
+            with self.subTest(reason=reason):
+                denied = _decision("claude", "Stop", [_deny(GuardDuty.LIVE_JOB, reason)])
+                reply = claude_adapter.render_hook_reply("Stop", denied, stop_active=True)
+                self.assertEqual(reply.exit_code, 0)
+                body = _body(reply)
+                self.assertIn("systemMessage", body)
+                self.assertIn(reason, body["systemMessage"])
+                self.assertNotEqual(body.get("decision"), "block")
+
+    def test_session_start_refusal_surfaces_a_system_message(self) -> None:
+        # Claude's shapes are identical to codex's (see
+        # CodexRenderHookReplyContractTest.test_session_start_refused_surfaces_a_system_message).
+        for reason in (_fresh("no card"), _fresh("card stale")):
+            with self.subTest(reason=reason):
+                denied = _decision("claude", "SessionStart", [_deny(GuardDuty.CONTEXT_REINJECTION, reason)])
+                reply = claude_adapter.render_hook_reply("SessionStart", denied, stop_active=False)
+                self.assertEqual(reply.exit_code, 0)
+                body = _body(reply)
+                self.assertIn("systemMessage", body)
+                self.assertIn(reason, body["systemMessage"])
+                self.assertNotIn("additionalContext", body.get("hookSpecificOutput", {}))
 
 
 class CodexRenderHookReplyContractTest(unittest.TestCase):

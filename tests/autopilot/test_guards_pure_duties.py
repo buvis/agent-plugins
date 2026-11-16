@@ -603,5 +603,50 @@ class IsGitPushTest(unittest.TestCase):
                 self.assertEqual(refused.reason, "missing_controller_seam")
 
 
+class IsGitPushWrapperFormTest(unittest.TestCase):
+    """The wrapper-option allowlist is a conservative superset: an
+    unrecognized wrapper form must fail CLOSED to True, never open to False.
+    """
+
+    WRAPPED_PUSH_CASES = (
+        "timeout -s KILL 5 git push",
+        "sudo --user x git push",
+        "sudo -h host git push",
+        "ionice -c 2 git push",
+        "stdbuf -o0 git push",
+        "exec -a x git push",
+        "/usr/bin/env git push",
+        'FOO="a b" git push',
+    )
+
+    def test_denies_every_unfamiliar_wrapper_form(self) -> None:
+        for command in self.WRAPPED_PUSH_CASES:
+            with self.subTest(command=command):
+                self.assertTrue(guards.is_git_push(command))
+
+    def test_allows_a_command_with_no_git_or_push_tokens(self) -> None:
+        self.assertFalse(guards.is_git_push("echo hello"))
+
+
+class NormalizeRelTest(unittest.TestCase):
+    CASES = (
+        (("a/..", "rel"), "a/.."),
+        (("/x/docs/a.md", "rel"), "x/docs/a.md"),
+        (("/wip/x.md", "rel"), "wip/x.md"),
+        (("/r/backlog/x.md", "/r"), "backlog/x.md"),
+        (("/r/backlog/x.md", "/r/sub"), "backlog/x.md"),
+        (("/r//backlog/x.md", "/r"), "backlog/x.md"),
+        (("a/b", "."), "a/b"),
+        ((".", "."), ""),
+        (("/a", "/"), "a"),
+        (("x/y", "rel"), "x/y"),
+    )
+
+    def test_normalizes_each_path_and_project_root_pair(self) -> None:
+        for (path, project_root), expected in self.CASES:
+            with self.subTest(path=path, project_root=project_root):
+                self.assertEqual(guards._normalize_rel(path, project_root), expected)
+
+
 if __name__ == "__main__":
     unittest.main()
