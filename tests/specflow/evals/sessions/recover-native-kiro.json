@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "recover-native-kiro",
+  "fixture": "sessions/recover-native-kiro",
+  "turns": [
+    {
+      "developer": "Resume the existing native Kiro spec in .kiro/specs/requirements-first. Recover missing specflow state using standard profile. Preserve every existing artifact, task identifier and completion flag. Do not infer approvals or implement. Report the next phase and any blockers."
+    }
+  ]
+}

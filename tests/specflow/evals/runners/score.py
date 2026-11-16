@@ -446,14 +446,9 @@ def model_judge(model: str, rubric: str, evidence: dict, tested_model: str) -> d
     }
 
 
-def rubric_verdicts(
-    record: dict,
-    evals: list[tuple[dict, str]],
-    files: dict,
-    judge_model: str | None,
-    reviews: dict | None,
-) -> dict:
-    """Keep decisions bound to exact evidence and sample once, using system randomness."""
+def rubric_evidence(
+    record: dict, evals: list[tuple[dict, str]], files: dict
+) -> tuple[dict, str]:
     evidence = {
         k: v
         for k, v in record.items()
@@ -466,6 +461,18 @@ def rubric_verdicts(
             [evidence, evals, JUDGE_PROMPT, "minimum-ten-v1"], sort_keys=True
         ).encode()
     ).hexdigest()
+    return evidence, digest
+
+
+def rubric_verdicts(
+    record: dict,
+    evals: list[tuple[dict, str]],
+    files: dict,
+    judge_model: str | None,
+    reviews: dict | None,
+) -> dict:
+    """Keep decisions bound to exact evidence and sample once, using system randomness."""
+    evidence, digest = rubric_evidence(record, evals, files)
     state = record.get("rubricReview", {})
     if state.get("evidenceSha256") != digest:
         state = {
@@ -497,6 +504,31 @@ def rubric_verdicts(
             raise RecordError("invalid stored rubric decision")
         if "review" in decision and not valid_decision(decision["review"], human=True):
             raise RecordError("invalid stored human review")
+    if reviews and "batchScope" in reviews:
+        scope = reviews["batchScope"]
+        if scope["evidenceSha256"] != digest:
+            raise RecordError("batch review is for different evidence")
+        for key, review in scope["verdicts"].items():
+            if key not in keys or not valid_decision(review, human=True):
+                raise RecordError("invalid batch human review")
+            verdicts[key]["review"] = review
+        state.update(
+            sample=scope["sample"],
+            sampled=True,
+            manualAll=scope["manualAll"],
+            required=scope["required"],
+            batchFile=scope["batchFile"],
+        )
+        record["rubricReview"] = state
+        complete = (
+            scope["complete"]
+            and all(k in verdicts for k in keys)
+            and all("review" in verdicts[k] for k in state["required"])
+        )
+        return {
+            k: {**v, "passed": complete and v.get("review", v)["verdict"] == "PASS"}
+            for k, v in verdicts.items()
+        }
     passes = [k for k in keys if k in verdicts and verdicts[k]["verdict"] == "PASS"]
     sample = state["sample"]
     if state["sampled"]:
@@ -574,6 +606,8 @@ def score_record(
     judge_model: str | None = None,
     reviews: dict | None = None,
 ) -> int:
+    if reviews and "batchScope" in reviews:
+        raise RecordError("batch scope must be verified from its review file")
     validate_record(record)
     # Scoring alone cannot certify a host boundary or a frozen candidate.
     if "releaseEvidence" in record:
@@ -597,6 +631,13 @@ def score_record(
             for assertion in evaluation["assertions"]:
                 require_evidence(assertion, record)
     files = {} if "brokenAt" in record else finished_files(record, results)
+    batch_file = (reviews or {}).get("batchFile") or record.get("rubricReview", {}).get(
+        "batchFile"
+    )
+    if batch_file:
+        import review_matrix
+
+        reviews = {"batchScope": review_matrix.for_record(record, results, batch_file)}
     rubrics = (
         {}
         if "brokenAt" in record

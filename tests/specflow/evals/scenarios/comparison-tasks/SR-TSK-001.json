@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-TSK-001",
+  "session": "comparison-tasks",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the plan preserve design contracts, give bounded verifiable task slices, derive dependencies from actual coupling, justify size with risk/evidence rather than arbitrary line counts, and avoid splitting changes that must be atomic?"
+    }
+  ]
+}

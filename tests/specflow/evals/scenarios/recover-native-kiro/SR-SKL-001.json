@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-001",
+  "session": "recover-native-kiro",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Did the agent inspect the native requirements-first capture, preserve its existing content/IDs and Kiro type/order, recover missing state without inferred approvals, and accurately report the next phase and blockers? No stray requirements.md for a bugfix or relocation is allowed."
+    }
+  ]
+}

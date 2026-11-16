@@ -112,6 +112,7 @@ The design's scoped evidence matrix governs remaining tasks: full Claude Code co
     - The first host stops with a conflict and the intervening edit survives: the `concurrent-edit` session's eval passes in the latest stored record of each host. That the user documentation states the one-writer contract is checked by T-061 (00001).
 
 - [ ] T-081 Verify conversion against the proven calcard-mcp fixture
+  - Outcome: 2026-11-16 offline fixture, seven reference files, source snapshot, hashes, seeded completion variant, conversion session and structural comparisons added. Compatibility suite ran 7 tests: 4 passed and 3 live-host cases skipped because records are absent. Semantic obligation coverage remains a live rubric; task is not complete.
   - Requirements: 00007 CNV-001 criteria 3, 4, 5, 9
   - Depends on: T-050, T-056
   - Location: `tests/specflow/fixtures/conversion/calcard-00032/`, `tests/specflow/evals/sessions/conversion-calcard.json`, `tests/specflow/compatibility/test_conversion_fixture.py`, `.github/workflows/validate.yml`, `tests/specflow/evals/results/<host>/<session>/<n>.json` for the session `conversion-calcard`
@@ -130,6 +131,7 @@ The design's scoped evidence matrix governs remaining tasks: full Claude Code co
     - The same test rebuilds each host's latest stored run of `conversion-calcard` in a temporary folder, applies the comparison to it, and runs the `conversion-receipt` check on it. A host with no stored record is skipped and reported by the test; that all three hosts have a record that passes is this task's own condition. Before a record is committed, read it for a secret or an absolute machine path.
 
 - [ ] T-057 Author and run one eval per behavioral rule
+  - Outcome: 2026-11-16 added recovery, native-type resume, configured-folder, design/task comparison and conversion sessions with supplemental evals under evals/scenarios. Promoted concurrent-edit there without deleting the original rule scenario. Matrix and host-wide review tooling added; no live run or freeze yet.
   - Requirements: RULE-001, REL-002
   - Depends on: T-056, T-053, T-081
   - Location: `tests/specflow/evals/SR-<area>-NNN.json`, `tests/specflow/evals/sessions/`, `tests/specflow/evals/results/<host>/<session>/<n>.json`, `tests/specflow/fixtures/sessions/<name>/`
@@ -193,6 +195,7 @@ The design's scoped evidence matrix governs remaining tasks: full Claude Code co
     - A phase loads only its own AWS reference: in the stored records, no turn of a phase reads a file outside the set the routing table expects for that phase and profile. That only the passages marked for the profile were read cannot be seen from a path, and the record says this half is not proven.
 
 - [ ] T-058 Defer the parity gate to a new backlog spec
+  - Outcome: 2026-11-16 transferred the six-skill gate, evidence conditions and retirement restrictions to ../00023-skill-parity/requirements.md (draft backlog). No skill is retired or declared ready.
   - Requirements: RULE-001 criterion 6; REL-002 criterion 7
   - Depends on: T-057
   - Location: new backlog spec under `docs/dev/project-management/specs/`

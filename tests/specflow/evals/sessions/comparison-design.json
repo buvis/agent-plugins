@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "comparison-design",
+  "fixture": "sessions/comparison-design",
+  "turns": [
+    {
+      "developer": "Review the design against the current code: identify existing reuse, concrete contracts, blockers and review tier. Run the required isolated review; then explain which lower-risk cases permit inline review. Stop before approval or edits."
+    }
+  ]
+}

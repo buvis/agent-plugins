@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-SKL-001",
+  "session": "configured-specs-folder",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Did the agent honor the configured specs and intake folders, find spec 00101, and report its next task from validator status without relocating files or creating a default .kiro/specs tree?"
+    }
+  ]
+}

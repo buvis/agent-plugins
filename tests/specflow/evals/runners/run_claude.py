@@ -26,7 +26,7 @@ import score
 
 ROOT = score.ROOT
 SCRATCH = ROOT / "docs/dev/tmp/specflow/evals"
-EXTERNAL_SCRATCH = Path("/private/tmp")
+EXTERNAL_SCRATCH = Path("/private/tmp" if sys.platform == "darwin" else "/tmp")
 TURN_TIMEOUT = 600
 MAX_SESSION_TURNS = 24
 SESSION_TIMEOUT = 1800
@@ -542,7 +542,7 @@ def named_reads(
 def unaliased_path(path: Path) -> bool:
     """Do not infer historical read targets by resolving current aliases."""
     try:
-        return path == path.resolve()
+        return path == path.resolve(strict=True)
     except (OSError, RuntimeError):
         return False
 

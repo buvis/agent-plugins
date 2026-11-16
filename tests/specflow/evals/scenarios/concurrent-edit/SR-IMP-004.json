@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-IMP-004",
+  "session": "concurrent-edit",
+  "assertions": [
+    {"kind": "file_matches", "path": ".kiro/specs/00001-gift-cards/requirements.md", "pattern": "Gift cards\\. Second writer: preserve this intervening edit\\."},
+    {"kind": "file_lacks", "path": ".kiro/specs/00001-gift-cards/requirements.md", "pattern": "Customers redeem gift cards at checkout\\."},
+    {"kind": "message_matches", "turn": 2, "pattern": "(?i)conflict|changed|intervening|another writer|second writer"},
+    {"kind": "rubric", "rubric": "On turn 1, did the agent actually read the target and retain its raw hash without writing it? On turn 2, did it compare against that original hash, report the conflict, preserve the second writer's complete text, and stop without applying or merging its pending edit or refreshing the hash to bypass the conflict? Fail unless all conditions are evidenced."}
+  ]
+}

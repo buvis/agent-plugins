@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-CNV-001",
+  "session": "conversion-calcard",
+  "assertions": [
+    {
+      "kind": "validation_passes",
+      "check": "conversion-receipt"
+    },
+    {
+      "kind": "rubric",
+      "rubric": "Compare the full source intake with converted artifacts and recorded decisions. Every mandatory obligation must have a corresponding numbered clause or explicit decision: conditional update/delete, 412 conflict without unconditional retry, raw recurrence writes and ordinary create preservation, component selection, post-write error guidance, fail-first tests, unchanged enabled verification, no new dependency, event-only scope with tasks/extraction deferred, integration race tests, Ruff/Pyright and changelog. Optional create precondition is explicitly deferred and optional missing-ETag fallback explicitly superseded by refusal. Require all five developer policy answers; four top-level tasks in the requested order; no invented executed work, approvals or receipt history. Fail on any omitted or weakened obligation."
+    }
+  ]
+}

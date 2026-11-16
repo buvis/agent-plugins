@@ -922,3 +922,35 @@ Claude-only context observations, other hosts not measured. These explicit
 answers approve the revised requirements, design, and task plan together.
 Approval hashes, UTC times, commit and upstream values come from the helper.
 No live evidence or task completion is claimed by these approvals.
+
+### Offline continuation checkpoint (2026-11-16)
+
+Scope approvals committed in 2a30733; branch first pushed at e8cce14.
+GitHub run 43932576031 failed: specflow rules reported 1 failure and 9 errors
+from Linux symlink-loop behavior and the macOS-only scratch path; autopilot
+reported 7 failures, 1488 passes, 11 skips, including an exact branch-list
+assertion and pre-existing provenance/closure gaps. The Python 3.10 security
+job succeeded. Upstream master contains the autopilot fixes; integrate them
+without editing the unrelated 00018 PRD or its plans.
+
+The symlink identity regression failed before the fix. Strict resolution now
+keeps missing paths/loops unknown; the correlated-read test now creates a real
+file instead of treating nonexistent /workspace/notes.md as measured. Scratch
+uses the system /tmp on Linux and retains /private/tmp on macOS.
+Local rules suite: 189 tests passed, 0 skipped before the final review-input
+guard. Security: 7 passed, 0 skipped. Compatibility: 7 run, 3 live-record
+skips. Repository validator: 3 plugins, 15 skills. Live evidence remains absent.
+
+Implementation self-review: supplemental scenarios use their own eval folders
+so existing rule scenarios remain covered; the batch selects the matching
+folder. Aggregate sampling binds the entire required host/session record set
+and exact source/eval evidence, and rejects direct unverified batchScope input.
+Pending peer reviews must keep the host's rubric scores pending. No human
+verdict is supplied by the runner or scorer. Remaining before freeze: cross-host
+handoff execution, full aggregate integration regressions, Linux CI rerun,
+manual-run documentation, and all offline checks.
+
+Deferred parity is durable in specs/00023-skill-parity/requirements.md. IDE
+type checks remain explicitly unverified, to be listed in the compatibility
+checklist. Existing code-baseline/placement/portable-link validator warnings
+remain advisory; implementation validation exited 0.

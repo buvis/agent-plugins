@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "name": "conversion-calcard",
+  "fixture": "conversion/calcard-00032/input",
+  "turns": [
+    {
+      "developer": "Use convert-prd on docs/dev/project-management/intake/new/00032-add-if-match-preconditions-to-event-writes.md. Use bugfix, standard, requirements-first; preserve ID 00032 and use docs/dev/project-management/specs and docs/dev/project-management/intake. Draft requirements only. Do not execute implementation."
+    },
+    {
+      "developer": "Resolve the five policy questions as follows: refuse update/delete without ETag; reject absent recurrence matches; require an occurrence selector for orphan-only resources; treat a post-read DELETE 404 as success with absence verification; prohibit clearing recurrence_id case-insensitively. Defer If-None-Match on create. Draft and review the requirements with those decisions."
+    },
+    {
+      "developer": "I approve these requirements and the five stated decisions. Draft and review the design, without implementing."
+    },
+    {
+      "developer": "I approve the reviewed design. Draft the four-stage native bugfix task plan: exploration, preservation, implementation, checkpoint. Do not approve tasks or execute them. Write the conversion receipt and stop."
+    }
+  ]
+}

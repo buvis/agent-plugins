@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "specId": "00101-feature-sample",
+  "specType": "feature",
+  "profile": "standard",
+  "workflowOrder": "requirements-first",
+  "workflowVersion": "0.1.0",
+  "artifacts": {
+    "requirements": {
+      "path": "requirements.md",
+      "status": "approved",
+      "sha256": "977a9c34cdb2cee6c39199e733d81072bd8a47957ac71cb32219a0299d0b07a0",
+      "approvedSha256": "977a9c34cdb2cee6c39199e733d81072bd8a47957ac71cb32219a0299d0b07a0",
+      "approvedAt": "2026-11-10T00:00:00Z"
+    },
+    "design": {
+      "path": "design.md",
+      "status": "approved",
+      "sha256": "ad4c97bac326d51fcace81521a47435e913cd6885f56688c2e5d3c97bf6f04c7",
+      "approvedSha256": "ad4c97bac326d51fcace81521a47435e913cd6885f56688c2e5d3c97bf6f04c7",
+      "approvedAt": "2026-11-10T00:00:00Z",
+      "upstreamSha256": {
+        "requirements": "977a9c34cdb2cee6c39199e733d81072bd8a47957ac71cb32219a0299d0b07a0"
+      },
+      "approvedCode": {
+        "status": "not_checked",
+        "reason": "synthetic fixture without implementation evidence"
+      }
+    },
+    "tasks": {
+      "path": "tasks.md",
+      "status": "approved",
+      "sha256": "c1e944c32f1f7881dea0ab5b9d3b53105f88959ee6922ab38f6b13fe10f63af1",
+      "approvedSha256": "c1e944c32f1f7881dea0ab5b9d3b53105f88959ee6922ab38f6b13fe10f63af1",
+      "approvedAt": "2026-11-10T00:00:00Z",
+      "upstreamSha256": {
+        "requirements": "977a9c34cdb2cee6c39199e733d81072bd8a47957ac71cb32219a0299d0b07a0",
+        "design": "ad4c97bac326d51fcace81521a47435e913cd6885f56688c2e5d3c97bf6f04c7"
+      }
+    }
+  }
+}

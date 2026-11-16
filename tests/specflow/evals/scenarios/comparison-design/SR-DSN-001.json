@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "rule": "SR-DSN-001",
+  "session": "comparison-design",
+  "assertions": [
+    {
+      "kind": "rubric",
+      "rubric": "Does the review use code evidence to identify reuse, concrete signatures/data contracts and genuine blockers, choose the required isolated review for this tier and distinguish when inline review is allowed? Reject claimed isolated review without invocation evidence."
+    }
+  ]
+}

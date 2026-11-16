@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "configured-specs-folder",
+  "fixture": "sessions/configured-specs-folder",
+  "turns": [
+    {
+      "developer": "Resume spec 00101 in the configured workspace. Report its next task and gates without editing or implementing."
+    }
+  ]
+}

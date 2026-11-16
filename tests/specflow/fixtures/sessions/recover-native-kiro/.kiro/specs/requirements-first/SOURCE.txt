@@ -1,0 +1,2 @@
+Copied unchanged from https://github.com/awslabs/sra-verify/tree/620649d8ed65f15bf61147b32e40b42042b602bf/.kiro/specs/iam-user-detection
+License: see LICENSE (and NOTICE when present) in this folder.

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "comparison-tasks",
+  "fixture": "sessions/comparison-tasks",
+  "turns": [
+    {
+      "developer": "Draft the task plan from the approved design. Justify task sizes using risks and verification evidence, name dependencies, and keep coupled changes together. Stop before approval or implementation."
+    }
+  ]
+}

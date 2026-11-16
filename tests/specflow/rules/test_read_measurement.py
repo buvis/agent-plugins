@@ -60,16 +60,19 @@ class ReadMeasurementTest(unittest.TestCase):
                     ),
                     ([], False),
                 )
-        blocks = [
-            call,
-            {"type": "tool_result", "tool_use_id": "r", "content": "synthetic"},
-        ]
-        self.assertEqual(
-            run_claude.named_reads(
-                [{"message": {"content": blocks}}], Path("/workspace")
-            ),
-            (["/workspace/notes.md"], True),
-        )
+        with tempfile.TemporaryDirectory() as folder:
+            workspace = Path(folder).resolve()
+            path = workspace / "notes.md"
+            path.write_text("synthetic")
+            call["input"]["file_path"] = str(path)
+            blocks = [
+                call,
+                {"type": "tool_result", "tool_use_id": "r", "content": "synthetic"},
+            ]
+            self.assertEqual(
+                run_claude.named_reads([{"message": {"content": blocks}}], workspace),
+                ([str(path)], True),
+            )
 
     def test_claude_search_edit_and_unknown_tools_are_incomplete(self) -> None:
         for name in ("Grep", "Edit", "Task", "mcp__reader", "Glob"):
@@ -165,6 +168,14 @@ class ReadMeasurementTest(unittest.TestCase):
             )[0],
             True,
         )
+
+    def test_missing_path_leaves_identity_unknown(self) -> None:
+        self.assertFalse(
+            run_claude.unaliased_path(Path("/nonexistent-specflow-read-target"))
+        )
+
+    def test_default_scratch_exists_on_this_platform(self) -> None:
+        self.assertTrue(run_claude.EXTERNAL_SCRATCH.is_dir())
 
     def test_alias_loop_leaves_identity_unknown(self) -> None:
         with tempfile.TemporaryDirectory() as folder:

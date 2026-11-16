@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "name": "resume-kiro-design-first",
+  "fixture": "sessions/resume-kiro-design-first",
+  "turns": [
+    {
+      "developer": "Resume the existing native Kiro spec in .kiro/specs/design-first. Recover missing specflow state using standard profile. Preserve every existing artifact, task identifier and completion flag. Do not infer approvals or implement. Report the next phase and any blockers."
+    }
+  ]
+}

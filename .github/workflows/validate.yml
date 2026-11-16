@@ -48,8 +48,11 @@ jobs:
       - name: Test specflow security
         run: python3 -m unittest discover -s tests/specflow/security
 
+      - name: Test specflow compatibility
+        run: python3 -m unittest discover -s tests/specflow/compatibility
+
       - name: Check specflow rule inventory
-        run: python3 tools/specflow/check_rules.py --area VAL,SKL,DLG,INT,REQ,DSN,TSK,IMP,VER,RVC,RVR,RVD,RVX,CNV
+        run: python3 tools/specflow/check_rules.py
 
       - name: Verify specflow release boundary
         run: python3 tools/specflow/verify_release.py
