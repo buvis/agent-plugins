@@ -1522,3 +1522,9 @@
 {"id":"f3d6fe65","ended_at":1794816990,"elapsed_s":175,"outcome":"ok","detail":"closed-by: commit 5c60f7214236f8fc9975c367323e1ffbbb094422"}
 {"id":"3d487c31","ended_at":1794816990,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
 {"kind":"handoff","site":"build","edge":"leave","at":1794816990,"phase":"build","prd":"00067-engram-plugin-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794816998,"phase":"build","prd":"00067-engram-plugin-v1.md"}
+{"id":"b24169a9","kind":"tess","task":"2","queued_at":1794817076,"prompt_bytes":39339}
+{"id":"880162a7","kind":"ivan","task":"3","queued_at":1794817324,"prompt_bytes":7309}
+{"id":"b24169a9","ended_at":1794817608,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
+{"id":"880162a7","ended_at":1794817608,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
+{"kind":"handoff","site":"build","edge":"leave","at":1794817608,"phase":"review","prd":"00067-engram-plugin-v1.md"}
