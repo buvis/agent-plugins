@@ -14,6 +14,7 @@ The repository scaffold is ready. No plugins are published yet.
 | Plugin | Purpose | Version |
 | --- | --- | --- |
 | [autopilot](plugins/autopilot/README.md) | Gated review-contract foundation; no host certification or publication. | 0.10.0 |
+| [engram](plugins/engram/README.md) | Recall prior decisions, sessions, and code across the portfolio through the engram CLI. | 0.1.0 |
 
 ## Portable scope
 
