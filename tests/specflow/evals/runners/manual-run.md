@@ -53,6 +53,12 @@ The renderer receives the live turn's recorded model and approval policy:
 `exec` defaults to `never`, whereas `debug prompt-input` otherwise uses its
 ordinary approval policy. Missing live policy/model leaves instructions unmeasured.
 
+The disposable Codex home and eval profile set `plugins._default.enabled = false`
+and explicitly enable only `specflow@buvis-agent-plugins`. This prevents account
+plugin synchronization from expanding the skill catalog between turns. The
+instruction fingerprint check remains mandatory; an unexpected catalog is not
+normalized away. These settings do not modify the developer's normal home.
+
 ## Live proof procedure
 
 Run each step in a developer terminal outside `run-agent`, from the

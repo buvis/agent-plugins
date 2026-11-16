@@ -2118,6 +2118,10 @@ class CodexConversationTest(unittest.TestCase):
             self.assertIn(f'"{workspace}" = "write"', profile_text)
             self.assertIn('":root" = "deny"', profile_text)
             self.assertIn("ignore_default_excludes = false", profile_text)
+            self.assertIn("[plugins._default]\nenabled = false", profile_text)
+            self.assertIn(
+                '[plugins."specflow@buvis-agent-plugins"]\nenabled = true', profile_text
+            )
             # Codex re-executes its own binary inside the profile to load instructions.
             self.assertIn('"/opt/codex/bin" = "read"\n[permissions', profile_text)
             # A later delta replaces the text; different content is reported.

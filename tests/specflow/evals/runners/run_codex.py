@@ -21,6 +21,13 @@ from pathlib import Path
 import run_claude as runner
 import score
 
+PLUGIN_POLICY = """
+[plugins._default]
+enabled = false
+[plugins."specflow@buvis-agent-plugins"]
+enabled = true
+"""
+
 PROBE_CHECKS = {
     "workspace-read",
     "workspace-write",
@@ -675,7 +682,9 @@ class Codex:
             raise runner.HostError(
                 "independent Codex sign-in needs a developer terminal"
             )
-        (home / "config.toml").write_text('cli_auth_credentials_store = "file"\n')
+        (home / "config.toml").write_text(
+            'cli_auth_credentials_store = "file"\n' + PLUGIN_POLICY
+        )
         print("Sign in to Codex for this evaluation batch only.", file=sys.stderr)
         # Inherits the terminal on purpose; nothing from it is captured or stored.
         result = subprocess.run(
@@ -1057,6 +1066,7 @@ def eval_config(
             # finds macOS's Git launcher, which fails in the sandbox: the
             # status helper returned no result (observed 2026-11-15).
             "allow_login_shell = false",
+            PLUGIN_POLICY,
             *lines[1:],
             "[shell_environment_policy]",
             'inherit = "core"',
