@@ -8097,7 +8097,7 @@
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/scripts/jobs.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "d527619dc67f5a44eca6f3d4313c8ec243a3e6372d8e3f6adb969cba6723f216",
+      "destination_blob_sha256": "11c12040ad8b98e45b880c52bf4cabccdc4c13663a04c20b4dcf8fa5ca466660",
       "adaptation_reason": "Newly authored AP00014 host-execution file; no pinned source asset or source sections. The digest records current packaged bytes.",
       "disposition": "adapted",
       "section_plan": [],
