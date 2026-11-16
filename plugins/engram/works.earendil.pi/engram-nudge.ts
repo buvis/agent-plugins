@@ -26,7 +26,10 @@ function runEngramNudgePlain(input: string, timeoutMs: number): Promise<string> 
     child.on("error", () => finish(""));
     child.on("close", () => finish(stdout));
 
-    child.stdin.on("error", () => finish(""));
+    child.stdin.on("error", () => {
+      child.kill();
+      finish("");
+    });
     child.stdin.write(input);
     child.stdin.end();
   });
