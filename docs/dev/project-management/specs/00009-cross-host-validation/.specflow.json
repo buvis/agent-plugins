@@ -17,10 +17,10 @@
     "design": {
       "path": "design.md",
       "status": "approved",
-      "sha256": "d96dacf6197d19da3f44a2adbb5c87fd09518bc2817f4d98174a186ac6862b2d",
-      "approvedSha256": "d96dacf6197d19da3f44a2adbb5c87fd09518bc2817f4d98174a186ac6862b2d",
-      "approvedAt": "2026-11-10T12:32:31Z",
-      "approvedCommit": "68d1eafbeb98329e9eb470c5ffeec27ef5dc780f",
+      "sha256": "ed014231188f62affbf6de35a1e4638d2f7f2bc47cdd970ead1aab24162e1223",
+      "approvedSha256": "ed014231188f62affbf6de35a1e4638d2f7f2bc47cdd970ead1aab24162e1223",
+      "approvedAt": "2026-11-16T13:12:47Z",
+      "approvedCommit": "139f72546d68350020cf7117f1574e9333e33cd1",
       "upstreamSha256": {
         "requirements": "c6b28b5cecc45af746957cc9e107c6f73d887de4cb999646c27ff64949dd2758"
       },
@@ -34,11 +34,11 @@
       "status": "approved",
       "sha256": "229f978542901eee0ea80265533708464593f32ea25db19c5bfa4946991f8970",
       "approvedSha256": "229f978542901eee0ea80265533708464593f32ea25db19c5bfa4946991f8970",
-      "approvedAt": "2026-11-10T18:48:04Z",
-      "approvedCommit": "c893572dee9caf430037121437acdb2b1cebc239",
+      "approvedAt": "2026-11-16T13:12:54Z",
+      "approvedCommit": "139f72546d68350020cf7117f1574e9333e33cd1",
       "upstreamSha256": {
         "requirements": "c6b28b5cecc45af746957cc9e107c6f73d887de4cb999646c27ff64949dd2758",
-        "design": "d96dacf6197d19da3f44a2adbb5c87fd09518bc2817f4d98174a186ac6862b2d"
+        "design": "ed014231188f62affbf6de35a1e4638d2f7f2bc47cdd970ead1aab24162e1223"
       }
     }
   }

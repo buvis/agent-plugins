@@ -896,6 +896,16 @@ The design edit stales the design and task approvals: status is now `design`,
 tasks and implementation gates closed. Both need the developer's explicit
 re-approval; none was recorded here.
 
+Re-approval (2026-11-16): shown the three design changes and asked "Do you
+approve the revised design and the unchanged task plan for 00009?", the
+developer answered "yes". Recorded from `hash --json`: design
+`ed014231188f62affbf6de35a1e4638d2f7f2bc47cdd970ead1aab24162e1223` at
+2026-11-16T13:12:47Z, tasks
+`229f978542901eee0ea80265533708464593f32ea25db19c5bfa4946991f8970` (unchanged
+text, new design upstream) at 2026-11-16T13:12:54Z, both at commit `139f725`.
+`approvedCode` stays `not_checked` with its earlier reason; the placement
+section did not change.
+
 Verification: the four tests that encoded the old rule failed against the new
 scorer (6 failures) before they were replaced. Full rules suite: 175 tests pass
 on Python 3.15.2; Ruff check and format pass; repository validator passes
