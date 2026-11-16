@@ -145,30 +145,33 @@ def _evaluate_duty_call(
     session: NativeSession | None,
     project_root: str,
     seam: ControllerSeam | None,
-) -> tuple[GuardOutcome, dict]:
-    """The outcome for one duty call and the context it decided from (facts
-    merged in, when controller-keyed). A controller-keyed duty refuses
-    outright, rather than being skipped, when unbound or seamless."""
+) -> tuple[GuardOutcome | None, dict, str | None]:
+    """The outcome for one duty call, the context it decided from (facts
+    merged in, when controller-keyed), and the skip reason when the call was
+    skipped. A controller-keyed duty is skipped (`"unbound"`) when unbound,
+    and refuses outright when bound but seamless."""
     duty = call.duty
     context = dict(call.context)
     controller_keyed = duty in _STATEFUL_DUTIES or duty in _FACTS_SCHEMA
 
     if controller_keyed:
-        if not bound or seam is None:
+        if not bound:
+            return None, context, "unbound"
+        if seam is None:
             outcome = GuardOutcome(
                 duty=duty, allowed=False, reason="missing_controller_seam", stateful=True
             )
-            return outcome, context
+            return outcome, context, None
         if duty in _FACTS_SCHEMA:
             validated = _resolve_controller_facts(duty, session, project_root, seam)
             if validated is None:
                 outcome = GuardOutcome(
                     duty=duty, allowed=False, reason="malformed_controller_facts", stateful=True
                 )
-                return outcome, context
+                return outcome, context, None
             context.update(validated)
 
-    return guards.run_guard(duty, context, seam=seam), context
+    return guards.run_guard(duty, context, seam=seam), context, None
 
 
 def evaluate_hook(
@@ -193,9 +196,12 @@ def evaluate_hook(
     additional_context: str | None = None
 
     for call in duty_calls:
-        outcome, decided_context = _evaluate_duty_call(
+        outcome, decided_context, skip_reason = _evaluate_duty_call(
             call, bound=bound, session=session, project_root=project_root, seam=seam
         )
+        if skip_reason is not None:
+            skipped.append((call.duty.value, skip_reason))
+            continue
         outcomes.append(outcome)
         if call.duty is GuardDuty.CONTEXT_REINJECTION and outcome.allowed:
             additional_context = decided_context.get("contract_card_body")
