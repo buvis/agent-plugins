@@ -1494,3 +1494,4 @@
 {"id":"736da57d","ended_at":1794804608,"elapsed_s":925,"outcome":"error","detail":"exit 1 (input_too_large: 1849770 chars > 1048576)"}
 {"id":"b198ce37","ended_at":1794804611,"elapsed_s":802,"outcome":"ok","detail":"retry"}
 {"id":"962606a3","ended_at":1794804614,"elapsed_s":931,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1794804829,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
