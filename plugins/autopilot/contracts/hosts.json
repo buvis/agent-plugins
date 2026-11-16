@@ -4,12 +4,12 @@
     "claude": {
       "capabilities": ["delegation", "identity", "interception", "isolation"],
       "session_env_var": "CLAUDE_CODE_SESSION_ID",
-      "registration": {"asset": "compatibility/claude/hooks.json", "activation": "client-manifest-hooks-field"}
+      "registration": {"asset": "compatibility/claude/hooks.json", "activation": "client-manifest-hooks-field", "activated": false}
     },
     "codex": {
       "capabilities": ["identity", "interception", "isolation"],
       "session_env_var": "CODEX_SESSION_ID",
-      "registration": {"asset": "compatibility/codex/hooks.json", "activation": "client-manifest-hooks-field"}
+      "registration": {"asset": "compatibility/codex/hooks.json", "activation": "client-manifest-hooks-field", "activated": false}
     },
     "gemini": {
       "capabilities": ["identity", "isolation"],

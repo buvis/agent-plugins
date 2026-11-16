@@ -350,7 +350,8 @@ asset's `hosts.json` `registration.activation` names the mechanism a future
 publication/install PRD will wire it through (for Claude,
 `client-manifest-hooks-field` is `plugin.json`'s `hooks` field); this package
 ships no `.claude-plugin` manifest and no `hooks` field, so today the name
-documents a planned wiring path, not a shipped one.
+documents a planned wiring path, not a shipped one. Each registration carries
+`activated: false` until a later publication PRD wires it.
 `--probe-host` reports a static observation of one host, never a live
 invocation. `--diagnose` reports read-only doctor findings for the project
 root. `--run-guard` runs one guard duty against a context file.

@@ -10,7 +10,8 @@
   "certified": false,
   "registration": {
     "asset": "compatibility/codex/hooks.json",
-    "activation": "client-manifest-hooks-field"
+    "activation": "client-manifest-hooks-field",
+    "activated": false
   },
   "duty_coverage": {
     "document_location": "intercepted",
