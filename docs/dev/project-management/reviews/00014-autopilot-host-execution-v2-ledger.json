@@ -2,7 +2,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "`_write_new` re-implements `log_sink_refusal._pinned_parent_fd` and `_descend`. The same mkdir-then-`O_DIRECTORY|O_NOFOLLOW` descent loop is duplicated. Task 3 names these two as the required reuse for the job file and close-child artifact. Replace the loop with `parent_fd = _pinned_parent_fd(root / relative.parent, root)`.",
     "file": "plugins/autopilot/scripts/jobs.py:324",
     "reason": "single-voice"
@@ -10,7 +10,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "Relative `request_file` handling is inconsistent. `request_job` resolves it against the cwd (jobs.py:460). The child env var and the steps carry the unresolved `str(request_file)` (jobs.py:491, 494). `derive_ancestry` joins the env value to `project_root` (jobs.py:306), while `--bind-job` reads it relative to the child cwd (autopilot.py:252). With `--out` relative and cwd different from `--project-root`, the child cannot find or ancestry-check the file. Emit the resolved path in `env`, `stdin` and `steps`.",
     "file": "plugins/autopilot/scripts/jobs.py:491",
     "reason": "single-voice"
@@ -18,7 +18,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "`derive_ancestry` opens the `JOB_ENV` file without confirming it is a regular file. The contract says regular file, at most 2 MiB. Opening a FIFO blocks the hook or CLI.",
     "file": "plugins/autopilot/scripts/jobs.py:306",
     "reason": "single-voice"
@@ -26,23 +26,23 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
-    "issue": "`roles.py` names its dataclasses `RoleRow` and `ResolvedProfile`. The design §6 contract (verbatim) and later consumers (design lines 911 and 1283 reference `ProfileResolution`) name them `RoleResolution` and `ProfileResolution`. Rename to match the contract.",
+    "severity": "\ud83d\udfe1",
+    "issue": "`roles.py` names its dataclasses `RoleRow` and `ResolvedProfile`. The design \u00a76 contract (verbatim) and later consumers (design lines 911 and 1283 reference `ProfileResolution`) name them `RoleResolution` and `ProfileResolution`. Rename to match the contract.",
     "file": "plugins/autopilot/scripts/roles.py:38",
     "reason": "single-voice"
   },
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
-    "issue": "`--hook` reads stdin before `run_hook` rejects an unregistered event. The §8 contract says an event outside `HOOK_REGISTRATIONS` is a usage error (exit 2) before stdin is read. `run_hook` raising `SystemExit` from a library function is a second smell. Validate the event in `_hook` before reading stdin, or have `run_hook` raise `ValueError`.",
+    "severity": "\ud83d\udfe1",
+    "issue": "`--hook` reads stdin before `run_hook` rejects an unregistered event. The \u00a78 contract says an event outside `HOOK_REGISTRATIONS` is a usage error (exit 2) before stdin is read. `run_hook` raising `SystemExit` from a library function is a second smell. Validate the event in `_hook` before reading stdin, or have `run_hook` raise `ValueError`.",
     "file": "plugins/autopilot/scripts/autopilot.py:327",
     "reason": "single-voice"
   },
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "`_request_job` picks the requester host as the first adapter whose `SESSION_ENV_VAR` is set. A codex session launched from a claude session inherits `CLAUDE_CODE_SESSION_ID`, so the requester is recorded as claude. Resolve it from the adapter whose session env is set and whose `source` matches the host, or refuse when more than one is set.",
     "file": "plugins/autopilot/scripts/autopilot.py:236",
     "reason": "single-voice"
@@ -50,7 +50,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "`session_from_hook_input` is exported by both intercepting adapters and unit-tested, but `evaluate_hook` only calls `hosts.current_session(host_id, env)`. The `hook_input` session source is unreachable on the real hook path. If the hook process lacks the session env var, the trace and `read_facts` record no session. Fall back to `session_from_hook_input(payload)` in `evaluate_hook`.",
     "file": "plugins/autopilot/scripts/interception.py:184",
     "reason": "single-voice"
@@ -58,7 +58,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "`bind_job_session` writes the lineage record itself (jobs.py:386). The Task 3 contract says it writes nothing and the CLI caller records it. This is a harmless deviation but should be documented or aligned.",
     "file": "plugins/autopilot/scripts/jobs.py:386",
     "reason": "single-voice"
@@ -66,15 +66,15 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
-    "issue": "The shipped Codex hook asset uses the Claude-only variable `${CLAUDE_PLUGIN_ROOT}`. The probe replaces it by string substitution (`hooks.replace(\"${CLAUDE_PLUGIN_ROOT}\", …)`). The live Codex probe therefore does not exercise the variable resolution of the asset that actually ships. This also conflicts with the rule that shared assets must not require Claude-only variables.",
+    "severity": "\ud83d\udfe1",
+    "issue": "The shipped Codex hook asset uses the Claude-only variable `${CLAUDE_PLUGIN_ROOT}`. The probe replaces it by string substitution (`hooks.replace(\"${CLAUDE_PLUGIN_ROOT}\", \u2026)`). The live Codex probe therefore does not exercise the variable resolution of the asset that actually ships. This also conflicts with the rule that shared assets must not require Claude-only variables.",
     "file": "plugins/autopilot/compatibility/codex/hooks.json:9",
     "reason": "single-voice"
   },
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "Role resolution looks only at the adapters' `IMPLEMENTED_CAPABILITIES` constants, never at the static probe results. In `--diagnose` with no Claude or Gemini auth, `hosts[]` shows those hosts' capabilities as `unavailable: no_auth`. The profiles still show `status: resolvable` with every role `resolved`. A missing binary would resolve the same way. The spec asks for resolution \"to supported isolated hosts\" and for specific role/capability blockers. `certifiable` is false, but `status` says resolvable.",
     "file": "plugins/autopilot/scripts/roles.py:79",
     "reason": "single-voice"
@@ -82,7 +82,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "Role resolution ignores the policy's per-role input requirements and exclusions. `JobRequest` accepts whatever `excluded_input_kinds` the caller supplies. It never applies `policy.input_exclusions` for the role, so a `blind` job can be built with a `diff` input and an empty exclusion list. `role_id` is not checked against the policy role ids either. `contracts/hosts.json` `role_requirements` and `implementor_duties` are read by no code or test; `roles.REQUIRED_CAPABILITIES` duplicates the capability rows and nothing checks that the duties are covered. The spec asks roles to resolve \"with their input/guard requirements\".",
     "file": "plugins/autopilot/scripts/jobs.py:147",
     "reason": "single-voice"
@@ -90,7 +90,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "`_check_relative_path` blocks only the `docs/dev/project-management/autopilot` tree. A job input or child artifact can name `.autopilot/controller/...` (state, 0600 credential files), which would be digested and listed to the reviewer. `request_job` opens an existing project file with O_CREAT and truncates it, with no exclusive create; only the CLI pre-checks existence.",
     "file": "plugins/autopilot/scripts/jobs.py:90",
     "reason": "single-voice"
@@ -98,7 +98,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "The Phase 2 probe requirement is only partly met. `probe-host.py` allows a live probe only for claude and codex (`LIVE_HOSTS`) and rejects gemini. Doctor's `gemini_ran` therefore can never be true, and the codex-gemini profile can never become certifiable. The delivery receipt records \"No live host invocation ran\". That is honest unavailability, but the spec's \"verify real invocation/resources/identity/interception for the selected roles\" has no Gemini coverage. The receipt text also says probes \"never invoke the host\", which contradicts the live mode in `probe-host.py`, and it records 1841 tests against the 1848 in the gate.",
     "file": "tools/autopilot/probe-host.py:41",
     "reason": "single-voice"
@@ -106,7 +106,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "The source-map behaviors owned by 00014 (8 rows) all remain `evidence.status: planned`, with null artifacts and no recorded supported or unavailable duty split. Phase 2 task 2 asks the source map to be updated for supported and still-unavailable client duties. The duty status lives only in README, CHANGELOG and the bundles. The dispositions doc also lists a `hook-v1` capability ID that does not exist in `_CAPABILITIES`.",
     "file": "tools/autopilot/source-map.json",
     "reason": "single-voice"
@@ -114,7 +114,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "Hook stdin is read without a bound and before host/event validation. The later length check cannot prevent unlimited allocation or waiting on stdin for an invalid event. Validate registration first, then read at most `MAX_HOOK_INPUT_BYTES + 1`.",
     "file": "plugins/autopilot/scripts/autopilot.py:321",
     "reason": "single-voice"
@@ -122,7 +122,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "Probe timeout defaults to 600 instead of 120 and accepts values above 600, non-positive values, and non-finite floats. Validate the documented range before creating evidence or launching hosts.",
     "file": "tools/autopilot/probe-host.py:215",
     "reason": "single-voice"
@@ -130,7 +130,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "Delivery evidence is promoted to `passed` while its cited receipt records seven failures and exit 1. The supplied final green gate does not repair that receipt, whose real-host explanation also incorrectly says only static probes exist. Record successful final verification and actual probe outcomes before promoting evidence.",
     "file": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json:29",
     "reason": "single-voice"
@@ -138,15 +138,15 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
-    "issue": "Role capability requirements duplicate `contracts/hosts.json` instead of reading it. Contract changes can therefore leave role resolution reporting an unsupported profile as resolvable. Load the contract’s `role_requirements` and add a contract-change regression.",
+    "severity": "\ud83d\udfe1",
+    "issue": "Role capability requirements duplicate `contracts/hosts.json` instead of reading it. Contract changes can therefore leave role resolution reporting an unsupported profile as resolvable. Load the contract\u2019s `role_requirements` and add a contract-change regression.",
     "file": "plugins/autopilot/scripts/roles.py:23",
     "reason": "single-voice"
   },
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "`_validate` resolves the same adapter twice through a single-caller `_implemented` wrapper. Resolve the module once and read `IMPLEMENTED_CAPABILITIES` directly; remove the wrapper.",
     "file": "tools/autopilot/build-compatibility.py:88",
     "reason": "single-voice"
@@ -154,7 +154,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "Mechanical replay identifies two touched compatibility tests passing against base: `test_scrubbed_and_authenticated_envs_reach_the_child_process` and `test_aborting_build_leaves_no_bundle_behind_for_any_declared_host`. Retain preservation controls, but add assertions binding the new hooks assets and schema-2 behavior.",
     "file": "tests/autopilot/test_compatibility.py:187",
     "reason": "single-voice"
@@ -162,7 +162,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "Mechanical replay identifies eight touched pure-duty tests passing against base. These preservation cases do not establish the new normalization/depth behavior; pair them with discriminating contract cases, including dispatch-depth enforcement and project-root normalization from a subdirectory.",
     "file": "tests/autopilot/test_guards_pure_duties.py:235",
     "reason": "single-voice"
@@ -170,7 +170,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "🟡",
+    "severity": "\ud83d\udfe1",
     "issue": "Mechanical replay identifies `test_accepts_every_valid_name_status_reason_combination` passing against base. Keep it as a construction control and pair it with rejection cases covering invalid field types as well as invalid strings.",
     "file": "tests/autopilot/test_hosts_contract.py:95",
     "reason": "single-voice"
@@ -178,7 +178,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "⚪",
+    "severity": "\u26aa",
     "issue": "`doctor._newest_evidence` calls `json.loads` unguarded (doctor.py:66), and `_observed_capabilities` indexes `record[\"observed\"]` unguarded (doctor.py:72). A corrupt or v1-shaped evidence file crashes `--diagnose` with a traceback. Treat it as not probed and report the reason.",
     "file": "plugins/autopilot/scripts/doctor.py:66",
     "reason": "single-voice"
@@ -186,7 +186,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "⚪",
+    "severity": "\u26aa",
     "issue": "A stale, contradictory CHANGELOG bullet remains: \"Codex declares isolation only; Gemini declares none, because neither host implements native session identity\". The code and `hosts.json` now declare Codex identity, isolation and interception, and Gemini identity and isolation.",
     "file": "plugins/autopilot/CHANGELOG.md:15",
     "reason": "single-voice"
@@ -194,7 +194,7 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "⚪",
+    "severity": "\u26aa",
     "issue": "`--diagnose` crashes with a traceback on a corrupt or hand-edited probe evidence JSON or a missing key; there is no error path for `json.loads` or `record[\"observed\"]`. A forged evidence file with `resource_check: passed` makes a profile read `certifiable: true`, since the evidence is not authenticated.",
     "file": "plugins/autopilot/scripts/doctor.py:66",
     "reason": "single-voice"
@@ -202,9 +202,137 @@
   {
     "cycle": 1,
     "disposition": "discarded",
-    "severity": "⚪",
+    "severity": "\u26aa",
     "issue": "Claude's static probe reports every implemented capability as `unavailable: no_auth` unless `CLAUDE_CODE_OAUTH_TOKEN` or `ANTHROPIC_API_KEY` is in the environment. A Keychain-logged-in user is misreported. `CODEX_SESSION_ID`, `CLAUDE_CODE_CHILD_SESSION` and `GEMINI_SESSION_ID` are asserted as host variables without any recorded real-host confirmation.",
     "file": "plugins/autopilot/scripts/claude.py:58",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "R4 is only partly fixed. Normalization now walks ancestors, but `evaluate_hook` still discards the binding root. Adapters still copy payload `cwd` into `project_root` (claude.py:110-113). The design \u00a72 `project_root` parameter is still not passed. `claude.py:120` still reads `os.environ` for `CLAUDE_CODE_CHILD_SESSION` instead of the hook `env`. The new test `test_env_argument_not_os_environ_resolves_session_identity` only checks `session_from_environment`, which already used `env` before the rework (interception.py:184), so it cannot fail against the old code.",
+    "file": "plugins/autopilot/scripts/claude.py:120",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "R21 is only nominally fixed for Claude and Codex. `record_cmd` is appended after \"Do nothing else. Probe tag: ...\" with no instruction to run it, and the earlier text says to run exactly one command. A real host will not execute it. The test only runs the extracted line itself (test_host_argv_record_session.py:21-34). The path is unquoted, so it breaks on spaces. Add an explicit instruction and `shlex.quote`. R22 (the Claude child-lineage observation) is not addressed in this diff.",
+    "file": "tools/autopilot/probe-host.py:234",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "`run_live` catches bare `Exception` from `prepare` and reports every failure, including a copytree I/O error, as `resource_escape` with no stderr or message. That hides the cause and mislabels it. Catch only the escape `ValueError`, or record the message. `run_hook` likewise swallows `TypeError, AttributeError, KeyError, IndexError` from the whole `evaluate_hook` and turns them into `hook_input_invalid`. That includes programming errors in guards or seams, with no stderr line. It fails closed, but it hides defects. Narrow it to the translate step or log the exception type.",
+    "file": "plugins/autopilot/scripts/interception.py:257",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "Test shapes. `test_stripped_job_env_with_only_dispatch_depth_still_refuses` opens with `assertNotIn(jobs.JOB_ENV, {\"AUTOPILOT_DISPATCH_DEPTH\": \"1\"})`, a constant assertion on a literal dict. Drop it. The R8/R24 equivalence test still uses the test-local `_doc_translate_hook` (not in the diff). The new `PushGrammarCharacterizationTest` binds only denied `push-*` Bash fixtures to `is_git_push`, not to the shipped adapters, so Stop and phase fixtures remain unbound. The `assertRaises(Exception)` in test_probe_host_resource_containment.py:36 is too broad to bind the escape error.",
+    "file": "tests/autopilot/test_jobs.py:306",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "`test_no_ap00014_module_file_contains_a_coordinator_runtime_pattern` fails with the pattern `while True`. It is probably the directory walk in `interception.find_binding`, a false positive for a coordinator, but the scenario `no_coordinator_runtime_in_plugin` is red as written.",
+    "file": "plugins/autopilot/scripts/interception.py:89",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "`test_list_capabilities_keeps_legacy_array_and_adds_exactly_the_implemented_operations` fails (19 capability ids against the test's 3+15). `_CAPABILITIES` has `hook-v1` and `record-session-v1` that the test's operations list does not account for.",
+    "file": "plugins/autopilot/scripts/autopilot.py:24",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "Native session identity depends on unverified environment variables. `GEMINI_SESSION_ID` has no recorded evidence (`host-markers.md` says Gemini was never probed), and `CLAUDE_CODE_SESSION_ID` has none either. `evaluate_hook` takes the session from `env` only. The hook payload `session_id` helpers (`session_from_hook_input`) exist but are never called, so a hook run without the variable gets `session=None`.",
+    "file": "plugins/autopilot/scripts/interception.py:184",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "The new Gemini fake prints exactly the marker the implementation searches for; it never executes the packaged recording command. These tests can pass while native identity and resource provenance remain entirely unobserved. Make the fake execute the requested command with its native session variable and assert the resulting trace.",
+    "file": "tests/autopilot/probe_host_support.py:40",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "The normalization repair introduces `while True`, causing the supplied coordinator-pattern gate to fail. Remove ancestor guessing by passing the actual binding root, then normalize against that root directly; retain the coordinator check.",
+    "file": "plugins/autopilot/scripts/guards.py:156",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "The README edit invalidates pinned delivery evidence: the supplied gate reports README digest failures in provenance and package tests, plus a stale revision during generator checking. Finalize the documented receipt chain against the final bytes and regenerate the map without exemptions.",
+    "file": "plugins/autopilot/README.md:345",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\u26aa",
+    "issue": "Hook activation remains deferred deliberately: \u00a79 prohibits shipping manifest pointers in this PRD. Prior R12 should retain that scope disposition; adding a live activation surface belongs to the publication/install work.",
+    "file": "plugins/autopilot/README.md:348",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "2 touched test(s) pass against the pre-change code: test_a_valid_schema_version_is_still_consumed_and_clears_the_gap, test_wrong_schema_version_does_not_crash_diagnosis",
+    "file": "tests/autopilot/test_doctor.py",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "1 touched test(s) pass against the pre-change code: test_live_gemini_probe_is_still_rejected_without_a_binary_on_path",
+    "file": "tests/autopilot/test_gemini_live_probe.py",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "5 touched test(s) pass against the pre-change code: test_stops_at_the_first_git_toplevel, test_env_argument_not_os_environ_resolves_session_identity, test_post_tool_failure_is_reported_without_blocking, test_pre_tool_deny_carries_the_first_denied_reason, test_pre_tool_deny_with_a_single_reason_does_not_add_a_separator",
+    "file": "tests/autopilot/test_interception.py",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "4 touched test(s) pass against the pre-change code: test_a_dispatch_depth_env_value_below_max_job_depth_is_not_refused, test_effort_is_required_and_never_in_argv, test_standalone_never_writes_through_an_existing_symlink, test_two_independent_standalone_calls_do_not_interfere",
+    "file": "tests/autopilot/test_jobs.py",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "\ud83d\udfe1",
+    "issue": "1 touched test(s) pass against the pre-change code: test_prepare_accepts_a_source_tree_whose_symlink_stays_inside_it",
+    "file": "tests/autopilot/test_probe_host_resource_containment.py",
     "reason": "single-voice"
   }
 ]

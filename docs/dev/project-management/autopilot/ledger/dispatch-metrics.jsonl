@@ -1436,3 +1436,10 @@
 {"id":"fcc7a139","kind":"pat","task":"17","queued_at":1794789004,"prompt_bytes":6469}
 {"id":"fcc7a139","ended_at":1794789079,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
 {"kind":"handoff","site":"review","edge":"leave","at":1794789079,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794789102,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
+{"id":"e24e916f","kind":"bob","task":"review-c2-20261116","queued_at":1794789931,"prompt_bytes":79074}
+{"id":"ecef313e","kind":"carl","task":"review-c2-20261116","queued_at":1794789931,"prompt_bytes":72394}
+{"id":"e24e916f","ended_at":1794790833,"elapsed_s":902,"outcome":"ok","detail":"retry"}
+{"id":"ecef313e","ended_at":1794790836,"elapsed_s":905,"outcome":"ok","detail":null}
+{"id":"e24e916f","ended_at":1794792022,"elapsed_s":2091,"outcome":"ok","detail":null}
+{"id":"ecef313e","ended_at":1794792022,"elapsed_s":2091,"outcome":"ok","detail":null}
