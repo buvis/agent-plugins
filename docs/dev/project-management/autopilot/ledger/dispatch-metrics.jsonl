@@ -1481,3 +1481,8 @@
 {"id":"c283a2a1","ended_at":1794797891,"elapsed_s":21,"outcome":"error","detail":null}
 {"id":"288336dd","ended_at":1794797958,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
 {"kind":"handoff","site":"review","edge":"leave","at":1794797958,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794798003,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
+{"id":"f0a4feaf","kind":"tess","task":"26","queued_at":1794798195,"prompt_bytes":42123}
+{"id":"f0a4feaf","ended_at":1794798258,"elapsed_s":63,"outcome":"ok","detail":null}
+{"id":"0e252587","kind":"ivan","task":"26","queued_at":1794798309,"prompt_bytes":12591}
+{"id":"0e252587","ended_at":1794798339,"elapsed_s":30,"outcome":"ok","detail":null}
