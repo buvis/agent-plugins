@@ -1,9 +1,11 @@
-"""Fake claude/codex binaries for probe-host.py live-run tests.
+"""Fake claude/codex/gemini binaries for probe-host.py live-run tests.
 
 The fake logs how it was launched (with the session id it minted), runs every
 PreToolUse hook command its registration surface names (claude: the
 `--plugin-dir` manifest's `hooks` file; codex: `<-C dir>/.codex/hooks.json`) on
-the push the prompt asks for, and pushes only when no hook denied.
+the push the prompt asks for, and pushes only when no hook denied. `gemini`
+has no hook/push logic: it only logs the launch and prints a
+`--record-session <id>` marker naming its own minted session id.
 FAKE_HOST_MODE bends that for reject cases: `ignore_deny` pushes anyway,
 `no_push` never pushes, `escape` appends a trace line naming a foreign
 plugin_root, `fail` exits 1 before doing anything, `hang` sleeps far past any
@@ -34,6 +36,10 @@ if mode == "fail":
     sys.exit("IneligibleTierError: fake host refused")
 if mode == "hang":
     time.sleep(@HANG@)
+    sys.exit(0)
+if host == "gemini":
+    print(f"--record-session {session}")
+    print(json.dumps({"result": "@MARK@", "session_id": session}))
     sys.exit(0)
 env = {k: v for k, v in os.environ.items() if k != "CLAUDE_PLUGIN_ROOT"}
 if host == "claude":
@@ -94,7 +100,7 @@ def install_fake_hosts(bin_dir: Path) -> None:
         .replace("@MARK@", FAKE_STDOUT_MARK)
         .replace("@HANG@", str(FAKE_HANG_SECONDS))
     )
-    for name in ("claude", "codex"):
+    for name in ("claude", "codex", "gemini"):
         fake = bin_dir / name
         fake.write_text(script, encoding="utf-8")
         fake.chmod(0o755)
