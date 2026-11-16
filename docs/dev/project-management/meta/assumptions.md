@@ -155,3 +155,7 @@ Ivan (implementor):
 - `_evaluate_duty_call`'s only caller is `evaluate_hook` in `interception.py`; other modules were outside the file allowlist, so no cross-module call-site search was done.
 
 Orchestrator: the step-5.7 per-task review could not run (`sonnet-run.sh`: "OAuth token revoked", the same persistent host auth failure recorded against tasks 9-12) after the mandated one retry; recorded `review: failed:runner_unavailable` — the PRD-level review lenses still cover this task's diff.
+
+## Cycle 2 rework — Task 21: plugins/autopilot/scripts/interception.py (unrelated-project denial, same root cause as task 18)
+
+Orchestrator: task 21's finding ("every controller-keyed duty refuses when unbound or has no seam, with no check that autopilot is involved") is the same root cause task 18 fixed (restoring the unbound-skip). Verified task 21's exact scenario directly against the fixed code (a Skill call for the non-autopilot skill "commit" in an unrelated unbound repo now skips post_handoff and returns `decision.allowed == True`); no additional code change was needed, and task 18's committed regression tests already cover this class of scenario.
