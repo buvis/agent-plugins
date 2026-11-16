@@ -1420,3 +1420,16 @@
 {"id":"912357b6","ended_at":1794784555,"elapsed_s":1681,"outcome":"ok","detail":null}
 {"id":"1c1a859a","ended_at":1794784555,"elapsed_s":1681,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1794784584,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
+{"id":"610dd177","kind":"tess","task":"14","queued_at":1794784711,"prompt_bytes":114710}
+{"id":"25459afd","kind":"tess","task":"14","queued_at":1794784722,"prompt_bytes":46707}
+{"id":"e514b589","kind":"ivan","task":"14","queued_at":1794785756,"prompt_bytes":217527}
+{"id":"c2d9f7a5","kind":"ivan","task":"14","queued_at":1794785765,"prompt_bytes":33816}
+{"id":"5eb79fdd","kind":"tess","task":"15","queued_at":1794787348,"prompt_bytes":19006}
+{"id":"f0392eac","kind":"ivan","task":"15","queued_at":1794788151,"prompt_bytes":19411}
+{"id":"610dd177","ended_at":1794788813,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"25459afd","ended_at":1794788813,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"e514b589","ended_at":1794788813,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"c2d9f7a5","ended_at":1794788813,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"5eb79fdd","ended_at":1794788813,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"f0392eac","ended_at":1794788813,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"kind":"handoff","site":"review","edge":"leave","at":1794788813,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}

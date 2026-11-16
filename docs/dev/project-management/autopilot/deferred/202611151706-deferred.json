@@ -37,6 +37,12 @@
       "question": "Task 6 per-task review (Pat via sonnet-run.sh) failed twice: OAuth token revoked for the sonnet CLI runner.",
       "assumption": "Recorded review: failed:runner_auth on the task 6 attempt entry and proceeded to step 6 without a per-task review; the mandatory PRD-level review lenses (consensus/blind/doubt) will still cover this diff.",
       "prd": "00014-autopilot-host-execution-v2.md"
+    },
+    {
+      "type": "assumed-ambiguity",
+      "question": "autopilot.py:281 finding: should --resolve-roles include Eve unconditionally for profile codex-gemini/lane full (matching --diagnose), or only when doubt_reviewer==fable or codex implementor present (current conditional roster)?",
+      "assumption": "simplest safe fix: --resolve-roles includes eve for codex-gemini/lane full whenever lane==full, consistent with --diagnose listing her unconditionally for that profile; existing conditional-add behavior (fable/codex triggers) is preserved as additional inclusion paths, not replaced",
+      "prd": "00014-autopilot-host-execution-v2.md"
     }
   ]
 }
