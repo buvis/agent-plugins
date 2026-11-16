@@ -6,6 +6,7 @@ import copy
 import json
 import math
 import re
+from collections.abc import Callable
 from pathlib import Path
 
 SCHEMA_VERSION = 1
@@ -231,6 +232,78 @@ def _receipts(receipts: object) -> None:
             raise ResourceLimitError("Receipt response exceeds the byte limit")
 
 
+def _text(value: object) -> None:
+    if not isinstance(value, str) or not value:
+        raise SchemaError("Text must be a non-empty string")
+
+
+def _list(value: object, check: Callable[[object], None]) -> None:
+    if not isinstance(value, list):
+        raise SchemaError("Expected a list")
+    for item in value:
+        check(item)
+
+
+def _task(value: object) -> None:
+    task = _object(value, {"id", "subject", "status", "depends_on", "attempts"})
+    _identity(task["id"])
+    _text(task["subject"])
+    if task["status"] not in ("pending", "in_progress", "completed", "aborted"):
+        raise SchemaError("Unknown task status")
+    _list(task["depends_on"], _identity)
+    if not isinstance(task["attempts"], list):
+        raise SchemaError("Task attempts must be a list")
+
+
+def _job(value: object) -> None:
+    job = _object(value, {"spec", "claimed_by", "claim_epoch", "exit_fact"})
+    spec = _object(job["spec"], {
+        "job_id", "role", "depends_on", "input_digests", "isolation", "tier", "effort",
+    })
+    _identity(spec["job_id"])
+    _list(spec["depends_on"], _identity)
+    _list(spec["input_digests"], _digest)
+    for key in ("role", "isolation", "tier", "effort"):
+        _text(spec[key])
+    if job["claimed_by"] is not None:
+        _identity(job["claimed_by"])
+    if job["claim_epoch"] is not None:
+        _counter(job["claim_epoch"])
+    if job["exit_fact"] is not None and not isinstance(job["exit_fact"], dict):
+        raise SchemaError("Job exit fact must be null or an object")
+
+
+def _workflow(value: object) -> None:
+    workflow = _object(value, set(_WORKFLOW))
+    review = _object(workflow["review"], {"cap"})
+    _counter(review["cap"])
+    if review != _WORKFLOW["review"]:
+        raise SchemaError("Workflow review must retain its frozen cap")
+    if workflow["batch"] is not None:
+        batch = _object(workflow["batch"], {"completed_prds", "parks_consecutive"})
+        _list(batch["completed_prds"], _text)
+        _counter(batch["parks_consecutive"])
+    if workflow["work"] is not None:
+        work = _object(workflow["work"], {
+            "prd", "source", "entered_at", "phase", "completed_phases", "lane",
+            "lane_reason",
+        })
+        for key in ("prd", "entered_at", "phase"):
+            _text(work[key])
+        if work["source"] not in ("wip", "backlog"):
+            raise SchemaError("Unknown work source")
+        _list(work["completed_phases"], _text)
+        for key in ("lane", "lane_reason"):
+            if work[key] is not None:
+                _text(work[key])
+    if workflow["recovery"] is not None:
+        recovery = _object(workflow["recovery"], {"op", "boundary"})
+        _text(recovery["op"])
+        _text(recovery["boundary"])
+    _list(workflow["tasks"], _task)
+    _list(workflow["jobs"], _job)
+
+
 def validate_state(value: object) -> dict:
     """Validate state before returning an independent, mutable copy."""
     _check_json(value)
@@ -247,12 +320,7 @@ def validate_state(value: object) -> dict:
     _identity(state["workflow_id"])
     _absolute_path(state["repo_root"])
 
-    workflow = _object(state["workflow"], set(_WORKFLOW))
-    review = _object(workflow["review"], {"cap"})
-    _counter(review["cap"])
-    if workflow != _WORKFLOW:
-        raise SchemaError("Workflow reserves must retain their initial values")
-
+    _workflow(state["workflow"])
     _owner(state["owner"])
     _actors(state)
     _receipts(state["receipts"])
