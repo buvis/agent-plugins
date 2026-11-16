@@ -19,6 +19,7 @@ from pathlib import Path, PurePosixPath
 from typing import Protocol
 
 import hosts
+from log_sink_refusal import _pinned_parent_fd
 
 TIERS = ("haiku", "sonnet", "opus", "fable")
 EFFORTS = ("low", "medium", "high", "xhigh", "max")
@@ -454,11 +455,16 @@ def _write_request_file(resolved_file: Path, root: Path, payload: dict) -> None:
         raise _invalid("request_file must be inside project_root") from None
     _check_relative_path(relative)
     data = json.dumps(payload).encode("utf-8")
+    parent_fd = _pinned_parent_fd(resolved_file.parent, root)
     try:
-        fd = os.open(resolved_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o666)
-    except FileNotFoundError:
-        resolved_file.parent.mkdir(parents=True, exist_ok=True)
-        fd = os.open(resolved_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o666)
+        fd = os.open(
+            resolved_file.name,
+            os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW,
+            0o666,
+            dir_fd=parent_fd,
+        )
+    finally:
+        os.close(parent_fd)
     with os.fdopen(fd, "wb") as stream:
         stream.write(data)
 

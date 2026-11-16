@@ -162,16 +162,15 @@ def _normalize_rel(path: str, project_root: str | None) -> str:
         return path
     norm = posixpath.normpath(path)
     root = posixpath.normpath(project_root)
-    while True:
-        if norm == root:
+    parents = [str(parent) for parent in PurePosixPath(root).parents]
+    candidates = [root, *(p for p in parents if p != "."), ""]
+    for candidate in candidates:
+        if norm == candidate:
             return ""
-        prefix = root.rstrip("/") + "/"
+        prefix = candidate.rstrip("/") + "/"
         if norm.startswith(prefix):
             return norm[len(prefix):]
-        parent = posixpath.dirname(root)
-        if parent == root:
-            return path
-        root = parent
+    return path
 
 
 def _store_path_verdict(path: str) -> tuple[bool, str | None]:
@@ -316,10 +315,10 @@ _PURE = {
 
 
 _SEGMENT_SPLIT = re.compile(r"\n|&&|\|\||[;|&]")
-_PREFIX_CMDS = frozenset({"command", "exec", "env", "sudo", "nice", "time", "nohup", "timeout"})
+_PREFIX_CMDS = frozenset(
+    {"command", "exec", "env", "sudo", "nice", "time", "nohup", "timeout", "ionice", "stdbuf"}
+)
 _SKIP_KEYWORDS = frozenset({"if", "then", "else", "elif", "fi", "do", "done", "while", "until"})
-_FLAG_WITH_VALUE = frozenset({"-u", "-g", "-n", "-C"})
-_PREFIX_POSITIONAL = {"timeout": 1}
 _BRACKET_CHARS = re.compile(r"[(){}!]")
 _ASSIGNMENT_WORD = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
 _INDIRECT_MARKERS = ("$(", "`", "eval", "sh -c", "bash -c", "zsh -c", "xargs", "<<")
@@ -330,11 +329,21 @@ _WORD_PUSH = re.compile(r"\bpush\b")
 def is_git_push(command: str) -> bool:
     """Conservative superset of the git-push grammar (§7): a false positive
     only costs a seam consultation, so ambiguous forms fail closed to True.
-    Grouping/negation punctuation and bare quoting are stripped before
-    tokenizing; wrapper commands (sudo, env, nice, timeout, ...) and their
-    options are skipped to find the actual command token."""
+    Grouping/negation punctuation is stripped before tokenizing (`shlex`
+    handles quoting, including a quoted value split across what `.split()`
+    would see as two words). A recognized wrapper command's own flags and
+    their values are skipped wholesale - not flag-by-flag, since an unlisted
+    option (`sudo --user x`, `exec -a x`) must not be mistaken for the
+    wrapped command - by scanning past every token up to the next literal
+    `git`. An unrecognized leading command (`echo git push`) is never
+    treated as a wrapper: it is itself checked against `git`, so its own
+    arguments mentioning `git`/`push` are not wrongly attributed to it."""
     for segment in _SEGMENT_SPLIT.split(command):
-        tokens = [token.strip("'\"") for token in _BRACKET_CHARS.sub(" ", segment).split()]
+        cleaned = _BRACKET_CHARS.sub(" ", segment)
+        try:
+            tokens = shlex.split(cleaned)
+        except ValueError:
+            tokens = cleaned.split()
         i = 0
         while i < len(tokens):
             token = tokens[i]
@@ -344,14 +353,10 @@ def is_git_push(command: str) -> bool:
             if token in _SKIP_KEYWORDS:
                 i += 1
                 continue
-            if token in _PREFIX_CMDS:
+            if PurePosixPath(token).name in _PREFIX_CMDS:
                 i += 1
-                while i < len(tokens) and tokens[i].startswith("-"):
-                    flag = tokens[i]
+                while i < len(tokens) and PurePosixPath(tokens[i]).name != "git":
                     i += 1
-                    if flag in _FLAG_WITH_VALUE and i < len(tokens):
-                        i += 1
-                i += _PREFIX_POSITIONAL.get(token, 0)
                 continue
             break
         if i < len(tokens) and PurePosixPath(tokens[i]).name == "git" and "push" in tokens[i + 1 :]:

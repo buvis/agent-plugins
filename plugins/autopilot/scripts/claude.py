@@ -9,7 +9,6 @@ shared with codex.py, whose hooks speak the same wire format.
 
 from __future__ import annotations
 
-import json
 import os
 import re
 import shutil
@@ -27,7 +26,7 @@ from hosts import (
     statuses_from,
     unavailable,
 )
-from interception import DutyCall, HookRegistration, HookReply
+from interception import DutyCall, HookRegistration
 from jobs import JobRequest
 
 HOST_ID = "claude"
@@ -123,29 +122,4 @@ def translate_hook(event: str, payload: Mapping[str, object]) -> tuple[DutyCall,
     return codex.translate_shared_hook(event, payload)
 
 
-def render_hook_reply(event: str, decision, *, stop_active: bool) -> HookReply:
-    """A pre-tool deny names the first denied reason; a post-tool failure is
-    reported, never blocked; a Stop blocks once (not while stop_active).
-    Diverges from codex.render_hook_reply, which this adapter used to share."""
-    denied = [outcome.reason for outcome in decision.outcomes if not outcome.allowed]
-    body: dict | None = None
-    if event == "PreToolUse" and denied:
-        body = {
-            "hookSpecificOutput": {
-                "hookEventName": "PreToolUse",
-                "permissionDecision": "deny",
-                "permissionDecisionReason": denied[0],
-            }
-        }
-    elif event == "PostToolUse" and denied:
-        body = {"systemMessage": "autopilot: " + "; ".join(denied)}
-    elif event == "Stop" and denied and not stop_active:
-        body = {"decision": "block", "reason": "; ".join(denied)}
-    elif event == "SessionStart" and decision.additional_context:
-        body = {
-            "hookSpecificOutput": {
-                "hookEventName": "SessionStart",
-                "additionalContext": decision.additional_context,
-            }
-        }
-    return HookReply(stdout=json.dumps(body) if body else "", exit_code=0)
+render_hook_reply = codex.render_hook_reply
