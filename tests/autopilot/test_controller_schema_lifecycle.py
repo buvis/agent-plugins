@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import sys
 import unittest
+from collections.abc import Callable
 from pathlib import Path
 
 from controller_test_support import WORKFLOW, frozen_state
@@ -100,7 +101,7 @@ class WorkflowLifecycleSchemaTest(unittest.TestCase):
     def test_rejects_task_status_outside_the_four_lifecycle_values(self) -> None:
         for status in ("complete", "completed-extra", "Completed", "in-progress",
                        "inprogress", "pending_extra", "abort", "", None, 1):
-            for index in (0, 3):
+            for index in (0, 1, 2, 3):
                 tasks = valid_tasks()
                 tasks[index]["status"] = status
                 with self.subTest(status=status, index=index):
@@ -108,12 +109,13 @@ class WorkflowLifecycleSchemaTest(unittest.TestCase):
 
     def test_rejects_non_string_task_ids_and_dependency_entries(self) -> None:
         for task_id in (7, None, True, ["task-1"], {"id": "task-1"}):
-            for index in (0, 3):
+            for index in (0, 1, 2, 3):
                 tasks = valid_tasks()
                 tasks[index]["id"] = task_id
                 with self.subTest(task_id=task_id, index=index):
                     self.assert_invalid(state_with(tasks=tasks))
-        for depends_on in ([7], [None], ["task-1", 7], [["task-1"]], "task-1"):
+        for depends_on in ([7], [None], ["task-1", 7], [["task-1"]], "task-1",
+                           None, {}, "", 0):
             tasks = valid_tasks()
             tasks[2]["depends_on"] = depends_on
             with self.subTest(depends_on=depends_on):
@@ -125,9 +127,23 @@ class WorkflowLifecycleSchemaTest(unittest.TestCase):
             del tasks[1][key]
             with self.subTest(missing=key):
                 self.assert_invalid(state_with(tasks=tasks))
+        tasks = valid_tasks()
+        tasks[1]["unknown"] = None
+        with self.subTest(extra="unknown"):
+            self.assert_invalid(state_with(tasks=tasks))
         for tasks in (["task"], [valid_tasks()[0], "task"], {"task-1": valid_tasks()[0]}):
             with self.subTest(tasks=tasks):
                 self.assert_invalid(state_with(tasks=tasks))
+
+    def test_rejects_task_subject_not_a_non_empty_string_and_attempts_not_a_list(self) -> None:
+        for field, values in (("subject", (7, None, "", ["subject"])),
+                              ("attempts", ("x", None, {}, 0, ("attempt",)))):
+            for bad in values:
+                for index in (0, 1, 2, 3):
+                    tasks = valid_tasks()
+                    tasks[index][field] = bad
+                    with self.subTest(field=field, bad=bad, index=index):
+                        self.assert_invalid(state_with(tasks=tasks))
 
     def test_accepts_job_records_claimed_and_unclaimed(self) -> None:
         value = state_with(jobs=valid_jobs())
@@ -166,25 +182,43 @@ class WorkflowLifecycleSchemaTest(unittest.TestCase):
                 with self.subTest(key=key, replacement=replacement):
                     self.assert_invalid(state_with(**{key: replacement}))
 
-    def assert_rejects_shape_breaks(self, key: str, valid: dict, bad_values: dict) -> None:
+    def assert_rejects_shape_breaks(self, key: str, valid: dict, bad_values: dict,
+                                    wrap: Callable[[dict], object] = lambda record: record) -> None:
         for field in valid:
             broken = copy.deepcopy(valid)
             del broken[field]
             with self.subTest(key=key, missing=field):
-                self.assert_invalid(state_with(**{key: broken}))
+                self.assert_invalid(state_with(**{key: wrap(broken)}))
         with self.subTest(key=key, extra="unknown"):
-            self.assert_invalid(state_with(**{key: {**valid, "unknown": None}}))
+            self.assert_invalid(state_with(**{key: wrap({**valid, "unknown": None})}))
         for field, values in bad_values.items():
             for bad in values:
                 with self.subTest(key=key, field=field, bad=bad):
-                    self.assert_invalid(state_with(**{key: {**valid, field: bad}}))
+                    self.assert_invalid(state_with(**{key: wrap({**valid, field: bad})}))
+
+    def test_rejects_job_and_job_spec_records_with_missing_extra_or_mistyped_fields(self) -> None:
+        claimed = valid_jobs()[1]
+        self.assert_rejects_shape_breaks("jobs", claimed, {
+            "claimed_by": [7, ["worker-2"], {"id": "worker-2"}],
+            "claim_epoch": ["3", 1.5, [3], {"epoch": 3}],
+            "exit_fact": ["done", 7, ["done"]],
+        }, wrap=lambda record: [valid_jobs()[0], record])
+        self.assert_rejects_shape_breaks("jobs", claimed["spec"], {
+            "role": [None, 7, ["builder"]],
+            "depends_on": ["job-1", None, {}, [7], [None], ["job-1", 7]],
+            "input_digests": ["a" * 64, None, {}, [7], [None]],
+            "isolation": [None, 7, ["worktree"]],
+            "tier": [None, 7, ["opus"]],
+            "effort": [None, 7, ["high"]],
+        }, wrap=lambda spec: [valid_jobs()[0], {**valid_jobs()[1], "spec": spec}])
 
     def test_accepts_populated_batch_and_rejects_malformed_batch(self) -> None:
         self.assert_valid(state_with(batch=batch()))
         self.assert_valid(state_with(batch={"completed_prds": [], "parks_consecutive": 3}))
         self.assert_rejects_shape_breaks("batch", batch(), {
-            "completed_prds": ["00012-x.md", None, {"prd": "00012-x.md"}, 0],
-            "parks_consecutive": ["0", None, 1.5, [0]],
+            "completed_prds": ["00012-x.md", None, {"prd": "00012-x.md"}, 0,
+                               [None], [None, 0], ["00012-x.md", 7]],
+            "parks_consecutive": ["0", None, 1.5, [0], -1],
         })
 
     def test_accepts_populated_work_and_rejects_malformed_work(self) -> None:
@@ -193,14 +227,19 @@ class WorkflowLifecycleSchemaTest(unittest.TestCase):
         self.assert_valid(state_with(work={**work(None, None), "source": "backlog"}))
         self.assert_rejects_shape_breaks("work", work("solo", "docs-only diff"), {
             "source": ["done", "WIP", "Backlog", "hold", "", None],
-            "completed_phases": ["plan", None, {"plan": True}],
+            "completed_phases": ["plan", None, {"plan": True}, [1, None], ["plan", 7]],
+            "prd": [None, 7, ["00019-autopilot-controller-lifecycle-v1.md"]],
+            "entered_at": [None, 7, ["2026-11-16T10:00:00Z"]],
+            "phase": [None, 7, ["build"]],
+            "lane": [7, ["solo"], {"lane": "solo"}],
+            "lane_reason": [7, ["docs-only diff"], {"reason": "docs-only diff"}],
         })
 
     def test_accepts_populated_recovery_and_rejects_malformed_recovery(self) -> None:
         self.assert_valid(state_with(recovery=recovery()))
         self.assert_rejects_shape_breaks("recovery", recovery(), {
-            "op": [None, 1, ["advance"]],
-            "boundary": [None, 1, {"name": "review"}],
+            "op": [None, 1, ["advance"], ""],
+            "boundary": [None, 1, {"name": "review"}, ""],
         })
 
     def test_review_still_accepts_only_the_frozen_cap(self) -> None:
