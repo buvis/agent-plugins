@@ -591,6 +591,69 @@ class CommittedBundlesTest(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, msg=f"{proc.stdout}\n{proc.stderr}")
 
 
+PLUGIN_DIR = ROOT / "plugins" / "autopilot"
+_NOT_ACTIVATED_RE = re.compile(
+    r"\b(?:not|never|no)\b[^.\n]{0,80}activated|activated\W{0,6}false", re.IGNORECASE
+)
+
+
+def _shipped_contract_hosts() -> dict:
+    contract = json.loads((PLUGIN_DIR / "contracts" / "hosts.json").read_text(encoding="utf-8"))
+    return contract["hosts"]
+
+
+def _registered_hosts() -> dict:
+    return {h: d for h, d in _shipped_contract_hosts().items() if d["registration"] is not None}
+
+
+class ShippedRegistrationIsInertTest(unittest.TestCase):
+    def test_every_registered_host_declares_activated_exactly_false(self) -> None:
+        registered = _registered_hosts()
+        self.assertTrue(registered, msg="no shipped host has a registration")
+        for host_id, declaration in registered.items():
+            with self.subTest(host=host_id):
+                self.assertIn("activated", declaration["registration"])
+                self.assertIs(declaration["registration"]["activated"], False)
+
+    def test_a_host_without_registration_declares_no_activated_key(self) -> None:
+        unregistered = {
+            h: d for h, d in _shipped_contract_hosts().items() if d["registration"] is None
+        }
+        self.assertTrue(unregistered, msg="no shipped host lacks a registration")
+        for host_id, declaration in unregistered.items():
+            with self.subTest(host=host_id):
+                self.assertNotIn("activated", declaration)
+                self.assertIsNone(declaration["registration"])
+
+    def test_every_shipped_bundle_registration_equals_the_contracts(self) -> None:
+        for host_id, declaration in _shipped_contract_hosts().items():
+            with self.subTest(host=host_id):
+                bundle = json.loads(_bundle_path(ROOT, host_id).read_text(encoding="utf-8"))
+                self.assertEqual(bundle["registration"], declaration["registration"])
+        for host_id in _registered_hosts():
+            with self.subTest(host=host_id, field="activated"):
+                bundle = json.loads(_bundle_path(ROOT, host_id).read_text(encoding="utf-8"))
+                self.assertIs(bundle["registration"]["activated"], False)
+
+    def test_plugin_manifest_has_no_hooks_field_while_any_registration_is_inert(self) -> None:
+        inert = [
+            h for h, d in _registered_hosts().items()
+            if d["registration"].get("activated") is False
+        ]
+        self.assertTrue(inert, msg="no shipped registration declares activated: false")
+        manifest = json.loads((PLUGIN_DIR / "plugin.json").read_text(encoding="utf-8"))
+        self.assertNotIn("hooks", manifest)
+
+    def test_readme_and_changelog_state_the_registration_is_not_activated(self) -> None:
+        for name in ("README.md", "CHANGELOG.md"):
+            with self.subTest(doc=name):
+                text = (PLUGIN_DIR / name).read_text(encoding="utf-8")
+                self.assertRegex(text, _NOT_ACTIVATED_RE)
+                # The field itself must be named (code-quoted or `activated: false`),
+                # not only the prose phrase "not activated".
+                self.assertRegex(text, r"`activated`|activated\W{0,6}false")
+
+
 class NoCoordinatorRuntimeInPluginTest(unittest.TestCase):
     def test_rejects_while_true_in_synthetic_source(self) -> None:
         self.assertEqual(
