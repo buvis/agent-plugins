@@ -284007,7 +284007,7 @@
     {
       "source_path": "compatibility/codex/hooks.json",
       "source_line": 9,
-      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "reference": "${AUTOPILOT_PLUGIN_ROOT}/scripts/autopilot.py",
       "kind": "packaged-resource",
       "status": "planned",
       "destination_path": "plugins/autopilot/scripts/autopilot.py",
@@ -284016,7 +284016,7 @@
     {
       "source_path": "compatibility/codex/hooks.json",
       "source_line": 19,
-      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "reference": "${AUTOPILOT_PLUGIN_ROOT}/scripts/autopilot.py",
       "kind": "packaged-resource",
       "status": "planned",
       "destination_path": "plugins/autopilot/scripts/autopilot.py",
@@ -284025,7 +284025,7 @@
     {
       "source_path": "compatibility/codex/hooks.json",
       "source_line": 31,
-      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "reference": "${AUTOPILOT_PLUGIN_ROOT}/scripts/autopilot.py",
       "kind": "packaged-resource",
       "status": "planned",
       "destination_path": "plugins/autopilot/scripts/autopilot.py",
@@ -284034,7 +284034,7 @@
     {
       "source_path": "compatibility/codex/hooks.json",
       "source_line": 42,
-      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "reference": "${AUTOPILOT_PLUGIN_ROOT}/scripts/autopilot.py",
       "kind": "packaged-resource",
       "status": "planned",
       "destination_path": "plugins/autopilot/scripts/autopilot.py",
@@ -284043,7 +284043,7 @@
     {
       "source_path": "compatibility/codex/hooks.json",
       "source_line": 53,
-      "reference": "${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py",
+      "reference": "${AUTOPILOT_PLUGIN_ROOT}/scripts/autopilot.py",
       "kind": "packaged-resource",
       "status": "planned",
       "destination_path": "plugins/autopilot/scripts/autopilot.py",
