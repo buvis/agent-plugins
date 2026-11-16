@@ -1,0 +1,29 @@
+[
+  {
+    "path": "docs/dev/project-management/autopilot/reports/00018-v2-c1-alice-anthropic-efab7c136bf14ecf89d4e852cad407c5.jsonl",
+    "line": 12,
+    "sha256": "950941b4a98dfbff5c8b4c5bb802a9aa8a6196e44ed75b90143bfc1ba0087ddc",
+    "observed": {
+      "model": "claude-opus-5.5",
+      "effortLevel": "medium"
+    }
+  },
+  {
+    "path": "docs/dev/project-management/autopilot/reports/00018-v2-c1-blake-anthropic-97c81ce862d74b309c028779cffd11d5.jsonl",
+    "line": 7,
+    "sha256": "86aaf8e51ce16da55c26a4cb164086522933ab5ff4fe649df32abe41a41c2af1",
+    "observed": {
+      "model": "claude-opus-5.5",
+      "effortLevel": "medium"
+    }
+  },
+  {
+    "path": "docs/dev/project-management/autopilot/reports/00018-v2-c1-bob-anthropic-497a8ad9dfab4bc6b29886817b14356e.jsonl",
+    "line": 9,
+    "sha256": "1397c6bd1a7bf5bc23451a1a78355193729102579c9603b8f2d312f2db9c16e4",
+    "observed": {
+      "model": "claude-opus-5.5",
+      "effortLevel": "medium"
+    }
+  }
+]

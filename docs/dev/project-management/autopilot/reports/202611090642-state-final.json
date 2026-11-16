@@ -1,0 +1,195 @@
+{
+  "phase": "done",
+  "next_phase": "",
+  "schema_version": 1,
+  "batch": {
+    "skips": [
+      {
+        "prd": "00014-autopilot-host-execution-v2.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00018-autopilot-controller-kernel-v2.md # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-09T06:42:04Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-09T06:42:04Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-09T06:42:04Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-09T06:42:04Z"
+      },
+      {
+        "prd": "00014-autopilot-host-execution-v2.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00018-autopilot-controller-kernel-v2.md # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:28:44Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:28:44Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:28:44Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:28:44Z"
+      },
+      {
+        "prd": "00019-autopilot-controller-lifecycle-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00018-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:28:44Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:28:44Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:28:44Z"
+      },
+      {
+        "prd": "00067-engram-plugin-v1.md",
+        "command": "engram nudge --help",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:28:44Z"
+      },
+      {
+        "prd": "00014-autopilot-host-execution-v2.md",
+        "command": "ls docs/dev/project-management/prds/done/00012-* docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00018-autopilot-controller-kernel-v2.md # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:29:10Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:29:10Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:29:10Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:29:10Z"
+      },
+      {
+        "prd": "00019-autopilot-controller-lifecycle-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00018-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:29:10Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:29:10Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:29:10Z"
+      },
+      {
+        "prd": "00067-engram-plugin-v1.md",
+        "command": "engram nudge --help",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-11T04:29:10Z"
+      }
+    ],
+    "id": "202611090642",
+    "mode": "autopilot",
+    "completed_prds": [],
+    "plugin_versions": {
+      "aegis@buvis-plugins": "0.4.1",
+      "warden@buvis-plugins": "0.14.1"
+    },
+    "catchup_completed_at": "2026-11-09T12:19:14+00:00",
+    "catchup_head_sha": "3270459c4ab477d5166648c60384c31ce8cf6c97",
+    "critical_on_master": [],
+    "unavailable_reviewers": [
+      "carl"
+    ],
+    "unavailable_reviewer_details": {
+      "carl": {
+        "cycle": 3,
+        "prd": "00018-autopilot-controller-kernel-v2.md"
+      }
+    },
+    "parks_consecutive": 0
+  },
+  "prd": "00018-autopilot-controller-kernel-v2.md",
+  "catchup_mode": "run",
+  "doubt_reviewer": "codex",
+  "consensus_engine": "legacy",
+  "session_model": "sonnet",
+  "rework_cap": 3,
+  "lane": "full",
+  "lane_reason": "override",
+  "lane_effective": "full",
+  "catchup_probe": {
+    "batch_id": "202611090642",
+    "gh": "ok",
+    "engram": "ok",
+    "checked_at": "2026-11-09T06:42:30Z"
+  },
+  "tasks_total": 0,
+  "tasks_completed": 0,
+  "cycle": 1,
+  "applied_review_batches": [
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00018-autopilot-controller-kernel-v2-review-1.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00018-autopilot-controller-kernel-v2-review-2.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00018-autopilot-controller-kernel-v2-review-3.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00018-autopilot-controller-kernel-v2-review-3.md::tail-sweep"
+  ],
+  "phases_completed": [],
+  "replan_count": 0
+}

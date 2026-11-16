@@ -1111,3 +1111,173 @@
 {"id":"c7f06b9d","kind":"tess","task":"4","queued_at":1794218584,"prompt_bytes":27464}
 {"id":"f8a19443","kind":"devon","task":"4","queued_at":1794219114,"prompt_bytes":27814}
 {"id":"f8a19443","ended_at":1794219421,"elapsed_s":307,"outcome":"error","detail":"provider cyber_policy error; no completed adversarial result; no implementation dispatched"}
+{"id":"c7f06b9d","ended_at":1794226607,"elapsed_s":null,"outcome":"lost","detail":"open at build/resume handoff"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794226607,"phase":"build","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"aa963998","kind":"devon","task":"4","queued_at":1794226800,"prompt_bytes":27821}
+{"id":"aa963998","ended_at":1794227226,"elapsed_s":426,"outcome":"ok","detail":"exploit found: 6 weak points"}
+{"id":"0a2eb10e","kind":"tess","task":"4","queued_at":1794227266,"prompt_bytes":31445}
+{"id":"0a2eb10e","ended_at":1794227804,"elapsed_s":538,"outcome":"ok","detail":"5 strengthened, 1 in-contract"}
+{"id":"7ee66e27","kind":"ivan","task":"4","queued_at":1794228147,"prompt_bytes":48326}
+{"id":"7ee66e27","ended_at":1794228776,"elapsed_s":629,"outcome":"ok","detail":"92 passed acceptance"}
+{"id":"a70ec997","kind":"pat","task":"4","queued_at":1794229240,"prompt_bytes":3161222}
+{"id":"a70ec997","ended_at":1794229247,"elapsed_s":7,"outcome":"error","detail":"render oversize (unscoped range), never dispatched"}
+{"id":"929c2da1","kind":"pat","task":"4","queued_at":1794229250,"prompt_bytes":48157}
+{"id":"929c2da1","ended_at":1794229325,"elapsed_s":75,"outcome":"ok","detail":"3 LOW; first attempt failed OAuth, retried with setup token"}
+{"id":"62bebc61","kind":"tess","task":"5","queued_at":1794229443,"prompt_bytes":21762}
+{"id":"62bebc61","ended_at":1794229844,"elapsed_s":401,"outcome":"ok","detail":"11 tests, 9 red on missing files"}
+{"id":"efbb4b19","kind":"devon","task":"5","queued_at":1794229908,"prompt_bytes":21773}
+{"id":"efbb4b19","ended_at":1794230343,"elapsed_s":435,"outcome":"ok","detail":"exploit found: 8 weak points plus APFS dir-nlink test defect"}
+{"id":"2978ec14","kind":"tess","task":"5","queued_at":1794230370,"prompt_bytes":16991}
+{"id":"2978ec14","ended_at":1794230568,"elapsed_s":198,"outcome":"ok","detail":"8 strengthened (1 partial in-contract), nlink defect fixed"}
+{"id":"d7b707a6","kind":"ivan","task":"5","queued_at":1794230602,"prompt_bytes":32894}
+{"id":"d7b707a6","ended_at":1794230695,"elapsed_s":93,"outcome":"ok","detail":"15 passed"}
+{"id":"1d92c897","kind":"deslop","task":"5","queued_at":1794230744,"prompt_bytes":14621}
+{"id":"1d92c897","ended_at":1794230781,"elapsed_s":37,"outcome":"ok","detail":"no slop found"}
+{"id":"e5a3287e","kind":"pat","task":"5","queued_at":1794230797,"prompt_bytes":38737}
+{"id":"9a48899a","kind":"ivan","task":"5","queued_at":1794230868,"prompt_bytes":11636}
+{"id":"e5a3287e","ended_at":1794230869,"elapsed_s":72,"outcome":"ok","detail":"1 MEDIUM, 4 LOW"}
+{"id":"9a48899a","ended_at":1794230941,"elapsed_s":73,"outcome":"ok","detail":"MEDIUM fixed, 17 passed"}
+{"id":"b718ec73","kind":"pat","task":"5","queued_at":1794230972,"prompt_bytes":9144}
+{"id":"b718ec73","ended_at":1794230998,"elapsed_s":26,"outcome":"ok","detail":"MEDIUM resolved; 2 LOW"}
+{"id":"bfda8f65","kind":"ivan","task":"6","queued_at":1794231025,"prompt_bytes":9541}
+{"id":"bfda8f65","ended_at":1794231100,"elapsed_s":75,"outcome":"ok","detail":"docs written, 30 passed"}
+{"id":"27505104","kind":"deslop","task":"6","queued_at":1794231131,"prompt_bytes":15939}
+{"id":"27505104","ended_at":1794231188,"elapsed_s":57,"outcome":"ok","detail":"committed 33a77e3"}
+{"id":"abea7c1e","kind":"tess","task":"7","queued_at":1794231355,"prompt_bytes":35069}
+{"id":"abea7c1e","ended_at":1794231361,"elapsed_s":6,"outcome":"error","detail":"wrong subject file, re-rendered, never dispatched"}
+{"id":"b2275c87","kind":"tess","task":"7","queued_at":1794231365,"prompt_bytes":35073}
+{"id":"b2275c87","ended_at":1794231735,"elapsed_s":370,"outcome":"ok","detail":"36 red as expected, 19 green"}
+{"id":"0ed02552","kind":"devon","task":"7","queued_at":1794231800,"prompt_bytes":42849}
+{"id":"0ed02552","ended_at":1794232098,"elapsed_s":298,"outcome":"ok","detail":"exploit found: 8 weak points"}
+{"id":"21e25415","kind":"tess","task":"7","queued_at":1794232137,"prompt_bytes":17010}
+{"id":"21e25415","ended_at":1794232293,"elapsed_s":156,"outcome":"ok","detail":"8 strengthened"}
+{"id":"45f0da96","kind":"ivan","task":"7","queued_at":1794232334,"prompt_bytes":35683}
+{"id":"45f0da96","ended_at":1794232485,"elapsed_s":151,"outcome":"ok","detail":"successor tests green; 6 committed-map red pending Task 8"}
+{"id":"922857dd","kind":"deslop","task":"7","queued_at":1794232522,"prompt_bytes":14273}
+{"id":"922857dd","ended_at":1794232582,"elapsed_s":60,"outcome":"ok","detail":"no slop found"}
+{"id":"e548c4ca","kind":"ivan","task":"7","queued_at":1794232605,"prompt_bytes":10232}
+{"id":"e548c4ca","ended_at":1794232645,"elapsed_s":40,"outcome":"ok","detail":"apply split, 76 passed"}
+{"id":"090ee571","kind":"pat","task":"7","queued_at":1794232667,"prompt_bytes":47373}
+{"id":"090ee571","ended_at":1794232723,"elapsed_s":56,"outcome":"ok","detail":"1 MEDIUM, 3 LOW"}
+{"id":"26739e3c","kind":"ivan","task":"7","queued_at":1794232726,"prompt_bytes":11009}
+{"id":"26739e3c","ended_at":1794232771,"elapsed_s":45,"outcome":"ok","detail":"MEDIUM fixed, 77 passed"}
+{"id":"760799ce","kind":"pat","task":"7","queued_at":1794232800,"prompt_bytes":6666}
+{"id":"760799ce","ended_at":1794232817,"elapsed_s":17,"outcome":"ok","detail":"MEDIUM resolved, no new findings"}
+{"id":"6c9c92d9","kind":"pat","task":"7","queued_at":1794232827,"prompt_bytes":3214}
+{"id":"6c9c92d9","ended_at":1794232842,"elapsed_s":15,"outcome":"ok","detail":"NO FINDINGS"}
+{"id":"27959aa6","kind":"ivan","task":"8","queued_at":1794232891,"prompt_bytes":10032}
+{"id":"27959aa6","ended_at":1794233339,"elapsed_s":448,"outcome":"error","detail":"blocked: generator writes no row for listed owner.py; test_package needs committed map"}
+{"id":"161b292b","kind":"ivan","task":"7","queued_at":1794233368,"prompt_bytes":12423}
+{"id":"161b292b","ended_at":1794233454,"elapsed_s":86,"outcome":"ok","detail":"regression fixed, 78 passed"}
+{"id":"fca91bbb","kind":"pat","task":"7","queued_at":1794233481,"prompt_bytes":9868}
+{"id":"fca91bbb","ended_at":1794233498,"elapsed_s":17,"outcome":"ok","detail":"1 LOW (duplicated row builder)"}
+{"id":"cfa3a4ac","kind":"ivan","task":"8","queued_at":1794233511,"prompt_bytes":10587}
+{"id":"cfa3a4ac","ended_at":1794233881,"elapsed_s":370,"outcome":"ok","detail":"gates green; map regenerated at 50c8c2f"}
+{"kind":"handoff","site":"build","edge":"leave","at":1794234589,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794262665,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"258d295c","kind":"bob","task":"review-ap00018-v2-c1","queued_at":1794263296,"prompt_bytes":13540}
+{"id":"258d295c","ended_at":1794263335,"elapsed_s":39,"outcome":"error","detail":"staged prompt superseded before dispatch by policy-readable host transport; no reviewer ran"}
+{"id":"a4cea615","kind":"alice","task":"review-ap00018-v2-c1-anthropic","queued_at":1794263335,"prompt_bytes":7651}
+{"id":"5c4d7d9d","kind":"blake","task":"review-ap00018-v2-c1-anthropic","queued_at":1794263335,"prompt_bytes":20664}
+{"id":"dc67b463","kind":"bob","task":"review-ap00018-v2-c1-anthropic","queued_at":1794263335,"prompt_bytes":15450}
+{"id":"e9fe30c7","kind":"alice","task":"review-ap00018-v2-c1-openai","queued_at":1794263335,"prompt_bytes":7651}
+{"id":"3f712b77","kind":"blake","task":"review-ap00018-v2-c1-openai","queued_at":1794263335,"prompt_bytes":20664}
+{"id":"6eea943d","kind":"bob","task":"review-ap00018-v2-c1-openai","queued_at":1794263335,"prompt_bytes":15450}
+{"id":"e9fe30c7","ended_at":1794263554,"elapsed_s":219,"outcome":"error","detail":"unusable review: transport completed but required inputs remained unread under coordinator prompt restriction"}
+{"id":"3f712b77","ended_at":1794263554,"elapsed_s":219,"outcome":"error","detail":"unusable review: transport completed but required inputs remained unread under coordinator prompt restriction"}
+{"id":"6eea943d","ended_at":1794263554,"elapsed_s":219,"outcome":"error","detail":"unusable review: transport completed but required inputs remained unread under coordinator prompt restriction"}
+{"id":"5c4d7d9d","ended_at":1794263798,"elapsed_s":463,"outcome":"error","detail":"required xhigh effort not applied: observed claude-opus-5.5/medium; helper exit 1; raw evidence retained"}
+{"id":"dc67b463","ended_at":1794263798,"elapsed_s":463,"outcome":"error","detail":"required xhigh effort not applied: observed claude-opus-5.5/medium; helper exit 1; raw evidence retained"}
+{"id":"a4cea615","ended_at":1794263865,"elapsed_s":530,"outcome":"error","detail":"required xhigh effort not applied: observed claude-opus-5.5/medium; helper exit 1; raw evidence retained"}
+{"kind":"handoff","site":"review","edge":"leave","at":1794264855,"phase":"paused","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"leave","at":1794264901,"phase":"paused","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794347194,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"b4943d96","kind":"bob","task":"review-ap00018-c1-20261110","queued_at":1794347310,"prompt_bytes":13410}
+{"id":"66317477","kind":"carl","task":"review-ap00018-c1-20261110","queued_at":1794347310,"prompt_bytes":6636}
+{"id":"b4943d96","ended_at":1794348739,"elapsed_s":1429,"outcome":"ok","detail":null}
+{"id":"66317477","ended_at":1794348742,"elapsed_s":1432,"outcome":"ok","detail":null}
+{"id":"b4943d96","ended_at":1794349423,"elapsed_s":2113,"outcome":"ok","detail":null}
+{"id":"66317477","ended_at":1794349423,"elapsed_s":2113,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1794349508,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794349544,"phase":"build","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"2e0b82ea","kind":"tess","task":"12","queued_at":1794349640,"prompt_bytes":128170}
+{"id":"3a83a931","kind":"tess","task":"12","queued_at":1794349667,"prompt_bytes":93364}
+{"id":"51bf2cd0","kind":"tess","task":"12","queued_at":1794349911,"prompt_bytes":32751}
+{"id":"ab35be38","kind":"ivan","task":"12","queued_at":1794350687,"prompt_bytes":15443}
+{"id":"88e6e2ca","kind":"pat","task":"12","queued_at":1794351659,"prompt_bytes":23355}
+{"id":"bb1fe11e","kind":"pat","task":"13","queued_at":1794352213,"prompt_bytes":19082}
+{"id":"39155b4e","kind":"pat","task":"14","queued_at":1794352887,"prompt_bytes":25543}
+{"id":"a62e3e2a","kind":"pat","task":"15","queued_at":1794353162,"prompt_bytes":8899}
+{"id":"88e6e2ca","ended_at":1794356916,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"bb1fe11e","ended_at":1794356916,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"39155b4e","ended_at":1794356916,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"a62e3e2a","ended_at":1794356916,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"2e0b82ea","ended_at":1794356916,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"3a83a931","ended_at":1794356916,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"51bf2cd0","ended_at":1794356916,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"ab35be38","ended_at":1794356916,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"kind":"handoff","site":"review","edge":"leave","at":1794356916,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794356956,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"d33c717e","kind":"bob","task":"review-ap00018-c2","queued_at":1794357681,"prompt_bytes":36716}
+{"id":"79391de7","kind":"carl","task":"review-ap00018-c2","queued_at":1794357681,"prompt_bytes":30160}
+{"id":"d33c717e","ended_at":1794357865,"elapsed_s":184,"outcome":"error","detail":"exit 1 (codex usage limit)"}
+{"id":"79391de7","ended_at":1794359406,"elapsed_s":1725,"outcome":"ok","detail":"retry"}
+{"id":"d33c717e","ended_at":1794359835,"elapsed_s":2154,"outcome":"ok","detail":null}
+{"id":"79391de7","ended_at":1794359835,"elapsed_s":2154,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1794359964,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794360005,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"9913024d","kind":"ivan","task":"16","queued_at":1794360073,"prompt_bytes":11484}
+{"id":"9913024d","ended_at":1794360406,"elapsed_s":333,"outcome":"ok","detail":null}
+{"id":"926ba02f","kind":"pat","task":"16","queued_at":1794360535,"prompt_bytes":26253}
+{"id":"926ba02f","ended_at":1794360659,"elapsed_s":124,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1794360744,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794360794,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"809f5d33","kind":"tess","task":"18","queued_at":1794361166,"prompt_bytes":59292}
+{"id":"0c77d15c","kind":"tess","task":"18","queued_at":1794361184,"prompt_bytes":27155}
+{"id":"0c77d15c","ended_at":1794361927,"elapsed_s":743,"outcome":"ok","detail":null}
+{"id":"74a6bedf","kind":"devon","task":"18","queued_at":1794362042,"prompt_bytes":4984}
+{"id":"74a6bedf","ended_at":1794362583,"elapsed_s":541,"outcome":"ok","detail":null}
+{"id":"79778775","kind":"tess","task":"18","queued_at":1794362620,"prompt_bytes":22539}
+{"id":"79778775","ended_at":1794363078,"elapsed_s":458,"outcome":"ok","detail":null}
+{"id":"2bda23bf","kind":"ivan","task":"18","queued_at":1794363136,"prompt_bytes":45431}
+{"id":"2bda23bf","ended_at":1794363754,"elapsed_s":618,"outcome":"ok","detail":null}
+{"id":"bdfe3543","kind":"deslop","task":"18","queued_at":1794363903,"prompt_bytes":8652}
+{"id":"bdfe3543","ended_at":1794364057,"elapsed_s":154,"outcome":"ok","detail":null}
+{"id":"e292d162","kind":"pat","task":"18","queued_at":1794364152,"prompt_bytes":61681}
+{"id":"b18a6a2b","kind":"pat","task":"18","queued_at":1794364188,"prompt_bytes":28844}
+{"id":"809f5d33","ended_at":1794364456,"elapsed_s":1920,"outcome":"ok","detail":"closed-by: commit 81fe160a3ee17144740e3e2ea4487cc2d6580980"}
+{"id":"e292d162","ended_at":1794364456,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"b18a6a2b","ended_at":1794364456,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"kind":"handoff","site":"review","edge":"leave","at":1794364456,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794364552,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"17b04200","kind":"tess","task":"17","queued_at":1794365042,"prompt_bytes":33202}
+{"id":"09dd84fb","kind":"tess","task":"17","queued_at":1794365053,"prompt_bytes":56278}
+{"id":"ed6bfdd8","kind":"tess","task":"17","queued_at":1794365079,"prompt_bytes":35501}
+{"id":"ed6bfdd8","ended_at":1794365614,"elapsed_s":535,"outcome":"ok","detail":null}
+{"id":"93337724","kind":"devon","task":"17","queued_at":1794365693,"prompt_bytes":4770}
+{"id":"93337724","ended_at":1794366042,"elapsed_s":349,"outcome":"ok","detail":null}
+{"id":"ffef0a06","kind":"tess","task":"17","queued_at":1794366085,"prompt_bytes":18677}
+{"id":"ffef0a06","ended_at":1794366585,"elapsed_s":500,"outcome":"ok","detail":null}
+{"id":"345dbc57","kind":"ivan","task":"17","queued_at":1794366631,"prompt_bytes":29009}
+{"id":"345dbc57","ended_at":1794367030,"elapsed_s":399,"outcome":"ok","detail":null}
+{"id":"5f8888e3","kind":"deslop","task":"17","queued_at":1794367115,"prompt_bytes":8781}
+{"id":"5f8888e3","ended_at":1794367258,"elapsed_s":143,"outcome":"ok","detail":null}
+{"id":"612fd207","kind":"pat","task":"17","queued_at":1794367334,"prompt_bytes":20077}
+{"id":"ded26ef2","kind":"ivan","task":"17","queued_at":1794367415,"prompt_bytes":11209}
+{"id":"ded26ef2","ended_at":1794367448,"elapsed_s":33,"outcome":"ok","detail":null}
+{"id":"57136307","kind":"pat","task":"17","queued_at":1794367473,"prompt_bytes":3256}
+{"id":"57136307","ended_at":1794367486,"elapsed_s":13,"outcome":"ok","detail":null}
+{"id":"17b04200","ended_at":1794368839,"elapsed_s":1557,"outcome":"ok","detail":"closed-by: commit 1bf7edcbf734b54f67b601e82857de52e534a779"}
+{"id":"09dd84fb","ended_at":1794368839,"elapsed_s":1546,"outcome":"ok","detail":"closed-by: commit 1bf7edcbf734b54f67b601e82857de52e534a779"}
+{"id":"612fd207","ended_at":1794368839,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"kind":"handoff","site":"review","edge":"leave","at":1794368839,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1794368878,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"id":"7f8291fa","kind":"bob","task":"review-ap00018-c3","queued_at":1794369783,"prompt_bytes":59618}
+{"id":"fbfc9a60","kind":"carl","task":"review-ap00018-c3","queued_at":1794369783,"prompt_bytes":52640}
+{"id":"d490eb05","kind":"carl","task":"review-ap00018-c3","queued_at":1794369947,"detail":"retry of fbfc9a60"}
+{"id":"d490eb05","ended_at":1794369949,"elapsed_s":2,"outcome":"error","detail":"retry: exit 4"}
+{"id":"fbfc9a60","ended_at":1794369952,"elapsed_s":169,"outcome":"error","detail":"exit 1"}
+{"id":"7f8291fa","ended_at":1794369956,"elapsed_s":173,"outcome":"error","detail":"exit 1"}
+{"id":"7f8291fa","ended_at":1794371232,"elapsed_s":1449,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1794371309,"phase":"review","prd":"00018-autopilot-controller-kernel-v2.md"}
+{"kind":"handoff","site":"done","edge":"leave","at":1794371361,"phase":"done","prd":""}

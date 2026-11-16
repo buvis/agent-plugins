@@ -63,7 +63,7 @@
       "source_asset_id": "README.md",
       "destination_path": "plugins/autopilot/README.md",
       "source_blob_sha256": "de15bf433269ecd2b2a670ae694d8ab1176831e15c415a9117bc507fbae48b70",
-      "destination_blob_sha256": "60ebfab1f9c0b09f20275c14801797f8a37f03c9dd4aeb19d7e806a687d0ef6d",
+      "destination_blob_sha256": "fde427195a0c1c975c265241c70636588887d4f6a6178be4a3daf7de3ee39804",
       "adaptation_reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
       "disposition": "adapted",
       "planned_disposition": "adapted",
@@ -161,8 +161,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "plugins/autopilot/README.md",
-        "artifact_sha256": "60ebfab1f9c0b09f20275c14801797f8a37f03c9dd4aeb19d7e806a687d0ef6d",
-        "tested_package_revision": "444d733a32c76623a388a0ee64098b4d1eb60757"
+        "artifact_sha256": "fde427195a0c1c975c265241c70636588887d4f6a6178be4a3daf7de3ee39804",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     },
     {
@@ -7233,7 +7233,7 @@
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/CHANGELOG.md",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "a478a34bcea1c2593c8b0d26fd0818b9ae1b4caf5f820637d65c6e85a7a5e7b6",
+      "destination_blob_sha256": "b2c0960d55c2b2c9e7c916b420f1a7f6235b3ae189451c6838e1553c77987e67",
       "adaptation_reason": "Newly authored AP00012 foundation file; no pinned source asset or source sections. Delivery-only evidence records packaged bytes, not runtime or profile certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7252,8 +7252,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "plugins/autopilot/CHANGELOG.md",
-        "artifact_sha256": "a478a34bcea1c2593c8b0d26fd0818b9ae1b4caf5f820637d65c6e85a7a5e7b6",
-        "tested_package_revision": "444d733a32c76623a388a0ee64098b4d1eb60757"
+        "artifact_sha256": "b2c0960d55c2b2c9e7c916b420f1a7f6235b3ae189451c6838e1553c77987e67",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     },
     {
@@ -7719,8 +7719,8 @@
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/contracts/controller/fixtures-v1.json",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "e3c5231ef24f6d293616d6061488b52c3d33e10ce98a09bf3a417064328c1509",
-      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
+      "destination_blob_sha256": "d00b18e3e4ec6c6416252e73ba9996ce9200353348393ca865e1b9cd6f7d49db",
+      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/contracts/controller/fixtures-v1.json has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
       "entry_point_gate": {
@@ -7731,23 +7731,23 @@
       "acceptance_cases": [
         {
           "case_id": "asset-new-contracts/controller/fixtures-v1.json",
-          "expected_outcome": "The packaged controller file exists at the recorded digest; AP00018 delivery evidence is still planned.",
-          "status": "planned"
+          "expected_outcome": "The packaged bytes of plugins/autopilot/contracts/controller/fixtures-v1.json exist at the recorded digest, certified by the AP00018 successor receipt at its package_revision.",
+          "status": "passed"
         }
       ],
       "evidence": {
-        "status": "planned",
-        "artifact_id": null,
-        "artifact_sha256": null,
-        "tested_package_revision": null
+        "status": "passed",
+        "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+        "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/contracts/controller/provenance.json",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "6172dff49c67a3eb1a6fc8056980b814023410aa1eaf5097efcd3ab22fff696c",
-      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
+      "destination_blob_sha256": "e027934a99ecc0d963119165ecac23ecedad2ce4b0fe715cd123f5d055c20551",
+      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/contracts/controller/provenance.json has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
       "entry_point_gate": {
@@ -7758,23 +7758,23 @@
       "acceptance_cases": [
         {
           "case_id": "asset-new-contracts/controller/provenance.json",
-          "expected_outcome": "The packaged controller file exists at the recorded digest; AP00018 delivery evidence is still planned.",
-          "status": "planned"
+          "expected_outcome": "The packaged bytes of plugins/autopilot/contracts/controller/provenance.json exist at the recorded digest, certified by the AP00018 successor receipt at its package_revision.",
+          "status": "passed"
         }
       ],
       "evidence": {
-        "status": "planned",
-        "artifact_id": null,
-        "artifact_sha256": null,
-        "tested_package_revision": null
+        "status": "passed",
+        "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+        "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/contracts/controller/workflow-v1.json",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "9c19410840fb7067fc1cded39d63df050e62a9700e4714f57ab9527d6749c5f4",
-      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
+      "destination_blob_sha256": "22e8385490b9251aad50b057ddb95109bcc1985523b91af1fd9250e16627bb49",
+      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/contracts/controller/workflow-v1.json has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
       "entry_point_gate": {
@@ -7785,15 +7785,15 @@
       "acceptance_cases": [
         {
           "case_id": "asset-new-contracts/controller/workflow-v1.json",
-          "expected_outcome": "The packaged controller file exists at the recorded digest; AP00018 delivery evidence is still planned.",
-          "status": "planned"
+          "expected_outcome": "The packaged bytes of plugins/autopilot/contracts/controller/workflow-v1.json exist at the recorded digest, certified by the AP00018 successor receipt at its package_revision.",
+          "status": "passed"
         }
       ],
       "evidence": {
-        "status": "planned",
-        "artifact_id": null,
-        "artifact_sha256": null,
-        "tested_package_revision": null
+        "status": "passed",
+        "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+        "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     },
     {
@@ -7801,7 +7801,7 @@
       "destination_path": "plugins/autopilot/controller/autopilot_state/__init__.py",
       "source_blob_sha256": null,
       "destination_blob_sha256": "112612bf2e928c2e0310d6556bb13fc28c00db70297b90a8527486cd2562e408",
-      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
+      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/controller/autopilot_state/__init__.py has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
       "entry_point_gate": {
@@ -7812,23 +7812,23 @@
       "acceptance_cases": [
         {
           "case_id": "asset-new-controller/autopilot_state/__init__.py",
-          "expected_outcome": "The packaged controller file exists at the recorded digest; AP00018 delivery evidence is still planned.",
-          "status": "planned"
+          "expected_outcome": "The packaged bytes of plugins/autopilot/controller/autopilot_state/__init__.py exist at the recorded digest, certified by the AP00018 successor receipt at its package_revision.",
+          "status": "passed"
         }
       ],
       "evidence": {
-        "status": "planned",
-        "artifact_id": null,
-        "artifact_sha256": null,
-        "tested_package_revision": null
+        "status": "passed",
+        "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+        "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/actors.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "18d322da4275dff99d7624aa5cd4947201ad28e495184901a6f1ba79baf37e88",
-      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
+      "destination_blob_sha256": "daa15f3cf383a8f758554a8a24b2aa4863d30896f07eb12e503a915be2d06e12",
+      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/controller/autopilot_state/actors.py has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
       "entry_point_gate": {
@@ -7839,15 +7839,15 @@
       "acceptance_cases": [
         {
           "case_id": "asset-new-controller/autopilot_state/actors.py",
-          "expected_outcome": "The packaged controller file exists at the recorded digest; AP00018 delivery evidence is still planned.",
-          "status": "planned"
+          "expected_outcome": "The packaged bytes of plugins/autopilot/controller/autopilot_state/actors.py exist at the recorded digest, certified by the AP00018 successor receipt at its package_revision.",
+          "status": "passed"
         }
       ],
       "evidence": {
-        "status": "planned",
-        "artifact_id": null,
-        "artifact_sha256": null,
-        "tested_package_revision": null
+        "status": "passed",
+        "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+        "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     },
     {
@@ -7855,7 +7855,7 @@
       "destination_path": "plugins/autopilot/controller/autopilot_state/paths.py",
       "source_blob_sha256": null,
       "destination_blob_sha256": "9972c808bc27b0f348f2ea8409fe431222048fa3ece60050944f89fdd6f5b850",
-      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
+      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/controller/autopilot_state/paths.py has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
       "entry_point_gate": {
@@ -7866,23 +7866,23 @@
       "acceptance_cases": [
         {
           "case_id": "asset-new-controller/autopilot_state/paths.py",
-          "expected_outcome": "The packaged controller file exists at the recorded digest; AP00018 delivery evidence is still planned.",
-          "status": "planned"
+          "expected_outcome": "The packaged bytes of plugins/autopilot/controller/autopilot_state/paths.py exist at the recorded digest, certified by the AP00018 successor receipt at its package_revision.",
+          "status": "passed"
         }
       ],
       "evidence": {
-        "status": "planned",
-        "artifact_id": null,
-        "artifact_sha256": null,
-        "tested_package_revision": null
+        "status": "passed",
+        "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+        "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/protocol.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "e25de9959a5519b2fb1bac15ebd2373f6f9a73691f4620153b3f8dc478d0f6a8",
-      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
+      "destination_blob_sha256": "5c0a910aa97e2cc533e364e09af33b1ef2af295bc3ebcfccfa1d30812e267e07",
+      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/controller/autopilot_state/protocol.py has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
       "entry_point_gate": {
@@ -7893,15 +7893,15 @@
       "acceptance_cases": [
         {
           "case_id": "asset-new-controller/autopilot_state/protocol.py",
-          "expected_outcome": "The packaged controller file exists at the recorded digest; AP00018 delivery evidence is still planned.",
-          "status": "planned"
+          "expected_outcome": "The packaged bytes of plugins/autopilot/controller/autopilot_state/protocol.py exist at the recorded digest, certified by the AP00018 successor receipt at its package_revision.",
+          "status": "passed"
         }
       ],
       "evidence": {
-        "status": "planned",
-        "artifact_id": null,
-        "artifact_sha256": null,
-        "tested_package_revision": null
+        "status": "passed",
+        "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+        "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     },
     {
@@ -7909,7 +7909,7 @@
       "destination_path": "plugins/autopilot/controller/autopilot_state/schema.py",
       "source_blob_sha256": null,
       "destination_blob_sha256": "7aaedd121767bdebbbf82e8194c79efac29b3cf3c210fd1de478c763d3ac3a13",
-      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
+      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/controller/autopilot_state/schema.py has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
       "entry_point_gate": {
@@ -7920,23 +7920,23 @@
       "acceptance_cases": [
         {
           "case_id": "asset-new-controller/autopilot_state/schema.py",
-          "expected_outcome": "The packaged controller file exists at the recorded digest; AP00018 delivery evidence is still planned.",
-          "status": "planned"
+          "expected_outcome": "The packaged bytes of plugins/autopilot/controller/autopilot_state/schema.py exist at the recorded digest, certified by the AP00018 successor receipt at its package_revision.",
+          "status": "passed"
         }
       ],
       "evidence": {
-        "status": "planned",
-        "artifact_id": null,
-        "artifact_sha256": null,
-        "tested_package_revision": null
+        "status": "passed",
+        "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+        "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/store.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "93c99fbc8f62b68e700f3d630bd93e7316574d0d13b7dbc9a1b47e8eaf172955",
-      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
+      "destination_blob_sha256": "46851110df30fd5facb9c88eb7e5809f75ab8b9330c82f16ce79b9456998b36e",
+      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/controller/autopilot_state/store.py has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
       "entry_point_gate": {
@@ -7947,15 +7947,15 @@
       "acceptance_cases": [
         {
           "case_id": "asset-new-controller/autopilot_state/store.py",
-          "expected_outcome": "The packaged controller file exists at the recorded digest; AP00018 delivery evidence is still planned.",
-          "status": "planned"
+          "expected_outcome": "The packaged bytes of plugins/autopilot/controller/autopilot_state/store.py exist at the recorded digest, certified by the AP00018 successor receipt at its package_revision.",
+          "status": "passed"
         }
       ],
       "evidence": {
-        "status": "planned",
-        "artifact_id": null,
-        "artifact_sha256": null,
-        "tested_package_revision": null
+        "status": "passed",
+        "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+        "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     },
     {
@@ -7963,7 +7963,7 @@
       "destination_path": "plugins/autopilot/controller/main.py",
       "source_blob_sha256": null,
       "destination_blob_sha256": "42675eb51c2e9353e09b291e88dcf64cc2ca4d77ffb03cbbacea36a053e6272e",
-      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 is on hold: the digest records current packaged bytes, and each later AP00018 task that changes the file refreshes it.",
+      "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/controller/main.py has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
       "entry_point_gate": {
@@ -7974,15 +7974,15 @@
       "acceptance_cases": [
         {
           "case_id": "asset-new-controller/main.py",
-          "expected_outcome": "The packaged controller file exists at the recorded digest; AP00018 delivery evidence is still planned.",
-          "status": "planned"
+          "expected_outcome": "The packaged bytes of plugins/autopilot/controller/main.py exist at the recorded digest, certified by the AP00018 successor receipt at its package_revision.",
+          "status": "passed"
         }
       ],
       "evidence": {
-        "status": "planned",
-        "artifact_id": null,
-        "artifact_sha256": null,
-        "tested_package_revision": null
+        "status": "passed",
+        "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+        "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     },
     {
@@ -8280,6 +8280,60 @@
         "artifact_id": null,
         "artifact_sha256": null,
         "tested_package_revision": null
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/contracts/controller-v1.json",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "a296acb4e7abec880a05cc66f812b61ac5eb7cfa675ca82413507e75f0c9c7f5",
+      "adaptation_reason": "Newly authored AP00018 controller contract bundle; no pinned source asset or source sections. Delivery evidence records packaged bytes, not host certification.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-contracts/controller-v1.json",
+          "expected_outcome": "The packaged controller contract bundle exists at the recorded digest; it certifies no host execution.",
+          "status": "passed"
+        }
+      ],
+      "evidence": {
+        "status": "passed",
+        "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+        "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
+      }
+    },
+    {
+      "source_asset_id": null,
+      "destination_path": "plugins/autopilot/controller/autopilot_state/owner.py",
+      "source_blob_sha256": null,
+      "destination_blob_sha256": "67d5d9274ef17a3802e37b7735f37cb01543f5d96f6da1165b5069924c8e9853",
+      "adaptation_reason": "Newly authored AP00018 controller asset; no pinned source asset or source sections. Delivery evidence records packaged bytes, not host certification.",
+      "disposition": "adapted",
+      "section_plan": [],
+      "entry_point_gate": {
+        "status": "not-applicable",
+        "operation": "none",
+        "entry_point": null
+      },
+      "acceptance_cases": [
+        {
+          "case_id": "asset-new-controller/autopilot_state/owner.py",
+          "expected_outcome": "The packaged AP00018 controller asset exists at the recorded digest; it certifies no host execution.",
+          "status": "passed"
+        }
+      ],
+      "evidence": {
+        "status": "passed",
+        "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
+        "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909",
+        "tested_package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d"
       }
     }
   ],
@@ -284538,6 +284592,32 @@
         {
           "case_id": "authored-plugins/autopilot/compatibility/codex.json",
           "expected_outcome": "The packaged AP00014 host-execution file exists at the recorded digest; its delivery is owned by AP00014."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/contracts/controller-v1.json",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00018",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/contracts/controller-v1.json",
+          "expected_outcome": "The packaged AP00018 controller contract bundle exists at the recorded digest."
+        }
+      ]
+    },
+    {
+      "path": "plugins/autopilot/controller/autopilot_state/owner.py",
+      "source_asset_id": null,
+      "source_blob_sha256": null,
+      "owner_repository": "buvis/agent-plugins",
+      "delivery_prd": "00018",
+      "acceptance_cases": [
+        {
+          "case_id": "authored-plugins/autopilot/controller/autopilot_state/owner.py",
+          "expected_outcome": "The packaged AP00018 controller asset exists at the recorded digest."
         }
       ]
     }

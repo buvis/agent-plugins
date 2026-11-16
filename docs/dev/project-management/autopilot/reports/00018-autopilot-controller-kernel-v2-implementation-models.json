@@ -1,0 +1,475 @@
+{
+  "fingerprint": "be2f6e798135e1b3fc71ccae80262b8cc2fa8f156a132829968577ec72711c13",
+  "snapshot": {
+    "prd": "00018-autopilot-controller-kernel-v2.md",
+    "cycle": 1,
+    "work_start_sha": "dacba71638e04269e9370a1765adf1cd58b57027",
+    "tasks": [
+      {
+        "id": "1",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "aborted"
+          },
+          {
+            "attempt": 2,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "aborted"
+          },
+          {
+            "attempt": 2,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "3",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "aborted"
+          },
+          {
+            "attempt": 2,
+            "actual_model": "gpt-6-astra",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "4",
+        "attempts": [
+          {
+            "attempt": null,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "aborted"
+          },
+          {
+            "attempt": 2,
+            "actual_model": "claude-opus-5-5",
+            "actual_provider": "anthropic",
+            "implementor": "claude",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "5",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "claude-opus-5-5",
+            "actual_provider": "anthropic",
+            "implementor": "claude",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "6",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "claude-opus-5-5",
+            "actual_provider": "anthropic",
+            "implementor": "claude",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "7",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "claude-opus-5-5",
+            "actual_provider": "anthropic",
+            "implementor": "claude",
+            "outcome": "completed"
+          },
+          {
+            "attempt": 2,
+            "actual_model": "claude-opus-5-5",
+            "actual_provider": "anthropic",
+            "implementor": "claude",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "8",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "claude-opus-5-5",
+            "actual_provider": "anthropic",
+            "implementor": "claude",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "9",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "10",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      },
+      {
+        "id": "11",
+        "attempts": [
+          {
+            "attempt": 1,
+            "actual_model": "gpt-6.1-sol",
+            "actual_provider": "openai",
+            "implementor": "codex",
+            "outcome": "completed"
+          }
+        ]
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "task": "1",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task-1-raw-model.jsonl",
+      "line": 2,
+      "sha256": "ec182b092d314dbe99461735958e213d9969dc430663698dd531d676c0979c29"
+    },
+    {
+      "task": "9",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task-9-raw-model.jsonl",
+      "line": 2,
+      "sha256": "77ce7b47652ea7120e89ab0465d5ff18730e319118796fe0c6849879aa9dbc88"
+    },
+    {
+      "task": "1",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task1-raw-model.jsonl",
+      "line": 2,
+      "sha256": "89cff6297a0537f10cb1f7524f9585095e0b783b367fd9e00001264d6c5bbf32"
+    },
+    {
+      "task": "10",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task10-raw-model.jsonl",
+      "line": 2,
+      "sha256": "2947d4960bb4ee3ec6bf68ad9581615f4f68bc52d75d68c145c8cee7b2fa9c35"
+    },
+    {
+      "task": "10",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task10-strengthen-raw-model.jsonl",
+      "line": 2,
+      "sha256": "2d2a98ab7c1257421e844c19e6903d2333d539657ab9638cc6b84fffd59c3af5"
+    },
+    {
+      "task": "11",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task11-ivan-raw-model.jsonl",
+      "line": 2,
+      "sha256": "1d64719e3e624678b353aa6ce67b7190c8a93dd6179cef347782b9a24ddb3c62"
+    },
+    {
+      "task": "11",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task11-strengthen-raw-model.jsonl",
+      "line": 2,
+      "sha256": "2911d7afa3920818d5a4938231f7ca0db8aa15fc5b7018e4bb20c011f236a3c3"
+    },
+    {
+      "task": "11",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task11-tess-raw-model.jsonl",
+      "line": 2,
+      "sha256": "16bb007401a2b1c84aeb718786351f9e6d8bc6ec2fedef1d987b19e870cd4dba"
+    },
+    {
+      "task": "2",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task2-raw-model.jsonl",
+      "line": 2,
+      "sha256": "90071cd5ce9e2bd38e1f18d20a45ab27a149ca9610edc6f8e90f7e489bb17fc9"
+    },
+    {
+      "task": "2",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task2-successor-raw-model.jsonl",
+      "line": 2,
+      "sha256": "c5e0d48f7356654388ce5900e115cc9d1b1aa43fb6acff85dff8a576cdb7cb1b"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task3-cleanup-tess-raw-model.jsonl",
+      "line": 2,
+      "sha256": "632244f0606eeea709ed15fe264c37cee39f1c7a06864f8a7bceb8105b7f9238"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task3-hygiene-raw-model.jsonl",
+      "line": 2,
+      "sha256": "2805f1a4e53f36f2a738352d8626b8cdd3a7f95d339ad0433755d6b6eb0d0c29"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task3-ivan-raw-model.jsonl",
+      "line": 2,
+      "sha256": "1d54df2497408438197b11c4a4998b273a8de2bb1e6e593ca7b06a195fcc20f5"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task3-medium-raw-model.jsonl",
+      "line": 2,
+      "sha256": "43c1c1cffdca0b90bfaa03db075b47eb92ed9b9dc1c377926ff225e9f52b464c"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task3-oracle-raw-model.jsonl",
+      "line": 2,
+      "sha256": "fc445cc92cc7a83cf6bdf65a28d3821ddb3e891d1f23a987b8af0ea886bcd4a3"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task3-retry-raw-model.jsonl",
+      "line": 2,
+      "sha256": "d6f4494434b9d1da8f9834b91045ac014380fc14507aec7ac8bba00a45de68e6"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task3-strengthen-raw-model.jsonl",
+      "line": 2,
+      "sha256": "18a825eca16d7cc2c291a28274657fa6c6e6eb5ec83a8c0178c1663d0e460367"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6-astra",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task3-style-raw-model.jsonl",
+      "line": 2,
+      "sha256": "c81ea6dab77296dfa393fbe508ade8984d66599026faf276446cdc14bfc4698c"
+    },
+    {
+      "task": "3",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task3-tess-raw-model.jsonl",
+      "line": 2,
+      "sha256": "64ee79bfffb44aefc14b92442b9612921661345329f7adacc1bac0d96df54043"
+    },
+    {
+      "task": "4",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task4-quality-raw-model.jsonl",
+      "line": 2,
+      "sha256": "2e78b6ede65e17f7214e2438313a32a26fe527501fadffd04b8d065310a48189"
+    },
+    {
+      "task": "4",
+      "role": "implementation",
+      "model": "gpt-6.1-sol",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-task4-tess-raw-model.jsonl",
+      "line": 2,
+      "sha256": "22054e9b28bb94033f60c5174d0bbf86329ac18a2738bf7711d7390e5dbe3345"
+    },
+    {
+      "task": "8",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-a0ff9d7de5e8e6c3a-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "12f073c51ca156d611ddc258aa297fe4633867b9c144460a525214ceb9b57531"
+    },
+    {
+      "task": "7",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-a2a7aca2946703392-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "01be93eed8d4551af9f4cff44521166bea413e20a748d93ac6a52f82d5bd2f78"
+    },
+    {
+      "task": "5",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-a3f33f9c2066b96b7-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "4455628656dfd8411760df9a9c36e401b46188187c3e3e0676ab2af83794776d"
+    },
+    {
+      "task": "5",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-a51272ec6653b2520-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "bfac3601f04432fe3e2fbbf4639895c6a966813820ea2e388de0efb9a7f72849"
+    },
+    {
+      "task": "7",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-a63ea9035e6869dae-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "4b86dfd22578bc0eb36f16cc2239c348c2dcd75fc33eaf5df5063292b4dcbb23"
+    },
+    {
+      "task": "4",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-a9006136519f30dcf-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "15540e971251cb6b92037df4e0ce177d196b23f1b0c464f7ff30099a83e770bb"
+    },
+    {
+      "task": "8",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-a92ab99a289e2efbe-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "05767206f268d2d2aadbf2cb7f517fb3f79d0273547aa7e6a08f74b4b83c7b45"
+    },
+    {
+      "task": "7",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-aa196aaeee7a1c496-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "b7800031425db40d25ea10540ace7d6434625d171b3566950645539e3b1a8019"
+    },
+    {
+      "task": "7",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-aa965999110294bec-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "5b5a82d4a0c80c25f619c9553104c502a9debdc4718bcfa4a4eb7aa76e601749"
+    },
+    {
+      "task": "5",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-ac6db72dc7b1152fe-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "9bf86d664cc081e6dd07e5445761c18ac21b79874ce2d7fbdf5fc26d548d9903"
+    },
+    {
+      "task": "7",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-acf96276dc5045532-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "5078b13a281e1a69f6a49094689e50ab1ec74e878696c368bf5554dcecb15e63"
+    },
+    {
+      "task": "6",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-ad2f89ba1fb7168c2-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "ba34e8a46220a351f2a213ce4b2ac2ff217c0cbc384a0c8d533901dd54a89090"
+    },
+    {
+      "task": "5",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-ad36c58d7624676fe-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "6b98ace6a04e07e617648ff8313346e0a410debafe98e17d51489f45460161a9"
+    },
+    {
+      "task": "6",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-aea624f8203c28351-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "eb6792572fafe93655689c8a3ede1f2c10eef845a034a9fb9f514dba92fc8e61"
+    },
+    {
+      "task": "7",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-af33a73d017a44ace-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "7d8c6fd6b5676a381960379bf94c8921308d12b34370e5da88c8b647f795066b"
+    },
+    {
+      "task": "4",
+      "role": "implementation",
+      "model": "claude-opus-5-5",
+      "path": "docs/dev/project-management/autopilot/reports/00018-v2-claude-agent-af87d2de08080ea47-raw-provenance.jsonl",
+      "line": 2,
+      "sha256": "98d4b7914fb90ae442d5449ab8e7ef1f2638e398866790e418e9273c985cffee"
+    }
+  ]
+}

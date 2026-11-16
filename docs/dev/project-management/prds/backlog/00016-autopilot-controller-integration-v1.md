@@ -2,6 +2,7 @@
 default_model: opus
 model_tier_rationale: Session identity, fresh-review boundaries and installed artifact equivalence require judgment.
 lane: full
+rework_cap: 3
 eligibility: ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output
 ---
 # Autopilot skills and standalone controller integration

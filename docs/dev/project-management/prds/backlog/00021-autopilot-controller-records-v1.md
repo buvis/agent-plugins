@@ -2,6 +2,7 @@
 default_model: opus
 model_tier_rationale: Extraction equivalence, public contracts and concurrent workflow authority require judgment.
 lane: full
+rework_cap: 3
 eligibility: ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output
 ---
 # Autopilot controller record commits and extraction conformance
@@ -52,6 +53,11 @@ plugins/autopilot/contracts/controller/workflow-v1.json
 plugins/autopilot/contracts/controller/fixtures-v1.json
 plugins/autopilot/contracts/controller/provenance.json
 plugins/autopilot/contracts/controller-conformance-v1.json
+plugins/autopilot/contracts/controller-v1.json
+tools/autopilot/export-controller-contract.py
+tools/autopilot/update_helper_map.py
+tests/autopilot/test_package.py
+tests/autopilot/test_helper_provenance_real.py
 tools/autopilot/controller-conformance.py
 tools/autopilot/source-inventory.json
 tools/autopilot/source-map.json

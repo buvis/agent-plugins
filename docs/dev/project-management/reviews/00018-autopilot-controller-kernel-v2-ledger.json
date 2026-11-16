@@ -1,0 +1,546 @@
+[
+  {
+    "cycle": 1,
+    "disposition": "settled-deferral",
+    "severity": "high",
+    "issue": "The kernel implements only 4 of the ~26 closed operations: `workflow.open` and `owner.acquire/release/recover`. The rest return `missing_capability`. `schema.validate_state` forces `workflow == _WORKFLOW`, so tasks, jobs and review stay frozen at initial values, and no source workflow field is carried by the kernel. Job claim, record_exit and job-credential fencing are absent. The PRD allows later families to stay \"declared but unavailable\", but it also asks for \"epoch-fenced job/operator credentials\" and an extracted workflow kernel. Source-outcome equivalence therefore covers only the store, locking and identity layer, not workflow-state behavior.",
+    "file": "plugins/autopilot/controller/autopilot_state/schema.py:253",
+    "reason": "Requirements ambiguity, not a defect: the PRD explicitly permits later operation families to stay declared-but-unavailable, and Blake himself records that the finding only stands if that wording is read narrowly. Implementing the remaining ~22 operations is a successor PRD, not cycle-1 rework. Deferred to batch end as the scope decision it is."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "Three frozen invalid-request fixture cases return a different error at runtime (null-existing-actor gives wrong_binding, bootstrap-nonzero-revision gives retryable revision_conflict, bootstrap-acquire gives missing_capability on an absent store and wrong_binding on an existing one, fixtures say invalid_request) because parse_request lacks the schema's null-binding rules, and no test applies fixture cases through the controller (test_contract_examples checks jsonschema only)",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:74",
+    "reason": "single-voice (EVE only, [1/5]); probed but unseconded. The same contract-vs-runtime family is being fixed this cycle through R7, whose fix re-exports the bundle and fixtures; re-raise is warranted only if it survives that."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "A pending owner intent with a damaged embedded request makes any caller's valid apply fail with invalid_request or incompatible_contract instead of recovery_required: owner.validate_intent lets the ProtocolError from protocol.parse_request (and from actor_binding at line 120) escape the StateError mapping",
+    "file": "plugins/autopilot/controller/autopilot_state/owner.py:99",
+    "reason": "single-voice (EVE only, [1/5]). Probed and credible, but unseconded, and the snapshot path already reports recovery_required correctly, so the blast radius is one error code on a tampered-state path."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "Ten controller rows in tools/autopilot/source-map.json contradict themselves (evidence.status passed beside acceptance case status planned, \"delivery evidence is still planned\" and \"AP00018 is on hold\") because apply_successor refreshes only digest and evidence for existing rows, and test_helper_provenance_successor.py pins that",
+    "file": "tools/autopilot/update_helper_map.py:606",
+    "reason": "single-voice (EVE only, [1/5]). Generated-map staleness; the R1 generator fix touches the same function, so a re-raise next cycle is the right trigger rather than a parallel task."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "An authenticated existing workflow.open mutation skips staging admission: with 70 retained publication temporaries owner.acquire refuses but a new-request-id open still commits a revision, so the 64-file and 16 MiB bound and the unsafe-artifact refusal are not enforced in existing_open",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:153",
+    "reason": "single-voice (EVE only, [1/5]). Overlaps R5 (BOB, HIGH), which is being fixed this cycle and budgets publication allocations; if R5's fix does not cover existing_open the re-raise is legitimate."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The test isolation guard cannot see the controller's own I/O: it resolves audit open paths against cwd, so every dir_fd-relative open passes (a dir_fd walk reads the checkout's plugin.json under the guard), leaving \"checkout inaccessible\" proven for imports only, and the guard self-test probes only an absolute open",
+    "file": "tests/autopilot/test_controller_export.py:68",
+    "reason": "single-voice (EVE only, [1/5]). Test-harness strength, not product behavior; R22 (the related scaffolding finding) is being fixed this cycle."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "owner.finish_intent re-validates an intent that both callers validated one step earlier (prepare at line 80 and actors.read_intent), re-serializing a state of up to 14 MiB several more times per operation",
+    "file": "plugins/autopilot/controller/autopilot_state/owner.py:185",
+    "reason": "single-voice (EVE only, [1/5]). A redundant-validation performance point on a path with no measured budget; dropping a validation call is the kind of change that needs a second voice before it ships."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "README prose heuristics in the export tests (heading parser and NEGATION regex) fail on any harmless \"not\" near the installed argv and pin wording instead of contract",
+    "file": "tests/autopilot/test_controller_export.py:49",
+    "reason": "single-voice (EVE only, [1/5]). Test brittleness in prose assertions; no current failure, and the digest pin it sits beside is the load-bearing assertion."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "7 touched test(s) pass against the pre-change code: test_initialization_refuses_nonzero_revision_without_creating_state_or_backup, test_positive_stale_revisions_reject_transactions_and_restore_without_side_effects, test_real_process_cas_allows_exactly_one_writer_for_the_same_revision, test_restore_requires_backup_without_creating_or_changing_artifacts, test_security_identical_restore_advances_current_revision_and_preserves_security, test_store_refuses_aliased_state_backup_and_lock_artifacts +1 more",
+    "file": "tests/autopilot/test_controller_kernel.py",
+    "reason": "contradicts computed facts in intent, not value: the replay fact is correct, but these tests characterize the store that landed in v1 tasks 1-6, where no behavior change was intended, so passing at base is the designed outcome. EVE's KNOWN bucket justifies it independently. single-voice ([1/5], mech-check only)."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "8 touched test(s) pass against the pre-change code: test_kernel_accepts_independent_states_beyond_frozen_examples, test_kernel_actor_registry_rejects_three_valid_descriptors, test_kernel_owner_rejects_process_identity, test_kernel_review_cap_remains_two, test_kernel_revision_rejects_noninteger_text, test_kernel_revisions_and_epochs_reject_negative_values +2 more",
+    "file": "tests/autopilot/test_controller_recovery_characterization.py",
+    "reason": "PRD-ordered schema characterization of v1 code: passing at base is the point of a characterization test. EVE's KNOWN bucket says the same. single-voice ([1/5], mech-check only). The separate tautological-assert concern in this file is R30."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "1 touched test(s) pass against the pre-change code: test_unrelated_arrays_and_original_owners_stay_byte_semantic",
+    "file": "tests/autopilot/test_helper_provenance_real.py",
+    "reason": "frozen-hash guard asserting unrelated map rows stay unchanged: passing before and after is its purpose. EVE's KNOWN bucket concurs. single-voice ([1/5], mech-check only)."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "1 touched test(s) pass against the pre-change code: test_without_a_successor_receipt_the_generator_behaves_as_today",
+    "file": "tests/autopilot/test_helper_provenance_successor.py",
+    "reason": "a no-successor regression guard: passing at base is its contract. EVE's KNOWN bucket concurs. single-voice ([1/5], mech-check only)."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "`assertTrue(tree(private_path(self.root)) == before, ...)` throws away the diff on failure. Use `assertEqual`.",
+    "file": "tests/autopilot/test_controller_owner.py:139",
+    "reason": "single-voice (ALICE only, [1/5]) and Low: a diagnostic-quality nit in a passing test."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The diff range also carries unrelated documents: the engram PRD 00067, intake ideas 00065 and 00066, `plans/specflow-release-fast-path.md`, and a 497-line `meta/assumptions.md` change. None belongs to AP00018. They look like range pollution rather than implementation scope creep, and no code is affected.",
+    "file": "N/A",
+    "reason": "single-voice (ALICE only, [1/5]) and not a product defect: it describes the review range, which this cycle's review file already records and scopes explicitly in its Cycle notes. Nothing to fix in the implementation."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The workflow-v1.json `unavailable_capabilities` list declares IDs the PRD never names: `workflow.policy.v1`, `workflow.lifecycle.v1`, `workflow.tasks.v1`, `workflow.custody.v1` and `workflow.verification.v1`. The PRD names only core, jobs, reviews, records and optional waves. These are not advertised, so the impact is low.",
+    "file": "plugins/autopilot/contracts/controller/workflow-v1.json:836",
+    "reason": "single-voice (BLAKE only, [1/5]) and he records the impact as low himself: the IDs are not advertised. Touching the schema would re-trigger the pinned digest chain for no behavioral gain."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "store.py uses an absolute import (`from autopilot_state import schema`) while the sibling modules use relative imports. It works only because main.py's directory is on `sys.path`.",
+    "file": "plugins/autopilot/controller/autopilot_state/store.py:43",
+    "reason": "single-voice (BLAKE only, [1/5]). store.py carries MIT attribution to the pinned OVCAQ source; gratuitously restyling its imports widens the divergence surface the provenance record has to justify."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "A failure after state publication reports a stale revision: apply_locked captures revision before the mutation, so when owner cleanup fails after _transaction_locked the response says recovery_required with revision N while durable state is N+1, and revision_hint only patches 0",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:166",
+    "reason": "single-voice (EVE only, [1/5]) and Low: she probed that the retry completes, so the stale hint costs one extra round trip and loses no durability."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "controller_without_upper_layers exercise_install runs only contract, fresh open and snapshot from the relocated install; owner.acquire, owner.release and owner.recover never run there",
+    "file": "tests/autopilot/test_controller_export.py:462",
+    "reason": "single-voice (EVE only, [1/5]). Coverage breadth in the relocation test; the owner operations are covered by their own test files against a normal install."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "recover_matching accepts recovery_required after an intact crash and returns, so the PRD-named owner recovery test cannot fail if forward recovery regresses",
+    "file": "tests/autopilot/test_controller_owner_recovery.py:66",
+    "reason": "single-voice (EVE only, [1/5]). She records that the owner_v2 file is strict, so the behavior is pinned elsewhere; the permissive branch weakens one file, it does not leave the behavior unpinned."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Characterization tests assert fixtures against literals: expected_error is compared to the constant \"invalid_request\" and contract_examples rejection is proven only with jsonschema, never with protocol.parse_request, while a state.json with an unowned field would yield recovery_required at the CLI",
+    "file": "tests/autopilot/test_controller_recovery_characterization.py:57",
+    "reason": "single-voice (EVE only, [1/5]). Overlaps the fixture-vs-runtime family routed through R7's fix this cycle; a re-raise after that lands would be the signal to act."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Only README and CHANGELOG are verified against the successor package_revision with git show; the 12 controller paths the successor certifies are checked against current bytes only in test_controller_assets_digest_current_bytes_and_cite_the_successor",
+    "file": "tests/autopilot/test_helper_provenance_real.py:416",
+    "reason": "single-voice (EVE only, [1/5]) as a separate row, but its substance is the same gap R39 (BOB, HIGH) raises and this cycle fixes; keeping a duplicate Low task would double the work."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The autopilot README recovery text is wrong in three places: \"The next mutation then refuses.\" is unconditional though mutations succeed below the limits, the orphan procedure (line 425) does not say that stage and rollback files named by a pending credential-intent.json are not orphans, and \"with its original credential\" (line 432) contradicts rotated-operator recovery and omits that the request can be read from the intent file",
+    "file": "plugins/autopilot/README.md:414",
+    "reason": "single-voice (EVE only, [1/5]). Documentation wording; editing the README re-triggers the pinned digest, receipt and map chain, and R3's fix in that same chain is already queued this cycle."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The owner operations feature (feat commit f7cf82c) is logged under Fixed in the autopilot CHANGELOG; no Added entry says owner.acquire, owner.release and owner.recover exist and are advertised by --json contract",
+    "file": "plugins/autopilot/CHANGELOG.md:39",
+    "reason": "single-voice (EVE only, [1/5]). A changelog category placement; the entry exists and is accurate in substance."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Unreachable branch in test_retained_historical_final_credentials_do_not_consume_staging_file_budget re-creates an owner credential if revocation removed it, which test_controller_owner.py line 44 asserts never happens",
+    "file": "tests/autopilot/test_controller_staging_limits.py:549",
+    "reason": "single-voice (EVE only, [1/5]). Dead defensive branch inside a test; harmless and not worth a rework pass on its own."
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Fixture scenario oversized-response expects invalid_request, but every size refusal read in the code maps to recovery_required (actors.admit, schema._receipts, the protocol.apply_locked error mapping) and no CLI path can build a 65 KiB response; unprobed, needs the named unit check before aligning one side",
+    "file": "plugins/autopilot/contracts/controller/fixtures-v1.json:2230",
+    "reason": "single-voice (EVE only, [1/5]) and explicitly unprobed, by her own words. It was her VERIFY item; its named check is a multi-step Python probe rather than one runnable project command, so it was not queued, and an unprobed fixture-vs-runtime guess is not a basis for changing a pinned contract."
+  },
+  {
+    "cycle": 2,
+    "disposition": "settled-deferral",
+    "severity": "medium",
+    "issue": "Only 4 of the spec's closed operations are implemented (workflow.open and owner.acquire/release/recover). The contract lists one capability, workflow.core.v1. The spec names workflow.jobs.v1, workflow.reviews.v1 and workflow.records.v1 as capability IDs. They are declared only under x-controller.unavailable_capabilities, and the workflow state schema forces tasks and jobs to be empty.",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:45",
+    "reason": "Already settled at cycle 1 as a scope decision (same finding, then cited at schema.py:253): the PRD permits later operation families to stay declared-but-unavailable, so implementing the remaining operations is a successor PRD. Re-raised with no new evidence, so the cycle-1 reason still holds."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "--request and --actor-file paths are opened with O_NOFOLLOW on every ancestor. A request file under a symlinked ancestor, such as macOS /var/folders or /tmp, returns the generic invalid_request or wrong_binding.",
+    "file": "plugins/autopilot/controller/autopilot_state/actors.py:80",
+    "reason": "single-voice (BLAKE only, [1/5]). Blake records the behaviour as strict and defensible for containment; the complaint is the error message and a missing doc line, and no second voice seconded it."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The budget-exhausted test hedges on the error code (assertIsNotNone(result[\"error_code\"])), so any refusal passes, and its seeded count is off by one against its own recorded intent.",
+    "file": "tests/autopilot/test_controller_owner_recovery_staging_budget.py:61",
+    "reason": "duplicate of R8 this cycle (same test file, same hedged assertion), which is classified fix and carries the stronger 2/5 consensus. Folding avoids two tasks on one test."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "test_accepts_reconciled_job_ids_with_multiple_entries has no assertion: it only proves the code does not raise",
+    "file": "tests/autopilot/test_controller_kernel_recover_jobs.py:21",
+    "reason": "duplicate of R2 this cycle, which covers all three assertion-free tests plus the file-level fail-first replay and is classified fix at 3/5 consensus."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "verify_listed_paths_match_revision fails open: any git rev-parse failure (no repo, dubious ownership, broken GIT_DIR) silently skips the integrity check, and an unresolvable revision is reported as stale bytes.",
+    "file": "tools/autopilot/update_helper_map.py:588",
+    "reason": "duplicate of R17 this cycle (same function, different line cited), which is classified fix. Consolidation did not merge the three citations of this one defect; R17 carries it."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "[MECH] 9 tests pass at base.",
+    "file": "tests/autopilot/test_controller_actors.py",
+    "reason": "single-voice ([1/5], EVE plus mech-check) and by design: the PRD declares this file and the credential_descriptor functions it pins are unchanged, so added coverage passing at base is the intended outcome. Eve's own KNOWN bucket says the same."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "[MECH] 3 tests pass at base.",
+    "file": "tests/autopilot/test_controller_export.py",
+    "reason": "single-voice ([1/5], EVE plus mech-check). One is a pure rename, one pins the pre-existing checked() limit, and the new st_size guard changes no exit code so no CLI test can observe it. The observability gap itself is R7, classified fix."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "[MECH] 1 test passes at base.",
+    "file": "tests/autopilot/test_controller_owner_recovery_staging_budget.py",
+    "reason": "single-voice ([1/5], EVE plus mech-check) and by design: it is the positive control beside the refusal test, and under-budget reconciliation worked before the change."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "[MECH] 1 test passes at base.",
+    "file": "tests/autopilot/test_helper_provenance_successor.py",
+    "reason": "single-voice ([1/5], EVE plus mech-check) and by design: positive control for the stale-receipt refusal, which does fail at base."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "verify_listed_paths_match_revision fails open. Outside a git work tree, or with git unavailable (an uncaught FileNotFoundError from subprocess.run), it either skips the check or crashes without a message.",
+    "file": "tools/autopilot/update_helper_map.py:1523",
+    "reason": "duplicate of R17 this cycle (same function), which is classified fix; the uncaught FileNotFoundError detail is folded into that task."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The unavailable-capability list invents IDs beyond the spec's set: workflow.policy.v1, lifecycle, tasks, custody, verification. Minor extra surface, not harmful.",
+    "file": "plugins/autopilot/contracts/controller/workflow-v1.json:811",
+    "reason": "already discarded at cycle 1 as the same finding at line 836, and the cycle-1 reason stands: the IDs are not advertised, and touching the schema re-triggers the pinned digest chain for no behavioural gain."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The README intro still says \"Only the two local facade operations documented at the end are current\". The controller CLI and its four operations are now also current.",
+    "file": "plugins/autopilot/README.md:3",
+    "reason": "single-voice (BLAKE only, [1/5]) and Low. Editing the README re-triggers the pinned digest, receipt and map chain, and R21 (classified fix) already rewrites the README's behaviour text in that same chain, so this wording rides along or stays a nit."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Several acceptance scenario names from the PRD do not appear as test names: lease_exclusion, wrong_actor, epoch_revoked, fresh_open_replay, kernel_equivalence, concurrent_cas, corrupt_state_recovery and unsupported_operation_refused.",
+    "file": "tests/autopilot/test_controller_owner.py:176",
+    "reason": "duplicate of R4 this cycle, which is the same traceability gap at 3/5 consensus and is classified fix."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The lock wait is an unbounded blocking flock. The README says callers must bound execution time, which matches the spec's bound-time-in-clients. No server-side timeout exists.",
+    "file": "plugins/autopilot/controller/autopilot_state/store.py:234",
+    "reason": "single-voice (BLAKE only, [1/5]) and not a defect: Blake records that it matches the spec, which puts the time bound in clients, and the README documents it."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "store.restore and _restore_locked are retained from the source but are not exposed through the CLI, matching no-generic-restore-CLI. They are dead code for the public surface.",
+    "file": "plugins/autopilot/controller/autopilot_state/store.py:181",
+    "reason": "single-voice (BLAKE only, [1/5]) and deliberate: store.py is retained from the pinned OVCAQ source under its provenance record, which justifies retained symbols; deleting them widens the divergence the record has to explain."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "OWNER_OPERATIONS is a mutable set now read cross-module as a dispatch gate; the new test patches it with a frozenset",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:17",
+    "reason": "single-voice (BOB only, [1/5]) and Low. The structural half of this concern is R40, also discarded; no caller mutates the set, so the risk is theoretical."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "R9's traceability half is unresolved: the declared file now exists, but exactly the same 8 PRD acceptance scenarios appear nowhere by name",
+    "file": "N/A",
+    "reason": "duplicate of R4 this cycle (same gap, file-anchored there) and classified fix in that row."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The cycle-2 review context Test gate block reads \"Tests: 0 passed, 0 failed, 0 skipped (suite run this cycle)\" while the dispatch records 1572 passed at the same head; a reader of the review artifact alone cannot tell the suite ran",
+    "file": "docs/dev/tmp/review-context-ap00018-c2.md:587",
+    "reason": "already addressed in this cycle's own review file: the gate wrapper's count parser was fixed, autopilot verify re-run at HEAD, and the review file records the real counts (1571/1/0), the command, the sha and the cause. Nothing left to fix in the implementation."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "No Unreleased entry records this cycle's published-contract change (workflow-v1.json dropping maxItems 0, and the resulting schema_digest/fixture_digest change), and the existing staging entry describes the refusal inaccurately",
+    "file": "plugins/autopilot/CHANGELOG.md:36",
+    "reason": "folded into R21 this cycle, which is classified fix and whose task covers both the README behaviour text and the CHANGELOG entry for the R5/R7 changes."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "test_reconciliation_succeeds_well_under_the_staging_budget passes against the pre-change code",
+    "file": "tests/autopilot/test_controller_owner_recovery_staging_budget.py:68",
+    "reason": "single-voice ([1/5], BOB plus mech-check) and by design: positive control beside the refusal test. Same substance as R24."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "test_successor_is_accepted_when_listed_files_match_its_revision passes against the pre-change code",
+    "file": "tests/autopilot/test_helper_provenance_successor.py:505",
+    "reason": "single-voice ([1/5], BOB plus mech-check) and by design: positive control beside the stale-receipt refusal, which fails at base. Same substance as R25."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The new receipt pin turns any later edit of a listed path into a red suite until package_revision is re-pinned, including a dirty work tree and a CI merge commit",
+    "file": "tools/autopilot/update_helper_map.py:581",
+    "reason": "single-voice (BOB only, [1/5]) and not a defect: that signal is exactly what prior R39 asked for. Bob files it in his own KNOWN bucket. The cost is one re-pin per controller change."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "R2's fix adds a fifth function-local import to the actors/owner/protocol cycle instead of one shared home, and its test pins the lookup mechanism by monkeypatching three module globals",
+    "file": "plugins/autopilot/controller/autopilot_state/actors.py:412",
+    "reason": "single-voice (EVE only, [1/5]) and Low. The drift R2 asked to remove is gone; relocating OWNER_OPERATIONS and deleting the dispatch test is a structural preference that would itself need a second voice before it ships."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The divergence test passes if any entry mentions any of four keywords, with two redundant precondition asserts",
+    "file": "tests/autopilot/test_provenance_staging_divergence.py:17",
+    "reason": "single-voice (EVE only, [1/5]) and superseded: R1 (fix) rewrites the provenance record and its pin test, so this file's assertions are rebuilt by that task rather than patched separately."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "After the flip, fixture recover-nonempty-jobs is valid true with reason not supported, and no scenario freezes rejected_evidence for nonempty reconciled_job_ids",
+    "file": "plugins/autopilot/contracts/controller/fixtures-v1.json:462",
+    "reason": "duplicate of R36 this cycle (same fixture, same missing scenario), which is classified fix."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "finish_intent admits with an empty proposal, so each crash during reconciliation can still add one state-sized temporary above the ceiling before the next attempt refuses",
+    "file": "plugins/autopilot/controller/autopilot_state/owner.py:197",
+    "reason": "single-voice (EVE only, [1/5]) and a documented trade-off in her own KNOWN bucket: counting the state as proposed bytes refused ordinary near-ceiling publishes, which is why the first attempt was reverted."
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Rework tasks 13-15 had no independent test writer and tasks 12-15 no patch review (failed:runner_auth four times), against the PRD's do-not-omit-test/review-roles",
+    "file": "docs/dev/project-management/meta/assumptions.md:171",
+    "reason": "single-voice (EVE only, [1/5]) and not fixable after the fact: the passes are done. This PRD-level review cycle is the compensating control, and its consequences are raised as separate findings that are being fixed."
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The state-lock retry is an unrecorded divergence from the pinned StateStore: _open_lock now retries FileNotFoundError up to LOCK_OPEN_ATTEMPTS times and deliberate_divergences has no entry for it.",
+    "file": "plugins/autopilot/controller/autopilot_state/store.py:268",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The exporter hard-codes OPERATIONS and CAPABILITIES as a literal copy of protocol.py's lists. It never imports them, so drift is caught only by tests.",
+    "file": "tools/autopilot/export-controller-contract.py:32",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "A fresh-open replay returns the stored response without credential authentication, exposing workflow_id, actor_id and the credential path.",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:141",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "test_refreshed_listed_rows_drop_planned_pending_and_on_hold_prose asserts no claim word anywhere in a refreshed row, a rule the generator does not implement.",
+    "file": "tests/autopilot/test_helper_map_refresh_agreement.py:181",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "_open_lock retries the create-if-absent open up to 16 times with no yield or backoff, so under heavier contention the transient ENOENT can still escape.",
+    "file": "plugins/autopilot/controller/autopilot_state/store.py:253",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "Bootstrap reconciliation is refused under orphan pressure even when it publishes nothing, while the owner path admits the same case; README:416-418 and CHANGELOG:46 describe the owner path incorrectly.",
+    "file": "plugins/autopilot/controller/autopilot_state/actors.py:431",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Two new runtime tests re-test behaviour already pinned in test_controller_owner.py and test_controller_owner_v2.py, and both pass at base.",
+    "file": "tests/autopilot/test_controller_kernel_recover_jobs.py:55",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Anti-exploit scaffolding in the three new test files pins wording and document shape rather than contract, so any honest provenance or fixture edit breaks them.",
+    "file": "tests/autopilot/test_helper_map_refresh_agreement.py:52",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Fix commit e1ca894 (refuse an unreadable listed path) shipped without a test.",
+    "file": "tools/autopilot/helper_map_successor.py:65",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "Prior R8's repeated-crashes half is still untested: the test named for it replays apply twice while refused, which cannot crash.",
+    "file": "tests/autopilot/test_controller_owner_recovery_staging_budget.py:88",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "[MECH] 1 touched test passes against the pre-change code: test_owner_recover_refuses_nonempty_job_evidence_and_admits_an_empty_list",
+    "file": "tests/autopilot/test_controller_contract_agreement.py",
+    "reason": "single-voice, and Eve's KNOWN bucket explains each as by design: the behaviour landed before this incremental base and the touched test pins it after the fact, or it is a positive control beside a refusal test that does fail at base"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "[MECH] 1 touched test passes against the pre-change code: test_controller_bundle_reproducible_check_rejects_an_oversized_committed_bundle",
+    "file": "tests/autopilot/test_controller_export.py",
+    "reason": "single-voice, and Eve's KNOWN bucket explains each as by design: the behaviour landed before this incremental base and the touched test pins it after the fact, or it is a positive control beside a refusal test that does fail at base"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "[MECH] 4 touched tests pass against the pre-change code: test_accepts_reconciled_job_ids_with_a_single_entry, test_accepts_reconciled_job_ids_with_multiple_entries, test_rejects_duplicate_reconciled_job_ids, test_controller_refuses_nonempty_reconciled_job_ids_with_rejected_evidence",
+    "file": "tests/autopilot/test_controller_kernel_recover_jobs.py",
+    "reason": "single-voice, and Eve's KNOWN bucket explains each as by design: the behaviour landed before this incremental base and the touched test pins it after the fact, or it is a positive control beside a refusal test that does fail at base"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "[MECH] 3 touched tests pass against the pre-change code: test_refuses_reconciliation_once_the_staging_budget_is_exhausted, test_refuses_reconciliation_once_the_staging_byte_ceiling_is_exceeded, test_repeated_crashes_stay_refused_while_exhausted_and_finish_once_freed",
+    "file": "tests/autopilot/test_controller_owner_recovery_staging_budget.py",
+    "reason": "single-voice, and Eve's KNOWN bucket explains each as by design: the behaviour landed before this incremental base and the touched test pins it after the fact, or it is a positive control beside a refusal test that does fail at base"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "[MECH] 5 touched tests pass against the pre-change code: test_bootstrap_reconciliation_publishes_revision_zero_without_owned_orphans, test_existing_open_still_publishes_with_large_orphans_under_both_budgets, test_existing_open_without_owned_orphans_advances_the_revision_by_one, test_near_miss_artifact_names_never_consume_the_existing_open_budget, test_a_corrupt_state_lock_sidecar_is_an_io_error_not_a_lost_race",
+    "file": "tests/autopilot/test_controller_staging_admission.py",
+    "reason": "single-voice, and Eve's KNOWN bucket explains each as by design: the behaviour landed before this incremental base and the touched test pins it after the fact, or it is a positive control beside a refusal test that does fail at base"
+  },
+  {
+    "cycle": 3,
+    "disposition": "settled-deferral",
+    "severity": "medium",
+    "issue": "R6 (CI proof) is still unproven at the reworked head: fetch-depth: 0 is on the autopilot job but no CI run exists at or after this head and master is 47 commits ahead of origin, because loop mode defers pushes.",
+    "file": ".github/workflows/validate.yml:63",
+    "reason": "already a settled deferral from cycle 2 (state.deferred_decisions); it cannot be closed from inside an unattended session, and its check is unqueueable because it needs a git push first"
+  }
+]

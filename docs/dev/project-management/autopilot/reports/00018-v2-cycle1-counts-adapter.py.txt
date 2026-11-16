@@ -1,0 +1,17 @@
+"""Translate pytest's measured outcome counts for the installed gate reader."""
+import sys
+import pytest
+
+
+class Summary:
+    def pytest_terminal_summary(self, terminalreporter, exitstatus, config):
+        stats = terminalreporter.stats
+        passed = len(stats.get('passed', []))
+        failed = len(stats.get('failed', [])) + len(stats.get('error', []))
+        skipped = sum(len(stats.get(key, [])) for key in ('skipped', 'xfailed', 'xpassed'))
+        terminalreporter.write_line(
+            f'PASS {passed} FAIL {failed} SKIP {skipped} EXIT {int(exitstatus)}'
+        )
+
+
+raise SystemExit(pytest.main(sys.argv[1:] or ['tests/autopilot', '-q', '--tb=line'], plugins=[Summary()]))

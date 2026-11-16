@@ -1,0 +1,24 @@
+[
+  {
+    "source": "fable",
+    "finding": "R6's CI fix is unproven at the reworked head: master is 23 commits ahead of origin, so the autopilot job has never run with fetch-depth: 0",
+    "file": ".github/workflows/validate.yml:63",
+    "command": "gh run list --workflow validate.yml --branch master --limit 1 --json databaseId,headSha,conclusion",
+    "result": {
+      "exit": 0,
+      "output": "[{\"conclusion\":\"failure\",\"databaseId\":42710174255,\"headSha\":\"1b588a7f635609aa1f7d289ca4faa3928439a0f5\"}]",
+      "note": "The check ran and the finding STANDS. The newest validate.yml run on master is at 1b588a7 (conclusion failure), not at the reworked head 98a5933. master is now 43 commits ahead of origin/master, not 23, because loop mode defers pushes; no CI run can exist at this head until those commits are pushed. The fetch-depth: 0 fix is therefore still unproven by a real run. This cannot be closed from inside an unattended session and is carried to the cycle-3 review."
+    }
+  },
+  {
+    "source": "codex",
+    "finding": "R6 is unproven at the reworked head; require a successful autopilot job at the pushed head sha",
+    "file": ".github/workflows/validate.yml:63",
+    "command": "gh run list --branch master --limit 1 --json headSha,conclusion,databaseId",
+    "result": {
+      "exit": 0,
+      "output": "[{\"conclusion\":\"failure\",\"databaseId\":42710174255,\"headSha\":\"1b588a7f635609aa1f7d289ca4faa3928439a0f5\"}]",
+      "note": "Same evidence as the fable entry above: the newest run on master is at 1b588a7 with conclusion failure, 43 commits behind the reworked head. No successful autopilot job exists at the pushed head sha because the head is not pushed. The finding STANDS and is carried to the cycle-3 review."
+    }
+  }
+]

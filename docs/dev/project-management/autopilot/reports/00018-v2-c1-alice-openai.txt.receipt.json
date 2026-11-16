@@ -1,0 +1,19 @@
+{
+  "provider": "codex",
+  "model_provider": "openai",
+  "lens": "alice",
+  "model": "gpt-6.1-sol",
+  "requested_model": "gpt-6.1-sol",
+  "effort": null,
+  "started": 1794263342.389357,
+  "completed": 1794263370.732445,
+  "output": "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00018-v2-c1-alice-openai.txt",
+  "sha256": "a10158eb66df68b8aafc655e355c0f62614b6fc79ad60dc2f3636bda2a89d94e",
+  "raw": "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/autopilot/reports/00018-v2-c1-alice-openai-b9f4d8a1d49e449cb77c4a9617b67de2.jsonl",
+  "raw_sha256": "f58aaecc34f344f602db73f7a00cbe2cad190cfc14b154e29daa63da9e8b3661",
+  "thread_id": "01a1c26d-decb-7a30-b1c4-f0cbd6336262",
+  "root": "/Users/bob/git/src/github.com/buvis/agent-plugins",
+  "prd": "00018-autopilot-controller-kernel-v2.md",
+  "cycle": 1,
+  "implementation_fingerprint": "be2f6e798135e1b3fc71ccae80262b8cc2fa8f156a132829968577ec72711c13"
+}

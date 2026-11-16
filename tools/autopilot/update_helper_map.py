@@ -9,6 +9,12 @@ Without --receipts it uses DEFAULT_RECEIPTS under the root when that file
 exists, and otherwise records delivery evidence as "unavailable". The README.md
 and CHANGELOG.md rows get self-referential evidence pinned to the receipts'
 optional package_revision; the other refreshed and new rows cite the receipts.
+
+Without --successor-receipts it uses DEFAULT_SUCCESSOR_RECEIPTS under the root
+when that file exists. A valid AP00018 successor supersedes the exact AP00013
+receipts loaded, never rewrites them, and certifies exactly the paths it lists:
+README.md and CHANGELOG.md get self-referential evidence pinned to its
+package_revision, and controller assets cite the successor itself.
 """
 
 from __future__ import annotations
@@ -16,14 +22,29 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
+import importlib.util
 import json
 import os
-import re
 import sys
 import tempfile
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[1]
+# Loaded by path: tools/autopilot is not a package and is not on sys.path when
+# this file is itself loaded by path.
+SUCCESSOR_SPEC = importlib.util.spec_from_file_location(
+    "helper_map_successor", HERE / "helper_map_successor.py"
+)
+helper_map_successor = importlib.util.module_from_spec(SUCCESSOR_SPEC)
+SUCCESSOR_SPEC.loader.exec_module(helper_map_successor)
+refresh_listed_row = helper_map_successor.refresh_listed_row
+validate_receipts = helper_map_successor.validate_receipts
+validate_successor_receipts = helper_map_successor.validate_successor_receipts
+verify_listed_paths_match_revision = (
+    helper_map_successor.verify_listed_paths_match_revision
+)
+
 CLI = "skills/run-autopilot/cli/"
 SCRIPTS = "skills/run-autopilot/scripts/"
 TESTS = "tests/autopilot/"
@@ -31,6 +52,12 @@ OWNER = "buvis/agent-plugins"
 DEFAULT_RECEIPTS = (
     "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json"
 )
+DEFAULT_SUCCESSOR_RECEIPTS = (
+    "docs/dev/project-management/autopilot/reports/"
+    "00018-v2-controller-delivery-receipts.json"
+)
+CONTROLLER_PREFIXES = helper_map_successor.CONTROLLER_PREFIXES
+CONTROLLER_CONTRACT = helper_map_successor.CONTROLLER_CONTRACT
 CONTROLLER_SCENARIO = "controller_action_not_yet_wired"
 CONTROLLER_EVIDENCE = TESTS + "test_local_boundary.py"
 MIXED_EXCLUSION = (
@@ -273,8 +300,7 @@ HELPER_FILES = (
 HELPER_PATHS = tuple(f"plugins/autopilot/scripts/{name}.py" for name in HELPER_FILES)
 REFRESHED = (
     "plugins/autopilot/scripts/autopilot.py",
-    "plugins/autopilot/README.md",
-    "plugins/autopilot/CHANGELOG.md",
+    *helper_map_successor.SHARED_PATHS,
 )
 AP00014_DIGESTED = (
     "plugins/autopilot/compatibility/claude.json",
@@ -400,41 +426,6 @@ def build_dispositions(document: dict) -> dict:
     }
 
 
-def validate_receipts(receipts: dict) -> None:
-    def text(value: object) -> bool:
-        return isinstance(value, str) and bool(value.strip())
-
-    tasks = receipts.get("tasks")
-    if (
-        type(receipts.get("schema_version")) is not int
-        or receipts["schema_version"] != 1
-    ):
-        raise ValueError("receipts schema_version must be the integer 1")
-    if receipts.get("prd") != "00013" or not isinstance(tasks, list) or not tasks:
-        raise ValueError("receipts must be for PRD 00013 and list at least one task")
-    for task in tasks:
-        passed = task.get("passed")
-        if type(passed) is not int or passed <= 0:
-            raise ValueError(
-                f"receipt task needs a positive integer passed count: {task}"
-            )
-        if not text(task.get("tests")) or not text(task.get("command")):
-            raise ValueError(f"receipt task needs tests and command: {task}")
-    host = receipts.get("real_host")
-    if (
-        not isinstance(host, dict)
-        or host.get("status") != "unavailable"
-        or not text(host.get("reason"))
-    ):
-        raise ValueError(
-            "receipts real_host must be unavailable with a reason; never passed"
-        )
-    if "package_revision" in receipts:
-        revision = receipts["package_revision"]
-        if not isinstance(revision, str) or not re.fullmatch(r"[0-9a-f]{40}", revision):
-            raise ValueError("receipts package_revision must be 40 lowercase hex")
-
-
 def asset_row(path: str, digest: str, evidence: dict) -> dict:
     return {
         "source_asset_id": None,
@@ -497,16 +488,115 @@ def refresh_ap00014_digests(assets: list[dict], root: Path) -> None:
             ).hexdigest()
 
 
+def register_controller_asset(
+    result: dict,
+    root: Path,
+    path: str,
+    cited: dict,
+    adaptation_reason: str = (
+        "Newly authored AP00018 controller asset; no pinned source asset or "
+        "source sections. Delivery evidence records packaged bytes, not host "
+        "certification."
+    ),
+    expected_outcome: str = (
+        "The packaged AP00018 controller asset exists at the recorded digest; "
+        "it certifies no host execution."
+    ),
+    owner_expected_outcome: str = (
+        "The packaged AP00018 controller asset exists at the recorded digest."
+    ),
+) -> None:
+    digest = hashlib.sha256((root / path).read_bytes()).hexdigest()
+    row = asset_row(path, digest, dict(cited))
+    row["adaptation_reason"] = adaptation_reason
+    row["acceptance_cases"][0]["expected_outcome"] = expected_outcome
+    owner = owner_row(path)
+    owner["delivery_prd"] = "00018"
+    owner["acceptance_cases"] = [
+        {"case_id": f"authored-{path}", "expected_outcome": owner_expected_outcome}
+    ]
+    upsert(result["assets"], "destination_path", row)
+    upsert(result["authored_file_owners"], "path", owner)
+
+
+def apply_successor(result: dict, root: Path, successor: dict, artifact: dict) -> None:
+    revision = successor["package_revision"]
+    cited = {"status": "passed", **artifact, "tested_package_revision": revision}
+    listed = set(successor["paths"])
+    verify_listed_paths_match_revision(root, revision, listed)
+    if CONTROLLER_CONTRACT in listed:
+        register_controller_asset(
+            result, root, CONTROLLER_CONTRACT, cited,
+            adaptation_reason=(
+                "Newly authored AP00018 controller contract bundle; no pinned source "
+                "asset or source sections. Delivery evidence records packaged bytes, "
+                "not host certification."
+            ),
+            expected_outcome=(
+                "The packaged controller contract bundle exists at the recorded digest; "
+                "it certifies no host execution."
+            ),
+            owner_expected_outcome=(
+                "The packaged AP00018 controller contract bundle exists at "
+                "the recorded digest."
+            ),
+        )
+    known = {row["destination_path"] for row in result["assets"]}
+    for path in sorted(listed - known):
+        if path.startswith(CONTROLLER_PREFIXES):
+            register_controller_asset(result, root, path, cited)
+    for row in result["assets"]:
+        path = row["destination_path"]
+        if path not in listed:
+            continue
+        sha = hashlib.sha256((root / path).read_bytes()).hexdigest()
+        row["destination_blob_sha256"] = sha
+        refresh_listed_row(row, path, cited)
+        if path in REFRESHED[1:]:
+            row["evidence"].update(artifact_id=path, artifact_sha256=sha)
+
+
+def refresh_shared_evidence(
+    assets: list[dict],
+    root: Path,
+    evidence: dict,
+    unavailable: dict,
+    revision: str | None,
+) -> None:
+    for row in assets:
+        path = row["destination_path"]
+        if path not in REFRESHED:
+            continue
+        sha = hashlib.sha256((root / path).read_bytes()).hexdigest()
+        row["destination_blob_sha256"] = sha
+        if path == REFRESHED[0]:
+            row["evidence"] = dict(evidence)
+        elif revision is None:
+            row["evidence"] = dict(unavailable)
+        else:
+            row["evidence"] = {
+                "status": "passed",
+                "artifact_id": path,
+                "artifact_sha256": sha,
+                "tested_package_revision": revision,
+            }
+
+
 def apply(
     document: dict,
     receipts: dict | None,
     root: Path = ROOT,
     artifact: dict | None = None,
+    successor: dict | None = None,
+    successor_artifact: dict | None = None,
 ) -> dict:
     if "helper_dispositions" in document:
         validate(document["helper_dispositions"], document)
     if receipts is not None:
         validate_receipts(receipts)
+    has_successor = successor is not None or successor_artifact is not None
+    if has_successor:
+        validate_successor_receipts(successor, artifact)
     result = copy.deepcopy(document)
     result["helper_dispositions"] = build_dispositions(document)
     unavailable = {
@@ -527,23 +617,9 @@ def apply(
         )
         upsert(result["authored_file_owners"], "path", owner_row(path))
     revision = (receipts or {}).get("package_revision")
-    for row in result["assets"]:
-        path = row["destination_path"]
-        if path not in REFRESHED:
-            continue
-        sha = hashlib.sha256((root / path).read_bytes()).hexdigest()
-        row["destination_blob_sha256"] = sha
-        if path == REFRESHED[0]:
-            row["evidence"] = dict(evidence)
-        elif revision is None:
-            row["evidence"] = dict(unavailable)
-        else:
-            row["evidence"] = {
-                "status": "passed",
-                "artifact_id": path,
-                "artifact_sha256": sha,
-                "tested_package_revision": revision,
-            }
+    refresh_shared_evidence(result["assets"], root, evidence, unavailable, revision)
+    if has_successor:
+        apply_successor(result, root, successor, successor_artifact)
     refresh_ap00014_digests(result["assets"], root)
     return result
 
@@ -561,23 +637,39 @@ def write_atomically(path: Path, data: bytes) -> None:
         Path(temporary).unlink(missing_ok=True)
 
 
+def load_artifact(
+    given: Path | None, default: str, root: Path
+) -> tuple[object, dict | None]:
+    if given is None and os.path.isfile(root / default):
+        given = root / default
+    if given is None:
+        return None, None
+    given = given.resolve()
+    data = given.read_bytes()
+    return json.loads(data), {
+        "artifact_id": given.relative_to(root).as_posix(),
+        "artifact_sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
 def run(arguments: argparse.Namespace) -> int:
     path = arguments.map.resolve()
     root = (arguments.root or path.parents[2]).resolve()
     raw = path.read_bytes()
-    receipts = artifact = None
-    receipt_path = arguments.receipts
-    if receipt_path is None and os.path.isfile(root / DEFAULT_RECEIPTS):
-        receipt_path = root / DEFAULT_RECEIPTS
-    if receipt_path is not None:
-        receipt_path = receipt_path.resolve()
-        receipt_bytes = receipt_path.read_bytes()
-        receipts = json.loads(receipt_bytes)
-        artifact = {
-            "artifact_id": receipt_path.relative_to(root).as_posix(),
-            "artifact_sha256": hashlib.sha256(receipt_bytes).hexdigest(),
-        }
-    rendered = encode(apply(json.loads(raw), receipts, root, artifact))
+    receipts, artifact = load_artifact(arguments.receipts, DEFAULT_RECEIPTS, root)
+    successor, successor_artifact = load_artifact(
+        arguments.successor_receipts, DEFAULT_SUCCESSOR_RECEIPTS, root
+    )
+    rendered = encode(
+        apply(
+            json.loads(raw),
+            receipts,
+            root,
+            artifact,
+            successor=successor,
+            successor_artifact=successor_artifact,
+        )
+    )
     if arguments.check:
         if rendered != raw:
             print(
@@ -602,6 +694,12 @@ def main() -> int:
         type=Path,
         help="Coordinator-authored task receipts JSON; defaults to "
         f"ROOT/{DEFAULT_RECEIPTS} when that file exists",
+    )
+    parser.add_argument(
+        "--successor-receipts",
+        type=Path,
+        help="AP00018 successor receipts JSON; defaults to "
+        f"ROOT/{DEFAULT_SUCCESSOR_RECEIPTS} when that file exists",
     )
     parser.add_argument(
         "--check", action="store_true", help="Exit 0 only if the map is generated"

@@ -478,8 +478,8 @@
           ]
         }
       },
-      "valid": false,
-      "expected_error": "invalid_request"
+      "valid": true,
+      "expected_error": null
     },
     {
       "name": "recover-duplicate-jobs",
@@ -2371,6 +2371,21 @@
         "shared lock",
         "workflow identity/reserves, owner, epoch, actor IDs/roles, receipt count, health/capacity only",
         "no secrets, digests or receipt bodies"
+      ]
+    },
+    {
+      "name": "recover-nonempty-evidence",
+      "setup": [
+        "kernel-owned state with an active owner",
+        "current authorized operator credential",
+        "no reconciled job exists"
+      ],
+      "action": "apply recover-nonempty-jobs",
+      "expected_error": "rejected_evidence",
+      "expected": [
+        "structurally valid request refused after binding, before any intent",
+        "owner, epoch, receipts and all private bytes unchanged",
+        "reconciled job evidence unchanged and never reconciled"
       ]
     },
     {

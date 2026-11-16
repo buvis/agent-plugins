@@ -90,12 +90,22 @@ def parse_request(raw: bytes, declared: dict) -> dict:
         if not isinstance(operation, str) or operation not in (
                 {"workflow.open"} | OWNER_OPERATIONS | set(declared["reserved_operations"])):
             raise schema.SchemaError("unknown operation")
+        if request["workflow_id"] is None:
+            if (operation != "workflow.open" or request["actor_id"] is not None
+                    or request["lease_epoch"] is not None
+                    or request["expected_revision"] != 0):
+                raise schema.SchemaError("unbound request must open at revision zero")
+        else:
+            schema._identity(request["actor_id"])
+            schema._counter(request["lease_epoch"])
         validate_payload(operation, request["payload"])
         actors.canonical(request)
     except (ValueError, UnicodeError, RecursionError, TypeError) as error:
         raise ProtocolError("invalid_request") from error
     if request["protocol_major"] != 1:
         raise ProtocolError("incompatible_contract")
+    if request["job_id"] is not None:
+        raise ProtocolError("wrong_binding")
     return request
 
 
@@ -108,6 +118,8 @@ def state_binding(state: dict, root: Path) -> None:
         raise ProtocolError("wrong_binding", state["revision"])
 
 
+# parse_request already refuses a job_id; the job_id clauses in fresh_binding
+# and actor_binding are defence in depth for a caller that skips the parser.
 def fresh_binding(request: dict, revision: int = 0) -> None:
     if any(request[key] is not None for key in ("workflow_id", "actor_id", "lease_epoch", "job_id")):
         raise ProtocolError("wrong_binding", revision)
@@ -155,6 +167,7 @@ def existing_open(request: dict, actor_file: Path | None, current: dict,
     candidate["receipts"][request["request_id"]] = {
         "request_digest": request_digest, "authorizing_actor": descriptor, "response": completed}
     actors.admit(candidate, completed)
+    actors.admit_staging(layout, [])
     store._transaction_locked(lambda unused: candidate, expected_revision=revision,
                               publication_guard=layout.verify)
     return completed
@@ -167,7 +180,7 @@ def apply_locked(request: dict, actor_file: Path | None, layout: actors.PrivateL
     try:
         if current is not None:
             state_binding(current, layout.root)
-        if request["project_id"] != project_identity(layout.root) or request["job_id"] is not None:
+        if request["project_id"] != project_identity(layout.root):
             raise ProtocolError("wrong_binding", revision)
         if current is not None and request["workflow_id"] not in (None, current["workflow_id"]):
             raise ProtocolError("wrong_binding", revision)
@@ -188,8 +201,6 @@ def apply_locked(request: dict, actor_file: Path | None, layout: actors.PrivateL
         if current is not None:
             return existing_open(request, actor_file, current, layout, store)
         fresh_binding(request, revision)
-        if request["expected_revision"] != 0:
-            raise ProtocolError("revision_conflict", revision)
         layout.prepare_ignores()
         result = {"workflow_id": "workflow-" + secrets.token_hex(16),
                   "actor_id": "operator-" + secrets.token_hex(16),
@@ -220,7 +231,7 @@ def apply(root: Path, request_file: Path, actor_file: Path | None) -> dict:
         root = resolve_project_root(root)
         with actors.PrivateLayout(root) as layout:
             store = StateStore(layout.private / "state.json")
-            if request["project_id"] != project_identity(root) or request["job_id"] is not None:
+            if request["project_id"] != project_identity(root):
                 raise ProtocolError("wrong_binding")
             initialized = layout.exists(store.path) or layout.exists(
                 layout.private / "credential-intent.json")
@@ -228,10 +239,6 @@ def apply(root: Path, request_file: Path, actor_file: Path | None) -> dict:
                 raise ProtocolError("recovery_required")
             if not initialized:
                 fresh_binding(request)
-                if request["operation"] != "workflow.open":
-                    raise ProtocolError("missing_capability")
-                if request["expected_revision"] != 0:
-                    raise ProtocolError("revision_conflict")
                 layout.prepare()
             with store._locked(exclusive=True):
                 layout.verify()

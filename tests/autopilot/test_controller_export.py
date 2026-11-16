@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -12,6 +13,7 @@ import subprocess
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from controller_cli_support import (
     ControllerCLITest,
@@ -391,6 +393,38 @@ class ControllerBundleReproducibleTest(IsolatedCase):
                 target.write_bytes(self.committed)
                 self.assert_exit(self.export("--check"), 0)
 
+    def test_controller_bundle_reproducible_check_rejects_an_oversized_committed_bundle(
+        self,
+    ) -> None:
+        target = self.plugin / TARGET
+        target.write_bytes(self.committed + b"\x00" * LIMIT)
+        before = tree(self.plugin)
+        self.assert_exit(self.export("--check"), 1)
+        self.assertEqual(tree(self.plugin), before)
+        # The CLI exit alone also holds for an unbounded read, so pin the guard:
+        # an oversized bundle must be refused without being read at all.
+        spec = importlib.util.spec_from_file_location("export_controller_contract", EXPORTER)
+        exporter = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(exporter)
+        with mock.patch.object(Path, "read_bytes",
+                               side_effect=AssertionError("read an oversized bundle")):
+            self.assertFalse(exporter.matches(target, self.committed))
+        target.write_bytes(self.committed)
+        self.assert_exit(self.export("--check"), 0)
+
+    def test_controller_bundle_reproducible_export_refuses_an_oversized_schema_or_fixture(
+        self,
+    ) -> None:
+        for relative in (SCHEMA, FIXTURES):
+            with self.subTest(oversized=str(relative)):
+                source = self.plugin / relative
+                saved = source.read_bytes()
+                source.write_bytes(saved + b"\x00" * LIMIT)
+                self.assertNotEqual(self.export().returncode, 0)
+                self.assertNotEqual(self.export("--check").returncode, 0)
+                source.write_bytes(saved)
+                self.assert_exit(self.export("--check"), 0)
+
     def test_controller_bundle_reproducible_refuses_symlinked_contracts_directory(
         self,
     ) -> None:
@@ -431,7 +465,7 @@ class ControllerBundleReproducibleTest(IsolatedCase):
 
 
 class ControllerWithoutUpperLayersTest(IsolatedCase):
-    def test_controller_without_upper_layers_guard_denies_checkout_and_author_home(
+    def test_isolation_guard_denies_checkout_and_author_home(
         self,
     ) -> None:
         probe = self.base / "probe" / "probe.py"

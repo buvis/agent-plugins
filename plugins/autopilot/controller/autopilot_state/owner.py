@@ -188,6 +188,13 @@ def finish_intent(request: dict, actor_file: Path | None, intent: dict,
             current["revision"] != intent["old_revision"]
             or actors.digest(actors.canonical(current)) != intent["old_state_digest"])):
         raise StateIOError("state does not match owner intent")
+    if current != candidate:
+        # Budget against pre-existing orphans only: current/candidate are the
+        # state itself (often near NORMAL_STATE_LIMIT), not new staging
+        # content, so they must never be counted as `proposed` bytes here -
+        # doing so would refuse an ordinary near-ceiling publish that has no
+        # orphan litter at all.
+        actors.admit_staging(layout, [])
     _publish_credentials(intent, layout, current, candidate)
 
     def guard() -> None:

@@ -1,0 +1,89 @@
+import hashlib
+import importlib.util
+import json
+import re
+import sys
+from pathlib import Path
+
+sys.path.insert(0, '/Users/bob/.config/autocodex')
+import driver
+
+root = Path.cwd()
+reports = root / 'docs/dev/project-management/autopilot/reports'
+state = json.loads((root / 'docs/dev/project-management/autopilot/state.json').read_text())
+evidence = []
+notes = []
+
+def add(task, model, path, number):
+    line = path.read_bytes().splitlines()[number - 1]
+    evidence.append(dict(task=str(task), role='implementation', model=model,
+                         path=str(path.relative_to(root)), line=number,
+                         sha256=hashlib.sha256(line).hexdigest()))
+
+for path in sorted(reports.glob('00018-v2*model.jsonl')):
+    match = re.search(r'task-?(\d+)', path.name)
+    if not match or any(word in path.name for word in ('pat-', 'devon-')):
+        continue
+    for number, line in enumerate(path.read_text().splitlines(), 1):
+        row = json.loads(line)
+        if row.get('type') == 'turn_context':
+            model = row['payload']['model']
+            add(match[1], model, path, number)
+            notes.append(f'- Task {match[1]}: {path.name}:{number}; observed turn_context {model}, '
+                         f'effort {row["payload"].get("effort")}. Raw session metadata identifies isolated worker; '
+                         'task-specific build reports and dispatch ledger correlate the role and attempt. '
+                         'Pat and scratch-only Devon are excluded.')
+
+session = 'e3ca9f49-4163-4918-b933-2e14de13667d'
+base = Path.home() / '.claude/projects/-Users-bob-git-src-github-com-buvis-agent-plugins' / session / 'subagents'
+for path in sorted(base.glob('*.jsonl')):
+    raw = path.read_bytes().splitlines()
+    rows = [json.loads(line) for line in raw]
+    user = next(row for row in rows if row.get('type') == 'user')
+    prompt = user['message']['content']
+    if 'devon' in prompt.lower():
+        continue
+    match = re.search(r'(?:dispatch-(?:ivan|tess)-|deslop)([4-8])', prompt)
+    if not match:
+        raise RuntimeError(path)
+    task = match[1]
+    if 'deslop' in prompt.lower() and task in {'5', '7'}:
+        # Their completed dispatch results explicitly report no changes.
+        continue
+    selected = [(n, row) for n, row in enumerate(rows, 1)
+                if row.get('message', {}).get('model')]
+    models = {row['message']['model'] for _, row in selected}
+    if models != {'claude-opus-5-5'}:
+        raise RuntimeError(models)
+    # Preserve original raw user/assistant records, not a restatement of the model claim.
+    first = selected[0][0]
+    dest = reports / f'00018-v2-claude-{path.stem}-raw-provenance.jsonl'
+    user_index = next(n for n, row in enumerate(rows) if row.get('type') == 'user')
+    payload = raw[user_index] + b'\n' + raw[first - 1] + b'\n'
+    if dest.exists() and dest.read_bytes() != payload:
+        raise RuntimeError(f'changed evidence {dest}')
+    dest.write_bytes(payload)
+    add(task, 'claude-opus-5-5', dest, 2)
+    notes.append(f'- Task {task}: {dest.name}:2 is an exact raw assistant record copied from '
+                 f'{path}:{first}; line 1 is the raw worker request identifying task/role. '
+                 f'Parent session {session} Agent call and dispatch-metrics.jsonl establish ordering. '
+                 'Includes Tess, Ivan retries/style repairs and self-deslop; excludes read-only Pat and scratch-only Devon.')
+
+stem = Path(state['prd']).stem
+audit = dict(fingerprint=driver.implementation_fingerprint(state),
+             snapshot=driver.implementation_snapshot(state), evidence=evidence)
+(reports / f'{stem}-implementation-models.json').write_text(json.dumps(audit, indent=2) + '\n')
+(reports / f'{stem}-implementation-models.md').write_text(
+    '# Implementation model audit, cycle 1\n\n'
+    'Work range: dacba71638e04269e9370a1765adf1cd58b57027..1b588a7. '
+    'All eleven completed tasks and earlier contributing attempts are retained. '
+    'The range contains the current v2 task commits, not the pre-base abandoned replan. '
+    'Unrelated specflow commits are outside this PRD. Logical tiers and launcher labels are not model evidence.\n\n'
+    'OpenAI raw turn contexts prove gpt-6.1-sol and gpt-6-astra/high. '
+    'Claude worker message metadata proves claude-opus-5-5. State already accurately records each '
+    'attempt provider/model; no history is changed. Task 3 has Sol and Astra contributors; '
+    'Task 4 retains OpenAI test writers before its Anthropic implementation. '
+    'Tasks 5–8 have Claude test writers/implementors/retries, including the failed Task 8 pass '
+    'that led to Task 7 repair. No planning or read-only reviewer models establish routing.\n\n'
+    + '\n'.join(notes) + '\n')
+print(json.dumps({'evidence_rows': len(evidence), 'providers': driver.audited_review_providers(state, root)}))

@@ -1,0 +1,15 @@
+{
+  "sha": "1b588a7f635609aa1f7d289ca4faa3928439a0f5",
+  "cycle": 1,
+  "writer": "run_gate",
+  "commands": [
+    {
+      "command": "mise exec -- uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python /tmp/autocodex-ap00018-review-counts-ed2bb331.py",
+      "exit": 0
+    }
+  ],
+  "passed": 1554,
+  "failed": 0,
+  "skipped": 0,
+  "summary_exit": 0
+}

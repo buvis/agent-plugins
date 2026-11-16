@@ -287,9 +287,9 @@ def credential_descriptor(raw: bytes) -> dict:
 
 
 def authenticate(path: Path | None, descriptor: dict, layout: PrivateLayout) -> None:
+    if path is None:
+        raise BindingError("credential required")
     try:
-        if path is None:
-            raise BindingError("credential required")
         supplied = credential_descriptor(layout.read(path.absolute(), 65536))
         expected = dict(descriptor)
         supplied_digest = supplied.pop("secret_digest")
@@ -409,8 +409,10 @@ def read_intent(layout: PrivateLayout) -> dict | None:
         return None
     raw = layout.read(path, INTENT_LIMIT)
     value = schema.decode_json(raw.decode("utf-8"), source="intent")
+    from . import protocol
+
     if isinstance(value, dict) and isinstance(value.get("request"), dict) and (
-            value["request"].get("operation") in {"owner.acquire", "owner.release", "owner.recover"}):
+            value["request"].get("operation") in protocol.OWNER_OPERATIONS):
         from . import owner
         return owner.validate_intent(value, layout)
     return validate_intent(value, layout)
@@ -426,6 +428,7 @@ def verify_credential(layout: PrivateLayout, path: Path, intent: dict) -> None:
 def finish_bootstrap(intent: dict, layout: PrivateLayout, store: StateStore,
                      current: dict | None) -> dict:
     validate_intent(intent, layout)
+    admit_staging(layout, [])
     candidate = intent["candidate"]
     if current is not None and current != candidate:
         raise StateIOError("state does not match bootstrap intent")
