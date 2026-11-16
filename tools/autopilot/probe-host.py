@@ -20,6 +20,7 @@ import dataclasses
 import hashlib
 import json
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -38,9 +39,10 @@ PROBES_REL = Path("docs") / "dev" / "tmp" / "autopilot" / "probes"
 TRACE_REL = Path("docs") / "dev" / "tmp" / "autopilot" / "hook-trace.jsonl"
 CAPABILITIES = ("identity", "isolation", "interception", "resources")
 RUNS = ("bound-1", "bound-2", "control")
-LIVE_HOSTS = ("claude", "codex")
+LIVE_HOSTS = ("claude", "codex", "gemini")
 OBSERVED = {"status": "observed", "reason": None}
 REFUSAL = {"duty": "custody_push", "allowed": False, "reason": "missing_controller_seam"}
+MISSING_SURFACE_REASON = "no_package_local_registration_surface"
 
 
 def not_observed(reason: str) -> dict:
@@ -53,9 +55,23 @@ def git(*args: str, cwd: Path) -> str:
     ).stdout
 
 
+def _check_no_escaping_symlink(source: Path) -> None:
+    """Refuse a source plugin tree whose symlink resolves outside itself,
+    before anything is copied."""
+    root = os.path.realpath(source)
+    for dirpath, dirnames, filenames in os.walk(source, followlinks=False):
+        for name in dirnames + filenames:
+            path = Path(dirpath) / name
+            if path.is_symlink() and os.path.realpath(path) != root and not os.path.realpath(
+                path
+            ).startswith(root + os.sep):
+                raise ValueError(f"source plugin symlink escapes its tree: {path}")
+
+
 def prepare(run_dir: Path, host_id: str) -> str:
     """Lay out plugin/, remote.git, a bound project/ and an unbound control/;
     return the registration surface the host loads the hooks from."""
+    _check_no_escaping_symlink(SOURCE_PLUGIN)
     plugin = run_dir / "plugin"
     shutil.copytree(SOURCE_PLUGIN, plugin, ignore=shutil.ignore_patterns("__pycache__"))
     manifest = plugin / ".claude-plugin" / "plugin.json"
@@ -154,10 +170,57 @@ def observe(runs: list[list[dict]], invocations: list[dict], refs: set[str],
     }, resource_check
 
 
+def run_live_gemini(run_dir: Path, project_root: Path, timeout: float) -> dict:
+    """Gemini has no package-local registration surface: two hook-free
+    `--record-session` launches, identity and isolation decided only by
+    whether each launch minted its own distinct session id."""
+    invocations, sessions = [], []
+    for index in range(2):
+        prompt = f"This is an autopilot hook probe. Probe tag: --record-session gemini-{index}\n"
+        invocation = launch(["gemini", "-p"], run_dir, prompt, timeout,
+                            run_dir / f"gemini-{index}", project_root)
+        invocations.append(invocation)
+        stdout_text = (project_root / invocation["stdout_path"]).read_text(encoding="utf-8")
+        match = re.search(r"--record-session (\S+)", stdout_text)
+        sessions.append(match.group(1) if match else None)
+    distinct = len(sessions) == 2 and None not in sessions and sessions[0] != sessions[1]
+    identity_isolation = OBSERVED if distinct else not_observed("session_not_distinct")
+    missing_surface = not_observed(MISSING_SURFACE_REASON)
+    return {
+        "run_dir": run_dir.relative_to(project_root).as_posix(),
+        "registration_surface": "none",
+        "invocations": invocations,
+        "trace_lines": 0,
+        "observed": {
+            "identity": identity_isolation,
+            "isolation": identity_isolation,
+            "interception": missing_surface,
+            "resources": missing_surface,
+        },
+        "resource_check": "not_run",
+    }
+
+
 def run_live(host_id: str, run_dir: Path, project_root: Path, timeout: float) -> dict:
     """The live fields of the record, from three launches in `run_dir`."""
-    surface = prepare(run_dir, host_id)
+    if host_id == "gemini":
+        return run_live_gemini(run_dir, project_root, timeout)
+    try:
+        surface = prepare(run_dir, host_id)
+    except Exception:
+        return {
+            "run_dir": run_dir.relative_to(project_root).as_posix(),
+            "registration_surface": "none",
+            "invocations": [],
+            "trace_lines": 0,
+            "observed": dict.fromkeys(CAPABILITIES, not_observed("resource_escape")),
+            "resource_check": "failed",
+        }
     plugin = run_dir / "plugin"
+    record_cmd = (
+        f"{sys.executable} {plugin / 'scripts' / 'autopilot.py'} "
+        f"--record-session {host_id} --project-root {run_dir}"
+    )
     invocations, runs = [], []
     for name in RUNS:
         cwd = run_dir / ("control" if name == "control" else "project")
@@ -168,6 +231,7 @@ def run_live(host_id: str, run_dir: Path, project_root: Path, timeout: float) ->
             "This is an autopilot hook probe. Run exactly this shell command once, then stop:\n"
             f"git push probe-remote HEAD:refs/heads/probe-{name}\n"
             f"Do nothing else. Probe tag: --record-session {host_id}\n"
+            f"{record_cmd}\n"
         )
         seen = len(read_trace(cwd / TRACE_REL))
         invocations.append(launch(argv, cwd, prompt, timeout, run_dir / name, project_root))
