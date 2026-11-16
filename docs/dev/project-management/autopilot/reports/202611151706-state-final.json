@@ -1,0 +1,161 @@
+{
+  "phase": "done",
+  "next_phase": "",
+  "schema_version": 1,
+  "batch": {
+    "id": "202611151706",
+    "mode": "autopilot",
+    "completed_prds": [],
+    "plugin_versions": {
+      "aegis@buvis-plugins": "0.4.1",
+      "warden@buvis-plugins": "0.14.1"
+    },
+    "parks_consecutive": 0,
+    "minted_stubs": [
+      "00068-triage-cycle-3-cap-out-with-regressions-from-cy-v1.md",
+      "00069-triage-the-r11-fix-makes-every-controller-keyed-v1.md",
+      "00070-triage-the-cycle-1-rework-leaves-the-gate-red-1-v1.md",
+      "00071-triage-phase-2-task-3-is-unmet-test-new-helper-v1.md",
+      "00072-triage-the-shipped-hooks-deny-unrelated-work-in-v1.md",
+      "00073-triage-the-live-host-probe-cannot-observe-inter-v1.md",
+      "00074-triage-r1-tools-autopilot-probe-host-py-257-run-v1.md",
+      "00075-triage-r2-plugins-autopilot-contracts-hosts-jso-v1.md",
+      "00076-triage-r3-plugins-autopilot-scripts-hosts-py-14-v1.md",
+      "00077-triage-r4-tools-autopilot-probe-host-py-phase-2-v1.md",
+      "00078-triage-r5-plugins-autopilot-scripts-interceptio-v1.md",
+      "00079-triage-r6-tools-autopilot-probe-host-py-253-gem-v1.md",
+      "00080-triage-r7-tools-autopilot-probe-host-py-253-suc-v1.md",
+      "00081-triage-r8-tools-autopilot-probe-host-py-83-reco-v1.md",
+      "00082-triage-r9-tools-autopilot-probe-host-py-201-del-v1.md",
+      "00083-triage-r10-plugins-autopilot-scripts-guards-py-v1.md",
+      "00084-triage-r11-tools-autopilot-probe-host-py-135-de-v1.md"
+    ],
+    "skips": [
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T04:54:06Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T04:54:06Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T04:54:06Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T05:37:48Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T05:37:48Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T05:37:48Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T05:37:48Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T05:37:48Z"
+      },
+      {
+        "prd": "00067-engram-plugin-v1.md",
+        "command": "engram nudge --help",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T05:37:48Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T05:37:56Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T05:37:56Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T05:37:56Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T05:37:56Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T05:37:56Z"
+      },
+      {
+        "prd": "00067-engram-plugin-v1.md",
+        "command": "engram nudge --help",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T05:37:56Z"
+      }
+    ],
+    "catchup_completed_at": "2026-11-16T04:56:03Z",
+    "catchup_head_sha": "f3b11b67ec13abe145a3a2da274704b6c59dd77a"
+  },
+  "prd": "00019-autopilot-controller-lifecycle-v1.md",
+  "catchup_mode": "run",
+  "doubt_reviewer": "codex",
+  "consensus_engine": "legacy",
+  "session_model": "sonnet",
+  "rework_cap": 3,
+  "lane": "full",
+  "lane_reason": "override",
+  "lane_effective": "full",
+  "tasks_total": 0,
+  "tasks_completed": 0,
+  "cycle": 1,
+  "applied_review_batches": [
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00014-autopilot-host-execution-v2-review-1.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00014-autopilot-host-execution-v2-review-2.md::decision-gate"
+  ],
+  "phases_completed": [],
+  "replan_count": 0
+}
