@@ -1,0 +1,191 @@
+{
+  "phase": "done",
+  "next_phase": "",
+  "schema_version": 1,
+  "batch": {
+    "id": "202611160843",
+    "mode": "autopilot",
+    "completed_prds": [
+      {
+        "filename": "00067-engram-plugin-v1.md",
+        "cycles": 2,
+        "autonomous_decisions": 7,
+        "escalated_decisions": 0,
+        "tasks_completed": 5,
+        "tasks_total": 5,
+        "lane": "full",
+        "lane_reason": "hook",
+        "lane_effective": "full",
+        "lane_escalated": null
+      }
+    ],
+    "plugin_versions": {
+      "aegis@buvis-plugins": "0.4.1",
+      "warden@buvis-plugins": "0.14.1"
+    },
+    "parks_consecutive": 0,
+    "skips": [
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T08:51:38Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T08:51:38Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T08:51:38Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T08:51:38Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-16T08:51:38Z"
+      }
+    ]
+  },
+  "prd_budget_since": "2026-11-16T07:43:42Z",
+  "prd": "00067-engram-plugin-v1.md",
+  "catchup_mode": "run",
+  "design_mode": "run",
+  "doubt_reviewer": "codex",
+  "consensus_engine": "legacy",
+  "session_model": "sonnet",
+  "rework_cap": 2,
+  "lane": "full",
+  "lane_reason": "hook",
+  "lane_effective": "full",
+  "design_doc": "docs/dev/project-management/designs/00067-engram-plugin-v1-design.md",
+  "tasks": [],
+  "tasks_total": 0,
+  "tasks_completed": 0,
+  "work_start_sha": "4372cac3d6ea41fefd6cb26378b307ae2692fbf3",
+  "contract_card": "step: review -> done handoff after Tail sweep convergence (cycle 2, 1 medium/low finding swept, task 5 completed)\ninvariants: phase/next_phase now \"done\"; next session enters Phase 9 finalize (references/phase-done.md); do not re-open review\nnext: fresh session runs the done gate -> finalize PRD 00067-engram-plugin-v1.md, move wip->done, update batch report",
+  "loop_entry": {
+    "entered_by": "loop",
+    "prd": "00067-engram-plugin-v1.md",
+    "result": {
+      "stop": null,
+      "detail": "",
+      "prd": "00067-engram-plugin-v1.md",
+      "source": "wip",
+      "parked": null,
+      "custody_pending": 0,
+      "lane_effective": "full",
+      "catchup": "full",
+      "design": "reuse",
+      "resume_target": "/work continues at first non-completed task 2",
+      "batch": "open"
+    }
+  },
+  "cycle": 2,
+  "review_lenses": {
+    "consensus": "done",
+    "blind": "done",
+    "doubt": "done",
+    "ui": "done",
+    "fable": "lost"
+  },
+  "doubts_rubric_verdicts": [
+    {
+      "rule_id": "D1",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D2",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D3",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D4",
+      "verdict": "pass"
+    },
+    {
+      "rule_id": "D5",
+      "verdict": "pass"
+    }
+  ],
+  "rework_task_ids": [
+    "5"
+  ],
+  "autonomous_decisions": [
+    {
+      "cycle": 1,
+      "issue": "Pi adapter attaches no `error` listener to `child.stdin`. If `engram` is missing (ENOENT) or exits before reading stdin, the `write`/`end` calls emit an async EPIPE or destroyed-stream error. That error is unhandled and can crash the host's extension process instead of failing open. The `child.on(\"error\")` handler only covers spawn errors. Add `child.stdin.on(\"error\", () => finish(\"\"))` before the write.",
+      "severity": "high",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    },
+    {
+      "issue": "R1 Pi adapter attaches no error listener to child.stdin (EPIPE can crash the Pi extension)",
+      "severity": "high",
+      "cycle": 1,
+      "action": "auto-fix: queued as rework task 4 (cycle 1)",
+      "reason": "3/4 consensus; fix is additive only (adds a stdin error handler), no signature, schema or API change"
+    },
+    {
+      "issue": "R2-R8 (stderr not consumed, Pi runtime tests, redundant assert, untested Pi wiring, missing Kiro install step, guessed Claude hooks path, informational CI/README note)",
+      "severity": "medium",
+      "cycle": 1,
+      "action": "discarded as single-voice; all seven appended to the settled-decisions ledger",
+      "reason": "each row carries Consensus [1/4]; the decision gate's Single-voice Medium or Low rule discards them and the ledger auto-dismisses a re-raise next cycle"
+    },
+    {
+      "issue": "Cycle 1 review ran without the fail-first replay (review-stage called without --replay-cmd)",
+      "severity": "low",
+      "cycle": 1,
+      "action": "recorded as a degradation in the review file; tautological-shape check still ran clean over 5 test functions",
+      "reason": "no reviewer raised a tautological-test finding and the suite is green at HEAD; re-staging the whole cycle to add the replay would cost four reviewer dispatches for one mechanical block"
+    },
+    {
+      "issue": "Pi adapter stdin error handler settles empty without killing the child, so a child that outlives a stdin error escapes the 12 s cleanup (engram-nudge.ts:29)",
+      "severity": "medium",
+      "cycle": 2,
+      "action": "auto-fix via cycle-2 tail sweep",
+      "reason": "Medium, clear mechanical fix, raised by 2 of 4 reviewers (Bob \ud83d\udfe1, Alice \u26aa merged); converging cycle sweeps the medium tail"
+    },
+    {
+      "issue": "Pi extension's runEngramNudgePlain adds a settled-flag guard, timeout kill and swallowed spawn/stdin errors beyond the PRD's bare 12 s timeout requirement (engram-nudge.ts:5)",
+      "severity": "low",
+      "cycle": 2,
+      "action": "discard",
+      "reason": "single-voice (Blake only, [1/4]); the reviewer himself states it is fail-safe and not a new feature"
+    },
+    {
+      "cycle": 2,
+      "issue": "The new stdin error handler calls `finish(\"\")`, which clears the timeout without terminating the child. If Engram closes stdin but remains running, it escapes the 12-second cleanup. Terminate the child before settling empty on this path.",
+      "severity": "medium",
+      "action": "auto-fixed",
+      "reason": "fixed by review-close"
+    }
+  ],
+  "applied_review_batches": [
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00067-engram-plugin-v1-review-1.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00067-engram-plugin-v1-review-2.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00067-engram-plugin-v1-review-2.md::tail-sweep"
+  ],
+  "phases_completed": [
+    "review"
+  ]
+}
