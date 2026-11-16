@@ -1,0 +1,24 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "engram",
+  "version": "0.1.0",
+  "description": "Recall prior decisions, sessions, and code across the portfolio through the engram CLI.",
+  "author": {
+    "name": "buvis"
+  },
+  "license": "MIT",
+  "extensions": {
+    "com.anthropic.claude-code": {
+      "hooks": "com.anthropic.claude-code/hooks.json"
+    },
+    "com.openai.codex": {
+      "hooks": "com.openai.codex/hooks.json"
+    },
+    "com.github.copilot": {
+      "hooks": "com.github.copilot/hooks.json"
+    },
+    "works.earendil.pi": {
+      "hooks": "works.earendil.pi/engram-nudge.ts"
+    }
+  }
+}

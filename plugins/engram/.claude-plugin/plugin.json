@@ -1,0 +1,16 @@
+{
+  "name": "engram",
+  "version": "0.1.0",
+  "description": "Recall prior decisions, sessions, and code across the portfolio through the engram CLI.",
+  "author": {
+    "name": "buvis"
+  },
+  "license": "MIT",
+  "hooks": "./com.anthropic.claude-code/hooks.json",
+  "mcpServers": {
+    "engram": {
+      "command": "engram",
+      "args": ["mcp"]
+    }
+  }
+}
