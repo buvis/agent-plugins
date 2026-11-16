@@ -61,18 +61,22 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 ## Active Work
 
-### Batch 202610250001
+### Batch 202611160843
+- [x] 00067-engram-plugin-v1.md (2 cycles; 5/5 tasks)
+- [ ] 00015-autopilot-workflow-parity-v1.md
+- [ ] 00016-autopilot-controller-integration-v1.md
+- [ ] 00017-autopilot-profile-conformance-v1.md
+- [ ] 00020-autopilot-controller-review-v1.md
+- [ ] 00021-autopilot-controller-records-v1.md
+
+Observations (2026-11-16T08:5xZ done gate): AP00067 (engram plugin: recall skill, MCP server, per-host nudge hooks) closed at cycle 2 — cycle 1 fixed a high-severity Pi-adapter stdin EPIPE handler gap (R1), cycle 2's tail sweep fixed the follow-on child-not-terminated-on-stdin-error gap it left behind; all five doubt rubric rules passed. Both review cycles' consensus dispatch hit `runner_auth_oauth_revoked`/`runner_auth` degradations that were recorded and swallowed rather than blocking. No deferred decisions or unresolved doubts this PRD. Batch 202610250001's prior entries (00012-00021, 00018 v1 hold) are superseded history; see prior batch reports for that lineage.
+
+### Batch 202610250001 (historical)
 - [x] 00012-autopilot-package-contract-v1.md (2 cycles; 47/47 tasks)
 - [x] 00013-autopilot-session-helpers-v3.md (2 cycles; 11/11 tasks; the one user-authorized bounded recovery; T1 R1 root-anchored symlink refusal, T2 R3 descriptor-bound failed-artifact invalidation, T3 git-probe timeout fail-closed, T4 delivery evidence. Dispositions: `reports/00013-v3-admission.md`; audit: `reviews/00013-autopilot-session-helpers-v3-audit.md`)
 - [ ] 00013 v1 and v2: hold (exhausted caps, cap_regression); superseded by v3's completed fresh full review. v2 cycle-2 review `reviews/00013-autopilot-session-helpers-v2-review-2.md`, stubs 00034-00037.
 - [ ] 00014-autopilot-host-execution-v1.md
-- [ ] 00015-autopilot-workflow-parity-v1.md
-- [ ] 00016-autopilot-controller-integration-v1.md
-- [ ] 00017-autopilot-profile-conformance-v1.md
 - [ ] 00018-autopilot-controller-kernel-v1.md (hold: replan budget 40K below 55K estimator overhead; tasks 1-6 + task 7 tests committed; do not resume this batch)
-- [ ] 00019-autopilot-controller-lifecycle-v1.md
-- [ ] 00020-autopilot-controller-review-v1.md
-- [ ] 00021-autopilot-controller-records-v1.md
 
 Observations (2026-11-08T16:36Z done gate): AP00013 v3 closed at cycle 2 after a tail sweep of tasks 9-11 (R1 receipt re-pin, R3 CHANGELOG conjunction, R4 artifact-parent-swap coverage check); full suite re-verified at 19 known AP00018 controller failures only. 35 autonomous decisions and 1 deferred decision (dirty_tree.py sibling git-probe timeout, out of T3 scope) projected to `decisions.md`. Next: fresh build session selects the next PRD (00014) from wip/backlog.
 

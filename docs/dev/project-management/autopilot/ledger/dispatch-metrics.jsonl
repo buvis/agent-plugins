@@ -1550,3 +1550,5 @@
 {"id":"64950460","kind":"pat","task":"5","queued_at":1794818903,"prompt_bytes":4949}
 {"id":"64950460","ended_at":1794818977,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
 {"kind":"handoff","site":"review","edge":"leave","at":1794818977,"phase":"done","prd":"00067-engram-plugin-v1.md"}
+{"kind":"handoff","site":"done","edge":"resume","at":1794819000,"phase":"done","prd":"00067-engram-plugin-v1.md"}
+{"kind":"handoff","site":"done","edge":"leave","at":1794819117,"phase":"done","prd":"00067-engram-plugin-v1.md"}
