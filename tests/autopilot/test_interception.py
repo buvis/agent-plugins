@@ -105,17 +105,14 @@ class FindBindingTest(unittest.TestCase):
     def test_stops_at_the_first_git_toplevel(self) -> None:
         import tempfile
 
-        with tempfile.TemporaryDirectory() as raw:
-            root = Path(raw)
+        with tempfile.TemporaryDirectory() as enclosing:
+            enclosing_root = Path(enclosing)
+            root = enclosing_root / "repo"
+            root.mkdir()
             (root / ".git").mkdir()
-            outer_binding = root.parent / ".autopilot" / "controller"
+            outer_binding = enclosing_root / ".autopilot" / "controller"
             outer_binding.mkdir(parents=True)
-            try:
-                self.assertIsNone(interception.find_binding(root))
-            finally:
-                import shutil
-
-                shutil.rmtree(root.parent / ".autopilot")
+            self.assertIsNone(interception.find_binding(root))
 
     def test_a_binding_marker_that_is_a_file_not_a_directory_does_not_count(self) -> None:
         import tempfile
@@ -404,6 +401,28 @@ class HookBehaviorEquivalenceTest(unittest.TestCase):
                 )
                 allowed = case["expected"] == "allow"
                 self.assertIs(decision.allowed, allowed, msg=decision.outcomes)
+
+
+class PushGrammarCharacterizationTest(unittest.TestCase):
+    """Binds every push-* characterization fixture to the real
+    guards.is_git_push grammar, not a test-local stand-in — closing the gap
+    the module docstring above notes: these fixtures previously pinned only
+    the duty-call shape, never the command-classification verdict itself."""
+
+    def test_every_denied_push_fixture_is_a_grammar_match(self) -> None:
+        """is_git_push is a conservative superset (§7): a false positive on
+        an allowed command is tolerated, but every fixture the source denied
+        for being a push must still be one, or custody_push is never
+        consulted for it and the denial is unreachable."""
+        document = json.loads(CHARACTERIZATION.read_text(encoding="utf-8"))
+        cases = [case for case in document["cases"]
+                 if case["case_id"].startswith("push-") and case["expected"] == "deny"
+                 and case["payload"]["tool_name"] == "Bash"]
+        self.assertTrue(cases, "expected at least one denied push-* fixture")
+        for case in cases:
+            with self.subTest(case_id=case["case_id"]):
+                command = case["payload"]["tool_input"]["command"]
+                self.assertTrue(guards.is_git_push(command), command)
 
 
 def _cases(prefix: str) -> list[dict]:
