@@ -159,3 +159,7 @@ Orchestrator: the step-5.7 per-task review could not run (`sonnet-run.sh`: "OAut
 ## Cycle 2 rework — Task 21: plugins/autopilot/scripts/interception.py (unrelated-project denial, same root cause as task 18)
 
 Orchestrator: task 21's finding ("every controller-keyed duty refuses when unbound or has no seam, with no check that autopilot is involved") is the same root cause task 18 fixed (restoring the unbound-skip). Verified task 21's exact scenario directly against the fixed code (a Skill call for the non-autopilot skill "commit" in an unrelated unbound repo now skips post_handoff and returns `decision.allowed == True`); no additional code change was needed, and task 18's committed regression tests already cover this class of scenario.
+
+## Cycle 2 rework — Task 22: tools/autopilot/probe-host.py (unbound control push cannot be observed, same root cause as task 18)
+
+Orchestrator: also the same root cause as task 18 — the real guard denied the probe's unbound control push instead of skipping it. Ran the two named test modules directly (`PYTHONPATH=tests/autopilot python3 -m unittest tests.autopilot.test_host_argv tests.autopilot.test_host_argv_failed_runs -v`): 31 + 3 tests, 0 failed, including the two tests this finding names by name. No additional code change was needed.
