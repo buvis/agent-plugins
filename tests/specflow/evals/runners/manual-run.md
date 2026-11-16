@@ -367,6 +367,14 @@ criterion was changed. A complete shell-read method still needs host or OS
 access telemetry covering the tools and their descendants, with per-turn scope,
 successful access outcomes, and path identity; the retained records lack it.
 
+Feasibility check (2026-11-16, synthetic probe, QA log "Offline read-telemetry
+feasibility"): no unprivileged route supplies that telemetry. APFS access times
+miss `cp` and clone copies and name no process, so they are not used, also not
+as a partial signal. The one complete source found is Endpoint Security
+(`eslogger` with `open`, `mmap`, `clone`, `copyfile`, `fork`, `exec`, `exit`),
+which needs root and Full Disk Access for the supervising terminal. It is not
+run or integrated; using it is the developer's decision.
+
 Question counting ignores fenced code and listed options. A consecutive run of
 question marks ends one question. The total-count assertion sums the questions
 across replies. A broken session fails every eval, including absence checks.

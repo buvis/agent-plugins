@@ -793,3 +793,79 @@ and overlong helper explanation), two verified (positive/negative scorer rejecti
 and native-result/alias handling), one known (missing complete access telemetry).
 Second review pass found no further change. Existing record 3 and pending human
 rubric remain unchanged. T-054/T-053 remain unchecked.
+
+### Offline read-telemetry feasibility (2026-11-16, later session)
+
+Repository verified clean at `add7471`; status implementation, gates open, next
+T-054. Question: can any route available without new privileges give a complete
+per-turn read inventory (successful accesses, tools and descendants, turn
+scope, path identity)? Answer: no. Nothing was integrated; adapters, scorer,
+schema, records, and tasks are unchanged.
+
+Routes checked:
+
+- **Host hooks and streams.** They report tool calls, not the file accesses of
+  the processes a tool starts (settled in the entry above). No host accepts a
+  supervisor-written sandbox profile, so Seatbelt allow-reporting is not
+  reachable; this was reasoned from the adapters' generated configuration, not
+  tested, because a nested sandbox cannot start here.
+- **Unprivileged OS signal: APFS access time.** The Data volume is not mounted
+  `noatime`. Synthetic probe, 36 cases, Python 3.15.2, one run, files under
+  `/private/tmp`: each file's access time is set 100 s before its modification
+  time, the supervisor holds a never-read descriptor on the original inode,
+  runs one action, then reads `fstat`.
+  - Detected (20): Python read, one-byte read, `pread`, `mmap`, `cat`, glob and
+    variable expansion, symlink and hard-link alias, `..` path, nested
+    subprocess, helper loader, `rg`, `grep -r`, `git hash-object`, `shasum`,
+    `head -c 1`, two reads in one command, a read followed by an atomic replace
+    (through the held descriptor), and a read of a file created just before.
+  - Correctly silent (11): untouched, `echo` of the name, `ls -l`, `stat`,
+    open without read, failed `cat` on mode 000, `false && cat`, `rg --files`,
+    append-only write, rename, a 3 s idle wait.
+  - **Missed reads: `cp` and `cp -c`.** The copy holds the content and the
+    source's access time, change time, and modification time do not move. A
+    turn can copy a file and read the copy, inside or outside the workspace,
+    with no trace on the source. A negative read assertion would pass falsely.
+  - **False read: `touch`** advances the access time; the change time shows the
+    tampering. A read followed by `utimes` back to the old value hides the
+    read; again only the change time shows it. Both can be forced to unknown,
+    not to a measurement.
+  - A second read is invisible once the access time is past the modification
+    time, so the supervisor must re-arm every file before every turn.
+  - No process identity. A read by the host's own indexing, Git, Spotlight, or
+    backup is indistinguishable from the agent's, so a positive read assertion
+    would pass falsely.
+  - Verdict: fails the contract twice (incomplete on copies, unattributed on
+    positives). Not integrated, also not as a partial signal: the scorer takes
+    only a complete inventory.
+- **Library interposition** (`DYLD_INSERT_LIBRARIES`): not tested. The loader
+  drops it for system binaries (`/bin/cat`, `/bin/sh`, `/usr/bin/git`) and it
+  sees no direct system call, so it cannot be complete.
+- **Privileged OS tracing.** `eslogger` ships with macOS (`man eslogger`,
+  `eslogger --list-events` run here). It offers `open`, `close`, `mmap`,
+  `clone`, `copyfile`, `rename`, `fork`, `exec`, `exit`. The SDK headers
+  (`EndpointSecurity/ESMessage.h`, `ESMessageCore.h`) give each event the file
+  path with its `stat` (device and inode) and the acting process with
+  `audit_token`, `ppid`, `original_ppid`, `group_id`, `session_id`, and
+  `parent_audit_token`. That covers descendants, path identity, turn scope by
+  timestamp, and the copy and clone cases the access time misses. It must run
+  as root, and the terminal needs Full Disk Access. `fs_usage` and `dtrace`
+  need root too. None was run: root and a privacy-setting change are outside
+  the standing authorization, and the agent profile cannot grant either.
+  Unverified until run: whether a notify `open` fires only for a successful
+  open, whether the event stream drops events under load, and whether
+  `eslogger`'s own warning ("NOT API in any sense") is acceptable for release
+  evidence.
+
+Exact blocker: a complete read inventory needs kernel access events with
+process lineage. On this macOS the only supplier is Endpoint Security (or
+root tracing), which needs root plus Full Disk Access for the supervising
+terminal. That is a developer decision on a security setting, not an adapter
+defect. Until it is decided, every turn with a shell, search, or edit call
+stays `not-measured`, and the read assertions in 13 evals cannot pass on such
+turns. Acceptance criteria are unchanged.
+
+The probe script is untracked scratch at `docs/dev/tmp/specflow/atime_probe.py`
+(argument: a scratch folder). Verification of this session: repository
+validator only; no runner code changed, so no suite was rerun. No live host
+run, no remote CI.
