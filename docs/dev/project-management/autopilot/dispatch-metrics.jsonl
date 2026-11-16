@@ -1510,3 +1510,15 @@
 {"id":"932fe043","ended_at":1794807292,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
 {"kind":"handoff","site":"build","edge":"leave","at":1794807292,"phase":"build","prd":"00019-autopilot-controller-lifecycle-v1.md"}
 {"kind":"handoff","site":"build","edge":"resume","at":1794807305,"phase":"build","prd":"00019-autopilot-controller-lifecycle-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794815022,"phase":"build","prd":"00067-engram-plugin-v1.md"}
+{"id":"9a214376","kind":"ivan","task":"1","queued_at":1794816466,"prompt_bytes":7527}
+{"id":"cb94a2ba","kind":"ivan","task":"1","queued_at":1794816471,"prompt_bytes":7527}
+{"id":"f3d6fe65","kind":"ivan","task":"1","queued_at":1794816522,"prompt_bytes":14109}
+{"id":"cb94a2ba","ended_at":1794816670,"elapsed_s":199,"outcome":"ok","detail":null}
+{"id":"65f92875","kind":"deslop","task":"1","queued_at":1794816747,"prompt_bytes":6763}
+{"id":"65f92875","ended_at":1794816830,"elapsed_s":83,"outcome":"ok","detail":null}
+{"id":"3d487c31","kind":"pat","task":"1","queued_at":1794816878,"prompt_bytes":18366}
+{"id":"9a214376","ended_at":1794816990,"elapsed_s":231,"outcome":"ok","detail":"closed-by: commit 5c60f7214236f8fc9975c367323e1ffbbb094422"}
+{"id":"f3d6fe65","ended_at":1794816990,"elapsed_s":175,"outcome":"ok","detail":"closed-by: commit 5c60f7214236f8fc9975c367323e1ffbbb094422"}
+{"id":"3d487c31","ended_at":1794816990,"elapsed_s":null,"outcome":"lost","detail":"open at build/leave handoff"}
+{"kind":"handoff","site":"build","edge":"leave","at":1794816990,"phase":"build","prd":"00067-engram-plugin-v1.md"}
