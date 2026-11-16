@@ -1443,3 +1443,4 @@
 {"id":"ecef313e","ended_at":1794790836,"elapsed_s":905,"outcome":"ok","detail":null}
 {"id":"e24e916f","ended_at":1794792022,"elapsed_s":2091,"outcome":"ok","detail":null}
 {"id":"ecef313e","ended_at":1794792022,"elapsed_s":2091,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1794792065,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
