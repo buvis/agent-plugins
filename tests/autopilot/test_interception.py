@@ -130,14 +130,22 @@ class EvaluateHookUnboundTest(unittest.TestCase):
         `.autopilot/controller` found they are skipped, not refused, and do
         not appear in decision.outcomes. document_location needs no
         controller, so it still runs, is allowed, and the skip does not flip
-        decision.allowed to False."""
+        decision.allowed to False. custody_push is called twice here and
+        must be skipped twice, in call order (no dedup, no reordering), and
+        delegation (not controller-keyed) must be evaluated normally, never
+        routed into the skip path alongside it."""
         host_fakes.install_adapter(
             self,
             "claude",
             translate_hook=lambda event, payload: (
                 DutyCall(GuardDuty.CUSTODY_PUSH, {}),
                 DutyCall(GuardDuty.POST_HANDOFF, {"requested_skill": "autopilot:work", "session": "s1"}),
+                DutyCall(GuardDuty.CUSTODY_PUSH, {}),
                 DutyCall(GuardDuty.DOCUMENT_LOCATION, {"document_path": "src/app.py"}),
+                DutyCall(
+                    GuardDuty.DELEGATION,
+                    {"dispatch_skill": "autopilot:plan-tasks-notes", "child_depth": 0},
+                ),
             ),
             session_from_environment=lambda env: None,
         )
@@ -146,16 +154,72 @@ class EvaluateHookUnboundTest(unittest.TestCase):
         )
         self.assertFalse(decision.bound)
         self.assertEqual(
-            set(decision.skipped),
-            {(GuardDuty.CUSTODY_PUSH.value, "unbound"), (GuardDuty.POST_HANDOFF.value, "unbound")},
+            decision.skipped,
+            (
+                (GuardDuty.CUSTODY_PUSH.value, "unbound"),
+                (GuardDuty.POST_HANDOFF.value, "unbound"),
+                (GuardDuty.CUSTODY_PUSH.value, "unbound"),
+            ),
         )
         for duty_value, reason in decision.skipped:
-            self.assertIsInstance(duty_value, str)
-            self.assertIsInstance(reason, str)
+            self.assertIs(type(duty_value), str)
+            self.assertNotIsInstance(duty_value, GuardDuty)
+            self.assertIs(type(reason), str)
+        outcomes = {outcome.duty: outcome for outcome in decision.outcomes}
+        self.assertEqual(set(outcomes), {GuardDuty.DOCUMENT_LOCATION, GuardDuty.DELEGATION})
+        self.assertTrue(outcomes[GuardDuty.DOCUMENT_LOCATION].allowed)
+        self.assertTrue(outcomes[GuardDuty.DELEGATION].allowed)
+        self.assertTrue(decision.allowed)
+        self.assertEqual(decision.host_id, "claude")
+        self.assertEqual(decision.event, "PreToolUse")
+        self.assertEqual(decision.project_root, "/does/not/exist")
+
+    def test_unbound_with_a_real_but_unbound_cwd_still_skips(self) -> None:
+        """`bound` means "a `.autopilot/controller` marker was found
+        searching upward", not "cwd exists as a directory": every other
+        unbound test here uses the nonexistent path /does/not/exist, which a
+        naive `cwd.is_dir()` check would also happen to classify as unbound.
+        A real directory (with a `.git` marker, so find_binding stops there)
+        that merely lacks `.autopilot/controller` must still be unbound."""
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            (root / ".git").mkdir()
+            host_fakes.install_adapter(
+                self,
+                "claude",
+                translate_hook=lambda event, payload: (DutyCall(GuardDuty.CUSTODY_PUSH, {}),),
+                session_from_environment=lambda env: None,
+            )
+            decision = interception.evaluate_hook(
+                "claude", "PreToolUse", {"cwd": str(root)}, env={}, seam=None
+            )
+            self.assertFalse(decision.bound)
+            self.assertEqual(decision.skipped, ((GuardDuty.CUSTODY_PUSH.value, "unbound"),))
+            self.assertTrue(decision.allowed)
+
+    def test_unbound_document_location_refusal_survives_the_skip(self) -> None:
+        """A pure duty's own refusal is never faked as allowed to make an
+        unbound decision trivially pass, and skipping a controller-keyed
+        duty never flips an otherwise-correct refusal from another duty back
+        to decision.allowed = True."""
+        host_fakes.install_adapter(
+            self,
+            "claude",
+            translate_hook=lambda event, payload: (
+                DutyCall(GuardDuty.CUSTODY_PUSH, {"command": "git push"}),
+                DutyCall(GuardDuty.DOCUMENT_LOCATION, {"document_path": "backlog/x.md"}),
+            ),
+            session_from_environment=lambda env: None,
+        )
+        decision = interception.evaluate_hook(
+            "claude", "PreToolUse", {"cwd": "/does/not/exist"}, env={}, seam=None
+        )
+        self.assertFalse(decision.bound)
+        self.assertEqual(decision.skipped, ((GuardDuty.CUSTODY_PUSH.value, "unbound"),))
         outcomes = {outcome.duty: outcome for outcome in decision.outcomes}
         self.assertEqual(set(outcomes), {GuardDuty.DOCUMENT_LOCATION})
-        self.assertTrue(outcomes[GuardDuty.DOCUMENT_LOCATION].allowed)
-        self.assertTrue(decision.allowed)
+        self.assertFalse(outcomes[GuardDuty.DOCUMENT_LOCATION].allowed)
+        self.assertFalse(decision.allowed)
 
     def test_unbound_other_controller_keyed_duties_are_also_skipped(self) -> None:
         """The remaining controller-keyed duties named by the finding:
@@ -178,11 +242,12 @@ class EvaluateHookUnboundTest(unittest.TestCase):
         )
         self.assertFalse(decision.bound)
         self.assertEqual(
-            set(decision.skipped),
-            {(call.duty.value, "unbound") for call in duties},
+            decision.skipped,
+            tuple((call.duty.value, "unbound") for call in duties),
         )
         self.assertEqual(decision.outcomes, ())
         self.assertTrue(decision.allowed)
+        self.assertIsNone(decision.additional_context)
 
     def test_unbound_with_no_duty_calls_allows_trivially(self) -> None:
         """Zero duty calls is not a crash and not a false refusal: skipped
