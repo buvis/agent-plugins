@@ -1433,3 +1433,6 @@
 {"id":"5eb79fdd","ended_at":1794788813,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
 {"id":"f0392eac","ended_at":1794788813,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
 {"kind":"handoff","site":"review","edge":"leave","at":1794788813,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
+{"id":"fcc7a139","kind":"pat","task":"17","queued_at":1794789004,"prompt_bytes":6469}
+{"id":"fcc7a139","ended_at":1794789079,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"kind":"handoff","site":"review","edge":"leave","at":1794789079,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
