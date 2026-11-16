@@ -80,7 +80,8 @@ The first sub-bullets of `Details:` and `Verify:` are carried from the source pl
 
 The design's scoped evidence matrix governs remaining tasks: full Claude Code coverage, Codex/kiro-cli smoke coverage, one order per handoff/coexistence test, Claude-only context observations, and deferred parity. Human review means every model FAIL and one sample of up to ten PASS verdicts per host over the whole frozen run, with the design's disagreement escalation. Existing completed Outcomes remain historical evidence, not a waiver of fresh proofs.
 
-- [ ] T-054 Perform security review
+- [x] T-054 Perform security review
+  - Outcome: 2026-11-16 GitHub run 43935303847 on 3185f21 completed the plugin job and Python 3.10 security job successfully. Local security suite passed 7 tests, 0 skipped, on Python 3.15 and 3.10. Linux CI defects in scratch selection and symlink-loop identity were fixed with regressions; full rules suite passed 200 tests, 0 skipped, on both interpreters. Earlier security review and regression evidence follows.
   - Outcome: 2026-11-15 local review and regression work committed in `43ee1c7`; review at `docs/dev/project-management/reviews/2026-11-15-specflow-security-review.md`. Configured symlink-loop crash fixed; security suite passes on Python 3.10.22 and 3.15.2, including the required static dependency scan. Python 3.10 CI job added; remote CI has not run, so task remains unchecked. Contract 390, review 41, rules 168, validator 59 and release 54 tests pass locally; repository validation passes. The shipped package changed, invalidating prior host proofs and records.
   - Requirements: 00003 SEC-001 criteria 1, 2, 3, 4; 00004 SEC-002 criterion 5; 00006 SEC-002 criteria 1, 2, 3, 4
   - Depends on: T-050
