@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py\" --hook codex --event PreToolUse",
+            "command": "python3 \"${AUTOPILOT_PLUGIN_ROOT}/scripts/autopilot.py\" --hook codex --event PreToolUse",
             "timeout": 10
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py\" --hook codex --event PreToolUse",
+            "command": "python3 \"${AUTOPILOT_PLUGIN_ROOT}/scripts/autopilot.py\" --hook codex --event PreToolUse",
             "timeout": 5
           }
         ]
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py\" --hook codex --event PostToolUse",
+            "command": "python3 \"${AUTOPILOT_PLUGIN_ROOT}/scripts/autopilot.py\" --hook codex --event PostToolUse",
             "timeout": 5
           }
         ]
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py\" --hook codex --event Stop",
+            "command": "python3 \"${AUTOPILOT_PLUGIN_ROOT}/scripts/autopilot.py\" --hook codex --event Stop",
             "timeout": 10
           }
         ]
@@ -50,7 +50,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/autopilot.py\" --hook codex --event SessionStart",
+            "command": "python3 \"${AUTOPILOT_PLUGIN_ROOT}/scripts/autopilot.py\" --hook codex --event SessionStart",
             "timeout": 5
           }
         ]

@@ -32,6 +32,7 @@ from jobs import JobRequest
 HOST_ID = "codex"
 IMPLEMENTED_CAPABILITIES = frozenset({"identity", "isolation", "interception"})
 SESSION_ENV_VAR = "CODEX_SESSION_ID"
+PLUGIN_ROOT_EXPR = "${AUTOPILOT_PLUGIN_ROOT}"
 HOOK_REGISTRATIONS = (
     HookRegistration("PreToolUse", "Bash", 10),
     HookRegistration("PreToolUse", "apply_patch", 5),

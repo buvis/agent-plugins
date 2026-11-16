@@ -96,7 +96,7 @@ The historical recursion guards and host markers below are documentation, not av
 
 ## Paths
 
-Current resources stay inside this package root: `skills/`, `references/` (including `references/personas/`), `contracts/`, and `scripts/autopilot.py`. The local facade resolves packaged resources from its own location, without source-checkout or author-home fallback. The legacy substitution and helper-script rules below describe the source host only; they do not activate runtime paths.
+Current resources stay inside this package root: `skills/`, `references/` (including `references/personas/`), `contracts/`, and `scripts/autopilot.py`. The local facade resolves packaged resources from its own location, without source-checkout or author-home fallback. The legacy substitution and helper-script rules below describe the source host only; they do not activate runtime paths. The codex hook registration resolves `${AUTOPILOT_PLUGIN_ROOT}`, which the launching environment must set to this package root.
 
 <!-- Historical source body begins. -->
 > 

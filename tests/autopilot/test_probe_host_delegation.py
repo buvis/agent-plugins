@@ -22,7 +22,9 @@ from test_probe_host_resource_containment import (
 )
 
 PARENT_ALLOWED = {"duty": "delegation", "allowed": True, "reason": None}
-NESTED_REFUSED = {"duty": "delegation", "allowed": False, "reason": "recursion_depth"}
+# guards._deny prefixes a stateless refusal's reason with its own duty name,
+# which test_guards_pure_duties.py pins; the bare cause never reaches a trace.
+NESTED_REFUSED = {"duty": "delegation", "allowed": False, "reason": "delegation: recursion_depth"}
 TRACE_REL = Path("docs") / "dev" / "tmp" / "autopilot" / "hook-trace.jsonl"
 
 

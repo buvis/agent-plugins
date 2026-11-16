@@ -33,6 +33,7 @@ HOST_ID = "claude"
 IMPLEMENTED_CAPABILITIES = frozenset({"identity", "delegation", "isolation", "interception"})
 SESSION_ENV_VAR = "CLAUDE_CODE_SESSION_ID"
 CHILD_SESSION_ENV = "CLAUDE_CODE_CHILD_SESSION"
+PLUGIN_ROOT_EXPR = "${CLAUDE_PLUGIN_ROOT}"
 HOOK_REGISTRATIONS = (
     HookRegistration("PreToolUse", "Edit|Write|MultiEdit", 5),
     HookRegistration("PreToolUse", "Bash", 10),

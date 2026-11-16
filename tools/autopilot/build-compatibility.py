@@ -30,7 +30,7 @@ hosts = importlib.import_module("hosts")
 guards = importlib.import_module("guards")
 
 ALL_DUTIES = tuple(duty.value for duty in guards.GuardDuty)
-_HOOK_COMMAND = 'python3 "${{CLAUDE_PLUGIN_ROOT}}/scripts/autopilot.py" --hook {host_id} --event {event}'
+_HOOK_COMMAND = 'python3 "{root}/scripts/autopilot.py" --hook {host_id} --event {event}'
 
 
 def _implemented(host_id: str) -> frozenset[str]:
@@ -136,7 +136,9 @@ def _hooks_asset(host_id: str, declaration: dict) -> dict | None:
         entry["hooks"] = [
             {
                 "type": "command",
-                "command": _HOOK_COMMAND.format(host_id=host_id, event=reg.event),
+                "command": _HOOK_COMMAND.format(
+                    root=module.PLUGIN_ROOT_EXPR, host_id=host_id, event=reg.event
+                ),
                 "timeout": reg.timeout,
             }
         ]

@@ -21,6 +21,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import signal
 import subprocess
@@ -37,12 +38,60 @@ from log_sink_refusal import _pinned_parent_fd
 
 PROBES_REL = Path("docs") / "dev" / "tmp" / "autopilot" / "probes"
 TRACE_REL = Path("docs") / "dev" / "tmp" / "autopilot" / "hook-trace.jsonl"
-CAPABILITIES = ("identity", "isolation", "interception", "resources")
+CAPABILITIES = ("identity", "delegation", "isolation", "interception", "resources")
 RUNS = ("bound-1", "bound-2", "control")
 LIVE_HOSTS = ("claude", "codex", "gemini")
 OBSERVED = {"status": "observed", "reason": None}
 REFUSAL = {"duty": "custody_push", "allowed": False, "reason": "missing_controller_seam"}
 MISSING_SURFACE_REASON = "no_package_local_registration_surface"
+PARENT_ALLOWED = {"duty": "delegation", "allowed": True, "reason": None}
+# guards._deny prefixes a stateless refusal's reason with its own duty name.
+NESTED_REFUSED = {"duty": "delegation", "allowed": False, "reason": "delegation: recursion_depth"}
+AUTH_FAILURE = re.compile(
+    r"not logged in|not authenticated|authentication failed|authentication required"
+    r"|unauthorized|invalid api key",
+    re.IGNORECASE,
+)
+# The probe's own harness may itself run inside a host session; inheriting that
+# session's identity or child marker would make the probed host report the
+# harness's lineage (a `CLAUDE_CODE_CHILD_SESSION` leak refuses even the parent
+# dispatch). Every launch mints its own identity instead.
+HOST_SESSION_ENV = frozenset(
+    {"CLAUDE_CODE_CHILD_SESSION"}
+    | {getattr(hosts.adapter(host), "SESSION_ENV_VAR") for host in LIVE_HOSTS}
+)
+DISPATCH_SCENARIO = (
+    "Before the push, dispatch exactly ONE subagent. Inside that subagent, attempt exactly ONE"
+    " further nested dispatch. Do nothing else in either.\n"
+)
+
+
+class ResourceEscape(Exception):
+    """A declared resource or source symlink resolves outside the copied plugin tree."""
+
+
+def delegates(host_id: str) -> bool:
+    return "delegation" in hosts.adapter(host_id).IMPLEMENTED_CAPABILITIES
+
+
+def record_command(plugin: Path, host_id: str, cwd: Path) -> str:
+    """Shell-safe `--record-session` command naming `cwd` as its project root."""
+    return shlex.join([sys.executable, str(plugin / "scripts" / "autopilot.py"),
+                       "--record-session", host_id, "--project-root", str(cwd)])
+
+
+def recorded_session(stdout_text: str) -> str | None:
+    """The session id of the last `--record-session` object in the text, if any."""
+    session_id = None
+    for line in stdout_text.splitlines():
+        try:
+            obj = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(obj, dict) and obj.get("schema_version") == 1 and "host_id" in obj:
+            session = obj.get("session")
+            session_id = session.get("session_id") if isinstance(session, dict) else None
+    return session_id
 
 
 def not_observed(reason: str) -> dict:
@@ -65,7 +114,22 @@ def _check_no_escaping_symlink(source: Path) -> None:
             if path.is_symlink() and os.path.realpath(path) != root and not os.path.realpath(
                 path
             ).startswith(root + os.sep):
-                raise ValueError(f"source plugin symlink escapes its tree: {path}")
+                raise ResourceEscape(f"source plugin symlink escapes its tree: {path}")
+
+
+def _check_declared_scripts(plugin: Path, host_id: str, hooks: str) -> None:
+    """Every script a hook command names must exist inside the copied tree."""
+    root = os.path.realpath(plugin)
+    expr = hosts.adapter(host_id).PLUGIN_ROOT_EXPR
+    for entries in json.loads(hooks)["hooks"].values():
+        for entry in entries:
+            for hook in entry["hooks"]:
+                script = shlex.split(hook["command"].replace(expr, str(plugin)))[1]
+                resolved = os.path.realpath(script)
+                if not resolved.startswith(root + os.sep):
+                    raise ResourceEscape(f"declared script resolves outside the plugin: {script}")
+                if not os.path.isfile(resolved):
+                    raise FileNotFoundError(f"declared script is missing: {script}")
 
 
 def prepare(run_dir: Path, host_id: str) -> str:
@@ -80,7 +144,8 @@ def prepare(run_dir: Path, host_id: str) -> str:
         json.dumps({"name": "autopilot", "hooks": "./compatibility/claude/hooks.json"}),
         encoding="utf-8",
     )
-    hooks = (plugin / "compatibility" / host_id / "hooks.json").read_text(encoding="utf-8")
+    hooks = (plugin / "compatibility" / host_id / "hooks.json").read_bytes()
+    _check_declared_scripts(plugin, host_id, hooks.decode("utf-8"))
     git("init", "-q", "--bare", "remote.git", cwd=run_dir)
     for name in ("project", "control"):
         repo = run_dir / name
@@ -92,9 +157,7 @@ def prepare(run_dir: Path, host_id: str) -> str:
         (repo / TRACE_REL).parent.mkdir(parents=True)
         if host_id == "codex":
             (repo / ".codex").mkdir()
-            (repo / ".codex" / "hooks.json").write_text(
-                hooks.replace("${CLAUDE_PLUGIN_ROOT}", str(plugin)), encoding="utf-8"
-            )
+            (repo / ".codex" / "hooks.json").write_bytes(hooks)
     (run_dir / "project" / ".autopilot" / "controller").mkdir(parents=True)
     return "project-layer" if host_id == "codex" else "plugin-dir"
 
@@ -102,7 +165,9 @@ def prepare(run_dir: Path, host_id: str) -> str:
 def launch(argv: list[str], cwd: Path, prompt: str, timeout: float, output: Path,
            project_root: Path) -> dict:
     """One host launch, cut off (with its whole process group) at `timeout`."""
-    env = os.environ | {"AUTOPILOT_HOOK_TRACE": str(cwd / TRACE_REL)}
+    inherited = {k: v for k, v in os.environ.items() if k not in HOST_SESSION_ENV}
+    env = inherited | {"AUTOPILOT_HOOK_TRACE": str(cwd / TRACE_REL),
+                       "AUTOPILOT_PLUGIN_ROOT": str(output.parent / "plugin")}
     streams = {name: output.with_name(f"{output.name}.{name}") for name in ("stdout", "stderr")}
     started = time.monotonic()
     with open(streams["stdout"], "wb") as out, open(streams["stderr"], "wb") as err:
@@ -133,8 +198,21 @@ def read_trace(path: Path) -> list[dict]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
 
 
+def observe_delegation(runs: list[list[dict]]) -> dict:
+    """Delegation needs an allowed parent dispatch and a `recursion_depth`
+    refusal of the nested one, both traced in the bound runs."""
+    outcomes = [o for run in runs[:2] for line in run for o in line.get("outcomes", [])]
+    allowed = PARENT_ALLOWED in outcomes
+    refused = NESTED_REFUSED in outcomes
+    if allowed and refused:
+        return OBSERVED
+    if allowed:
+        return not_observed("nested_dispatch_not_refused")
+    return not_observed("parent_dispatch_not_allowed" if refused else "delegation_not_traced")
+
+
 def observe(runs: list[list[dict]], invocations: list[dict], refs: set[str],
-            plugin_root: str) -> tuple[dict, str]:
+            plugin_root: str, delegation: bool = False) -> tuple[dict, str]:
     """Capability verdicts from the per-run trace lines and the remote refs,
     plus the resource check: every trace line must name the copied package."""
     lines = [line for run in runs for line in run]
@@ -163,6 +241,8 @@ def observe(runs: list[list[dict]], invocations: list[dict], refs: set[str],
         interception = OBSERVED
     return {
         "identity": OBSERVED if identity else not_observed("session_not_traced"),
+        "delegation": (observe_delegation(runs) if delegation
+                       else not_observed("capability_not_implemented")),
         "isolation": OBSERVED if isolated else not_observed(
             "session_reused" if identity else "identity_not_observed"),
         "interception": interception,
@@ -174,29 +254,49 @@ def run_live_gemini(run_dir: Path, project_root: Path, timeout: float) -> dict:
     """Gemini has no package-local registration surface: two hook-free
     `--record-session` launches, identity and isolation decided only by
     whether each launch minted its own distinct session id."""
-    invocations, sessions = [], []
+    _check_no_escaping_symlink(SOURCE_PLUGIN)
+    plugin, work = run_dir / "plugin", run_dir / "work"
+    shutil.copytree(SOURCE_PLUGIN, plugin, ignore=shutil.ignore_patterns("__pycache__"))
+    (work / TRACE_REL).parent.mkdir(parents=True)
+    invocations, sessions, texts = [], [], []
     for index in range(2):
-        prompt = f"This is an autopilot hook probe. Probe tag: --record-session gemini-{index}\n"
-        invocation = launch(["gemini", "-p"], run_dir, prompt, timeout,
+        prompt = ("This is an autopilot hook probe. Run exactly this shell command once,"
+                  f" print its output, then stop:\n{record_command(plugin, 'gemini', work)}\n")
+        invocation = launch(["gemini", "-p"], work, prompt, timeout,
                             run_dir / f"gemini-{index}", project_root)
         invocations.append(invocation)
         stdout_text = (project_root / invocation["stdout_path"]).read_text(encoding="utf-8")
-        match = re.search(r"--record-session (\S+)", stdout_text)
-        sessions.append(match.group(1) if match else None)
-    distinct = len(sessions) == 2 and None not in sessions and sessions[0] != sessions[1]
-    identity_isolation = OBSERVED if distinct else not_observed("session_not_distinct")
-    missing_surface = not_observed(MISSING_SURFACE_REASON)
+        stderr_text = (project_root / invocation["stderr_path"]).read_text(encoding="utf-8")
+        texts.append(stdout_text + "\n" + stderr_text)
+        sessions.append(recorded_session(stdout_text))
+    failure = None
+    if any(invocation["timed_out"] for invocation in invocations):
+        failure = "host_timed_out"
+    elif any(invocation["exit_code"] != 0 for invocation in invocations):
+        failed_texts = [text for text, invocation in zip(texts, invocations)
+                        if invocation["exit_code"] != 0]
+        failure = (hosts.UNAVAILABLE_NO_AUTH if any(AUTH_FAILURE.search(t) for t in failed_texts)
+                   else "host_failed")
+    if failure:
+        observed = dict.fromkeys(CAPABILITIES, not_observed(failure))
+    else:
+        identity = None not in sessions
+        missing_surface = not_observed(MISSING_SURFACE_REASON)
+        observed = {
+            "identity": OBSERVED if identity else not_observed("session_not_traced"),
+            "delegation": not_observed("capability_not_implemented"),
+            "isolation": (not_observed("identity_not_observed") if not identity
+                          else OBSERVED if sessions[0] != sessions[1]
+                          else not_observed("session_reused")),
+            "interception": missing_surface,
+            "resources": missing_surface,
+        }
     return {
         "run_dir": run_dir.relative_to(project_root).as_posix(),
         "registration_surface": "none",
         "invocations": invocations,
         "trace_lines": 0,
-        "observed": {
-            "identity": identity_isolation,
-            "isolation": identity_isolation,
-            "interception": missing_surface,
-            "resources": missing_surface,
-        },
+        "observed": observed,
         "resource_check": "not_run",
     }
 
@@ -207,20 +307,18 @@ def run_live(host_id: str, run_dir: Path, project_root: Path, timeout: float) ->
         return run_live_gemini(run_dir, project_root, timeout)
     try:
         surface = prepare(run_dir, host_id)
-    except Exception:
+    except Exception as error:
+        escaped = isinstance(error, ResourceEscape)
         return {
             "run_dir": run_dir.relative_to(project_root).as_posix(),
             "registration_surface": "none",
             "invocations": [],
             "trace_lines": 0,
-            "observed": dict.fromkeys(CAPABILITIES, not_observed("resource_escape")),
-            "resource_check": "failed",
+            "observed": dict.fromkeys(
+                CAPABILITIES, not_observed("resource_escape" if escaped else "preparation_failed")),
+            "resource_check": "failed" if escaped else "not_run",
         }
-    plugin = run_dir / "plugin"
-    record_cmd = (
-        f"{sys.executable} {plugin / 'scripts' / 'autopilot.py'} "
-        f"--record-session {host_id} --project-root {run_dir}"
-    )
+    plugin, delegation = run_dir / "plugin", delegates(host_id)
     invocations, runs = [], []
     for name in RUNS:
         cwd = run_dir / ("control" if name == "control" else "project")
@@ -231,14 +329,15 @@ def run_live(host_id: str, run_dir: Path, project_root: Path, timeout: float) ->
             "This is an autopilot hook probe. Run exactly this shell command once, then stop:\n"
             f"git push probe-remote HEAD:refs/heads/probe-{name}\n"
             f"Do nothing else. Probe tag: --record-session {host_id}\n"
-            f"{record_cmd}\n"
+            f"{record_command(plugin, host_id, cwd)}\n"
+            + (DISPATCH_SCENARIO if name != "control" and delegation else "")
         )
         seen = len(read_trace(cwd / TRACE_REL))
         invocations.append(launch(argv, cwd, prompt, timeout, run_dir / name, project_root))
         runs.append(read_trace(cwd / TRACE_REL)[seen:])
     refs = set(git("--git-dir", "remote.git", "for-each-ref", "--format=%(refname)",
                    cwd=run_dir).split())
-    observed, resource_check = observe(runs, invocations, refs, os.path.realpath(plugin))
+    observed, resource_check = observe(runs, invocations, refs, os.path.realpath(plugin), delegation)
     return {
         "run_dir": run_dir.relative_to(project_root).as_posix(),
         "registration_surface": surface,
