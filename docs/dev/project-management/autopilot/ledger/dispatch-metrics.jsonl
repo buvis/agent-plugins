@@ -1444,3 +1444,22 @@
 {"id":"e24e916f","ended_at":1794792022,"elapsed_s":2091,"outcome":"ok","detail":null}
 {"id":"ecef313e","ended_at":1794792022,"elapsed_s":2091,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1794792065,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
+{"id":"fa5eb4e0","kind":"tess","task":"18","queued_at":1794792413,"prompt_bytes":83498}
+{"id":"20638617","kind":"tess","task":"18","queued_at":1794792447,"prompt_bytes":33126}
+{"id":"e1a74910","kind":"devon","task":"18","queued_at":1794792728,"prompt_bytes":11029}
+{"id":"e1a74910","ended_at":1794792908,"elapsed_s":180,"outcome":"ok","detail":null}
+{"id":"3ce70ecd","kind":"ivan","task":"18","queued_at":1794793192,"prompt_bytes":61230}
+{"id":"51f44c36","kind":"ivan","task":"18","queued_at":1794793220,"prompt_bytes":24683}
+{"id":"45759432","kind":"pat","task":"18","queued_at":1794793344,"prompt_bytes":29245}
+{"id":"c085d960","kind":"tess","task":"23","queued_at":1794793931,"prompt_bytes":30553}
+{"id":"50694cf9","kind":"ivan","task":"23","queued_at":1794794641,"prompt_bytes":25365}
+{"id":"3904251f","kind":"pat","task":"23","queued_at":1794795277,"prompt_bytes":34700}
+{"id":"fa5eb4e0","ended_at":1794795385,"elapsed_s":740,"outcome":"ok","detail":"closed-by: commit 9708ca0b9de0761396e41b2c5e4c3e99b53e5846"}
+{"id":"20638617","ended_at":1794795385,"elapsed_s":706,"outcome":"ok","detail":"closed-by: commit 9708ca0b9de0761396e41b2c5e4c3e99b53e5846"}
+{"id":"45759432","ended_at":1794795385,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"c085d960","ended_at":1794795385,"elapsed_s":646,"outcome":"ok","detail":"closed-by: commit 96acaf4c13b83d231f338e3c1fc692a68251a47f"}
+{"id":"3904251f","ended_at":1794795385,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"id":"3ce70ecd","ended_at":1794795385,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"51f44c36","ended_at":1794795385,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"id":"50694cf9","ended_at":1794795385,"elapsed_s":null,"outcome":"lost","detail":"open at review/leave handoff"}
+{"kind":"handoff","site":"review","edge":"leave","at":1794795385,"phase":"review","prd":"00014-autopilot-host-execution-v2.md"}
