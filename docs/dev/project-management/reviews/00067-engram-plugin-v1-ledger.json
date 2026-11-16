@@ -54,5 +54,13 @@
     "issue": "The package-tests module lists `.github/workflows/validate.yml`, `README.md` and `.claude-plugin/marketplace.json` as its locations. All three were found updated: the CI step is at `.github/workflows/validate.yml:70`, the README row at `README.md:17`, and the marketplace entry at `.claude-plugin/marketplace.json:10`. I ran the validator, the `generate_marketplace.py --check` and the five engram tests. All passed. This is informational only.",
     "file": "N/A",
     "reason": "single-voice (informational, no defect asserted)"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The Pi extension adds a `runEngramNudgePlain` helper with a settled-flag guard, a child-process kill on timeout, and swallowed spawn and stdin errors. The PRD only says to run the command with a 12 s timeout. This is fail-safe and is not a new feature.",
+    "file": "plugins/engram/works.earendil.pi/engram-nudge.ts:5",
+    "reason": "single-voice (reviewer states it is fail-safe and not a new feature)"
   }
 ]
