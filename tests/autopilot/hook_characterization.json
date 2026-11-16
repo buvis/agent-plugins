@@ -153,8 +153,8 @@
       "payload": {"tool_name": "Bash", "tool_input": {"command": "git push"}, "cwd": "<repo>"},
       "bound": false,
       "facts": {"custody": "pending"},
-      "expected": "deny",
-      "divergence": null
+      "expected": "allow",
+      "divergence": "unbound custody_push skip: custody_push is a controller-keyed duty and the case is unbound, so the target skips it (interception._evaluate_duty_call reason \"unbound\") instead of refusing; the source denied from the guarded cwd's custody marker alone and the target allows"
     },
     {
       "case_id": "push-allows-push-from-a-clean-repo",
@@ -175,8 +175,8 @@
       "payload": {"tool_name": "Bash", "tool_input": {"command": "git push"}, "cwd": "<repo>"},
       "bound": false,
       "facts": {"custody": "corrupt_marker"},
-      "expected": "deny",
-      "divergence": null
+      "expected": "allow",
+      "divergence": "unbound custody_push skip: custody_push is a controller-keyed duty and the case is unbound, so the target skips it (interception._evaluate_duty_call reason \"unbound\") instead of refusing; the source denied from the guarded cwd's custody marker alone and the target allows"
     },
     {
       "case_id": "push-denies-hidden-push-when-cwd-has-custody",
@@ -186,8 +186,8 @@
       "payload": {"tool_name": "Bash", "tool_input": {"command": "sh -c 'git push'"}, "cwd": "<repo>"},
       "bound": false,
       "facts": {"custody": "pending"},
-      "expected": "deny",
-      "divergence": null
+      "expected": "allow",
+      "divergence": "unbound custody_push skip: custody_push is a controller-keyed duty and the case is unbound, so the target skips it (interception._evaluate_duty_call reason \"unbound\") instead of refusing; the source denied from the guarded cwd's custody marker alone and the target allows"
     },
     {
       "case_id": "push-allows-hidden-push-from-a-clean-repo",
@@ -208,8 +208,8 @@
       "payload": {"tool_name": "Bash", "tool_input": {"command": "git push && git status"}, "cwd": "<repo>"},
       "bound": false,
       "facts": {"custody": "pending"},
-      "expected": "deny",
-      "divergence": null
+      "expected": "allow",
+      "divergence": "unbound custody_push skip: custody_push is a controller-keyed duty and the case is unbound, so the target skips it (interception._evaluate_duty_call reason \"unbound\") instead of refusing; the source denied from the guarded cwd's custody marker alone and the target allows"
     },
     {
       "case_id": "push-grammar-allows-push-that-is-only-pipe-text",
@@ -230,8 +230,8 @@
       "payload": {"tool_name": "Bash", "tool_input": {"command": "echo 'a; b' && git push"}, "cwd": "<repo>"},
       "bound": false,
       "facts": {"custody": "pending"},
-      "expected": "deny",
-      "divergence": null
+      "expected": "allow",
+      "divergence": "unbound custody_push skip: custody_push is a controller-keyed duty and the case is unbound, so the target skips it (interception._evaluate_duty_call reason \"unbound\") instead of refusing; the source denied from the guarded cwd's custody marker alone and the target allows"
     },
     {
       "case_id": "push-grammar-allows-push-inside-a-comment",
@@ -252,8 +252,8 @@
       "payload": {"tool_name": "Bash", "tool_input": {"command": "sudo -u git git push"}, "cwd": "<repo>"},
       "bound": false,
       "facts": {"custody": "pending"},
-      "expected": "deny",
-      "divergence": null
+      "expected": "allow",
+      "divergence": "unbound custody_push skip: custody_push is a controller-keyed duty and the case is unbound, so the target skips it (interception._evaluate_duty_call reason \"unbound\") instead of refusing; the source denied from the guarded cwd's custody marker alone and the target allows"
     },
     {
       "case_id": "push-grammar-allows-flag-free-wrapper-around-echo",
@@ -351,8 +351,8 @@
       "payload": {"tool_name": "Skill", "tool_input": {"skill": "autopilot:run-autopilot"}, "session_id": "a�b", "cwd": "<repo>"},
       "bound": true,
       "facts": {"controller_seam": true, "leave_marker": {"session": "a�b", "at": "2026-09-20T20:33:45Z"}},
-      "expected": "allow",
-      "divergence": null
+      "expected": "deny",
+      "divergence": "replaced-byte session comparison: the source treated a session id carrying U+FFFD as unusable and allowed; the target compares the decoded strings, finds the leave row's session equal to this session's, and fails closed, which is the direction _guard_post_handoff documents for an unprovable leave row"
     },
     {
       "case_id": "phase-denies-explicit-skill-name-fixture",
@@ -362,8 +362,8 @@
       "payload": {"session_id": "11111111-2222-3333-4444-555555555555", "tool_name": "Agent", "tool_input": {"description": "Call /autopilot:plan-tasks", "prompt": "", "subagent_type": "general-purpose"}},
       "bound": true,
       "facts": {"controller_seam": true},
-      "expected": "deny",
-      "divergence": null
+      "expected": "allow",
+      "divergence": "prompt-only scan: the shipped claude translate_hook scans tool_input.prompt for an explicit autopilot: skill name; this fixture names its skill only in tool_input.description, so the target allows"
     },
     {
       "case_id": "phase-lexicon-only-fixture-is-no-longer-denied",
