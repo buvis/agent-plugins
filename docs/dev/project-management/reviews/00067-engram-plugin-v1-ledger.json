@@ -1,0 +1,58 @@
+[
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "stderr is piped by default but never consumed. Enough diagnostic output can block Engram until the timeout, discarding a valid nudge. Set `stdio: [\"pipe\", \"pipe\", \"ignore\"]` when spawning, since stderr is intentionally unused.",
+    "file": "plugins/engram/works.earendil.pi/engram-nudge.ts:7",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "The five package tests never exercise the new Pi runtime logic. Add behavioral tests covering Bash filtering, stdin payload, stdout append, early stdin closure, spawn failure, and timeout cleanup; the documented absence of live Pi verification does not cover these unit checks.",
+    "file": "tests/engram/test_package.py:15",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "medium",
+    "issue": "`assertFalse(command.startswith(\"/\"))` is redundant: both the required prefix assertion and the preceding slash exclusion already guarantee it. Remove this assertion without changing test coverage.",
+    "file": "tests/engram/test_package.py:35",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The Pi adapter's `spawn`, timeout and stdin wiring is untested. The PRD marks Pi \"untested\", so this is accepted. Nothing in `tests/engram/test_package.py` pins SKILL.md content or the `plugin.json` `extensions` paths either. `scripts/validate.py` checks the `extensions` paths and the CI run covers the rest.",
+    "file": "tests/engram/test_package.py:1",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The README gives install steps for Claude Code, Codex, Copilot CLI and Pi. The status table lists Kiro as \"skill and MCP only\", but no Kiro install step exists. The PRD's \"install steps per host\" can be read as covering Kiro.",
+    "file": "plugins/engram/README.md:10",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The Claude manifest uses the guessed path-valued `hooks` field `./com.anthropic.claude-code/hooks.json`. The README states the hooks are \"verified 2026-11-10\" for Claude Code, but the PRD says that result came from project settings, not this plugin manifest. The README does not flag the guess or give the `hooks/hooks.json` fallback the Risks section describes.",
+    "file": "plugins/engram/.claude-plugin/plugin.json:9",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "low",
+    "issue": "The package-tests module lists `.github/workflows/validate.yml`, `README.md` and `.claude-plugin/marketplace.json` as its locations. All three were found updated: the CI step is at `.github/workflows/validate.yml:70`, the README row at `README.md:17`, and the marketplace entry at `.claude-plugin/marketplace.json:10`. I ran the validator, the `generate_marketplace.py --check` and the five engram tests. All passed. This is informational only.",
+    "file": "N/A",
+    "reason": "single-voice (informational, no defect asserted)"
+  }
+]
