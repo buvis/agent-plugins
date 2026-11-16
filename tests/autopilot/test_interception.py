@@ -125,11 +125,12 @@ class FindBindingTest(unittest.TestCase):
 
 
 class EvaluateHookUnboundTest(unittest.TestCase):
-    def test_unbound_controller_keyed_duties_refuse_instead_of_being_skipped(self) -> None:
+    def test_unbound_controller_keyed_duties_are_skipped_not_refused(self) -> None:
         """custody_push and post_handoff are controller-keyed: with no
-        `.autopilot/controller` found they must still run and refuse, not be
-        silently skipped. document_location needs no controller, so it is
-        still evaluated and allowed."""
+        `.autopilot/controller` found they are skipped, not refused, and do
+        not appear in decision.outcomes. document_location needs no
+        controller, so it still runs, is allowed, and the skip does not flip
+        decision.allowed to False."""
         host_fakes.install_adapter(
             self,
             "claude",
@@ -144,21 +145,23 @@ class EvaluateHookUnboundTest(unittest.TestCase):
             "claude", "PreToolUse", {"cwd": "/does/not/exist"}, env={}, seam=None
         )
         self.assertFalse(decision.bound)
-        self.assertEqual(decision.skipped, ())
+        self.assertEqual(
+            set(decision.skipped),
+            {(GuardDuty.CUSTODY_PUSH.value, "unbound"), (GuardDuty.POST_HANDOFF.value, "unbound")},
+        )
+        for duty_value, reason in decision.skipped:
+            self.assertIsInstance(duty_value, str)
+            self.assertIsInstance(reason, str)
         outcomes = {outcome.duty: outcome for outcome in decision.outcomes}
-        self.assertEqual(set(outcomes), {GuardDuty.CUSTODY_PUSH, GuardDuty.POST_HANDOFF,
-                                         GuardDuty.DOCUMENT_LOCATION})
-        self.assertFalse(outcomes[GuardDuty.CUSTODY_PUSH].allowed)
-        self.assertEqual(outcomes[GuardDuty.CUSTODY_PUSH].reason, "missing_controller_seam")
-        self.assertFalse(outcomes[GuardDuty.POST_HANDOFF].allowed)
-        self.assertEqual(outcomes[GuardDuty.POST_HANDOFF].reason, "missing_controller_seam")
+        self.assertEqual(set(outcomes), {GuardDuty.DOCUMENT_LOCATION})
         self.assertTrue(outcomes[GuardDuty.DOCUMENT_LOCATION].allowed)
-        self.assertFalse(decision.allowed)
+        self.assertTrue(decision.allowed)
 
-    def test_unbound_other_controller_keyed_duties_also_refuse(self) -> None:
+    def test_unbound_other_controller_keyed_duties_are_also_skipped(self) -> None:
         """The remaining controller-keyed duties named by the finding:
         state_integrity, review_completeness, live_job, departure and
-        context_reinjection must refuse, not skip, when unbound."""
+        context_reinjection are skipped, not refused, when unbound, and an
+        all-skipped decision is allowed."""
         duties = (
             DutyCall(GuardDuty.STATE_INTEGRITY, {"path": "src/app.py"}),
             DutyCall(GuardDuty.REVIEW_COMPLETENESS, {}),
@@ -174,12 +177,51 @@ class EvaluateHookUnboundTest(unittest.TestCase):
             "claude", "PreToolUse", {"cwd": "/does/not/exist"}, env={}, seam=None
         )
         self.assertFalse(decision.bound)
+        self.assertEqual(
+            set(decision.skipped),
+            {(call.duty.value, "unbound") for call in duties},
+        )
+        self.assertEqual(decision.outcomes, ())
+        self.assertTrue(decision.allowed)
+
+    def test_unbound_with_no_duty_calls_allows_trivially(self) -> None:
+        """Zero duty calls is not a crash and not a false refusal: skipped
+        and outcomes are both empty, and decision.allowed is True."""
+        host_fakes.install_adapter(
+            self, "claude", translate_hook=lambda event, payload: (),
+            session_from_environment=lambda env: None,
+        )
+        decision = interception.evaluate_hook(
+            "claude", "PreToolUse", {"cwd": "/does/not/exist"}, env={}, seam=None
+        )
+        self.assertFalse(decision.bound)
         self.assertEqual(decision.skipped, ())
-        self.assertEqual(len(decision.outcomes), len(duties))
-        for outcome in decision.outcomes:
-            with self.subTest(duty=outcome.duty):
-                self.assertFalse(outcome.allowed)
-        self.assertFalse(decision.allowed)
+        self.assertEqual(decision.outcomes, ())
+        self.assertTrue(decision.allowed)
+
+    def test_unbound_git_push_skips_custody_push_and_allows_overall(self) -> None:
+        """The exact scenario from the finding: an unbound project running
+        `git push` skips custody_push instead of refusing it, and overall
+        decision.allowed is True because the only other duty
+        (document_location) is allowed."""
+        host_fakes.install_adapter(
+            self,
+            "claude",
+            translate_hook=lambda event, payload: (
+                DutyCall(GuardDuty.CUSTODY_PUSH, {"command": "git push"}),
+                DutyCall(GuardDuty.DOCUMENT_LOCATION, {"document_path": "src/app.py"}),
+            ),
+            session_from_environment=lambda env: None,
+        )
+        decision = interception.evaluate_hook(
+            "claude", "PreToolUse", {"cwd": "/does/not/exist"}, env={}, seam=None
+        )
+        self.assertFalse(decision.bound)
+        self.assertEqual(decision.skipped, ((GuardDuty.CUSTODY_PUSH.value, "unbound"),))
+        outcomes = {outcome.duty: outcome for outcome in decision.outcomes}
+        self.assertEqual(set(outcomes), {GuardDuty.DOCUMENT_LOCATION})
+        self.assertTrue(outcomes[GuardDuty.DOCUMENT_LOCATION].allowed)
+        self.assertTrue(decision.allowed)
 
 
 class EvaluateHookBoundTest(unittest.TestCase):
@@ -870,20 +912,20 @@ class RealAdapterEvaluateHookTest(unittest.TestCase):
         (root / ".autopilot" / "controller").mkdir(parents=True)
         return root
 
-    def test_unbound_push_refuses_custody_push_only_for_git_pushes(self) -> None:
+    def test_unbound_push_skips_custody_push_only_for_git_pushes(self) -> None:
         for host_id, _ in INTERCEPTING:
             for command in _push_commands():
                 with self.subTest(host=host_id, command=command):
                     payload = {"tool_name": "Bash", "tool_input": {"command": command}, "cwd": UNBOUND_CWD}
                     decision = interception.evaluate_hook(host_id, "PreToolUse", payload, env={}, seam=None)
-                    self.assertEqual(decision.skipped, ())
                     outcomes = {o.duty: o for o in decision.outcomes}
+                    self.assertEqual(set(outcomes), {GuardDuty.DOCUMENT_LOCATION})
                     if guards.is_git_push(command):
-                        self.assertEqual(set(outcomes), {GuardDuty.DOCUMENT_LOCATION, GuardDuty.CUSTODY_PUSH})
-                        self.assertFalse(outcomes[GuardDuty.CUSTODY_PUSH].allowed)
-                        self.assertEqual(outcomes[GuardDuty.CUSTODY_PUSH].reason, "missing_controller_seam")
+                        self.assertEqual(decision.skipped, ((GuardDuty.CUSTODY_PUSH.value, "unbound"),))
                     else:
-                        self.assertEqual(set(outcomes), {GuardDuty.DOCUMENT_LOCATION})
+                        self.assertEqual(decision.skipped, ())
+                    if outcomes[GuardDuty.DOCUMENT_LOCATION].allowed:
+                        self.assertTrue(decision.allowed)
 
     def test_phase_fixtures_match_their_recorded_verdict(self) -> None:
         cases = _cases("phase-")
