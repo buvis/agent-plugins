@@ -2,7 +2,11 @@
 
 Generated: 2026-11-05
 
-## 2026-11-15T17:1xZ AP00014 v2 build catchup (read this first; older entries are history)
+## 2026-11-16T05:0xZ AP00019 build catchup (read this first; older entries are history)
+
+Batch 202611151706 continues: AP00014 v2 is stalled in `hold/` (cap_regression, 11 unresolved HIGH rows from cycle 3, `reviews/00014-autopilot-host-execution-v2-review-3.md`) and is not resumed here — a human resolves it. `select` picked AP00019 (autopilot controller lifecycle, tasks, job plans) next from `backlog/`; its `eligibility:` gate (`ls prds/done/00018-*`) passed since AP00018 v2 closed 2026-11-15. No design doc yet (`design_mode: run`). `default_model: opus` floors every task. GitHub unchanged: issue #12 (Renovate dashboard, routine), four open Renovate/chore PRs (#13 setup-python 7.1.0, #14 python 3.15, #15 pytest v9, #16 shared renovate preset — all routine); no releases; custody_pending: 0. Master `Validate` is green on the latest two runs (2026-11-15); the historical red runs below (AP00018 controller suite, provenance README pin) are resolved. Related-context query on this PRD's own topic returned only itself and the AP00014 v2 hold stub — nothing externally actionable; portfolio query likewise returned unrelated cellar/claude-autopilot transcripts.
+
+## 2026-11-15T17:1xZ AP00014 v2 build catchup (historical)
 
 Batch 202611151706 selects AP00014 v2 (autopilot host execution and enforcement) from backlog into wip; no design doc yet (`design_mode: run`). Found and reverted stray uncommitted ruff-reflow churn on `actors.py`/`protocol.py`/three controller test files/`update_helper_map.py` (loupe's known revert-on-stop quirk, formatting only, tests still passed before revert) left over from the prior AP00018 v2 session that never got swept into a commit — working tree is clean again except the PRD's own backlog→wip move. Master Validate is green now (two successful runs 2026-11-15); the historical red entries below (AP00018 controller suite, provenance README pin) are resolved as of AP00018 v2's close (`5b37dd0`). GitHub: issue #12 (Renovate dashboard, routine) and three open Renovate PRs (#13 setup-python 7.1.0, #14 python 3.15, #15 pytest v9, all routine) plus new #16 (shared renovate preset, routine); no releases; custody_pending: 0. PRD 00014 v2 carries a Problem Statement custody paragraph about the v1 cap_critical cycle (R1-R7 findings) — informational record of the superseded v1 attempt, not an active custody entry to resolve; this v2 is a fresh recovery revision per its frontmatter.
 

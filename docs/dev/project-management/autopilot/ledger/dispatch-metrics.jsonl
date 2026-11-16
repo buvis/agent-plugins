@@ -1495,3 +1495,17 @@
 {"id":"b198ce37","ended_at":1794804611,"elapsed_s":802,"outcome":"ok","detail":"retry"}
 {"id":"962606a3","ended_at":1794804614,"elapsed_s":931,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1794804829,"phase":"build","prd":"00014-autopilot-host-execution-v2.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1794804846,"phase":"build","prd":"00019-autopilot-controller-lifecycle-v1.md"}
+{"id":"74ad39ae","kind":"tess","task":"1","queued_at":1794806601,"prompt_bytes":37155}
+{"id":"b49ec2cd","kind":"tess","task":"1","queued_at":1794806744,"prompt_bytes":8512}
+{"id":"80c524c6","kind":"devon","task":"1","queued_at":1794806841,"prompt_bytes":3464}
+{"id":"80c524c6","ended_at":1794806942,"elapsed_s":101,"outcome":"ok","detail":null}
+{"id":"060eedf7","kind":"tess","task":"1","queued_at":1794806962,"prompt_bytes":9513}
+{"id":"12b22b86","kind":"ivan","task":"1","queued_at":1794807054,"prompt_bytes":19704}
+{"id":"932fe043","kind":"pat","task":"1","queued_at":1794807182,"prompt_bytes":26636}
+{"id":"74ad39ae","ended_at":1794807292,"elapsed_s":439,"outcome":"ok","detail":"closed-by: commit 42819fd9ea1471c335f297ff353ee51fb605d480"}
+{"id":"b49ec2cd","ended_at":1794807292,"elapsed_s":296,"outcome":"ok","detail":"closed-by: commit 42819fd9ea1471c335f297ff353ee51fb605d480"}
+{"id":"060eedf7","ended_at":1794807292,"elapsed_s":78,"outcome":"ok","detail":"closed-by: commit 42819fd9ea1471c335f297ff353ee51fb605d480"}
+{"id":"12b22b86","ended_at":1794807292,"elapsed_s":86,"outcome":"ok","detail":"closed-by: commit 521df8f9027c8e84ac7362b7787784cc8911483c"}
+{"id":"932fe043","ended_at":1794807292,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
+{"kind":"handoff","site":"build","edge":"leave","at":1794807292,"phase":"build","prd":"00019-autopilot-controller-lifecycle-v1.md"}
