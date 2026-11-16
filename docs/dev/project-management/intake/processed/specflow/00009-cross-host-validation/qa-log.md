@@ -869,3 +869,34 @@ The probe script is untracked scratch at `docs/dev/tmp/specflow/atime_probe.py`
 (argument: a scratch folder). Verification of this session: repository
 validator only; no runner code changed, so no suite was rerun. No live host
 run, no remote CI.
+
+### Developer decision: read assertions use observed reads (2026-11-16)
+
+The developer judged kernel tracing overkill for a spec-writing plugin and
+chose the simpler rule. This replaces the earlier settled reading "both
+positive and negative read assertions require complete measurement".
+
+- A read the host's own events show decides a read assertion: `file_read`
+  passes, `file_not_read` fails, with or without complete measurement.
+- A path absent from `filesRead` decides only with `readMeasurement: measured`.
+  Otherwise the assertion is listed under the new optional
+  `scores[].notMeasured`; it neither passes nor fails and does not block a
+  release result. Codex has no native read tool, so its read assertions land
+  there.
+- Limit, accepted: an eval whose only undecided assertions are reads shows
+  `passed: true`. `notMeasured` is the place that says it was not checked.
+- OS tracing (`eslogger`, access times) is dropped.
+
+Changed: `score.py` (`require_evidence`, `assertion_result`, `score_record`),
+`result.schema.json`, `manual-run.md`, and three sentences of `design.md`
+(release eligibility, the `scores` field table, the read-capture risk). The
+adapters are unchanged, so no runner digest moved for this decision.
+
+The design edit stales the design and task approvals: status is now `design`,
+tasks and implementation gates closed. Both need the developer's explicit
+re-approval; none was recorded here.
+
+Verification: the four tests that encoded the old rule failed against the new
+scorer (6 failures) before they were replaced. Full rules suite: 175 tests pass
+on Python 3.15.2; Ruff check and format pass; repository validator passes
+(3 plugins, 15 skills). Python 3.10 not run. No live host run, no remote CI.

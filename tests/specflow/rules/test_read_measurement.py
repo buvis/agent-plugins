@@ -141,15 +141,30 @@ class ReadMeasurementTest(unittest.TestCase):
                 run_kiro.named_reads(turn, workspace, workspace), ([str(alias)], False)
             )
 
-    def test_partial_positive_reads_cannot_pass_either_assertion(self) -> None:
+    def test_partial_reads_decide_only_what_was_observed(self) -> None:
         record = {
             "messages": ["Read notes.md"],
             "filesRead": [["notes.md"]],
             "readMeasurement": "not-measured",
         }
-        for kind, path in (("file_read", "notes.md"), ("file_not_read", "other.md")):
-            with self.subTest(kind=kind), self.assertRaises(score.RecordError):
-                score.require_evidence({"kind": kind, "path": path}, record)
+        for kind, path, expected in (
+            ("file_read", "notes.md", True),
+            ("file_not_read", "notes.md", False),
+            ("file_read", "other.md", None),
+            ("file_not_read", "other.md", None),
+        ):
+            with self.subTest(kind=kind, path=path):
+                self.assertIs(
+                    score.assertion_result({"kind": kind, "path": path}, record, {})[0],
+                    expected,
+                )
+        record["readMeasurement"] = "measured"
+        self.assertIs(
+            score.assertion_result(
+                {"kind": "file_not_read", "path": "other.md"}, record, {}
+            )[0],
+            True,
+        )
 
     def test_alias_loop_leaves_identity_unknown(self) -> None:
         with tempfile.TemporaryDirectory() as folder:

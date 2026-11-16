@@ -83,6 +83,18 @@
               }
             }
           },
+          "notMeasured": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["assertion", "kind", "reason"],
+              "properties": {
+                "assertion": {"type": "integer"},
+                "kind": {"enum": ["file_read", "file_not_read"]},
+                "reason": {"type": "string", "minLength": 1}
+              }
+            }
+          },
           "rubrics": {
             "type": "array",
             "items": {

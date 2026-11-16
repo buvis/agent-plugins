@@ -342,8 +342,13 @@ validator only when its clean package revision matches the record.
 
 File and read paths are exact, workspace-relative names. Patterns are Python
 regular expressions. Message `turn` indices are one-based. `before_turn: 2`
-examines reads from turn 1 only. Unknown reads cannot pass either positive or
-negative read assertions. An absent file cannot pass `file_lacks`.
+examines reads from turn 1 only. A read the host's events show decides a read
+assertion without complete measurement: `file_read` passes, `file_not_read`
+fails. A path missing from the list decides only with `readMeasurement:
+measured`; otherwise the assertion goes to `scores[].notMeasured`, neither
+passes nor fails, and does not block release (decided 2026-11-16). Read
+`notMeasured` before treating an eval's `passed: true` as checked. An absent
+file cannot pass `file_lacks`.
 
 Read measurement limitation (offline review, 2026-11-16): shell command
 arguments and code-mode output are not filesystem access events. Even a
@@ -359,11 +364,8 @@ Aliases whose current resolved path differs leave the inventory incomplete;
 a post-call filesystem lookup cannot establish a historical symlink target.
 Search, edit/patch, and unknown tool calls also leave it incomplete. A failed or
 missing read result is unknown, not proof of either reading or not reading.
-The existing scorer requires a complete measured inventory for both read
-assertion kinds, even when some successful native reads were retained. It gates
-release eligibility through those assertions; sessions with no read assertion
-are not globally rejected solely for unknown reads. No schema or acceptance
-criterion was changed. A complete shell-read method still needs host or OS
+Retained native reads count as observed reads for the scorer; everything else
+on an incomplete turn is not measured. A complete shell-read method needs host or OS
 access telemetry covering the tools and their descendants, with per-turn scope,
 successful access outcomes, and path identity; the retained records lack it.
 

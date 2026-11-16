@@ -317,8 +317,6 @@ def require_evidence(assertion: dict, record: dict) -> None:
     ):
         raise RecordError("no messages recorded")
     if kind in {"file_read", "file_not_read"}:
-        if record.get("readMeasurement", "not-measured") != "measured":
-            raise RecordError("file reads not measured")
         before = assertion.get("before_turn", len(record["filesRead"]) + 1)
         if not 1 <= before <= len(record["filesRead"]) + 1:
             raise RecordError("read boundary was not recorded")
@@ -326,7 +324,8 @@ def require_evidence(assertion: dict, record: dict) -> None:
 
 def assertion_result(
     assertion: dict, record: dict, files: dict[str, str]
-) -> tuple[bool, str]:
+) -> tuple[bool | None, str]:
+    """Pass, fail, or None when the record cannot decide a read assertion."""
     kind = assertion.get("kind")
     if kind not in KINDS:
         return False, f"unknown assertion kind: {kind}"
@@ -371,6 +370,10 @@ def assertion_result(
         elif kind in {"file_read", "file_not_read"}:
             before = assertion.get("before_turn", len(record["filesRead"]) + 1)
             found = any(path in reads for reads in record["filesRead"][: before - 1])
+            # An observed read decides both kinds. Absence from the list
+            # decides only when the list is complete; otherwise it is unknown.
+            if not found and record.get("readMeasurement") != "measured":
+                return None, "file reads not measured"
             passed = found if kind == "file_read" else not found
         elif kind in {"validation_passes", "validation_reports"}:
             findings = validation_findings(
@@ -601,7 +604,7 @@ def score_record(
     )
     scores = []
     for evaluation, revision in evals:
-        failures, judged = [], []
+        failures, judged, unmeasured = [], [], []
         for index, assertion in enumerate(evaluation["assertions"], 1):
             key = f"{evaluation['rule']}:{index}"
             if "brokenAt" in record:
@@ -612,10 +615,11 @@ def score_record(
                 judged.append({"assertion": index, **verdict})
             else:
                 passed, reason = assertion_result(assertion, record, files)
-            if not passed:
-                failures.append(
-                    {"assertion": index, "kind": assertion["kind"], "reason": reason}
-                )
+            entry = {"assertion": index, "kind": assertion["kind"], "reason": reason}
+            if passed is None:
+                unmeasured.append(entry)
+            elif not passed:
+                failures.append(entry)
         scores.append(
             {
                 "rule": evaluation["rule"],
@@ -623,6 +627,8 @@ def score_record(
                 "passed": not failures,
                 "failures": failures,
                 "rubrics": judged,
+                # Undecided read assertions neither fail nor count as checked.
+                **({"notMeasured": unmeasured} if unmeasured else {}),
             }
         )
     record["scores"] = scores
