@@ -749,3 +749,47 @@ Source investigation found a renderer/exec mismatch: `rust-v0.169.0/codex-rs/exe
 - Developer's `render` command exited 0. The two normalized permission fragments are byte-identical: sandbox/approval guidance plus writable and denied paths. Disposable paths explain why hashing before normalization differed. This is renderer diagnostic evidence, not a new live boundary proof or measured session.
 - `Codex.measured_channels` now renders under the batch's own home/profile, accepts the fragment only when its original bytes reproduce the host-recorded hash, and fingerprints normalized text. All other channels retain their comparisons. Missing/unverifiable text fails the probe's instruction-inventory check; sessions remain unmeasured. The helper stays in the adapter module so the existing runner digest covers it.
 - Regressions cover hash matching, mismatched hash, untrusted role, absent fragment, normalized channel generation and non-mutation of the recorded state. Security suite: six tests pass on Python 3.15.2 and 3.10.22. Runner suite: 110 pass on Python 3.10.22; Python 3.15 rerun follows the final probe-gate edit. Codex proof is stale because its adapter changed; old live records remain unchanged. Shell-read measurement is still unresolved and no release evidence was granted.
+
+
+### Offline file-read measurement review (2026-11-16)
+
+Repository verified clean at `260f4f4`, branch `feature/specflow-00009`;
+status remains implementation, gates open, next T-054. Extracted record 3's
+`notes` usage JSON with `JSONDecoder.raw_decode` (the notes also contain trailing
+supervisor evidence), then inspected `tokensPerTurn[].toolCalls` without changing
+the record. Turn 1 contains three code-mode calls: multiple literal shell calls;
+Python traversal/read/hash; and a literal read followed by a loop invoking the
+status/reconcile/hash helper. Turn 2 contains one Python read/hash call. The
+single-call regular expression does not recognize these shapes. Enlarging that
+parser would not measure transitive helper/import/subprocess reads, search
+accesses, successful versus failed opens, or historical alias targets.
+
+The shared shell classifier was unsound independently of that parser: merely
+naming an existing file (`echo notes.md`, a failed `cat`, or a helper argument)
+could count as reading it and as a complete inventory. Removed that inference.
+Claude native reads now require a correlated successful tool result; Kiro native
+reads require completed status. Search, edit/patch, shell, and unknown calls
+leave completeness unknown. Native aliases are retained by their requested name
+but cannot establish target absence. Codex retains calls for review and leaves
+any turn with tool calls unmeasured. Neither model prose nor printed hashes are
+promoted to filesystem telemetry.
+
+Scorer/schema semantics remain unchanged: both positive and negative read
+assertions require complete measurement; partial native-read evidence cannot
+pass either. Release eligibility checks those assertions, rather than imposing
+a new global read gate on sessions with no read assertion. A complete shell-read
+method cannot be established from the retained host events: it needs successful
+access events covering tools and descendants, turn attribution, and path identity.
+This limitation remains open; no live run was requested, rubric verdict invented,
+record relabeled, task checked, or acceptance criterion weakened. Shared-runner
+changes invalidate all previous adapter boundary proofs by their runner digests.
+
+Verification: full rules suite passed 175 tests before consolidating two redundant
+shell tests; final affected suites pass 108 runner/scorer tests and 8 focused read
+measurement tests on Python 3.15.2. Security suite passes 7; repository validator
+passes 3 plugins/15 skills; Ruff and diff checks pass. No remote CI or live host
+verification was performed. Doubt review: five items, two fixed (duplicate tests
+and overlong helper explanation), two verified (positive/negative scorer rejection
+and native-result/alias handling), one known (missing complete access telemetry).
+Second review pass found no further change. Existing record 3 and pending human
+rubric remain unchanged. T-054/T-053 remain unchecked.

@@ -1132,9 +1132,22 @@ class RunnerTest(unittest.TestCase):
                                         {
                                             "type": "tool_use",
                                             "name": "Read",
+                                            "id": "read-result",
                                             "input": {
                                                 "file_path": str(cwd / "result.txt")
                                             },
+                                        }
+                                    ]
+                                },
+                            },
+                            {
+                                "type": "user",
+                                "message": {
+                                    "content": [
+                                        {
+                                            "type": "tool_result",
+                                            "tool_use_id": "read-result",
+                                            "content": "synthetic result",
                                         }
                                     ]
                                 },
@@ -1367,27 +1380,6 @@ class RunnerTest(unittest.TestCase):
             path.write_text("not json\n")
             self.assertEqual(run_claude.read_instruction_log(path), ({}, False))
 
-    def test_claude_reads_name_shell_files_and_reject_opaque_commands(self) -> None:
-        with tempfile.TemporaryDirectory() as folder:
-            workspace = Path(folder).resolve()
-            (workspace / "notes.md").write_text("x")
-
-            def stream(name: str, data: dict) -> list[dict]:
-                block = {"type": "tool_use", "name": name, "input": data}
-                return [{"message": {"content": [block]}}]
-
-            named = stream("Bash", {"command": "cat notes.md"})
-            self.assertEqual(
-                run_claude.named_reads(named, workspace),
-                ([str(workspace / "notes.md")], True),
-            )
-            for opaque in (
-                stream("Bash", {"command": "cat *.md"}),
-                stream("Bash", {"command": "grep -r token ."}),
-                stream("Grep", {"pattern": "token"}),
-            ):
-                self.assertFalse(run_claude.named_reads(opaque, workspace)[1])
-
     def test_claude_probe_passes_only_on_observed_denials_and_intact_plugin(
         self,
     ) -> None:
@@ -1596,37 +1588,6 @@ class RunnerTest(unittest.TestCase):
         self.assertIn(
             str(workspace / ".mcp.json"), settings["sandbox"]["filesystem"]["denyWrite"]
         )
-
-    def test_shell_reads_are_unmeasured_when_a_read_cannot_be_named(self) -> None:
-        with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder).resolve()
-            workspace, plugin = root / "ws", root / "plugin"
-            for path in (workspace / "docs", plugin):
-                path.mkdir(parents=True)
-            (workspace / "docs/a.md").write_text("x")
-            (workspace / "AGENTS.md").write_text("x")
-            (plugin / "reference.md").write_text("x")
-            self.assertEqual(
-                run_claude.shell_reads(f"cat {plugin}/reference.md", workspace, plugin),
-                ([str(plugin / "reference.md")], True),
-            )
-            # A roundabout path is recorded as the file it reads.
-            self.assertEqual(
-                run_claude.shell_reads("cat docs/../AGENTS.md", workspace),
-                ([str(workspace / "AGENTS.md")], True),
-            )
-            for opaque in (
-                "cd docs && cat a.md",
-                'cat "$f"',
-                "cat `ls`",
-                "cat docs/*",
-                "cat {AGENTS,notes}.md",
-                "cat AGENTS\\.md",
-                "cat ~/x",
-                "python3 -c 'open(1)'",
-            ):
-                with self.subTest(command=opaque):
-                    self.assertFalse(run_claude.shell_reads(opaque, workspace)[1])
 
     def test_codex_launches_the_resolved_binary_behind_links_and_shims(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
@@ -2000,7 +1961,7 @@ class CodexConversationTest(unittest.TestCase):
             self.adapter.turn("request", ROOT)
         command.assert_not_called()
 
-    def test_failing_command_is_work_and_its_named_files_are_reads(self) -> None:
+    def test_failing_command_is_retained_as_work(self) -> None:
         self.events[2]["item"] = {
             "type": "command_execution",
             "command": "bash -lc 'cat notes.md'",
@@ -2083,12 +2044,28 @@ class CodexConversationTest(unittest.TestCase):
 
             self.assertEqual(
                 run(records("Fixture rule.\n")),
-                ("Finished", [str(workspace / "notes.md")]),
+                ("Finished", []),
             )
             self.assertEqual(adapter.model, "resolved-model")
-            self.assertEqual(adapter.read_measurement, "measured")
+            self.assertEqual(adapter.read_measurement, "not-measured")
             self.assertIn("cat notes.md", json.dumps(adapter.usage[-1]["toolCalls"]))
             self.assertNotIn(str(root), json.dumps(adapter.usage[-1]["toolCalls"]))
+            for source in (
+                (
+                    'text(await tools.exec_command({cmd:"cat notes.md"}));'
+                    'text(await tools.exec_command({cmd:"cat AGENTS.md"}));'
+                ),
+                'text(await tools.exec_command({cmd:"python3 helper.py"}));',
+                'text(await tools.apply_patch("patch"));',
+                'text(await tools.exec_command({cmd:"echo notes.md"}));',
+            ):
+                with self.subTest(source=source):
+                    adapter.calls_seen = 0
+                    rollout = records("Fixture rule.\n")
+                    rollout[0]["payload"]["input"] = source
+                    self.assertEqual(run(rollout), ("Finished", []))
+                    self.assertEqual(adapter.read_measurement, "not-measured")
+
             digest = hashlib.sha256(b"Fixture rule.\n").hexdigest()
             self.assertEqual(
                 adapter.instruction_observations,
@@ -3072,14 +3049,14 @@ class KiroAdapterTest(unittest.TestCase):
             self.accept(events, hashes=hashes),
             (
                 "Finished",
-                [str(self.workspace / "notes.md"), str(self.workspace / "AGENTS.md")],
+                [str(self.workspace / "notes.md")],
             ),
         )
         self.assertEqual(self.adapter.conversation, "sess_one")
         self.assertEqual(self.adapter.model, "resolved-model")
         self.assertEqual(self.adapter.version, "kiro-cli 9.9.9; KAS 0.1.2")
         self.assertEqual(self.adapter.host, "kiro-ide")
-        self.assertEqual(self.adapter.read_measurement, "measured")
+        self.assertEqual(self.adapter.read_measurement, "not-measured")
         self.assertEqual(self.adapter.instruction_measurement, "measured")
         digest = hashlib.sha256(b"Fixture rule.\n").hexdigest()
         self.assertEqual(

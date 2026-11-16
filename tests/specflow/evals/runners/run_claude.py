@@ -395,11 +395,6 @@ with open(sys.argv[1], "a", encoding="utf-8") as log:
     log.write(json.dumps(event) + "\\n")
 """
 ROOT_INSTRUCTIONS = ("CLAUDE.md", ".claude/CLAUDE.md")
-# Shell commands whose reads cannot be named from their arguments.
-OPAQUE_READ = re.compile(
-    r"[*?\[$`{}\\~]|\b(?:grep|rg|find|xargs|ack|ag|cd|pushd)\b"
-    r"|\b(?:python[\d.]*|perl|ruby|node|sh|bash|zsh)\s+-[ce]\b"
-)
 # Workspace files the host loads as configuration on the next launch.
 HOST_SETTINGS = (".claude/settings.json", ".claude/settings.local.json", ".mcp.json")
 
@@ -510,48 +505,56 @@ def tool_blocks(events: list[dict]) -> Iterator[dict]:
 def named_reads(
     events: list[dict], workspace: Path, plugin: Path | None = None
 ) -> tuple[list[str], bool]:
-    """Files the tool stream names as read; False when a read cannot be named.
-
-    ponytail: shell reads are taken from command arguments. A glob or search
-    command makes the turn unmeasured instead of guessing its file set.
-    """
+    """Successful native reads only; other tools leave the inventory incomplete."""
+    blocks = list(tool_blocks(events))
+    results = {
+        block["tool_use_id"]: block
+        for block in blocks
+        if block.get("type") == "tool_result" and block.get("tool_use_id")
+    }
     reads, known = [], True
-    for block in tool_blocks(events):
+    for block in blocks:
         if block.get("type") != "tool_use":
             continue
-        name, data = block.get("name"), block.get("input", {})
-        if name == "Read":
-            reads.append(data["file_path"])
-        elif name == "Grep":
-            target = Path(data.get("path") or workspace)
-            if target.is_file():
-                reads.append(str(target))
-            else:
-                known = False
-        elif name == "Bash":
-            named, clear = shell_reads(data.get("command", ""), workspace, plugin)
-            reads += named
-            known = known and clear
+        data = block.get("input", {})
+        result = results.get(block.get("id"))
+        path = data.get("file_path") if isinstance(data, dict) else None
+        if (
+            block.get("name") == "Read"
+            and isinstance(path, str)
+            and path
+            and result is not None
+            and not result.get("is_error", False)
+        ):
+            target = workspace / path
+            reads.append(str(target))
+            # The event names the requested path, not every alias of its
+            # target. Do not resolve a link after the call and claim that
+            # this was necessarily the target at read time.
+            known = known and unaliased_path(target)
+        else:
+            # Searches and edits can read files too. Unknown tools are never
+            # assumed read-free, even if their arguments name no file.
+            known = False
     return reads, known
+
+
+def unaliased_path(path: Path) -> bool:
+    """Do not infer historical read targets by resolving current aliases."""
+    try:
+        return path == path.resolve()
+    except (OSError, RuntimeError):
+        return False
 
 
 def shell_reads(
     text: str, workspace: Path, plugin: Path | None = None
 ) -> tuple[list[str], bool]:
-    """Workspace and plugin files a shell command names.
+    """No access trace: arguments may be unread; helpers may read unnamed files.
 
-    False when the command can read a file it does not name from the workspace
-    root: a glob, a search tool, a directory change, or shell expansion.
+    Parsing source or resolving paths afterwards cannot recover actual reads.
     """
-    reads = []
-    roots = [workspace, *([plugin] if plugin else [])]
-    roots = [root.resolve() for root in roots]
-    for word in re.split(r"[\s'\"=<>|;&()]+", text):
-        # Resolved, so `docs/../AGENTS.md` is recorded as the file it reads.
-        path = (workspace / word).resolve()
-        if word and path.is_file() and any(path.is_relative_to(r) for r in roots):
-            reads.append(str(path))
-    return reads, not OPAQUE_READ.search(text)
+    return [], False
 
 
 def accept_boundary(adapter: Claude, revision: str) -> None:

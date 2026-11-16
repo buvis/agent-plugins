@@ -344,6 +344,29 @@ File and read paths are exact, workspace-relative names. Patterns are Python
 regular expressions. Message `turn` indices are one-based. `before_turn: 2`
 examines reads from turn 1 only. Unknown reads cannot pass either positive or
 negative read assertions. An absent file cannot pass `file_lacks`.
+
+Read measurement limitation (offline review, 2026-11-16): shell command
+arguments and code-mode output are not filesystem access events. Even a
+successful command can name unread files and read unnamed files through helpers,
+imports, searches, shell expansion, aliases, or subprocesses. The adapters keep
+such turns `not-measured`; they do not extract positive reads from arguments.
+Codex's retained calls support manual review but cannot establish a complete
+read inventory. Parsing more JavaScript shapes does not resolve this limitation.
+
+Claude native `Read` needs a matching successful tool result; Kiro native `read`
+needs completed status and a regular file. These record the named path only.
+Aliases whose current resolved path differs leave the inventory incomplete;
+a post-call filesystem lookup cannot establish a historical symlink target.
+Search, edit/patch, and unknown tool calls also leave it incomplete. A failed or
+missing read result is unknown, not proof of either reading or not reading.
+The existing scorer requires a complete measured inventory for both read
+assertion kinds, even when some successful native reads were retained. It gates
+release eligibility through those assertions; sessions with no read assertion
+are not globally rejected solely for unknown reads. No schema or acceptance
+criterion was changed. A complete shell-read method still needs host or OS
+access telemetry covering the tools and their descendants, with per-turn scope,
+successful access outcomes, and path identity; the retained records lack it.
+
 Question counting ignores fenced code and listed options. A consecutive run of
 question marks ends one question. The total-count assertion sums the questions
 across replies. A broken session fails every eval, including absence checks.

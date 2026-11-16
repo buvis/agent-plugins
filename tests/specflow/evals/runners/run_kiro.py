@@ -393,15 +393,16 @@ def named_reads(turn: dict, workspace: Path, plugin: Path) -> tuple[list[str], b
     for call in turn["calls"].values():
         if call["kind"] == "read":
             path = workspace / call["path"] if call["path"] else None
-            if path and path.is_file():
+            if path and path.is_file() and call.get("status") == "completed":
                 reads.append(str(path))
+                known = known and runner.unaliased_path(path)
             else:
                 known = False
         elif call["kind"] == "execute":
             named, clear = runner.shell_reads(call["command"], workspace, plugin)
             reads += named
             known = known and clear
-        elif call["kind"] != "edit":
+        else:
             known = False
     return reads, known
 

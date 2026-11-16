@@ -863,25 +863,16 @@ class Codex:
                     state_body(record["state"]), workspace
                 )
         # Calls come from the session record: the exec stream does not show
-        # every shell call. A patch is a write; any other call is unnameable.
+        # every shell call. Retain the calls for review, not as read measurements.
         calls = rollout_calls(self.home, self.conversation)
         if self.usage:
             self.usage[-1]["toolCalls"] = self.effective_profile(
                 calls[self.calls_seen :], workspace
             )
-        reads, known = [], True
-        for call in calls[self.calls_seen :]:
-            if PATCH_CALL.fullmatch(call["input"]):
-                continue
-            text = literal_command(call["input"])
-            if text is None:
-                # A script that does more than one literal shell call can
-                # read files this adapter cannot name.
-                known = False
-                continue
-            named, clear = runner.shell_reads(text, workspace, self.plugin)
-            reads += named
-            known = known and clear
+        # Code-mode output is arbitrary program output, not an access trace.
+        # Patches also read existing files; neither their arguments nor a
+        # successful shell result proves a complete file-read inventory.
+        reads, known = [], not calls[self.calls_seen :]
         self.calls_seen = len(calls)
         self.read_measurement = "measured" if known else "not-measured"
         return reply, reads
