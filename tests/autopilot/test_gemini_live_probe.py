@@ -17,10 +17,13 @@ from test_host_argv import PROBES_REL, _probe_env, _run_probe
 
 MISSING_SURFACE_REASON = "no_package_local_registration_surface"
 NOT_OBSERVED_MISSING_SURFACE = {"status": "not_observed", "reason": MISSING_SURFACE_REASON}
+NOT_IMPLEMENTED = {"status": "not_observed", "reason": "capability_not_implemented"}
 OBSERVED = {"status": "observed", "reason": None}
 
 
-class GeminiLiveProbeTest(unittest.TestCase):
+class GeminiProbeCase(unittest.TestCase):
+    """Real probe runs against the fake `gemini`. Holds no tests of its own."""
+
     def setUp(self) -> None:
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -29,21 +32,28 @@ class GeminiLiveProbeTest(unittest.TestCase):
         self.bin_dir.mkdir()
         install_fake_hosts(self.bin_dir)
 
-    def _run(self, mode: str) -> dict:
-        project_root = self.root / f"project-{mode}"
-        project_root.mkdir()
-        log = self.root / f"{mode}.calls.jsonl"
+    def _run(self, mode: str, *, timeout: str = "30", **env_extra: str) -> dict:
+        project_root = Path(tempfile.mkdtemp(dir=self.root, prefix=f"project-{mode}-")).resolve()
+        log = self.root / f"{project_root.name}.calls.jsonl"
         env = _probe_env(
             PATH=f"{self.bin_dir}{os.pathsep}{os.environ['PATH']}",
             FAKE_HOST_LOG=str(log), FAKE_HOST_MODE=mode, FAKE_FOREIGN_ROOT=str(self.root),
+            **env_extra,
         )
-        completed = _run_probe("gemini", project_root, "--timeout", "30", cwd=self.root, env=env)
+        completed = _run_probe("gemini", project_root, "--timeout", timeout, cwd=self.root, env=env)
         self.assertEqual(completed.returncode, 0, completed.stderr)
         probes_dir = project_root / PROBES_REL
         files = [path for path in probes_dir.iterdir() if path.is_file()]
         self.assertEqual(len(files), 1, files)
+        self.project_root = project_root
+        self.calls = (
+            [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines() if line]
+            if log.exists() else []
+        )
         return json.loads(files[0].read_text(encoding="utf-8"))
 
+
+class GeminiLiveProbeTest(GeminiProbeCase):
     def test_live_gemini_probe_is_accepted_when_a_binary_is_on_path(self) -> None:
         record = self._run("honest")
         self.assertEqual(record["static"]["host_id"], "gemini")
@@ -58,18 +68,18 @@ class GeminiLiveProbeTest(unittest.TestCase):
         self.assertEqual(sorted(project_root.rglob("*.json")), [])
 
     def test_live_gemini_probe_derives_identity_and_isolation_from_session_ids_only(self) -> None:
-        cases = (("honest", "observed"), ("same_session", "not_observed"))
-        for mode, expected_status in cases:
+        cases = (
+            ("honest", OBSERVED, OBSERVED),
+            ("same_session", OBSERVED, {"status": "not_observed", "reason": "session_reused"}),
+        )
+        for mode, identity, isolation in cases:
             with self.subTest(mode=mode):
-                record = self._run(mode)
-                for capability in ("identity", "isolation"):
-                    self.assertEqual(
-                        record["observed"][capability]["status"], expected_status, capability
-                    )
+                observed = self._run(mode)["observed"]
+                self.assertEqual(observed["identity"], identity)
+                self.assertEqual(observed["isolation"], isolation)
+                self.assertEqual(observed["delegation"], NOT_IMPLEMENTED)
                 for capability in ("interception", "resources"):
-                    self.assertEqual(
-                        record["observed"][capability], NOT_OBSERVED_MISSING_SURFACE, capability
-                    )
+                    self.assertEqual(observed[capability], NOT_OBSERVED_MISSING_SURFACE, capability)
 
     def test_live_gemini_probe_launches_exactly_two_record_session_invocations(self) -> None:
         record = self._run("honest")

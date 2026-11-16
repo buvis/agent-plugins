@@ -343,6 +343,48 @@ class HooksAssetTest(unittest.TestCase):
                         self.assertIn("--hook claude --event", hook["command"])
                         self.assertIn("CLAUDE_PLUGIN_ROOT", hook["command"])
 
+    def test_every_generated_hook_command_is_built_from_the_adapters_plugin_root_expression(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            tmp_root = Path(td)
+            _write_contract(tmp_root, REAL_CONTRACT)
+            proc = _run_build(tmp_root)
+            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            expected_expr = {"claude": "${CLAUDE_PLUGIN_ROOT}", "codex": "${AUTOPILOT_PLUGIN_ROOT}"}
+            for host_id, expr in expected_expr.items():
+                with self.subTest(host=host_id):
+                    self.assertEqual(importlib.import_module(host_id).PLUGIN_ROOT_EXPR, expr)
+                    doc = json.loads(_hooks_path(tmp_root, host_id).read_text(encoding="utf-8"))
+                    prefix = f'python3 "{expr}/scripts/autopilot.py" --hook {host_id} --event '
+                    commands = [hook["command"] for entries in doc["hooks"].values()
+                                for entry in entries for hook in entry["hooks"]]
+                    self.assertTrue(commands)
+                    for command in commands:
+                        self.assertTrue(command.startswith(prefix), command)
+                        self.assertRegex(command[len(prefix):], r"^\w+$")
+
+    def test_no_generated_asset_for_a_non_claude_host_names_the_claude_variable(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            tmp_root = Path(td)
+            _write_contract(tmp_root, REAL_CONTRACT)
+            self.assertEqual(_run_build(tmp_root).returncode, 0)
+            bases = {
+                "built": _compatibility_dir(tmp_root),
+                "committed": ROOT / "plugins" / "autopilot" / "compatibility",
+            }
+            for label, base in bases.items():
+                for host_id in ("codex", "gemini"):
+                    paths = [base / f"{host_id}.json", *(base / host_id).rglob("*.json")]
+                    for path in paths:
+                        with self.subTest(source=label, asset=str(path.relative_to(base))):
+                            self.assertNotIn(b"CLAUDE_PLUGIN_ROOT", path.read_bytes())
+                doc = json.loads((base / "codex" / "hooks.json").read_text(encoding="utf-8"))
+                commands = [hook["command"] for entries in doc["hooks"].values()
+                            for entry in entries for hook in entry["hooks"]]
+                with self.subTest(source=label, asset="codex command"):
+                    self.assertTrue(commands)
+                    for command in commands:
+                        self.assertIn('"${AUTOPILOT_PLUGIN_ROOT}/scripts/autopilot.py"', command)
+
     def test_an_unregistered_host_gets_no_hooks_asset(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             tmp_root = Path(td)

@@ -6,13 +6,15 @@ observation."""
 from __future__ import annotations
 
 import importlib.util
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
-CAPABILITIES = ("identity", "isolation", "interception", "resources")
+CAPABILITIES = ("identity", "delegation", "isolation", "interception", "resources")
 ROOT = Path(__file__).resolve().parents[2]
 PROBE_HOST_PATH = ROOT / "tools" / "autopilot" / "probe-host.py"
+PLUGIN_ROOT_EXPRS = {"claude": "${CLAUDE_PLUGIN_ROOT}", "codex": "${AUTOPILOT_PLUGIN_ROOT}"}
 
 
 def _load_probe_host():
@@ -24,10 +26,28 @@ def _load_probe_host():
     return module
 
 
-def _write_valid_hooks(source: Path) -> None:
-    hooks_dir = source / "compatibility" / "claude"
+def _write_valid_hooks(source: Path, host_id: str = "claude", script: str = "scripts/autopilot.py") -> None:
+    """A minimal plugin tree whose bundle names a hooks asset whose one hook
+    command names `script` under the host's plugin-root variable; the script
+    itself exists only when it is the packaged `scripts/autopilot.py`."""
+    hooks_dir = source / "compatibility" / host_id
     hooks_dir.mkdir(parents=True)
-    (hooks_dir / "hooks.json").write_text("{}", encoding="utf-8")
+    command = (
+        f'python3 "{PLUGIN_ROOT_EXPRS[host_id]}/{script}" --hook {host_id} --event PreToolUse'
+    )
+    document = {"hooks": {"PreToolUse": [
+        {"matcher": "Bash", "hooks": [{"type": "command", "command": command}]}
+    ]}}
+    (hooks_dir / "hooks.json").write_text(json.dumps(document), encoding="utf-8")
+    (source / "compatibility" / f"{host_id}.json").write_text(
+        json.dumps({"host_id": host_id, "registration": {
+            "asset": f"compatibility/{host_id}/hooks.json",
+            "activation": "client-manifest-hooks-field"}}),
+        encoding="utf-8",
+    )
+    packaged = source / "scripts" / "autopilot.py"
+    packaged.parent.mkdir(parents=True, exist_ok=True)
+    packaged.write_text("print('packaged')\n", encoding="utf-8")
 
 
 class ProbeHostResourceContainmentTest(unittest.TestCase):
@@ -99,8 +119,7 @@ class ProbeHostResourceContainmentTest(unittest.TestCase):
         for capability in CAPABILITIES:
             with self.subTest(capability=capability):
                 status = result["observed"][capability]
-                self.assertEqual(status["status"], "not_observed")
-                self.assertTrue(status["reason"], capability)
+                self.assertEqual(status, {"status": "not_observed", "reason": "resource_escape"})
 
 
 if __name__ == "__main__":

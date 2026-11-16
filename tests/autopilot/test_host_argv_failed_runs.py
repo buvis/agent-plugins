@@ -8,7 +8,7 @@ import unittest
 from probe_host_support import FAKE_HANG_SECONDS
 from test_host_argv import OBSERVED, LiveProbeCase
 
-CAPABILITIES = ("identity", "isolation", "interception", "resources")
+CAPABILITIES = ("identity", "delegation", "isolation", "interception", "resources")
 
 
 class ProbeHostFailedRunTest(LiveProbeCase):
@@ -37,7 +37,7 @@ class ProbeHostFailedRunTest(LiveProbeCase):
             self.assertEqual((bool(codes), set(codes)), (True, {1}), codes)
             for capability in CAPABILITIES:
                 self.assertEqual(record["observed"][capability]["status"], "not_observed", capability)
-                self.assertTrue(record["observed"][capability]["reason"], capability)
+                self.assertEqual(record["observed"][capability]["reason"], "host_failed", capability)
 
     def test_relocated_host_probe_derives_isolation_and_interception_from_the_trace(self) -> None:
         """One session id across both bound runs is no isolation; a push that never
@@ -66,7 +66,7 @@ class ProbeHostFailedRunTest(LiveProbeCase):
         self.assertEqual({invocation["timed_out"] for invocation in record["invocations"]}, {True})
         for capability in CAPABILITIES:
             self.assertEqual(record["observed"][capability]["status"], "not_observed", capability)
-            self.assertTrue(record["observed"][capability]["reason"], capability)
+            self.assertEqual(record["observed"][capability]["reason"], "host_timed_out", capability)
         self.assertIs(record["certified"], False)
 
 
