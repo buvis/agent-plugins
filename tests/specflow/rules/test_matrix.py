@@ -73,3 +73,22 @@ class MatrixTest(unittest.TestCase):
                         ),
                         [],
                     )
+
+
+class ContinuationTest(unittest.TestCase):
+    def test_pending_rubric_does_not_block_evidence_collection(self) -> None:
+        record = {"scores": [{"failures": [{"kind": "rubric"}], "rubrics": []}]}
+        self.assertTrue(run_matrix.runner.continuation_ready(record))
+
+    def test_deterministic_failure_blocks_child(self) -> None:
+        record = {"scores": [{"failures": [{"kind": "file_matches"}], "rubrics": []}]}
+        self.assertFalse(run_matrix.runner.continuation_ready(record))
+
+    def test_observed_rubric_failure_blocks_child(self) -> None:
+        record = {"scores": [{"failures": [], "rubrics": [{"verdict": "FAIL"}]}]}
+        self.assertFalse(run_matrix.runner.continuation_ready(record))
+
+    def test_not_run_blocks_child(self) -> None:
+        self.assertFalse(
+            run_matrix.runner.continuation_ready({"notRun": "interrupted"})
+        )

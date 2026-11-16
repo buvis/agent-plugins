@@ -48,3 +48,13 @@ Source Python files support discovery; do not execute them or contact services.
 - `input/src/calcard_mcp/vcard.py`: `3ee7c0b531cbb3aa05e3b76bb4bd6bb05e462fc54cbe8e5ffc170d7c4cff449b`
 - `input/src/calcard_mcp/verifier.py`: `fe754cec415063ab20196d4d85da26b905f0e7ce2cc009243b4bd025d23c9952`
 - `input/src/calcard_mcp/vtodo.py`: `52243b3c54d6093c8691fb36662908569b7b0d7d0aafd4532a79268cca171af2`
+
+- `input/pyproject.toml`: `40d8c4fcb1dec663845bc1853c6acc21d4067acbf93745d5394714d8022d34cc`
+- `input/tests/conftest.py`: `5902bcba3887bca4d87fb0666dca37786985b628598d20b5c5eac9755a0b6a47`
+- `input/tests/integration/test_failure_modes.py`: `4a3ebfcbfce75dd0bf85571e83eb7b4affc23f5124f3f589a25a32dda04715d3`
+- `input/tests/test_accounts.py`: `261f64ff21cb60af9267d846829612fc767023e771f4346d3a1f3f0f03c3cc37`
+- `input/tests/test_caldav_etag.py`: `b597d37d549beaa9b77f02434d6f77649bb5119d228a5b04171c9ec3dd80676e`
+- `input/tests/test_caldav_update.py`: `c28eabdc2284181bfb3d972cfc01e67332c5db4de77ea638bb79035e02552f5d`
+- `input/tests/test_clear_fields.py`: `c657117ffc3586804e21cd0d81ed2cc6138e03e0d7fa0c17f0c8bb2aaddfdd24`
+- `input/tests/test_ical_opaque_preservation.py`: `6a94e08e3fcb52608688201559dd0b923a679bca282db7fbf47e4e66aa626ac6`
+- `input/tests/test_tool_surface.py`: `2f6ef894f3162650d4b4b760d067767f5c0d9360d1ff38075bd66d5b48af29e6`

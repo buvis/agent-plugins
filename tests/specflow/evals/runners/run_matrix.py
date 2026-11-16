@@ -8,12 +8,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 from collections.abc import Callable
 from pathlib import Path
 
 import run_claude as runner
 import run_codex
+import run_handoff
 import run_kiro
 import score
 
@@ -74,7 +76,7 @@ def execute_host(
             proof.get("checks", {}).get(k, {}).get("passed") is True
             for k in score.RELEASE_BOUNDARY_CHECKS
         )
-    except (OSError, ValueError, runner.HostError) as error:
+    except (OSError, ValueError, runner.HostError, subprocess.SubprocessError) as error:
         rows.append({"host": host, "session": "probe", "code": 2, "reason": str(error)})
         passed = False
     if not passed:
@@ -93,11 +95,39 @@ def execute_host(
         try:
             code = run(adapter, name, out, eval_dir=eval_directory(name))
             rows.append({"host": host, "session": name, "code": code})
-        except (OSError, ValueError, runner.HostError) as error:
+        except (
+            OSError,
+            ValueError,
+            runner.HostError,
+            subprocess.SubprocessError,
+        ) as error:
             rows.append(
                 {"host": host, "session": name, "code": 2, "reason": str(error)}
             )
     return rows
+
+
+def frozen_inputs() -> dict:
+    runtime = score.git("rev-parse", "HEAD:plugins/specflow").decode().strip()
+    sessions = {}
+    for path in sorted(runner.SESSIONS.glob("*.json")):
+        root = runner.sessions_for(path.stem)[0][1]
+        fixture = runner.FIXTURES / root["fixture"]
+        sessions[path.stem] = {
+            "runtimeRevision": runtime,
+            "fixtureRevision": score.git(
+                "rev-parse", "HEAD:" + fixture.relative_to(runner.ROOT).as_posix()
+            )
+            .decode()
+            .strip(),
+            "sessionRevision": score.object_id(path.read_bytes()),
+            "evalRevisions": {
+                p.stem: score.object_id(p.read_bytes())
+                for p in sorted(eval_directory(path.stem).glob("SR-*.json"))
+                if score.read_json(p)["session"] == path.stem
+            },
+        }
+    return {"sessions": sessions, "groups": {host: groups(host) for host in HOSTS}}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -123,6 +153,7 @@ def main(argv: list[str] | None = None) -> int:
             "commit frozen package, runner, session, eval and fixture inputs first"
         )
     args.proofs.mkdir(parents=True, exist_ok=True)
+    score.write_json(args.proofs / "frozen-inputs.json", frozen_inputs())
     rows = []
     try:
         with runner.interruption_signals():
@@ -131,6 +162,19 @@ def main(argv: list[str] | None = None) -> int:
                 if model in {"auto", "default"}:
                     parser.error("choose explicit models")
                 rows.extend(execute_host(host, model, args.out, args.proofs))
+            models = {h: getattr(args, h.replace("-", "_") + "_model") for h in HOSTS}
+            if all((args.proofs / f"{h}.json").is_file() for h in HOSTS):
+                handoff = run_handoff.execute(
+                    models, args.proofs, args.proofs / "handoff.json", HOSTS
+                )
+                rows.append(
+                    {
+                        "host": "cross-host",
+                        "session": "handoff-coexistence",
+                        "code": int(bool(handoff["failures"])),
+                    }
+                )
+
     finally:
         score.write_json(
             args.proofs / "matrix-summary.json",

@@ -383,6 +383,13 @@ across replies. A broken session fails every eval, including absence checks.
 
 ## Rubric review
 
+For the approved 00009 full run, `review_matrix.py` supersedes the historical
+per-session sampling below: every model FAIL plus up to ten PASS samples per
+host, across all required records. One review file binds exact record/eval
+evidence and persists the sample. More than 10 percent disagreement escalates
+the host. See `../README.md`. Standalone legacy scoring retains its stricter
+per-session policy unless the validated batch review file is supplied.
+
 `--judge-model <explicit-id>` invokes a text-only Claude judge with a fixed
 prompt, no tools, a 120-second timeout and a USD 1 cap per judgement. Choose a
 different model from the host under test. The actual reported judge model is

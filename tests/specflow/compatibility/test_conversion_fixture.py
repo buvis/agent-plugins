@@ -98,6 +98,9 @@ class ConversionFixtureTest(unittest.TestCase):
         self.assertNotIn("brokenAt", record)
         files = score.finished_files(record, ROOT / "tests/specflow/evals/results")
         self.assertEqual(compare_conversion(files, read_tree(FIXTURE / "expected")), [])
+        self.assertRegex(
+            files.get(INTAKE + "/qa-log.md", ""), r"(?m)^## Conversion receipt\b"
+        )
         self.assertEqual(
             score.validation_findings(
                 files, "conversion-receipt", record["runtimeRevision"]

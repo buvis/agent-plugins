@@ -86,3 +86,101 @@ class HostReviewTest(unittest.TestCase):
         batch["samples"]["claude-code"][1] = batch["samples"]["claude-code"][0]
         with self.assertRaises(score.RecordError):
             review_matrix.required(batch, "claude-code")
+
+
+class BatchScoringTest(unittest.TestCase):
+    def test_peer_reviews_gate_scores_and_changed_evidence_invalidates_batch(
+        self,
+    ) -> None:
+        import tempfile
+        from unittest import mock
+
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            paths = []
+            for name in ("first", "second"):
+                record = score.read_json(
+                    score.ROOT / "tests/specflow/fixtures/results/manual.json"
+                )
+                record["session"] = name
+                eval_dir = root / "evals" / name
+                eval_dir.mkdir(parents=True)
+                score.write_json(
+                    eval_dir / "SR-DLG-003.json",
+                    {
+                        "schemaVersion": 1,
+                        "rule": "SR-DLG-003",
+                        "session": name,
+                        "assertions": [
+                            {"kind": "rubric", "rubric": "Synthetic judgment test"}
+                        ],
+                    },
+                )
+                with mock.patch.object(
+                    score,
+                    "model_judge",
+                    return_value={
+                        "verdict": "PASS",
+                        "judge": "model:judge",
+                        "reason": "synthetic",
+                    },
+                ):
+                    score.score_record(
+                        record, eval_dir, results=root, judge_model="judge"
+                    )
+                path = root / "kiro-ide" / name / "1.json"
+                path.parent.mkdir(parents=True)
+                score.write_json(path, record)
+                paths.append(path)
+            with (
+                mock.patch.object(review_matrix, "latest_paths", return_value=paths),
+                mock.patch.object(
+                    review_matrix.run_matrix,
+                    "eval_directory",
+                    side_effect=lambda name: root / "evals" / name,
+                ),
+            ):
+                batch = review_matrix.selection(review_matrix.catalog(root))
+                key = "kiro-ide/first/1.json#SR-DLG-003:1"
+                batch["verdicts"][key] = {
+                    "verdict": "PASS",
+                    "judge": "human:test",
+                    "reason": "synthetic review",
+                }
+                score.write_json(root / "review.json", batch)
+                first = score.read_json(paths[0])
+                self.assertEqual(
+                    score.score_record(
+                        first,
+                        root / "evals/first",
+                        results=root,
+                        reviews={"batchFile": "review.json"},
+                    ),
+                    1,
+                )
+                batch["verdicts"]["kiro-ide/second/1.json#SR-DLG-003:1"] = batch[
+                    "verdicts"
+                ][key]
+                score.write_json(root / "review.json", batch)
+                self.assertEqual(
+                    score.score_record(
+                        first,
+                        root / "evals/first",
+                        results=root,
+                        reviews={"batchFile": "review.json"},
+                    ),
+                    0,
+                )
+                # Source evidence changes, not merely a derived score.
+                second = score.read_json(paths[1])
+                second["messages"][0] = "Changed evidence"
+                score.write_json(paths[1], second)
+                with self.assertRaises(score.RecordError):
+                    score.score_record(first, root / "evals/first", results=root)
+
+    def test_unverified_scope_cannot_be_supplied_by_review_file(self) -> None:
+        record = score.read_json(
+            score.ROOT / "tests/specflow/fixtures/results/manual.json"
+        )
+        with self.assertRaises(score.RecordError):
+            score.score_record(record, reviews={"batchScope": {"complete": True}})

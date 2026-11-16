@@ -1,0 +1,118 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "calcard-mcp"
+version = "0.1.0"
+description = "Multi-account CalDAV + CardDAV MCP server with read-after-write verification."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Bob", email = "tomas@buvis.net" }]
+keywords = ["mcp", "caldav", "carddav", "radicale", "calendar", "contacts"]
+dependencies = [
+    "fastmcp>=3,<4",
+    "caldav>=1.3.9",
+    "vobject>=0.9.7",
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
+    "pyyaml>=6.0.1",
+    "python-dateutil>=2.9.0",
+    "tzdata>=2024.1; platform_system=='Windows'",
+]
+
+[project.optional-dependencies]
+windows-credentials = ["keyring>=25; sys_platform=='win32'"]
+dev = [
+    "ruff>=0.5.0",
+    "pyright>=1.1.370",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=5.0.0",
+    "respx>=0.21.0",
+    "testcontainers>=4.7.0",
+]
+
+[project.scripts]
+calcard-mcp = "calcard_mcp.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/calcard_mcp"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # isort
+    "N",        # pep8-naming
+    "D",        # pydocstyle
+    "UP",       # pyupgrade
+    "B",        # flake8-bugbear
+    "ANN",      # annotations
+    "RUF",      # ruff-specific
+]
+ignore = [
+    "D203",     # incompatible with D211
+    "D213",     # incompatible with D212
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D", "ANN"]
+# The caldav/vobject/icalendar libraries ship no type stubs; typing their
+# boundary objects as `Any` is the honest choice. Ruff's ANN401 rule flags
+# this as "dynamically typed", but tightening to a fictional type would be
+# worse than accepting the dynamism at this FFI boundary.
+"src/calcard_mcp/caldav_client.py" = ["ANN401"]
+"src/calcard_mcp/_caldav_base.py" = ["ANN401"]
+"src/calcard_mcp/_caldav_mutation.py" = ["ANN401"]
+"src/calcard_mcp/_caldav_recurrence.py" = ["ANN401"]
+"src/calcard_mcp/caltodo_client.py" = ["ANN401"]
+"src/calcard_mcp/carddav_client.py" = ["ANN401"]
+"src/calcard_mcp/freebusy.py" = ["ANN401"]
+"src/calcard_mcp/ical.py" = ["ANN401"]
+"src/calcard_mcp/_ical_parse.py" = ["ANN401"]
+"src/calcard_mcp/_raw_props.py" = ["ANN401"]
+"src/calcard_mcp/vcard.py" = ["ANN401"]
+"src/calcard_mcp/vtodo.py" = ["ANN401"]
+"src/calcard_mcp/verifier.py" = ["ANN401"]
+"src/calcard_mcp/tools/calendar.py" = ["ANN401"]
+"src/calcard_mcp/tools/contact.py" = ["ANN401"]
+"src/calcard_mcp/tools/todo.py" = ["ANN401"]
+# tool_logged is a generic decorator wrapping FastMCP tool functions of
+# arbitrary signatures; *args: Any / **kwargs: Any is the honest typing
+# at this dynamic-wrapping boundary.
+"src/calcard_mcp/tools/_logging.py" = ["ANN401"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.12"
+typeCheckingMode = "strict"
+reportMissingTypeStubs = "none"
+# MCP tool functions are registered by the `@server.tool(...)` decorator's
+# side effect; pyright cannot see that they are "used". Rather than tagging
+# every tool with a per-line suppression, accept the trade project-wide.
+reportUnusedFunction = "none"
+# The CalDAV client subsystem is split across cohesive sibling modules
+# (caldav_client, _caldav_base, _caldav_mutation, _caldav_recurrence,
+# _caldav_service) to keep every file under the 800-line limit. The shared,
+# subsystem-private helpers (`_LOG`, `_status_cancelled`, `_TRANSPORT_EXCEPTIONS`,
+# ...) keep their underscore names but are imported across these modules;
+# pyright's reportPrivateUsage flags that intra-package sharing. Accept the
+# trade project-wide rather than renaming subsystem-private symbols.
+reportPrivateUsage = "none"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+    "integration: end-to-end tests that spin up real services (e.g. a Radicale container); excluded from default runs",
+]
+addopts = "-m 'not integration'"

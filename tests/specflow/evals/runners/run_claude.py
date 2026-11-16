@@ -888,6 +888,17 @@ def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) 
         )
 
 
+def continuation_ready(record: dict) -> bool:
+    """Pending rubric review blocks release, not collection of child evidence."""
+    if record.get("notRun") or record.get("brokenAt"):
+        return False
+    return not any(
+        any(f["kind"] != "rubric" for f in item["failures"])
+        or any(v.get("review", v).get("verdict") == "FAIL" for v in item["rubrics"])
+        for item in record.get("scores", [])
+    )
+
+
 @score.deadline(BATCH_TIMEOUT)
 def run_batch(
     adapter: Claude,
@@ -1016,7 +1027,7 @@ def run_batch(
                             normalized, eval_dir, results=out
                         )
                         code = max(code, session_code)
-                        if session_code:
+                        if not continuation_ready(normalized):
                             completed.pop(session["name"], None)
                         score.remaining_timeout(TURN_TIMEOUT)
                     except (

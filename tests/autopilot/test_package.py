@@ -465,7 +465,7 @@ print("55 fixtures validated")
         self.assertEqual(document["permissions"], {"contents": "read"})
         triggers = document.get("on", document.get(True))  # PyYAML YAML 1.1 parses on as True.
         self.assertIsInstance(triggers, dict)
-        self.assertEqual(triggers["push"]["branches"], ["master"])
+        self.assertEqual(triggers["push"]["branches"], ["master", "feature/specflow-00009"])
         self.assertIn("pull_request", triggers)
         jobs = document["jobs"]
         for job in (jobs["plugins"], jobs["autopilot"]):
@@ -483,8 +483,8 @@ print("55 fixtures validated")
             "python3 -m unittest discover -s scripts", "python3 scripts/validate.py",
             "python3 scripts/generate_marketplace.py --check",
             *[f"python3 -m unittest discover -s tests/specflow/{area}"
-              for area in ("release", "contract", "rules", "review")],
-            "python3 tools/specflow/check_rules.py --area VAL,SKL,DLG,INT,REQ,DSN,TSK,IMP,VER,RVC,RVR,RVD,RVX,CNV",
+              for area in ("release", "contract", "rules", "review", "security", "compatibility")],
+            "python3 tools/specflow/check_rules.py",
             "python3 tools/specflow/verify_release.py",
         ])
         steps = jobs["autopilot"]["steps"]
