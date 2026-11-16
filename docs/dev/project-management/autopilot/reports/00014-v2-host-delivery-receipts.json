@@ -5,7 +5,7 @@
     "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
     "artifact_sha256": "7d36381a6871dd7f0e4fd53f9f06ef5cc8d957eaebb78ed9b7048e5239d93909"
   },
-  "package_revision": "d6f014f95d510d3714f6e6351919989320ccfd63",
+  "package_revision": "89a682eb775c0648ac58848278113a3d091057b7",
   "paths": [
     "plugins/autopilot/README.md",
     "plugins/autopilot/CHANGELOG.md",
