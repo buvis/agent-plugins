@@ -8,19 +8,19 @@
     },
     {
       "developer": "Use docs/notes.md.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "The accounting system is Acme Ledger; its import format is in docs/ledger-format.md, and the format must not change.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Tests first.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00004-invoice-export.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     }
   ]
 }

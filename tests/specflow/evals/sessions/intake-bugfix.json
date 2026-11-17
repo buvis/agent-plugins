@@ -8,15 +8,15 @@
     },
     {
       "developer": "Expected: the discount comes off first and tax is added after, so 90 plus 9 tax, a total of 99.00.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "A total without a discount must stay exactly as it is today, and the receipt format must not change.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Yes: a bugfix, requirements-first, standard profile. Name the spec folder 00001-discount-total.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Go ahead and draft bugfix.md."

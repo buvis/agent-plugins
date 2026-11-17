@@ -8,11 +8,11 @@
     },
     {
       "developer": "Both the API and the ledger booking.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-partial-refunds.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     }
   ]
 }

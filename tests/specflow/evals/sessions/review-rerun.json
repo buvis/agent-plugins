@@ -3,7 +3,7 @@
   "name": "review-rerun",
   "continues": "review-walkthrough",
   "turns": [
-    {"developer": "Review the requirements for 00001-csv-export again.", "expects": "\\?\\s*$"},
+    {"developer": "Review the requirements for 00001-csv-export again."},
     {"developer": "Stop here and recap."}
   ]
 }

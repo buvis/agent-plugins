@@ -8,23 +8,23 @@
     },
     {
       "developer": "Python 3.12 only. No JavaScript framework, because nobody on the team can maintain one; render HTML on the server instead.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "No cloud services: the data stays on my own machine; use SQLite.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "pytest, with tests written before the code.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "No example to follow; PEP 8 is enough.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-habit-tracker.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Go ahead and draft."

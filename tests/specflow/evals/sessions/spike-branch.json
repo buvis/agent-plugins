@@ -12,7 +12,7 @@
     },
     {
       "developer": "Discard it.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Yes, delete it."

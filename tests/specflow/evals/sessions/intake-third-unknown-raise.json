@@ -8,23 +8,23 @@
     },
     {
       "developer": "A saved cart lasts 30 days.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Only signed-in customers can save a cart.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Yes, raise it to standard.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Show the current price, and mark any item whose price changed since it was saved.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-saved-carts.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     }
   ]
 }

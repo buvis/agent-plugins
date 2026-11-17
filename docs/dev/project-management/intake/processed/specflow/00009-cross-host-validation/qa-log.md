@@ -988,3 +988,52 @@ review file, eligibility/comparison checks, conversion live tests, compatibility
 reports, final Outcomes and completion criteria, pushed green final CI, then
 completion review in a fresh session. IDE type checks remain unverified in
 tests/specflow/compatibility/kiro-type-checklist.md; parity remains in spec 00023.
+
+
+### Live batch triage (2026-11-17 13:05 UTC)
+
+The developer reported the frozen-input refusal on rerun. Git status showed
+only untracked eval results under the checked input paths. Preserved all 69
+record files byte-for-byte at docs/dev/tmp/specflow/batch-20261117T130520Z/results
+and copied the proof directory alongside them. SHA-256 maps before and after
+the move match. The exact frozen-input git status command now returns empty.
+At that checkpoint no runner, package, session, eval or fixture input changed.
+
+The stored batch summary names f511ceb and 76 rows. Claude has 59 records
+(30 broken, 9 notRun, 20 neither); Kiro has 10 (3 broken, 2 notRun, 5 neither).
+Neither broken nor notRun means collection finished, not that a record passed.
+Codex has no session records: its login timed out after 600 seconds. The
+handoff trace failed in its first Kiro step on a denied read.
+
+Thirteen collected records break at turn one: play_session checks expects
+against a previous reply before launching that turn, but there is no previous
+reply. All 33 broken records use an end-anchored question pattern. An initial
+triage claim of double escaping was incorrect: character-code and regex checks
+confirm a correctly escaped question mark. The pattern accepts 'Which option?'
+but rejects 'Which option?' followed by explanation. Several actual replies
+have that shape, so requiring a final question mark blocks valid continuations.
+Do not retry the full matrix unchanged. A new input freeze is required to
+correct the session preconditions and regression-test collection. Any changed
+runner requires new boundary proofs. Existing records remain diagnostic only;
+human review and release certification are not complete.
+
+Future output can use --out docs/dev/tmp/specflow/results to keep generated
+records outside the frozen input paths without changing the runner. Scoring
+must use the same results root. The runner's default output location remains
+a known rerun limitation under the current freeze.
+
+Session-only correction: removed previous-reply preconditions from first turns
+and allowed options/explanation after a question in 33 session manifests.
+No package, runner, schema, eval assertion or fixture changed. Session candidate
+hashes change; runner/package proof digests do not. Self-review confirmed that
+preconditions still reject replies without a question. Replaying just the
+recorded preconditions accepts 30 of the 33 formerly broken positions; three
+still lack a question and remain rejected. This is an offline diagnostic,
+not a live rerun or a passing evaluation.
+
+Regression tests failed first with 101 subtest failures, then passed (2 tests,
+0 skips) on Python 3.15.2 and 3.10.22. Full rules suite: 202 tests, 0 skips.
+Ruff lint/format, unfiltered rule inventory, repository validator (3 plugins,
+15 skills), and git diff --check exited 0. Codex sign-in, Kiro denied reads,
+other incomplete records, live reruns, human review and release checks remain
+open. Use the scratch output override above for the next batch.

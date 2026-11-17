@@ -4,7 +4,7 @@
   "fixture": "sessions/direct-review-entry",
   "turns": [
     {"developer": "Review the requirements for 00001-csv-export."},
-    {"developer": "Not decided yet.", "expects": "\\?\\s*$"},
+    {"developer": "Not decided yet.", "expects": "\\?"},
     {"developer": "Take your recommendation."},
     {"developer": "Are my specs ready?"}
   ]

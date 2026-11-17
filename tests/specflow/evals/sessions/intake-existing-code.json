@@ -8,15 +8,15 @@
     },
     {
       "developer": "Learn about the partner from docs/partner-api.md. Their payload must stay exactly as it is documented there.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "A webhook that fails is retried three times, a minute apart.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-order-webhooks.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Go ahead and draft."

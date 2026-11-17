@@ -8,11 +8,11 @@
     },
     {
       "developer": "Yes, build a thin end-to-end slice first.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-csv-import.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Go ahead and draft."

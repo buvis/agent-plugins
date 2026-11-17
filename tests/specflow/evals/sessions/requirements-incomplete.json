@@ -8,23 +8,23 @@
     },
     {
       "developer": "I don't know.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Whatever you think.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Spike it.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Graduate.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "That's enough, write it up.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     }
   ]
 }

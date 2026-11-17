@@ -3,8 +3,8 @@
   "name": "convert-prd-ambiguous",
   "fixture": "sessions/convert-prd-ambiguous",
   "turns": [
-    {"developer": "Convert the export PRD into specflow.", "expects": "\\?\\s*$"},
-    {"developer": "docs/prds/00008-export-api.md", "expects": "\\?\\s*$"},
+    {"developer": "Convert the export PRD into specflow."},
+    {"developer": "docs/prds/00008-export-api.md", "expects": "\\?"},
     {"developer": "Stop here and write the receipt."}
   ]
 }

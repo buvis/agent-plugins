@@ -8,19 +8,19 @@
     },
     {
       "developer": "Any calendar app should open it; I use the one on my phone.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Refine: a date without a time becomes an all-day event.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Graduate.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Yes: a feature, requirements-first, quick profile. Name the spec folder 00001-todo-calendar.",
-      "expects": "\\?\\s*$"
+      "expects": "\\?"
     },
     {
       "developer": "Go ahead and draft."
