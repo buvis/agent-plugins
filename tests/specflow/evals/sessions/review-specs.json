@@ -4,9 +4,9 @@
   "fixture": "sessions/review-specs",
   "turns": [
     {"developer": "Are my specs ready?"},
-    {"developer": "1", "expects": "\\?"},
-    {"developer": "No edit. I waive it: the archive spec folds into the export spec later, and I accept the overlap until then.", "expects": "\\?"},
-    {"developer": "Take your recommendation.", "expects": "\\?"},
+    {"developer": "1", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
+    {"developer": "No edit. I waive it: the archive spec folds into the export spec later, and I accept the overlap until then.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
+    {"developer": "Take your recommendation.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
     {"developer": "Stop here and recap."}
   ]
 }

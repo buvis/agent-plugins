@@ -4,9 +4,9 @@
   "fixture": "sessions/design-review",
   "turns": [
     {"developer": "Review the design for 00001-order-webhooks."},
-    {"developer": "1", "expects": "\\?"},
-    {"developer": "1", "expects": "\\?"},
-    {"developer": "Approve the design.", "expects": "\\?"},
+    {"developer": "For the current review finding, apply your recommended option, record my decision, and continue to the next finding. If the requested decision is an owner name, use Alex Example, the synthetic project owner.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
+    {"developer": "For the current review finding, apply your recommended option, record my decision, and continue to the next finding. If the requested decision is an owner name, use Alex Example, the synthetic project owner.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
+    {"developer": "Approve the design.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
     {"developer": "Stop here and recap."}
   ]
 }

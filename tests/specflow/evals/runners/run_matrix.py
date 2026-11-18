@@ -89,6 +89,7 @@ def execute_host(
             }
             for n in names
         ]
+    rows.append({"host": host, "session": "probe", "code": 0})
     for name in names:
         adapter = adapter_type(model)
         adapter.boundary = proof
@@ -130,6 +131,20 @@ def frozen_inputs() -> dict:
     return {"sessions": sessions, "groups": {host: groups(host) for host in HOSTS}}
 
 
+def frozen_changes() -> str:
+    paths = [
+        "plugins/specflow",
+        "tests/specflow/evals",
+        "tests/specflow/fixtures",
+        ":(exclude)tests/specflow/evals/results",
+    ]
+    return (
+        score.git("status", "--porcelain", "--untracked-files=all", "--", *paths)
+        .decode()
+        .strip()
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=score.EVALS / "results")
@@ -137,23 +152,39 @@ def main(argv: list[str] | None = None) -> int:
         "--proofs", type=Path, default=runner.ROOT / "docs/dev/tmp/specflow/proofs"
     )
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--diagnostic",
+        action="store_true",
+        help="probe all hosts, run conversion and handoff; isolate diagnostic records",
+    )
     for host, (_, _, model) in HOSTS.items():
         parser.add_argument(f"--{host}-model", default=model)
     args = parser.parse_args(argv)
+    selected = ["conversion-calcard"] if args.diagnostic else None
     if args.dry_run:
-        print(json.dumps({h: groups(h) for h in HOSTS}, indent=2))
+        print(json.dumps({h: selected or groups(h) for h in HOSTS}, indent=2))
         return 0
     if not sys.stdin.isatty():
         parser.error("run in a developer terminal for independent Codex sign-in")
     # Refuse mutable or uncommitted inputs before any paid probe.
-    paths = ["plugins/specflow", "tests/specflow/evals", "tests/specflow/fixtures"]
-    dirty = score.git("status", "--porcelain", "--", *paths).decode()
-    if dirty.strip():
+    if dirty := frozen_changes():
         parser.error(
-            "commit frozen package, runner, session, eval and fixture inputs first"
+            "commit frozen package, runner, session, eval and fixture inputs first:\n"
+            + dirty
         )
+    if args.diagnostic:
+        args.out /= "diagnostic"
+        args.proofs /= "diagnostic"
     args.proofs.mkdir(parents=True, exist_ok=True)
-    score.write_json(args.proofs / "frozen-inputs.json", frozen_inputs())
+    scope = "diagnostic" if args.diagnostic else "full"
+    score.write_json(
+        args.proofs / "frozen-inputs.json",
+        {
+            **frozen_inputs(),
+            "scope": scope,
+            "selectedGroups": {host: selected or groups(host) for host in HOSTS},
+        },
+    )
     rows = []
     try:
         with runner.interruption_signals():
@@ -161,9 +192,16 @@ def main(argv: list[str] | None = None) -> int:
                 model = getattr(args, host.replace("-", "_") + "_model")
                 if model in {"auto", "default"}:
                     parser.error("choose explicit models")
-                rows.extend(execute_host(host, model, args.out, args.proofs))
+                rows.extend(
+                    execute_host(host, model, args.out, args.proofs, selected=selected)
+                )
             models = {h: getattr(args, h.replace("-", "_") + "_model") for h in HOSTS}
-            if all((args.proofs / f"{h}.json").is_file() for h in HOSTS):
+            passed_hosts = {
+                row["host"]
+                for row in rows
+                if row["session"] == "probe" and row["code"] == 0
+            }
+            if passed_hosts == set(HOSTS):
                 handoff = run_handoff.execute(
                     models, args.proofs, args.proofs / "handoff.json", HOSTS
                 )
@@ -178,7 +216,11 @@ def main(argv: list[str] | None = None) -> int:
     finally:
         score.write_json(
             args.proofs / "matrix-summary.json",
-            {"commit": score.git("rev-parse", "HEAD").decode().strip(), "rows": rows},
+            {
+                "commit": score.git("rev-parse", "HEAD").decode().strip(),
+                "rows": rows,
+                "scope": scope,
+            },
         )
         print("HOST          SESSION                                  EXIT")
         for row in rows:
@@ -186,6 +228,8 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "Exit 1 can mean pending human review. No row alone certifies release evidence."
         )
+        if args.diagnostic:
+            print("Diagnostic subset only; the full release matrix remains required.")
     return max((r["code"] for r in rows), default=2)
 
 

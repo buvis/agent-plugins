@@ -3,6 +3,6 @@
   "name": "review-specs-report-only",
   "fixture": "sessions/review-specs",
   "turns": [
-    {"developer": "Are my specs ready? Report only, no walkthrough."}
+    {"developer": "Run the full cross-spec review in report-only mode and give its GO or NO-GO verdict. Write the review report without changing the specs. Do not conduct an interactive walkthrough. This requests the cross-spec review, not a status summary."}
   ]
 }

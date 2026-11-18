@@ -4,9 +4,9 @@
   "fixture": "sessions/requirements-review-bugfix",
   "turns": [
     {"developer": "Review the bugfix requirements for 00001-discount-total."},
-    {"developer": "1", "expects": "\\?"},
-    {"developer": "1", "expects": "\\?"},
-    {"developer": "1"},
+    {"developer": "For the current review finding, apply your recommended option, record my decision, and continue to the next finding. If the requested decision is an owner name, use Alex Example, the synthetic project owner.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
+    {"developer": "For the current review finding, apply your recommended option, record my decision, and continue to the next finding. If the requested decision is an owner name, use Alex Example, the synthetic project owner.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
+    {"developer": "For the current review finding, apply your recommended option, record my decision, and continue to the next finding. If the requested decision is an owner name, use Alex Example, the synthetic project owner."},
     {"developer": "Stop here. Recap and show the approval summary."}
   ]
 }

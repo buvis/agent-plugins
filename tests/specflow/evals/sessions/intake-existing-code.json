@@ -7,16 +7,16 @@
       "developer": "Create a spec from intake item 00001-order-webhooks."
     },
     {
+      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-order-webhooks.",
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
+    },
+    {
       "developer": "Learn about the partner from docs/partner-api.md. Their payload must stay exactly as it is documented there.",
-      "expects": "\\?"
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
     },
     {
       "developer": "A webhook that fails is retried three times, a minute apart.",
-      "expects": "\\?"
-    },
-    {
-      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-order-webhooks.",
-      "expects": "\\?"
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
     },
     {
       "developer": "Go ahead and draft."

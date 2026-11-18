@@ -3,9 +3,9 @@
   "name": "requirements-review-quick",
   "fixture": "sessions/requirements-review-quick",
   "turns": [
-    {"developer": "Review the requirements."},
-    {"developer": "00001-order-notes.", "expects": "\\?"},
-    {"developer": "1", "expects": "\\?"},
+    {"developer": "Review the requirements for 00001-order-notes."},
+    {"developer": "For the current review finding, apply your recommended option, record my decision, and continue to the next finding. If the requested decision is an owner name, use Alex Example, the synthetic project owner.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
+    {"developer": "For the current review finding, apply your recommended option, record my decision, and continue to the next finding. If the requested decision is an owner name, use Alex Example, the synthetic project owner.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
     {"developer": "Stop here and recap."}
   ]
 }

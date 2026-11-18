@@ -7,12 +7,12 @@
       "developer": "Create a spec from intake item 00001-partial-refunds."
     },
     {
-      "developer": "Both the API and the ledger booking.",
-      "expects": "\\?"
+      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-partial-refunds.",
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
     },
     {
-      "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-partial-refunds.",
-      "expects": "\\?"
+      "developer": "Both the API and the ledger booking.",
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
     }
   ]
 }

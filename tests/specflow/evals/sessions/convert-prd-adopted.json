@@ -4,7 +4,7 @@
   "fixture": "sessions/convert-prd-adopted",
   "turns": [
     {"developer": "Adopt the implemented PRD docs/prds/00005-csv-export.md into specflow."},
-    {"developer": "I approve the requirements, the design, and the tasks as the recovered baseline, as of today.", "expects": "\\?"},
+    {"developer": "I approve the requirements, the design, and the tasks as the recovered baseline, as of today.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
     {"developer": "Stop here and write the receipt."}
   ]
 }

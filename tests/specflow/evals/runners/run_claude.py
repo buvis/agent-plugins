@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import signal
 import subprocess
@@ -264,8 +265,50 @@ def package_revision(plugin: Path) -> str:
 
 
 def verify_plugin(plugin: Path, revision: str) -> None:
-    if package_revision(plugin) != revision:
-        raise HostError("installed plugin differs from runtimeRevision")
+    actual = package_revision(plugin)
+    if actual != revision:
+        raise HostError(
+            "installed plugin differs from runtimeRevision: "
+            + json.dumps(
+                {
+                    "expected": revision,
+                    "actual": actual,
+                    "changes": package_changes(plugin, revision),
+                },
+                sort_keys=True,
+            )
+        )
+
+
+def package_changes(plugin: Path, revision: str) -> dict:
+    """Report names, modes and object ids only; never retain package contents."""
+    if not re.fullmatch(r"[0-9a-f]{40}", revision):
+        return {"unavailable": "invalid expected tree id"}
+    try:
+        entries = score.git("ls-tree", "-rz", revision).split(b"\0")
+    except score.RecordError:
+        return {"unavailable": "expected tree is unavailable"}
+    expected = {}
+    for entry in filter(None, entries):
+        metadata, path = entry.decode().split("\t", 1)
+        mode, _, oid = metadata.split()
+        expected[path] = [mode, oid]
+    actual, empty = {}, []
+    for path in sorted(plugin.rglob("*")):
+        name = path.relative_to(plugin).as_posix()
+        if path.is_symlink():
+            actual[name] = ["120000", score.object_id(os.readlink(path).encode())]
+        elif path.is_file():
+            mode = "100755" if path.stat().st_mode & 0o111 else "100644"
+            actual[name] = [mode, score.object_id(path.read_bytes())]
+        elif path.is_dir() and not any(path.iterdir()):
+            empty.append(name)
+    changes = {
+        name: {"expected": expected.get(name), "actual": actual.get(name)}
+        for name in sorted(expected.keys() | actual.keys())
+        if expected.get(name) != actual.get(name)
+    }
+    return {"entries": changes, "emptyDirectories": empty}
 
 
 @contextlib.contextmanager
@@ -563,22 +606,37 @@ def accept_boundary(adapter: Claude, revision: str) -> None:
     proof = proof if isinstance(proof, dict) else {}
     checks = proof.get("checks")
     checks = checks if isinstance(checks, dict) else {}
-    if (
-        proof.get("scope") != "installed-host-boundary"
-        or proof.get("host") != adapter.host
-        or proof.get("hostVersion") != adapter.version
-        or proof.get("configurationSha256") != adapter.configuration_sha256
-        or proof.get("runtimeRevision") != revision
-        or proof.get("runnerSha256") != runner_digest(adapter)
-        or any(
-            not isinstance(checks.get(name), dict)
-            or checks[name].get("passed") is not True
-            for name in score.RELEASE_BOUNDARY_CHECKS
-        )
+    current = {
+        "scope": "installed-host-boundary",
+        "host": adapter.host,
+        "hostVersion": adapter.version,
+        "configurationSha256": adapter.configuration_sha256,
+        "runtimeRevision": revision,
+        "runnerSha256": runner_digest(adapter),
+    }
+    mismatches = {
+        key: {"proof": proof.get(key), "current": value}
+        for key, value in current.items()
+        if proof.get(key) != value
+    }
+    failed = [
+        name
+        for name in score.RELEASE_BOUNDARY_CHECKS
+        if not isinstance(checks.get(name), dict)
+        or checks[name].get("passed") is not True
+    ]
+    if failed:
+        mismatches["checks"] = failed
+    if "runtimeRevision" in mismatches and isinstance(
+        proof.get("runtimeRevision"), str
     ):
+        mismatches["packageChanges"] = package_changes(
+            adapter.plugin, proof["runtimeRevision"]
+        )
+    if mismatches:
         raise HostError(
-            f"{adapter.host} launch blocked: no passing boundary proof for this "
-            "host version, package, configuration, and runner (run its live probe)"
+            f"{adapter.host} launch blocked: boundary proof mismatch: "
+            + json.dumps(mismatches, sort_keys=True)
         )
     adapter.boundary_sha256 = score.evidence_digest(proof)
 
@@ -760,8 +818,15 @@ class Claude:
             or final.get("permission_denials")
             or final.get("subtype") != "success"
         ):
+            denied = [
+                item.get("tool_name", "unknown")
+                if isinstance(item, dict)
+                else str(item)
+                for item in final.get("permission_denials", [])
+            ]
             raise HostError(
-                "Claude turn did not succeed or requested denied permissions"
+                "Claude turn did not succeed or requested denied permissions: "
+                + json.dumps({"subtype": final.get("subtype"), "deniedTools": denied})
             )
         cost = final.get("total_cost_usd")
         if not isinstance(cost, (int, float)) or isinstance(cost, bool):
@@ -790,6 +855,18 @@ class Claude:
         return final["result"], reads
 
 
+def workflow_prompt(prompt: str, plugin: Path) -> str:
+    helper = plugin / "skills/spec-workflow/scripts/validate_spec.py"
+    # Every adapter puts this interpreter's directory first on the tool PATH.
+    command = shlex.join(["python3", "-B", str(helper)])
+    return (
+        f"The installed specflow package is at {plugin}. Read its skill and references there. "
+        f"Run the validator as `{command}` followed by its arguments. "
+        "Do not change package files or permissions, or use another package copy.\n"
+        + prompt
+    )
+
+
 @score.deadline(SESSION_TIMEOUT)
 def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) -> None:
     adapter.new_conversation()
@@ -814,9 +891,10 @@ def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) 
             verify_workspace(workspace)
             prompt = turn["developer"]
             if turn_number == 1:
-                prompt = (
-                    "Use the installed specflow spec-workflow skill for this request.\n"
-                    + prompt
+                prompt = workflow_prompt(
+                    "Use the installed specflow skill named by the request, or spec-workflow otherwise.\n"
+                    + prompt,
+                    plugin,
                 )
             adapter.instruction_observations = {}
             adapter.instruction_measurement = "not-measured"
@@ -838,6 +916,7 @@ def play_session(adapter: Claude, session: dict, workspace: Path, record: dict) 
                     plugin_files=plugin_files,
                 )
             )
+            verify_plugin(plugin, record["runtimeRevision"])
         score.remaining_timeout(TURN_TIMEOUT)
         record["status"] = capture_status(
             workspace, plugin=getattr(adapter, "plugin", score.PLUGIN)

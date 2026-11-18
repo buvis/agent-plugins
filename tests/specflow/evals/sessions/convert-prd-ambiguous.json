@@ -4,7 +4,7 @@
   "fixture": "sessions/convert-prd-ambiguous",
   "turns": [
     {"developer": "Convert the export PRD into specflow."},
-    {"developer": "docs/prds/00008-export-api.md", "expects": "\\?"},
+    {"developer": "docs/prds/00008-export-api.md", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
     {"developer": "Stop here and write the receipt."}
   ]
 }

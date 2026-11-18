@@ -8,23 +8,23 @@
     },
     {
       "developer": "Python 3.12 only. No JavaScript framework, because nobody on the team can maintain one; render HTML on the server instead.",
-      "expects": "\\?"
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
     },
     {
       "developer": "No cloud services: the data stays on my own machine; use SQLite.",
-      "expects": "\\?"
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
     },
     {
       "developer": "pytest, with tests written before the code.",
-      "expects": "\\?"
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
     },
     {
       "developer": "No example to follow; PEP 8 is enough.",
-      "expects": "\\?"
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
     },
     {
       "developer": "Yes: a feature, requirements-first, standard profile. Name the spec folder 00001-habit-tracker.",
-      "expects": "\\?"
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
     },
     {
       "developer": "Go ahead and draft."

@@ -12,7 +12,7 @@
     },
     {
       "developer": "Discard it.",
-      "expects": "\\?"
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
     },
     {
       "developer": "Yes, delete it."

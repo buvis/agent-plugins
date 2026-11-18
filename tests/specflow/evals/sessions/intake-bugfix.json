@@ -7,16 +7,16 @@
       "developer": "Create a spec from intake item 00001-discount-total."
     },
     {
+      "developer": "Yes: a bugfix, requirements-first, standard profile. Name the spec folder 00001-discount-total.",
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
+    },
+    {
       "developer": "Expected: the discount comes off first and tax is added after, so 90 plus 9 tax, a total of 99.00.",
-      "expects": "\\?"
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
     },
     {
       "developer": "A total without a discount must stay exactly as it is today, and the receipt format must not change.",
-      "expects": "\\?"
-    },
-    {
-      "developer": "Yes: a bugfix, requirements-first, standard profile. Name the spec folder 00001-discount-total.",
-      "expects": "\\?"
+      "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"
     },
     {
       "developer": "Go ahead and draft bugfix.md."

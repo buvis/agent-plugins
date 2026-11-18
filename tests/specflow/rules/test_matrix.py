@@ -28,7 +28,8 @@ class MatrixTest(unittest.TestCase):
                 registry={"codex": (adapter, probe, "explicit")},
                 selected=["a", "b", "c"],
             )
-        self.assertEqual([r["code"] for r in rows], [1, 2, 0])
+        self.assertEqual(rows[0], {"host": "codex", "session": "probe", "code": 0})
+        self.assertEqual([r["code"] for r in rows[1:]], [1, 2, 0])
         self.assertEqual(run.call_count, 3)
         probe.assert_called_once_with("explicit")
 

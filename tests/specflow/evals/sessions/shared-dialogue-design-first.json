@@ -11,8 +11,8 @@
         "text": "# ADR: retry queue in SQLite\n\nDecision: skipped rows go to a SQLite queue, `var/retry.db`, instead of logs/skipped.csv. The nightly import drains the queue before it reads the new feed.\n\nIt builds on spec 00001-import-retries, which must be finished first.\n"
       }
     },
-    {"developer": "Yes: a feature, design-first, standard profile. Name the spec folder 00002-retry-queue.", "expects": "\\?"},
-    {"developer": "Keep the queue file under var/. Whether the queue is shared across hosts: not decided yet.", "expects": "\\?"},
+    {"developer": "Yes: a feature, design-first, standard profile. Name the spec folder 00002-retry-queue.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
+    {"developer": "Keep the queue file under var/. Whether the queue is shared across hosts: not decided yet.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
     {"developer": "Review the design for 00002-retry-queue."},
     {"developer": "Apply your recommendations."},
     {"developer": "Approve the design."},

@@ -1135,3 +1135,65 @@ docs/dev/tmp/specflow/batch-20261118T170622Z. Raw records remain uncommitted pen
 | kiro-ide | requirements-review | script stopped at turn 3 |
 | kiro-ide | resume-after-intake | continuation parent did not finish |
 | kiro-ide | tasks-planning | deterministic assertion failures |
+
+
+### Approved focused runner repair (2026-11-18)
+
+The developer selected option A: one focused runner diagnostic/repair batch,
+then a new freeze. This authorizes the runner changes below; the package stays
+frozen. It does not waive a boundary check, the full matrix, human verdicts, or
+the fresh-session completion review.
+
+Implemented exact boundary mismatch diagnostics, including relative package
+entry names, modes and object ids when the runtime tree differs. No package
+file contents are included. Claude permission failures name denied tools but
+omit their arguments. The root cause of the earlier runtime rejection remains
+unmeasured until a diagnostic run supplies the missing observation.
+
+Two supported runner defects were reproduced offline and fixed: the last turn
+could change its package without a post-turn check; and a failed probe could
+leave an earlier proof file available to the handoff. Every successful turn
+now verifies package identity, including handoff turns. Only probes that pass
+in the current matrix invocation admit the handoff. No permissions or sandbox
+settings were relaxed.
+
+The supervisor supplies each host its installed package path and a python3 -B
+validator invocation, with an instruction not to change package files or
+permissions or use another copy. Conversion requests no longer receive a
+conflicting instruction to always invoke spec-workflow. External-edit handoff
+steps remain outside the workflow.
+
+Generated evals/results no longer blocks the frozen-input check; changed input
+paths are listed. The --diagnostic option probes all hosts, runs conversion
+on each, then runs handoff only if all fresh probes passed. Its records and
+proofs live in diagnostic subdirectories, and its manifest/summary identify
+the subset. It is not a release matrix or a PASS certificate. It requires at
+most three Codex sign-ins, preserving the existing isolated authentication.
+
+Session corrections accept explicit choice/confirmation requests without a
+question mark, select the recommended review option by meaning rather than a
+bare number, name the quick-review target up front, and confirm intake settings
+before content answers in the three observed ordering failures. Completion and
+report-only review requests now state the intended operation. The tasks session
+supplies its missing export contracts and requests review and approval of the
+revised design before the task plan. These are synthetic developer inputs;
+no human rubric verdict or live host result is invented. No eval assertion,
+package instruction or fixture was changed to turn a failure into a pass.
+
+Regression checks failed against the old implementation before the fixes:
+boundary error details, package mode diagnostics, post-turn mutation detection,
+stale proof reuse, and the missing diagnostic/output guards. Input-request
+regressions also failed before their session edits. Final local checks:
+211 rules/runner tests on Python 3.15.2 and 3.10.22, zero skipped; 7 security
+tests on each, zero skipped. Ruff lint/format, unfiltered rule inventory,
+repository validator (3 plugins, 15 skills), and git diff --check exited 0.
+Self-review retained all proof comparisons, rejected reuse of stale files,
+checked that package diagnostics contain no file contents, and confirmed that
+scope labels keep diagnostic evidence separate from the full matrix.
+
+The shipped package remains identical to 96bb5b2. Previous runner proofs are
+stale for the repaired collectors. Preserve the archived records; request a
+short diagnostic run before another full matrix. The 17 observed deterministic
+failures still need live adjudication after collection is reliable. Human
+review, release eligibility, final task Outcomes and fresh-session completion
+review remain open. CI for the repair commit is not yet measured here.

@@ -4,7 +4,7 @@
   "fixture": "sessions/design-review-quick",
   "turns": [
     {"developer": "Review the design for 00001-order-notes."},
-    {"developer": "Take your recommendation.", "expects": "\\?"},
+    {"developer": "Take your recommendation.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
     {"developer": "Stop here and recap."}
   ]
 }

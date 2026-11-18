@@ -196,7 +196,13 @@ def execute(models: dict[str, str], proofs: Path, out: Path, registry: dict) -> 
                 adapter = adapters[host]
                 adapter.new_conversation()
                 expected = runner.snapshot(workspace)
-                reply, reads = adapter.turn(prompt, workspace)
+                reply, reads = adapter.turn(
+                    prompt
+                    if step == "external-edit"
+                    else runner.workflow_prompt(prompt, adapter.plugin),
+                    workspace,
+                )
+                runner.verify_plugin(adapter.plugin, revision)
                 inventory = runner.classify_instructions(
                     adapter.instruction_observations,
                     complete=adapter.instruction_measurement == "measured",

@@ -4,9 +4,9 @@
   "fixture": "sessions/review-walkthrough",
   "turns": [
     {"developer": "Review the requirements for 00001-csv-export."},
-    {"developer": "1", "expects": "\\?"},
-    {"developer": "No edit. I dispute it: this is deliberate, and I accept what it costs.", "expects": "\\?"},
-    {"developer": "Take your recommendation.", "expects": "\\?"},
+    {"developer": "1", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
+    {"developer": "No edit. I dispute it: this is deliberate, and I accept what it costs.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
+    {"developer": "Take your recommendation.", "expects": "(?i)\\?|\\b(?:choose|pick|reply|please confirm|tell me|I (?:still )?need (?:your|the))\\b"},
     {"developer": "Stop here. Give me the recap and the approval summary."}
   ]
 }

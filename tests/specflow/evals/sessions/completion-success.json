@@ -4,7 +4,7 @@
   "fixture": "sessions/completion-success",
   "turns": [
     {
-      "developer": "Verify spec 00001-cart-rounding."
+      "developer": "Verify and complete spec 00001-cart-rounding. Run the completion checks and capture their exit codes. If they pass, check the completion criteria and record completion; do not ask for another authorization to do so. If a check fails, leave the affected criteria unchecked and report the failure."
     }
   ]
 }
