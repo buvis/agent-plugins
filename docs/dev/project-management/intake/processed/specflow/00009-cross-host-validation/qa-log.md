@@ -1037,3 +1037,101 @@ Ruff lint/format, unfiltered rule inventory, repository validator (3 plugins,
 15 skills), and git diff --check exited 0. Codex sign-in, Kiro denied reads,
 other incomplete records, live reruns, human review and release checks remain
 open. Use the scratch output override above for the next batch.
+
+
+### Second live matrix triage (2026-11-18)
+
+Inspected latest records on 2026-11-18 at 17:05 UTC against branch HEAD
+96bb5b2116d5c37a9a853acd95bac3b06de42dfa. All 79 in-scope records exist.
+
+| Host | Collected, no deterministic failures | Collected, deterministic failures | Broken script | notRun |
+|---|---:|---:|---:|---:|
+| Claude Code | 27 | 12 | 8 | 12 |
+| Codex | 4 | 2 | 2 | 2 |
+| kiro-cli | 4 | 3 | 2 | 1 |
+
+These counts are not release PASS counts. Model judgments and human review
+remain incomplete. No human verdict has been invented. The aggregate review
+catalog rejects missing model judgments, and also rejects incomplete sessions;
+therefore the final one-file human review cannot yet be prepared.
+
+All three stored proofs have passed checks and match the current runner digest
+and package HEAD tree. All eight Claude boundary-rejected records retain the
+same host version, configuration digest and prior proof digest as the stored
+proof. The generic rejection does not record the mismatching field or the
+private package tree at the failure. Runtime package drift is a hypothesis,
+not a measured cause; auto-upgrade is not established by these records.
+
+The handoff captured clean instruction inventories for Kiro requirements and
+Codex design. Requirements canonical hash remained
+3e3d048b24b07d8cc84318c4fd0603c34a0e3c89696dcecf38d768f76de75948
+across those two steps. Claude rejected its proof before the tasks step.
+Later handoff/coexistence findings are missing evidence, not executed failures.
+Codex login succeeded this time. No new live host command was launched here.
+
+Observed script mismatches include a confirmation request with no question
+mark, a requested owner name answered with a numbered choice, and approval
+commands before unresolved contract questions were answered. The current
+fixtures also leave material contracts absent, such as the invoice route and
+order export types. These need adjudication against each rule, not blanket
+relaxation of assertions. Completed records include real failure candidates:
+Claude and Kiro decline completion checkboxes after the completion request;
+Kiro reports using another helper copy, but incomplete read telemetry does not
+independently establish that prose claim.
+
+The user's runner/package freeze remains in force. Requested one decision:
+A (recommended), authorize one focused runner-diagnostic/repair batch and a new
+freeze, retaining all boundary checks; B, diagnostics only followed by a
+separate repair decision; C, keep the runner frozen and investigate manually.
+The package stays frozen under all three choices at this decision point.
+No frozen runner or package file has been changed while awaiting the answer.
+
+Preserved current results and proofs with identical SHA-256 maps at
+docs/dev/tmp/specflow/batch-20261118T170622Z. Raw records remain uncommitted pending privacy review.
+
+| Host | Session | Open finding |
+|---|---|---|
+| claude-code | completion-reopened-requirements | deterministic assertion failures |
+| claude-code | completion-success | deterministic assertion failures |
+| claude-code | conversion-calcard | claude-code launch blocked: no passing boundary proof for this host version, package, configuration, and runner (run its live probe) |
+| claude-code | convert-prd-adopted | deterministic assertion failures |
+| claude-code | convert-prd-new | deterministic assertion failures |
+| claude-code | design-open-marker | deterministic assertion failures |
+| claude-code | design-reuse | script stopped at turn 2 |
+| claude-code | design-review | claude-code launch blocked: no passing boundary proof for this host version, package, configuration, and runner (run its live probe) |
+| claude-code | design-review-inline | claude-code launch blocked: no passing boundary proof for this host version, package, configuration, and runner (run its live probe) |
+| claude-code | instruction-scope | script stopped at turn 2 |
+| claude-code | intake-all-supplied | claude-code launch blocked: no passing boundary proof for this host version, package, configuration, and runner (run its live probe) |
+| claude-code | intake-bugfix | script stopped at turn 3 |
+| claude-code | intake-existing-code | script stopped at turn 2 |
+| claude-code | intake-nested-project | script stopped at turn 2 |
+| claude-code | intake-third-unknown-raise | script stopped at turn 2 |
+| claude-code | intake-two-unknowns | deterministic assertion failures |
+| claude-code | other-language | deterministic assertion failures |
+| claude-code | requirements-ambiguous | script stopped at turn 2 |
+| claude-code | requirements-incomplete | deterministic assertion failures |
+| claude-code | requirements-review | Claude turn did not succeed or requested denied permissions |
+| claude-code | requirements-review-quick | script stopped at turn 3 |
+| claude-code | resume-after-intake | continuation parent did not finish |
+| claude-code | review-rerun | continuation parent did not finish |
+| claude-code | review-specs | deterministic assertion failures |
+| claude-code | review-specs-report-only | deterministic assertion failures |
+| claude-code | review-walkthrough | claude-code launch blocked: no passing boundary proof for this host version, package, configuration, and runner (run its live probe) |
+| claude-code | shared-dialogue | deterministic assertion failures |
+| claude-code | shared-dialogue-design-first | continuation parent did not finish |
+| claude-code | sketch-spike | claude-code launch blocked: no passing boundary proof for this host version, package, configuration, and runner (run its live probe) |
+| claude-code | spike-standalone | claude-code launch blocked: no passing boundary proof for this host version, package, configuration, and runner (run its live probe) |
+| claude-code | tasks-planning | deterministic assertion failures |
+| claude-code | working-practices | claude-code launch blocked: no passing boundary proof for this host version, package, configuration, and runner (run its live probe) |
+| codex | conversion-calcard | scoring could not finish: no spec available for validation |
+| codex | design-review | script stopped at turn 3 |
+| codex | intake-all-supplied | deterministic assertion failures |
+| codex | requirements-review | script stopped at turn 2 |
+| codex | resume-after-intake | continuation parent did not finish |
+| codex | tasks-planning | deterministic assertion failures |
+| kiro-ide | completion-success | deterministic assertion failures |
+| kiro-ide | design-review | script stopped at turn 4 |
+| kiro-ide | intake-all-supplied | deterministic assertion failures |
+| kiro-ide | requirements-review | script stopped at turn 3 |
+| kiro-ide | resume-after-intake | continuation parent did not finish |
+| kiro-ide | tasks-planning | deterministic assertion failures |

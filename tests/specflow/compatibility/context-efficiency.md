@@ -1,6 +1,6 @@
 # Context efficiency
 
-T-055 remains pending live Claude Code records. Codex and Kiro: not measured,
+T-055 remains incomplete. Partial Claude Code observations are below. Codex and Kiro: not measured,
 as approved for 00009. File-path observations cannot prove which passages were
 read. Missing paths on incomplete telemetry remain not measured, not absent.
 
@@ -55,6 +55,28 @@ Lines and bytes exclude the delimiter lines.
 
 ## Loading
 
-Pending the frozen Claude Code run. Compare each phase/profile and design-review
-tier against the routing tables in the shipped skill; list observed unexpected
-references as findings. Do not infer absence from incomplete read events.
+Inspected 59 latest Claude Code records on 2026-11-18, preserved under
+`docs/dev/tmp/specflow/batch-20261118T170622Z/results/claude-code/`.
+All 59 report incomplete read measurement; 54 contain positive plugin-path
+read observations. These paths show observed reads only. They cannot establish
+that an unlisted file was not read, or which passages were loaded.
+
+The table gives representative positive observations, relative to
+`skills/spec-workflow/references/`. It is not an exclusive routing PASS.
+
+| Session | Observed phase/profile or review references |
+|---|---|
+| status-summary | `profiles/standard.md`; artifact and state contracts |
+| intake-all-supplied | `phases/intake.md`, `phases/requirements.md`, `profiles/quick.md` |
+| requirements-incomplete | `phases/intake.md`, `phases/requirements.md`, `aws/requirements.md`, `profiles/standard.md` |
+| design-review | `profiles/standard.md`, `review/core.md`, design anti-patterns, cardinal-sins, lenses, pre-pass, stress-tests, techniques and triage |
+| design-review-inline | `review/core.md`; artifact and state contracts |
+| design-review-quick | `profiles/quick.md`, `review/core.md`, design cardinal-sins, checklist, pre-pass, techniques and triage |
+| tasks-planning | `phases/tasks.md`, `profiles/standard.md` |
+| implementation-failed-check | `phases/implementation.md`, `aws/implementation.md`, `profiles/standard.md` |
+| completion-success | `phases/verification.md`, `aws/verification.md`, `profiles/standard.md`, validation rules |
+
+These rows aggregate each session's turns. Phase transitions can legitimately
+load more than one phase reference. Per-turn routing and review-tier findings
+remain to be adjudicated; broken or incomplete sessions do not prove their
+intended tier. Passage-level profile selection remains unproven.
