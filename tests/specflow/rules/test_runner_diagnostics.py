@@ -55,6 +55,20 @@ class RunnerDiagnosticsTest(unittest.TestCase):
         with self.assertRaisesRegex(runner.HostError, "hostVersion.*old-version"):
             runner.accept_boundary(adapter, revision)
 
+    def test_empty_directories_preserve_git_revision_but_new_files_do_not(self) -> None:
+        revision = score.git("rev-parse", "HEAD:plugins/specflow").decode().strip()
+        with tempfile.TemporaryDirectory() as directory:
+            plugin = Path(directory) / "plugin"
+            shutil.copytree(score.PLUGIN, plugin)
+            (plugin / ".claude/.cc-writes").mkdir(parents=True)
+            nested = plugin / "skills/spec-workflow/.claude/.cc-writes"
+            nested.mkdir(parents=True)
+            self.assertEqual(runner.package_revision(plugin), revision)
+            runner.verify_plugin(plugin, revision)
+            (nested / "unexpected.txt").write_text("unexpected package change")
+            with self.assertRaisesRegex(runner.HostError, "unexpected.txt"):
+                runner.verify_plugin(plugin, revision)
+
     def test_package_rejection_names_permission_change_without_file_contents(
         self,
     ) -> None:

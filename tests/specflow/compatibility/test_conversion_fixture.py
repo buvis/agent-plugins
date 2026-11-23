@@ -64,6 +64,13 @@ def compare_conversion(actual: dict[str, str], expected: dict[str, str]) -> list
 
 
 class ConversionFixtureTest(unittest.TestCase):
+    def test_input_config_makes_custom_spec_root_available_to_validation(self) -> None:
+        files = {**read_tree(FIXTURE / "input"), **read_tree(FIXTURE / "expected")}
+        revision = score.git("rev-parse", "HEAD:plugins/specflow").decode().strip()
+        self.assertIsInstance(
+            score.validation_findings(files, "conversion-receipt", revision), list
+        )
+
     def test_faithful_reference(self) -> None:
         expected = read_tree(FIXTURE / "expected")
         self.assertEqual(compare_conversion(expected, expected), [])

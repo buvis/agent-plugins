@@ -6,6 +6,8 @@ or a running runtime. Requirements and design were approved; tasks were drafted
 and unapproved. No work was complete, no receipt existed, and state was handwritten.
 The seeded variant marks only the first two tasks complete, with synthetic Outcomes.
 Source Python files support discovery; do not execute them or contact services.
+The input includes the requested custom folder configuration before host launch.
+Conversion does not require the host to write its protected `.agents` folder.
 
 ## SHA-256
 

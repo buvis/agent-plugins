@@ -249,6 +249,9 @@ def package_revision(plugin: Path) -> str:
             sort_name = path.name
         elif path.is_dir():
             mode, oid, sort_name = "40000", package_revision(path), path.name + "/"
+            # Git does not track directories containing no files or symlinks.
+            if oid == hashlib.sha1(b"tree 0\0").hexdigest():
+                continue
         elif path.is_file():
             mode = "100755" if path.stat().st_mode & 0o111 else "100644"
             oid, sort_name = score.object_id(path.read_bytes()), path.name

@@ -1197,3 +1197,48 @@ short diagnostic run before another full matrix. The 17 observed deterministic
 failures still need live adjudication after collection is reliable. Human
 review, release eligibility, final task Outcomes and fresh-session completion
 review remain open. CI for the repair commit is not yet measured here.
+
+
+### Diagnostic run found and repaired (2026-11-23)
+
+The developer asked whether the requested short diagnostic had run. Inspection
+on 2026-11-23 found `docs/dev/tmp/specflow/proofs/diagnostic/matrix-summary.json`
+for commit 738099c30e7f92a63dff94deac18e1913de23434. Its modification time is
+2026-11-21 14:53:41 UTC (15:53 Prague). All three probes returned 0; conversion
+returned Claude 1, Codex 2, Kiro 1; handoff returned 1. The summary implies an
+overall exit of 2. Original records remain in the existing diagnostic folders.
+
+Claude conversion and the Claude tasks handoff stopped on package hashes.
+Their diagnostics show only empty `.claude/.cc-writes` directories and no
+changed file entries. An offline regression reproduced the exact conversion
+hash 3458d8498aee132a9f302d12bcbcf3b2721230f5 instead of the Git package tree
+495c3eaa72cf82e61189a0eed0f97492c134ea4e. The shared tree hasher now omits
+recursively empty directories, as Git does. New files, symlinks and executable
+mode changes still affect the tree and remain subject to the same checks.
+
+Codex conversion recorded four replies but could not configure the custom
+intake/spec folders because its environment denied writing `.agents/specflow.json`.
+Scoring then failed with `no spec available for validation`. The conversion
+input fixture now supplies its already-requested folder configuration before
+host launch, following the existing configured-workspace fixture. No sandbox
+permission, security setting, shipped package or eval assertion changed. The
+host can read configuration without needing permission to write that folder.
+A regression reproduced the missing-spec error before adding configuration.
+Kiro conversion has no notRun/brokenAt marker and its only scored failure is
+an unjudged rubric; this is not a human PASS or release certificate.
+
+Local verification: 212 runner/rule tests on Python 3.15.2 and 3.10.22, zero
+skipped; 7 security tests on each, zero skipped; 5 offline conversion tests on
+each passed, with 3 live-record tests skipped because no records are installed
+in the canonical results directory. Ruff lint/format, repository validation
+(3 plugins, 15 skills), and unfiltered rule inventory passed. Review confirmed
+that the hash fix affects only empty trees, all hosts use that shared function,
+and the fixture fix preserves host permission boundaries. Spec status remains
+implementation with next task T-053; no task was closed from partial evidence.
+
+Next live action: run the diagnostic again with separate output/proof roots
+`docs/dev/tmp/specflow/repair-results` and `docs/dev/tmp/specflow/repair-proofs`.
+This keeps the November 21 evidence intact and regenerates proofs for the
+changed runner and fixture. Full matrix collection, semantic failures, model
+and human rubric review, final task Outcomes and the fresh-session completion
+review remain open. Do not treat local checks as live release evidence.
