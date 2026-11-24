@@ -192,13 +192,15 @@ never an unbound `workflow.open`-style request).
   `wip/` (or proven in `hold/`) before stamping intent" requirement),
   commits the move and a `defer_record` (ports OVCAQ `records.py:225`) in
   one saga, and clears the intent marker last. `files.stall(...)` (ported
-  from OVCAQ `records.py:753`) is the no-move case: it performs **no file
-  move at all** — the PRD stays in `wip/` — and only commits
-  `workflow.recovery` plus the same `defer_record`, so it needs no intent
-  stage/clear at all (there is nothing to recover if it crashes mid-write,
-  since `store.transaction` is already atomic). The "saga with intent
-  staging" description applies to `park` only; `stall` is a plain
-  transaction. A replay of a null-artifact park intent re-verifies the
+  from OVCAQ `records.py:753`) runs the **same** saga with the same
+  `wip/` → `hold/` move (corrected 2026-11-24: OVCAQ `_prepare_operation`
+  sets `destination = paths.hold / prd` for both kinds, `records.py:520`;
+  no kind branch skips the move). The two kinds differ only in the commit
+  step (`records.py:446-462`): `park` increments
+  `batch.parks_consecutive` and pauses the batch with site
+  `systemic_park` at 2; `stall` resets `parks_consecutive` to 0 and
+  records its `type: "stall"` defer record with the caller's `site`. A
+  replay of a null-artifact stall or park intent re-verifies the
   destination and either resumes the same saga step or raises
   `recovery_required` — it never silently re-runs from the top (discovery
   00003's "rebind or abort cleanly").
@@ -225,8 +227,8 @@ never an unbound `workflow.open`-style request).
   way as `files.py`'s stall/park saga (stage intent, verified
   `Path.rename`, commit, clear intent) but under its own
   `SagaBoundary.PRD_COMPLETE_MOVE_STAGED`/`_COMMITTED` pair, not a reuse of
-  stall/park's existing boundaries — it is a third move shape alongside
-  stall's (no move) and park's (wip→hold), not a variant of either.
+  stall/park's existing boundaries — it is a second move shape (wip→done)
+  beside the one stall and park share (wip→hold), not a variant of it.
   `lifecycle.complete_prd` ports OVCAQ's precondition too (`records.py:
   178-193`, verified by read): it calls `require_recovery_idle`, then
   requires `workflow.work.phase == "done"` **and** `"review" in

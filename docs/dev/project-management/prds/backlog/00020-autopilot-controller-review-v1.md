@@ -4,7 +4,7 @@ model_tier_rationale: Extraction equivalence, public contracts and concurrent wo
 lane: full
 rework_cap: 3
 plan_expansion: allow
-eligibility: ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output
+eligibility: ls docs/dev/project-management/prds/done/00019-* docs/dev/project-management/prds/done/00085-* # link-ok: lifecycle output; 00085 is an ordering gate (herdr waits on it), not a code dependency
 ---
 # Autopilot controller review, lanes and evidence guards
 
