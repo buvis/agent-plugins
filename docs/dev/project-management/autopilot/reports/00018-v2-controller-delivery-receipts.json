@@ -5,7 +5,7 @@
     "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
     "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e"
   },
-  "package_revision": "1d83b8950a8cbd7cfe4e3916f600d807cdd2645d",
+  "package_revision": "752cf9e8d62568dfd2a23ad65158332e1dd58c27",
   "paths": [
     "plugins/autopilot/README.md",
     "plugins/autopilot/CHANGELOG.md",
@@ -15,11 +15,17 @@
     "plugins/autopilot/contracts/controller/workflow-v1.json",
     "plugins/autopilot/controller/autopilot_state/__init__.py",
     "plugins/autopilot/controller/autopilot_state/actors.py",
+    "plugins/autopilot/controller/autopilot_state/files.py",
+    "plugins/autopilot/controller/autopilot_state/frontmatter.py",
+    "plugins/autopilot/controller/autopilot_state/jobs.py",
+    "plugins/autopilot/controller/autopilot_state/lifecycle.py",
     "plugins/autopilot/controller/autopilot_state/owner.py",
     "plugins/autopilot/controller/autopilot_state/paths.py",
+    "plugins/autopilot/controller/autopilot_state/policy.py",
     "plugins/autopilot/controller/autopilot_state/protocol.py",
     "plugins/autopilot/controller/autopilot_state/schema.py",
     "plugins/autopilot/controller/autopilot_state/store.py",
+    "plugins/autopilot/controller/autopilot_state/tasks.py",
     "plugins/autopilot/controller/main.py"
   ],
   "tasks": [
@@ -31,7 +37,7 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 297.34
+      "duration_seconds": 368.48
     },
     {
       "task": "b",
@@ -41,7 +47,7 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 9.91
+      "duration_seconds": 10.11
     },
     {
       "task": "c",
@@ -51,7 +57,7 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 5.43
+      "duration_seconds": 5.22
     },
     {
       "task": "d",
@@ -61,7 +67,7 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 8.54
+      "duration_seconds": 8.86
     }
   ],
   "real_host": {
