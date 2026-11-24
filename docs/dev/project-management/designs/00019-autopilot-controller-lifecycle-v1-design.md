@@ -135,13 +135,28 @@ All twelve operations require `workflow_id`/`actor_id`/`lease_epoch` bound
 today — a lifecycle/task/job mutation always requires an authenticated actor,
 never an unbound `workflow.open`-style request).
 
+- Candidate selection (read-only, not one of the twelve operations; added
+  2026-11-24 because PRD line 32 says "Controller owns eligibility" and no
+  later PRD ports the legacy picker). `lifecycle.select_eligible(project_root:
+  Path) -> dict` ports claude-autopilot `skills/run-autopilot/cli/
+  selection.py` `sequence`/`selectable`/`select`/`select_eligible` and
+  `cli/eligibility.py` `command_for`/`evaluate` (pinned `f40004a`; read
+  only, that repo is frozen). It lists `prds/wip/` and `prds/backlog/`,
+  takes the lowest selectable `wip/` name, else walks `backlog/` in
+  sequence order and runs each candidate's `eligibility:` frontmatter
+  command from `project_root` (30 s timeout), skipping a non-zero exit.
+  Result, byte-compatible with today's `autopilot select` stdout:
+  `{"prd": <basename>|None, "source": "wip"|"backlog"|"drained",
+  "skipped": [{"prd", "command", "exit_code", "note", "at"}]}`. It moves no
+  file and writes no state; `frontmatter.py` holds `command_for`. Test:
+  `drained_vs_ineligible` covers an ineligible-only backlog (`drained` with
+  a non-empty `skipped`) against an empty one (`drained`, `skipped: []`).
+  PRD 00085 filters this function's candidates by the worktree scope.
 - `prd.enter` → `workflow.lifecycle.v1`.
-  Payload: `{"prds": list[str]}` — candidate basenames already confirmed
-  present in `wip/` or `backlog/` by the caller; the controller does not scan
-  the filesystem itself (that stays the plugin skill's job per the PRD's "no
-  arbitrary state setters" line — the controller only records which file was
-  entered and the saga intent that moved it, it does not decide eligibility
-  or discover candidates).
+  Payload: `{"prds": list[str]}` — candidate basenames the caller got from
+  `lifecycle.select_eligible` (or confirmed present in `wip/` or
+  `backlog/`); the reducer does not scan the filesystem itself, so the
+  state transaction stays a pure function of its payload.
   Reducer: `lifecycle.select(workflow_tasks=[], prds=payload["prds"])` (ports
   OVCAQ `selection.select`) picks wip-first-then-backlog-lowest-sequence
   from `payload["prds"]`, skipping any basename already in
@@ -390,7 +405,10 @@ accepts a list validated item-by-item with `_job`; `review` keeps the exact
 - `ovcaq/src/ovcaq/workflow/transitions.py` (`TRANSITIONS`, `apply`,
   `phase_complete`) → ported into `lifecycle.py`, preconditions intact.
 - `ovcaq/src/ovcaq/workflow/selection.py` (`sequence`, `selectable`,
-  `select`) → ported into `lifecycle.py`'s `prd.enter` reducer.
+  `select`) → ported into `lifecycle.py`'s `prd.enter` reducer and
+  `lifecycle.select_eligible`; the eligibility half comes from
+  claude-autopilot `cli/selection.py:100` and `cli/eligibility.py` (see
+  § Interfaces, candidate selection).
 - `ovcaq/src/ovcaq/workflow/resume.py` (`resume_target`) → ported into
   `lifecycle.py`, backs a later read-only `snapshot` projection addition (not
   required by this PRD's operations but kept alongside its sibling ports so

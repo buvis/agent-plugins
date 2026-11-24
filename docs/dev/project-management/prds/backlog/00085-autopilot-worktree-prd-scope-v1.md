@@ -1,11 +1,11 @@
 ---
 default_model: sonnet
 model_tier_rationale: the scope file format, refusal predicate and messages are given verbatim; tests on temporary git worktrees fail loudly on a wrong pick
-eligibility: ls docs/dev/project-management/prds/done/00019-*
+eligibility: ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output
 ---
 # Autopilot worktree PRD scope
 
-Source: user decision 2026-11-24 in a herdr-app session (Runway PRD 00005 review finding R1, `~/.config/herdr-app/docs/dev/project-management/reviews/00005-runway-lanes-housekeeping-v1-review-01.md`). Requirements were settled in that conversation; no discovery doc.
+Source: user decision 2026-11-24 in a herdr-app session (Runway PRD 00005 review finding R1, `~/.config/herdr-app/docs/dev/project-management/reviews/00005-runway-lanes-housekeeping-v1-review-01.md`). Requirements were settled in that conversation; no discovery doc. link-ok: the review file lives in the herdr-app repo.
 
 ## Overview
 
@@ -31,7 +31,7 @@ Users who run several autopilot loops in parallel, one per worktree, from Runway
 - **Outputs**: `frozenset[str]` of PRD basenames, or `None` when the file is absent.
 - **Behavior**:
   - Path: the output of `git rev-parse --git-path autopilot-scope`, run in the project root. In a linked worktree that is `<common-dir>/worktrees/<name>/autopilot-scope`; in the main checkout it is `.git/autopilot-scope`. Git never tracks it, and each worktree has its own.
-  - Format: UTF-8 text, one PRD basename per line (`00005-runway-lanes-housekeeping-v1.md`). Surrounding whitespace is stripped. Empty lines and lines starting with `#` are ignored.
+  - Format: UTF-8 text, one PRD basename per line (`00005-runway-lanes-housekeeping-v1.md`, a herdr-app PRD; link-ok: example). Surrounding whitespace is stripped. Empty lines and lines starting with `#` are ignored.
   - A line that is not a basename matching `^[0-9]{5}-[A-Za-z0-9._-]+\.md$` makes the whole file invalid. Reading it raises `ScopeError` naming the path and the 1-based line number: `autopilot scope file <path> line <n> is not a PRD file name: <line>`.
   - An existing file with no entries is a valid empty scope, so selection finds nothing and reports drained.
   - Other tools may write this file directly. herdr-app Runway will write it when it opens a lane. The format above is the public contract.
@@ -39,7 +39,8 @@ Users who run several autopilot loops in parallel, one per worktree, from Runway
 #### Feature: Scoped selection
 - **Description**: Selection honours the scope, and refuses to guess in an unscoped linked worktree.
 - **Inputs**: `wip/` and `backlog/` names, the scope (`frozenset[str] | None`), and `linked` (true when `git rev-parse --git-dir` differs from `git rev-parse --git-common-dir`).
-- **Outputs**: the existing selection `(basename, source)` with `source` in `wip | backlog | drained`, or a refusal.
+- **Integration point**: `lifecycle.select_eligible(project_root)` from PRD 00019 (design `designs/00019-autopilot-controller-lifecycle-v1-design.md`, "Candidate selection"). It returns `{"prd", "source", "skipped"}` with `source` in `wip | backlog | drained`, moves no file and writes no state. This PRD calls `filter_candidates` inside it, after listing `wip/` and `backlog/` and before the wip-first rule, so an out-of-scope backlog PRD never runs its `eligibility:` command and never appears in `skipped`.
+- **Outputs**: the `select_eligible` result plus `scope`, or a raised `ScopeRefusal`.
 - **Behavior**:
   - Scope present (main checkout or linked worktree): keep only the `wip/` and `backlog/` names that are in the scope, then apply the unchanged wip-first, lowest-number rule. Scope entries that match no file in `wip/` or `backlog/` (for example a PRD already in `done/`) are ignored. No scoped candidate means `drained`.
   - Scope absent, main checkout: selection is unchanged, byte for byte.
@@ -47,7 +48,7 @@ Users who run several autopilot loops in parallel, one per worktree, from Runway
     - `wip/` holds two or more selectable PRDs: refuse with `ScopeRefusal` and the message `worktree <root> has <n> PRDs in wip/ and no autopilot scope; run: autopilot scope add <basename>`.
     - `wip/` holds exactly one: select it. This keeps today's behaviour for a worktree that has only its own PRD.
     - `wip/` is empty: report `drained`. Never pull from `backlog/` in an unscoped linked worktree, or that worktree would start the lowest backlog PRD, which is the same defect.
-  - A refusal starts nothing. No PRD moves, no state is written, and the loop ends the batch with the refusal message as its stop reason (guess: the exact stop-reason field follows PRD 00019's drain/stop result shape).
+  - A refusal starts nothing: `select_eligible` raises `ScopeRefusal` before any eligibility command runs, no PRD moves and no state is written. How a host loop reports the refusal is host wiring (PRD 00016) and out of scope here.
   - The `eligibility:` gate still runs only on the backlog candidate that survives the scope filter.
   - The selection result carries `scope`: the sorted list of scope entries, or `null` when no file exists, so every host and status view can show the active scope.
 
@@ -68,10 +69,17 @@ plugins/autopilot/
 │   └── autopilot_state/
 │       ├── scope.py                     # Maps to: Scope file, Scoped selection
 │       └── lifecycle.py                 # Maps to: Scoped selection (wire into the selection operation)
-├── README.md                            # Scope file contract and command
+├── contracts/controller-v1.json         # Re-sealed delivery evidence
+├── README.md                            # Scope file contract and command; digest re-sealed
 └── CHANGELOG.md                         # Added entry
+tools/autopilot/
+├── source-map.json                      # Regenerated by update_helper_map.py
+├── update_helper_map.py                 # Run, not edited
+└── export-controller-contract.py        # Run, not edited
 tests/autopilot/
-└── test_controller_scope.py             # All scenarios below, on temporary git repositories
+├── test_controller_scope.py             # All scenarios below, on temporary git repositories
+├── test_package.py                      # Must pass against the re-sealed bytes
+└── test_helper_provenance_real.py       # Must pass against the re-sealed bytes
 ```
 
 ### Module: Scope
@@ -89,7 +97,7 @@ New symbols: `plugins/autopilot/controller/autopilot_state/scope.py`, `scope_pat
 
 ### Module: Lifecycle selection
 - **Maps to capability**: Worktree scope
-- **Responsibility**: Call `filter_candidates` before the existing wip-first rule and the eligibility gate, and add `scope` to the selection result.
+- **Responsibility**: Inside `select_eligible`, call `filter_candidates` before the existing wip-first rule and the eligibility gate, and add `scope` to its result.
 - **Location**: `plugins/autopilot/controller/autopilot_state/lifecycle.py` (created by PRD 00019)
 New symbols: `plugins/autopilot/controller/autopilot_state/lifecycle.py`
 
@@ -117,7 +125,7 @@ PRD 00019 is done (the `eligibility:` line checks this): the controller owns PRD
 **Goal**: The scope file and the refusal rule exist as tested pure logic plus git lookups.
 
 **Tasks**:
-- [ ] Create `plugins/autopilot/controller/autopilot_state/scope.py` with the exports above, and `tests/autopilot/test_controller_scope.py` covering the file and filter scenarios. Premise: `plugins/autopilot/controller/autopilot_state/lifecycle.py` exists (PRD 00019); if it does not, stop and report. (no deps) - Acceptance: `python3 -m pytest tests/autopilot/test_controller_scope.py -k "scope_file or filter"` passes.
+- [ ] Create `plugins/autopilot/controller/autopilot_state/scope.py` with the exports above, and `tests/autopilot/test_controller_scope.py` covering the file and filter scenarios. Premise: `plugins/autopilot/controller/autopilot_state/lifecycle.py` exists (PRD 00019); if it does not, stop and report. (no deps) - Acceptance: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_scope.py -k "scope_file or filter"` passes.
 
 **Exit Criteria**: Scope parsing, writing, linked-worktree detection and the filter rule pass their tests on temporary repositories with a real `git worktree add`.
 
@@ -125,8 +133,8 @@ PRD 00019 is done (the `eligibility:` line checks this): the controller owns PRD
 **Goal**: Every selection goes through the scope, and the command edits it.
 
 **Tasks**:
-- [ ] Wire `filter_candidates` into the selection operation in `plugins/autopilot/controller/autopilot_state/lifecycle.py`, before the eligibility gate, and add `scope` to its result. (depends on: Phase 0) - Acceptance: `python3 -m pytest tests/autopilot/test_controller_scope.py -k selection` passes, including `test_main_checkout_selection_unchanged`.
-- [ ] Add the `scope` subcommand to `plugins/autopilot/controller/main.py`. (depends on: Phase 0) - Acceptance: `python3 -m pytest tests/autopilot/test_controller_scope.py -k command` passes.
+- [ ] Wire `filter_candidates` into `select_eligible` in `plugins/autopilot/controller/autopilot_state/lifecycle.py`, before the eligibility gate, and add `scope` to its result. (depends on: Phase 0) - Acceptance: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_scope.py -k "selection or scoped or unscoped or main_checkout or drains or ignored"` passes, including `test_main_checkout_selection_unchanged`.
+- [ ] Add the `scope` subcommand to `plugins/autopilot/controller/main.py`. (depends on: Phase 0) - Acceptance: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_scope.py -k command` passes.
 
 **Exit Criteria**: A loop in a scoped worktree can only pick a scoped PRD; an unscoped linked worktree with two `wip/` PRDs stops with the refusal message.
 
@@ -135,14 +143,15 @@ PRD 00019 is done (the `eligibility:` line checks this): the controller owns PRD
 
 **Tasks**:
 - [ ] Document the scope file path, format, refusal rule and command in `plugins/autopilot/README.md`; add an `Added` entry in `plugins/autopilot/CHANGELOG.md`. (depends on: Phase 1) - Acceptance: `rg -n "autopilot-scope" plugins/autopilot/README.md` and `rg -n -i "scope" plugins/autopilot/CHANGELOG.md` both find a match.
+- [ ] Refresh delivery evidence for final package bytes: the controller, README and CHANGELOG edits change the controller bundle digest, so regenerate `plugins/autopilot/contracts/controller-v1.json` with `tools/autopilot/export-controller-contract.py`, its README digest, the successor receipt and `tools/autopilot/source-map.json` with `tools/autopilot/update_helper_map.py`, without changing historical receipts, as PRD 00019 Phase 2 task 2 does. (depends on: Phase 2 task 1) - Acceptance: `tests/autopilot/test_helper_provenance_real.py` and `tests/autopilot/test_package.py` pass against current bytes; no path exemption or test exclusion is introduced.
 
-**Exit Criteria**: The project's full gate passes once, after the last task.
+**Exit Criteria**: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` and `python3 scripts/validate.py` pass once, after the last task.
 
 ## Test Strategy
 
 ### Critical Scenarios
-All run on a temporary repository with a real `git worktree add`; never on the batch's own checkout.
-- **Happy path** (`test_scoped_worktree_picks_only_scoped_prd`): worktree with `00003-a`, `00005-b` in `wip/`, scope `00005-b-v1.md` → selects `00005-b-v1.md`, source `wip`.
+All run on a temporary repository with a real `git worktree add`; never on the batch's own checkout. PRD names below are fixture names inside that temporary repository (link-ok: fixtures).
+- **Happy path** (`test_scoped_worktree_picks_only_scoped_prd`): worktree with `00003-a`, `00005-b` in `wip/`, scope `00005-b-v1.md` → selects `00005-b-v1.md`, source `wip`. (link-ok: fixtures)
 - **Several PRDs** (`test_scope_with_two_prds_runs_lowest_scoped_first`): scope holds `00007` and `00009`, `wip/` holds `00003`, `00007`, `backlog/` holds `00009` → `00007` from `wip`; after `00007` leaves `wip/`, `00009` from `backlog`.
 - **Main checkout** (`test_main_checkout_selection_unchanged`): no scope file, two `wip/` PRDs in the main checkout → the lowest, as today.
 - **Main checkout scoped** (`test_main_checkout_honours_scope`): scope file present in `.git/autopilot-scope` → only scoped PRDs.
