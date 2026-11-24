@@ -2,6 +2,10 @@
 
 Generated: 2026-11-05
 
+## 2026-11-24T23:0xZ AP00019 build catchup (read this first; older entries are history)
+
+Batch 202611242306 (freshly minted; prior batch 202611160843 closed drained after AP00067) selects AP00019 (autopilot controller lifecycle, tasks, job plans) from `wip/` — full lane, `design: reuse` (a design doc already exists and will be reused as-is). GitHub: issue #18 (new 2026-11-17: autopilot skill text still names rule files that moved into AGENTS.md — not this PRD's scope, flag separately) plus the routine #12 Renovate dashboard; open PRs #17 (setup-python 7.1/python 3.15, routine), #16 (shared renovate preset, routine), #15 (pytest v9, routine); no releases. **Master `Validate` is RED on the latest three runs** (2026-11-24, commits 5e446ed/54e32dc/0f18b50, all docs-only PRD-review commits) with 3 failures, all in the same family this PRD's own Phase 2 task 2 exists to fix: `test_controller_assets_digest_current_bytes_and_cite_the_successor`, `test_generator_check_accepts_the_committed_map`, and `test_content_roster_matches_frozen_inventory_and_actual_package_bytes` all report that `plugins/autopilot/controller/autopilot_state/schema.py`'s current bytes (digest `7aaedd12...`) no longer match the pinned successor receipt/package map (digest `8ef20175...`) — i.e. `schema.py` was edited after the last provenance/receipt regeneration. This is exactly the staleness PRD 00019's Phase 2 task 2 ("Refresh delivery evidence for final package bytes") targets; do not treat it as unrelated pre-existing noise to defer past this PRD. custody_pending: 0. Related-context query on this PRD's own topic returns only itself (repo and portfolio scope) plus `test_controller_schema_lifecycle.py` and the AP00014 v2 hold stub and AP00085 (worktree PRD scope, backlog) — nothing externally actionable beyond the schema/provenance drift already flagged above. Portfolio `engram status` exit 1 (expected): memory stale=5/dead=0, code stale=9/dead=0, prd stale=6/dead=70, decision stale=0/dead=0 — nothing alarming.
+
 ## 2026-11-16T08:4xZ AP00067 build catchup (read this first; older entries are history)
 
 Batch 202611160843 (freshly minted; prior batch 202611151706 closed drained) selects AP00067 (engram plugin: recall skill, MCP server, per-host nudge hooks) from `wip/` — it was already moved there, no `select` needed. Its `eligibility: engram nudge --help` gate passes now (`engram` CLI on PATH, `nudge {claude,codex,copilot,plain}` subcommand exists), so the batch-report note "00067 waits for engram nudge" is resolved. No design doc yet (`design_mode` unset, defaults to `run`); `default_model: sonnet` floors tasks, rationale "transcription" (every shipped file's content is given verbatim in the PRD). GitHub: issue #12 (Renovate dashboard, routine) unchanged; PR #17 (setup-python 7.1.0 + python 3.15, new today) joins #16 (shared renovate preset), #15 (pytest v9) — all routine, plus #14/#13 superseded by #17's combined bump (check for closure later). No releases. Master `Validate` green on latest two runs (2026-11-15/16); the one failure shown is on the renovate branch itself (routine, pre-merge). custody_pending: 0. Related-context query on this PRD's own topic returned only itself (repo scope) and, in portfolio scope, the source `buvis/engram` repo's own done PRD 00012 (`engram mcp`/`engram nudge`, the companion this PRD's eligibility check depends on) plus `engram/src/engram/cli.py:117` (`_add_agent_parsers`) — worth reading if the exact `engram nudge <host>` argument shape needs confirming during planning. Portfolio `engram status`: all rows stale=0/dead=0, fully fresh.
@@ -61,7 +65,10 @@ Review harvest completed; task restoration reports `no_tasks_dir`.
 
 ## Active Work
 
-### Batch 202611160843
+### Batch 202611242306
+- [ ] 00019-autopilot-controller-lifecycle-v1.md (full lane, design: reuse)
+
+### Batch 202611160843 (closed drained)
 - [x] 00067-engram-plugin-v1.md (2 cycles; 5/5 tasks)
 - [ ] 00015-autopilot-workflow-parity-v1.md
 - [ ] 00016-autopilot-controller-integration-v1.md
@@ -143,7 +150,7 @@ Related context: repo index refreshed clean; repo query on topic `autopilot sess
 
 ## Project Health
 
-- CI red on master for the known AP00018 controller tests; no push until those and required checks pass (closeout constraint). Renovate PRs are stacked and also red on the same failures. Review files predating 00002 have no frontmatter, so engram cannot harvest them.
+- CI red on master as of 2026-11-24 (runs 45496289021/45492492932/45482992462): 3 failures, all `plugins/autopilot/controller/autopilot_state/schema.py` provenance/receipt digest drift (current bytes vs. the pinned successor map) — this is squarely AP00019 Phase 2 task 2's job to fix (regenerate `contracts/controller-v1.json`, README digest, successor receipt, source map). No push until these and required checks pass. The older AP00018 controller-suite red is resolved (not currently failing). Renovate PRs are stacked and also red on the same failures. Review files predating 00002 have no frontmatter, so engram cannot harvest them.
 
 ## Project Memories
 
