@@ -1242,3 +1242,94 @@ This keeps the November 21 evidence intact and regenerates proofs for the
 changed runner and fixture. Full matrix collection, semantic failures, model
 and human rubric review, final task Outcomes and the fresh-session completion
 review remain open. Do not treat local checks as live release evidence.
+
+
+### Watched repair diagnostic (2026-11-24)
+
+The developer ran the requested diagnostic outside run-agent. Inspection on
+2026-11-24 at 23:15 CET found the final summary timestamp 2026-11-24T23:04:47.295529+01:00 for
+commit 1dfd190. Evidence lives under `docs/dev/tmp/specflow/repair-proofs/diagnostic/`
+and `docs/dev/tmp/specflow/repair-results/diagnostic/`; preserve both roots.
+The final summary implies exit 2. All 20 boundary checks passed on each of the
+three hosts. Claude and Codex each recorded four conversion replies with no
+notRun or brokenAt marker; each failed only the unjudged rubric assertion.
+This verifies that the empty-directory hash and missing configuration defects
+no longer blocked those runs. It does not certify semantic coverage or release.
+
+Kiro conversion has zero replies and notRun `Kiro turn failed`, exit 2. The
+adapter read_stream raises this generic message immediately on a nonzero
+subprocess return code and retains neither the detailed cause nor that exit
+code in the record. Do not infer quota, authentication, permissions, or a
+transient service failure. Kiro subsequently produced handoff replies, which
+also does not establish why conversion failed.
+
+The handoff captured all ten replies without a row error. Eight final checks
+failed: stale approvals at edit-requirements and resume; completion at
+verification; approved artifact state at approve-tasks, reapprove,
+implementation and verification; and the tasks.md hash at verification.
+The first blocking workflow state was design approval: requirements retained
+five guesses/questions covering root-level greeting.py/test_greeting.py,
+standard-library-only dependencies, the unittest command, the argument-free
+greet() signature and acceptance of those file names. The scripted generic
+approvals did not accept those markers by name. Claude refused design approval,
+so tasks were never drafted and implementation/verification correctly stayed
+blocked. Later failures cascade from that state; a missing tasks.md hash is
+not evidence that a host rewrote an existing task plan. External editing and
+resume preserved the edit and marked requirements stale, but there were no
+approved downstream artifacts to test their invalidation.
+
+Open work: repair the handoff input preconditions and add fail-first regression
+coverage without weakening assertions; investigate how to retain safe Kiro
+error diagnostics before requesting another live run. Batch supported offline
+repairs before freezing inputs and requesting fresh proofs. No human verdict,
+release eligibility, task completion or successful end-to-end handoff is
+claimed. The full matrix and fresh-session completion review remain open.
+The assistant watched result files only: ps was denied by the environment.
+No runner/package input was changed during this live batch.
+
+
+### Handoff inputs and Kiro failure shape repaired (2026-11-24)
+
+Three offline repairs followed the watched diagnostic. The shipped package,
+host security settings, eval assertions and handoff checks did not change.
+
+The handoff script now gives the five choices as synthetic developer answers
+in the requirements and design requests: argument-free greet(), root-level
+greeting.py and test_greeting.py, acceptance of those file names,
+standard-library-only code, and `python3 -m unittest` from the repository
+root. The three requests that record a design or tasks approval (tasks,
+approve-tasks, reapprove) repeat the choices and accept by name any marker
+about them that remains upstream. A marker about another topic still blocks
+approval; no marker is accepted in advance.
+
+The stored replies also showed a script defect. The check needs phase
+complete after verification, and SR-VER-004 makes completion the ticking of
+the completion criteria. The verification request asked only for a report.
+It now asks the host to run the completion checks and tick each criterion
+that holds. The canonical tasks.md hash ignores checkbox state, so the
+cross-host hash check is not affected.
+
+A nonzero Kiro exit now records `Kiro turn failed: exit=<code>
+events=<types> status=<word>`. The types come from a fixed list of the five
+observed event types, in order, with repeats collapsed; any other type is
+`other`. The status is the runFinished status word when it is a short
+lowercase identifier. No message, path, tool argument, stderr or other host
+text is copied, because the runError payload is undocumented. The cause of
+the 2026-11-24 conversion failure stays unknown; this change only makes the
+next failure diagnosable.
+
+Regression checks failed against the old code first: seven failures for the
+choices, the by-name acceptance and the Kiro failure shape, then one for the
+verification request. Local verification after the fixes: 216 rules/runner
+tests on Python 3.15.2 and 3.10.22, zero skipped; 7 security tests on each;
+8 conversion fixture tests on each, 3 skipped because no live records are
+installed in the canonical results directory. Unfiltered rule inventory,
+repository validator (3 plugins, 15 skills), Ruff lint/format on the four
+changed files and git diff --check passed. A Ruff run over all of
+tests/specflow, tools/specflow and scripts reports 7 lint and 7 format
+findings in files this change does not touch; they are not fixed here.
+
+These prompts are not proven live. Runner proofs from 1dfd190 are stale for
+the changed runner files. Next live action: one diagnostic batch outside
+run-agent with new output and proof roots. The full matrix, human verdicts,
+task Outcomes and the fresh-session completion review remain open.

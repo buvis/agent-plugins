@@ -13,6 +13,7 @@ from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "evals/runners"))
 import run_claude as runner
+import run_kiro
 import run_matrix
 import score
 
@@ -37,6 +38,27 @@ class RunnerDiagnosticsTest(unittest.TestCase):
             adapter.turn("Review", Path("/synthetic-workspace"))
         self.assertIn("Agent", str(caught.exception))
         self.assertNotIn("private argument", str(caught.exception))
+
+    def test_failed_kiro_turn_keeps_exit_code_and_event_shape_only(self) -> None:
+        # Live run 2026-11-24: "Kiro turn failed" kept neither code nor cause.
+        events = [
+            {"type": "runStarted", "data": {"engine": "v3"}},
+            {"type": "private-kind", "data": {}},
+            {"type": "runError", "data": {"message": "private detail /home/x"}},
+            {"type": "runFinished", "data": {"status": "error", "finalText": "p"}},
+        ]
+        stdout = "\n".join(json.dumps(event) for event in events)
+        cases = {
+            stdout: "exit=3 events=runStarted,other,runError,runFinished status=error",
+            "private diagnostic {": "exit=3 events=unreadable status=unknown",
+            "": "exit=3 events=none status=unknown",
+        }
+        for text, expected in cases.items():
+            with self.subTest(expected=expected):
+                result = subprocess.CompletedProcess([], 3, text, "private stderr")
+                with self.assertRaises(runner.HostError) as caught:
+                    run_kiro.read_stream(result)
+                self.assertEqual(str(caught.exception), "Kiro turn failed: " + expected)
 
     def test_boundary_rejection_names_mismatched_field(self) -> None:
         adapter = runner.Claude("fixture-model")

@@ -15,26 +15,44 @@ import run_claude as runner
 import score
 
 SPEC = ".kiro/specs/00001-greeting"
+# Synthetic developer answers. Unstated, each became a (guess) or an open
+# question that no generic approval could accept (live run 2026-11-24).
+CHOICES = (
+    " These are my confirmed choices, not guesses or open questions:"
+    " greet() takes no arguments; the function lives in greeting.py and its test"
+    " in test_greeting.py, both at the repository root, and I accept those file"
+    " names; the code uses only the Python standard library; the test runs with"
+    " python3 -m unittest from the repository root."
+)
+ACCEPT = (
+    CHOICES + " If a guess, unresolved question or open decision about one of"
+    " those choices remains in an upstream artifact, I accept each such marker by"
+    " name and you record it as an accepted marker with the approval."
+)
 STEPS = (
     (
         "requirements",
         "kiro-ide",
-        "Use specflow. Create requirements for intake 00001-greeting as a standard feature, requirements-first. The scope is one Python greet() function returning Hello and a unittest. Use .kiro/specs/00001-greeting. Draft requirements only.",
+        "Use specflow. Create requirements for intake 00001-greeting as a standard feature, requirements-first. The scope is one Python greet() function returning Hello and a unittest. Use .kiro/specs/00001-greeting. Draft requirements only."
+        + CHOICES,
     ),
     (
         "design",
         "codex",
-        "Use specflow. I approve the requirements for 00001-greeting. Record approval and draft its design, then stop.",
+        "Use specflow. I approve the requirements for 00001-greeting. Record approval and draft its design, then stop."
+        + CHOICES,
     ),
     (
         "tasks",
         "claude-code",
-        "Use specflow. I approve the design. Record approval and draft tasks, then stop.",
+        "Use specflow. I approve the design. Record approval and draft tasks, then stop."
+        + ACCEPT,
     ),
     (
         "approve-tasks",
         "claude-code",
-        "Use specflow. I approve the task plan. Record approval and stop before implementation.",
+        "Use specflow. I approve the task plan. Record approval and stop before implementation."
+        + ACCEPT,
     ),
     (
         "edit-requirements",
@@ -44,7 +62,8 @@ STEPS = (
     (
         "reapprove",
         "claude-code",
-        "Use specflow. I approve the changed requirements and the existing design and tasks after checking their alignment with that requirement. Record all three approvals in order and stop.",
+        "Use specflow. I approve the changed requirements and the existing design and tasks after checking their alignment with that requirement. Record all three approvals in order and stop."
+        + ACCEPT,
     ),
     (
         "implementation",
@@ -54,7 +73,7 @@ STEPS = (
     (
         "verification",
         "kiro-ide",
-        "Use specflow. Verify completion of 00001-greeting using the actual code and tests. Report gates, task state and remaining limitations.",
+        "Use specflow. Verify completion of 00001-greeting using the actual code and tests: run the completion checks and tick each completion criterion that holds. Then report gates, task state and remaining limitations.",
     ),
     (
         "external-edit",

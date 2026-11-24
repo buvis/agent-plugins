@@ -271,6 +271,42 @@ def reduce_update(turn: dict, update: dict) -> None:
         reduce_call(turn["calls"], update)
 
 
+EVENT_TYPES = (
+    "runStarted",
+    "sandboxStatus",
+    "sessionUpdate",
+    "runError",
+    "runFinished",
+)
+
+
+def failure_shape(result: subprocess.CompletedProcess) -> str:
+    """Exit code, known event types in order, and the final status word.
+
+    Nothing else: the runError payload is undocumented and may hold paths,
+    tool arguments or credentials, so no host text is copied.
+    """
+    kinds, status = [], "unknown"
+    try:
+        for line in (result.stdout or "").splitlines():
+            if not line.strip():
+                continue
+            event = json.loads(line)
+            kind = event.get("type") if isinstance(event, dict) else None
+            kind = kind if kind in EVENT_TYPES else "other"
+            # A long run repeats sessionUpdate: keep each run of a type once.
+            if kinds[-1:] != [kind]:
+                kinds.append(kind)
+            data = event.get("data") if isinstance(event, dict) else None
+            word = data.get("status") if isinstance(data, dict) else None
+            if kind == "runFinished" and isinstance(word, str):
+                status = word if re.fullmatch(r"[a-z_]{1,32}", word) else "other"
+        shape = ",".join(kinds) or "none"
+    except ValueError:
+        shape = "unreadable"
+    return f"exit={result.returncode} events={shape} status={status}"
+
+
 def read_stream(result: subprocess.CompletedProcess) -> dict:
     """Reduce one stream-json run without judging its tool calls.
 
@@ -279,7 +315,7 @@ def read_stream(result: subprocess.CompletedProcess) -> dict:
     record or an error message.
     """
     if result.returncode:
-        raise runner.HostError("Kiro turn failed")
+        raise runner.HostError("Kiro turn failed: " + failure_shape(result))
     try:
         events = [
             json.loads(line) for line in result.stdout.splitlines() if line.strip()

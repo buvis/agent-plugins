@@ -48,7 +48,38 @@ def rows() -> list[dict]:
     return result
 
 
+CHOICES = (
+    "greeting.py",
+    "test_greeting.py",
+    "repository root",
+    "standard library",
+    "python3 -m unittest",
+    "no arguments",
+)
+
+
 class HandoffTest(unittest.TestCase):
+    def test_requirements_request_supplies_every_contract_choice(self) -> None:
+        # Live run 2026-11-24: five unstated choices became guesses and open
+        # questions, and the generic approvals could not accept them.
+        prompt = run_handoff.STEPS[0][2]
+        for choice in CHOICES:
+            self.assertIn(choice, prompt)
+
+    def test_dependent_approvals_accept_remaining_markers_by_name(self) -> None:
+        prompts = {step: prompt for step, _, prompt in run_handoff.STEPS}
+        for step in ("tasks", "approve-tasks", "reapprove"):
+            with self.subTest(step=step):
+                self.assertIn("accept each such marker by name", prompts[step])
+                for choice in CHOICES:
+                    self.assertIn(choice, prompts[step])
+
+    def test_verification_request_asks_to_complete_not_only_report(self) -> None:
+        # The check needs phase complete; SR-VER-004 makes that ticking the
+        # completion criteria, which a report-only request never asks for.
+        prompts = {step: prompt for step, _, prompt in run_handoff.STEPS}
+        self.assertIn("tick each completion criterion", prompts["verification"])
+
     def test_complete_trace_satisfies_checks(self) -> None:
         self.assertEqual(run_handoff.checks(rows()), [])
 
