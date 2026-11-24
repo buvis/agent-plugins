@@ -6,6 +6,8 @@ import sys
 import unittest
 from pathlib import Path
 
+from controller_owner_support import OwnerCLITest
+
 ROOT = Path(__file__).resolve().parents[2]
 CONTROLLER = ROOT / "plugins" / "autopilot" / "controller"
 sys.path.insert(0, str(CONTROLLER))
@@ -253,6 +255,78 @@ class TaskAttemptTest(TaskReducerCase):
         self.assert_rejected(tasks.attempt, current, "ghost", "devon", "completed")
         self.assert_rejected(tasks.attempt, current, "a", "devon", "passed")
         self.assert_rejected(tasks.attempt, current, "a", "", "completed")
+
+
+# -- protocol.apply end to end: the real CLI, a real request file ---------------
+
+
+class TaskPolicyProtocolTest(OwnerCLITest):
+    """task.* and lane.route/policy.bind commit inside apply_locked's lock."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        _, _, self.operator = self.bootstrap()
+
+    def call(self, name: str, payload: dict) -> tuple[dict, dict]:
+        request = self.request(self.operator, name, f"{name}-{self.state()['revision']}",
+                               payload)
+        response = self.response(self.apply(request, self.operator),
+                                 revision=request["expected_revision"] + 1)
+        state = self.state()
+        self.assertEqual(response["revision"], state["revision"])
+        self.assertEqual(state["receipts"][request["request_id"]]["response"], response)
+        return request, response
+
+    def reject(self, name: str, payload: dict, error: str = "rejected_evidence") -> None:
+        request = self.request(self.operator, name, f"{name}-rejected-{self.serial}", payload)
+        self.reject_unchanged(request, self.operator, error)
+
+    def test_task_operations_dispatch_and_dedupe_a_replayed_attempt(self) -> None:
+        plan = [record("a"), record("b", "pending", "a")]
+        _, replaced = self.call("task.replace", {"tasks": plan, "allow_expansion": False})
+        self.assertEqual(replaced["result"], {"task_count": 2})
+        self.assertEqual(self.state()["workflow"]["tasks"], stored(*plan))
+        _, started = self.call("task.start", {"id": "a"})
+        self.assertEqual(started["result"], {"task_id": "a", "status": "in_progress",
+                                             "attempts": 0})
+        request, attempted = self.call("task.attempt", {"id": "a", "implementor": "devon",
+                                                        "outcome": "completed"})
+        self.assertEqual(attempted["result"]["attempts"], 1)
+        self.assertEqual(self.response(self.apply(request, self.operator)), attempted)
+        self.assertEqual(len(self.state()["workflow"]["tasks"][0]["attempts"]), 1)
+        _, finished = self.call("task.finish", {"id": "a", "outcome": "completed"})
+        self.assertEqual(finished["result"], {"task_id": "a", "status": "completed",
+                                              "attempts": 1})
+
+    def test_task_rejections_change_no_private_state(self) -> None:
+        self.reject("task.replace", {"tasks": [record("a", "pending", "b"),
+                                               record("b", "pending", "a")],
+                                     "allow_expansion": False})
+        self.reject("task.replace", {"tasks": [record(str(n)) for n in range(16)],
+                                     "allow_expansion": False})
+        self.reject("task.replace", {"tasks": [{**record("a"), "status": "done"}],
+                                     "allow_expansion": False}, "invalid_request")
+        self.call("task.replace", {"tasks": [record("a")], "allow_expansion": False})
+        self.reject("task.start", {"id": "ghost"})
+        self.reject("task.finish", {"id": "a", "outcome": "completed"})
+        self.reject("task.attempt", {"id": "a", "implementor": "devon", "outcome": "passed"})
+
+    def test_lane_route_and_policy_bind_dispatch(self) -> None:
+        _, routed = self.call("lane.route", {"prd_frontmatter": CARD_SIZED})
+        self.assertEqual(routed["result"], {"lane": "fast-track", "reason": "card_sized"})
+        self.assertIsNone(self.state()["workflow"]["work"])
+        self.reject("policy.bind", {"lane": "full", "reason": "design"})
+        prds = self.root / "docs" / "dev" / "project-management" / "prds"
+        (prds / "wip").mkdir(parents=True)
+        (prds / "wip" / "00002-b.md").write_text("---\n---\n# PRD\n")
+        enter = self.request(self.operator, "prd.enter", "enter-for-bind",
+                             {"prds": ["00002-b.md"]})
+        self.response(self.apply(enter, self.operator))
+        _, bound =self.call("policy.bind", {"lane": "full", "reason": "design"})
+        self.assertEqual(bound["result"], {"lane": "full", "lane_reason": "design"})
+        work = self.state()["workflow"]["work"]
+        self.assertEqual((work["lane"], work["lane_reason"]), ("full", "design"))
+        self.reject("policy.bind", {"lane": "turbo", "reason": "override"})
 
 
 if __name__ == "__main__":

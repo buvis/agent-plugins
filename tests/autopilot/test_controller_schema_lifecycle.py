@@ -269,5 +269,62 @@ class WorkflowLifecycleSchemaTest(unittest.TestCase):
                 self.assert_invalid(value)
 
 
+WORKFLOW_RESULTS = {
+    "prd.enter": {"prd": "00002-b.md", "source": "backlog"},
+    "phase.handoff": {"phase": "done", "next_phase": ""},
+    "prd.complete": {"prd": "00002-b.md"},
+    "prd.stall": {"operation_id": "op-1", "kind": "stall", "replayed": False,
+                  "systemic_halt": False},
+    "prd.park": {"operation_id": "op-2", "kind": "park", "replayed": True,
+                 "systemic_halt": True},
+    "prd.defer": {"operation_id": "op-3", "kind": "defer", "replayed": False,
+                  "systemic_halt": False},
+    "task.replace": {"task_count": 0},
+    "task.attempt": {"task_id": "task-1", "status": "in_progress", "attempts": 2},
+    "lane.route": {"lane": "fast-track", "reason": "card_sized"},
+    "policy.bind": {"lane": "full", "lane_reason": "design"},
+    "job.plan": {"job_count": 3},
+    "job.claim": {"job_id": "job-1", "claimed_by": "operator-synthetic", "claim_epoch": 0},
+}
+
+
+def state_with_result(result: object) -> dict:
+    value = frozen_state()
+    receipt = copy.deepcopy(value["receipts"]["open-synthetic"])
+    receipt["request_digest"] = "d" * 64
+    receipt["response"]["result"] = result
+    value["receipts"]["workflow-result"] = receipt
+    return value
+
+
+class WorkflowReceiptResultTest(unittest.TestCase):
+    def test_receipts_retain_every_lifecycle_task_policy_and_job_result_shape(self) -> None:
+        for operation, result in WORKFLOW_RESULTS.items():
+            value = state_with_result(result)
+            with self.subTest(operation=operation):
+                self.assertEqual(schema.validate_state(value), value)
+
+    def test_receipts_reject_unknown_and_malformed_workflow_results(self) -> None:
+        bad = [
+            {}, {"unknown": 1}, {"prd": "00002-b.md", "extra": None},
+            {"prd": "00002-b.md", "source": "hold"}, {"prd": ""},
+            {"phase": "", "next_phase": "review"}, {"phase": "done", "next_phase": None},
+            {**WORKFLOW_RESULTS["prd.stall"], "kind": "complete"},
+            {**WORKFLOW_RESULTS["prd.stall"], "replayed": 0},
+            {**WORKFLOW_RESULTS["prd.stall"], "operation_id": ""},
+            {"task_count": -1}, {"job_count": True},
+            {**WORKFLOW_RESULTS["task.attempt"], "status": "done"},
+            {**WORKFLOW_RESULTS["task.attempt"], "attempts": "2"},
+            {"lane": "turbo", "reason": "override"}, {"lane": "full", "reason": ""},
+            {"lane": "solo", "lane_reason": None},
+            {**WORKFLOW_RESULTS["job.claim"], "claimed_by": None},
+            {**WORKFLOW_RESULTS["job.claim"], "claim_epoch": -1},
+        ]
+        for result in bad:
+            with self.subTest(result=result):
+                with self.assertRaises(schema.SchemaError):
+                    schema.validate_state(state_with_result(result))
+
+
 if __name__ == "__main__":
     unittest.main()

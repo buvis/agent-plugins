@@ -7,6 +7,8 @@ import unittest
 from pathlib import Path
 
 import pytest
+from controller_cli_support import private_path, tree
+from controller_owner_support import OwnerCLITest
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTROLLER = ROOT / "plugins" / "autopilot" / "controller"
@@ -371,6 +373,77 @@ def test_reset_prd_fields_preserves_batch_and_clears_per_prd_fields():
     assert reset["work"] == {**work("00002-b.md"), "lane": None, "lane_reason": None}
     assert reset["tasks"] == []
     assert workflow["work"]["phase"] == "done" and workflow["tasks"]
+
+
+# -- protocol.apply end to end: the real CLI, a real request file ---------------
+
+
+class LifecycleProtocolTest(OwnerCLITest):
+    """prd.enter, phase.handoff and prd.complete run outside apply_locked's lock."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        for name in BUCKETS:
+            (self.root / files.PRD_ROOT / name).mkdir(parents=True)
+        (self.root / files.PRD_ROOT / "backlog" / "00002-b.md").write_text(prd_text())
+        _, _, self.operator = self.bootstrap()
+
+    def call(self, name: str, payload: dict) -> tuple[dict, dict]:
+        request = self.request(self.operator, name, f"{name}-{self.state()['revision']}",
+                               payload)
+        response = self.response(self.apply(request, self.operator))
+        state = self.state()
+        self.assertEqual(response["revision"], state["revision"])
+        self.assertEqual(state["receipts"][request["request_id"]]["response"], response)
+        return request, response
+
+    def test_enter_handoff_and_complete_dispatch_and_cache_receipts(self) -> None:
+        request, entered = self.call("prd.enter", {"prds": ["00002-b.md"]})
+        self.assertEqual(entered["result"], {"prd": "00002-b.md", "source": "backlog"})
+        self.assertEqual(bucket_of(self.root, "00002-b.md"), ["wip"])
+        before = tree(private_path(self.root))
+        self.assertEqual(self.response(self.apply(request, self.operator)), entered)
+        self.assertTrue(tree(private_path(self.root)) == before, "replay wrote state")
+        for phase, next_phase, outcome in (("build", "review", "tasks_done"),
+                                           ("review", "done", "converged")):
+            _, handed = self.call("phase.handoff", {"phase": phase, "next_phase": next_phase,
+                                                    "outcome": outcome})
+            self.assertEqual(handed["result"], {"phase": next_phase, "next_phase": next_phase})
+        _, completed = self.call("prd.complete", {})
+        self.assertEqual(completed["result"], {"prd": "00002-b.md"})
+        self.assertEqual(bucket_of(self.root, "00002-b.md"), ["done"])
+        workflow = self.state()["workflow"]
+        self.assertEqual(workflow["batch"]["completed_prds"], ["00002-b.md"])
+        self.assertIsNone(workflow["work"])
+        self.assertIsNone(workflow["recovery"])
+
+    def test_lifecycle_rejections_change_no_private_state_or_bucket(self) -> None:
+        complete = self.request(self.operator, "prd.complete", "complete-early", {})
+        self.reject_unchanged(complete, self.operator, "rejected_evidence")
+        handoff = self.request(self.operator, "phase.handoff", "handoff-idle",
+                               {"phase": "build", "next_phase": "review",
+                                "outcome": "tasks_done"})
+        self.reject_unchanged(handoff, self.operator, "rejected_evidence")
+        enter = self.request(self.operator, "prd.enter", "enter-early",
+                             {"prds": ["00002-b.md"]})
+        self.reject_unchanged(enter, None, "wrong_binding")
+        self.reject_unchanged(enter | {"expected_revision": 5}, self.operator,
+                              "revision_conflict")
+        self.reject_unchanged(enter | {"payload": {"prds": "00002-b.md"}}, self.operator,
+                              "invalid_request")
+        self.assertEqual(bucket_of(self.root, "00002-b.md"), ["backlog"])
+
+    def test_pending_owner_intent_refuses_saga_and_reducer_operations(self) -> None:
+        acquire = self.request(self.operator, "owner.acquire", "acquire-crash",
+                               {"mode": "manual", "native_session_id": "session-crash"})
+        self.crash(acquire, self.operator, "intent_dir_fsynced")
+        self.assertTrue((private_path(self.root) / "credential-intent.json").exists())
+        for name, payload in (("prd.enter", {"prds": ["00002-b.md"]}),
+                              ("task.start", {"id": "task-1"})):
+            with self.subTest(operation=name):
+                request = self.request(self.operator, name, f"{name}-pending", payload)
+                self.reject_unchanged(request, self.operator, "recovery_required")
+        self.assertEqual(bucket_of(self.root, "00002-b.md"), ["backlog"])
 
 
 if __name__ == "__main__":

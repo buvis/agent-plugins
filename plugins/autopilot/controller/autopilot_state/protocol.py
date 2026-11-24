@@ -1,13 +1,14 @@
-"""Bounded controller protocol, public metadata, snapshots, and workflow open."""
+"""Bounded controller protocol, public metadata, snapshots, and operation dispatch."""
 
 from __future__ import annotations
 
 import copy
+import dataclasses
 import json
 import secrets
 from pathlib import Path
 
-from . import actors, owner, schema
+from . import actors, files, jobs, lifecycle, owner, policy, schema, tasks
 from .paths import resolve_project_root
 from .store import FutureSchemaError, RevisionConflictError, StateError, StateIOError, StateStore
 
@@ -15,6 +16,13 @@ REQUEST_LIMIT = 2097152
 ENVELOPE_KEYS = {"protocol_major", "operation", "request_id", "expected_revision",
                  "project_id", "workflow_id", "actor_id", "job_id", "lease_epoch", "payload"}
 OWNER_OPERATIONS = {"owner.acquire", "owner.release", "owner.recover"}
+# lifecycle.py and files.py take StateStore's public lock per step, so these
+# run after apply() releases its exclusive lock; never inside apply_locked.
+SAGA_OPERATIONS = {"prd.enter", "phase.handoff", "prd.stall", "prd.park", "prd.defer",
+                   "prd.complete"}
+# Pure tasks/policy/jobs reducers commit inside apply_locked's lock.
+REDUCER_OPERATIONS = {"task.replace", "task.start", "task.finish", "task.attempt",
+                      "lane.route", "policy.bind", "job.plan", "job.claim", "job.record_exit"}
 
 
 class ProtocolError(Exception):
@@ -42,16 +50,25 @@ def public_contract() -> tuple[dict, dict]:
     metadata = {"protocol_major": 1, "package_version": manifest["version"],
                 "schema_digest": actors.digest(raw_schema),
                 "fixture_digest": actors.digest(raw_fixtures),
-                "operations": ["workflow.open", "owner.acquire", "owner.release", "owner.recover"],
-                "capabilities": ["workflow.core.v1"]}
+                "operations": ["workflow.open", "owner.acquire", "owner.release", "owner.recover",
+                               "prd.enter", "phase.handoff", "prd.stall", "prd.park",
+                               "prd.defer", "prd.complete", "task.replace", "task.start",
+                               "task.finish", "task.attempt", "lane.route", "policy.bind",
+                               "job.plan", "job.claim", "job.record_exit"],
+                "capabilities": ["workflow.core.v1", "workflow.lifecycle.v1",
+                                 "workflow.tasks.v1", "workflow.policy.v1", "workflow.jobs.v1"]}
     return metadata, declared["x-controller"]
 
 
 def validate_payload(operation: str, payload: object) -> None:
     if not isinstance(payload, dict):
         raise schema.SchemaError("invalid payload")
-    if operation in ("workflow.open", "owner.release"):
+    if operation in ("workflow.open", "owner.release", "prd.complete"):
         schema._object(payload, set())
+    elif operation in SAGA_OPERATIONS:
+        validate_saga_payload(operation, payload)
+    elif operation in REDUCER_OPERATIONS:
+        validate_reducer_payload(operation, payload)
     elif operation == "owner.acquire":
         schema._object(payload, {"mode", "native_session_id"})
         if payload["mode"] not in ("manual", "supervised"):
@@ -71,6 +88,72 @@ def validate_payload(operation: str, payload: object) -> None:
             raise schema.SchemaError("duplicate reconciled jobs")
 
 
+def validate_saga_payload(operation: str, payload: dict) -> None:
+    if operation == "prd.enter":
+        schema._object(payload, {"prds"})
+        if not isinstance(payload["prds"], list):
+            raise schema.SchemaError("invalid prds")
+    elif operation == "phase.handoff":
+        schema._object(payload, {"phase", "next_phase", "outcome"})
+        if not all(isinstance(value, str) for value in payload.values()):
+            raise schema.SchemaError("invalid handoff")
+    elif operation in ("prd.stall", "prd.park"):
+        schema._object(payload, {"prd", "site", "detail"})
+        schema._identity(payload["prd"])
+        schema._text(payload["site"])
+        schema._text(payload["detail"])
+    elif operation == "prd.defer":
+        schema._object(payload, {"prd", "record"})
+        schema._identity(payload["prd"])
+        if not isinstance(payload["record"], dict):
+            raise schema.SchemaError("invalid record")
+
+
+def validate_reducer_payload(operation: str, payload: dict) -> None:
+    if operation == "task.replace":
+        schema._object(payload, {"tasks", "allow_expansion"})
+        if (not isinstance(payload["tasks"], list)
+                or not isinstance(payload["allow_expansion"], bool)):
+            raise schema.SchemaError("invalid task plan")
+        for item in payload["tasks"]:
+            schema._task({**schema._object(item, {"id", "subject", "status", "depends_on"}),
+                          "attempts": []})
+    elif operation == "task.start":
+        schema._object(payload, {"id"})
+        schema._identity(payload["id"])
+    elif operation == "task.finish":
+        schema._object(payload, {"id", "outcome"})
+        schema._identity(payload["id"])
+    elif operation == "task.attempt":
+        schema._object(payload, {"id", "implementor", "outcome"})
+        schema._identity(payload["id"])
+    elif operation == "lane.route":
+        schema._object(payload, {"prd_frontmatter"})
+        if not isinstance(payload["prd_frontmatter"], dict):
+            raise schema.SchemaError("invalid frontmatter")
+    elif operation == "policy.bind":
+        schema._object(payload, {"lane", "reason"})
+        if not isinstance(payload["lane"], str):
+            raise schema.SchemaError("invalid lane")
+        schema._text(payload["reason"])
+    elif operation == "job.plan":
+        schema._object(payload, {"jobs"})
+        if not isinstance(payload["jobs"], list):
+            raise schema.SchemaError("invalid job plan")
+        for spec in payload["jobs"]:
+            schema._job({"spec": spec, "claimed_by": None, "claim_epoch": None, "exit_fact": None})
+    elif operation == "job.claim":
+        schema._object(payload, {"job_id"})
+        schema._identity(payload["job_id"])
+    elif operation == "job.record_exit":
+        schema._object(payload, {"job_id", "exit_fact"})
+        schema._identity(payload["job_id"])
+        fact = schema._object(payload["exit_fact"], {"outcome", "native_session_id"})
+        schema._text(fact["outcome"])
+        if fact["native_session_id"] is not None:
+            schema._identity(fact["native_session_id"])
+
+
 def parse_request(raw: bytes, declared: dict) -> dict:
     try:
         if len(raw) > REQUEST_LIMIT:
@@ -88,7 +171,8 @@ def parse_request(raw: bytes, declared: dict) -> dict:
             schema._counter(request["lease_epoch"])
         operation = request["operation"]
         if not isinstance(operation, str) or operation not in (
-                {"workflow.open"} | OWNER_OPERATIONS | set(declared["reserved_operations"])):
+                {"workflow.open"} | OWNER_OPERATIONS | SAGA_OPERATIONS | REDUCER_OPERATIONS
+                | set(declared["reserved_operations"])):
             raise schema.SchemaError("unknown operation")
         if request["workflow_id"] is None:
             if (operation != "workflow.open" or request["actor_id"] is not None
@@ -173,8 +257,166 @@ def existing_open(request: dict, actor_file: Path | None, current: dict,
     return completed
 
 
+def authorize(request: dict, actor_file: Path | None, current: dict,
+              layout: actors.PrivateLayout) -> dict | None:
+    """Return a replayed request's cached response, or None once a fresh one may run.
+
+    Shared by every saga and reducer operation; any authenticated, registered
+    actor qualifies. The caller holds the exclusive lock.
+    """
+    revision = current["revision"]
+    receipt = current["receipts"].get(request["request_id"])
+    if receipt is not None:
+        actor_binding(request, receipt["authorizing_actor"], revision)
+        actors.authenticate_receipt(actor_file, receipt["authorizing_actor"], current, layout)
+        if receipt["request_digest"] != actors.digest(actors.canonical(request)):
+            raise ProtocolError("invalid_request", revision)
+        actors.verify_operator(layout, current)
+        return receipt["response"]
+    descriptor = current["actors"].get(request["actor_id"])
+    if descriptor is None:
+        raise ProtocolError("wrong_binding", revision)
+    actor_binding(request, descriptor, revision)
+    actors.authenticate(actor_file, descriptor, layout)
+    if request["expected_revision"] != revision:
+        raise ProtocolError("revision_conflict", revision)
+    actors.verify_operator(layout, current)
+    actors.admit_staging(layout, [])
+    return None
+
+
+def reduce_workflow(request: dict, workflow: dict) -> dict:
+    """Apply one pure tasks/policy/jobs reducer to `workflow` in place; return its result."""
+    operation, payload = request["operation"], request["payload"]
+    if operation == "task.replace":
+        workflow["tasks"] = tasks.replace(payload["tasks"],
+                                          allow_expansion=payload["allow_expansion"])
+        return {"task_count": len(workflow["tasks"])}
+    if operation == "task.start":
+        workflow["tasks"] = tasks.start(workflow["tasks"], payload["id"])
+    elif operation == "task.finish":
+        workflow["tasks"] = tasks.finish(workflow["tasks"], payload["id"], payload["outcome"])
+    elif operation == "task.attempt":
+        workflow["tasks"] = tasks.attempt(workflow["tasks"], payload["id"],
+                                          payload["implementor"], payload["outcome"])
+    if operation.startswith("task."):
+        task = next(item for item in workflow["tasks"] if item["id"] == payload["id"])
+        return {"task_id": task["id"], "status": task["status"],
+                "attempts": len(task["attempts"])}
+    if operation == "lane.route":
+        return policy.route(payload["prd_frontmatter"])
+    if operation == "policy.bind":
+        if workflow["work"] is None:
+            raise ProtocolError("rejected_evidence")
+        bound = policy.bind(payload["lane"], payload["reason"])
+        workflow["work"].update(bound)
+        return bound
+    if operation == "job.plan":
+        workflow["jobs"] = jobs.plan(workflow["jobs"], payload["jobs"])
+        return {"job_count": len(workflow["jobs"])}
+    if operation == "job.claim":
+        workflow["jobs"] = jobs.claim(workflow["jobs"], payload["job_id"],
+                                      request["actor_id"], request["lease_epoch"])
+    else:
+        workflow["jobs"] = jobs.record_exit(workflow["jobs"], payload["job_id"],
+                                            request["actor_id"], request["lease_epoch"],
+                                            payload["exit_fact"])
+    row = next(item for item in workflow["jobs"] if item["spec"]["job_id"] == payload["job_id"])
+    return {"job_id": row["spec"]["job_id"], "claimed_by": row["claimed_by"],
+            "claim_epoch": row["claim_epoch"]}
+
+
+def apply_reducer(request: dict, actor_file: Path | None, current: dict,
+                  layout: actors.PrivateLayout, store: StateStore) -> dict:
+    """Commit one reducer result and its receipt under the held exclusive lock."""
+    revision = current["revision"]
+    cached = authorize(request, actor_file, current, layout)
+    if cached is not None:
+        return cached
+    candidate = copy.deepcopy(current)
+    try:
+        result = reduce_workflow(request, candidate["workflow"])
+    except policy.InvalidPlan as error:
+        raise ProtocolError("rejected_evidence", revision) from error
+    except ProtocolError as error:
+        error.revision = revision
+        raise
+    candidate["revision"] += 1
+    completed = response(result, candidate["revision"])
+    candidate["receipts"][request["request_id"]] = {
+        "request_digest": actors.digest(actors.canonical(request)),
+        "authorizing_actor": current["actors"][request["actor_id"]], "response": completed}
+    actors.admit(candidate, completed)
+    store._transaction_locked(lambda unused: candidate, expected_revision=revision,
+                              publication_guard=layout.verify)
+    return completed
+
+
+def run_saga(request: dict, current: dict, store: StateStore) -> dict:
+    """Run one self-locking lifecycle reducer or files saga; return its result."""
+    operation, payload = request["operation"], request["payload"]
+    reducer = {"prd.enter": lifecycle.enter, "phase.handoff": lifecycle.handoff,
+               "prd.complete": lifecycle.complete}.get(operation)
+    if reducer is not None:
+        return reducer(store, request, current)["result"]
+    root = Path(current["repo_root"])
+    if operation == "prd.defer":
+        saga = files.defer_record(store, project_root=root, prd=payload["prd"],
+                                  record=payload["record"])
+    else:
+        move = files.stall if operation == "prd.stall" else files.park
+        saga = move(store, project_root=root, prd=payload["prd"], site=payload["site"],
+                    detail=payload["detail"])
+    return dataclasses.asdict(saga)
+
+
+def record_receipt(request: dict, descriptor: dict, result: dict,
+                   layout: actors.PrivateLayout, store: StateStore) -> dict:
+    """Cache a finished saga's response in its own transaction, after the saga."""
+    request_digest = actors.digest(actors.canonical(request))
+    recorded = []
+
+    def mutate(state: dict) -> None:
+        if request["request_id"] in state["receipts"]:
+            raise StateIOError("receipt already recorded")
+        completed = response(result, state["revision"] + 1)
+        state["receipts"][request["request_id"]] = {
+            "request_digest": request_digest, "authorizing_actor": descriptor,
+            "response": completed}
+        actors.admit(state, completed)
+        recorded.append(completed)
+
+    store.transaction(mutate, publication_guard=layout.verify)
+    return recorded[0]
+
+
+def apply_unlocked(request: dict, layout: actors.PrivateLayout, store: StateStore) -> dict:
+    """Run a saga operation apply_locked admitted, outside StateStore._locked."""
+    revision = request["expected_revision"]
+    try:
+        layout.verify()
+        current = store.read()
+        revision = current["revision"]
+        # Every commit bumps the revision, so an equal one is the admitted state.
+        if revision != request["expected_revision"]:
+            raise ProtocolError("revision_conflict", revision)
+        result = run_saga(request, current, store)
+        return record_receipt(request, current["actors"][request["actor_id"]], result,
+                              layout, store)
+    except RevisionConflictError as error:
+        raise ProtocolError("revision_conflict", revision) from error
+    except FutureSchemaError as error:
+        raise ProtocolError("incompatible_contract", revision) from error
+    except (files.PreconditionError, files.RecoveryConflictError,
+            files.DeferredRecordConflictError) as error:
+        raise ProtocolError("rejected_evidence", revision) from error
+    except (files.RecoveryRequiredError, StateError, OSError, ValueError, KeyError,
+            TypeError) as error:
+        raise ProtocolError("recovery_required", revision) from error
+
+
 def apply_locked(request: dict, actor_file: Path | None, layout: actors.PrivateLayout,
-                 store: StateStore) -> dict:
+                 store: StateStore) -> dict | None:
     current = store._read_locked() if layout.exists(store.path) else None
     revision = 0 if current is None else current["revision"]
     try:
@@ -196,6 +438,11 @@ def apply_locked(request: dict, actor_file: Path | None, layout: actors.PrivateL
             return actors.finish_bootstrap(intent, layout, store, current)
         if request["operation"] in OWNER_OPERATIONS and current is not None:
             return owner.apply_locked(request, actor_file, current, layout, store)
+        if request["operation"] in REDUCER_OPERATIONS and current is not None:
+            return apply_reducer(request, actor_file, current, layout, store)
+        if request["operation"] in SAGA_OPERATIONS and current is not None:
+            # None admits the request: apply() runs the saga after the lock is released.
+            return authorize(request, actor_file, current, layout)
         if request["operation"] != "workflow.open":
             raise ProtocolError("missing_capability", revision)
         if current is not None:
@@ -242,7 +489,10 @@ def apply(root: Path, request_file: Path, actor_file: Path | None) -> dict:
                 layout.prepare()
             with store._locked(exclusive=True):
                 layout.verify()
-                return apply_locked(request, actor_file, layout, store)
+                completed = apply_locked(request, actor_file, layout, store)
+            if completed is None:
+                completed = apply_unlocked(request, layout, store)
+            return completed
     except ProtocolError as error:
         if error.revision == 0:
             error.revision = revision_hint(root)

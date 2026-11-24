@@ -206,9 +206,54 @@ def _result(value: object) -> None:
     elif fields == {"actor_id", "operator_actor_file", "lease_epoch"}:
         _absolute_path(value["operator_actor_file"])
     else:
-        raise SchemaError("Response result has missing or unknown fields")
+        _workflow_result(value, fields)
+        return
     _identity(value["actor_id"])
     _counter(value["lease_epoch"])
+
+
+def _lane(value: object) -> None:
+    if value not in ("solo", "fast-track", "full"):
+        raise SchemaError("Unknown lane")
+
+
+def _workflow_result(value: dict, fields: set) -> None:
+    """Result shapes of the lifecycle, tasks, policy and jobs operations."""
+    if fields == {"prd", "source"}:
+        _text(value["prd"])
+        if value["source"] not in ("wip", "backlog"):
+            raise SchemaError("Unknown work source")
+    elif fields == {"phase", "next_phase"}:
+        _text(value["phase"])
+        if not isinstance(value["next_phase"], str):
+            raise SchemaError("Next phase must be a string")
+    elif fields == {"prd"}:
+        _text(value["prd"])
+    elif fields == {"operation_id", "kind", "replayed", "systemic_halt"}:
+        _identity(value["operation_id"])
+        if value["kind"] not in ("stall", "park", "defer"):
+            raise SchemaError("Unknown saga kind")
+        if not isinstance(value["replayed"], bool) or not isinstance(value["systemic_halt"], bool):
+            raise SchemaError("Saga flags must be booleans")
+    elif fields in ({"task_count"}, {"job_count"}):
+        _counter(value[next(iter(fields))])
+    elif fields == {"task_id", "status", "attempts"}:
+        _identity(value["task_id"])
+        if value["status"] not in ("pending", "in_progress", "completed", "aborted"):
+            raise SchemaError("Unknown task status")
+        _counter(value["attempts"])
+    elif fields == {"lane", "reason"}:
+        _lane(value["lane"])
+        _text(value["reason"])
+    elif fields == {"lane", "lane_reason"}:
+        _lane(value["lane"])
+        _text(value["lane_reason"])
+    elif fields == {"job_id", "claimed_by", "claim_epoch"}:
+        _identity(value["job_id"])
+        _identity(value["claimed_by"])
+        _counter(value["claim_epoch"])
+    else:
+        raise SchemaError("Response result has missing or unknown fields")
 
 
 def _receipts(receipts: object) -> None:

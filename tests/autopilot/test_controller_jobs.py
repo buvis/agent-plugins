@@ -9,6 +9,8 @@ import sys
 import unittest
 from pathlib import Path
 
+from controller_owner_support import OwnerCLITest
+
 ROOT = Path(__file__).resolve().parents[2]
 CONTROLLER = ROOT / "plugins" / "autopilot" / "controller"
 sys.path.insert(0, str(CONTROLLER))
@@ -143,6 +145,52 @@ class NoSpawnTest(unittest.TestCase):
         spawning = {name for name in attributes
                     if name.startswith(("exec", "fork", "spawn", "posix_spawn"))}
         self.assertFalse(spawning, spawning)
+
+
+# -- protocol.apply end to end: the real CLI, a real request file ---------------
+
+
+class JobProtocolTest(OwnerCLITest):
+    """job.plan, job.claim and job.record_exit commit inside apply_locked's lock."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        _, opened, self.operator = self.bootstrap()
+        self.actor_id = opened["result"]["actor_id"]
+
+    def call(self, name: str, payload: dict) -> tuple[dict, dict]:
+        request = self.request(self.operator, name, f"{name}-{self.state()['revision']}",
+                               payload)
+        response = self.response(self.apply(request, self.operator),
+                                 revision=request["expected_revision"] + 1)
+        self.assertEqual(self.state()["receipts"][request["request_id"]]["response"], response)
+        return request, response
+
+    def reject(self, name: str, payload: dict, error: str = "rejected_evidence") -> None:
+        request = self.request(self.operator, name, f"{name}-rejected-{self.serial}", payload)
+        self.reject_unchanged(request, self.operator, error)
+
+    def test_plan_claim_and_record_exit_dispatch_through_apply(self) -> None:
+        _, planned = self.call("job.plan", {"jobs": [spec("build"), spec("review", "build")]})
+        self.assertEqual(planned["result"], {"job_count": 2})
+        _, claimed_job = self.call("job.claim", {"job_id": "build"})
+        self.assertEqual(claimed_job["result"], {"job_id": "build", "claimed_by": self.actor_id,
+                                                 "claim_epoch": 0})
+        self.reject("job.claim", {"job_id": "build"})
+        _, exited = self.call("job.record_exit", {"job_id": "build", "exit_fact": EXIT})
+        self.assertEqual(exited["result"], claimed_job["result"])
+        rows = self.state()["workflow"]["jobs"]
+        self.assertEqual([row["exit_fact"] for row in rows], [EXIT, None])
+        self.reject("job.record_exit", {"job_id": "build",
+                                        "exit_fact": {**EXIT, "outcome": "failed"}})
+
+    def test_job_rejections_change_no_private_state(self) -> None:
+        self.reject("job.plan", {"jobs": [spec("a", "b"), spec("b", "a")]})
+        self.reject("job.plan", {"jobs": [{**spec("a"), "tier": None}]}, "invalid_request")
+        self.reject("job.claim", {"job_id": "ghost"})
+        self.reject("job.record_exit", {"job_id": "ghost", "exit_fact": {"outcome": "ok"}},
+                    "invalid_request")
+        self.assertEqual(self.state()["workflow"]["jobs"], [])
 
 
 if __name__ == "__main__":

@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
+from controller_cli_support import private_path, tree
+from controller_owner_support import OwnerCLITest
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "plugins" / "autopilot" / "controller"))
@@ -382,3 +385,75 @@ def test_complete_refuses_before_accepted_review(tmp_path):
 
     assert project.where() == ["wip"]
     assert project.workflow()["recovery"] is None
+
+
+# -- protocol.apply end to end: the real CLI, a real request file ---------------
+
+
+class SagaProtocolTest(OwnerCLITest):
+    """prd.stall, prd.park and prd.defer run their sagas outside apply_locked's lock."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        for name in BUCKETS:
+            (self.root / files.PRD_ROOT / name).mkdir(parents=True)
+        for prd in (PRD, OTHER):
+            (self.root / files.PRD_ROOT / "backlog" / prd).write_text(f"---\n---\n# {prd}\n")
+        _, _, self.operator = self.bootstrap()
+        self.call("prd.enter", {"prds": [PRD]})
+
+    def call(self, name: str, payload: dict) -> tuple[dict, dict]:
+        request = self.request(self.operator, name, f"{name}-{self.state()['revision']}",
+                               payload)
+        response = self.response(self.apply(request, self.operator))
+        state = self.state()
+        self.assertEqual(response["revision"], state["revision"])
+        self.assertEqual(state["receipts"][request["request_id"]]["response"], response)
+        return request, response
+
+    def where(self, prd: str = PRD) -> list[str]:
+        return [name for name in BUCKETS if (self.root / files.PRD_ROOT / name / prd).exists()]
+
+    def ledger(self) -> list[dict]:
+        path = private_path(self.root) / "deferred" / f"{self.state()['workflow_id']}-deferred.json"
+        return json.loads(path.read_text())["items"]
+
+    def test_defer_then_park_dispatch_and_record_once(self) -> None:
+        _, deferred = self.call("prd.defer", {"prd": PRD, "record": {"type": "deferred_decision"}})
+        self.assertEqual(deferred["result"]["kind"], "defer")
+        self.assertEqual(self.where(), ["wip"])
+        request, parked = self.call("prd.park", {"prd": PRD, "site": "wrapper_died",
+                                                 "detail": "session ended"})
+        result = parked["result"]
+        self.assertEqual((result["kind"], result["replayed"], result["systemic_halt"]),
+                         ("park", False, False))
+        self.assertEqual(self.where(), ["hold"])
+        workflow = self.state()["workflow"]
+        self.assertIsNone(workflow["work"])
+        self.assertEqual(workflow["batch"]["parks_consecutive"], 1)
+        self.assertEqual([item["op_id"] for item in self.ledger()],
+                         [deferred["result"]["operation_id"], result["operation_id"]])
+        before = tree(private_path(self.root))
+        self.assertEqual(self.response(self.apply(request, self.operator)), parked)
+        self.assertTrue(tree(private_path(self.root)) == before, "replay wrote state")
+
+    def test_stall_moves_the_active_prd_to_hold(self) -> None:
+        _, stalled = self.call("prd.stall", {"prd": PRD, "site": "cap_regression",
+                                             "detail": "review cap hit"})
+        self.assertEqual(stalled["result"]["kind"], "stall")
+        self.assertEqual(self.where(), ["hold"])
+        self.assertEqual(self.ledger()[0]["site"], "cap_regression")
+
+    def test_saga_rejections_change_no_private_state_or_bucket(self) -> None:
+        payload = {"prd": OTHER, "site": "cap_regression", "detail": "wrong PRD"}
+        self.reject_unchanged(self.request(self.operator, "prd.stall", "stall-other", payload),
+                              self.operator, "rejected_evidence")
+        os.rename(self.root / files.PRD_ROOT / "wip" / PRD,
+                  self.root / files.PRD_ROOT / "hold" / PRD)
+        payload = {"prd": PRD, "site": "wrapper_died", "detail": "not in wip"}
+        self.reject_unchanged(self.request(self.operator, "prd.park", "park-missing", payload),
+                              self.operator, "rejected_evidence")
+        self.reject_unchanged(self.request(self.operator, "prd.defer", "defer-bad",
+                                           {"prd": PRD, "record": "later"}),
+                              self.operator, "invalid_request")
+        self.assertEqual((self.where(), self.where(OTHER)), (["hold"], ["backlog"]))
