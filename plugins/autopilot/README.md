@@ -390,7 +390,7 @@ it in a repository checkout with the unshipped exporter
 Its `sha256sum` from the repository root is:
 
 ```text
-a296acb4e7abec880a05cc66f812b61ac5eb7cfa675ca82413507e75f0c9c7f5  plugins/autopilot/contracts/controller-v1.json
+ffd7a19b4533775b65570096c060ef088dd17e615454f9a2c5f09ebf264722e3  plugins/autopilot/contracts/controller-v1.json
 ```
 
 The installed controller argv is:

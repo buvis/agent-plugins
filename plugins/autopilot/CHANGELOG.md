@@ -4,6 +4,7 @@
 
 ### Added
 
+- **autopilot**: Implement the controller's `workflow.lifecycle.v1`, `workflow.tasks.v1`, `workflow.policy.v1` and `workflow.jobs.v1` capabilities: PRD entry, phase handoff, stall, park, defer and completion with recoverable bucket moves; task replace, start, finish and attempt tracking; lane routing and policy binding; and deterministic job plans, exclusive job claims and recorded exit facts. The controller never launches processes, and exit facts never replace review acceptance. No host execution or certification is claimed.
 - **autopilot**: Add host adapters that read each host's real native session variable, with `--probe-host`, `--record-session` and the `--run-guard` guard duties, which always pass `seam=None`, so every stateful duty refuses there. No host execution or certification is claimed.
 - **autopilot**: Add `--request-job`, `--bind-job` and `--close-child` for job requests, child session bindings and in-session child closes, refusing with `missing_native_session` when no native host session is present. No host execution or certification is claimed.
 - **autopilot**: Add generated Claude and Codex hook assets that call `--hook`; they are not activated (each registration declares `activated: false`).
