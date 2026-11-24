@@ -156,21 +156,32 @@ class ControllerProtocolTest(unittest.TestCase):
             state["workflow"][field] = value
             with self.subTest(field=field):
                 self.assert_invalid("state", state)
-        self.assertEqual(self.contract["capabilities"], ["workflow.core.v1"])
+        self.assertEqual(
+            self.contract["capabilities"],
+            ["workflow.core.v1", "workflow.lifecycle.v1", "workflow.tasks.v1",
+             "workflow.policy.v1", "workflow.jobs.v1"],
+        )
         self.assertEqual(
             self.contract["implemented_operations"],
-            ["workflow.open", "owner.acquire", "owner.release", "owner.recover"],
+            ["workflow.open", "owner.acquire", "owner.release", "owner.recover",
+             "prd.enter", "phase.handoff", "prd.stall", "prd.park", "prd.defer",
+             "prd.complete", "task.replace", "task.start", "task.finish", "task.attempt",
+             "lane.route", "policy.bind", "job.plan", "job.claim", "job.record_exit"],
         )
         self.assertEqual(
             set(self.contract["reserved_operations"]),
             {
-                "policy.bind", "prd.enter", "task.replace", "task.start", "task.finish",
-                "task.attempt", "lane.route", "job.plan", "job.claim", "job.record_exit",
                 "review.record_stage", "review.close", "custody.record", "custody.discharge",
-                "verification.record", "phase.handoff", "prd.stall", "prd.park", "prd.defer",
-                "prd.complete", "artifact.record", "records.commit",
+                "verification.record", "artifact.record", "records.commit",
             },
         )
+        self.assertEqual(
+            self.contract["unavailable_capabilities"],
+            ["workflow.reviews.v1", "workflow.custody.v1", "workflow.verification.v1",
+             "workflow.records.v1", "workflow.waves.v1"],
+        )
+        self.assertFalse(set(self.contract["implemented_operations"])
+                         & set(self.contract["reserved_operations"]))
         for operation, capability in self.contract["reserved_operations"].items():
             self.assertIn(capability, self.contract["unavailable_capabilities"])
             self.assertNotIn(capability, self.contract["capabilities"])
@@ -358,12 +369,15 @@ class ControllerProtocolTest(unittest.TestCase):
         self.assertIn("not a full legacy schema equivalence", self.provenance["scope"].lower())
 
     def test_bundle_shape_and_implemented_only_advertisement(self) -> None:
+        # The pinned export bundle advertises only the core subset of implemented operations.
         bundle = {
             "protocol_major": 1, "package_version": "0.1.0",
             "schema_digest": "a" * 64, "fixture_digest": "b" * 64,
-            "operations": list(self.contract["implemented_operations"]),
+            "operations": ["workflow.open", "owner.acquire", "owner.release", "owner.recover"],
             "capabilities": ["workflow.core.v1"],
         }
+        self.assertLessEqual(set(bundle["operations"]),
+                             set(self.contract["implemented_operations"]))
         self.assert_valid("bundle", bundle)
         for key in bundle:
             changed = copy.deepcopy(bundle)

@@ -259,9 +259,12 @@ class ControllerBootstrapTest(ControllerCLITest):
         self.assertTrue(all(isinstance(value, str) for value in declared["operations"]))
         self.assertEqual(len(declared["operations"]), len(set(declared["operations"])))
         self.assertIn("workflow.open", declared["operations"])
-        self.assertLessEqual(set(declared["operations"]), set(schema["implemented_operations"]))
+        self.assertEqual(set(declared["operations"]), set(schema["implemented_operations"]))
         self.assertIsInstance(declared["capabilities"], list)
-        self.assertEqual(declared["capabilities"], ["workflow.core.v1"])
+        self.assertEqual(declared["capabilities"], schema["capabilities"])
+        self.assertEqual(declared["capabilities"], [
+            "workflow.core.v1", "workflow.lifecycle.v1", "workflow.tasks.v1",
+            "workflow.policy.v1", "workflow.jobs.v1"])
         self.assertEqual(tree(self.root), before)
 
     def test_reserved_operations_reject_without_receipts_or_credentials(self) -> None:

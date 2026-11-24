@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://buvis.github.io/agent-plugins/autopilot/contracts/controller/workflow-v1.json",
   "title": "AP00018 controller kernel v1",
-  "description": "Closed kernel durable state. $defs/request and $defs/response describe core apply only; contract and snapshot have separate projections. UTF-8 formats are asserted by the configuration tests and must also be enforced by the runtime. Reserved operation names declare unavailable capabilities, not payload implementations.",
+  "description": "Closed kernel durable state. $defs/request describes every implemented operation's payload; $defs/response describes core apply results only; contract and snapshot have separate projections. UTF-8 formats are asserted by the configuration tests and must also be enforced by the runtime. Reserved operation names declare unavailable capabilities, not payload implementations.",
   "$ref": "#/$defs/state",
   "$defs": {
     "identity": {
@@ -230,6 +230,312 @@
       "required": [
         "reason",
         "reconciled_job_ids"
+      ],
+      "additionalProperties": false
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1048576,
+      "format": "utf8-1048576"
+    },
+    "enter_payload": {
+      "type": "object",
+      "properties": {
+        "prds": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "prds"
+      ],
+      "additionalProperties": false
+    },
+    "handoff_payload": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "type": "string"
+        },
+        "next_phase": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "phase",
+        "next_phase",
+        "outcome"
+      ],
+      "additionalProperties": false
+    },
+    "move_payload": {
+      "type": "object",
+      "properties": {
+        "prd": {
+          "$ref": "#/$defs/identity"
+        },
+        "site": {
+          "$ref": "#/$defs/text"
+        },
+        "detail": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "prd",
+        "site",
+        "detail"
+      ],
+      "additionalProperties": false
+    },
+    "defer_payload": {
+      "type": "object",
+      "properties": {
+        "prd": {
+          "$ref": "#/$defs/identity"
+        },
+        "record": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "prd",
+        "record"
+      ],
+      "additionalProperties": false
+    },
+    "complete_payload": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "planned_task": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identity"
+        },
+        "subject": {
+          "$ref": "#/$defs/text"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "in_progress",
+            "completed",
+            "aborted"
+          ]
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identity"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "subject",
+        "status",
+        "depends_on"
+      ],
+      "additionalProperties": false
+    },
+    "task_replace_payload": {
+      "type": "object",
+      "properties": {
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/planned_task"
+          }
+        },
+        "allow_expansion": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "tasks",
+        "allow_expansion"
+      ],
+      "additionalProperties": false
+    },
+    "task_start_payload": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identity"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false
+    },
+    "task_finish_payload": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identity"
+        },
+        "outcome": {}
+      },
+      "required": [
+        "id",
+        "outcome"
+      ],
+      "additionalProperties": false
+    },
+    "task_attempt_payload": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identity"
+        },
+        "implementor": {},
+        "outcome": {}
+      },
+      "required": [
+        "id",
+        "implementor",
+        "outcome"
+      ],
+      "additionalProperties": false
+    },
+    "route_payload": {
+      "type": "object",
+      "properties": {
+        "prd_frontmatter": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "prd_frontmatter"
+      ],
+      "additionalProperties": false
+    },
+    "bind_payload": {
+      "type": "object",
+      "properties": {
+        "lane": {
+          "type": "string"
+        },
+        "reason": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "lane",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "job_spec": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "role": {
+          "$ref": "#/$defs/text"
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identity"
+          }
+        },
+        "input_digests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/digest"
+          }
+        },
+        "isolation": {
+          "$ref": "#/$defs/text"
+        },
+        "tier": {
+          "$ref": "#/$defs/text"
+        },
+        "effort": {
+          "$ref": "#/$defs/text"
+        }
+      },
+      "required": [
+        "job_id",
+        "role",
+        "depends_on",
+        "input_digests",
+        "isolation",
+        "tier",
+        "effort"
+      ],
+      "additionalProperties": false
+    },
+    "job_plan_payload": {
+      "type": "object",
+      "properties": {
+        "jobs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/job_spec"
+          }
+        }
+      },
+      "required": [
+        "jobs"
+      ],
+      "additionalProperties": false
+    },
+    "job_claim_payload": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "$ref": "#/$defs/identity"
+        }
+      },
+      "required": [
+        "job_id"
+      ],
+      "additionalProperties": false
+    },
+    "job_exit_payload": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "exit_fact": {
+          "type": "object",
+          "properties": {
+            "outcome": {
+              "$ref": "#/$defs/text"
+            },
+            "native_session_id": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/identity"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "outcome",
+            "native_session_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "job_id",
+        "exit_fact"
       ],
       "additionalProperties": false
     },
@@ -709,6 +1015,275 @@
         {
           "if": {
             "properties": {
+              "operation": {
+                "const": "prd.enter"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/enter_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "phase.handoff"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/handoff_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "enum": [
+                  "prd.stall",
+                  "prd.park"
+                ]
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/move_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "prd.defer"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/defer_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "prd.complete"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/complete_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "task.replace"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/task_replace_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "task.start"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/task_start_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "task.finish"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/task_finish_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "task.attempt"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/task_attempt_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "lane.route"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/route_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "policy.bind"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/bind_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "job.plan"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/job_plan_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "job.claim"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/job_claim_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "job.record_exit"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/job_exit_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
               "workflow_id": {
                 "type": "null"
               }
@@ -803,40 +1378,40 @@
       "workflow.open",
       "owner.acquire",
       "owner.release",
-      "owner.recover"
+      "owner.recover",
+      "prd.enter",
+      "phase.handoff",
+      "prd.stall",
+      "prd.park",
+      "prd.defer",
+      "prd.complete",
+      "task.replace",
+      "task.start",
+      "task.finish",
+      "task.attempt",
+      "lane.route",
+      "policy.bind",
+      "job.plan",
+      "job.claim",
+      "job.record_exit"
     ],
     "capabilities": [
-      "workflow.core.v1"
+      "workflow.core.v1",
+      "workflow.lifecycle.v1",
+      "workflow.tasks.v1",
+      "workflow.policy.v1",
+      "workflow.jobs.v1"
     ],
     "reserved_operations": {
-      "policy.bind": "workflow.policy.v1",
-      "prd.enter": "workflow.lifecycle.v1",
-      "task.replace": "workflow.tasks.v1",
-      "task.start": "workflow.tasks.v1",
-      "task.finish": "workflow.tasks.v1",
-      "task.attempt": "workflow.tasks.v1",
-      "lane.route": "workflow.policy.v1",
-      "job.plan": "workflow.jobs.v1",
-      "job.claim": "workflow.jobs.v1",
-      "job.record_exit": "workflow.jobs.v1",
       "review.record_stage": "workflow.reviews.v1",
       "review.close": "workflow.reviews.v1",
       "custody.record": "workflow.custody.v1",
       "custody.discharge": "workflow.custody.v1",
       "verification.record": "workflow.verification.v1",
-      "phase.handoff": "workflow.lifecycle.v1",
-      "prd.stall": "workflow.lifecycle.v1",
-      "prd.park": "workflow.lifecycle.v1",
-      "prd.defer": "workflow.lifecycle.v1",
-      "prd.complete": "workflow.lifecycle.v1",
       "artifact.record": "workflow.records.v1",
       "records.commit": "workflow.records.v1"
     },
     "unavailable_capabilities": [
-      "workflow.policy.v1",
-      "workflow.lifecycle.v1",
-      "workflow.tasks.v1",
-      "workflow.jobs.v1",
       "workflow.reviews.v1",
       "workflow.custody.v1",
       "workflow.verification.v1",

@@ -237,6 +237,353 @@
       "expected_error": null
     },
     {
+      "name": "prd-enter",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "prd.enter",
+        "request_id": "prd-enter-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "prds": [
+            "00019-synthetic.md"
+          ]
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "phase-handoff",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "phase.handoff",
+        "request_id": "phase-handoff-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "phase": "build",
+          "next_phase": "review",
+          "outcome": "tasks_done"
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "prd-stall",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "prd.stall",
+        "request_id": "prd-stall-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "prd": "00019-synthetic.md",
+          "site": "build",
+          "detail": "Synthetic stall; no real work ran."
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "prd-park",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "prd.park",
+        "request_id": "prd-park-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "prd": "00019-synthetic.md",
+          "site": "review",
+          "detail": "Synthetic park; no real review ran."
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "prd-defer",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "prd.defer",
+        "request_id": "prd-defer-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "prd": "00019-synthetic.md",
+          "record": {
+            "summary": "Synthetic deferred follow-up."
+          }
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "prd-complete",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "prd.complete",
+        "request_id": "prd-complete-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {}
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "task-replace",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "task.replace",
+        "request_id": "task-replace-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "tasks": [
+            {
+              "id": "task-1",
+              "subject": "Synthetic first task",
+              "status": "pending",
+              "depends_on": []
+            },
+            {
+              "id": "task-2",
+              "subject": "Synthetic second task",
+              "status": "pending",
+              "depends_on": [
+                "task-1"
+              ]
+            }
+          ],
+          "allow_expansion": false
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "task-start",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "task.start",
+        "request_id": "task-start-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "id": "task-1"
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "task-finish",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "task.finish",
+        "request_id": "task-finish-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "id": "task-1",
+          "outcome": "completed"
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "task-attempt",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "task.attempt",
+        "request_id": "task-attempt-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "id": "task-1",
+          "implementor": "implementor-synthetic",
+          "outcome": "completed"
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "lane-route",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "lane.route",
+        "request_id": "lane-route-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "prd_frontmatter": {
+            "lane": "solo"
+          }
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "policy-bind",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "policy.bind",
+        "request_id": "policy-bind-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "lane": "solo",
+          "reason": "Synthetic documentation-only change."
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "job-plan",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "job.plan",
+        "request_id": "job-plan-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "jobs": [
+            {
+              "job_id": "job-synthetic",
+              "role": "implementor",
+              "depends_on": [],
+              "input_digests": [
+                "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+              ],
+              "isolation": "worktree",
+              "tier": "standard",
+              "effort": "medium"
+            }
+          ]
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "job-claim",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "job.claim",
+        "request_id": "job-claim-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "job_id": "job-synthetic"
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "job-record-exit",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "job.record_exit",
+        "request_id": "job-record-exit-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "job_id": "job-synthetic",
+          "exit_fact": {
+            "outcome": "completed",
+            "native_session_id": "session-synthetic"
+          }
+        }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
       "name": "open-result",
       "definition": "response",
       "input": {
@@ -500,6 +847,329 @@
             "job-synthetic",
             "job-synthetic"
           ]
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "prd-enter-missing-prds",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "prd.enter",
+        "request_id": "prd-enter-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {}
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "phase-handoff-nonstring-outcome",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "phase.handoff",
+        "request_id": "phase-handoff-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "phase": "build",
+          "next_phase": "review",
+          "outcome": 1
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "prd-stall-empty-detail",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "prd.stall",
+        "request_id": "prd-stall-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "prd": "00019-synthetic.md",
+          "site": "build",
+          "detail": ""
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "prd-park-extra-payload",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "prd.park",
+        "request_id": "prd-park-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "prd": "00019-synthetic.md",
+          "site": "review",
+          "detail": "Synthetic park; no real review ran.",
+          "reason": "unexpected"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "prd-defer-list-record",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "prd.defer",
+        "request_id": "prd-defer-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "prd": "00019-synthetic.md",
+          "record": []
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "prd-complete-extra-payload",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "prd.complete",
+        "request_id": "prd-complete-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "prd": "00019-synthetic.md"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "task-replace-string-expansion",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "task.replace",
+        "request_id": "task-replace-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "tasks": [],
+          "allow_expansion": "yes"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "task-start-empty-id",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "task.start",
+        "request_id": "task-start-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "id": ""
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "task-finish-missing-outcome",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "task.finish",
+        "request_id": "task-finish-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "id": "task-1"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "task-attempt-extra-payload",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "task.attempt",
+        "request_id": "task-attempt-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "id": "task-1",
+          "implementor": "implementor-synthetic",
+          "outcome": "completed",
+          "tier": "standard"
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "lane-route-list-frontmatter",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "lane.route",
+        "request_id": "lane-route-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "prd_frontmatter": []
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "policy-bind-empty-reason",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "policy.bind",
+        "request_id": "policy-bind-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "lane": "solo",
+          "reason": ""
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "job-plan-incomplete-spec",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "job.plan",
+        "request_id": "job-plan-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "jobs": [
+            {
+              "job_id": "job-synthetic",
+              "role": "implementor",
+              "depends_on": [],
+              "input_digests": [],
+              "isolation": "worktree",
+              "tier": "standard"
+            }
+          ]
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "job-claim-missing-job",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "job.claim",
+        "request_id": "job-claim-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {}
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "job-record-exit-extra-fact",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "job.record_exit",
+        "request_id": "job-record-exit-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "job_id": "job-synthetic",
+          "exit_fact": {
+            "outcome": "completed",
+            "native_session_id": null,
+            "exit_code": 0
+          }
         }
       },
       "valid": false,
