@@ -1568,3 +1568,4 @@
 {"id":"a2b22e5e","ended_at":1795569397,"elapsed_s":1107,"outcome":"ok","detail":null}
 {"id":"844338bc","ended_at":1795569397,"elapsed_s":1107,"outcome":"error","detail":null}
 {"kind":"handoff","site":"review","edge":"leave","at":1795569432,"phase":"review","prd":"00019-autopilot-controller-lifecycle-v1.md"}
+{"kind":"handoff","site":"review","edge":"leave","at":1795575318,"phase":"review","prd":"docs/dev/project-management/prds/wip/00019-autopilot-controller-lifecycle-v1.md"}
