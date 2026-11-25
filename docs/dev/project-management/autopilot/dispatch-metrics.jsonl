@@ -1554,3 +1554,9 @@
 {"kind":"handoff","site":"done","edge":"leave","at":1794819117,"phase":"done","prd":"00067-engram-plugin-v1.md"}
 {"kind":"handoff","site":"build","edge":"resume","at":1795557979,"phase":"build","prd":"00019-autopilot-controller-lifecycle-v1.md"}
 {"kind":"handoff","site":"build","edge":"leave","at":1795563470,"phase":"build","prd":"00019-autopilot-controller-lifecycle-v1.md"}
+{"kind":"handoff","site":"build","edge":"resume","at":1795563488,"phase":"build","prd":"00019-autopilot-controller-lifecycle-v1.md"}
+{"id":"0045a535","kind":"ivan","task":"12","queued_at":1795563666,"prompt_bytes":11836}
+{"id":"0045a535","ended_at":1795564413,"elapsed_s":747,"outcome":"ok","detail":null}
+{"id":"f75c07a4","kind":"deslop","task":"12","queued_at":1795564535,"prompt_bytes":6887}
+{"id":"f75c07a4","ended_at":1795564620,"elapsed_s":85,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"build","edge":"leave","at":1795567341,"phase":"review","prd":"00019-autopilot-controller-lifecycle-v1.md"}
