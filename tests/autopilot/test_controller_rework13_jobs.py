@@ -16,7 +16,12 @@ ROOT = Path(__file__).resolve().parents[2]
 CONTROLLER = ROOT / "plugins" / "autopilot" / "controller"
 sys.path.insert(0, str(CONTROLLER))
 
-from autopilot_state import protocol, schema
+from autopilot_state import files, protocol, schema
+
+from test_cycle2_jobs_metadata import BUCKETS, PRD, PRD_TEXT
+
+# The three keys task 19 added: a caller must declare them, a stored row may omit them.
+METADATA_KEYS = {"source_digest", "resource_digest", "permitted_operations"}
 
 
 def spec(job_id: str, *depends: str) -> dict:
@@ -42,7 +47,17 @@ def row(job_spec: dict) -> dict:
 class DerivedPlanTest(OwnerCLITest):
     def setUp(self) -> None:
         super().setUp()
+        for bucket in BUCKETS:
+            (self.root / files.PRD_ROOT / bucket).mkdir(parents=True)
+        (self.root / files.PRD_ROOT / "backlog" / PRD).write_text(PRD_TEXT)
         _, _, self.operator = self.bootstrap()
+        self.enter()
+
+    def enter(self) -> None:
+        """Make PRD the active work: derivation digests the active PRD file."""
+        request = self.request(self.operator, "prd.enter", "enter-prd", {"prds": [PRD]})
+        response = self.response(self.apply(request, self.operator))
+        self.assertEqual(response["result"]["prd"], PRD)
 
     def call(self, name: str, payload: dict) -> tuple[dict, dict]:
         request = self.request(self.operator, name, f"{name}-{self.state()['revision']}",
@@ -57,8 +72,10 @@ class DerivedPlanTest(OwnerCLITest):
             {"id": "t2", "subject": "review", "status": "pending", "depends_on": ["t1"]},
         ], "allow_expansion": False})
         _, planned = self.call("job.plan", {"jobs": []})
-        self.assertGreater(planned["result"]["job_count"], 0)
-        self.assertTrue(self.state()["workflow"]["jobs"], "no jobs were derived from the plan")
+        self.assertEqual(planned["result"], {"job_count": 2})
+        derived = [item["spec"] for item in self.state()["workflow"]["jobs"]]
+        self.assertEqual({value["job_id"] for value in derived}, {"t1", "t2"})
+        self.assertEqual([set(value) for value in derived], [schema.JOB_SPEC_KEYS] * 2)
 
     def test_job_plan_with_no_caller_specs_and_no_tasks_stays_empty(self) -> None:
         _, planned = self.call("job.plan", {"jobs": []})
@@ -82,41 +99,61 @@ class NextJobInstructionTest(OwnerCLITest):
         return request, response
 
     def test_next_job_instruction_operation_is_declared_and_structured(self) -> None:
-        # AMBIGUITY: the PRD names no operation for this; "job.next" is assumed,
-        # matching the job.plan/job.claim/job.record_exit naming convention.
+        # Task 19 published "job.next" in the contract's operation list; the
+        # result is the whole spec plus a standalone "instruction" string.
         metadata, _ = protocol.public_contract()
         self.assertIn("job.next", metadata["operations"])
-        self.call("job.plan", {"jobs": [spec("build")]})
+        self.call("job.plan", {"jobs": [full_spec("build")]})
         _, instructed = self.call("job.next", {})
         result = instructed["result"]
-        self.assertEqual(result.get("job_id"), "build")
-        self.assertIn("instruction", result)
+        self.assertEqual(set(result), schema.JOB_SPEC_KEYS | {"instruction"})
+        self.assertEqual({key: result[key] for key in schema.JOB_SPEC_KEYS},
+                         full_spec("build"))
+        self.assertIn("build", result["instruction"])
+        self.assertIn("builder", result["instruction"])
 
 
 # -- finding 6: job specs must require source/resource digests and perms ----
 
 
 class JobSpecSchemaTest(unittest.TestCase):
-    def test_accepts_a_spec_declaring_source_resource_digest_and_permitted_operations(self) -> None:
-        schema._job(row(full_spec("build")))
+    def caller(self, job_spec: dict) -> None:
+        """Validate a spec the way protocol.py validates a caller's job.plan payload."""
+        protocol.validate_payload("job.plan", {"jobs": [job_spec]})
 
-    def test_rejects_a_spec_missing_source_digest(self) -> None:
+    def reject_missing(self, key: str) -> None:
+        """The complete spec is accepted; the same spec without `key` is rejected."""
         job_spec = full_spec("build")
-        del job_spec["source_digest"]
+        self.caller(job_spec)
+        del job_spec[key]
+        self.assertEqual(schema.JOB_SPEC_KEYS - set(job_spec), {key})
         with self.assertRaises(schema.SchemaError):
-            schema._job(row(job_spec))
+            self.caller(job_spec)
 
-    def test_rejects_a_spec_missing_resource_digest(self) -> None:
-        job_spec = full_spec("build")
-        del job_spec["resource_digest"]
-        with self.assertRaises(schema.SchemaError):
-            schema._job(row(job_spec))
+    def test_the_caller_path_requires_the_metadata_a_stored_row_may_omit(self) -> None:
+        # Task 19 published this asymmetry: a caller spec is validated against
+        # schema.JOB_SPEC_KEYS, a stored row only against _JOB_SPEC_REQUIRED,
+        # so a row written before the metadata existed still loads.
+        self.assertEqual(schema.JOB_SPEC_KEYS - schema._JOB_SPEC_REQUIRED, METADATA_KEYS)
+        complete = full_spec("build")
+        self.assertEqual(set(complete), schema.JOB_SPEC_KEYS)
+        legacy = {key: value for key, value in complete.items()
+                  if key not in METADATA_KEYS}
 
-    def test_rejects_a_spec_missing_permitted_operations(self) -> None:
-        job_spec = full_spec("build")
-        del job_spec["permitted_operations"]
+        self.caller(complete)
+        schema._job(row(complete))
+        schema._job(row(legacy))
         with self.assertRaises(schema.SchemaError):
-            schema._job(row(job_spec))
+            self.caller(legacy)
+
+    def test_the_caller_path_rejects_a_spec_missing_source_digest(self) -> None:
+        self.reject_missing("source_digest")
+
+    def test_the_caller_path_rejects_a_spec_missing_resource_digest(self) -> None:
+        self.reject_missing("resource_digest")
+
+    def test_the_caller_path_rejects_a_spec_missing_permitted_operations(self) -> None:
+        self.reject_missing("permitted_operations")
 
 
 # -- finding 7: owner.recover must not be blocked by a nonempty job plan ----
@@ -129,7 +166,7 @@ class RecoverWithPlannedJobsTest(OwnerCLITest):
 
     def test_owner_recover_succeeds_with_a_nonempty_job_plan(self) -> None:
         plan_request = self.request(self.operator, "job.plan", "plan-1",
-                                    {"jobs": [spec("build")]})
+                                    {"jobs": [full_spec("build")]})
         planned = self.response(self.apply(plan_request, self.operator),
                                 revision=plan_request["expected_revision"] + 1)
         self.assertEqual(planned["result"], {"job_count": 1})
@@ -139,7 +176,7 @@ class RecoverWithPlannedJobsTest(OwnerCLITest):
                                   revision=recover_request["expected_revision"] + 1)
         self.assertTrue(recovered["ok"])
         self.assertIsNone(self.state()["owner"])
-        self.assertEqual(self.state()["workflow"]["jobs"][0]["spec"]["job_id"], "build")
+        self.assertEqual(self.state()["workflow"]["jobs"][0]["spec"], full_spec("build"))
 
     def test_owner_recover_succeeds_with_no_planned_jobs(self) -> None:
         recover_request = self.request(self.operator, "owner.recover", "recover-1",

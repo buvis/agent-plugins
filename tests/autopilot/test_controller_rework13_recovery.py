@@ -65,9 +65,16 @@ def test_apply_unlocked_recovers_the_original_result_after_a_crash_before_the_re
         # The saga's own commits are durable (its last transaction advanced the
         # revision); nothing cached a receipt for this request, simulating a
         # crash right after that commit and before protocol.record_receipt ran.
-        retried = protocol.apply_unlocked(stall_request, layout, store)
+        # The retry is therefore stale, and task 19 admits a stale saga request
+        # only as a proven replay (contract rule C5.1). The admission comes
+        # from the production predicate apply_locked uses, not from the test:
+        # this fixture's synthetic actor descriptor has no credential file, so
+        # protocol.apply cannot authenticate it.
+        admitted = protocol.proven_replay(stall_request, store.read(), layout)
+        assert admitted is True
+        retried = protocol.apply_unlocked(stall_request, layout, store, replay=admitted)
     assert retried["ok"] is True
-    assert retried["result"] == committed
+    assert retried["result"] == {**committed, "replayed": True}
 
 
 # -- finding 10: an admitted stall/park/defer must recheck revision/actor ---
@@ -109,8 +116,8 @@ def test_second_consecutive_park_persists_a_pause_that_blocks_prd_enter(tmp_path
     second = files.park(store, project_root=root, prd="00003-c.md", site="s2", detail="d2")
     assert second.systemic_halt is True
 
-    # AMBIGUITY: the PRD names no field for this pause beyond its "site"; a
-    # top-level `workflow.pause` object is assumed.
+    # Task 19 published the pause as the top-level `workflow.pause` object
+    # (schema._WORKFLOW_ALLOWED admits "pause"), carrying its own site.
     paused = store.read()["workflow"].get("pause")
     assert paused is not None and paused.get("site") == "systemic_park"
 
@@ -157,15 +164,21 @@ class TaskFinishLeaseEpochTest(OwnerCLITest):
         request = self.request(self.operator, "task.finish",
                                f"finish-{self.state()['revision']}",
                                {"id": "t1", "outcome": "completed"})
-        # AMBIGUITY: the PRD names no error code for this rejection;
-        # "rejected_evidence" is assumed, matching tasks.py's other guards.
+        # tasks.py raises ProtocolError("rejected_evidence") for this guard, as
+        # it does for its other guards; reject_unchanged asserts that code and
+        # that the rejection left the private evidence untouched.
         self.reject_unchanged(request, self.operator, "rejected_evidence")
 
     def test_finish_succeeds_for_a_task_started_and_finished_in_the_same_epoch(self) -> None:
         self.call("task.replace", {"tasks": [
             {"id": "t2", "subject": "build", "status": "pending", "depends_on": []}],
             "allow_expansion": False})
-        self.call("task.start", {"id": "t2"})
+        started, _ = self.call("task.start", {"id": "t2"})
+        # task.start persists the authorizing epoch as the row's start_epoch;
+        # that durable binding is what task.finish checks.
+        row = self.state()["workflow"]["tasks"][0]
+        self.assertEqual(row["status"], "in_progress")
+        self.assertEqual(row["start_epoch"], started["lease_epoch"])
         _, finished = self.call("task.finish", {"id": "t2", "outcome": "completed"})
         self.assertEqual(finished["result"]["status"], "completed")
 
