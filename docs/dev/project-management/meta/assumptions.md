@@ -10,3 +10,23 @@
 - (Ivan) The six paths added to the AP00018 v2 successor receipt's `paths` list are the complete delta; confirmed against the regenerated map's controller rows and the controller directory listing rather than trusting the task's enumeration alone.
 - (Ivan) Keeping each receipt task's `passed` count unchanged is correct because the fresh runs returned the same numbers (89/71/48/79); only the `duration_seconds` values differ.
 - (Ivan) The two pre-commit `test_package.py` failures were out of scope to force green in the work tree, since `TargetPackageTest.setUpClass` builds from `git archive HEAD` and the only fix is the orchestrator's commit; `plugins/` and the frozen inventory were left untouched.
+
+## 17: [D2] controller state package - entry metadata, start evidence, job metadata, saga replay, park pause (review cycle 2)
+
+- (Tess) `plan_expansion` and `default_model` values are captured verbatim, so the tests use `allow`/`deny` and `opus`/`sonnet` literals; an implementation that validates an enum would need them changed.
+- (Tess) `source_digest` is `sha256(canonical(stored task row))` including the row's `attempts: []` key, with `canonical` as `controller_cli_support.canonical`.
+- (Tess) Derived `job_id` naming is unpinned, so derived-plan tests key on digests and counts, never on job ids.
+- (Tess) `job.plan` must still derive specs when `work.phase` is `review`, which is what proves the requirements are phase-dependent.
+- (Tess) `workflow.pause` is read tolerantly (`workflow.get("pause")`), so an unpaused workflow may omit the key or hold `None`.
+- (Tess) `resume_target`'s paused answer is pinned only by containing "reconcil", the site and the PRD name, plus differing from the unpaused answer.
+- (Tess) The unreadable-PRD case uses `chmod 0o000`, which assumes the suite does not run as root.
+- (Tess) `A8`'s `prd_digest` is the lowercase sha256 hex of the PRD file's raw bytes.
+- (Tess) `files.park` performs every state write through `store.transaction`, so wrapping the store is a faithful crash injection for the pause-atomicity test.
+- (Ivan) `replayed: True` for a proven replay is a dispatcher-level fact (a `PROVEN_REPLAY` sentinel from `apply_locked` plus `apply_unlocked(replay=...)`), chosen so the pre-existing direct-`apply_unlocked` assertion in `test_controller_rework13_recovery.py` keeps its original-result semantics.
+- (Ivan) A derived `job.plan` with no active `work` raises `rejected_evidence`, because neither the requirements nor the resource digest can be derived without an active PRD.
+- (Ivan) `policy.job_requirements` raises `KeyError` for a phase other than `build`/`review` (closed vocabulary), and an unknown tier string falls back to `effort: "medium"`.
+- (Ivan) A final-location byte mismatch after the verified rename raises `files.RecoveryRequiredError`; the amendment mandates the check but names no public code and no test exercises it.
+- (Ivan) `start_commit` is whatever `git rev-parse HEAD` prints, unfiltered, so a sha256 repository would fail schema validation at commit time rather than record `None`.
+- (Ivan) `_head_commit` uses a 30 s timeout, mirroring `lifecycle.evaluate`.
+- (Ivan) The operation-to-ledger-kind map for the replay admission lives inline in `protocol.proven_replay`, since `files.py` speaks in saga kinds.
+- (Ivan) `recorded_request` reads `payload["prd"]` directly and `site`/`detail`/`record` with `.get`, relying on `validate_saga_payload` having already closed the payload shape.
