@@ -458,6 +458,11 @@ class WorkflowReceiptResultDispatchTest(OwnerCLITest):
                                               "attempts": 1})
         self.call("phase.handoff", {"phase": "build", "next_phase": "review",
                                     "outcome": "tasks_done"})
+        # Depends on the review->done `converged` bypass that still accepts a
+        # convergence claim with no accepted evidence. AP 00020 closes it, and
+        # test_controller_rework13_lifecycle.py::ReviewAcceptanceDispatchTest
+        # pins it as xfail; when that xfail starts passing, this handoff needs a
+        # real review acceptance before `done`.
         request, response = self.call("phase.handoff", {"phase": "review", "next_phase": "done",
                                                          "outcome": "converged"})
         self.assertEqual(response["result"], {"phase": "done", "next_phase": "done"})
