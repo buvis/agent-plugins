@@ -8,13 +8,14 @@ import unittest
 from collections.abc import Callable
 from pathlib import Path
 
+from controller_owner_support import OwnerCLITest
 from controller_test_support import WORKFLOW, frozen_state
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTROLLER = ROOT / "plugins" / "autopilot" / "controller"
 sys.path.insert(0, str(CONTROLLER))
 
-from autopilot_state import schema
+from autopilot_state import files, schema
 
 DEFAULT_WORKFLOW = {"batch": None, "work": None, "tasks": [],
                     "review": {"cap": 2}, "recovery": None, "jobs": []}
@@ -325,6 +326,138 @@ class WorkflowReceiptResultTest(unittest.TestCase):
             with self.subTest(result=result):
                 with self.assertRaises(schema.SchemaError):
                     schema.validate_state(state_with_result(result))
+
+
+# -- protocol.apply end to end: every WORKFLOW_RESULTS operation, for real --------
+
+PRD_ENTER_COMPLETE = "00011-complete.md"
+PRD_DEFER_PARK = "00012-defer-park.md"
+PRD_STALL = "00013-stall.md"
+BUCKETS = ("backlog", "wip", "hold", "done")
+
+CARD_SIZED_FRONTMATTER = {"design": "skip", "named_paths": ["src/app/render.py"],
+                          "production_paths": ["src/app/render.py"], "plan_cards": 1}
+
+
+def job_spec(job_id: str) -> dict:
+    return {"job_id": job_id, "role": "builder", "depends_on": [],
+            "input_digests": ["a" * 64], "isolation": "worktree", "tier": "opus",
+            "effort": "high"}
+
+
+# One corruption per result field name; the same field name means the same
+# schema check (_identity, _text, _counter, ...) in every operation's shape.
+RESULT_FIELD_CORRUPTIONS = {
+    "prd": "", "source": "hold", "phase": "", "next_phase": None,
+    "operation_id": "", "kind": "complete", "replayed": 0, "systemic_halt": 0,
+    "task_count": -1, "job_count": True, "task_id": "", "status": "done",
+    "attempts": "2", "lane": "turbo", "reason": "", "lane_reason": None,
+    "job_id": "", "claimed_by": None, "claim_epoch": -1,
+}
+
+
+class WorkflowReceiptResultDispatchTest(OwnerCLITest):
+    """Every WORKFLOW_RESULTS operation, dispatched for real, rejects a corrupted result.
+
+    Each operation runs through the real protocol/reducer path (apply_locked or
+    apply_unlocked's saga), with the minimal realistic precondition it needs, so
+    the receipt checked below is one the controller actually produced.
+    """
+
+    def setUp(self) -> None:
+        super().setUp()
+        for name in BUCKETS:
+            (self.root / files.PRD_ROOT / name).mkdir(parents=True)
+        for prd in (PRD_ENTER_COMPLETE, PRD_DEFER_PARK, PRD_STALL):
+            (self.root / files.PRD_ROOT / "backlog" / prd).write_text(f"---\n---\n# {prd}\n")
+        _, opened, self.operator = self.bootstrap()
+        self.actor_id = opened["result"]["actor_id"]
+
+    def call(self, name: str, payload: dict) -> tuple[dict, dict]:
+        request = self.request(self.operator, name, f"{name}-{self.state()['revision']}",
+                               payload)
+        response = self.response(self.apply(request, self.operator))
+        state = self.state()
+        self.assertEqual(response["revision"], state["revision"])
+        self.assertEqual(state["receipts"][request["request_id"]]["response"], response)
+        return request, response
+
+    def assert_rejects_corrupted_result(self, operation: str, request_id: str,
+                                        result: dict) -> None:
+        for field in result:
+            corrupted = copy.deepcopy(self.state())
+            corrupted["receipts"][request_id]["response"]["result"][field] = \
+                RESULT_FIELD_CORRUPTIONS[field]
+            with self.subTest(operation=operation, field=field):
+                with self.assertRaises(schema.SchemaError):
+                    schema.validate_state(corrupted)
+
+    def _dispatch_lane_and_jobs(self) -> list[tuple[str, str, dict]]:
+        checks = []
+        request, response = self.call("lane.route", {"prd_frontmatter": CARD_SIZED_FRONTMATTER})
+        self.assertEqual(response["result"], {"lane": "fast-track", "reason": "card_sized"})
+        checks.append(("lane.route", request["request_id"], response["result"]))
+        request, response = self.call("job.plan", {"jobs": [job_spec("build")]})
+        self.assertEqual(response["result"], {"job_count": 1})
+        checks.append(("job.plan", request["request_id"], response["result"]))
+        request, response = self.call("job.claim", {"job_id": "build"})
+        self.assertEqual(response["result"], {"job_id": "build", "claimed_by": self.actor_id,
+                                              "claim_epoch": 0})
+        checks.append(("job.claim", request["request_id"], response["result"]))
+        return checks
+
+    def _dispatch_prd_lifecycle(self) -> list[tuple[str, str, dict]]:
+        checks = []
+        request, response = self.call("prd.enter", {"prds": [PRD_ENTER_COMPLETE]})
+        self.assertEqual(response["result"], {"prd": PRD_ENTER_COMPLETE, "source": "backlog"})
+        checks.append(("prd.enter", request["request_id"], response["result"]))
+        request, response = self.call("policy.bind", {"lane": "full", "reason": "design"})
+        self.assertEqual(response["result"], {"lane": "full", "lane_reason": "design"})
+        checks.append(("policy.bind", request["request_id"], response["result"]))
+        plan = [{"id": "a", "subject": "work", "status": "pending", "depends_on": []}]
+        request, response = self.call("task.replace", {"tasks": plan, "allow_expansion": False})
+        self.assertEqual(response["result"], {"task_count": 1})
+        checks.append(("task.replace", request["request_id"], response["result"]))
+        request, response = self.call("task.attempt", {"id": "a", "implementor": "devon",
+                                                        "outcome": "completed"})
+        self.assertEqual(response["result"], {"task_id": "a", "status": "pending",
+                                              "attempts": 1})
+        checks.append(("task.attempt", request["request_id"], response["result"]))
+        self.call("phase.handoff", {"phase": "build", "next_phase": "review",
+                                    "outcome": "tasks_done"})
+        request, response = self.call("phase.handoff", {"phase": "review", "next_phase": "done",
+                                                         "outcome": "converged"})
+        self.assertEqual(response["result"], {"phase": "done", "next_phase": "done"})
+        checks.append(("phase.handoff", request["request_id"], response["result"]))
+        request, response = self.call("prd.complete", {})
+        self.assertEqual(response["result"], {"prd": PRD_ENTER_COMPLETE})
+        checks.append(("prd.complete", request["request_id"], response["result"]))
+        return checks
+
+    def _dispatch_defer_park_and_stall(self) -> list[tuple[str, str, dict]]:
+        checks = []
+        self.call("prd.enter", {"prds": [PRD_DEFER_PARK]})
+        request, response = self.call("prd.defer", {"prd": PRD_DEFER_PARK,
+                                                     "record": {"type": "deferred_decision"}})
+        self.assertEqual(response["result"]["kind"], "defer")
+        checks.append(("prd.defer", request["request_id"], response["result"]))
+        request, response = self.call("prd.park", {"prd": PRD_DEFER_PARK, "site": "wrapper_died",
+                                                    "detail": "session ended"})
+        self.assertEqual(response["result"]["kind"], "park")
+        checks.append(("prd.park", request["request_id"], response["result"]))
+        self.call("prd.enter", {"prds": [PRD_STALL]})
+        request, response = self.call("prd.stall", {"prd": PRD_STALL, "site": "cap_regression",
+                                                     "detail": "review cap hit"})
+        self.assertEqual(response["result"]["kind"], "stall")
+        checks.append(("prd.stall", request["request_id"], response["result"]))
+        return checks
+
+    def test_dispatches_all_twelve_operations_and_rejects_each_corrupted_result(self) -> None:
+        checks = (self._dispatch_lane_and_jobs() + self._dispatch_prd_lifecycle()
+                 + self._dispatch_defer_park_and_stall())
+        self.assertEqual({operation for operation, _, _ in checks}, set(WORKFLOW_RESULTS))
+        for operation, request_id, result in checks:
+            self.assert_rejects_corrupted_result(operation, request_id, result)
 
 
 if __name__ == "__main__":
