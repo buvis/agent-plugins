@@ -1560,3 +1560,11 @@
 {"id":"f75c07a4","kind":"deslop","task":"12","queued_at":1795564535,"prompt_bytes":6887}
 {"id":"f75c07a4","ended_at":1795564620,"elapsed_s":85,"outcome":"ok","detail":null}
 {"kind":"handoff","site":"build","edge":"leave","at":1795567341,"phase":"review","prd":"00019-autopilot-controller-lifecycle-v1.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1795567382,"phase":"review","prd":"00019-autopilot-controller-lifecycle-v1.md"}
+{"id":"a2b22e5e","kind":"bob","task":"review-00019-c1","queued_at":1795568290,"prompt_bytes":13420}
+{"id":"844338bc","kind":"carl","task":"review-00019-c1","queued_at":1795568290,"prompt_bytes":6603}
+{"id":"a2b22e5e","ended_at":1795568740,"elapsed_s":450,"outcome":"ok","detail":null}
+{"id":"844338bc","ended_at":1795568743,"elapsed_s":453,"outcome":"error","detail":"format-invalid"}
+{"id":"a2b22e5e","ended_at":1795569397,"elapsed_s":1107,"outcome":"ok","detail":null}
+{"id":"844338bc","ended_at":1795569397,"elapsed_s":1107,"outcome":"error","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1795569432,"phase":"review","prd":"00019-autopilot-controller-lifecycle-v1.md"}

@@ -1,0 +1,234 @@
+[
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Simplification: lifecycle.py reaches into files.py's private helpers (_Move, _open_directory, _artifact, _rename, _verify_moved, _identity, _utc_now, _require_basename). _enter_backlog builds a _Move whose \"wip\" field holds backlog/, with a comment to explain the mismatch. The design says no module other than files.py touches the filesystem. Move the backlog-to-wip move into a public files.py function, or rename _Move's fields to source/destination.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:347",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Simplification: the saga reducers enter, handoff and complete build a full protocol.response (with a revision, and a store.read() in complete). run_saga then keeps only [\"result\"], and record_receipt rebuilds the response. Return the bare result dict. This also removes lifecycle._replay (lines 274-290), a third copy of the receipt and actor-binding check (the others are owner.py and protocol.authorize). authorize already returns a cached response before apply_unlocked runs, so the second lookup is redundant in real dispatch.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:274",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Simplification: the \"rejected_evidence\" ProtocolError is built through four separate lazy `from . import protocol` helpers: tasks._rejected, jobs._reject, lifecycle._rejected and policy.bind. The lazy imports exist only to dodge a cycle with protocol.py. Put the exception (or a small ReducerRejected) in a leaf module.",
+    "file": "plugins/autopilot/controller/autopilot_state/tasks.py:26",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Simplification: tasks._is_identity and tasks._check_record re-implement schema._identity and schema._task. validate_payload already runs schema._task on every task.replace item before the reducer runs. Reuse the schema validators, or document why tasks.py stays pure.",
+    "file": "plugins/autopilot/controller/autopilot_state/tasks.py:22",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Simplification: _rework and _to_review have identical bodies. They are copied from OVCAQ, but a single effect would do.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:86",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Saga receipts are not atomic with the saga. record_receipt commits in a separate transaction after the saga's final marker clear. A crash in between leaves a completed saga with no receipt. A retry with the old request_id and expected_revision gets revision_conflict. A retry with a fresh revision gets rejected_evidence (for example, work is already None on stall). The caller cannot tell the operation succeeded. No test covers a protocol-level crash between the saga and the receipt, or a replay of a half-run saga through protocol.apply. SagaProtocolTest only replays a finished request.",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:373",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "apply_unlocked maps ValueError, KeyError, TypeError and OSError to \"recovery_required\". SchemaError is a ValueError, so a schema failure at commit and a programming defect both surface as a recovery state, with no log. The cause chain is kept, but the error code misleads callers. Narrow the tuple, or let unexpected exceptions propagate.",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:413",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Test gaps. resume_target has no direct test; the integration test hits only two of its branches, and the recovery-marker, review, skip-review, done and unknown-phase branches are untested. prd.enter lacks tests for a candidate absent from both buckets, for an already-active PRD, and for an active recovery marker.",
+    "file": "tests/autopilot/test_controller_lifecycle.py:1",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Duplicate static check: test_jobs_module_imports_no_spawn in the integration file repeats the AST walk and the SPAWN_MODULES constants of test_no_controller_spawn. Share one helper. The guard also covers only jobs.py. lifecycle.py imports subprocess for evaluate (a /bin/sh -c shell from PRD frontmatter), and the CHANGELOG says \"The controller never launches processes\". That is by design (library only, not reachable through protocol), but the CHANGELOG wording should say so.",
+    "file": "tests/autopilot/test_controller_integration.py:3881",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "There is no audited repair operation, which the spec lists under Lifecycle behavior. The only \"repair\" in the package is internal store-file repair in `store.py`.",
+    "file": "N/A",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The empty-queue versus ineligible distinction is not reachable through the protocol. `select_eligible` runs the PRD eligibility commands, but only tests call it. `prd.enter` selects among caller-supplied names and never evaluates eligibility, so an ineligible backlog PRD can be entered. Drained and ineligible are also indistinguishable by `source`: both return `\"drained\"`, and only `skipped` differs.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:245",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`job.claim` ignores `depends_on`. A job can be claimed and exited before its dependencies have exit facts.",
+    "file": "plugins/autopilot/controller/autopilot_state/jobs.py:55",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Jobs are not scoped to a PRD or epoch. `reset_prd_fields` and `_bookkeeping` keep `workflow.jobs`, so job ids can never be reused across PRDs. The list also grows toward the state byte limit. The PRD says \"one valid claim per job/epoch\", but the code allows one claim per job ever.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:56",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Scope creep. The new protocol operations `lane.route` and `policy.bind` (lane classification ported from claude-autopilot `cli/lane.py`, with a SECURITY_RE table) are not in the PRD's operation list.",
+    "file": "plugins/autopilot/controller/autopilot_state/policy.py:104",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Jobs can store caller-supplied plans, but no public operation returns structured next-job instructions from workflow state. Add the required read-only projection with dependency readiness, resource digests, and permitted operations.",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:502",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Stall and park require `prd`, `site`, and `detail` where the design specifies `reason` and `site`. Defer also requires an extra `prd`. Align the dispatcher, schema, and fixtures with the specified payloads and resolve the active PRD from state.",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:91",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The public response schema still covers only core results, and the request schema leaves task outcomes, attempt implementors, and PRD array entries unconstrained. Add the missing shapes and validate actual dispatcher responses and malformed requests against them.",
+    "file": "plugins/autopilot/contracts/controller/workflow-v1.json:5",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Bucket and ledger checks protect the final path component while following intermediate symlinks. This breaks project containment when an intermediate directory resolves outside the selected root. Open and verify the full directory chain and add containment tests.",
+    "file": "plugins/autopilot/controller/autopilot_state/files.py:187",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Eligibility sends repository-controlled text to a shell with the controller process's access. A timeout and a read-only convention do not enforce read-only behavior. Require a trusted source and run the declared shell check with enforced read-only access.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:222",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "A PRD read or decode failure is treated as missing eligibility metadata, so the unreadable candidate can be selected. Surface the failure in `skipped` and continue to the next candidate.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:245",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The provenance refresh rewrites the AP00018 and AP00014 receipts and attributes the six new files to AP00018. Preserve the historical receipts and record the AP00019 delivery in a new successor.",
+    "file": "tools/autopilot/source-map.json:285050",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The integration suite duplicates the jobs module's static no-spawn assertion. Keep the static check in one place and use the integration test to cover dispatch behavior.",
+    "file": "tests/autopilot/test_controller_integration.py:252",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The workflow schema and fixtures exceed the 800-line limit. Separate the operation definitions and fixture groups while preserving the installed contract and its digest checks.",
+    "file": "plugins/autopilot/contracts/controller/workflow-v1.json:1012",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "Formatting nit: `_, bound =self.call(` is missing a space.",
+    "file": "tests/autopilot/test_controller_tasks.py:325",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "The characterization report is at docs/dev/project-management/notes/00019-characterization.md. Task 1 named reports/00019-characterization.md. It also lists frontmatter's apply_to_store as \"adapted\", but no such function exists in frontmatter.py.",
+    "file": "docs/dev/project-management/notes/00019-characterization.md:224",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "contracts/controller/workflow-v1.json is now 1461 lines and fixtures-v1.json is 3203. These are data contracts, and both were already over 800 before this diff. Noted only.",
+    "file": "plugins/autopilot/contracts/controller/workflow-v1.json:1",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "`evaluate` runs PRD-declared shell commands through `/bin/sh -c` with only a timeout and no sandbox. The code documents this as intended, but it is an execution surface the PRD does not mention.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:229",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "The recoverable bucket moves are sound. Pre-intent bucket checks, identity-verified renames with fsync, wip-first entry and complete-once recovery are present and tested in `tests/autopilot/test_controller_recovery.py`, and `tests/autopilot/test_controller_lifecycle.py` covers entry.",
+    "file": "plugins/autopilot/controller/autopilot_state/files.py:470",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 1,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "Stale job claims still lack reconciliation after an owner interruption. The design explicitly defers wiring `reconciled_job_ids` into owner recovery.",
+    "file": "N/A",
+    "reason": "single-voice"
+  }
+]
