@@ -110,7 +110,11 @@ class ReviewAcceptanceDispatchTest(OwnerCLITest):
     def call(self, name: str, payload: dict) -> dict:
         request = self.request(self.operator, name, f"{name}-{self.state()['revision']}",
                                payload)
-        return self.response(self.apply(request, self.operator))
+        # Every setup call must succeed, or the xfail below would absorb a setup
+        # failure and stop proving anything about the bypass.
+        response = self.response(self.apply(request, self.operator))
+        self.assertTrue(response["ok"], f"{name} failed during setup: {response}")
+        return response
 
     def reach_review(self) -> None:
         self.call("prd.enter", {"prds": [PRD]})
