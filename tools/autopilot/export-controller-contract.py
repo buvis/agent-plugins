@@ -29,8 +29,35 @@ FIXTURES = Path("contracts") / "controller" / "fixtures-v1.json"
 # authoritative definition this must track is
 # plugins/autopilot/controller/autopilot_state/protocol.py's
 # OWNER_OPERATIONS / public_contract().
-OPERATIONS = ["workflow.open", "owner.acquire", "owner.release", "owner.recover"]
-CAPABILITIES = ["workflow.core.v1"]
+OPERATIONS = [
+    "workflow.open",
+    "owner.acquire",
+    "owner.release",
+    "owner.recover",
+    "prd.enter",
+    "phase.handoff",
+    "prd.stall",
+    "prd.park",
+    "prd.defer",
+    "prd.complete",
+    "task.replace",
+    "task.start",
+    "task.finish",
+    "task.attempt",
+    "lane.route",
+    "policy.bind",
+    "job.plan",
+    "job.claim",
+    "job.record_exit",
+    "job.next",
+]
+CAPABILITIES = [
+    "workflow.core.v1",
+    "workflow.lifecycle.v1",
+    "workflow.tasks.v1",
+    "workflow.policy.v1",
+    "workflow.jobs.v1",
+]
 LIMIT = 16777216
 
 
