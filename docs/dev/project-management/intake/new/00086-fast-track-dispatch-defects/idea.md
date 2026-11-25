@@ -30,6 +30,23 @@ The installed 0.10.0 text makes Bob read the context and the diff from files. Co
 
 One gap to consider while specifying: the lane allows a Claude substitute for codex only on `codex-run.sh` exit 3. A codex run that exits 0 with every `R{n}` set to fail and one "cannot verify" line is the refusal shape; the text does not name it, and the 00024 driver substituted Claude on it. That lost the non-Anthropic lens without need. A sentence that sends this shape to the one retry, with the inlined file, closes it.
 
+## Seen again 2026-11-25 (gems PRD 00177, installed 0.10.0)
+
+Both defects recurred. A fix attempt in this repo stopped: `codex-run.sh` and `fast_track_plan.py` are not ported here (they exist only in the frozen `buvis/claude-autopilot` at source commit `e960ef1`), and `SKILL.md` and `lane-dispatch.md` are pinned by `tools/autopilot/source-map.json` behind the unavailable gate. The installed 0.10.0 cache is a claude-autopilot build from 2026-10-18.
+
+Defect 1, new facts:
+
+- `review-fanout.workflow.js` is not a plugin asset. It lives only at `~/.claude/workflows/review-fanout.workflow.js` (dotfiles), beside `fast-track.workflow.js`.
+- `fast_track_plan.py lanes` only takes the `--workflow-available` flag; the skill text sets it from the file check. With `name: review-fanout` the tool resolves that same file, so the file check stays correct and the script needs no change.
+
+Defect 3 (new): codex exits 0 with no review.
+
+- Root cause, reproduced 2026-11-25 inside `~/bin/run-agent`: codex 0.171.0 with `--sandbox read-only` wraps each shell call in `sandbox-exec`. Inside the operator's seatbelt every call fails with `sandbox-exec: sandbox_apply: Operation not permitted`, exit 71. macOS does not let a sandboxed process apply a second Seatbelt profile. Codex itself exits 0, and `codex-run.sh` passes that 0 through. The lane recorded `ok` while codex had read nothing; the driver then used a Claude substitute.
+- Probe that reproduces it without a codex call: `/usr/bin/sandbox-exec -p "(version 1)(allow default)" /usr/bin/true` exits 71 inside the seatbelt.
+- This repo's `lane-dispatch.md` already inlines Bob's context and diff, so a codex review needs no shell read. The missing piece is the silent exit 0.
+- Proposed change for the ported `codex-run.sh`: in `run_codex`, when the sandbox is not bypassed (`-y` not set) and `uname` is Darwin, run the probe above first. On failure print `ERROR: codex sandbox cannot start inside the parent Seatbelt sandbox (sandbox_apply: Operation not permitted)` to stderr and exit 3, the existing "codex unavailable" code, unless the prompt carries the `INLINED BELOW` marker of retry-policy.md (an inlined prompt needs no shell read). Also, after a zero exit, exit 4 when the output file contains `sandbox_apply: Operation not permitted`. Add a `test_codex_run.sh` case with a fake `sandbox-exec` that exits 71 and a fake `codex` that exits 0, and assert a non-zero exit.
+- Machine-side alternative (not a plugin change): none in the seatbelt profile, because nested Seatbelt is refused by the kernel. Only `-y` (`--dangerously-bypass-approvals-and-sandbox`, which relies on the outer seatbelt) or inlined prompts avoid it.
+
 ## Evidence
 
 - claude-agoge, `docs/dev/project-management/reviews/00024-snapshot-slow-many-untracked-files-v1-review-1.md` (Alice and Bob sections) and `docs/dev/project-management/reviews/00024-snapshot-slow-many-untracked-files-v1-codex-supplement.md`.
