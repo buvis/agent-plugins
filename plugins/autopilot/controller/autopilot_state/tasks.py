@@ -86,8 +86,9 @@ def finish(tasks: list[dict], task_id: str, outcome: str,
           lease_epoch: int | None = None) -> list[dict]:
     """Close a started task as `completed` or `aborted`.
 
-    A task started under an earlier lease epoch than the one finishing it is
-    rejected: durable start evidence must stay scoped to its own lease epoch.
+    A lease epoch may only finish a task whose row carries the `start_epoch`
+    that epoch recorded: durable start evidence must exist and stay scoped to
+    its own lease epoch.
     """
     if outcome not in FINISH_OUTCOMES:
         raise _rejected()
@@ -95,9 +96,7 @@ def finish(tasks: list[dict], task_id: str, outcome: str,
     target = tasks[index]
     if target["status"] != "in_progress":
         raise _rejected()
-    started_epoch = target.get("start_epoch")
-    if (lease_epoch is not None and started_epoch is not None
-            and started_epoch != lease_epoch):
+    if lease_epoch is not None and target.get("start_epoch") != lease_epoch:
         raise _rejected()
     return _with_task(tasks, index, status=outcome)
 

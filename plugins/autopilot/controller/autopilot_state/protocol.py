@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import copy
 import dataclasses
-import hashlib
 import json
 import secrets
 from pathlib import Path
@@ -25,7 +24,9 @@ SAGA_OPERATIONS = {"prd.enter", "phase.handoff", "prd.stall", "prd.park", "prd.d
 REDUCER_OPERATIONS = {"task.replace", "task.start", "task.finish", "task.attempt",
                       "lane.route", "policy.bind", "job.plan", "job.claim", "job.record_exit",
                       "job.next"}
-_JOB_DEFAULT_PERMITTED_OPERATIONS = ("read", "write")
+# apply_locked returns this instead of None when it admitted a stale saga
+# request as a proven replay, so apply() can report the replay to the caller.
+PROVEN_REPLAY: dict = {}
 
 
 class ProtocolError(Exception):
@@ -112,26 +113,6 @@ def validate_saga_payload(operation: str, payload: dict) -> None:
             raise schema.SchemaError("invalid record")
 
 
-def _validate_caller_job_spec(spec: object) -> None:
-    """Shape-check a caller-supplied job spec; `reduce_workflow` fills the rest.
-
-    Caller specs may omit `source_digest`/`resource_digest`/`permitted_operations`
-    (derived/enriched specs always carry them) so this stays lighter than
-    `schema._job`, which is the authoritative, fully-required check applied to
-    every stored job row once the commit validates the whole state.
-    """
-    if not isinstance(spec, dict):
-        raise schema.SchemaError("invalid job spec")
-    for key in ("job_id", "role", "depends_on", "input_digests", "isolation", "tier", "effort"):
-        if key not in spec:
-            raise schema.SchemaError(f"job spec missing {key}")
-    schema._identity(spec["job_id"])
-    schema._list(spec["depends_on"], schema._identity)
-    schema._list(spec["input_digests"], schema._digest)
-    for key in ("role", "isolation", "tier", "effort"):
-        schema._text(spec[key])
-
-
 def validate_reducer_payload(operation: str, payload: dict) -> None:
     if operation == "task.replace":
         schema._object(payload, {"tasks", "allow_expansion"})
@@ -164,7 +145,10 @@ def validate_reducer_payload(operation: str, payload: dict) -> None:
         if not isinstance(payload["jobs"], list):
             raise schema.SchemaError("invalid job plan")
         for spec in payload["jobs"]:
-            _validate_caller_job_spec(spec)
+            # A caller spec is closed: every key is required and every value
+            # checked here, so a malformed spec is an invalid_request and never
+            # reaches the state check that validates the committed row.
+            schema._job_spec(spec, required=schema.JOB_SPEC_KEYS)
     elif operation == "job.next":
         schema._object(payload, set())
     elif operation == "job.claim":
@@ -282,12 +266,26 @@ def existing_open(request: dict, actor_file: Path | None, current: dict,
     return completed
 
 
+def proven_replay(request: dict, current: dict, layout: actors.PrivateLayout) -> bool:
+    """True when a stale saga request's own operation is already recorded durably.
+
+    The deferred ledger entry whose `op_id` is this request's id proves the
+    saga committed and only its receipt is missing, so the request is this
+    exact finished operation rather than a stale competitor.
+    """
+    return (request["operation"] in SAGA_OPERATIONS
+            and files.recorded_operation(layout.private, current["workflow_id"],
+                                         request["request_id"]))
+
+
 def authorize(request: dict, actor_file: Path | None, current: dict,
               layout: actors.PrivateLayout) -> dict | None:
     """Return a replayed request's cached response, or None once a fresh one may run.
 
     Shared by every saga and reducer operation; any authenticated, registered
-    actor qualifies. The caller holds the exclusive lock.
+    actor qualifies. The caller holds the exclusive lock. A stale revision is
+    a conflict unless the request is a `proven_replay`, which is admitted so a
+    crash before its receipt can be retried to completion.
     """
     revision = current["revision"]
     receipt = current["receipts"].get(request["request_id"])
@@ -303,14 +301,15 @@ def authorize(request: dict, actor_file: Path | None, current: dict,
         raise ProtocolError("wrong_binding", revision)
     actor_binding(request, descriptor, revision)
     actors.authenticate(actor_file, descriptor, layout)
-    if request["expected_revision"] != revision:
+    if (request["expected_revision"] != revision
+            and not proven_replay(request, current, layout)):
         raise ProtocolError("revision_conflict", revision)
     actors.verify_operator(layout, current)
     actors.admit_staging(layout, [])
     return None
 
 
-def reduce_workflow(request: dict, workflow: dict) -> dict:
+def reduce_workflow(request: dict, workflow: dict, repo_root: str) -> dict:
     """Apply one pure tasks/policy/jobs reducer to `workflow` in place; return its result."""
     operation, payload = request["operation"], request["payload"]
     if operation == "task.replace":
@@ -339,17 +338,17 @@ def reduce_workflow(request: dict, workflow: dict) -> dict:
         workflow["work"].update(bound)
         return bound
     if operation == "job.plan":
-        specs = [_with_job_defaults(spec) for spec in payload["jobs"]] \
-            if payload["jobs"] else _derive_job_specs(workflow)
+        specs = payload["jobs"] or _derive_job_specs(workflow, repo_root)
         workflow["jobs"] = jobs.plan(workflow["jobs"], specs)
         return {"job_count": len(workflow["jobs"])}
     if operation == "job.next":
         row = jobs.next_job(workflow["jobs"])
         if row is None:
             raise ProtocolError("rejected_evidence")
-        job_id = row["spec"]["job_id"]
-        return {"job_id": job_id,
-                "instruction": f"run job {job_id} ({row['spec']['role']})"}
+        spec = row["spec"]
+        # The whole spec, so a fresh session needs nothing else to run the job.
+        return {**spec,
+                "instruction": f"run job {spec['job_id']} ({spec['role']})"}
     if operation == "job.claim":
         workflow["jobs"] = jobs.claim(workflow["jobs"], payload["job_id"],
                                       request["actor_id"], request["lease_epoch"])
@@ -362,32 +361,37 @@ def reduce_workflow(request: dict, workflow: dict) -> dict:
             "claim_epoch": row["claim_epoch"]}
 
 
-def _job_digest(seed: str) -> str:
-    return hashlib.sha256(seed.encode("utf-8")).hexdigest()
+def _resource_digest(prd: str, repo_root: str) -> str:
+    """Attest the resource a derived job may touch: the active PRD in its repository."""
+    try:
+        content = (Path(repo_root) / files.PRD_ROOT / "wip" / prd).read_bytes()
+    except OSError as error:
+        raise ProtocolError("rejected_evidence") from error
+    return actors.digest(actors.canonical(
+        {"repo_root": repo_root, "prd": prd, "prd_digest": actors.digest(content)}))
 
 
-def _with_job_defaults(spec: dict) -> dict:
-    """Fill the digest/permitted-operations fields a caller spec may omit."""
-    filled = dict(spec)
-    filled.setdefault("source_digest", _job_digest(f"source:{spec['job_id']}"))
-    filled.setdefault("resource_digest", _job_digest(f"resource:{spec['job_id']}"))
-    filled.setdefault("permitted_operations", list(_JOB_DEFAULT_PERMITTED_OPERATIONS))
-    return filled
+def _derive_job_specs(workflow: dict, repo_root: str) -> list[dict]:
+    """Derive one job spec per unfinished, not-yet-planned task, in task order.
 
-
-def _derive_job_specs(workflow: dict) -> list[dict]:
-    """Derive one job spec per not-yet-planned task, in task order."""
+    Nothing is invented: each digest attests real content, and the
+    requirements come from the active work through `policy.job_requirements`.
+    """
     planned_ids = {row["spec"]["job_id"] for row in workflow["jobs"]}
-    derived = []
-    for task in workflow["tasks"]:
-        if task["id"] in planned_ids:
-            continue
-        derived.append(_with_job_defaults({
-            "job_id": task["id"], "role": "builder",
-            "depends_on": list(task["depends_on"]), "input_digests": [],
-            "isolation": "worktree", "tier": "opus", "effort": "high",
-        }))
-    return derived
+    scheduled = [task for task in workflow["tasks"]
+                 if task["id"] not in planned_ids
+                 and task["status"] in ("pending", "in_progress")]
+    if not scheduled:
+        return []
+    work = workflow["work"]
+    if work is None:
+        raise ProtocolError("rejected_evidence")
+    requirements = policy.job_requirements(work)
+    resource_digest = _resource_digest(work["prd"], repo_root)
+    return [{"job_id": task["id"], "depends_on": list(task["depends_on"]),
+             "input_digests": [], "resource_digest": resource_digest,
+             "source_digest": actors.digest(actors.canonical(task)),
+             **requirements} for task in scheduled]
 
 
 def apply_reducer(request: dict, actor_file: Path | None, current: dict,
@@ -399,7 +403,7 @@ def apply_reducer(request: dict, actor_file: Path | None, current: dict,
         return cached
     candidate = copy.deepcopy(current)
     try:
-        result = reduce_workflow(request, candidate["workflow"])
+        result = reduce_workflow(request, candidate["workflow"], candidate["repo_root"])
     except policy.InvalidPlan as error:
         raise ProtocolError("rejected_evidence", revision) from error
     except ProtocolError as error:
@@ -464,8 +468,13 @@ def record_receipt(request: dict, descriptor: dict, result: dict,
     return recorded[0]
 
 
-def apply_unlocked(request: dict, layout: actors.PrivateLayout, store: StateStore) -> dict:
-    """Run a saga operation apply_locked admitted, outside StateStore._locked."""
+def apply_unlocked(request: dict, layout: actors.PrivateLayout, store: StateStore,
+                   replay: bool = False) -> dict:
+    """Run a saga operation apply_locked admitted, outside StateStore._locked.
+
+    `replay` says the admission was a `proven_replay`, so the response reports
+    the operation as replayed instead of newly run.
+    """
     revision = request["expected_revision"]
     try:
         layout.verify()
@@ -486,6 +495,8 @@ def apply_unlocked(request: dict, layout: actors.PrivateLayout, store: StateStor
             if stale:
                 raise ProtocolError("revision_conflict", revision) from error
             raise
+        if replay:
+            result = {**result, "replayed": True}
         return record_receipt(request, current["actors"][request["actor_id"]], result,
                               layout, store)
     except RevisionConflictError as error:
@@ -526,8 +537,12 @@ def apply_locked(request: dict, actor_file: Path | None, layout: actors.PrivateL
         if request["operation"] in REDUCER_OPERATIONS and current is not None:
             return apply_reducer(request, actor_file, current, layout, store)
         if request["operation"] in SAGA_OPERATIONS and current is not None:
-            # None admits the request: apply() runs the saga after the lock is released.
-            return authorize(request, actor_file, current, layout)
+            # None admits the request: apply() runs the saga after the lock is
+            # released. authorize only admits a stale one as a proven replay.
+            cached = authorize(request, actor_file, current, layout)
+            if cached is None and request["expected_revision"] != current["revision"]:
+                return PROVEN_REPLAY
+            return cached
         if request["operation"] != "workflow.open":
             raise ProtocolError("missing_capability", revision)
         if current is not None:
@@ -575,8 +590,9 @@ def apply(root: Path, request_file: Path, actor_file: Path | None) -> dict:
             with store._locked(exclusive=True):
                 layout.verify()
                 completed = apply_locked(request, actor_file, layout, store)
-            if completed is None:
-                completed = apply_unlocked(request, layout, store)
+            if completed is None or completed is PROVEN_REPLAY:
+                completed = apply_unlocked(request, layout, store,
+                                           replay=completed is PROVEN_REPLAY)
             return completed
     except ProtocolError as error:
         if error.revision == 0:

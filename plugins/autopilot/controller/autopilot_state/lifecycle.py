@@ -23,13 +23,14 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import actors, files, schema
-from .frontmatter import command_for
+from .frontmatter import command_for, declarations, parse
 from .store import StateStore
 
 type Workflow = dict
 type TransitionEffect = Callable[[Workflow], Workflow]
 
 _SEQUENCE_RE = re.compile(r"^(\d{5})-")
+_UNFINISHED = ("pending", "in_progress")
 
 
 @dataclass(frozen=True)
@@ -126,6 +127,10 @@ def apply(workflow: Workflow, outcome: str) -> Workflow:
     row = TRANSITIONS.get((phase, outcome))
     if row is None:
         raise UnknownTransition(f"no transition from phase {phase!r} on outcome {outcome!r}")
+    if outcome == "tasks_done" and any(
+            task["status"] in _UNFINISHED for task in workflow["tasks"]):
+        # `drained` is a batch-level outcome and stays unaffected by this gate.
+        raise UnknownTransition("tasks_done requires every task row to be finished")
     return row.effect(workflow)
 
 
@@ -186,6 +191,12 @@ def select(wip: Iterable[str], backlog: Iterable[str]) -> tuple[str | None, str]
 def resume_target(state: dict) -> str:
     """Describe the next action from committed state only."""
     workflow = state["workflow"]
+    pause = workflow.get("pause")
+    if pause is not None:
+        # The pause is terminal: no controller operation clears it, so the
+        # operator reconciles the named site instead of resuming a phase.
+        return (f"reconcile the {pause['site']} pause with the operator: "
+                f"{pause['detail']}")
     marker = workflow["recovery"]
     if marker is not None:
         try:
@@ -326,21 +337,33 @@ def _require_in_wip(buckets: Path, prd: str) -> None:
         raise files.BucketError(f"PRD {prd} left wip before its entry committed")
 
 
-def _frontmatter_work_fields(buckets: Path, source: str, prd: str) -> dict:
-    """Parse the entering PRD's frontmatter into the fields `work` persists.
+def _head_commit(repo_root: str) -> str | None:
+    """The HEAD commit git reports in `repo_root`, or None when git cannot answer.
 
-    Only `rework_cap` has a declared home on `workflow.work`; the PRD names no
-    field for the parser's other effective values.
+    Only git answers: a packed-refs repository, a `.git` file worktree and a
+    detached HEAD all report the commit git itself resolves.
     """
-    from . import frontmatter
-
-    directory = buckets / ("backlog" if source == "backlog" else "wip")
     try:
-        text = (directory / prd).read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        text = ""
-    fields, _warnings = frontmatter.parse(text)
-    return {"rework_cap": fields["rework_cap"]}
+        completed = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_root,
+                                   capture_output=True, text=True, timeout=30.0)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    commit = completed.stdout.strip()
+    return commit if completed.returncode == 0 and commit else None
+
+
+def _work_metadata(text: str, repo_root: str) -> dict:
+    """The entry metadata `workflow.work` persists for the entering PRD.
+
+    Every declaration comes from the frontmatter block; `rework_cap` is the
+    declared cap (default 2) and an undeclared tier or plan expansion is null.
+    """
+    fields, _warnings = parse(text)
+    declared = declarations(text)
+    return {"rework_cap": fields["rework_cap"],
+            "start_commit": _head_commit(repo_root),
+            "task_tier": declared.get("default_model") or None,
+            "plan_expansion": declared.get("plan_expansion") or None}
 
 
 def _commit_entry(store: StateStore, current: dict, prd: str, source: str,
@@ -361,8 +384,16 @@ def _commit_entry(store: StateStore, current: dict, prd: str, source: str,
                              publication_guard=guard)
 
 
+def _verify_entered(move: files._Move, artifact: object, raw: bytes) -> None:
+    """The moved PRD is the staged artifact alone in wip/, with the parsed bytes."""
+    files._verify_moved(move, artifact)
+    if (move.destination / move.name).read_bytes() != raw:
+        raise files.RecoveryRequiredError(
+            f"PRD {move.name} changed between its parse and its entry")
+
+
 def _enter_backlog(store: StateStore, current: dict, buckets: Path, prd: str,
-                   extra_work_fields: dict) -> dict:
+                   extra_work_fields: dict, raw: bytes) -> dict:
     """Verified rename backlog/ -> wip/, then commit the entry under a guard."""
     with (files._open_directory(buckets / "backlog") as backlog_fd,
           files._open_directory(buckets / "wip", create=True) as wip_fd):
@@ -377,7 +408,7 @@ def _enter_backlog(store: StateStore, current: dict, buckets: Path, prd: str,
         artifact = files._identity(source)
         files._rename(move, artifact, None)
         return _commit_entry(store, current, prd, "backlog",
-                             lambda: files._verify_moved(move, artifact), extra_work_fields)
+                             lambda: _verify_entered(move, artifact, raw), extra_work_fields)
 
 
 def enter(store: StateStore, request: dict, current: dict) -> dict:
@@ -407,10 +438,16 @@ def enter(store: StateStore, request: dict, current: dict) -> dict:
                          _present(buckets / "backlog", candidates))
     if prd is None:
         raise _rejected(revision)
-    extra_work_fields = _frontmatter_work_fields(buckets, source, prd)
+    # Parse the PRD in the bucket it came from, before any rename, so an
+    # unreadable or undecodable PRD is rejected where it still sits.
+    try:
+        raw = (buckets / source / prd).read_bytes()
+        extra_work_fields = _work_metadata(raw.decode("utf-8"), current["repo_root"])
+    except (OSError, UnicodeDecodeError) as error:
+        raise _rejected(revision) from error
     try:
         if source == "backlog":
-            committed = _enter_backlog(store, current, buckets, prd, extra_work_fields)
+            committed = _enter_backlog(store, current, buckets, prd, extra_work_fields, raw)
         else:
             committed = _commit_entry(store, current, prd, source,
                                       lambda: _require_in_wip(buckets, prd), extra_work_fields)

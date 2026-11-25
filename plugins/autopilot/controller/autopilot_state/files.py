@@ -299,13 +299,19 @@ def _advance(store: StateStore, operation: dict, expected: str, step: str,
     store.transaction(advance, publication_guard=guard)
 
 
-def _clear(store: StateStore, operation: dict) -> dict:
+def _clear(store: StateStore, operation: dict, pause: dict | None) -> dict:
+    """Delete the recovery marker, writing any pause in the same transaction."""
     marker = _marker(operation, "committed")
 
     def clear(current: dict) -> None:
         if current["workflow"]["recovery"] != marker:
             raise RecoveryConflictError(
                 f"recovery operation {operation['id']} changed before marker delete")
+        if pause is not None:
+            # Terminal by contract: no controller operation clears workflow.pause,
+            # prd.enter keeps rejecting while it is set, and it commits here so no
+            # committed state has the marker gone and the pause missing.
+            current["workflow"]["pause"] = pause
         current["workflow"]["recovery"] = None
 
     return store.transaction(clear)
@@ -332,9 +338,19 @@ def _bookkeeping(operation: dict) -> Callable[[dict], None]:
     return commit_kind
 
 
-def _ledger_path(store: StateStore, workflow_id: str) -> Path:
+def _ledger_file(private: Path, workflow_id: str) -> Path:
     name = _require_basename(workflow_id, "workflow_id")
-    return store.path.parent / "deferred" / f"{name}-deferred.json"
+    return private / "deferred" / f"{name}-deferred.json"
+
+
+def _ledger_path(store: StateStore, workflow_id: str) -> Path:
+    return _ledger_file(store.path.parent, workflow_id)
+
+
+def recorded_operation(private: Path, workflow_id: str, op_id: str) -> bool:
+    """Whether the workflow's deferred ledger already records `op_id`; reads only."""
+    return any(item.get("op_id") == op_id
+               for item in _read_ledger(_ledger_file(private, workflow_id), workflow_id))
 
 
 def _read_ledger(path: Path, workflow_id: str) -> list[dict]:
@@ -522,11 +538,10 @@ def _replay_committed(store: StateStore, state: dict, request: _Request,
                     "detail": request.detail, "op_id": operation_id, "prd": request.prd}
     if match != expected:
         return None
-    batch = state["workflow"]["batch"]
-    halt = request.kind == "park" and batch is not None and batch["parks_consecutive"] >= 2
     # Not a `_pending()`-marker resumption: the saga already ran to its
     # natural, non-replayed completion the first time.
-    return SagaResult(operation_id, request.kind, False, halt)
+    return SagaResult(operation_id, request.kind, False,
+                      _systemic_park_halt(state, request))
 
 
 def _run_saga_body(store: StateStore, project_root: Path, request: _Request, *,
@@ -574,27 +589,18 @@ def _run_saga_body(store: StateStore, project_root: Path, request: _Request, *,
                      admitted_revision)
     _trip(boundary_hook, SagaBoundary.PRD_COMPLETE_MOVE_COMMITTED
           if request.kind == "complete" else SagaBoundary.AFTER_COMMIT_BEFORE_MARKER_DELETE)
-    final = _clear(store, operation)
-    halt = _persist_systemic_park_halt(store, final, request)
+    halt = _systemic_park_halt(store.read(), request)
+    _clear(store, operation, {"site": "systemic_park",
+                              "detail": f"second consecutive park for {request.prd}"}
+           if halt else None)
     return SagaResult(operation["id"], request.kind, pending is not None, halt)
 
 
-def _persist_systemic_park_halt(store: StateStore, final: dict, request: _Request) -> bool:
-    """Detect a second consecutive park and durably record a systemic-halt pause.
-
-    Returns whether this call's result should report the batch as halted.
-    """
-    batch = final["workflow"]["batch"]
-    halt = (request.kind == "park" and batch is not None
+def _systemic_park_halt(state: dict, request: _Request) -> bool:
+    """Whether this park is the second consecutive one, halting the batch."""
+    batch = state["workflow"]["batch"]
+    return (request.kind == "park" and batch is not None
             and batch["parks_consecutive"] >= 2)
-    if halt:
-        def mark_pause(current: dict) -> None:
-            current["workflow"]["pause"] = {
-                "site": "systemic_park",
-                "detail": f"second consecutive park for {request.prd}"}
-
-        store.transaction(mark_pause)
-    return halt
 
 
 def stall(store: StateStore, *, project_root: Path, prd: str, site: str, detail: str,

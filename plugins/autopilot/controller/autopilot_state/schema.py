@@ -252,6 +252,10 @@ def _workflow_result(value: dict, fields: set) -> None:
         _identity(value["job_id"])
         _identity(value["claimed_by"])
         _counter(value["claim_epoch"])
+    elif fields == JOB_SPEC_KEYS | {"instruction"}:
+        _text(value["instruction"])
+        _job_spec({key: item for key, item in value.items() if key != "instruction"},
+                  required=JOB_SPEC_KEYS)
     elif fields == {"job_id", "instruction"}:
         _identity(value["job_id"])
         _text(value["instruction"])
@@ -312,22 +316,36 @@ def _task(value: object) -> None:
         _counter(task["start_epoch"])
 
 
-def _job(value: object) -> None:
-    job = _object(value, {"spec", "claimed_by", "claim_epoch", "exit_fact"})
-    spec = _object(job["spec"], {
-        "job_id", "role", "depends_on", "input_digests", "isolation", "tier", "effort",
-        "source_digest", "resource_digest", "permitted_operations",
-    })
+JOB_SPEC_KEYS = {"job_id", "role", "depends_on", "input_digests", "isolation", "tier",
+                 "effort", "source_digest", "resource_digest", "permitted_operations"}
+# A job row stored before the metadata keys existed still validates; a present
+# value is always validated, and protocol.py requires all of them from a caller.
+_JOB_SPEC_REQUIRED = JOB_SPEC_KEYS - {"source_digest", "resource_digest",
+                                      "permitted_operations"}
+
+
+def _job_spec(value: object, *, required: set[str]) -> None:
+    if (not isinstance(value, dict) or not required <= set(value)
+            or not set(value) <= JOB_SPEC_KEYS):
+        raise SchemaError("Object has missing or unknown fields")
+    spec = value
     _identity(spec["job_id"])
     _list(spec["depends_on"], _identity)
     _list(spec["input_digests"], _digest)
     for key in ("role", "isolation", "tier", "effort"):
         _text(spec[key])
-    _digest(spec["source_digest"])
-    _digest(spec["resource_digest"])
-    _list(spec["permitted_operations"], _text)
-    if not spec["permitted_operations"]:
-        raise SchemaError("Job spec must declare at least one permitted operation")
+    for key in ("source_digest", "resource_digest"):
+        if key in spec:
+            _digest(spec[key])
+    if "permitted_operations" in spec:
+        _list(spec["permitted_operations"], _text)
+        if not spec["permitted_operations"]:
+            raise SchemaError("Job spec must declare at least one permitted operation")
+
+
+def _job(value: object) -> None:
+    job = _object(value, {"spec", "claimed_by", "claim_epoch", "exit_fact"})
+    _job_spec(job["spec"], required=_JOB_SPEC_REQUIRED)
     if job["claimed_by"] is not None:
         _identity(job["claimed_by"])
     if job["claim_epoch"] is not None:
@@ -338,8 +356,12 @@ def _job(value: object) -> None:
 
 _WORKFLOW_ALLOWED = set(_WORKFLOW) | {"pause"}
 _WORK_ALLOWED = {"prd", "source", "entered_at", "phase", "completed_phases", "lane",
-                 "lane_reason", "rework_cap"}
-_WORK_REQUIRED = _WORK_ALLOWED - {"rework_cap"}
+                 "lane_reason", "rework_cap", "start_commit", "task_tier",
+                 "plan_expansion"}
+# The entry metadata keys are optional: a work record written before they
+# existed still validates, and a present value is always validated.
+_WORK_REQUIRED = _WORK_ALLOWED - {"rework_cap", "start_commit", "task_tier",
+                                  "plan_expansion"}
 
 
 def _workflow(value: object) -> None:
@@ -370,6 +392,13 @@ def _workflow(value: object) -> None:
                 _text(work[key])
         if "rework_cap" in work:
             _counter(work["rework_cap"])
+        commit = work.get("start_commit")
+        if commit is not None and (not isinstance(commit, str)
+                                   or re.fullmatch(r"[0-9a-f]{40}", commit) is None):
+            raise SchemaError("Start commit must contain 40 lowercase hexadecimal characters")
+        for key in ("task_tier", "plan_expansion"):
+            if work.get(key) is not None:
+                _text(work[key])
     if workflow["recovery"] is not None:
         recovery = _object(workflow["recovery"], {"op", "boundary"})
         _text(recovery["op"])

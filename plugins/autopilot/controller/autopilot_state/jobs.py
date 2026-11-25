@@ -10,7 +10,20 @@ from __future__ import annotations
 
 import copy
 
-from . import actors, policy
+from . import actors, policy, schema
+
+
+def _runnable(spec: dict) -> bool:
+    """Whether a stored spec carries the complete, valid metadata a job needs.
+
+    A spec written before the metadata existed, or carrying an invalid value,
+    is never offered or claimed; it is reconciled by replanning the job.
+    """
+    try:
+        schema._job_spec(spec, required=schema.JOB_SPEC_KEYS)
+    except schema.SchemaError:
+        return False
+    return True
 
 
 def _reject(note: str) -> Exception:
@@ -53,7 +66,7 @@ def next_job(jobs: list[dict]) -> dict | None:
     """Return the first unclaimed job whose dependencies have already exited."""
     finished = {row["spec"]["job_id"] for row in jobs if row["exit_fact"] is not None}
     for row in jobs:
-        if row["claimed_by"] is not None:
+        if row["claimed_by"] is not None or not _runnable(row["spec"]):
             continue
         if all(dependency in finished for dependency in row["spec"]["depends_on"]):
             return row
@@ -66,6 +79,8 @@ def claim(jobs: list[dict], job_id: str, actor_id: str, lease_epoch: int) -> lis
     current = jobs[index]
     if current["claimed_by"] is not None:
         raise _reject(f"job already claimed: {job_id}")
+    if not _runnable(current["spec"]):
+        raise _reject(f"job spec lacks complete, valid metadata: {job_id}")
     row = copy.deepcopy(current)
     row["claimed_by"] = actor_id
     row["claim_epoch"] = lease_epoch

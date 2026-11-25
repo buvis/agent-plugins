@@ -15,6 +15,10 @@ from typing import Final
 
 LOOP_TASK_CEILING: Final[int] = 15
 LANES = ("solo", "fast-track", "full")
+_ROLES = {"build": "builder", "review": "reviewer"}
+_DEFAULT_TIER = "sonnet"
+_EFFORTS = {"haiku": "low", "sonnet": "medium", "opus": "high", "fable": "xhigh"}
+_PERMITTED_OPERATIONS = {"builder": ("read", "write"), "reviewer": ("read",)}
 
 # `cli/lane.py` SECURITY_RE (the review-fanout trigger), copied verbatim.
 SECURITY_RE = re.compile(
@@ -134,6 +138,20 @@ def route(prd_frontmatter: dict) -> dict:
     if cards > 0:
         return {"lane": "fast-track", "reason": "card_sized"}
     return {"lane": "full", "reason": "uncardable"}
+
+
+def job_requirements(work: Mapping[str, object]) -> dict:
+    """Derive a job's requirements from the active work, over a closed vocabulary.
+
+    Every field follows one input: the role follows the phase, the isolation
+    the lane, the tier the declared task tier, the effort that tier, and the
+    permitted operations the role.
+    """
+    role = _ROLES[work["phase"]]
+    tier = work.get("task_tier") or _DEFAULT_TIER
+    return {"role": role, "tier": tier, "effort": _EFFORTS.get(tier, "medium"),
+            "isolation": "worktree" if work["lane"] == "full" else "inline",
+            "permitted_operations": list(_PERMITTED_OPERATIONS[role])}
 
 
 def bind(lane: str, reason: str) -> dict:

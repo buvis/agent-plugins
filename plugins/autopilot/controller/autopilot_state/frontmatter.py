@@ -54,6 +54,16 @@ def _pairs(body: list[str]) -> dict[str, str]:
     return pairs
 
 
+def declarations(text: str) -> dict[str, str]:
+    """Return the raw declarations of the first frontmatter block only.
+
+    A `key: value` line in the PRD body is not a declaration and never appears
+    here, so a caller capturing a declared value verbatim cannot pick one up.
+    """
+    body = _block(text)
+    return {} if body is None else _pairs(body)
+
+
 def _positive_integer(raw: str) -> int | None:
     try:
         value = int(raw)
