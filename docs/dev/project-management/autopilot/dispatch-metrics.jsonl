@@ -1613,3 +1613,13 @@
 {"id":"566cbb38","ended_at":1795585364,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
 {"id":"fbedb1d7","ended_at":1795585364,"elapsed_s":null,"outcome":"ok","detail":"closed-by: artifact"}
 {"kind":"handoff","site":"review","edge":"leave","at":1795585364,"phase":"review","prd":"00019-autopilot-controller-lifecycle-v1.md"}
+{"kind":"handoff","site":"review","edge":"resume","at":1795585400,"phase":"review","prd":"00019-autopilot-controller-lifecycle-v1.md"}
+{"id":"bf75b6fc","kind":"ivan","task":"19","queued_at":1795585674,"prompt_bytes":46182}
+{"id":"bf75b6fc","ended_at":1795585995,"elapsed_s":321,"outcome":"ok","detail":null}
+{"id":"8c4329bb","kind":"deslop","task":"19","queued_at":1795586779,"prompt_bytes":10604}
+{"id":"8c4329bb","ended_at":1795586858,"elapsed_s":79,"outcome":"ok","detail":"no slop found"}
+{"id":"d2140327","kind":"ivan","task":"19","queued_at":1795586898,"prompt_bytes":17300}
+{"id":"d2140327","ended_at":1795587040,"elapsed_s":142,"outcome":"ok","detail":"split applied; provenance test_map pin needs retarget"}
+{"id":"c0ac496c","kind":"pat","task":"19","queued_at":1795587171,"prompt_bytes":32440}
+{"id":"c0ac496c","ended_at":1795587192,"elapsed_s":21,"outcome":"ok","detail":null}
+{"kind":"handoff","site":"review","edge":"leave","at":1795587394,"phase":"review","prd":"00019-autopilot-controller-lifecycle-v1.md"}
