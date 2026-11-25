@@ -507,6 +507,20 @@ def apply_unlocked(request: dict, layout: actors.PrivateLayout, store: StateStor
         raise ProtocolError("recovery_required", revision) from error
 
 
+def _finish_recorded_intent(request: dict, actor_file: Path | None, intent: dict,
+                            layout: actors.PrivateLayout, store: StateStore,
+                            current: dict | None, revision: int) -> dict | None:
+    """Finish the recorded credential intent under apply_locked's held lock."""
+    if intent["request"]["operation"] in OWNER_OPERATIONS:
+        return owner.finish_intent(request, actor_file, intent, layout, store, current)
+    fresh_binding(request, revision)
+    if request != intent["request"]:
+        code = ("invalid_request" if request["request_id"] ==
+                intent["request"]["request_id"] else "recovery_required")
+        raise ProtocolError(code, revision)
+    return actors.finish_bootstrap(intent, layout, store, current)
+
+
 def apply_locked(request: dict, actor_file: Path | None, layout: actors.PrivateLayout,
                  store: StateStore) -> dict | None:
     current = store._read_locked() if layout.exists(store.path) else None
@@ -520,14 +534,8 @@ def apply_locked(request: dict, actor_file: Path | None, layout: actors.PrivateL
             raise ProtocolError("wrong_binding", revision)
         intent = actors.read_intent(layout)
         if intent is not None:
-            if intent["request"]["operation"] in OWNER_OPERATIONS:
-                return owner.finish_intent(request, actor_file, intent, layout, store, current)
-            fresh_binding(request, revision)
-            if request != intent["request"]:
-                code = ("invalid_request" if request["request_id"] ==
-                        intent["request"]["request_id"] else "recovery_required")
-                raise ProtocolError(code, revision)
-            return actors.finish_bootstrap(intent, layout, store, current)
+            return _finish_recorded_intent(request, actor_file, intent, layout, store,
+                                           current, revision)
         if request["operation"] in OWNER_OPERATIONS and current is not None:
             return owner.apply_locked(request, actor_file, current, layout, store)
         if request["operation"] in REDUCER_OPERATIONS and current is not None:
