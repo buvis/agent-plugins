@@ -269,13 +269,19 @@ def existing_open(request: dict, actor_file: Path | None, current: dict,
 def proven_replay(request: dict, current: dict, layout: actors.PrivateLayout) -> bool:
     """True when a stale saga request's own operation is already recorded durably.
 
-    The deferred ledger entry whose `op_id` is this request's id proves the
-    saga committed and only its receipt is missing, so the request is this
-    exact finished operation rather than a stale competitor.
+    The deferred ledger entry this request's own payload would have written,
+    under this request's id, proves the saga committed and only its receipt
+    is missing, so the request is this exact finished operation rather than a
+    stale competitor. An entry recorded for another payload proves nothing,
+    so such a request conflicts like an unrecorded one. Only these three
+    sagas append to the ledger; the others have no durable proof to offer.
     """
-    return (request["operation"] in SAGA_OPERATIONS
-            and files.recorded_operation(layout.private, current["workflow_id"],
-                                         request["request_id"]))
+    kind = {"prd.stall": "stall", "prd.park": "park", "prd.defer": "defer"}.get(
+        request["operation"])
+    if kind is None:
+        return False
+    return files.recorded_request(layout.private, current["workflow_id"],
+                                  request["request_id"], kind, request["payload"])
 
 
 def authorize(request: dict, actor_file: Path | None, current: dict,
@@ -476,14 +482,17 @@ def apply_unlocked(request: dict, layout: actors.PrivateLayout, store: StateStor
         layout.verify()
         current = store.read()
         revision = current["revision"]
-        # Every commit bumps the revision, so an equal one is the admitted state.
-        # A stale revision usually means a genuine conflict, but it can also
-        # mean this exact request's saga already committed durably and only
-        # its receipt is missing (a crash between the saga's commit and
-        # record_receipt). run_saga's own replay detection tells the two
-        # apart; only treat a stale revision as fatal when the saga itself
-        # finds no matching durable record.
+        # Every commit bumps the revision, so an equal one is the admitted
+        # state. The admitted revision is validated here, before the saga
+        # stages anything, so a stale request can never mutate newer state.
+        # The one admitted stale case is a proven replay: this exact
+        # request's saga already committed durably and only its receipt is
+        # missing (a crash between the saga's commit and record_receipt), and
+        # run_saga's own replay detection returns that committed result
+        # instead of running the saga body again.
         stale = revision != request["expected_revision"]
+        if stale and not replay:
+            raise ProtocolError("revision_conflict", revision)
         try:
             result = run_saga(request, current, store)
         except (files.PreconditionError, files.RecoveryConflictError,

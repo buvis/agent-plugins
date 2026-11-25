@@ -347,10 +347,27 @@ def _ledger_path(store: StateStore, workflow_id: str) -> Path:
     return _ledger_file(store.path.parent, workflow_id)
 
 
-def recorded_operation(private: Path, workflow_id: str, op_id: str) -> bool:
-    """Whether the workflow's deferred ledger already records `op_id`; reads only."""
-    return any(item.get("op_id") == op_id
-               for item in _read_ledger(_ledger_file(private, workflow_id), workflow_id))
+def _records_entry(items: list[dict], request: _Request, operation_id: str) -> bool:
+    """Whether `items` holds the very entry this request's own payload would write.
+
+    An entry carrying the same `op_id` but different content was written by a
+    different request, so it proves nothing about this one.
+    """
+    if request.kind == "defer":
+        expected = {**(request.record or {}), "op_id": operation_id, "prd": request.prd}
+    else:
+        expected = {"type": "stall", "kind": request.kind, "site": request.site,
+                    "detail": request.detail, "op_id": operation_id, "prd": request.prd}
+    return expected in items
+
+
+def recorded_request(private: Path, workflow_id: str, op_id: str, kind: str,
+                     payload: dict) -> bool:
+    """Whether the deferred ledger already records this exact request; reads only."""
+    request = _Request(kind, payload["prd"], payload.get("site"), payload.get("detail"),
+                       payload.get("record"))
+    return _records_entry(_read_ledger(_ledger_file(private, workflow_id), workflow_id),
+                          request, op_id)
 
 
 def _read_ledger(path: Path, workflow_id: str) -> list[dict]:
@@ -527,16 +544,7 @@ def _replay_committed(store: StateStore, state: dict, request: _Request,
     if request.kind not in ("stall", "park", "defer"):
         return None
     path = _ledger_path(store, state["workflow_id"])
-    items = _read_ledger(path, state["workflow_id"])
-    match = next((item for item in items if item.get("op_id") == operation_id), None)
-    if match is None:
-        return None
-    if request.kind == "defer":
-        expected = {**(request.record or {}), "op_id": operation_id, "prd": request.prd}
-    else:
-        expected = {"type": "stall", "kind": request.kind, "site": request.site,
-                    "detail": request.detail, "op_id": operation_id, "prd": request.prd}
-    if match != expected:
+    if not _records_entry(_read_ledger(path, state["workflow_id"]), request, operation_id):
         return None
     # Not a `_pending()`-marker resumption: the saga already ran to its
     # natural, non-replayed completion the first time.
