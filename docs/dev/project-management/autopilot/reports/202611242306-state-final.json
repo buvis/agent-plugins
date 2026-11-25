@@ -1,0 +1,130 @@
+{
+  "phase": "done",
+  "next_phase": "",
+  "schema_version": 1,
+  "batch": {
+    "id": "202611242306",
+    "mode": "autopilot",
+    "completed_prds": [],
+    "plugin_versions": {
+      "aegis@buvis-plugins": "0.4.1",
+      "warden@buvis-plugins": "0.14.1"
+    },
+    "parks_consecutive": 0,
+    "minted_stubs": [
+      "00086-triage-review-acceptance-is-not-enforced-a-phas-v1.md",
+      "00087-triage-r5-bf131b9-r6-bf131b9-r7-1ac12e2-v1.md",
+      "00088-triage-r2-phase-handoff-review-done-with-outcom-v1.md",
+      "00089-triage-r3-jobs-are-never-scoped-to-a-prd-or-cle-v1.md",
+      "00090-triage-r4-the-stale-revision-check-still-races-v1.md",
+      "00091-triage-r5-replay-admission-treats-a-ledger-row-v1.md",
+      "00092-triage-r6-derived-planning-drops-completed-task-v1.md",
+      "00093-triage-r7-the-single-strict-xfail-covers-the-st-v1.md"
+    ],
+    "skips": [
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-25T07:36:05Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-25T07:36:05Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-25T07:36:05Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* docs/dev/project-management/prds/done/00085-* # link-ok: lifecycle output; 00085 is an ordering gate (herdr waits on it), not a code dependency",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-25T07:36:05Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-25T07:36:05Z"
+      },
+      {
+        "prd": "00085-autopilot-worktree-prd-scope-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-25T07:36:05Z"
+      },
+      {
+        "prd": "00015-autopilot-workflow-parity-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00013-* docs/dev/project-management/prds/done/00014-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-25T07:36:14Z"
+      },
+      {
+        "prd": "00016-autopilot-controller-integration-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00015-* docs/dev/project-management/prds/done/00020-* docs/dev/project-management/prds/done/00021-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-25T07:36:14Z"
+      },
+      {
+        "prd": "00017-autopilot-profile-conformance-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00016-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-25T07:36:14Z"
+      },
+      {
+        "prd": "00020-autopilot-controller-review-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* docs/dev/project-management/prds/done/00085-* # link-ok: lifecycle output; 00085 is an ordering gate (herdr waits on it), not a code dependency",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-25T07:36:14Z"
+      },
+      {
+        "prd": "00021-autopilot-controller-records-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00020-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-25T07:36:14Z"
+      },
+      {
+        "prd": "00085-autopilot-worktree-prd-scope-v1.md",
+        "command": "ls docs/dev/project-management/prds/done/00019-* # link-ok: lifecycle output",
+        "exit_code": 2,
+        "note": "",
+        "at": "2026-11-25T07:36:14Z"
+      }
+    ]
+  },
+  "prd": "00019-autopilot-controller-lifecycle-v1.md",
+  "catchup_mode": "run",
+  "doubt_reviewer": "codex",
+  "consensus_engine": "legacy",
+  "session_model": "sonnet",
+  "rework_cap": 3,
+  "lane": "full",
+  "lane_reason": "override",
+  "lane_effective": "full",
+  "tasks_total": 0,
+  "tasks_completed": 0,
+  "cycle": 1,
+  "applied_review_batches": [
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00019-autopilot-controller-lifecycle-v1-review-1.md::decision-gate",
+    "/Users/bob/git/src/github.com/buvis/agent-plugins/docs/dev/project-management/reviews/00019-autopilot-controller-lifecycle-v1-review-2.md::decision-gate"
+  ],
+  "phases_completed": [],
+  "replan_count": 0,
+  "contract_card": "step: review cycle 3 COMPLETE and the PRD is STALLED. 00019-autopilot-controller-lifecycle-v1.md hit the rework cap (cycle 3 of cap 3) with four unresolved HIGH findings and no CRITICAL. `autopilot cap-check` exited 1 (R5 bf131b9, R6 bf131b9, R7 1ac12e2 classified as regressions introduced by the cycle-2 rework), so the gate took the `cap_regression` three-step path: six cap-overflow records written to state.deferred_decisions, `autopilot stall --site cap_regression` exited 0 (PRD moved to prds/hold/, per-PRD state reset), `autopilot mint-stubs` minted 8 triage stubs into prds/hold/.\n\ninvariants: phase/next_phase are \"build\" and cycle is 1 (the stall's own reset wrote these - do NOT call phase-done for this transition, the stall is the transition). The PRD is in prds/hold/ and autopilot never reads hold/, so it cannot be re-selected; a human un-parks it by moving it back to prds/backlog/. A cap_regression stall captures NO custody by design (records.do_stall gates custody on site == \"cap_critical\"), so there is no critical-on-master marker and no journal entry, and pushes are not guarded. state.prd still names 00019; Phase 0 re-selects from backlog, which holds 6 PRDs.\n\nnext: a fresh session enters the build gate at Phase 0 and selects the next backlog PRD. The batch (202611242306) keeps draining with 0 completed PRDs and 1 stalled.\n\nfacts measured this session, not inferred:\n- full suite at HEAD 827de63: 2185 passed, 1 xfailed, exit 0, 463.59s, via `uv run --no-project --with-requirements tools/autopilot/requirements-test.txt --with pytest python -m pytest tests/autopilot -q` (the CI command in .github/workflows/validate.yml).\n- the staged gate command passed to `review-stage` omitted jsonschema and PyYAML, so its `## Test gate` line read exit 2 on a collection ImportError. That was corrected in the staged context and stated to every reviewer; it is a staging artifact, not a red suite. A future cycle in this repo should pass the requirements-test.txt form as --gate-command.\n- all four reviewers ran and produced usable output: alice, blake, bob (codex, resumed thread 01a21036-d960-7f42-8f24-82f0f2f24c19), carl (gemini, exit 0). Eve did not run: the codex doubt-roster guard did not fire (no codex-implemented task). Bob's D1-D5 all pass.\n- consolidated: 40 findings (37 from consolidate_findings.py plus 3 mech-check rows; 8 [MECH] lines merged onto existing rows). 26 single-voice Medium/Low rows were discarded into the ledger (now 68 entries).\n- `bob-thread-20261125c3.txt` was written empty, so the review file carries NO codex_thread_id. A resumed 00019 cycle starts Bob fresh."
+}
