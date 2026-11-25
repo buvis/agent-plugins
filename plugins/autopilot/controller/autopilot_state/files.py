@@ -271,7 +271,7 @@ def _new_operation(request: _Request, operation_id: str, created_at: str) -> dic
 
 
 def _stamp(store: StateStore, state: dict, operation: dict,
-           guard: Callable[[], None] | None) -> None:
+           guard: Callable[[], None] | None) -> dict:
     def stamp(current: dict) -> None:
         if guard is not None:
             guard()
@@ -279,7 +279,7 @@ def _stamp(store: StateStore, state: dict, operation: dict,
             raise RecoveryConflictError("another recovery operation is already active")
         current["workflow"]["recovery"] = _marker(operation, "intent")
 
-    store.transaction(stamp, expected_revision=state["revision"], publication_guard=guard)
+    return store.transaction(stamp, expected_revision=state["revision"], publication_guard=guard)
 
 
 def _advance(store: StateStore, operation: dict, expected: str, step: str,
@@ -421,7 +421,7 @@ def _rename(move: _Move, artifact: object, hook: BoundaryHook | None) -> None:
 
 
 def _stage(store: StateStore, state: dict, operation: dict, move: _Move,
-           hook: BoundaryHook | None) -> None:
+           hook: BoundaryHook | None) -> dict:
     """Verify the PRD's actual bucket on disk, then stamp the intent."""
     source, destination = move.locate()
     if source is None:
@@ -437,7 +437,7 @@ def _stage(store: StateStore, state: dict, operation: dict, move: _Move,
 
     if operation["kind"] != "complete":
         _trip(hook, SagaBoundary.AFTER_MKDIR_BEFORE_INTENT)
-    _stamp(store, state, operation, guard)
+    return _stamp(store, state, operation, guard)
 
 
 def _record_and_commit(store: StateStore, operation: dict, step: str, before: str,
@@ -469,7 +469,7 @@ def _record_and_commit(store: StateStore, operation: dict, step: str, before: st
 
 def _run_move(store: StateStore, operation: dict, step: str, move: _Move,
               ledger: tuple[Path, str], request: _Request,
-              hook: BoundaryHook | None) -> None:
+              hook: BoundaryHook | None, admitted_revision: int | None = None) -> None:
     artifact = operation["artifact"]
 
     def verify_move() -> None:
@@ -486,6 +486,10 @@ def _run_move(store: StateStore, operation: dict, step: str, move: _Move,
         return
     if step == "intent":
         _trip(hook, SagaBoundary.AFTER_INTENT_BEFORE_MOVE)
+        if admitted_revision is not None and store.read()["revision"] != admitted_revision:
+            raise RecoveryConflictError(
+                f"recovery operation {operation['id']} for {operation['prd']} is no longer "
+                "current; the workflow's revision advanced since this intent was admitted")
         _rename(move, artifact, hook)
         _advance(store, operation, "intent", "moved", verify_move)
         step = "moved"
@@ -493,18 +497,55 @@ def _run_move(store: StateStore, operation: dict, step: str, move: _Move,
                        _ledger_item(operation, request), verify_move, hook)
 
 
-def _execute(store: StateStore, project_root: Path, request: _Request, *,
-             prd_root: Path, boundary_hook: BoundaryHook | None,
-             operation_id_factory: OperationIdFactory,
-             now: TimestampFactory) -> SagaResult:
+def _replay_committed(store: StateStore, state: dict, request: _Request,
+                      operation_id: str) -> SagaResult | None:
+    """Return the prior result for a durably-committed op this call didn't stage.
+
+    A caller may retry a request whose saga already ran to completion (its
+    recovery marker cleared) but whose receipt never got recorded, e.g. a
+    crash between the saga's own commit and `protocol.record_receipt`. The
+    deferred ledger it appended to is the one durable, request-correlatable
+    record of that; a match proves the retry is this exact, already-finished
+    operation rather than a genuine conflict.
+    """
+    if request.kind not in ("stall", "park", "defer"):
+        return None
+    path = _ledger_path(store, state["workflow_id"])
+    items = _read_ledger(path, state["workflow_id"])
+    match = next((item for item in items if item.get("op_id") == operation_id), None)
+    if match is None:
+        return None
+    if request.kind == "defer":
+        expected = {**(request.record or {}), "op_id": operation_id, "prd": request.prd}
+    else:
+        expected = {"type": "stall", "kind": request.kind, "site": request.site,
+                    "detail": request.detail, "op_id": operation_id, "prd": request.prd}
+    if match != expected:
+        return None
+    batch = state["workflow"]["batch"]
+    halt = request.kind == "park" and batch is not None and batch["parks_consecutive"] >= 2
+    # Not a `_pending()`-marker resumption: the saga already ran to its
+    # natural, non-replayed completion the first time.
+    return SagaResult(operation_id, request.kind, False, halt)
+
+
+def _run_saga_body(store: StateStore, project_root: Path, request: _Request, *,
+                   prd_root: Path, boundary_hook: BoundaryHook | None,
+                   operation_id_factory: OperationIdFactory,
+                   now: TimestampFactory) -> SagaResult:
     state = store.read()
     project = resolve_project_root(project_root)
     if state["repo_root"] != str(project):
         raise PreconditionError(f"state belongs to {state['repo_root']}, not {project}")
     pending = _pending(state)
+    admitted_revision = None
     if pending is None:
+        candidate_id = operation_id_factory()
+        replay = _replay_committed(store, state, request, candidate_id)
+        if replay is not None:
+            return replay
         _check_fresh(state, request)
-        operation, step = _new_operation(request, operation_id_factory(), now()), None
+        operation, step = _new_operation(request, candidate_id, now()), None
     else:
         operation, step = pending
         if not _matches(operation, request):
@@ -526,15 +567,24 @@ def _execute(store: StateStore, project_root: Path, request: _Request, *,
             move = _Move(request.prd, buckets / "wip", buckets / destination,
                          wip_fd, destination_fd)
             if step is None:
-                _stage(store, state, operation, move, boundary_hook)
+                admitted_revision = _stage(store, state, operation, move,
+                                           boundary_hook)["revision"]
                 step = "intent"
-            _run_move(store, operation, step, move, ledger, request, boundary_hook)
+            _run_move(store, operation, step, move, ledger, request, boundary_hook,
+                     admitted_revision)
     _trip(boundary_hook, SagaBoundary.PRD_COMPLETE_MOVE_COMMITTED
           if request.kind == "complete" else SagaBoundary.AFTER_COMMIT_BEFORE_MARKER_DELETE)
     final = _clear(store, operation)
     batch = final["workflow"]["batch"]
     halt = (request.kind == "park" and batch is not None
             and batch["parks_consecutive"] >= 2)
+    if halt:
+        def mark_pause(current: dict) -> None:
+            current["workflow"]["pause"] = {
+                "site": "systemic_park",
+                "detail": f"second consecutive park for {request.prd}"}
+
+        store.transaction(mark_pause)
     return SagaResult(operation["id"], request.kind, pending is not None, halt)
 
 
@@ -545,7 +595,7 @@ def stall(store: StateStore, *, project_root: Path, prd: str, site: str, detail:
     """Run or replay the stall saga: wip/ -> hold/, record, reset parks."""
     request = _Request("stall", _require_basename(prd, "prd"),
                        _require_text(site, "site"), _require_text(detail, "detail"))
-    return _execute(store, project_root, request, prd_root=prd_root,
+    return _run_saga_body(store, project_root, request, prd_root=prd_root,
                     boundary_hook=boundary_hook,
                     operation_id_factory=operation_id_factory, now=now)
 
@@ -559,7 +609,7 @@ def park(store: StateStore, *, project_root: Path, prd: str,
     """Run or replay the park saga; the second consecutive park halts the batch."""
     request = _Request("park", _require_basename(prd, "prd"),
                        _require_text(site, "site"), _require_text(detail, "detail"))
-    return _execute(store, project_root, request, prd_root=prd_root,
+    return _run_saga_body(store, project_root, request, prd_root=prd_root,
                     boundary_hook=boundary_hook,
                     operation_id_factory=operation_id_factory, now=now)
 
@@ -577,7 +627,7 @@ def defer_record(store: StateStore, *, project_root: Path, prd: str, record: dic
     except (TypeError, ValueError) as error:
         raise PreconditionError(f"record is not bounded JSON data: {error}") from error
     request = _Request("defer", _require_basename(prd, "prd"), record=record)
-    return _execute(store, project_root, request, prd_root=PRD_ROOT,
+    return _run_saga_body(store, project_root, request, prd_root=PRD_ROOT,
                     boundary_hook=boundary_hook,
                     operation_id_factory=operation_id_factory, now=now)
 
@@ -588,7 +638,7 @@ def complete_prd(store: StateStore, *, project_root: Path, prd: str,
                  now: TimestampFactory = _utc_now) -> SagaResult:
     """Run or replay the completion saga: wip/ -> done/ after accepted review."""
     request = _Request("complete", _require_basename(prd, "prd"))
-    return _execute(store, project_root, request, prd_root=prd_root,
+    return _run_saga_body(store, project_root, request, prd_root=prd_root,
                     boundary_hook=boundary_hook,
                     operation_id_factory=operation_id_factory, now=now)
 

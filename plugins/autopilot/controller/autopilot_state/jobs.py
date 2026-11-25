@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import copy
 
-from . import actors, policy, schema
+from . import actors, policy
 
 
 def _reject(note: str) -> Exception:
@@ -29,7 +29,6 @@ def _find(jobs: list[dict], job_id: str) -> int:
 
 
 def _replace(jobs: list[dict], index: int, row: dict) -> list[dict]:
-    schema._job(row)
     updated = copy.deepcopy(jobs)
     updated[index] = row
     return updated
@@ -47,9 +46,18 @@ def plan(jobs: list[dict], job_specs: list[dict]) -> list[dict]:
                                id_key="job_id", depends_key="depends_on")
     rows = [{"spec": copy.deepcopy(spec), "claimed_by": None, "claim_epoch": None,
              "exit_fact": None} for spec in job_specs]
-    for row in rows:
-        schema._job(row)
     return copy.deepcopy(jobs) + rows
+
+
+def next_job(jobs: list[dict]) -> dict | None:
+    """Return the first unclaimed job whose dependencies have already exited."""
+    finished = {row["spec"]["job_id"] for row in jobs if row["exit_fact"] is not None}
+    for row in jobs:
+        if row["claimed_by"] is not None:
+            continue
+        if all(dependency in finished for dependency in row["spec"]["depends_on"]):
+            return row
+    return None
 
 
 def claim(jobs: list[dict], job_id: str, actor_id: str, lease_epoch: int) -> list[dict]:

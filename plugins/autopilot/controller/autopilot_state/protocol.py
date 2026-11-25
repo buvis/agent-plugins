@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import dataclasses
+import hashlib
 import json
 import secrets
 from pathlib import Path
@@ -22,7 +23,9 @@ SAGA_OPERATIONS = {"prd.enter", "phase.handoff", "prd.stall", "prd.park", "prd.d
                    "prd.complete"}
 # Pure tasks/policy/jobs reducers commit inside apply_locked's lock.
 REDUCER_OPERATIONS = {"task.replace", "task.start", "task.finish", "task.attempt",
-                      "lane.route", "policy.bind", "job.plan", "job.claim", "job.record_exit"}
+                      "lane.route", "policy.bind", "job.plan", "job.claim", "job.record_exit",
+                      "job.next"}
+_JOB_DEFAULT_PERMITTED_OPERATIONS = ("read", "write")
 
 
 class ProtocolError(Exception):
@@ -54,7 +57,7 @@ def public_contract() -> tuple[dict, dict]:
                                "prd.enter", "phase.handoff", "prd.stall", "prd.park",
                                "prd.defer", "prd.complete", "task.replace", "task.start",
                                "task.finish", "task.attempt", "lane.route", "policy.bind",
-                               "job.plan", "job.claim", "job.record_exit"],
+                               "job.plan", "job.claim", "job.record_exit", "job.next"],
                 "capabilities": ["workflow.core.v1", "workflow.lifecycle.v1",
                                  "workflow.tasks.v1", "workflow.policy.v1", "workflow.jobs.v1"]}
     return metadata, declared["x-controller"]
@@ -109,6 +112,26 @@ def validate_saga_payload(operation: str, payload: dict) -> None:
             raise schema.SchemaError("invalid record")
 
 
+def _validate_caller_job_spec(spec: object) -> None:
+    """Shape-check a caller-supplied job spec; `reduce_workflow` fills the rest.
+
+    Caller specs may omit `source_digest`/`resource_digest`/`permitted_operations`
+    (derived/enriched specs always carry them) so this stays lighter than
+    `schema._job`, which is the authoritative, fully-required check applied to
+    every stored job row once the commit validates the whole state.
+    """
+    if not isinstance(spec, dict):
+        raise schema.SchemaError("invalid job spec")
+    for key in ("job_id", "role", "depends_on", "input_digests", "isolation", "tier", "effort"):
+        if key not in spec:
+            raise schema.SchemaError(f"job spec missing {key}")
+    schema._identity(spec["job_id"])
+    schema._list(spec["depends_on"], schema._identity)
+    schema._list(spec["input_digests"], schema._digest)
+    for key in ("role", "isolation", "tier", "effort"):
+        schema._text(spec[key])
+
+
 def validate_reducer_payload(operation: str, payload: dict) -> None:
     if operation == "task.replace":
         schema._object(payload, {"tasks", "allow_expansion"})
@@ -141,7 +164,9 @@ def validate_reducer_payload(operation: str, payload: dict) -> None:
         if not isinstance(payload["jobs"], list):
             raise schema.SchemaError("invalid job plan")
         for spec in payload["jobs"]:
-            schema._job({"spec": spec, "claimed_by": None, "claim_epoch": None, "exit_fact": None})
+            _validate_caller_job_spec(spec)
+    elif operation == "job.next":
+        schema._object(payload, set())
     elif operation == "job.claim":
         schema._object(payload, {"job_id"})
         schema._identity(payload["job_id"])
@@ -293,9 +318,11 @@ def reduce_workflow(request: dict, workflow: dict) -> dict:
                                           allow_expansion=payload["allow_expansion"])
         return {"task_count": len(workflow["tasks"])}
     if operation == "task.start":
-        workflow["tasks"] = tasks.start(workflow["tasks"], payload["id"])
+        workflow["tasks"] = tasks.start(workflow["tasks"], payload["id"],
+                                        request["lease_epoch"])
     elif operation == "task.finish":
-        workflow["tasks"] = tasks.finish(workflow["tasks"], payload["id"], payload["outcome"])
+        workflow["tasks"] = tasks.finish(workflow["tasks"], payload["id"], payload["outcome"],
+                                         request["lease_epoch"])
     elif operation == "task.attempt":
         workflow["tasks"] = tasks.attempt(workflow["tasks"], payload["id"],
                                           payload["implementor"], payload["outcome"])
@@ -312,8 +339,17 @@ def reduce_workflow(request: dict, workflow: dict) -> dict:
         workflow["work"].update(bound)
         return bound
     if operation == "job.plan":
-        workflow["jobs"] = jobs.plan(workflow["jobs"], payload["jobs"])
+        specs = [_with_job_defaults(spec) for spec in payload["jobs"]] \
+            if payload["jobs"] else _derive_job_specs(workflow)
+        workflow["jobs"] = jobs.plan(workflow["jobs"], specs)
         return {"job_count": len(workflow["jobs"])}
+    if operation == "job.next":
+        row = jobs.next_job(workflow["jobs"])
+        if row is None:
+            raise ProtocolError("rejected_evidence")
+        job_id = row["spec"]["job_id"]
+        return {"job_id": job_id,
+                "instruction": f"run job {job_id} ({row['spec']['role']})"}
     if operation == "job.claim":
         workflow["jobs"] = jobs.claim(workflow["jobs"], payload["job_id"],
                                       request["actor_id"], request["lease_epoch"])
@@ -324,6 +360,34 @@ def reduce_workflow(request: dict, workflow: dict) -> dict:
     row = next(item for item in workflow["jobs"] if item["spec"]["job_id"] == payload["job_id"])
     return {"job_id": row["spec"]["job_id"], "claimed_by": row["claimed_by"],
             "claim_epoch": row["claim_epoch"]}
+
+
+def _job_digest(seed: str) -> str:
+    return hashlib.sha256(seed.encode("utf-8")).hexdigest()
+
+
+def _with_job_defaults(spec: dict) -> dict:
+    """Fill the digest/permitted-operations fields a caller spec may omit."""
+    filled = dict(spec)
+    filled.setdefault("source_digest", _job_digest(f"source:{spec['job_id']}"))
+    filled.setdefault("resource_digest", _job_digest(f"resource:{spec['job_id']}"))
+    filled.setdefault("permitted_operations", list(_JOB_DEFAULT_PERMITTED_OPERATIONS))
+    return filled
+
+
+def _derive_job_specs(workflow: dict) -> list[dict]:
+    """Derive one job spec per not-yet-planned task, in task order."""
+    planned_ids = {row["spec"]["job_id"] for row in workflow["jobs"]}
+    derived = []
+    for task in workflow["tasks"]:
+        if task["id"] in planned_ids:
+            continue
+        derived.append(_with_job_defaults({
+            "job_id": task["id"], "role": "builder",
+            "depends_on": list(task["depends_on"]), "input_digests": [],
+            "isolation": "worktree", "tier": "opus", "effort": "high",
+        }))
+    return derived
 
 
 def apply_reducer(request: dict, actor_file: Path | None, current: dict,
@@ -360,13 +424,23 @@ def run_saga(request: dict, current: dict, store: StateStore) -> dict:
     if reducer is not None:
         return reducer(store, request, current)["result"]
     root = Path(current["repo_root"])
+
+    # Deterministic from the request_id (not the default random uuid) so a
+    # retry of an admitted-but-undelivered intent recomputes the same
+    # operation id and `files._execute` can recognize its own durable ledger
+    # entry as a replay instead of re-running a saga whose precondition the
+    # first, successful run already invalidated.
+    def operation_id_factory() -> str:
+        return request["request_id"]
+
     if operation == "prd.defer":
         saga = files.defer_record(store, project_root=root, prd=payload["prd"],
-                                  record=payload["record"])
+                                  record=payload["record"],
+                                  operation_id_factory=operation_id_factory)
     else:
         move = files.stall if operation == "prd.stall" else files.park
         saga = move(store, project_root=root, prd=payload["prd"], site=payload["site"],
-                    detail=payload["detail"])
+                    detail=payload["detail"], operation_id_factory=operation_id_factory)
     return dataclasses.asdict(saga)
 
 
@@ -398,9 +472,20 @@ def apply_unlocked(request: dict, layout: actors.PrivateLayout, store: StateStor
         current = store.read()
         revision = current["revision"]
         # Every commit bumps the revision, so an equal one is the admitted state.
-        if revision != request["expected_revision"]:
-            raise ProtocolError("revision_conflict", revision)
-        result = run_saga(request, current, store)
+        # A stale revision usually means a genuine conflict, but it can also
+        # mean this exact request's saga already committed durably and only
+        # its receipt is missing (a crash between the saga's commit and
+        # record_receipt). run_saga's own replay detection tells the two
+        # apart; only treat a stale revision as fatal when the saga itself
+        # finds no matching durable record.
+        stale = revision != request["expected_revision"]
+        try:
+            result = run_saga(request, current, store)
+        except (files.PreconditionError, files.RecoveryConflictError,
+                files.DeferredRecordConflictError) as error:
+            if stale:
+                raise ProtocolError("revision_conflict", revision) from error
+            raise
         return record_receipt(request, current["actors"][request["actor_id"]], result,
                               layout, store)
     except RevisionConflictError as error:

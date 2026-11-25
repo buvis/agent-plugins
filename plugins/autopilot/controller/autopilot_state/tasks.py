@@ -67,7 +67,7 @@ def _with_task(tasks: list[dict], index: int, **changes: object) -> list[dict]:
     return result
 
 
-def start(tasks: list[dict], task_id: str) -> list[dict]:
+def start(tasks: list[dict], task_id: str, lease_epoch: int | None = None) -> list[dict]:
     """Move a pending task whose dependencies all completed to `in_progress`."""
     index = _find(tasks, task_id)
     target = tasks[index]
@@ -76,15 +76,28 @@ def start(tasks: list[dict], task_id: str) -> list[dict]:
     completed = {item["id"] for item in tasks if item["status"] == "completed"}
     if any(dependency not in completed for dependency in target["depends_on"]):
         raise _rejected()
-    return _with_task(tasks, index, status="in_progress")
+    changes = {"status": "in_progress"}
+    if lease_epoch is not None:
+        changes["start_epoch"] = lease_epoch
+    return _with_task(tasks, index, **changes)
 
 
-def finish(tasks: list[dict], task_id: str, outcome: str) -> list[dict]:
-    """Close a started task as `completed` or `aborted`."""
+def finish(tasks: list[dict], task_id: str, outcome: str,
+          lease_epoch: int | None = None) -> list[dict]:
+    """Close a started task as `completed` or `aborted`.
+
+    A task started under an earlier lease epoch than the one finishing it is
+    rejected: durable start evidence must stay scoped to its own lease epoch.
+    """
     if outcome not in FINISH_OUTCOMES:
         raise _rejected()
     index = _find(tasks, task_id)
-    if tasks[index]["status"] != "in_progress":
+    target = tasks[index]
+    if target["status"] != "in_progress":
+        raise _rejected()
+    started_epoch = target.get("start_epoch")
+    if (lease_epoch is not None and started_epoch is not None
+            and started_epoch != lease_epoch):
         raise _rejected()
     return _with_task(tasks, index, status=outcome)
 

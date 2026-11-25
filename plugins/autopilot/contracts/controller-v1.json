@@ -1,15 +1,35 @@
 {
   "capabilities": [
-    "workflow.core.v1"
+    "workflow.core.v1",
+    "workflow.lifecycle.v1",
+    "workflow.tasks.v1",
+    "workflow.policy.v1",
+    "workflow.jobs.v1"
   ],
   "fixture_digest": "61fbc2852cc77de05b4562fb9c1393f33853ee866d1fb4d74d866b634c4f9420",
   "operations": [
     "workflow.open",
     "owner.acquire",
     "owner.release",
-    "owner.recover"
+    "owner.recover",
+    "prd.enter",
+    "phase.handoff",
+    "prd.stall",
+    "prd.park",
+    "prd.defer",
+    "prd.complete",
+    "task.replace",
+    "task.start",
+    "task.finish",
+    "task.attempt",
+    "lane.route",
+    "policy.bind",
+    "job.plan",
+    "job.claim",
+    "job.record_exit",
+    "job.next"
   ],
   "package_version": "0.10.0",
   "protocol_major": 1,
-  "schema_digest": "506e62aca319cec27e3fc570cfcb753d760fdfac057a7ed0ac2398bed6abf715"
+  "schema_digest": "da0fe8075db13912f5d4be764794f125e31b099dbd9782b6ccb2b621fc9d3ca7"
 }

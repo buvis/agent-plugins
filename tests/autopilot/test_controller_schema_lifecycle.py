@@ -30,7 +30,8 @@ def job(job_id: str, role: str, depends_on: list, claimed_by: object,
     return {
         "spec": {"job_id": job_id, "role": role, "depends_on": depends_on,
                  "input_digests": ["a" * 64, "b" * 64], "isolation": "worktree",
-                 "tier": "opus", "effort": "high"},
+                 "tier": "opus", "effort": "high", "source_digest": "c" * 64,
+                 "resource_digest": "d" * 64, "permitted_operations": ["read", "write"]},
         "claimed_by": claimed_by, "claim_epoch": claim_epoch, "exit_fact": None,
     }
 

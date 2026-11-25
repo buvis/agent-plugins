@@ -273,7 +273,8 @@ def apply_locked(request: dict, actor_file: Path | None, current: dict,
     if request["operation"] == "owner.acquire" and current["owner"] is not None:
         raise protocol.ProtocolError("wrong_binding", revision)
     if request["operation"] == "owner.recover" and (
-            request["payload"]["reconciled_job_ids"] or current["workflow"]["jobs"]):
+            request["payload"]["reconciled_job_ids"]
+            or any(row["claimed_by"] is not None for row in current["workflow"]["jobs"])):
         raise protocol.ProtocolError("rejected_evidence", revision)
     actors.verify_operator(layout, current)
     intent = prepare(request, current, layout)

@@ -139,7 +139,7 @@
         },
         "tasks": {
           "type": "array",
-          "maxItems": 0
+          "maxItems": 256
         },
         "review": {
           "type": "object",
@@ -159,7 +159,7 @@
         },
         "jobs": {
           "type": "array",
-          "maxItems": 0
+          "maxItems": 256
         }
       },
       "required": [
@@ -1346,17 +1346,42 @@
               "workflow.open",
               "owner.acquire",
               "owner.release",
-              "owner.recover"
+              "owner.recover",
+              "prd.enter",
+              "phase.handoff",
+              "prd.stall",
+              "prd.park",
+              "prd.defer",
+              "prd.complete",
+              "task.replace",
+              "task.start",
+              "task.finish",
+              "task.attempt",
+              "lane.route",
+              "policy.bind",
+              "job.plan",
+              "job.claim",
+              "job.record_exit",
+              "job.next"
             ]
           },
           "uniqueItems": true,
           "minItems": 4,
-          "maxItems": 4
+          "maxItems": 20
         },
         "capabilities": {
-          "const": [
-            "workflow.core.v1"
-          ]
+          "type": "array",
+          "items": {
+            "enum": [
+              "workflow.core.v1",
+              "workflow.lifecycle.v1",
+              "workflow.tasks.v1",
+              "workflow.policy.v1",
+              "workflow.jobs.v1"
+            ]
+          },
+          "uniqueItems": true,
+          "minItems": 1
         }
       },
       "required": [
@@ -1393,7 +1418,8 @@
       "policy.bind",
       "job.plan",
       "job.claim",
-      "job.record_exit"
+      "job.record_exit",
+      "job.next"
     ],
     "capabilities": [
       "workflow.core.v1",

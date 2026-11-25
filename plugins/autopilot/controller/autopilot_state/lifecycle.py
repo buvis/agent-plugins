@@ -326,9 +326,26 @@ def _require_in_wip(buckets: Path, prd: str) -> None:
         raise files.BucketError(f"PRD {prd} left wip before its entry committed")
 
 
+def _frontmatter_work_fields(buckets: Path, source: str, prd: str) -> dict:
+    """Parse the entering PRD's frontmatter into the fields `work` persists.
+
+    Only `rework_cap` has a declared home on `workflow.work`; the PRD names no
+    field for the parser's other effective values.
+    """
+    from . import frontmatter
+
+    directory = buckets / ("backlog" if source == "backlog" else "wip")
+    try:
+        text = (directory / prd).read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        text = ""
+    fields, _warnings = frontmatter.parse(text)
+    return {"rework_cap": fields["rework_cap"]}
+
+
 def _commit_entry(store: StateStore, current: dict, prd: str, source: str,
-                  guard: Callable[[], None]) -> dict:
-    def mutate(state: dict) -> None:
+                  guard: Callable[[], None], extra_work_fields: dict) -> dict:
+    def commit(state: dict) -> None:
         workflow = state["workflow"]
         require_recovery_idle(workflow)
         if workflow["work"] is not None:
@@ -337,14 +354,15 @@ def _commit_entry(store: StateStore, current: dict, prd: str, source: str,
             workflow["batch"] = {"completed_prds": [], "parks_consecutive": 0}
         workflow["work"] = {"prd": prd, "source": source, "entered_at": files._utc_now(),
                             "phase": "build", "completed_phases": [], "lane": None,
-                            "lane_reason": None}
+                            "lane_reason": None, **extra_work_fields}
         state["workflow"] = reset_prd_fields(workflow)
 
-    return store.transaction(mutate, expected_revision=current["revision"],
+    return store.transaction(commit, expected_revision=current["revision"],
                              publication_guard=guard)
 
 
-def _enter_backlog(store: StateStore, current: dict, buckets: Path, prd: str) -> dict:
+def _enter_backlog(store: StateStore, current: dict, buckets: Path, prd: str,
+                   extra_work_fields: dict) -> dict:
     """Verified rename backlog/ -> wip/, then commit the entry under a guard."""
     with (files._open_directory(buckets / "backlog") as backlog_fd,
           files._open_directory(buckets / "wip", create=True) as wip_fd):
@@ -359,7 +377,7 @@ def _enter_backlog(store: StateStore, current: dict, buckets: Path, prd: str) ->
         artifact = files._identity(source)
         files._rename(move, artifact, None)
         return _commit_entry(store, current, prd, "backlog",
-                             lambda: files._verify_moved(move, artifact))
+                             lambda: files._verify_moved(move, artifact), extra_work_fields)
 
 
 def enter(store: StateStore, request: dict, current: dict) -> dict:
@@ -382,19 +400,20 @@ def enter(store: StateStore, request: dict, current: dict) -> dict:
     completed = [] if workflow["batch"] is None else workflow["batch"]["completed_prds"]
     candidates = [name for name in dict.fromkeys(prds) if name not in completed]
     if (not candidates or workflow["work"] is not None
-            or workflow["recovery"] is not None):
+            or workflow["recovery"] is not None or workflow.get("pause") is not None):
         raise _rejected(revision)
     buckets = Path(current["repo_root"]) / files.PRD_ROOT
     prd, source = select(_present(buckets / "wip", candidates),
                          _present(buckets / "backlog", candidates))
     if prd is None:
         raise _rejected(revision)
+    extra_work_fields = _frontmatter_work_fields(buckets, source, prd)
     try:
         if source == "backlog":
-            committed = _enter_backlog(store, current, buckets, prd)
+            committed = _enter_backlog(store, current, buckets, prd, extra_work_fields)
         else:
             committed = _commit_entry(store, current, prd, source,
-                                      lambda: _require_in_wip(buckets, prd))
+                                      lambda: _require_in_wip(buckets, prd), extra_work_fields)
     except (files.PreconditionError, files.RecoveryConflictError) as error:
         raise _rejected(revision) from error
     except files.RecoveryRequiredError as error:

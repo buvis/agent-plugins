@@ -42,8 +42,14 @@ BUNDLE_KEYS = {
     "operations",
     "capabilities",
 }
-OPERATIONS = {"workflow.open", "owner.acquire", "owner.release", "owner.recover"}
-CAPABILITIES = {"workflow.core.v1"}
+CONTROLLER = PLUGIN / "controller"
+if str(CONTROLLER) not in sys.path:
+    sys.path.insert(0, str(CONTROLLER))
+from autopilot_state import protocol as _protocol
+
+_RUNTIME_METADATA, _ = _protocol.public_contract()
+OPERATIONS = set(_RUNTIME_METADATA["operations"])
+CAPABILITIES = set(_RUNTIME_METADATA["capabilities"])
 INSTALLED_ARGV = '["python3", "<installed-plugin-root>/controller/main.py"]'
 LIMIT = 16777216
 HEX = re.compile(r"[0-9a-f]{64}")

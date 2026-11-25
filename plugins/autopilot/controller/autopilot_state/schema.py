@@ -252,6 +252,9 @@ def _workflow_result(value: dict, fields: set) -> None:
         _identity(value["job_id"])
         _identity(value["claimed_by"])
         _counter(value["claim_epoch"])
+    elif fields == {"job_id", "instruction"}:
+        _identity(value["job_id"])
+        _text(value["instruction"])
     else:
         raise SchemaError("Response result has missing or unknown fields")
 
@@ -289,8 +292,15 @@ def _list(value: object, check: Callable[[object], None]) -> None:
         check(item)
 
 
+_TASK_ALLOWED = {"id", "subject", "status", "depends_on", "attempts", "start_epoch"}
+_TASK_REQUIRED = _TASK_ALLOWED - {"start_epoch"}
+
+
 def _task(value: object) -> None:
-    task = _object(value, {"id", "subject", "status", "depends_on", "attempts"})
+    if (not isinstance(value, dict) or not _TASK_REQUIRED <= set(value)
+            or not set(value) <= _TASK_ALLOWED):
+        raise SchemaError("Object has missing or unknown fields")
+    task = value
     _identity(task["id"])
     _text(task["subject"])
     if task["status"] not in ("pending", "in_progress", "completed", "aborted"):
@@ -298,18 +308,26 @@ def _task(value: object) -> None:
     _list(task["depends_on"], _identity)
     if not isinstance(task["attempts"], list):
         raise SchemaError("Task attempts must be a list")
+    if "start_epoch" in task:
+        _counter(task["start_epoch"])
 
 
 def _job(value: object) -> None:
     job = _object(value, {"spec", "claimed_by", "claim_epoch", "exit_fact"})
     spec = _object(job["spec"], {
         "job_id", "role", "depends_on", "input_digests", "isolation", "tier", "effort",
+        "source_digest", "resource_digest", "permitted_operations",
     })
     _identity(spec["job_id"])
     _list(spec["depends_on"], _identity)
     _list(spec["input_digests"], _digest)
     for key in ("role", "isolation", "tier", "effort"):
         _text(spec[key])
+    _digest(spec["source_digest"])
+    _digest(spec["resource_digest"])
+    _list(spec["permitted_operations"], _text)
+    if not spec["permitted_operations"]:
+        raise SchemaError("Job spec must declare at least one permitted operation")
     if job["claimed_by"] is not None:
         _identity(job["claimed_by"])
     if job["claim_epoch"] is not None:
@@ -318,8 +336,17 @@ def _job(value: object) -> None:
         raise SchemaError("Job exit fact must be null or an object")
 
 
+_WORKFLOW_ALLOWED = set(_WORKFLOW) | {"pause"}
+_WORK_ALLOWED = {"prd", "source", "entered_at", "phase", "completed_phases", "lane",
+                 "lane_reason", "rework_cap"}
+_WORK_REQUIRED = _WORK_ALLOWED - {"rework_cap"}
+
+
 def _workflow(value: object) -> None:
-    workflow = _object(value, set(_WORKFLOW))
+    if (not isinstance(value, dict) or not set(_WORKFLOW) <= set(value)
+            or not set(value) <= _WORKFLOW_ALLOWED):
+        raise SchemaError("Object has missing or unknown fields")
+    workflow = value
     review = _object(workflow["review"], {"cap"})
     _counter(review["cap"])
     if review != _WORKFLOW["review"]:
@@ -329,10 +356,10 @@ def _workflow(value: object) -> None:
         _list(batch["completed_prds"], _text)
         _counter(batch["parks_consecutive"])
     if workflow["work"] is not None:
-        work = _object(workflow["work"], {
-            "prd", "source", "entered_at", "phase", "completed_phases", "lane",
-            "lane_reason",
-        })
+        work = workflow["work"]
+        if (not isinstance(work, dict) or not _WORK_REQUIRED <= set(work)
+                or not set(work) <= _WORK_ALLOWED):
+            raise SchemaError("Object has missing or unknown fields")
         for key in ("prd", "entered_at", "phase"):
             _text(work[key])
         if work["source"] not in ("wip", "backlog"):
@@ -341,10 +368,16 @@ def _workflow(value: object) -> None:
         for key in ("lane", "lane_reason"):
             if work[key] is not None:
                 _text(work[key])
+        if "rework_cap" in work:
+            _counter(work["rework_cap"])
     if workflow["recovery"] is not None:
         recovery = _object(workflow["recovery"], {"op", "boundary"})
         _text(recovery["op"])
         _text(recovery["boundary"])
+    if workflow.get("pause") is not None:
+        pause = _object(workflow["pause"], {"site", "detail"})
+        _text(pause["site"])
+        _text(pause["detail"])
     _list(workflow["tasks"], _task)
     _list(workflow["jobs"], _job)
 
