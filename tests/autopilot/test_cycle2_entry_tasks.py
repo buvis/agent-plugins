@@ -10,6 +10,7 @@ Each test states the rule it enforces and must fail against the current tree.
 from __future__ import annotations
 
 import copy
+import subprocess
 import sys
 from pathlib import Path
 
@@ -31,13 +32,16 @@ PRD = "00002-b.md"
 TASKS_DONE = {"phase": "build", "next_phase": "review", "outcome": "tasks_done"}
 
 
-def prd_with(tier: str | None = None, expansion: str | None = None) -> str:
+def prd_with(tier: str | None = None, expansion: str | None = None,
+             cap: int | None = None) -> str:
     """A PRD whose frontmatter declares only the metadata under test."""
     declared = ""
     if tier is not None:
         declared += f"default_model: {tier}\n"
     if expansion is not None:
         declared += f"plan_expansion: {expansion}\n"
+    if cap is not None:
+        declared += f"rework_cap: {cap}\n"
     return f"---\n{declared}---\n# PRD\n"
 
 
@@ -81,6 +85,46 @@ def test_enter_captures_the_head_commit_the_declared_tier_and_plan_expansion(
     assert committed["task_tier"] == tier
     assert committed["plan_expansion"] == expansion
     assert committed["rework_cap"] == 2
+
+
+def test_enter_captures_the_rework_cap_the_prd_declares_instead_of_the_default(tmp_path):
+    root = make_root(tmp_path, backlog={PRD: prd_with("opus", "allow", cap=5)})
+    store = make_store(root)
+
+    run(lifecycle.enter, store, "prd.enter", {"prds": [PRD]})
+
+    committed = store.read()["workflow"]["work"]
+    assert committed["rework_cap"] == 5
+    assert (committed["task_tier"], committed["plan_expansion"]) == ("opus", "allow")
+
+
+def test_enter_ignores_a_tier_or_plan_expansion_declared_only_in_the_prd_body(tmp_path):
+    body = "---\nrework_cap: 3\n---\n# PRD\ndefault_model: opus\nplan_expansion: allow\n"
+    root = make_root(tmp_path, backlog={PRD: body})
+    store = make_store(root)
+
+    run(lifecycle.enter, store, "prd.enter", {"prds": [PRD]})
+
+    committed = store.read()["workflow"]["work"]
+    assert committed["task_tier"] is None
+    assert committed["plan_expansion"] is None
+    assert committed["rework_cap"] == 3
+
+
+def test_enter_captures_the_head_commit_of_a_repository_whose_refs_are_packed(
+        tmp_path, monkeypatch):
+    root = make_root(tmp_path, backlog={PRD: prd_with("opus", "allow")})
+    head = commit_all(root, monkeypatch)
+    subprocess.run(["git", "pack-refs", "--all"], cwd=root, check=True, capture_output=True)
+    loose = root / ".git" / "refs" / "heads"
+    assert not loose.exists() or not any(loose.rglob("*")), "control: the ref is packed"
+    store = make_store(root)
+
+    run(lifecycle.enter, store, "prd.enter", {"prds": [PRD]})
+
+    committed = store.read()["workflow"]["work"]
+    assert committed["start_commit"] == head
+    assert len(head) == 40
 
 
 def test_enter_records_a_null_start_commit_when_the_project_is_not_a_repository(tmp_path):
@@ -130,16 +174,17 @@ def test_enter_captures_the_metadata_of_the_prd_bytes_that_landed_in_wip(tmp_pat
 # -- C1.3 an unreadable or undecodable PRD is rejected, never defaulted -------
 
 
-def test_enter_rejects_a_prd_whose_bytes_cannot_be_decoded(tmp_path):
-    root = make_root(tmp_path / "broken")
-    prd_path(root, "wip").write_bytes(b"---\ndefault_model: \xff\xfe\n---\n# PRD\n")
+@pytest.mark.parametrize("bucket", ["wip", "backlog"])
+def test_enter_rejects_a_prd_whose_bytes_cannot_be_decoded(tmp_path, bucket):
+    root = make_root(tmp_path / f"broken-{bucket}")
+    prd_path(root, bucket).write_bytes(b"---\ndefault_model: \xff\xfe\n---\n# PRD\n")
     store = make_store(root)
 
     rejected(lifecycle.enter, store, "prd.enter", {"prds": [PRD]})
 
     assert store.read()["workflow"]["work"] is None
-    assert bucket_of(root, PRD) == ["wip"]
-    readable = make_root(tmp_path / "readable", wip={PRD: prd_with("opus")})
+    assert bucket_of(root, PRD) == [bucket]
+    readable = make_root(tmp_path / f"readable-{bucket}", wip={PRD: prd_with("opus")})
     control = make_store(readable)
     response = run(lifecycle.enter, control, "prd.enter", {"prds": [PRD]})
     assert response["ok"] and control.read()["workflow"]["work"]["task_tier"] == "opus"
@@ -179,22 +224,41 @@ def test_state_validates_with_and_without_the_new_work_metadata_keys(tmp_path):
         assert schema.validate_state(copy.deepcopy(upgraded)) == upgraded
 
 
+@pytest.mark.parametrize("metadata", [{"start_commit": 12345}, {"start_commit": "a" * 39},
+                                      {"start_commit": "a" * 41}, {"start_commit": "A" * 40},
+                                      {"start_commit": "z" * 40}, {"task_tier": 7},
+                                      {"task_tier": ""}, {"plan_expansion": []},
+                                      {"plan_expansion": ""}])
+def test_state_rejects_a_malformed_start_commit_tier_or_plan_expansion(tmp_path, metadata):
+    root = make_root(tmp_path, wip={PRD: prd_text()})
+    store = make_store(root, work=work(PRD))
+    broken = store.read()
+    broken["workflow"]["work"].update(metadata)
+
+    with pytest.raises(schema.SchemaError):
+        schema.validate_state(broken)
+
+
 # -- C2 build -> review requires every task row to be finished ---------------
 
 
 @pytest.mark.parametrize("statuses", [("pending", "completed"), ("completed", "in_progress"),
-                                      ("aborted", "pending"), ("in_progress", "in_progress")])
+                                      ("aborted", "pending"), ("in_progress", "in_progress"),
+                                      ("completed", "completed", "pending"),
+                                      ("completed", "aborted", "completed", "in_progress")])
 def test_handoff_to_review_is_rejected_while_any_task_row_is_unfinished(tmp_path, statuses):
     root = make_root(tmp_path, wip={PRD: prd_text()})
     store = make_store(root, work=work(PRD))
-    with_tasks(store, [task_row("t1", statuses[0]), task_row("t2", statuses[1])])
+    with_tasks(store, [task_row(f"t{index}", status)
+                       for index, status in enumerate(statuses, start=1)])
 
     rejected(lifecycle.handoff, store, "phase.handoff", TASKS_DONE)
 
     assert store.read()["workflow"]["work"]["phase"] == "build"
 
 
-@pytest.mark.parametrize("statuses", [(), ("completed", "aborted"), ("aborted",)])
+@pytest.mark.parametrize("statuses", [(), ("completed", "aborted"), ("aborted",),
+                                      ("completed", "completed", "aborted")])
 def test_handoff_to_review_is_accepted_when_no_task_row_is_unfinished(tmp_path, statuses):
     root = make_root(tmp_path, wip={PRD: prd_text()})
     store = make_store(root, work=work(PRD))
@@ -210,29 +274,31 @@ def test_handoff_to_review_is_accepted_when_no_task_row_is_unfinished(tmp_path, 
 # -- C3 task.finish needs durable start evidence -----------------------------
 
 
-def test_finish_is_rejected_when_a_lease_epoch_finishes_a_task_that_never_started():
+@pytest.mark.parametrize("lease_epoch", [0, 1, 7])
+def test_finish_is_rejected_when_a_lease_epoch_finishes_a_task_that_never_started(lease_epoch):
     plan = tasks.replace(payload_rows("in_progress", "in_progress"))
     before = copy.deepcopy(plan)
 
     for task_id in ("t1", "t2"):
         with pytest.raises(ProtocolError) as caught:
-            tasks.finish(plan, task_id, "completed", 7)
+            tasks.finish(plan, task_id, "completed", lease_epoch)
         assert caught.value.code == "rejected_evidence"
 
     assert plan == before
 
 
-def test_finish_closes_a_task_started_under_the_same_lease_epoch():
+@pytest.mark.parametrize("lease_epoch", [0, 1, 7])
+def test_finish_closes_a_task_started_under_the_same_lease_epoch(lease_epoch):
     plan = tasks.replace(payload_rows("pending", "pending"))
 
-    started = tasks.start(plan, "t1", 7)
-    finished = tasks.finish(started, "t1", "completed", 7)
+    started = tasks.start(plan, "t1", lease_epoch)
+    finished = tasks.finish(started, "t1", "completed", lease_epoch)
 
-    assert started[0]["start_epoch"] == 7
+    assert started[0]["start_epoch"] == lease_epoch
     assert [(row["id"], row["status"]) for row in finished] == [("t1", "completed"),
                                                                ("t2", "pending")]
     with pytest.raises(ProtocolError) as caught:
-        tasks.finish(started, "t1", "aborted", 8)
+        tasks.finish(started, "t1", "aborted", lease_epoch + 1)
     assert caught.value.code == "rejected_evidence"
 
 

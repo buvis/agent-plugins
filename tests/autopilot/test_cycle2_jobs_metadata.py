@@ -37,6 +37,18 @@ PLAN = [{"id": "t1", "subject": "build it", "status": "pending", "depends_on": [
         {"id": "t2", "subject": "review it", "status": "in_progress", "depends_on": []},
         {"id": "t3", "subject": "already done", "status": "completed", "depends_on": []},
         {"id": "t4", "subject": "dropped", "status": "aborted", "depends_on": []}]
+BASELINE = ("build", "solo", "opus")
+# (role, isolation, tier, effort, permitted_operations) derived from (phase, lane, task_tier).
+DERIVED = {
+    BASELINE: ("builder", "inline", "opus", "high", ("read", "write")),
+    ("review", "solo", "opus"): ("reviewer", "inline", "opus", "high", ("read",)),
+    ("build", "full", "opus"): ("builder", "worktree", "opus", "high", ("read", "write")),
+    ("build", "solo", "sonnet"): ("builder", "inline", "sonnet", "medium", ("read", "write")),
+    ("build", "solo", "haiku"): ("builder", "inline", "haiku", "low", ("read", "write")),
+    ("build", "solo", "fable"): ("builder", "inline", "fable", "xhigh", ("read", "write")),
+    ("build", "solo", None): ("builder", "inline", "sonnet", "medium", ("read", "write")),
+    ("review", "full", None): ("reviewer", "worktree", "sonnet", "medium", ("read",)),
+}
 
 
 def spec(job_id: str, *depends: str, **overrides: object) -> dict:
@@ -46,6 +58,33 @@ def spec(job_id: str, *depends: str, **overrides: object) -> dict:
              "permitted_operations": ["read"]}
     value.update(overrides)
     return value
+
+
+BROKEN_SHAPE = {
+    "unknown key": {**spec("build"), "priority": 1},
+    "missing effort": {key: value for key, value in spec("build").items() if key != "effort"},
+    "missing source digest": {key: value for key, value in spec("build").items()
+                              if key != "source_digest"},
+    "uppercase source digest": spec("build", source_digest="B" * 64),
+    "short resource digest": spec("build", resource_digest="c" * 63),
+    "long source digest": spec("build", source_digest="b" * 65),
+    "nonhex input digest": spec("build", input_digests=["z" * 64]),
+    "unlisted input digests": spec("build", input_digests="a" * 64),
+    "empty permitted operations": spec("build", permitted_operations=[]),
+    "blank permitted operation": spec("build", permitted_operations=["read", ""]),
+    "unlisted permitted operations": spec("build", permitted_operations="read"),
+}
+BROKEN_VALUES = {
+    "nonstring role": spec("build", role=7),
+    "blank role": spec("build", role=""),
+    "nonstring tier": spec("build", tier=None),
+    "nonstring effort": spec("build", effort=["high"]),
+    "blank isolation": spec("build", isolation=""),
+    "unlisted depends_on": spec("build", depends_on="build"),
+    "nonstring dependency": spec("build", depends_on=[7]),
+    "blank job id": spec(""),
+    "oversized job id": spec("j" * 257),
+}
 
 
 def row(job_spec: dict) -> dict:
@@ -104,21 +143,7 @@ class JobCLITest(OwnerCLITest):
 
 class CallerSpecTest(JobCLITest):
     def test_a_malformed_caller_spec_is_an_invalid_request_not_a_recovery(self) -> None:
-        broken = {
-            "unknown key": {**spec("build"), "priority": 1},
-            "missing effort": {key: value for key, value in spec("build").items()
-                               if key != "effort"},
-            "missing source digest": {key: value for key, value in spec("build").items()
-                                      if key != "source_digest"},
-            "uppercase source digest": spec("build", source_digest="B" * 64),
-            "short resource digest": spec("build", resource_digest="c" * 63),
-            "long source digest": spec("build", source_digest="b" * 65),
-            "nonhex input digest": spec("build", input_digests=["z" * 64]),
-            "empty permitted operations": spec("build", permitted_operations=[]),
-            "blank permitted operation": spec("build", permitted_operations=["read", ""]),
-            "unlisted permitted operations": spec("build", permitted_operations="read"),
-        }
-        for case, value in broken.items():
+        for case, value in {**BROKEN_SHAPE, **BROKEN_VALUES}.items():
             with self.subTest(case=case):
                 self.reject("job.plan", {"jobs": [value]}, "invalid_request")
         self.assertEqual(self.specs(), [])
@@ -140,7 +165,7 @@ class DerivedSpecTest(JobCLITest):
         self.call("prd.enter", {"prds": [PRD]})
         self.call("task.replace", {"tasks": copy.deepcopy(PLAN), "allow_expansion": False})
 
-    def requirements(self, *, phase: str, lane: str, tier: str) -> tuple:
+    def requirements(self, phase: str, lane: str, tier: str | None) -> tuple:
         state = self.state()
         state["workflow"]["jobs"] = []
         state["workflow"]["work"].update(phase=phase, lane=lane, lane_reason="override",
@@ -150,6 +175,11 @@ class DerivedSpecTest(JobCLITest):
         first = min(self.specs(), key=lambda value: value["source_digest"])
         return (first["role"], first["isolation"], first["tier"], first["effort"],
                 tuple(first["permitted_operations"]))
+
+    def resource_digest_for(self, prd: str) -> str:
+        content = (self.root / files.PRD_ROOT / "wip" / prd).read_bytes()
+        return digest({"repo_root": self.state()["repo_root"], "prd": prd,
+                       "prd_digest": hashlib.sha256(content).hexdigest()})
 
     def test_derived_specs_cover_only_unfinished_tasks_and_digest_their_own_rows(self) -> None:
         rows = self.state()["workflow"]["tasks"]
@@ -172,6 +202,8 @@ class DerivedSpecTest(JobCLITest):
     def test_the_resource_digest_follows_the_active_prd_name(self) -> None:
         self.call("job.plan", {"jobs": []})
         first = {value["resource_digest"] for value in self.specs()}
+        wip = self.root / files.PRD_ROOT / "wip"
+        (wip / "00043-other.md").write_bytes((wip / PRD).read_bytes())
         state = self.state()
         state["workflow"]["jobs"] = []
         state["workflow"]["work"]["prd"] = "00043-other.md"
@@ -181,7 +213,22 @@ class DerivedSpecTest(JobCLITest):
 
         second = {value["resource_digest"] for value in self.specs()}
         self.assertEqual((len(first), len(second)), (1, 1))
-        self.assertFalse(first & second)
+        self.assertFalse(first & second, "the same bytes under another name is another resource")
+
+    def test_the_resource_digest_attests_the_content_of_the_active_prd_file(self) -> None:
+        self.call("job.plan", {"jobs": []})
+        before = {value["resource_digest"] for value in self.specs()}
+        self.assertEqual(before, {self.resource_digest_for(PRD)})
+        state = self.state()
+        state["workflow"]["jobs"] = []
+        self.seed(state)
+        (self.root / files.PRD_ROOT / "wip" / PRD).write_text(PRD_TEXT + "\n## edited\n")
+
+        self.call("job.plan", {"jobs": []})
+
+        after = {value["resource_digest"] for value in self.specs()}
+        self.assertEqual(after, {self.resource_digest_for(PRD)})
+        self.assertFalse(after & before, "an edited PRD is a different resource")
 
     def test_the_resource_digest_follows_the_repo_root_while_the_source_digest_follows_rows(
             self) -> None:
@@ -202,20 +249,16 @@ class DerivedSpecTest(JobCLITest):
 
     def test_the_derived_requirements_change_with_the_phase_the_lane_and_the_task_tier(
             self) -> None:
-        baseline = self.requirements(phase="build", lane="solo", tier="opus")
+        baseline = self.requirements(*BASELINE)
 
-        variants = {"phase": {"phase": "review", "lane": "solo", "tier": "opus"},
-                    "lane": {"phase": "build", "lane": "full", "tier": "opus"},
-                    "task tier": {"phase": "build", "lane": "solo", "tier": "sonnet"}}
-        for changed, variant in variants.items():
-            with self.subTest(changed=changed):
-                self.assertNotEqual(self.requirements(**variant), baseline)
-        role, isolation, tier, effort, permitted = baseline
-        for value in (role, isolation, tier, effort):
-            self.assertIsInstance(value, str)
-            self.assertTrue(value)
-        self.assertTrue(permitted)
-        self.assertTrue(all(isinstance(value, str) and value for value in permitted))
+        self.assertEqual(baseline, DERIVED[BASELINE])
+        for inputs, expected in DERIVED.items():
+            with self.subTest(phase=inputs[0], lane=inputs[1], tier=inputs[2]):
+                observed = self.requirements(*inputs)
+                self.assertEqual(observed, expected)
+                self.assertEqual(observed[2], inputs[2] or "sonnet", "tier is the task tier")
+                self.assertEqual(observed == baseline, inputs == BASELINE,
+                                 "a changed input changes the requirements")
 
 
 # -- C4.3 job.next is a standalone instruction -------------------------------
@@ -223,8 +266,8 @@ class DerivedSpecTest(JobCLITest):
 
 class NextInstructionTest(JobCLITest):
     def test_job_next_returns_the_whole_spec_and_an_instruction_for_each_job(self) -> None:
-        first = spec("build", permitted_operations=["read"])
-        second = spec("review", "build", role="reviewer", isolation="container",
+        first = spec("alpha-job", permitted_operations=["read"])
+        second = spec("beta-job", "alpha-job", role="reviewer", isolation="container",
                       tier="sonnet", effort="low", input_digests=["f" * 64, "0" * 64],
                       source_digest="d" * 64, resource_digest="e" * 64,
                       permitted_operations=["read", "write"])
@@ -235,12 +278,15 @@ class NextInstructionTest(JobCLITest):
         self.assertEqual(set(offered), INSTRUCTION_KEYS)
         self.assertEqual({key: offered[key] for key in SPEC_KEYS}, first)
         self.assertIsInstance(offered["instruction"], str)
-        self.assertTrue(offered["instruction"].strip())
-        self.call("job.claim", {"job_id": "build"})
-        self.call("job.record_exit", {"job_id": "build", "exit_fact": dict(EXIT)})
-        offered = self.call("job.next", {})["result"]
-        self.assertEqual({key: offered[key] for key in SPEC_KEYS}, second)
-        self.assertTrue(offered["instruction"].strip())
+        self.assertIn("alpha-job", offered["instruction"])
+        self.assertIn("builder", offered["instruction"])
+        self.call("job.claim", {"job_id": "alpha-job"})
+        self.call("job.record_exit", {"job_id": "alpha-job", "exit_fact": dict(EXIT)})
+        later = self.call("job.next", {})["result"]
+        self.assertEqual({key: later[key] for key in SPEC_KEYS}, second)
+        self.assertIn("beta-job", later["instruction"])
+        self.assertIn("reviewer", later["instruction"])
+        self.assertNotEqual(later["instruction"], offered["instruction"])
 
 
 # -- C4.4 a stored spec without the new metadata validates but never runs ----
@@ -253,16 +299,34 @@ class StoredSpecTest(JobCLITest):
         self.assertEqual(schema.validate_state(copy.deepcopy(state)), state)
         self.seed(state)
 
+    def assert_unrunnable(self) -> None:
+        offered = self.call("job.next", {})["result"]
+        self.assertEqual(offered["job_id"], "ready")
+        self.reject("job.claim", {"job_id": "legacy"}, "rejected_evidence")
+
     def test_a_stored_spec_missing_the_new_metadata_is_never_offered_or_claimed(self) -> None:
         for missing in ("source_digest", "resource_digest", "permitted_operations"):
             with self.subTest(missing=missing):
                 self.seed_rows({key: value for key, value in spec("legacy").items()
                                 if key != missing})
 
-                offered = self.call("job.next", {})["result"]
+                self.assert_unrunnable()
 
-                self.assertEqual(offered["job_id"], "ready")
-                self.reject("job.claim", {"job_id": "legacy"}, "rejected_evidence")
+    def test_a_stored_spec_whose_present_metadata_is_invalid_is_not_a_valid_state(self) -> None:
+        state = self.state()
+        state["workflow"]["jobs"] = [row(spec("ready"))]
+        self.assertEqual(schema.validate_state(copy.deepcopy(state)), state)
+
+        invalid = {"empty permitted operations": {"permitted_operations": []},
+                   "blank permitted operation": {"permitted_operations": [""]},
+                   "nonhex source digest": {"source_digest": "z" * 64},
+                   "short resource digest": {"resource_digest": "c" * 10}}
+        for case, override in invalid.items():
+            with self.subTest(case=case):
+                broken = copy.deepcopy(state)
+                broken["workflow"]["jobs"] = [row(spec("legacy", **override))]
+                with self.assertRaises(schema.SchemaError):
+                    schema.validate_state(broken)
 
     def test_a_stored_spec_with_the_new_metadata_is_offered_and_claimable(self) -> None:
         self.seed_rows(spec("legacy"))

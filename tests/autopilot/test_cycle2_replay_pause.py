@@ -121,10 +121,10 @@ class StaleSagaDispatchTest(OwnerCLITest):
         self.assertEqual([item["op_id"] for item in self.ledger()],
                          [deferred["result"]["operation_id"], parked["result"]["operation_id"]])
 
-    def test_a_ledger_recorded_saga_replays_while_an_unrecorded_stale_request_conflicts(
-            self) -> None:
-        value, deferred = self.call("prd.defer", DEFER)
-        operation_id = deferred["result"]["operation_id"]
+    def replay(self, name: str, payload: dict) -> dict:
+        """Commit a saga, lose its receipt, re-apply the very same stale request."""
+        value, committed = self.call(name, payload)
+        operation_id = committed["result"]["operation_id"]
         self.assertEqual(operation_id, value["request_id"])
         self.assertEqual([item["op_id"] for item in self.ledger()], [operation_id])
         state = self.state()
@@ -137,8 +137,20 @@ class StaleSagaDispatchTest(OwnerCLITest):
         self.assertIs(replayed["result"]["replayed"], True)
         self.assertEqual([item["op_id"] for item in self.ledger()], [operation_id])
         self.assertIn(value["request_id"], self.state()["receipts"])
+        return value
+
+    def test_a_ledger_recorded_saga_replays_while_an_unrecorded_stale_request_conflicts(
+            self) -> None:
+        value = self.replay("prd.defer", DEFER)
+
         unrecorded = dict(value, request_id="defer-unrecorded")
         self.reject_unchanged(unrecorded, self.operator, "revision_conflict")
+
+    def test_a_ledger_recorded_park_replays_through_the_dispatcher_like_any_other_saga(
+            self) -> None:
+        self.replay("prd.park", PARK)
+
+        self.assertEqual(self.where(), ["hold"])
 
 
 # -- C6 the systemic-park pause ----------------------------------------------
@@ -182,6 +194,52 @@ def test_the_second_park_commits_the_pause_with_the_recovery_marker_it_clears(tm
             assert flow.get("pause") == pause, f"marker cleared without the pause: {boundary}"
 
 
+class FailingStore:
+    """A real store whose nth transaction fails, the way a crash would."""
+
+    def __init__(self, store, fail_on: int) -> None:
+        self._store = store
+        self._fail_on = fail_on
+        self.transactions = 0
+
+    def __getattr__(self, name: str) -> object:
+        return getattr(self._store, name)
+
+    def transaction(self, *args, **kwargs):
+        self.transactions += 1
+        if self.transactions == self._fail_on:
+            raise RuntimeError(f"injected crash at transaction {self._fail_on}")
+        return self._store.transaction(*args, **kwargs)
+
+
+def park_twice(base: Path, fail_on: int) -> tuple[Path, bool]:
+    """Park two PRDs; the second park's nth transaction fails. Report the root."""
+    root = make_root(base, wip={PRD: prd_text(), OTHER: prd_text()})
+    store = make_store(root, work=work(PRD))
+    files.park(store, project_root=root, prd=PRD)
+    store.transaction(lambda state: state["workflow"].update(work=work(OTHER)))
+    try:
+        files.park(FailingStore(store, fail_on), project_root=root, prd=OTHER)
+    except (RuntimeError, ProtocolError):  # the injected crash, or the saga's own refusal
+        return root, True
+    return root, False
+
+
+def test_a_crash_while_the_second_park_commits_never_loses_the_systemic_pause(tmp_path):
+    interrupted, paused_runs = 0, 0
+
+    for fail_on in range(7):
+        root, raised = park_twice(tmp_path / f"crash-{fail_on}", fail_on)
+        workflow = state_of(root)["workflow"]
+        if workflow["recovery"] is None and bucket_of(root, OTHER) == ["hold"]:
+            assert workflow.get("pause"), f"marker cleared without the pause: {fail_on}"
+        interrupted += int(raised)
+        paused_runs += int(not raised and bool(workflow.get("pause")))
+
+    assert interrupted, "control: an injected failure interrupted the park saga"
+    assert paused_runs, "control: an uninterrupted second park records the pause"
+
+
 def test_prd_enter_keeps_rejecting_while_the_pause_is_set(tmp_path):
     root, store = paused(tmp_path / "paused")
 
@@ -205,4 +263,6 @@ def test_resume_target_reports_operator_reconciliation_only_while_the_pause_is_s
 
     assert isinstance(target, str)
     assert "reconcil" in target.lower()
+    assert "systemic_park" in target, "the operator learns which pause site to reconcile"
+    assert OTHER in target, "the operator learns which PRD the batch parked on"
     assert target != lifecycle.resume_target(without_pause)
