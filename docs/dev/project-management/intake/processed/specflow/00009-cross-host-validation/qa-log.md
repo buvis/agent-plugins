@@ -1376,3 +1376,44 @@ the changed runner file. Next live action: one diagnostic batch with new
 roots; when its handoff has no failure, the full matrix on the same commit.
 Human verdicts, task Outcomes and the fresh-session completion review
 remain open.
+
+
+### Third repair diagnostic and marker acceptance by exact line (2026-11-25)
+
+The developer ran the diagnostic outside run-agent on commit 7c40a17.
+Evidence lives under `docs/dev/tmp/specflow/repair3-proofs/diagnostic/` and
+`docs/dev/tmp/specflow/repair3-results/diagnostic/`; preserve both roots.
+Each probe exited 0. Each conversion recorded four replies with no notRun
+or brokenAt marker and failed only the unjudged rubric assertion. The
+handoff recorded ten replies, no row error and clean instructions.
+
+The handoff failed the same eight checks as on 2026-11-24, for a new cause.
+The requirements host wrote one unresolved question that no request had
+predicted: the minimum Python 3 version. The design repeated it as an open
+decision. The fixed acceptance text named only the five supplied choices,
+so the host correctly refused the design approval, and later steps cascade
+from that state. The run of 31a6f33 had no such marker. A host can write a
+different open question on each run, so a fixed list of topics cannot make
+the handoff reliable. The requirements-edit repair of 7c40a17 did work:
+the host changed REQ-001 in place and added no requirement ID.
+
+Repair: before each request that records a design or tasks approval, the
+script reads the helper status and the state file. It accepts by its exact
+line every marker the helper reports as not accepted, plus every line
+already accepted, so that a rewritten approval keeps them. The row records
+the request as sent. This replaces the earlier statement that a marker
+about another topic still blocks approval: the scripted developer now
+accepts every open marker. The handoff measures state carried across hosts
+and external edits, not marker judgment; the per-rule sessions
+(design-open-marker and others) still test refusal. No check, assertion,
+package file or security setting changed. The stored status of this run
+was inspected and carries the exact marker lines the repair reads.
+
+Regression checks failed against the old code first (five errors). Local
+verification: 219 rules/runner tests on Python 3.15.2 and 3.10.22, zero
+skipped; Ruff lint/format on the two changed files passed. The security and
+conversion suites do not import the handoff script and were not rerun.
+
+The repair is not proven live. Proofs from 7c40a17 are stale. Next live
+action: one diagnostic batch with new roots; when its handoff has no
+failure, the full matrix on the same commit.

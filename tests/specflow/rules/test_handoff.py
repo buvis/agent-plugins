@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "evals/runners"))
 import run_handoff
@@ -86,6 +89,62 @@ class HandoffTest(unittest.TestCase):
         prompts = {step: prompt for step, _, prompt in run_handoff.STEPS}
         self.assertIn("Add no new requirement", prompts["edit-requirements"])
         self.assertNotIn("Add this requirement", prompts["edit-requirements"])
+
+    def test_approval_request_names_every_open_marker_by_its_exact_line(self) -> None:
+        # Live run 2026-11-25: a host wrote an open question no fixed prompt
+        # predicted, so the design approval was refused for lack of a name.
+        question = "- Minimum Python 3 version the code must support."
+        earlier = "- The runner is unittest. (guess)"
+        status = {
+            "specs": [
+                {
+                    "spec": "00001-greeting",
+                    "blockers": [
+                        {"reason": "design is draft", "reference": "design.md"},
+                        {
+                            "reason": "requirements marker not accepted for the design approval",
+                            "reference": question,
+                        },
+                    ],
+                }
+            ]
+        }
+        state = {
+            "artifacts": {
+                "design": {
+                    "acceptedMarkers": [{"artifact": "requirements", "line": earlier}]
+                }
+            }
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory)
+            (workspace / run_handoff.SPEC).mkdir(parents=True)
+            (workspace / run_handoff.SPEC / ".specflow.json").write_text(
+                json.dumps(state)
+            )
+            with mock.patch.object(
+                run_handoff.runner, "capture_status", return_value=status
+            ):
+                for step in ("tasks", "approve-tasks", "reapprove"):
+                    with self.subTest(step=step):
+                        prompt = run_handoff.step_prompt(step, "Approve.", workspace)
+                        self.assertIn(question, prompt)
+                        # A rewritten approval must not drop an earlier acceptance.
+                        self.assertIn(earlier, prompt)
+                        self.assertNotIn("design.md", prompt)
+                self.assertEqual(
+                    run_handoff.step_prompt("design", "Draft.", workspace), "Draft."
+                )
+
+    def test_approval_request_without_open_markers_is_unchanged(self) -> None:
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            mock.patch.object(run_handoff.runner, "capture_status", return_value=None),
+        ):
+            self.assertEqual(
+                run_handoff.step_prompt("tasks", "Approve.", Path(directory)),
+                "Approve.",
+            )
 
     def test_complete_trace_satisfies_checks(self) -> None:
         self.assertEqual(run_handoff.checks(rows()), [])

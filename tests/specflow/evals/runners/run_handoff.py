@@ -88,6 +88,46 @@ STEPS = (
 )
 
 
+APPROVALS = ("tasks", "approve-tasks", "reapprove")
+
+
+def step_prompt(
+    step: str, prompt: str, workspace: Path, plugin: Path = score.PLUGIN
+) -> str:
+    """Before an approval, accept every open upstream marker by its exact line.
+
+    A host may write an open question no fixed request predicts (live run
+    2026-11-25), and an approval needs each marker named. The lines come from
+    the helper's status, plus those already accepted, so that a rewritten
+    approval keeps them. This scripted developer accepts all of them: the
+    handoff measures state carried across hosts, not marker judgment.
+    """
+    if step not in APPROVALS:
+        return prompt
+    status = runner.capture_status(workspace, plugin=plugin) or {}
+    lines = [
+        blocker.get("reference")
+        for spec in status.get("specs", [])
+        if spec.get("spec") == "00001-greeting"
+        for blocker in spec.get("blockers", [])
+        if " marker not accepted for the " in str(blocker.get("reason"))
+    ]
+    try:
+        state = json.loads((workspace / SPEC / ".specflow.json").read_text())
+        records = state["artifacts"].values()
+        lines += [m["line"] for r in records for m in r.get("acceptedMarkers", [])]
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        pass  # no readable state: only the helper's blockers are named
+    lines = list(dict.fromkeys(line for line in lines if isinstance(line, str)))
+    if not lines:
+        return prompt
+    return (
+        prompt + " I accept each of these open markers by name, as it is written, and"
+        " you record each as an accepted marker with every approval it blocks: "
+        + " | ".join(lines)
+    )
+
+
 def capture(workspace: Path, plugin: Path) -> dict:
     files = runner.snapshot(workspace)
     artifacts = {p: text for p, text in files.items() if p.startswith(SPEC + "/")}
@@ -215,6 +255,9 @@ def execute(models: dict[str, str], proofs: Path, out: Path, registry: dict) -> 
                 adapter = adapters[host]
                 adapter.new_conversation()
                 expected = runner.snapshot(workspace)
+                prompt = row["prompt"] = step_prompt(
+                    step, prompt, workspace, adapter.plugin
+                )
                 reply, reads = adapter.turn(
                     prompt
                     if step == "external-edit"
