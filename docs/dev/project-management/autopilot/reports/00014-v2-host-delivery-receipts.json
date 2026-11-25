@@ -31,11 +31,11 @@
       "task": "12",
       "tests": "tests/autopilot",
       "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q --tb=line -p no:cacheprovider",
-      "passed": 1841,
-      "failed": 7,
+      "passed": 2185,
+      "failed": 0,
       "skipped": 0,
-      "exit_code": 1,
-      "duration_seconds": 726.31
+      "exit_code": 0,
+      "duration_seconds": 883.73
     }
   ],
   "real_host": {
