@@ -334,5 +334,213 @@
     "issue": "The named scenarios `entry_wip_first`, `completion_moves_once`, `task_attempt_replay` and `interrupted_move_recovery` have no tests under those exact names. Equivalent coverage exists under other names, for example `test_enter_picks_wip_before_backlog_and_moves_nothing`, `test_complete_after_review_moves_once_and_records_the_prd` and `test_crash_at_each_complete_boundary_replays_without_double_entry`. Naming is traceability only.",
     "file": "tests/autopilot/test_controller_lifecycle.py:220",
     "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`policy.job_requirements` raises a bare KeyError for any phase other than build or review. A derived `job.plan` in phase `done` (after `task.replace` adds unfinished rows) therefore returns `recovery_required` for a plain precondition failure. I confirmed `job_requirements({'phase':'done',...})` raises `KeyError 'done'`, and `apply_locked` maps KeyError to `recovery_required`. The assumptions note records the KeyError as \"closed vocabulary\" and no test covers it. Reject with `rejected_evidence` instead, and add a test.",
+    "file": "plugins/autopilot/controller/autopilot_state/policy.py:143",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The `_runnable` docstring says a spec lacking the metadata \"is reconciled by replanning the job\". That cannot happen. `jobs.plan` only appends, and `validate_plan_shape` over existing plus new specs rejects a repeated job id. Such a job stays stuck, and every job that depends on it never becomes ready. Either allow replanning an unclaimed, non-runnable row, or correct the docstring and say operator reseeding is the only repair.",
+    "file": "plugins/autopilot/controller/autopilot_state/jobs.py:16",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Two new branches have no test that fails when they are removed (R1). (a) `_verify_entered` raises `RecoveryRequiredError` when the moved PRD's bytes differ from the parsed bytes. The assumptions file says no test exercises it. (b) `apply_unlocked` raises `revision_conflict` when `stale and not replay`. Every stale test is stopped earlier by `authorize`, so nothing tests the window between lock release and re-read.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:379",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`start_commit` is stored as raw `git rev-parse HEAD` output, but the schema accepts only 40 hex characters. The assumptions file admits a sha256 repository fails at commit time. That failure happens after the verified rename, as `recovery_required`, and the same failure repeats on every retry. The PRD stays in wip with no entry. Accept 40 or 64 hex characters in both the schema and the JSON contract, or record null when git returns anything else.",
+    "file": "plugins/autopilot/controller/autopilot_state/schema.py:397",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`test_workflow_schema_permits_an_empty_tasks_or_jobs_array_too` still passes against the pre-change code (prior R31/R23). It validates only the empty state against the shipped schema. Its junk `populated` rows are checked by the runtime validator alone. The comment still says the shipped file \"declares no `items` for tasks/jobs\" and that \"a separate task tightens that JSON file\". This diff made that tightening, so the comment is false. Assert `jsonschema` rejects the junk rows, or delete the comment and the runtime-only check.",
+    "file": "tests/autopilot/test_controller_rework13_contracts.py:48",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "A failed dependency unlocks its dependents. `next_job` treats any non-null `exit_fact` as finished (jobs.py:67), and `outcome` is free text. A job whose exit fact says \"failed\" lets the next job be offered.",
+    "file": "plugins/autopilot/controller/autopilot_state/jobs.py:67",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`false_success_no_advance` is only partly enforced. `phase.handoff review->converged` is accepted from any registered actor with no review or job evidence (lifecycle.py:453-472). `prd.complete` then moves the PRD, so a false \"converged\" bypasses review. The tests only prove that `complete` is refused before a handoff (tests/autopilot/test_controller_integration.py:164). The spec's Risks section admits acceptance is unavailable until AP 00020. Exit facts are correctly never consulted. `rework_cap` is captured (lifecycle.py:355) but never enforced.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:453",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Crash recovery for claimed jobs deadlocks. `claim` rejects any already-claimed job whatever its epoch (jobs.py:80). `owner.recover` is refused whenever any job has `claimed_by` set or `reconciled_job_ids` is non-empty (owner.py:275-278). No operation clears or reassigns a claim. The spec says \"one valid claim per job/epoch\", and `claim_epoch` is stored, but a crashed claimant's job can never be re-claimed in a new epoch.",
+    "file": "plugins/autopilot/controller/autopilot_state/owner.py:275",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`manual_session_handoff` never exercises jobs. Phase 2 task 1 says to export core/jobs capabilities and run a manual-session fake-host lifecycle. The test (tests/autopilot/test_controller_integration.py:116) covers tasks, handoff and complete only. Job claim and exit run in a separate test. `job.next` has no end-to-end test in a handoff.",
+    "file": "tests/autopilot/test_controller_integration.py:116",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Reviewer jobs cannot be derived through the normal handoff. `tasks_done` requires all task rows to be finished, then derivation in `review` selects only unfinished rows. The policy test reaches its reviewer branch by directly seeding a state that the public handoff cannot produce. Derive review work from completed build state and test it after a public handoff.",
+    "file": "tests/autopilot/test_cycle2_jobs_metadata.py:168",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Legacy job rows without metadata are now loadable but permanently unclaimable. `_runnable` says replanning reconciles them, yet `jobs.plan` rejects an existing ID and derivation skips it. Add a bounded way to replace an unclaimed legacy spec and test the upgrade through the dispatcher.",
+    "file": "plugins/autopilot/controller/autopilot_state/jobs.py:16",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`prd.enter` captures `plan_expansion`, but `task.replace` still uses only the caller’s flag. A PRD that denies expansion can receive a plan over the ceiling. Enforce the captured policy and test a conflicting request.",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:318",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Backlog entry verifies that the bytes in `wip` match the parsed bytes. Direct `wip` entry checks only that a regular file still exists, so a replacement can inherit metadata from the old file. Apply the same byte and identity check to direct entry and test a replacement before publication.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:406",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "HEAD capture accepts any successful Git output, while state validation requires a 40-character SHA-1. A SHA-256 repository can reach the backlog rename and then fail state publication. Validate the Git result before any move and align both schemas with the supported object formats.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:340",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The published contract adds a `job.next` request and fixtures but still lacks its expanded success result. Add the result shape and validate an actual dispatcher response and its persisted receipt against the shipped contract.",
+    "file": "plugins/autopilot/contracts/controller/workflow-v1.json:1604",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Caller and stored JobSpec definitions duplicate every property and differ only in required keys. Reference the stored shape from the caller definition and require the three extra keys there.",
+    "file": "plugins/autopilot/contracts/controller/workflow-v1.json:713",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The updated delivery receipt records 2,185 passes and zero failures but omits the known expected failure. Include the xfail count in the delivery evidence so it matches the supplied test result.",
+    "file": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json:31",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The packed-reference test uses a disjunctive fixture check. Assert that `packed-refs` contains the tested branch and that its specific loose ref is absent.",
+    "file": "tests/autopilot/test_cycle2_entry_tasks.py:120",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "The mechanical hedge flag on `test_enter_captures_the_head_commit_of_a_repository_whose_refs_are_packed` is a precondition check (`not loose.exists() or not any(loose.rglob(\"*\"))`), not the outcome assert. The outcome assert is `start_commit == head`. Rewrite the precondition without `or` to silence the shape.",
+    "file": "tests/autopilot/test_cycle2_entry_tasks.py:120",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "`_head_commit` turns every git failure (timeout, missing binary) into `start_commit: null` with no signal. It also inherits any ambient `GIT_DIR` or `GIT_WORK_TREE`, which could record another repository's HEAD. Consider clearing those variables and noting the null case in the result.",
+    "file": "plugins/autopilot/controller/autopilot_state/lifecycle.py:340",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "Small duplication and naming. `_derive_job_specs` hardcodes `(\"pending\", \"in_progress\")` while `lifecycle._UNFINISHED` already holds that tuple. The `tasks_done` gate raises `UnknownTransition` for an unfinished-task precondition, which is misleading even though it maps to `rejected_evidence`.",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:380",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "`job.next` is a REDUCER_OPERATION (protocol.py:24-26). Each read-only call bumps the revision and stores a receipt, which counts against the 4096-receipt cap. In `policy.job_requirements`, `_ROLES[work[\"phase\"]]` raises KeyError outside build or review (policy.py:145). That error surfaces as `recovery_required` rather than `rejected_evidence`. Derived specs always carry `input_digests: []` (protocol.py:394).",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:350",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "\"Early supervisor-start revert from OVCAQ 00062 is incorporated\" has no trace in plugins/, tools/ or tests/. The only \"00062\" hits are unrelated tracon text. I could not verify this requirement.",
+    "file": "N/A",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "5 touched test(s) pass against the pre-change code: test_advertised_capability_and_operation_lists_are_pinned, test_bundle_shape_and_implemented_only_advertisement, test_malformed_workflow_fields_are_rejected, test_reserved_operations_parse_but_need_unavailable_capability, test_workflow_default_matches_frozen_initial_state",
+    "file": "tests/autopilot/test_controller_protocol.py",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "1 touched test(s) pass against the pre-change code: test_owner_recover_succeeds_with_a_nonempty_job_plan",
+    "file": "tests/autopilot/test_controller_rework13_jobs.py",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 3,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "1 touched test(s) pass against the pre-change code: test_rejects_job_and_job_spec_records_with_missing_extra_or_mistyped_fields",
+    "file": "tests/autopilot/test_controller_schema_lifecycle.py",
+    "reason": "single-voice"
   }
 ]

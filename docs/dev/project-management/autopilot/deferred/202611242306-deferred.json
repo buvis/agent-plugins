@@ -14,6 +14,89 @@
       "issue": "Review acceptance is not enforced: a phase.handoff review->done converged claim is accepted with no recorded review evidence. Pinned by a strict xfail in tests/autopilot/test_controller_rework13_lifecycle.py (reason: review acceptance deferred to AP 00020).",
       "reason": "the PRD Risks section states acceptance is unavailable until AP 00020 lands the review evidence family; the strict xfail turns red the day it is implemented",
       "prd": "00019-autopilot-controller-lifecycle-v1.md"
+    },
+    {
+      "type": "stall",
+      "site": "cap_regression",
+      "detail": "R5 bf131b9, R6 bf131b9, R7 1ac12e2",
+      "op_id": "c9e62758e000",
+      "prd": "00019-autopilot-controller-lifecycle-v1.md"
+    },
+    {
+      "type": "known-gap",
+      "task": 9,
+      "detail": "saga ops (prd.enter/stall/park/defer/complete, phase.handoff) write their replay receipt in a second transaction after the saga commits; a crash between the two means a replay gets revision_conflict/rejected_evidence instead of the cached response, and a full receipt cache (4096 entries) at that point yields recovery_required instead of the real result. files.stall/park/defer_record/complete_prd do not check the authorizing actor binding against the revision at saga-commit time (only enter/handoff do, via their own expected-revision commit), so a lease change between authorization and saga execution is not guarded for those four. lifecycle.complete calls require_recovery_idle first, so a crashed prd.complete saga cannot be resumed through the protocol today. None of these block the PRD acceptance criteria (manual_session_handoff/false_success_no_advance/drained_vs_ineligible/job_claim_exclusive/job_plan_stable/no_controller_spawn/record_exit idempotent replay all pass); flagged for a follow-up PRD.",
+      "cycle": 3,
+      "prd": "00019-autopilot-controller-lifecycle-v1.md",
+      "op_id": "c9e62758e000-dd0"
+    },
+    {
+      "type": "known-gap",
+      "task": 10,
+      "detail": "workflow-v1.json contract JSON schema ($defs/state, $defs/response/core_result, and the runtime_validation prose) still describes the pre-AP00019 narrow state/response shapes (work: null only, empty tasks/jobs, three owner-only result shapes, frozen-workflow-reserves prose) even though schema.py and protocol.py now accept/produce the richer shapes this PRD adds. Request-shape validation ($defs/request, payload $defs) was updated and is now accurate; the state/response/runtime-prose side was out of this tasks scope. Flagged for a follow-up contract-hygiene task rather than silently left inconsistent.",
+      "cycle": 3,
+      "prd": "00019-autopilot-controller-lifecycle-v1.md",
+      "op_id": "c9e62758e000-dd1"
+    },
+    {
+      "type": "cap-overflow",
+      "cycle": 3,
+      "issue": "R2: phase.handoff review->done with outcome converged is accepted with no review evidence, so prd.complete can close a PRD on a bare claim (plugins/autopilot/controller/autopilot_state/lifecycle.py:106). Pinned by a strict xfail and already deferred to AP00020.",
+      "severity": "high",
+      "consensus": "1/4",
+      "reason": "rework cap reached with this finding unresolved",
+      "prd": "00019-autopilot-controller-lifecycle-v1.md",
+      "op_id": "c9e62758e000-dd2"
+    },
+    {
+      "type": "cap-overflow",
+      "cycle": 3,
+      "issue": "R3: jobs are never scoped to a PRD or cleared between PRDs. reset_prd_fields keeps workflow.jobs, _derive_job_specs skips task ids already planned, and jobs.plan rejects duplicate ids, so a second PRD in a batch is silently never planned or collides; stale first-PRD jobs stay in next_job (plugins/autopilot/controller/autopilot_state/lifecycle.py:57). No test covers a second PRD.",
+      "severity": "high",
+      "consensus": "1/4",
+      "reason": "rework cap reached with this finding unresolved",
+      "prd": "00019-autopilot-controller-lifecycle-v1.md",
+      "op_id": "c9e62758e000-dd3"
+    },
+    {
+      "type": "cap-overflow",
+      "cycle": 3,
+      "issue": "R4: the stale-revision check still races with saga staging. apply_unlocked checks one snapshot, then _run_saga_body rereads state and stages against the newer revision (plugins/autopilot/controller/autopilot_state/files.py:555). Pass the admitted revision into staging and test a lease change between the two reads.",
+      "severity": "high",
+      "consensus": "1/4",
+      "reason": "rework cap reached with this finding unresolved",
+      "prd": "00019-autopilot-controller-lifecycle-v1.md",
+      "op_id": "c9e62758e000-dd4"
+    },
+    {
+      "type": "cap-overflow",
+      "cycle": 3,
+      "issue": "R5: replay admission treats a ledger row as proof of commit although the saga appends it before committing, and the row lacks the authorizing actor and request digest; a crash before the append leaves the original request unable to resume (plugins/autopilot/controller/autopilot_state/protocol.py:269). cap-check classifies this as a regression introduced by this cycle rework at bf131b9.",
+      "severity": "high",
+      "consensus": "1/4",
+      "reason": "rework cap reached with this finding unresolved; classified a cycle-3 regression (bf131b9)",
+      "prd": "00019-autopilot-controller-lifecycle-v1.md",
+      "op_id": "c9e62758e000-dd5"
+    },
+    {
+      "type": "cap-overflow",
+      "cycle": 3,
+      "issue": "R6: derived planning drops completed tasks but keeps dependency ids pointing at them, so a pending task that depends on a completed task has an unknown job dependency unless that task already has a job row (plugins/autopilot/controller/autopilot_state/protocol.py:380). cap-check classifies this as a regression introduced by this cycle rework at bf131b9.",
+      "severity": "high",
+      "consensus": "1/4",
+      "reason": "rework cap reached with this finding unresolved; classified a cycle-3 regression (bf131b9)",
+      "prd": "00019-autopilot-controller-lifecycle-v1.md",
+      "op_id": "c9e62758e000-dd6"
+    },
+    {
+      "type": "cap-overflow",
+      "cycle": 3,
+      "issue": "R7: the single strict xfail covers the still-open review acceptance gap; until AP00020 lands, the passing integration path still relies on a bare converged claim (tests/autopilot/test_controller_rework13_lifecycle.py:131). cap-check classifies the row as a regression introduced by this cycle rework at 1ac12e2 (the test file was rewritten this cycle).",
+      "severity": "high",
+      "consensus": "1/4",
+      "reason": "rework cap reached with this finding unresolved; already deferred to AP00020, flagged a cycle-3 regression (1ac12e2) by cap-check",
+      "prd": "00019-autopilot-controller-lifecycle-v1.md",
+      "op_id": "c9e62758e000-dd7"
     }
   ]
 }
