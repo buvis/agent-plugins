@@ -24,7 +24,8 @@ SPAWN_MODULES = {"subprocess", "os", "posix", "pty", "multiprocessing"}
 def spec(job_id: str, *depends: str) -> dict:
     return {"job_id": job_id, "role": "builder", "depends_on": list(depends),
             "input_digests": ["a" * 64], "isolation": "worktree", "tier": "opus",
-            "effort": "high"}
+            "effort": "high", "source_digest": "b" * 64, "resource_digest": "c" * 64,
+            "permitted_operations": ["read", "write"]}
 
 
 def claimed(job_id: str = "build") -> list[dict]:

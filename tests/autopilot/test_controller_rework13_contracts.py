@@ -5,10 +5,13 @@ Each test proves one named finding from the rework task description.
 
 from __future__ import annotations
 
+import copy
 import json
 import sys
 import unittest
 from pathlib import Path
+
+import jsonschema
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTROLLER = ROOT / "plugins" / "autopilot" / "controller"
@@ -16,7 +19,7 @@ CONTRACTS = ROOT / "plugins" / "autopilot" / "contracts" / "controller"
 BUNDLE = ROOT / "plugins" / "autopilot" / "contracts" / "controller-v1.json"
 sys.path.insert(0, str(CONTROLLER))
 
-from autopilot_state import protocol
+from autopilot_state import protocol, schema
 
 
 def node(schema: dict, *path: str) -> dict:
@@ -44,10 +47,18 @@ class WorkflowSchemaMatchesRuntimeTest(unittest.TestCase):
 
     def test_workflow_schema_permits_an_empty_tasks_or_jobs_array_too(self) -> None:
         # Edge case: the schema must still accept the drained/default shape.
-        tasks = node(self.schema, "$defs", "workflow", "properties", "tasks")
-        jobs = node(self.schema, "$defs", "workflow", "properties", "jobs")
-        self.assertLessEqual(tasks.get("minItems", 0), 0)
-        self.assertLessEqual(jobs.get("minItems", 0), 0)
+        empty = schema.new_state(repo_root=Path("/project"), project_id="c" * 64,
+                                 workflow_id="lifecycle")
+        self.assertEqual((empty["workflow"]["tasks"], empty["workflow"]["jobs"]), ([], []))
+        jsonschema.validate(empty, self.schema)
+        populated = copy.deepcopy(empty)
+        populated["workflow"]["tasks"] = ["task-1"]
+        populated["workflow"]["jobs"] = [{"spec": {"job_id": "job-1"}}]
+        # Schema gap: $defs/workflow declares no `items` for tasks/jobs, so the
+        # shipped file still admits these junk rows and only the runtime
+        # validator refuses them; a separate task tightens that JSON file.
+        with self.assertRaises(schema.SchemaError):
+            schema.validate_state(populated)
 
     def test_bundle_schema_permits_every_runtime_capability(self) -> None:
         metadata, _ = protocol.public_contract()

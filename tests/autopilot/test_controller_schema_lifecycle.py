@@ -19,6 +19,8 @@ from autopilot_state import files, schema
 
 DEFAULT_WORKFLOW = {"batch": None, "work": None, "tasks": [],
                     "review": {"cap": 2}, "recovery": None, "jobs": []}
+# Optional on a stored job spec, required from a caller (schema._JOB_SPEC_REQUIRED).
+JOB_METADATA = ("source_digest", "resource_digest", "permitted_operations")
 
 
 def task(task_id: str, status: str, depends_on: list) -> dict:
@@ -205,14 +207,29 @@ class WorkflowLifecycleSchemaTest(unittest.TestCase):
             "claim_epoch": ["3", 1.5, [3], {"epoch": 3}],
             "exit_fact": ["done", 7, ["done"]],
         }, wrap=lambda record: [valid_jobs()[0], record])
-        self.assert_rejects_shape_breaks("jobs", claimed["spec"], {
+
+        def with_spec(spec: dict) -> list:
+            return [valid_jobs()[0], {**valid_jobs()[1], "spec": spec}]
+
+        spec = claimed["spec"]
+        stored = {field: value for field, value in spec.items() if field not in JOB_METADATA}
+        self.assert_rejects_shape_breaks("jobs", stored, {
             "role": [None, 7, ["builder"]],
             "depends_on": ["job-1", None, {}, [7], [None], ["job-1", 7]],
             "input_digests": ["a" * 64, None, {}, [7], [None]],
             "isolation": [None, 7, ["worktree"]],
             "tier": [None, 7, ["opus"]],
             "effort": [None, 7, ["high"]],
-        }, wrap=lambda spec: [valid_jobs()[0], {**valid_jobs()[1], "spec": spec}])
+            "source_digest": [None, 7, "c" * 63, "C" * 64, ["c" * 64]],
+            "resource_digest": [None, 7, "d" * 63, "D" * 64, ["d" * 64]],
+            "permitted_operations": [[], None, "read", [7], [""], ["read", None]],
+        }, wrap=with_spec)
+        # A row stored before the metadata keys existed still validates, so each
+        # one is optional on a stored spec while a present value is checked above.
+        for field in JOB_METADATA:
+            with self.subTest(stored_without=field):
+                self.assert_valid(state_with(jobs=with_spec(
+                    {name: value for name, value in spec.items() if name != field})))
 
     def test_accepts_populated_batch_and_rejects_malformed_batch(self) -> None:
         self.assert_valid(state_with(batch=batch()))
@@ -287,6 +304,8 @@ WORKFLOW_RESULTS = {
     "policy.bind": {"lane": "full", "lane_reason": "design"},
     "job.plan": {"job_count": 3},
     "job.claim": {"job_id": "job-1", "claimed_by": "operator-synthetic", "claim_epoch": 0},
+    "job.next": {**job("job-1", "builder", [], None, None)["spec"],
+                 "instruction": "run job job-1 (builder)"},
 }
 
 
@@ -342,7 +361,8 @@ CARD_SIZED_FRONTMATTER = {"design": "skip", "named_paths": ["src/app/render.py"]
 def job_spec(job_id: str) -> dict:
     return {"job_id": job_id, "role": "builder", "depends_on": [],
             "input_digests": ["a" * 64], "isolation": "worktree", "tier": "opus",
-            "effort": "high"}
+            "effort": "high", "source_digest": "c" * 64, "resource_digest": "d" * 64,
+            "permitted_operations": ["read", "write"]}
 
 
 # One corruption per result field name; the same field name means the same
@@ -353,6 +373,9 @@ RESULT_FIELD_CORRUPTIONS = {
     "task_count": -1, "job_count": True, "task_id": "", "status": "done",
     "attempts": "2", "lane": "turbo", "reason": "", "lane_reason": None,
     "job_id": "", "claimed_by": None, "claim_epoch": -1,
+    "role": "", "depends_on": "job-1", "input_digests": ["zz"], "isolation": "",
+    "tier": "", "effort": "", "source_digest": "zz", "resource_digest": "zz",
+    "permitted_operations": [], "instruction": "",
 }
 
 
@@ -400,6 +423,10 @@ class WorkflowReceiptResultDispatchTest(OwnerCLITest):
         request, response = self.call("job.plan", {"jobs": [job_spec("build")]})
         self.assertEqual(response["result"], {"job_count": 1})
         checks.append(("job.plan", request["request_id"], response["result"]))
+        request, response = self.call("job.next", {})
+        self.assertEqual(response["result"], {**job_spec("build"),
+                                              "instruction": "run job build (builder)"})
+        checks.append(("job.next", request["request_id"], response["result"]))
         request, response = self.call("job.claim", {"job_id": "build"})
         self.assertEqual(response["result"], {"job_id": "build", "claimed_by": self.actor_id,
                                               "claim_epoch": 0})
@@ -423,6 +450,12 @@ class WorkflowReceiptResultDispatchTest(OwnerCLITest):
         self.assertEqual(response["result"], {"task_id": "a", "status": "pending",
                                               "attempts": 1})
         checks.append(("task.attempt", request["request_id"], response["result"]))
+        # `tasks_done` requires every task row finished, so drive task "a" to
+        # completed through the public task operations before the handoff.
+        self.call("task.start", {"id": "a"})
+        _, finished = self.call("task.finish", {"id": "a", "outcome": "completed"})
+        self.assertEqual(finished["result"], {"task_id": "a", "status": "completed",
+                                              "attempts": 1})
         self.call("phase.handoff", {"phase": "build", "next_phase": "review",
                                     "outcome": "tasks_done"})
         request, response = self.call("phase.handoff", {"phase": "review", "next_phase": "done",
@@ -452,7 +485,7 @@ class WorkflowReceiptResultDispatchTest(OwnerCLITest):
         checks.append(("prd.stall", request["request_id"], response["result"]))
         return checks
 
-    def test_dispatches_all_twelve_operations_and_rejects_each_corrupted_result(self) -> None:
+    def test_dispatches_all_thirteen_operations_and_rejects_each_corrupted_result(self) -> None:
         checks = (self._dispatch_lane_and_jobs() + self._dispatch_prd_lifecycle()
                  + self._dispatch_defer_park_and_stall())
         self.assertEqual({operation for operation, _, _ in checks}, set(WORKFLOW_RESULTS))
