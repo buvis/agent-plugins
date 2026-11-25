@@ -57,12 +57,12 @@ STEPS = (
     (
         "edit-requirements",
         "claude-code",
-        "Use specflow. Add this requirement to approved requirements: greet() returns Hello as a string. Record no new approvals; report the resulting stale gates and stop.",
+        "Use specflow. Change the approved requirements: in the existing acceptance criterion for the greet() return value, state that the returned value has type str. Add no new requirement and no new requirement ID. Record no new approvals; report the resulting stale gates and stop.",
     ),
     (
         "reapprove",
         "claude-code",
-        "Use specflow. I approve the changed requirements and the existing design and tasks after checking their alignment with that requirement. Record all three approvals in order and stop."
+        "Use specflow. I approve the changed requirements and the existing design and tasks after checking their alignment with that change. Record all three approvals in order and stop."
         + ACCEPT,
     ),
     (

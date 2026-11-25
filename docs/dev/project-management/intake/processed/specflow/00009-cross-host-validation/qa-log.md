@@ -1333,3 +1333,46 @@ These prompts are not proven live. Runner proofs from 1dfd190 are stale for
 the changed runner files. Next live action: one diagnostic batch outside
 run-agent with new output and proof roots. The full matrix, human verdicts,
 task Outcomes and the fresh-session completion review remain open.
+
+
+### Second repair diagnostic and requirements-edit input (2026-11-25)
+
+The developer ran the diagnostic outside run-agent on commit 31a6f33.
+Evidence lives under `docs/dev/tmp/specflow/repair2-proofs/diagnostic/` and
+`docs/dev/tmp/specflow/repair2-results/diagnostic/`; preserve both roots.
+The summary rows give exit 1 for each conversion and for the handoff, and
+exit 0 for each probe.
+
+Collection worked on all three hosts. Claude, Codex and Kiro each recorded
+four conversion replies with no notRun or brokenAt marker; each failed only
+the unjudged rubric assertion. Kiro conversion did not fail again, so the
+new failure shape was not exercised live and the 2026-11-24 cause stays
+unknown. This is not a human PASS or a release certificate.
+
+The handoff recorded ten replies, no row error, and clean instructions on
+every row. The supplied choices worked: requirements had no guess or open
+question, the design and the task plan were approved, and the requirements
+edit made all three approvals stale. Failures fell from eight to four:
+approved state not carried at reapprove, implementation and verification,
+and verification did not reach completion. All four have one cause. The
+scripted edit added a requirement, which the host wrote as REQ-005. The
+reapprove request then approved the existing tasks, and the validator
+refused with `requirement-coverage: no task references REQ-005`. The host
+was correct; the script premise was false. Implementation and verification
+stayed blocked for the same reason. External edit and resume passed, with
+requirements, design and tasks all stale.
+
+Repair: the edit request now changes the existing acceptance criterion for
+the greet() return value (the value has type str) and adds no requirement
+and no requirement ID, so the existing design and task plan can be approved
+again without a plan change. No check or assertion changed. A regression
+failed against the old request first. Local verification: 217 rules/runner
+tests on Python 3.15.2 and 3.10.22, zero skipped; Ruff lint/format on the
+two changed files passed. The security and conversion suites do not import
+the handoff script and were not rerun for this change.
+
+The changed request is not proven live. Proofs from 31a6f33 are stale for
+the changed runner file. Next live action: one diagnostic batch with new
+roots; when its handoff has no failure, the full matrix on the same commit.
+Human verdicts, task Outcomes and the fresh-session completion review
+remain open.

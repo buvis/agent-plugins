@@ -80,6 +80,13 @@ class HandoffTest(unittest.TestCase):
         prompts = {step: prompt for step, _, prompt in run_handoff.STEPS}
         self.assertIn("tick each completion criterion", prompts["verification"])
 
+    def test_requirements_edit_adds_no_requirement_for_tasks_to_cover(self) -> None:
+        # Live run 2026-11-25: a new requirement ID left the existing task
+        # plan without coverage, so "approve the existing tasks" was refused.
+        prompts = {step: prompt for step, _, prompt in run_handoff.STEPS}
+        self.assertIn("Add no new requirement", prompts["edit-requirements"])
+        self.assertNotIn("Add this requirement", prompts["edit-requirements"])
+
     def test_complete_trace_satisfies_checks(self) -> None:
         self.assertEqual(run_handoff.checks(rows()), [])
 
