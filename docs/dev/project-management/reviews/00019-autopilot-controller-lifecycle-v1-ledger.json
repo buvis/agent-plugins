@@ -230,5 +230,109 @@
     "issue": "Stale job claims still lack reconciliation after an owner interruption. The design explicitly defers wiring `reconciled_job_ids` into owner recovery.",
     "file": "N/A",
     "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`job.next` is incomplete and under-tested. There is no request or response schema entry, no fixture, and no CHANGELOG or doc mention. The result is only `{job_id, instruction}`, with no readiness, digests or permitted operations. The one test covers a single job with no dependencies. The dependency-blocked skip and the all-claimed and all-blocked rejection are untested. It is read-only but goes through the mutating reducer path, so every poll bumps the revision and writes a receipt.",
+    "file": "plugins/autopilot/controller/autopilot_state/jobs.py:52",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Weak or tautological rework tests. `test_workflow_schema_permits_an_empty_tasks_or_jobs_array_too` is true before and after the change, because it reads `minItems` with a default. The `maxItems` tests use `.get(..., default)` and never validate a real state. The finding-10 test accepts any of four exception types (`pytest.raises((RevisionConflictError, RecoveryConflictError, PreconditionError, RecoveryRequiredError))`). Its name, `test_stall_does_not_recheck_revision...`, says the opposite of what it asserts. The finding-2 test passes against the pre-change code because no code changed for it. Test files are named by task number (`rework13_*`) rather than by the rule they enforce.",
+    "file": "tests/autopilot/test_controller_rework13_contracts.py:22",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "Claims have no scope or role check beyond \"any registered actor\". Operator and owner can both claim, and `claim_epoch` is the actor's lease epoch. The spec's \"one valid claim per job/epoch\" holds only as \"one claim per job ever\": a re-planned job at a later epoch cannot be reclaimed. There is no claim-release or reclaim path other than `owner.recover` (not verified to reset claims).",
+    "file": "plugins/autopilot/controller/autopilot_state/jobs.py:63",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`job.plan` has no active-PRD or phase precondition. It also accepts caller-supplied digests and permitted operations unvalidated against any source, and it allows an empty `jobs` list to trigger derivation as a side channel.",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:341",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The contract rework only loosens array lengths and bundle enumeration. It still disagrees with runtime state and adds no request, result, or fixture for `job.next`. Define the new shapes and validate real persisted state and dispatcher responses against the installed schema.",
+    "file": "plugins/autopilot/contracts/controller/workflow-v1.json:139",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "`owner.recover` still rejects jobs with a recorded exit because their `claimed_by` remains set. The updated README implies an operator can finish jobs and then recover ownership. Permit recovery when every claim has an exit fact and retain the guard for outstanding claims.",
+    "file": "plugins/autopilot/controller/autopilot_state/owner.py:275",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The new committed-replay path rebuilds ledger rows independently of `_ledger_item`. Use the same builder for append and comparison so a record format change cannot break replay.",
+    "file": "plugins/autopilot/controller/autopilot_state/files.py:500",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The exporter now duplicates the expanded operation and capability lists. Read them from the controller contract metadata already packaged with the schema and retain the installed-bundle parity test.",
+    "file": "tools/autopilot/export-controller-contract.py:32",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "🟡",
+    "issue": "The mechanical check flags the valid JobSpec test and the earlier-epoch refusal test for lacking direct assertions. Assert persisted job metadata in the first test and the unchanged task state after rejection in the second.",
+    "file": "tests/autopilot/test_controller_rework13_jobs.py:100",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "Prior R9 is only partly resolved. `owner.recover` now rejects only when a job is claimed or `reconciled_job_ids` is non-empty. A crashed owner that holds a claim is still unrecoverable. Reconciliation wiring was deferred by design (settled R45), so this is a note only. The new test covers only planned-but-unclaimed jobs.",
+    "file": "plugins/autopilot/controller/autopilot_state/owner.py:276",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "`reduce_workflow` is exactly 50 lines (313-362) after this rework. The next addition breaches R12. Split job reducers out.",
+    "file": "plugins/autopilot/controller/autopilot_state/protocol.py:313",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "Native session IDs in exit facts are recorded unverified. That is consistent with the spec (\"recorded, never substitute acceptance\"), and `record_exit` does not touch tasks or phase, which is good.",
+    "file": "plugins/autopilot/controller/autopilot_state/jobs.py:75",
+    "reason": "single-voice"
+  },
+  {
+    "cycle": 2,
+    "disposition": "discarded",
+    "severity": "⚪",
+    "issue": "The named scenarios `entry_wip_first`, `completion_moves_once`, `task_attempt_replay` and `interrupted_move_recovery` have no tests under those exact names. Equivalent coverage exists under other names, for example `test_enter_picks_wip_before_backlog_and_moves_nothing`, `test_complete_after_review_moves_once_and_records_the_prd` and `test_crash_at_each_complete_boundary_replays_without_double_entry`. Naming is traceability only.",
+    "file": "tests/autopilot/test_controller_lifecycle.py:220",
+    "reason": "single-voice"
   }
 ]

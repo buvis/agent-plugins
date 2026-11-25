@@ -1,0 +1,9 @@
+[
+  {
+    "cycle": 2,
+    "finding": "The supplied suite reports 2,118 passed and five failed, including four schema rejection failures described as an environment gap. Run `test_bundle_shape_and_implemented_only_advertisement`, `test_contract_examples`, `test_kernel_defaults_and_deferred_families`, and `test_kernel_tasks_cannot_be_populated` under the pinned requirements. Identify each accepted instance and its intended rejecting keyword before attributing the failures to the environment.",
+    "file": "tests/autopilot/test_controller_protocol.py:142",
+    "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_protocol.py tests/autopilot/test_controller_recovery_characterization.py -q",
+    "source": "bob"
+  }
+]
