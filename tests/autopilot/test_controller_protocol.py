@@ -139,13 +139,15 @@ class ControllerProtocolTest(unittest.TestCase):
                         else:
                             self.assert_invalid(case["definition"], value)
 
-    def test_kernel_defaults_and_deferred_families(self) -> None:
+    def test_workflow_default_matches_frozen_initial_state(self) -> None:
         defaults = {
             "batch": None, "work": None, "tasks": [], "review": {"cap": 2},
             "recovery": None, "jobs": [],
         }
         self.assertEqual(self.schema["$defs"]["workflow"]["default"], defaults)
         self.assertEqual(self.cases["kernel-initial"]["input"]["workflow"], defaults)
+
+    def test_deferred_workflow_fields_cannot_be_populated(self) -> None:
         for field, value in (
             ("batch", {}), ("work", {}), ("tasks", [{}]), ("review", {"cap": 3}),
             ("recovery", {}), ("jobs", [{}]), ("pid", 123), ("process_id", "p"),
@@ -156,6 +158,8 @@ class ControllerProtocolTest(unittest.TestCase):
             state["workflow"][field] = value
             with self.subTest(field=field):
                 self.assert_invalid("state", state)
+
+    def test_advertised_capability_and_operation_lists_are_pinned(self) -> None:
         self.assertEqual(
             self.contract["capabilities"],
             ["workflow.core.v1", "workflow.lifecycle.v1", "workflow.tasks.v1",
@@ -170,16 +174,18 @@ class ControllerProtocolTest(unittest.TestCase):
              "job.next"],
         )
         self.assertEqual(
+            self.contract["unavailable_capabilities"],
+            ["workflow.reviews.v1", "workflow.custody.v1", "workflow.verification.v1",
+             "workflow.records.v1", "workflow.waves.v1"],
+        )
+
+    def test_reserved_operations_parse_but_need_unavailable_capability(self) -> None:
+        self.assertEqual(
             set(self.contract["reserved_operations"]),
             {
                 "review.record_stage", "review.close", "custody.record", "custody.discharge",
                 "verification.record", "artifact.record", "records.commit",
             },
-        )
-        self.assertEqual(
-            self.contract["unavailable_capabilities"],
-            ["workflow.reviews.v1", "workflow.custody.v1", "workflow.verification.v1",
-             "workflow.records.v1", "workflow.waves.v1"],
         )
         self.assertFalse(set(self.contract["implemented_operations"])
                          & set(self.contract["reserved_operations"]))

@@ -1080,7 +1080,7 @@
     },
     {
       "source": "tests/state/test_schema.py::test_new_state_returns_the_complete_clean_v1_defaults",
-      "target": "tests/autopilot/test_controller_protocol.py::test_kernel_defaults_and_deferred_families",
+      "target": "tests/autopilot/test_controller_protocol.py::test_workflow_default_matches_frozen_initial_state",
       "note": "source cap 3 deliberately becomes 2; source work fields deferred"
     },
     {
