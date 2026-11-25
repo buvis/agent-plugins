@@ -147,7 +147,32 @@ class ControllerProtocolTest(unittest.TestCase):
         self.assertEqual(self.schema["$defs"]["workflow"]["default"], defaults)
         self.assertEqual(self.cases["kernel-initial"]["input"]["workflow"], defaults)
 
-    def test_deferred_workflow_fields_cannot_be_populated(self) -> None:
+    def test_a_fully_populated_workflow_validates(self) -> None:
+        state = copy.deepcopy(self.cases["kernel-initial"]["input"])
+        state["workflow"].update(
+            batch={"completed_prds": ["00001-a.md"], "parks_consecutive": 1},
+            work={"prd": "00002-b.md", "source": "wip", "entered_at": "2026-01-01T00:00:00Z",
+                  "phase": "build", "completed_phases": ["catchup"], "lane": "full",
+                  "lane_reason": "override", "rework_cap": 3, "start_commit": "a" * 40,
+                  "task_tier": "opus", "plan_expansion": "none"},
+            recovery={"op": "prd.stall", "boundary": "after_intent_before_move"},
+            pause={"site": "systemic_park", "detail": "two consecutive parks"},
+            tasks=[{"id": "t1", "subject": "build", "status": "in_progress",
+                    "depends_on": [], "attempts": [], "start_epoch": 1}],
+            jobs=[{"spec": {"job_id": "job-1", "role": "builder", "depends_on": [],
+                            "input_digests": ["f" * 64], "isolation": "worktree",
+                            "tier": "opus", "effort": "high"},
+                   "claimed_by": None, "claim_epoch": None, "exit_fact": None}],
+        )
+        self.assert_valid("state", state)
+        # A stored row written before the metadata keys existed stays valid, and
+        # one written after them is valid too; only a caller spec requires them.
+        state["workflow"]["jobs"][0]["spec"].update(
+            source_digest="e" * 64, resource_digest="d" * 64,
+            permitted_operations=["job.claim"])
+        self.assert_valid("state", state)
+
+    def test_malformed_workflow_fields_are_rejected(self) -> None:
         for field, value in (
             ("batch", {}), ("work", {}), ("tasks", [{}]), ("review", {"cap": 3}),
             ("recovery", {}), ("jobs", [{}]), ("pid", 123), ("process_id", "p"),
