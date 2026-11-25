@@ -415,11 +415,15 @@ Exit code 0 means success. Exit code 1 means a structured rejection. Exit code
 
 ### Implemented operations
 
-The controller implements four operations: `workflow.open`, `owner.acquire`,
-`owner.release` and `owner.recover`. It advertises one capability,
-`workflow.core.v1`. All later operation families are unavailable until
-implemented: policy, prd, task, lane, job, review, custody, verification,
-phase, artifact and records. A request for one of them returns
+The controller implements 20 operations: `workflow.open`, `owner.acquire`,
+`owner.release`, `owner.recover`, `prd.enter`, `phase.handoff`, `prd.stall`,
+`prd.park`, `prd.defer`, `prd.complete`, `task.replace`, `task.start`,
+`task.finish`, `task.attempt`, `lane.route`, `policy.bind`, `job.plan`,
+`job.claim`, `job.record_exit` and `job.next`. It advertises five
+capabilities: `workflow.core.v1`, `workflow.lifecycle.v1`,
+`workflow.tasks.v1`, `workflow.policy.v1` and `workflow.jobs.v1`. Later
+operation families are unavailable until implemented: review, custody,
+verification and records. A request for one of them returns
 `missing_capability` and writes nothing.
 
 ### Private store
@@ -442,7 +446,8 @@ available.
 No archival or state removal runs automatically. Follow these steps by hand,
 in order:
 
-1. Finish or reconcile jobs. This controller supports no jobs yet.
+1. Finish or reconcile jobs with `job.plan`, `job.claim`, `job.record_exit`
+   and `job.next`.
 2. Release or recover ownership with `owner.release` or `owner.recover`. These
    use the reserve capacity.
 3. Run `snapshot` and verify that the owner is null.
