@@ -1,0 +1,19 @@
+{
+  "batch_id": "202611242306",
+  "items": [
+    {
+      "type": "review-finding",
+      "severity": "low",
+      "issue": "prd.enter self-recovery after a committed backlog->wip rename records source: \"wip\", not the original \"backlog\": nothing in the controller remembers the interrupted attempt bucket, so a rollback to the origin bucket is impossible. Cycle-2 review asked the recovery test to assert source: backlog; the test now asserts the shipped truth with a comment.",
+      "reason": "needs a controller change (lifecycle.enter must record the origin bucket), which is out of scope for a test-only rework task",
+      "prd": "00019-autopilot-controller-lifecycle-v1.md"
+    },
+    {
+      "type": "review-finding",
+      "severity": "high",
+      "issue": "Review acceptance is not enforced: a phase.handoff review->done converged claim is accepted with no recorded review evidence. Pinned by a strict xfail in tests/autopilot/test_controller_rework13_lifecycle.py (reason: review acceptance deferred to AP 00020).",
+      "reason": "the PRD Risks section states acceptance is unavailable until AP 00020 lands the review evidence family; the strict xfail turns red the day it is implemented",
+      "prd": "00019-autopilot-controller-lifecycle-v1.md"
+    }
+  ]
+}

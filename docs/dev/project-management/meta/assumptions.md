@@ -30,3 +30,12 @@
 - (Ivan) `_head_commit` uses a 30 s timeout, mirroring `lifecycle.evaluate`.
 - (Ivan) The operation-to-ledger-kind map for the replay admission lives inline in `protocol.proven_replay`, since `files.py` speaks in saga kinds.
 - (Ivan) `recorded_request` reads `payload["prd"]` directly and `site`/`detail`/`record` with `.get`, relying on `validate_saga_payload` having already closed the payload shape.
+
+## 18: [D2] tests/autopilot/ (review cycle 2)
+
+- (Ivan) Digest fillers for the new job-spec keys are synthetic 64-char lowercase hex and `permitted_operations` is `["read", "write"]`; the findings only asked for realistic values.
+- (Ivan) "Cover the new receipt shape" for `job.next` is read as full parity with the other twelve operations (real dispatch, exact result equality, `WORKFLOW_RESULTS` membership, per-field corruption rejection), which forced the 12 -> 13 rename of the dispatch test.
+- (Ivan) The entry-recovery "interruption point" is a crash between the committed rename and the published entry, injected through the store's existing `boundary_hook` at `STATE_TEMP_FSYNCED` - the only interruption that leaves the original request's `expected_revision` valid and therefore literally replayable.
+- (Ivan) The review's `source: "backlog"` expectation was replaced by the shipped `source: "wip"`: `lifecycle.enter` selects wip-first and nothing records the interrupted attempt's origin bucket. Recorded as a controller gap in the batch deferred JSON instead of patched.
+- (Ivan) Driving task `a` to `completed` in `_dispatch_prd_lifecycle` uses `task.start` + `task.finish`, deliberately not appended to `checks`, so the `set(WORKFLOW_RESULTS)` assertion keeps its meaning.
+- (Ivan) "Public dispatch path" means the owner-CLI `protocol.apply` route `OwnerCLITest` wraps, with `reject_unchanged(..., "rejected_evidence")` as the harness-blessed rejection assertion across the CLI boundary.
