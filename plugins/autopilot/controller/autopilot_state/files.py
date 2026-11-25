@@ -575,6 +575,15 @@ def _run_saga_body(store: StateStore, project_root: Path, request: _Request, *,
     _trip(boundary_hook, SagaBoundary.PRD_COMPLETE_MOVE_COMMITTED
           if request.kind == "complete" else SagaBoundary.AFTER_COMMIT_BEFORE_MARKER_DELETE)
     final = _clear(store, operation)
+    halt = _persist_systemic_park_halt(store, final, request)
+    return SagaResult(operation["id"], request.kind, pending is not None, halt)
+
+
+def _persist_systemic_park_halt(store: StateStore, final: dict, request: _Request) -> bool:
+    """Detect a second consecutive park and durably record a systemic-halt pause.
+
+    Returns whether this call's result should report the batch as halted.
+    """
     batch = final["workflow"]["batch"]
     halt = (request.kind == "park" and batch is not None
             and batch["parks_consecutive"] >= 2)
@@ -585,7 +594,7 @@ def _run_saga_body(store: StateStore, project_root: Path, request: _Request, *,
                 "detail": f"second consecutive park for {request.prd}"}
 
         store.transaction(mark_pause)
-    return SagaResult(operation["id"], request.kind, pending is not None, halt)
+    return halt
 
 
 def stall(store: StateStore, *, project_root: Path, prd: str, site: str, detail: str,
