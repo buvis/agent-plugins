@@ -50,9 +50,11 @@ def record(task_id: str, *depends: str) -> dict:
 
 
 def spec(job_id: str, *depends: str) -> dict:
+    """A complete caller spec: every key in schema.JOB_SPEC_KEYS is required."""
     return {"job_id": job_id, "role": "builder", "depends_on": list(depends),
             "input_digests": ["a" * 64], "isolation": "worktree", "tier": "opus",
-            "effort": "high"}
+            "effort": "high", "source_digest": "b" * 64, "resource_digest": "c" * 64,
+            "permitted_operations": ["read", "write"]}
 
 
 class ManualSessionIntegrationTest(ControllerCLITest):
