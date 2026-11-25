@@ -128,17 +128,221 @@
         }
       ]
     },
+    "task_row": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identity"
+        },
+        "subject": {
+          "$ref": "#/$defs/text"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "in_progress",
+            "completed",
+            "aborted"
+          ]
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identity"
+          }
+        },
+        "attempts": {
+          "type": "array"
+        },
+        "start_epoch": {
+          "$ref": "#/$defs/nonnegative_integer"
+        }
+      },
+      "required": [
+        "id",
+        "subject",
+        "status",
+        "depends_on",
+        "attempts"
+      ],
+      "additionalProperties": false
+    },
+    "job_row": {
+      "type": "object",
+      "properties": {
+        "spec": {
+          "$ref": "#/$defs/stored_job_spec"
+        },
+        "claimed_by": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "claim_epoch": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/nonnegative_integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "exit_fact": {
+          "anyOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "spec",
+        "claimed_by",
+        "claim_epoch",
+        "exit_fact"
+      ],
+      "additionalProperties": false
+    },
     "workflow": {
       "type": "object",
       "properties": {
         "batch": {
-          "type": "null"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "completed_prds": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/text"
+                  }
+                },
+                "parks_consecutive": {
+                  "$ref": "#/$defs/nonnegative_integer"
+                }
+              },
+              "required": [
+                "completed_prds",
+                "parks_consecutive"
+              ],
+              "additionalProperties": false
+            }
+          ]
         },
         "work": {
-          "type": "null"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "prd": {
+                  "$ref": "#/$defs/text"
+                },
+                "source": {
+                  "enum": [
+                    "wip",
+                    "backlog"
+                  ]
+                },
+                "entered_at": {
+                  "$ref": "#/$defs/text"
+                },
+                "phase": {
+                  "$ref": "#/$defs/text"
+                },
+                "completed_phases": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/text"
+                  }
+                },
+                "lane": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/text"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "lane_reason": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/text"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "rework_cap": {
+                  "$ref": "#/$defs/nonnegative_integer"
+                },
+                "start_commit": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{40}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "task_tier": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/text"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "plan_expansion": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/text"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "prd",
+                "source",
+                "entered_at",
+                "phase",
+                "completed_phases",
+                "lane",
+                "lane_reason"
+              ],
+              "additionalProperties": false
+            }
+          ]
         },
         "tasks": {
           "type": "array",
+          "items": {
+            "$ref": "#/$defs/task_row"
+          },
           "maxItems": 256
         },
         "review": {
@@ -155,11 +359,57 @@
           "additionalProperties": false
         },
         "recovery": {
-          "type": "null"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "op": {
+                  "$ref": "#/$defs/text"
+                },
+                "boundary": {
+                  "$ref": "#/$defs/text"
+                }
+              },
+              "required": [
+                "op",
+                "boundary"
+              ],
+              "additionalProperties": false
+            }
+          ]
         },
         "jobs": {
           "type": "array",
+          "items": {
+            "$ref": "#/$defs/job_row"
+          },
           "maxItems": 256
+        },
+        "pause": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "site": {
+                  "$ref": "#/$defs/text"
+                },
+                "detail": {
+                  "$ref": "#/$defs/text"
+                }
+              },
+              "required": [
+                "site",
+                "detail"
+              ],
+              "additionalProperties": false
+            }
+          ]
         }
       },
       "required": [
@@ -463,6 +713,78 @@
         },
         "effort": {
           "$ref": "#/$defs/text"
+        },
+        "source_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "resource_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "permitted_operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/text"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "job_id",
+        "role",
+        "depends_on",
+        "input_digests",
+        "isolation",
+        "tier",
+        "effort",
+        "source_digest",
+        "resource_digest",
+        "permitted_operations"
+      ],
+      "additionalProperties": false
+    },
+    "stored_job_spec": {
+      "description": "A committed job row's spec. A row written before the metadata keys existed still validates, so source_digest, resource_digest and permitted_operations stay optional here while job_spec requires them from a caller.",
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "$ref": "#/$defs/identity"
+        },
+        "role": {
+          "$ref": "#/$defs/text"
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identity"
+          }
+        },
+        "input_digests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/digest"
+          }
+        },
+        "isolation": {
+          "$ref": "#/$defs/text"
+        },
+        "tier": {
+          "$ref": "#/$defs/text"
+        },
+        "effort": {
+          "$ref": "#/$defs/text"
+        },
+        "source_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "resource_digest": {
+          "$ref": "#/$defs/digest"
+        },
+        "permitted_operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/text"
+          },
+          "minItems": 1
         }
       },
       "required": [
@@ -857,6 +1179,7 @@
             "job.plan",
             "job.claim",
             "job.record_exit",
+            "job.next",
             "review.record_stage",
             "review.close",
             "custody.record",
@@ -1277,6 +1600,25 @@
             "properties": {
               "payload": {
                 "$ref": "#/$defs/job_exit_payload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "job.next"
+              }
+            },
+            "required": [
+              "operation"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/open_payload"
               }
             }
           }

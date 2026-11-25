@@ -531,7 +531,12 @@
               ],
               "isolation": "worktree",
               "tier": "standard",
-              "effort": "medium"
+              "effort": "medium",
+              "source_digest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+              "resource_digest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+              "permitted_operations": [
+                "job.claim"
+              ]
             }
           ]
         }
@@ -579,6 +584,24 @@
             "native_session_id": "session-synthetic"
           }
         }
+      },
+      "valid": true,
+      "expected_error": null
+    },
+    {
+      "name": "job-next",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "job.next",
+        "request_id": "job-next-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {}
       },
       "valid": true,
       "expected_error": null
@@ -1170,6 +1193,26 @@
             "native_session_id": null,
             "exit_code": 0
           }
+        }
+      },
+      "valid": false,
+      "expected_error": "invalid_request"
+    },
+    {
+      "name": "job-next-extra-payload",
+      "definition": "request",
+      "input": {
+        "protocol_major": 1,
+        "operation": "job.next",
+        "request_id": "job-next-extra-payload-synthetic",
+        "expected_revision": 1,
+        "project_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "workflow_id": "workflow-synthetic",
+        "actor_id": "owner-synthetic",
+        "job_id": null,
+        "lease_epoch": 1,
+        "payload": {
+          "job_id": "job-synthetic"
         }
       },
       "valid": false,

@@ -6,7 +6,7 @@
     "workflow.policy.v1",
     "workflow.jobs.v1"
   ],
-  "fixture_digest": "61fbc2852cc77de05b4562fb9c1393f33853ee866d1fb4d74d866b634c4f9420",
+  "fixture_digest": "778a56ea89b77a87050b0dfa4abe06e6a8b5e6dfd8de0bf8d638100ae9854481",
   "operations": [
     "workflow.open",
     "owner.acquire",
@@ -31,5 +31,5 @@
   ],
   "package_version": "0.10.0",
   "protocol_major": 1,
-  "schema_digest": "da0fe8075db13912f5d4be764794f125e31b099dbd9782b6ccb2b621fc9d3ca7"
+  "schema_digest": "8e8ca46323a6ec4ddef69a40fe0109dd83c646e473252334cf378fb10dcb8eae"
 }

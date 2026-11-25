@@ -166,7 +166,8 @@ class ControllerProtocolTest(unittest.TestCase):
             ["workflow.open", "owner.acquire", "owner.release", "owner.recover",
              "prd.enter", "phase.handoff", "prd.stall", "prd.park", "prd.defer",
              "prd.complete", "task.replace", "task.start", "task.finish", "task.attempt",
-             "lane.route", "policy.bind", "job.plan", "job.claim", "job.record_exit"],
+             "lane.route", "policy.bind", "job.plan", "job.claim", "job.record_exit",
+             "job.next"],
         )
         self.assertEqual(
             set(self.contract["reserved_operations"]),
@@ -369,7 +370,8 @@ class ControllerProtocolTest(unittest.TestCase):
         self.assertIn("not a full legacy schema equivalence", self.provenance["scope"].lower())
 
     def test_bundle_shape_and_implemented_only_advertisement(self) -> None:
-        # The pinned export bundle advertises only the core subset of implemented operations.
+        # The pinned export bundle advertises any subset of the declared operations
+        # and capabilities; the bundle enums are the closed runtime set.
         bundle = {
             "protocol_major": 1, "package_version": "0.1.0",
             "schema_digest": "a" * 64, "fixture_digest": "b" * 64,
@@ -384,10 +386,15 @@ class ControllerProtocolTest(unittest.TestCase):
             del changed[key]
             self.assert_invalid("bundle", changed)
         for field, value in (
-            ("protocol_major", True), ("schema_digest", "A" * 64),
-            ("operations", ["workflow.open"] * 4),
             ("operations", [*bundle["operations"], "job.plan"]),
             ("capabilities", ["workflow.core.v1", "workflow.jobs.v1"]),
+        ):
+            self.assert_valid("bundle", dict(bundle, **{field: value}))
+        for field, value in (
+            ("protocol_major", True), ("schema_digest", "A" * 64),
+            ("operations", ["workflow.open"] * 4),
+            ("operations", [*bundle["operations"], "review.close"]),
+            ("capabilities", [*bundle["capabilities"], "workflow.reviews.v1"]),
             ("live_state", {}),
         ):
             self.assert_invalid("bundle", dict(bundle, **{field: value}))
