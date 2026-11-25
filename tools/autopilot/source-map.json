@@ -63,7 +63,7 @@
       "source_asset_id": "README.md",
       "destination_path": "plugins/autopilot/README.md",
       "source_blob_sha256": "de15bf433269ecd2b2a670ae694d8ab1176831e15c415a9117bc507fbae48b70",
-      "destination_blob_sha256": "1c7d8975b4f2b39bc93a3737f4e9f162c78c9d466caa0108ff3db1abef60ec7e",
+      "destination_blob_sha256": "658cc58a1121df2e4340b0a9ee0cad23fd860c601ea27e827b91d4d177916ed5",
       "adaptation_reason": "Retain source sections; adapt installed resource references and host/controller execution assumptions, and refuse uncertified execution at each skill entry point.",
       "disposition": "adapted",
       "planned_disposition": "adapted",
@@ -161,8 +161,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "plugins/autopilot/README.md",
-        "artifact_sha256": "1c7d8975b4f2b39bc93a3737f4e9f162c78c9d466caa0108ff3db1abef60ec7e",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "658cc58a1121df2e4340b0a9ee0cad23fd860c601ea27e827b91d4d177916ed5",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -7233,7 +7233,7 @@
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/CHANGELOG.md",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "d3da6be7909b7014d93f8124979952164868c5ed0b9b7de8fb086be2a831f739",
+      "destination_blob_sha256": "86b3f5c120bfed7be70d284958c49ff3411af0b5ea49d6ff105322352185677a",
       "adaptation_reason": "Newly authored AP00012 foundation file; no pinned source asset or source sections. Delivery-only evidence records packaged bytes, not runtime or profile certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7252,8 +7252,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "plugins/autopilot/CHANGELOG.md",
-        "artifact_sha256": "d3da6be7909b7014d93f8124979952164868c5ed0b9b7de8fb086be2a831f739",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "86b3f5c120bfed7be70d284958c49ff3411af0b5ea49d6ff105322352185677a",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -7360,8 +7360,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -7719,7 +7719,7 @@
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/contracts/controller/fixtures-v1.json",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "61fbc2852cc77de05b4562fb9c1393f33853ee866d1fb4d74d866b634c4f9420",
+      "destination_blob_sha256": "778a56ea89b77a87050b0dfa4abe06e6a8b5e6dfd8de0bf8d638100ae9854481",
       "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/contracts/controller/fixtures-v1.json has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7738,15 +7738,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/contracts/controller/provenance.json",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "e027934a99ecc0d963119165ecac23ecedad2ce4b0fe715cd123f5d055c20551",
+      "destination_blob_sha256": "d91feab771318a54090dadb8e881c6713bac03c5ec6aab5152419562c3cd3b89",
       "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/contracts/controller/provenance.json has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7765,15 +7765,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/contracts/controller/workflow-v1.json",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "da0fe8075db13912f5d4be764794f125e31b099dbd9782b6ccb2b621fc9d3ca7",
+      "destination_blob_sha256": "8e8ca46323a6ec4ddef69a40fe0109dd83c646e473252334cf378fb10dcb8eae",
       "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/contracts/controller/workflow-v1.json has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7792,8 +7792,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -7819,8 +7819,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -7846,8 +7846,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -7873,15 +7873,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/protocol.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "cd393c8f05e6e906f13422f164fc81ef4d90204afb1d5f26ecc53eb4322fe63e",
+      "destination_blob_sha256": "296facb06f279bb30f78b6829fef7f3dc7455c29f6d80cb2abe6fa579d2e0eb0",
       "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/controller/autopilot_state/protocol.py has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7900,15 +7900,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/schema.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "5c4c4c924557c008ba80b529cdd34b5a0a6d4283d1df6f0bb123d8afc85b8e20",
+      "destination_blob_sha256": "52c9120fcbc5d31604b728b0ad1f5bb8c272da2f9f6f97a7af5317ab3382cba2",
       "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/controller/autopilot_state/schema.py has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7927,8 +7927,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -7954,8 +7954,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -7981,8 +7981,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8008,8 +8008,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8035,8 +8035,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8062,8 +8062,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8089,8 +8089,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8116,8 +8116,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8143,8 +8143,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8170,8 +8170,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8197,8 +8197,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8224,8 +8224,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8251,8 +8251,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8278,15 +8278,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/contracts/controller-v1.json",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "31da77829de3c3a6ae00e83eb4c664fe26f6c3554a3893090d620bd264fec77f",
+      "destination_blob_sha256": "48bc64f54530b1cf81b4953b93dc9487c271b5fd3167bc4595a39b7e5a22930a",
       "adaptation_reason": "Newly authored AP00018 controller contract bundle; no pinned source asset or source sections. Delivery evidence records packaged bytes, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -8305,8 +8305,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8332,8 +8332,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8359,8 +8359,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8386,8 +8386,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8413,8 +8413,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
@@ -8440,15 +8440,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "cfc004d9d10e4a352e8ae563fdb7035d4d0d3c352c8389b2c61068cbb8f028c1",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "66e4edf029986159138a6854da63094e0cbb36ab70e184999196b100ec579eb7",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/files.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "00e26c5a0d8dc2e832284e41f718511b25ff46eca7822e13251e8372679f2e4a",
+      "destination_blob_sha256": "aa38eb2c18161b8943e5742b72ed9be8d95efd1774c4c75859e89640b352b866",
       "adaptation_reason": "Newly authored AP00018 controller asset; no pinned source asset or source sections. Delivery evidence records packaged bytes, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -8467,15 +8467,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/frontmatter.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "7329dfbe58d7df333b7a2526637af057b6ae23745d4003194f7a27bd4a43415c",
+      "destination_blob_sha256": "669cadb73aa675fd6872a508fbd429223846430f39c45c4395c6e19e4b556703",
       "adaptation_reason": "Newly authored AP00018 controller asset; no pinned source asset or source sections. Delivery evidence records packaged bytes, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -8494,15 +8494,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/jobs.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "1e9b7192fe0e58904c1cea81f199256144451fd46d99b1613b2826102602921a",
+      "destination_blob_sha256": "2c319ffa890157f2e9ba1bfa7efbcf571ebd276b29e1698b6768c1be095ff65d",
       "adaptation_reason": "Newly authored AP00018 controller asset; no pinned source asset or source sections. Delivery evidence records packaged bytes, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -8521,15 +8521,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/lifecycle.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "f1ce9525954c3cbd628948c8f706100353e12f8fe9842aa056e403ed5bc83e58",
+      "destination_blob_sha256": "f4c17f290643123b9398f340699f43335f0800440eae6efdb9f2d168d0881456",
       "adaptation_reason": "Newly authored AP00018 controller asset; no pinned source asset or source sections. Delivery evidence records packaged bytes, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -8548,15 +8548,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/policy.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "2510ddfed79d8b3ee17e488b472d8cf4040bed35c2e405a6d9529851030f31c9",
+      "destination_blob_sha256": "f0969a9083e68bb86fdb03d1f1e084cf358085288acdfa4032c9b61e4633c695",
       "adaptation_reason": "Newly authored AP00018 controller asset; no pinned source asset or source sections. Delivery evidence records packaged bytes, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -8575,15 +8575,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/tasks.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "e897e86a0c27d78470c8c411f7d5ee98adf6d4ce73774660f8700e9398da0dac",
+      "destination_blob_sha256": "b4fe08aa5d85f1735621b663530990d7c00841f21720e64ecac412ed82e4b71c",
       "adaptation_reason": "Newly authored AP00018 controller asset; no pinned source asset or source sections. Delivery evidence records packaged bytes, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -8602,8 +8602,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13",
-        "tested_package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551"
+        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
+        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
       }
     }
   ],

@@ -3,9 +3,9 @@
   "prd": "00014",
   "supersedes": {
     "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-    "artifact_sha256": "c0203eb0194b18736211ccebaed8709f4282e1fc3612808c5f9cd04230d68c13"
+    "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6"
   },
-  "package_revision": "e9d8e5bd7a9f7180f130238038af1ecf98719551",
+  "package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c",
   "paths": [
     "plugins/autopilot/README.md",
     "plugins/autopilot/CHANGELOG.md",

@@ -39,3 +39,12 @@
 - (Ivan) The review's `source: "backlog"` expectation was replaced by the shipped `source: "wip"`: `lifecycle.enter` selects wip-first and nothing records the interrupted attempt's origin bucket. Recorded as a controller gap in the batch deferred JSON instead of patched.
 - (Ivan) Driving task `a` to `completed` in `_dispatch_prd_lifecycle` uses `task.start` + `task.finish`, deliberately not appended to `checks`, so the `set(WORKFLOW_RESULTS)` assertion keeps its meaning.
 - (Ivan) "Public dispatch path" means the owner-CLI `protocol.apply` route `OwnerCLITest` wraps, with `reject_unchanged(..., "rejected_evidence")` as the harness-blessed rejection assertion across the CLI boundary.
+
+## 20: [D2] tests/autopilot/ (review cycle 2)
+
+- (Ivan) `prd.enter` belongs in `DerivedPlanTest.setUp` for both tests, not only the populated one, so the empty-state control differs from the populated case only in its task plan.
+- (Ivan) Importing `BUCKETS`, `PRD`, `PRD_TEXT` from `test_cycle2_jobs_metadata` is preferred over re-deriving them; the task offered either.
+- (Ivan) For the crash-before-receipt test the stale retry's expected result is `committed` plus `"replayed": True`, because `apply_unlocked` adds that flag for an admitted replay; the task named the behaviour, not the exact payload.
+- (Ivan) The remaining finding-10 AMBIGUITY comment (four accepted conflict signals in `test_stall_does_not_recheck_revision_after_an_intervening_commit`) is out of this task's scope, so it stays.
+- (Ivan) Renaming the three missing-field tests to name the caller path is in the spirit of "name each test for the rule it enforces"; the task did not fix their names.
+- (orchestrator) `protocol.apply` was not used for the crash-before-receipt test because this module's fixture seeds a synthetic actor descriptor with no credential file on disk, so `actors.authenticate` cannot authenticate it; the admission comes from the production predicate `protocol.proven_replay` instead, asserted `is True` before use.

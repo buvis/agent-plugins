@@ -5,7 +5,7 @@
     "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
     "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e"
   },
-  "package_revision": "77aa38e386d7fb40aa1bdffc7cce7ae636cb6899",
+  "package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c",
   "paths": [
     "plugins/autopilot/README.md",
     "plugins/autopilot/CHANGELOG.md",
@@ -37,17 +37,17 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 401.43
+      "duration_seconds": 376.41
     },
     {
       "task": "b",
       "tests": "tests/autopilot/test_controller_protocol.py, tests/autopilot/test_controller_schema.py, tests/autopilot/test_controller_paths.py, tests/autopilot/test_controller_recovery_characterization.py, tests/autopilot/test_controller_export.py",
       "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_protocol.py tests/autopilot/test_controller_schema.py tests/autopilot/test_controller_paths.py tests/autopilot/test_controller_recovery_characterization.py tests/autopilot/test_controller_export.py -q --tb=line -p no:cacheprovider",
-      "passed": 71,
+      "passed": 75,
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 11.39
+      "duration_seconds": 10.48
     },
     {
       "task": "c",
@@ -57,7 +57,7 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 5.29
+      "duration_seconds": 5.25
     },
     {
       "task": "d",
@@ -67,7 +67,7 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 9.05
+      "duration_seconds": 8.93
     }
   ],
   "real_host": {
