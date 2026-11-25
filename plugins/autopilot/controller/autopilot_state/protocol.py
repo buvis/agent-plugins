@@ -372,11 +372,7 @@ def _resource_digest(prd: str, repo_root: str) -> str:
 
 
 def _derive_job_specs(workflow: dict, repo_root: str) -> list[dict]:
-    """Derive one job spec per unfinished, not-yet-planned task, in task order.
-
-    Nothing is invented: each digest attests real content, and the
-    requirements come from the active work through `policy.job_requirements`.
-    """
+    """Derive one job spec per unfinished, not-yet-planned task, in task order."""
     planned_ids = {row["spec"]["job_id"] for row in workflow["jobs"]}
     scheduled = [task for task in workflow["tasks"]
                  if task["id"] not in planned_ids

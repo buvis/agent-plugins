@@ -141,12 +141,7 @@ def route(prd_frontmatter: dict) -> dict:
 
 
 def job_requirements(work: Mapping[str, object]) -> dict:
-    """Derive a job's requirements from the active work, over a closed vocabulary.
-
-    Every field follows one input: the role follows the phase, the isolation
-    the lane, the tier the declared task tier, the effort that tier, and the
-    permitted operations the role.
-    """
+    """Derive a job's requirements from the active work, over a closed vocabulary."""
     role = _ROLES[work["phase"]]
     tier = work.get("task_tier") or _DEFAULT_TIER
     return {"role": role, "tier": tier, "effort": _EFFORTS.get(tier, "medium"),

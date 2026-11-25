@@ -338,11 +338,7 @@ def _require_in_wip(buckets: Path, prd: str) -> None:
 
 
 def _head_commit(repo_root: str) -> str | None:
-    """The HEAD commit git reports in `repo_root`, or None when git cannot answer.
-
-    Only git answers: a packed-refs repository, a `.git` file worktree and a
-    detached HEAD all report the commit git itself resolves.
-    """
+    """The HEAD commit git reports in `repo_root`, or None when git cannot answer."""
     try:
         completed = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_root,
                                    capture_output=True, text=True, timeout=30.0)
@@ -353,11 +349,7 @@ def _head_commit(repo_root: str) -> str | None:
 
 
 def _work_metadata(text: str, repo_root: str) -> dict:
-    """The entry metadata `workflow.work` persists for the entering PRD.
-
-    Every declaration comes from the frontmatter block; `rework_cap` is the
-    declared cap (default 2) and an undeclared tier or plan expansion is null.
-    """
+    """The entry metadata `workflow.work` persists for the entering PRD."""
     fields, _warnings = parse(text)
     declared = declarations(text)
     return {"rework_cap": fields["rework_cap"],
