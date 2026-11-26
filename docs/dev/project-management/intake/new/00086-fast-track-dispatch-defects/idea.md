@@ -1,6 +1,6 @@
 # Idea: the fast-track lane's dispatch text fails in two places on the Claude host
 
-Status: new. Recorded 2026-11-24 by the agent that drove claude-agoge PRD 00024 through the fast-track lane (installed autopilot 0.10.0).
+Status: scheduled in AP 00015, Phase 1 task 4 (developer decision 2026-11-26: port and fix here, do not hotfix the frozen source). Move to `processed/` when AP 00015 ships. Recorded 2026-11-24 by the agent that drove claude-agoge PRD 00024 through the fast-track lane (installed autopilot 0.10.0).
 
 Developer's words, 2026-11-24, after the run report listed these as follow-ups:
 
