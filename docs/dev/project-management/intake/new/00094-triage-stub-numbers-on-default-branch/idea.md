@@ -17,7 +17,7 @@ This is an intake item and not a code change on purpose. The live writer is `ski
 Observed collisions:
 
 - gems, 2026-11-25: branch `feature/engram-port` held PRDs 00163-00173. `master` gained its own 00163-00169 through a merged PR. Both sets now sit on `master`.
-- agent-plugins, this repo: `intake/new/00086-fast-track-dispatch-defects` and `prds/hold/00086-triage-review-acceptance-is-not-enforced-a-phas-v1.md` share 00086.
+- agent-plugins, this repo: `intake/new/00086-fast-track-dispatch-defects` and `prds/hold/00086-triage-review-acceptance-is-not-enforced-a-phas-v1.md` shared 00086. The stub was renumbered to 00095 on 2026-11-26.
 - The frozen scan also skips `intake/*/`, so an intake item never reserves its number against a stub.
 
 ## Rule to apply (same as create-prd step 6 and elicit-requirements step 5, agent-skills e466b08 and 4ec88c0)
