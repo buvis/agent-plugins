@@ -5,7 +5,7 @@
     "artifact_id": "docs/dev/project-management/autopilot/reports/00013-helper-delivery-receipts.json",
     "artifact_sha256": "90aebab748d73c5a2f858ddd7b8763ffeb0ddc4a03ef302c198d1948c3099e0e"
   },
-  "package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880",
+  "package_revision": "d06c7b5373f79b6b18c34af73ee21b30a69a185c",
   "paths": [
     "plugins/autopilot/README.md",
     "plugins/autopilot/CHANGELOG.md",
@@ -37,7 +37,7 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 391.59
+      "duration_seconds": 141.09
     },
     {
       "task": "b",
@@ -47,7 +47,7 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 10.39
+      "duration_seconds": 6.58
     },
     {
       "task": "c",
@@ -57,7 +57,7 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 5.17
+      "duration_seconds": 2.4
     },
     {
       "task": "d",
@@ -67,7 +67,7 @@
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 9.28
+      "duration_seconds": 5.13
     }
   ],
   "real_host": {
