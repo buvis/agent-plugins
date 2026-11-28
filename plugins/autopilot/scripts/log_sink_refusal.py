@@ -181,7 +181,7 @@ def _in_nested_repo(resolved: Path, toplevel: Path) -> bool:
     while not nearest.is_dir() and nearest.parent != nearest:
         nearest = nearest.parent
     try:
-        probe = _git(nearest, "rev-parse", "--show-toplevel")
+        probe = _git(nearest, "rev-parse", "--show-toplevel", bare=False)
     except OSError:
         return False
     if probe.returncode != 0:

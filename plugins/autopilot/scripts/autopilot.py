@@ -46,6 +46,8 @@ _COMPANIONS = {
     "head_sha": ("verify",),
     "artifact": ("verify",),
     "log": ("verify",),
+    "git_dir": ("verify",),
+    "work_tree": ("verify",),
     "timeout": ("verify",),
     "event": ("hook",),
     "profile": ("resolve_roles",),
@@ -99,7 +101,8 @@ def _parser() -> argparse.ArgumentParser:
     modes.add_argument("--resolve-roles", action="store_true")
     modes.add_argument("--record-session")
     for flag in ("--out", "--expected-context", "--policy", "--project-root",
-                 "--artifact", "--log", "--context", "--facts"):
+                 "--artifact", "--log", "--context", "--facts",
+                 "--git-dir", "--work-tree"):
         parser.add_argument(flag, type=Path)
     parser.add_argument("--head-sha")
     parser.add_argument("--timeout", type=float)
@@ -346,6 +349,10 @@ def _verify(args: argparse.Namespace) -> tuple[dict, int]:
     }
     if args.timeout is not None:
         kwargs["timeout"] = args.timeout
+    if (args.git_dir is None) != (args.work_tree is None):
+        raise _Usage("--git-dir and --work-tree must be given together")
+    if args.git_dir is not None:
+        kwargs["git_dir"], kwargs["work_tree"] = args.git_dir, args.work_tree
     report = _call(_helper("verification").run_verification, kwargs)
     if report["ok"]:
         return report, 0 if report["artifact"]["reusable"] else 1

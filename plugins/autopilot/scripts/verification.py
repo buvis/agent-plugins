@@ -16,7 +16,13 @@ import subprocess
 import time
 from pathlib import Path
 
-from dirty_tree import _ancestor_and_clean, _dirty_check, _git, _untracked_log_exclusion
+from dirty_tree import (
+    _ancestor_and_clean,
+    _dirty_check,
+    _git,
+    _untracked_log_exclusion,
+    bare_git_context,
+)
 from log_sink_refusal import _open_log_sink, _pinned_parent_fd, refuse
 
 GATE_TIMEOUT_S = 1800
@@ -458,15 +464,35 @@ def run_verification(
     artifact_path: Path,
     log_path: Path,
     timeout: float = GATE_TIMEOUT_S,
+    git_dir: Path | None = None,
+    work_tree: Path | None = None,
 ) -> dict:
     """Runs `argv` once in `project_root` and writes its artifact. A
     relative `project_root` is the same request as its absolute spelling.
     Invalid argv/timeout raise ValueError; an unsafe output path, a dirty
     tree, a moved HEAD or either sink failing to open is refused before
-    spawning, with nothing written."""
+    spawning, with nothing written. `git_dir` and `work_tree` come as a
+    pair, for a project root tracked by a bare repository (no .git of its
+    own): its own git reads use them, the child's environment is unchanged."""
     if not _posix_supported():
         return {"schema_version": 1, "ok": False, "error": "unsupported-platform"}
     _validate_inputs(argv, timeout)
+    if (git_dir is None) != (work_tree is None):
+        raise ValueError("git_dir and work_tree must be given together")
+    if git_dir is None or work_tree is None:
+        return _verify_in_context(argv, project_root, head_sha, artifact_path, log_path, timeout)
+    with bare_git_context(git_dir.absolute(), work_tree.absolute()):
+        return _verify_in_context(argv, project_root, head_sha, artifact_path, log_path, timeout)
+
+
+def _verify_in_context(
+    argv: list[str],
+    project_root: Path,
+    head_sha: str,
+    artifact_path: Path,
+    log_path: Path,
+    timeout: float,
+) -> dict:
     # The sink rules judge an output path by its components after the root's
     # leading spelling, so the root (and every path joined onto it below) is
     # absolutised here. `absolute()`, not `resolve()`: it must not collapse a

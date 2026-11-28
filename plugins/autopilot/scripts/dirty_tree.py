@@ -5,8 +5,11 @@ and the ancestor-and-clean reuse check. Git reads only, never writes."""
 
 from __future__ import annotations
 
+import contextlib
+import contextvars
 import posixpath
 import subprocess
+from collections.abc import Generator
 from pathlib import Path
 
 STORE_PREFIX = "docs/dev/project-management/"
@@ -15,10 +18,39 @@ STORE_PREFIX = "docs/dev/project-management/"
 # agents' scratch dir, which a repo need not gitignore.
 STORE_PREFIXES = (STORE_PREFIX, "docs/dev/tmp/")
 
+# (git_dir, work_tree) of a bare-repo-backed work tree such as ~/.claude under
+# ~/.buvis, which has no .git of its own; None for a plain repository.
+_BARE: contextvars.ContextVar[tuple[str, str] | None] = contextvars.ContextVar(
+    "bare_git_context", default=None
+)
 
-def _git(repo_root: Path, *args: str) -> subprocess.CompletedProcess:
+
+@contextlib.contextmanager
+def bare_git_context(git_dir: Path, work_tree: Path) -> Generator[None]:
+    """Run every `_git` call inside the block as
+    `git --git-dir <git_dir> --work-tree <work_tree>`."""
+    token = _BARE.set((str(git_dir), str(work_tree)))
+    try:
+        yield
+    finally:
+        _BARE.reset(token)
+
+
+def _untracked_mode() -> str:
+    """`all` for a plain repository: an untracked file is dirt even when the
+    repo config hides it. `no` for a bare-backed work tree: it tracks a chosen
+    few files of a shared tree (a home directory), so untracked files there
+    are expected, not dirt. Tracked edits stay dirt in both."""
+    return "--untracked-files=no" if _BARE.get() else "--untracked-files=all"
+
+
+def _git(repo_root: Path, *args: str, bare: bool = True) -> subprocess.CompletedProcess:
+    """`bare=False` ignores an active `bare_git_context`: for probes that
+    look for a different repository, not the one under verification."""
+    context = _BARE.get() if bare else None
+    prefix = ("--git-dir", context[0], "--work-tree", context[1]) if context else ()
     return subprocess.run(
-        ["git", *args],
+        ["git", *prefix, *args],
         cwd=repo_root,
         capture_output=True,
         text=True,
@@ -104,7 +136,7 @@ def _dirty_store_paths(repo_root: Path) -> list[str]:
     a rename/copy contributes each of its paths that is in the store.
     Raises `_GitProbeFailed` on a git failure."""
     store = _store_roots(repo_root)
-    status = _git(repo_root, "status", "--porcelain=1", "-z", "--untracked-files=all")
+    status = _git(repo_root, "status", "--porcelain=1", "-z", _untracked_mode())
     if status.returncode != 0:
         raise _GitProbeFailed("git status failed")
     return [
@@ -163,7 +195,7 @@ def _dirty_outside_store_paths(
     A rename/copy record contributes both of its paths. Catches nothing: a
     failing git call raises `_GitProbeFailed` (an OSError), never `[]`."""
     store = _store_roots(repo_root)
-    status = _git(repo_root, "status", "--porcelain=1", "-z", "--untracked-files=all")
+    status = _git(repo_root, "status", "--porcelain=1", "-z", _untracked_mode())
     if status.returncode != 0:
         raise _GitProbeFailed("git status failed")
     offending = set()

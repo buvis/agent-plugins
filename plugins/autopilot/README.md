@@ -260,9 +260,17 @@ operation prints one JSON report with `"schema_version": 1`:
 --check-evidence REQUEST.json --expected-context CONTEXT.json [--policy POLICY.json]
 --prepare-close REQUEST.json
 --catchup-probe --project-root PATH
---verify --project-root PATH --head-sha SHA --artifact PATH --log PATH [--timeout SECONDS] -- ARGV...
+--verify --project-root PATH --head-sha SHA --artifact PATH --log PATH [--timeout SECONDS] [--git-dir PATH --work-tree PATH] -- ARGV...
 --controller-action NAME
 ```
+
+`--verify` takes `--git-dir` and `--work-tree` as a pair. Pass them when the
+project root is tracked by a bare repository with a separate work tree
+(`~/.claude` under `~/.buvis` with work tree `$HOME`), the same pair
+`state.git_dir` and `state.repo_root` record. The verifier's own git reads use
+them; the verified command's environment is unchanged. In that mode untracked
+files are not dirt, because such a repository tracks a few chosen files of a
+shared tree. Edits to tracked files still refuse the record.
 
 `--list-capabilities` prints the three legacy IDs `review-policy-v1`,
 `review-evidence-v1` and `review-fixtures-v1` first. The helper operation IDs
