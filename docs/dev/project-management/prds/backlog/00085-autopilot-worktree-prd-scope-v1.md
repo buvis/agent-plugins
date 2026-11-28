@@ -43,7 +43,7 @@ Users who run several autopilot loops in parallel, one per worktree, from Runway
 - **Outputs**: the `select_eligible` result plus `scope`, or a raised `ScopeRefusal`.
 - **Behavior**:
   - Scope present (main checkout or linked worktree): keep only the `wip/` and `backlog/` names that are in the scope, then apply the unchanged wip-first, lowest-number rule. Scope entries that match no file in `wip/` or `backlog/` (for example a PRD already in `done/`) are ignored. No scoped candidate means `drained`.
-  - Scope absent, main checkout: selection is unchanged, byte for byte.
+  - Scope absent, main checkout: preserve the selected PRD, source and skipped values. Add the field `scope: null` to the result.
   - Scope absent, linked worktree:
     - `wip/` holds two or more selectable PRDs: refuse with `ScopeRefusal` and the message `worktree <root> has <n> PRDs in wip/ and no autopilot scope; run: autopilot scope add <basename>`.
     - `wip/` holds exactly one: select it. This keeps today's behaviour for a worktree that has only its own PRD.
@@ -77,6 +77,7 @@ tools/autopilot/
 ├── update_helper_map.py                 # Run, not edited
 └── export-controller-contract.py        # Run, not edited
 tests/autopilot/
+├── test_controller_lifecycle.py         # Existing exact selection-result assertions
 ├── test_controller_scope.py             # All scenarios below, on temporary git repositories
 ├── test_package.py                      # Must pass against the re-sealed bytes
 └── test_helper_provenance_real.py       # Must pass against the re-sealed bytes
@@ -99,7 +100,7 @@ New symbols: `plugins/autopilot/controller/autopilot_state/scope.py`, `scope_pat
 - **Maps to capability**: Worktree scope
 - **Responsibility**: Inside `select_eligible`, call `filter_candidates` before the existing wip-first rule and the eligibility gate, and add `scope` to its result.
 - **Location**: `plugins/autopilot/controller/autopilot_state/lifecycle.py` (created by PRD 00019)
-New symbols: `plugins/autopilot/controller/autopilot_state/lifecycle.py`
+Existing selection entry point: `select_eligible`.
 
 ### Module: Controller CLI
 - **Maps to capability**: Worktree scope
@@ -125,7 +126,7 @@ PRD 00019 is done (the `eligibility:` line checks this): the controller owns PRD
 **Goal**: The scope file and the refusal rule exist as tested pure logic plus git lookups.
 
 **Tasks**:
-- [ ] Create `plugins/autopilot/controller/autopilot_state/scope.py` with the exports above, and `tests/autopilot/test_controller_scope.py` covering the file and filter scenarios. Premise: `plugins/autopilot/controller/autopilot_state/lifecycle.py` exists (PRD 00019); if it does not, stop and report. (no deps) - Acceptance: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_scope.py -k "scope_file or filter"` passes.
+- [ ] Create `plugins/autopilot/controller/autopilot_state/scope.py` with the exports above, and `tests/autopilot/test_controller_scope.py` covering the file and filter scenarios. Name the pure filter tests with the prefix test_filter so the Phase 0 check selects them. Premise: `plugins/autopilot/controller/autopilot_state/lifecycle.py` exists (PRD 00019); if it does not, stop and report. (no deps) - Acceptance: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_scope.py -k "scope_file or filter"` passes.
 
 **Exit Criteria**: Scope parsing, writing, linked-worktree detection and the filter rule pass their tests on temporary repositories with a real `git worktree add`.
 
@@ -133,7 +134,7 @@ PRD 00019 is done (the `eligibility:` line checks this): the controller owns PRD
 **Goal**: Every selection goes through the scope, and the command edits it.
 
 **Tasks**:
-- [ ] Wire `filter_candidates` into `select_eligible` in `plugins/autopilot/controller/autopilot_state/lifecycle.py`, before the eligibility gate, and add `scope` to its result. (depends on: Phase 0) - Acceptance: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_scope.py -k "selection or scoped or unscoped or main_checkout or drains or ignored"` passes, including `test_main_checkout_selection_unchanged`.
+- [ ] Wire `filter_candidates` into `select_eligible` in `plugins/autopilot/controller/autopilot_state/lifecycle.py`, before the eligibility gate, and add `scope` to its result. (depends on: Phase 0) - Acceptance: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_scope.py -k "selection or scoped or unscoped or main_checkout or drains or ignored"` passes, including `test_main_checkout_selection_unchanged`. Update and run the existing exact-result assertions in `tests/autopilot/test_controller_lifecycle.py` with the same pytest command and `-k select_eligible`; preserve all three existing field assertions.
 - [ ] Add the `scope` subcommand to `plugins/autopilot/controller/main.py`. (depends on: Phase 0) - Acceptance: `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot/test_controller_scope.py -k command` passes.
 
 **Exit Criteria**: A loop in a scoped worktree can only pick a scoped PRD; an unscoped linked worktree with two `wip/` PRDs stops with the refusal message.

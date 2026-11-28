@@ -31,6 +31,12 @@ full_roster → every required lens has fresh accepted evidence. Named edge/erro
 - **Outputs**: Code-selected lanes, required jobs and atomic review/rework/custody acceptance.
 - **Behavior**: Keep full/fast-track/solo routing and escalation in controller code. Preserve all mandatory lenses, blind fresh-session restrictions, R1–R5, cap two unless configured, severe custody and grouped rework. Helpers own semantic classification; controller validates AP 00012 policy against its own current job plan and expected PRD/code/input context. Validate per-reviewer terminal results independently of findings, including clean zero-finding results, exact conditional rosters, rubric coverage, artifact bytes, distinct native sessions and exited jobs. Caller-supplied result/session strings or copied context are not proof. Close persists effects atomically; lower-level handoff/recovery cannot bypass it.
 
+#### Feature: Default-branch registry for triage stubs
+- **Description**: Publish each unowned severe finding once under a unique number.
+- **Inputs**: Deferred ledger, worktree, default tip and number reservations.
+- **Outputs**: Published hold stub and commit identity, or a retryable deferral.
+- **Behavior**: Port CLI-121 through CLI-125 with the registry, ownership, retry and publication rules in [intake 00094](../../intake/new/00094-triage-stub-numbers-on-default-branch/discovery.md). Preserve the ledger on deferral. Expose the committed default tip for synchronization after the loop exits.
+
 ### Capability: Evidence
 
 #### Feature: Verification and wave acceptance contract
@@ -112,6 +118,8 @@ AP 00019 completed; AP 00012 fixtures are sufficient, so implementation does not
 **Tasks**:
 - [ ] Implement lane selection/escalation and atomic review/rework/custody validation. (depends on: Phase 0) — Acceptance: full_roster, fast_track_complete_roster, solo_requires_review, clean_review_results, solo_escalates, cap_two and no_review_bypass exercise every public transition path.
 - [ ] Implement verification and semantic wave guards without process/worktree actions. (depends on: Phase 1 task 1) — Acceptance: stale_code_rejected, stale_prd_same_policy_rejected, evidence_cannot_choose_context, blind_input_rejected and wave_land_requires_accepted_review reject incomplete evidence.
+
+- [ ] Implement the registry under Review using intake 00094 Must have and Constraints. (depends on: Phase 1 task 1) — Acceptance: exercise all intake acceptance cases for minting with temporary local repositories, including competing advances, stale ownership, historical reservations, folded keys, unreachable and absent remotes, and preservation of the running work branch and index. AP 00016 owns the post-loop handoff.
 
 **Exit Criteria**: Named task scenarios pass. Recheck observed-state premises; preserve already-satisfied behavior, skip and report conflicting edits.
 

@@ -100,7 +100,7 @@ AP 00015, 00020 and 00021 completed. No OVCAQ artifact/probe prerequisite. This 
 **Goal**: Implement the declared ownership boundary.
 
 **Tasks**:
-- [ ] Implement the shared client and wire all persistent workflow paths. (depends on: Phase 0) — Acceptance: lost_ack_replay, invalid_binding_refused and same_client_both_modes preserve controller truth.
+- [ ] Implement the shared client and wire all persistent workflow paths. (depends on: Phase 0) — Acceptance: lost_ack_replay, invalid_binding_refused and same_client_both_modes preserve controller truth. With the scope rules delivered by AP 00085, assert both launch modes submit only the basename returned by controller selection to prd.enter. On refusal or drain, report the result and submit no entry request.
 - [ ] Implement manual session claim/handoff and guarded managed job requests. (depends on: Phase 1 task 1) — Acceptance: manual_fresh_review, no_plugin_supervisor and nested_driver_launch_refused prove actual process/isolation boundaries.
 
 **Exit Criteria**: Named task scenarios pass. Recheck observed-state premises; preserve already-satisfied behavior, skip and report conflicting edits.
@@ -110,7 +110,7 @@ AP 00015, 00020 and 00021 completed. No OVCAQ artifact/probe prerequisite. This 
 
 **Tasks**:
 - [ ] Run installed standalone lifecycle/rework/complete scenarios with upper layers absent. (depends on: Phase 1) — Acceptance: standalone_complete_without_ovcaq and transfer_after_jobs_exit use temporary projects and distinct fake native sessions; label this protocol evidence only. AP 00017 owns separate real Claude-free completion certification.
-- [ ] Expose compatibility diagnostics for controller and host capabilities. (depends on: Phase 2 task 1) — Acceptance: missing_guard_refused and missing_scheduler_only_blocks_automation show accurate operation-specific readiness.
+- [ ] Expose compatibility diagnostics for controller and host capabilities. (depends on: Phase 2 task 1) — Acceptance: missing_guard_refused and missing_scheduler_only_blocks_automation show accurate operation-specific readiness. For intake 00094, hand the default tip to the caller for a merge after loop exit. Test that synchronization imports the original published commit and that a blocked merge preserves local work and reports the conflict. Use local Git repositories and keep orchestration outside the plugin.
 
 **Exit Criteria**: Named integration scenarios, `uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q` and `python3 scripts/validate.py` pass.
 
