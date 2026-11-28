@@ -3,9 +3,9 @@
   "prd": "00014",
   "supersedes": {
     "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-    "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6"
+    "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23"
   },
-  "package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c",
+  "package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880",
   "paths": [
     "plugins/autopilot/README.md",
     "plugins/autopilot/CHANGELOG.md",
@@ -31,11 +31,11 @@
       "task": "12",
       "tests": "tests/autopilot",
       "command": "uv run --no-project --python 3.12 --with-requirements tools/autopilot/requirements-test.txt python -m pytest tests/autopilot -q --tb=line -p no:cacheprovider",
-      "passed": 2185,
+      "passed": 2194,
       "failed": 0,
       "skipped": 0,
       "exit_code": 0,
-      "duration_seconds": 883.73
+      "duration_seconds": 852.26
     }
   ],
   "real_host": {

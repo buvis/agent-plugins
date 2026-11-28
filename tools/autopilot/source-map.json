@@ -162,7 +162,7 @@
         "status": "passed",
         "artifact_id": "plugins/autopilot/README.md",
         "artifact_sha256": "658cc58a1121df2e4340b0a9ee0cad23fd860c601ea27e827b91d4d177916ed5",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -7233,7 +7233,7 @@
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/CHANGELOG.md",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "86b3f5c120bfed7be70d284958c49ff3411af0b5ea49d6ff105322352185677a",
+      "destination_blob_sha256": "e7e05bb906ef4fb8333188479b76470f0e90887a0d11652e655263c002f78e72",
       "adaptation_reason": "Newly authored AP00012 foundation file; no pinned source asset or source sections. Delivery-only evidence records packaged bytes, not runtime or profile certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7252,8 +7252,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "plugins/autopilot/CHANGELOG.md",
-        "artifact_sha256": "86b3f5c120bfed7be70d284958c49ff3411af0b5ea49d6ff105322352185677a",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "e7e05bb906ef4fb8333188479b76470f0e90887a0d11652e655263c002f78e72",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -7360,8 +7360,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -7738,8 +7738,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -7765,8 +7765,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -7792,8 +7792,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -7819,8 +7819,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -7846,8 +7846,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -7873,15 +7873,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/protocol.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "296facb06f279bb30f78b6829fef7f3dc7455c29f6d80cb2abe6fa579d2e0eb0",
+      "destination_blob_sha256": "6ddabcbc14f66dc87a88247299ad5a06c1023b34d6b2a3193812d95589810479",
       "adaptation_reason": "Newly authored AP00018 controller file; no pinned source asset or source sections. AP00018 delivery evidence for plugins/autopilot/controller/autopilot_state/protocol.py has landed: the digest records the packaged bytes at the tested package_revision, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -7900,8 +7900,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -7927,8 +7927,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -7954,8 +7954,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -7981,8 +7981,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8008,8 +8008,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8035,8 +8035,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8062,8 +8062,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8089,8 +8089,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8116,8 +8116,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8143,8 +8143,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8170,8 +8170,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8197,8 +8197,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8224,8 +8224,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8251,8 +8251,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8278,8 +8278,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8305,8 +8305,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8332,8 +8332,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8359,8 +8359,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8386,8 +8386,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8413,8 +8413,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8440,15 +8440,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00014-v2-host-delivery-receipts.json",
-        "artifact_sha256": "5ad5d56dec1900cc2b8bcc9675ce4666f874e1569fd898ff88e4f76f4c886f08",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "9e166cdf262d5a2270f2cc98a77db70ce5843bc8d7a6a72a1ce516d0fab7f3a3",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/files.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "aa38eb2c18161b8943e5742b72ed9be8d95efd1774c4c75859e89640b352b866",
+      "destination_blob_sha256": "218957ede29934bc68dd47162377b203c2f054da5c57405da685fb8ec398b0a2",
       "adaptation_reason": "Newly authored AP00018 controller asset; no pinned source asset or source sections. Delivery evidence records packaged bytes, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -8467,8 +8467,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8494,8 +8494,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8521,15 +8521,15 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
       "source_asset_id": null,
       "destination_path": "plugins/autopilot/controller/autopilot_state/lifecycle.py",
       "source_blob_sha256": null,
-      "destination_blob_sha256": "f4c17f290643123b9398f340699f43335f0800440eae6efdb9f2d168d0881456",
+      "destination_blob_sha256": "9dc7f2be6749c1aa851357cf9304141b293943daccb307e53db0de5deab93b36",
       "adaptation_reason": "Newly authored AP00018 controller asset; no pinned source asset or source sections. Delivery evidence records packaged bytes, not host certification.",
       "disposition": "adapted",
       "section_plan": [],
@@ -8548,8 +8548,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8575,8 +8575,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     },
     {
@@ -8602,8 +8602,8 @@
       "evidence": {
         "status": "passed",
         "artifact_id": "docs/dev/project-management/autopilot/reports/00018-v2-controller-delivery-receipts.json",
-        "artifact_sha256": "28981b7efc68ee2f4a33d09a26a5fada6fa180e884daf5e0d20a7e18034133d6",
-        "tested_package_revision": "d0a9f91802aca8e6e5e6cc6be73288dd9ebfe80c"
+        "artifact_sha256": "49ac5ba4e19a47015a124855a33281eb1662f1520bac2e68b0c2317071b83c23",
+        "tested_package_revision": "dd745502abaeb144984aefcf51e10f334d0e4880"
       }
     }
   ],

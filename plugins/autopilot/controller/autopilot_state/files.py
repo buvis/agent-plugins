@@ -42,7 +42,7 @@ from pathlib import Path
 
 from . import actors, schema
 from .paths import resolve_project_root
-from .store import StateStore
+from .store import RevisionConflictError, StateStore
 
 PRD_ROOT = Path("docs", "dev", "project-management", "prds")
 
@@ -334,6 +334,7 @@ def _bookkeeping(operation: dict) -> Callable[[dict], None]:
             batch["completed_prds"].append(prd)
         workflow["work"] = None
         workflow["tasks"] = []
+        workflow["jobs"] = []
 
     return commit_kind
 
@@ -368,6 +369,19 @@ def recorded_request(private: Path, workflow_id: str, op_id: str, kind: str,
                        payload.get("record"))
     return _records_entry(_read_ledger(_ledger_file(private, workflow_id), workflow_id),
                           request, op_id)
+
+
+def pending_request(state: dict, op_id: str, kind: str, payload: dict) -> bool:
+    """Whether the active recovery marker is this exact request's saga; reads only."""
+    try:
+        pending = _pending(state)
+    except (RecoveryConflictError, RecoveryRequiredError):
+        return False
+    if pending is None:
+        return False
+    request = _Request(kind, payload["prd"], payload.get("site"), payload.get("detail"),
+                       payload.get("record"))
+    return pending[0]["id"] == op_id and _matches(pending[0], request)
 
 
 def _read_ledger(path: Path, workflow_id: str) -> list[dict]:
@@ -555,8 +569,14 @@ def _replay_committed(store: StateStore, state: dict, request: _Request,
 def _run_saga_body(store: StateStore, project_root: Path, request: _Request, *,
                    prd_root: Path, boundary_hook: BoundaryHook | None,
                    operation_id_factory: OperationIdFactory,
-                   now: TimestampFactory) -> SagaResult:
+                   now: TimestampFactory,
+                   expected_revision: int | None = None) -> SagaResult:
     state = store.read()
+    # The caller's admitted revision: a commit that landed since admission
+    # makes this a stale request, so nothing may stage against the newer state.
+    if expected_revision is not None and state["revision"] != expected_revision:
+        raise RevisionConflictError(
+            f"state is at revision {state['revision']}, not the admitted {expected_revision}")
     project = resolve_project_root(project_root)
     if state["repo_root"] != str(project):
         raise PreconditionError(f"state belongs to {state['repo_root']}, not {project}")
@@ -614,13 +634,15 @@ def _systemic_park_halt(state: dict, request: _Request) -> bool:
 def stall(store: StateStore, *, project_root: Path, prd: str, site: str, detail: str,
           prd_root: Path = PRD_ROOT, boundary_hook: BoundaryHook | None = None,
           operation_id_factory: OperationIdFactory = _new_operation_id,
-          now: TimestampFactory = _utc_now) -> SagaResult:
+          now: TimestampFactory = _utc_now,
+          expected_revision: int | None = None) -> SagaResult:
     """Run or replay the stall saga: wip/ -> hold/, record, reset parks."""
     request = _Request("stall", _require_basename(prd, "prd"),
                        _require_text(site, "site"), _require_text(detail, "detail"))
     return _run_saga_body(store, project_root, request, prd_root=prd_root,
                     boundary_hook=boundary_hook,
-                    operation_id_factory=operation_id_factory, now=now)
+                    operation_id_factory=operation_id_factory, now=now,
+                    expected_revision=expected_revision)
 
 
 def park(store: StateStore, *, project_root: Path, prd: str,
@@ -628,19 +650,22 @@ def park(store: StateStore, *, project_root: Path, prd: str,
          detail: str = "session ended without a committed transition",
          prd_root: Path = PRD_ROOT, boundary_hook: BoundaryHook | None = None,
          operation_id_factory: OperationIdFactory = _new_operation_id,
-         now: TimestampFactory = _utc_now) -> SagaResult:
+         now: TimestampFactory = _utc_now,
+         expected_revision: int | None = None) -> SagaResult:
     """Run or replay the park saga; the second consecutive park halts the batch."""
     request = _Request("park", _require_basename(prd, "prd"),
                        _require_text(site, "site"), _require_text(detail, "detail"))
     return _run_saga_body(store, project_root, request, prd_root=prd_root,
                     boundary_hook=boundary_hook,
-                    operation_id_factory=operation_id_factory, now=now)
+                    operation_id_factory=operation_id_factory, now=now,
+                    expected_revision=expected_revision)
 
 
 def defer_record(store: StateStore, *, project_root: Path, prd: str, record: dict,
                  boundary_hook: BoundaryHook | None = None,
                  operation_id_factory: OperationIdFactory = _new_operation_id,
-                 now: TimestampFactory = _utc_now) -> SagaResult:
+                 now: TimestampFactory = _utc_now,
+                 expected_revision: int | None = None) -> SagaResult:
     """Run or replay the defer saga: append one deferred record, move nothing."""
     if not isinstance(record, dict) or _RESERVED_RECORD_KEYS & set(record):
         raise PreconditionError("record must be an object without op_id or prd keys")
@@ -652,18 +677,21 @@ def defer_record(store: StateStore, *, project_root: Path, prd: str, record: dic
     request = _Request("defer", _require_basename(prd, "prd"), record=record)
     return _run_saga_body(store, project_root, request, prd_root=PRD_ROOT,
                     boundary_hook=boundary_hook,
-                    operation_id_factory=operation_id_factory, now=now)
+                    operation_id_factory=operation_id_factory, now=now,
+                    expected_revision=expected_revision)
 
 
 def complete_prd(store: StateStore, *, project_root: Path, prd: str,
                  prd_root: Path = PRD_ROOT, boundary_hook: BoundaryHook | None = None,
                  operation_id_factory: OperationIdFactory = _new_operation_id,
-                 now: TimestampFactory = _utc_now) -> SagaResult:
+                 now: TimestampFactory = _utc_now,
+                 expected_revision: int | None = None) -> SagaResult:
     """Run or replay the completion saga: wip/ -> done/ after accepted review."""
     request = _Request("complete", _require_basename(prd, "prd"))
     return _run_saga_body(store, project_root, request, prd_root=prd_root,
                     boundary_hook=boundary_hook,
-                    operation_id_factory=operation_id_factory, now=now)
+                    operation_id_factory=operation_id_factory, now=now,
+                    expected_revision=expected_revision)
 
 
 def load_deferred_records(store: StateStore) -> tuple[dict, ...]:
