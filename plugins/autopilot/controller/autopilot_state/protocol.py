@@ -390,15 +390,17 @@ def _derive_job_specs(workflow: dict, repo_root: str) -> list[dict]:
                  and task["status"] in ("pending", "in_progress")]
     if not scheduled:
         return []
-    # A dependency on a finished task with no job row is already satisfied.
-    known = planned_ids | {task["id"] for task in scheduled}
+    # A dependency on a completed task with no job row is already satisfied;
+    # an aborted one is not, so it stays and job.plan refuses it.
+    satisfied = {task["id"] for task in workflow["tasks"]
+                 if task["status"] == "completed"} - planned_ids
     work = workflow["work"]
     if work is None:
         raise ProtocolError("rejected_evidence")
     requirements = policy.job_requirements(work)
     resource_digest = _resource_digest(work["prd"], repo_root)
     return [{"job_id": task["id"],
-             "depends_on": [item for item in task["depends_on"] if item in known],
+             "depends_on": [item for item in task["depends_on"] if item not in satisfied],
              "input_digests": [], "resource_digest": resource_digest,
              "source_digest": actors.digest(actors.canonical(task)),
              **requirements} for task in scheduled]

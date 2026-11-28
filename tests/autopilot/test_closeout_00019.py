@@ -67,6 +67,12 @@ class DispatchTest(OwnerCLITest):
 
 class JobScopeTest(DispatchTest):
     def test_a_second_prd_plans_its_own_jobs_after_the_first_prd_leaves(self) -> None:
+        self.leave_with_jobs("prd.park")
+
+    def test_a_stalled_prd_takes_its_jobs_with_it(self) -> None:
+        self.leave_with_jobs("prd.stall")
+
+    def leave_with_jobs(self, operation: str) -> None:
         self.call("prd.enter", {"prds": [PRD]})
         self.call(
             "task.replace", {"tasks": copy.deepcopy(ONE_TASK), "allow_expansion": False}
@@ -74,10 +80,10 @@ class JobScopeTest(DispatchTest):
         self.call("job.plan", {"jobs": []})
         first = self.state()["workflow"]["jobs"][0]["spec"]["resource_digest"]
 
-        self.call("prd.park", PARK)
+        self.call(operation, PARK)
 
         self.assertEqual(
-            self.state()["workflow"]["jobs"], [], "the parked PRD's jobs leave with it"
+            self.state()["workflow"]["jobs"], [], "the departed PRD's jobs leave with it"
         )
         entered = self.call("prd.enter", {"prds": [OTHER]})
         self.assertEqual(entered["result"]["prd"], OTHER)
@@ -122,6 +128,19 @@ class DerivedDependencyTest(DispatchTest):
         )
         offered = self.call("job.next", {})
         self.assertEqual(offered["result"]["job_id"], "t2")
+
+    def test_a_pending_task_that_depends_on_an_aborted_task_is_not_planned(self) -> None:
+        self.call("prd.enter", {"prds": [PRD]})
+        plan = [
+            {"id": "t1", "subject": "failed", "status": "aborted", "depends_on": []},
+            {"id": "t2", "subject": "next", "status": "pending", "depends_on": ["t1"]},
+        ]
+        self.call("task.replace", {"tasks": plan, "allow_expansion": False})
+
+        value = self.request(self.operator, "job.plan", "job-plan-aborted", {"jobs": []})
+        self.reject_unchanged(value, self.operator, "rejected_evidence")
+
+        self.assertEqual(self.state()["workflow"]["jobs"], [])
 
 
 # -- R5 an interrupted saga resumes from its own recovery marker --------------
@@ -180,6 +199,16 @@ class InterruptedSagaReplayTest(DispatchTest):
 
         competitor = dict(value, request_id="park-competitor")
         self.reject_unchanged(competitor, self.operator, "revision_conflict")
+
+    def test_the_same_id_with_another_payload_still_conflicts_with_the_marker(
+        self,
+    ) -> None:
+        self.call("prd.enter", {"prds": [PRD]})
+        value = self.request(self.operator, "prd.park", "park-interrupted", PARK)
+        self.interrupt_park(value)
+
+        altered = dict(value, payload={**PARK, "detail": "another detail"})
+        self.reject_unchanged(altered, self.operator, "revision_conflict")
 
 
 # -- R4 a saga stages only at its admitted revision ---------------------------
