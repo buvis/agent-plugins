@@ -269,17 +269,22 @@ def existing_open(request: dict, actor_file: Path | None, current: dict,
 def proven_replay(request: dict, current: dict, layout: actors.PrivateLayout) -> bool:
     """True when a stale saga request's own operation is already recorded durably.
 
-    The deferred ledger entry this request's own payload would have written,
-    under this request's id, proves the saga committed and only its receipt
-    is missing, so the request is this exact finished operation rather than a
-    stale competitor. An entry recorded for another payload proves nothing,
-    so such a request conflicts like an unrecorded one. Only these three
-    sagas append to the ledger; the others have no durable proof to offer.
+    Two durable records prove the request is this exact admitted operation
+    rather than a stale competitor. While its saga is still in flight, the
+    committed recovery marker carries the request's id as its operation id
+    and the request's own payload; the saga resumes from that marker. Once
+    the marker is cleared, the deferred ledger entry this request's payload
+    would have written, under its id, proves the saga committed and only its
+    receipt is missing. A record for another id or payload proves nothing, so
+    such a request conflicts like an unrecorded one. Only these three sagas
+    run under the request's id; the others have no durable proof to offer.
     """
     kind = {"prd.stall": "stall", "prd.park": "park", "prd.defer": "defer"}.get(
         request["operation"])
     if kind is None:
         return False
+    if files.pending_request(current, request["request_id"], kind, request["payload"]):
+        return True
     return files.recorded_request(layout.private, current["workflow_id"],
                                   request["request_id"], kind, request["payload"])
 
@@ -385,12 +390,15 @@ def _derive_job_specs(workflow: dict, repo_root: str) -> list[dict]:
                  and task["status"] in ("pending", "in_progress")]
     if not scheduled:
         return []
+    # A dependency on a finished task with no job row is already satisfied.
+    known = planned_ids | {task["id"] for task in scheduled}
     work = workflow["work"]
     if work is None:
         raise ProtocolError("rejected_evidence")
     requirements = policy.job_requirements(work)
     resource_digest = _resource_digest(work["prd"], repo_root)
-    return [{"job_id": task["id"], "depends_on": list(task["depends_on"]),
+    return [{"job_id": task["id"],
+             "depends_on": [item for item in task["depends_on"] if item in known],
              "input_digests": [], "resource_digest": resource_digest,
              "source_digest": actors.digest(actors.canonical(task)),
              **requirements} for task in scheduled]
@@ -422,8 +430,13 @@ def apply_reducer(request: dict, actor_file: Path | None, current: dict,
     return completed
 
 
-def run_saga(request: dict, current: dict, store: StateStore) -> dict:
-    """Run one self-locking lifecycle reducer or files saga; return its result."""
+def run_saga(request: dict, current: dict, store: StateStore,
+             admitted_revision: int | None = None) -> dict:
+    """Run one self-locking lifecycle reducer or files saga; return its result.
+
+    A files saga given `admitted_revision` refuses to stage once a commit has
+    landed since admission; a proven replay passes None to resume regardless.
+    """
     operation, payload = request["operation"], request["payload"]
     reducer = {"prd.enter": lifecycle.enter, "phase.handoff": lifecycle.handoff,
                "prd.complete": lifecycle.complete}.get(operation)
@@ -442,11 +455,13 @@ def run_saga(request: dict, current: dict, store: StateStore) -> dict:
     if operation == "prd.defer":
         saga = files.defer_record(store, project_root=root, prd=payload["prd"],
                                   record=payload["record"],
-                                  operation_id_factory=operation_id_factory)
+                                  operation_id_factory=operation_id_factory,
+                                  expected_revision=admitted_revision)
     else:
         move = files.stall if operation == "prd.stall" else files.park
         saga = move(store, project_root=root, prd=payload["prd"], site=payload["site"],
-                    detail=payload["detail"], operation_id_factory=operation_id_factory)
+                    detail=payload["detail"], operation_id_factory=operation_id_factory,
+                    expected_revision=admitted_revision)
     return dataclasses.asdict(saga)
 
 
@@ -494,7 +509,8 @@ def apply_unlocked(request: dict, layout: actors.PrivateLayout, store: StateStor
         if stale and not replay:
             raise ProtocolError("revision_conflict", revision)
         try:
-            result = run_saga(request, current, store)
+            result = run_saga(request, current, store,
+                              None if replay else request["expected_revision"])
         except (files.PreconditionError, files.RecoveryConflictError,
                 files.DeferredRecordConflictError) as error:
             if stale:

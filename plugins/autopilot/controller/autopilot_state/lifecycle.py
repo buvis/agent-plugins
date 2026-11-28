@@ -55,7 +55,7 @@ def require_recovery_idle(workflow: Workflow) -> None:
 
 
 def reset_prd_fields(workflow: Workflow) -> Workflow:
-    """Reset per-PRD fields; keep batch, recovery, jobs and the PRD identity."""
+    """Reset per-PRD fields, jobs included; keep batch, recovery and the PRD identity."""
     result = copy.deepcopy(workflow)
     work = result["work"]
     if work is not None:
@@ -64,6 +64,7 @@ def reset_prd_fields(workflow: Workflow) -> Workflow:
         work["lane"] = None
         work["lane_reason"] = None
     result["tasks"] = []
+    result["jobs"] = []
     return result
 
 
@@ -491,7 +492,8 @@ def complete(store: StateStore, request: dict, current: dict) -> dict:
                 "cannot complete a PRD outside the terminal reviewed state")
         # files.complete_prd commits the completed_prds append, the park
         # counter reset and the per-PRD reset in its own commit step.
-        files.complete_prd(store, project_root=Path(current["repo_root"]), prd=prd)
+        files.complete_prd(store, project_root=Path(current["repo_root"]), prd=prd,
+                           expected_revision=revision)
     except (files.PreconditionError, files.RecoveryConflictError) as error:
         raise _rejected(revision) from error
     except files.RecoveryRequiredError as error:
