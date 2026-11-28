@@ -1417,3 +1417,48 @@ conversion suites do not import the handoff script and were not rerun.
 The repair is not proven live. Proofs from 7c40a17 are stale. Next live
 action: one diagnostic batch with new roots; when its handoff has no
 failure, the full matrix on the same commit.
+
+### Fourth repair diagnostic, Verify input and one retry (2026-11-28)
+
+The developer ran the diagnostic outside run-agent on commit 0957e00.
+Evidence lives under `docs/dev/tmp/specflow/repair4-proofs/diagnostic/` and
+`docs/dev/tmp/specflow/repair4-results/diagnostic/`; preserve both roots.
+Each probe exited 0. Codex and Kiro conversion failed only the unjudged
+rubric assertion.
+
+Handoff: one failure, "verification did not reach completion". The repair
+of 0957e00 is proven live: the requirements host wrote one unpredicted open
+question (the exact return value), the approval requests named it by its
+exact line, and all approvals were recorded and carried. Stale state after
+the requirements edit and after the external edit, the preserved external
+edit, the canonical hashes and the clean instructions all passed. Cause of
+the one failure: the tasks host drafted a third, verify-only task whose AST
+command reads `ast.Import.name`, which does not exist. The implementation
+host ran it, recorded the AttributeError and correctly left T-003
+unchecked. The verification host correctly ticked no completion criterion.
+No host broke a rule; the drafted task plan had a defect of its own.
+
+Repair: the tasks request now limits each Verify line to `python3 -m
+unittest` commands or a `python3 -c` assertion on greet(), and asks for no
+verify-only task. No check or assertion changed. This lowers the chance of
+a defective drafted command; it cannot remove it.
+
+Claude conversion: exit 2, a collection failure. The record has no reply
+and names one denied Bash request with a successful turn result; the
+arguments are not recorded by design, so the denied command is unknown. The
+earlier three diagnostics had no such record; the matrix of 2026-11-18 had
+one (requirements-review). The boundary held in both cases.
+
+Repair: the matrix now runs a session group once more when it collects no
+reply (code 2). Records are numbered, so the first record stays as
+evidence, and the review already reads the newest record. The summary row
+carries `retried: true`. A deterministic failure (code 1) is never run
+again. The existing test of independent sessions was changed to expect the
+extra attempt. The denied request stays a host observation for the
+compatibility report.
+
+Local verification: 221 rules/runner tests on Python 3.15.2 and 3.10.22,
+zero skipped; Ruff lint/format on the four changed files passed. The new
+tests were not watched failing against the old code. The security and
+conversion suites do not import these scripts and were not rerun. Neither
+repair is proven live. Proofs from 0957e00 are stale.

@@ -90,6 +90,12 @@ class HandoffTest(unittest.TestCase):
         self.assertIn("Add no new requirement", prompts["edit-requirements"])
         self.assertNotIn("Add this requirement", prompts["edit-requirements"])
 
+    def test_tasks_request_limits_verify_commands_to_ones_that_can_run(self) -> None:
+        # Live run 2026-11-28: a drafted AST one-liner raised AttributeError,
+        # so its task stayed unchecked and completion was out of reach.
+        prompts = {step: prompt for step, _, prompt in run_handoff.STEPS}
+        self.assertIn("Write no other verification command", prompts["tasks"])
+
     def test_approval_request_names_every_open_marker_by_its_exact_line(self) -> None:
         # Live run 2026-11-25: a host wrote an open question no fixed prompt
         # predicted, so the design approval was refused for lack of a name.

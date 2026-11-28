@@ -17,7 +17,7 @@ class MatrixTest(unittest.TestCase):
     def test_failure_does_not_stop_independent_sessions(self) -> None:
         proof = {"checks": {k: {"passed": True} for k in score.RELEASE_BOUNDARY_CHECKS}}
         probe, adapter = Mock(return_value=proof), Mock()
-        run = Mock(side_effect=[1, 2, 0])
+        run = Mock(side_effect=[1, 2, 2, 0])
         with tempfile.TemporaryDirectory() as folder:
             rows = run_matrix.execute_host(
                 "codex",
@@ -30,8 +30,32 @@ class MatrixTest(unittest.TestCase):
             )
         self.assertEqual(rows[0], {"host": "codex", "session": "probe", "code": 0})
         self.assertEqual([r["code"] for r in rows[1:]], [1, 2, 0])
-        self.assertEqual(run.call_count, 3)
+        self.assertEqual(run.call_count, 4)
         probe.assert_called_once_with("explicit")
+
+    def test_session_without_a_reply_is_tried_once_more(self) -> None:
+        # Live run 2026-11-28: one denied tool request left a record with no
+        # reply. A deterministic failure (1) is never tried again.
+        proof = {"checks": {k: {"passed": True} for k in score.RELEASE_BOUNDARY_CHECKS}}
+        run = Mock(side_effect=[2, 1, 1])
+        with tempfile.TemporaryDirectory() as folder:
+            rows = run_matrix.execute_host(
+                "codex",
+                "explicit",
+                Path(folder),
+                Path(folder),
+                run=run,
+                registry={"codex": (Mock(), Mock(return_value=proof), "explicit")},
+                selected=["a", "b"],
+            )
+        self.assertEqual(
+            rows[1:],
+            [
+                {"host": "codex", "session": "a", "code": 1, "retried": True},
+                {"host": "codex", "session": "b", "code": 1},
+            ],
+        )
+        self.assertEqual(run.call_count, 3)
 
     def test_failed_probe_blocks_every_session(self) -> None:
         run = Mock()

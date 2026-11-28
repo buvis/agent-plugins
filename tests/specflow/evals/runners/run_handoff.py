@@ -29,6 +29,13 @@ ACCEPT = (
     " those choices remains in an upstream artifact, I accept each such marker by"
     " name and you record it as an accepted marker with the approval."
 )
+# A drafted Verify command with a bug of its own left its task unchecked, so
+# no host could reach completion (live run 2026-11-28).
+VERIFY = (
+    " In each task, the Verify line uses only python3 -m unittest commands or a"
+    " python3 -c command that imports greeting and asserts on greet(). Write no"
+    " other verification command and no task that only verifies other tasks."
+)
 STEPS = (
     (
         "requirements",
@@ -46,7 +53,8 @@ STEPS = (
         "tasks",
         "claude-code",
         "Use specflow. I approve the design. Record approval and draft tasks, then stop."
-        + ACCEPT,
+        + ACCEPT
+        + VERIFY,
     ),
     (
         "approve-tasks",

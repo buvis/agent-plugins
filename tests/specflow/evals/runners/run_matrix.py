@@ -90,21 +90,28 @@ def execute_host(
             for n in names
         ]
     rows.append({"host": host, "session": "probe", "code": 0})
-    for name in names:
+
+    def attempt(name: str) -> dict:
         adapter = adapter_type(model)
         adapter.boundary = proof
         try:
             code = run(adapter, name, out, eval_dir=eval_directory(name))
-            rows.append({"host": host, "session": name, "code": code})
+            return {"host": host, "session": name, "code": code}
         except (
             OSError,
             ValueError,
             runner.HostError,
             subprocess.SubprocessError,
         ) as error:
-            rows.append(
-                {"host": host, "session": name, "code": 2, "reason": str(error)}
-            )
+            return {"host": host, "session": name, "code": 2, "reason": str(error)}
+
+    for name in names:
+        row = attempt(name)
+        if row["code"] == 2:
+            # No reply collected (live run 2026-11-28: one denied tool request).
+            # One more attempt; records are numbered, so the first one stays.
+            row = {**attempt(name), "retried": True}
+        rows.append(row)
     return rows
 
 
